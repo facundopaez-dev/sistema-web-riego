@@ -1,0 +1,104 @@
+@startuml
+
+Parcela "*"-->"1" Usuario
+RegistroClimatico "*"-->"1" Parcela
+RegistroRiego "*"-->"1" Parcela
+RegistroPlantacion "*"-->"1" Parcela
+RegistroPlantacion "*"-->"1" Cultivo
+RegistroPlantacion "*"-->"1" EstadoRegistroPlantacion
+RadiacionSolar "*"-->"1" Mes
+RadiacionSolar "*"-->"1" Latitud
+InsolacionMaxima "*"-->"1" Mes
+InsolacionMaxima "*"-->"1" Latitud
+
+class Parcela {
+-id
+-nombre
+-hectarea
+-latitud
+-longitud
+-activa
+}
+
+class Cultivo {
+-id
+-etapaInicial
+-etapaDesarrollo
+-etapaMedia
+-etapaFinal
+-kcInicial
+-kcMedio
+-kcFinal
+-activo
+}
+
+class RegistroClimatico {
+-id
+-fecha
+-zonaHoraria
+-intensidadPrecipitacion
+-probabilidadPrecipitacion
+-tipoPrecipitacion
+-puntoRocio
+-presionAtmosferica
+-velocidadViento
+-nubosidad
+-temperaturaMinima
+-temperaturaMaxima
+-cantidadAguaLluvia
+-cantidadAguaAcumulada
+-eto
+-etc
+}
+
+class RegistroPlantacion {
+-id
+-fechaSiembra
+-fechaCosecha
+}
+
+class RegistroRiego {
+-id
+-fecha
+-riegoSugerido
+-riegoRealizado
+}
+
+class Usuario {
+-id
+-nombreUsuario
+-contraseña
+-nombre
+-apellido
+-email
+-activo
+-superUsuario
+}
+
+class EstadoRegistroPlantacion {
+-id
+-nombre
+-descripcion
+}
+
+class Mes {
+-id
+-nombre
+}
+
+class Latitud {
+-id
+-latitudDecimal
+}
+
+class RadiacionSolar {
+-id
+-valorRadiacionSolar
+}
+
+class InsolacionMaxima {
+-id
+-valorInsolacionMaxima
+}
+
+@enduml
