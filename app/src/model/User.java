@@ -106,4 +106,18 @@ public class User {
     this.superuser = superuser;
   }
 
+  @Override
+  public String toString() {
+    return String.format(
+      "ID: %d\nUsername: %s\nName: %s\nLast name: %s\nEmail: %s\nActive: %b\nSuperuser: %b\n",
+      id,
+      username,
+      name,
+      lastName,
+      email,
+      active,
+      superuser
+    );
+  }
+
 }
