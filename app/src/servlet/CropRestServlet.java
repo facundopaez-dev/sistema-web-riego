@@ -21,7 +21,7 @@ import model.Crop;
 import stateless.CropServiceBean;
 import stateless.Page;
 
-@Path("/cultivo")
+@Path("/crops")
 public class CropRestServlet {
 
   // inject a reference to the CropServiceBean slsb
@@ -31,26 +31,26 @@ public class CropRestServlet {
   ObjectMapper mapper = new ObjectMapper();
 
   @GET
-  @Path("/findAllCultivos")
+  // @Path("/findAllCultivos")
   @Produces(MediaType.APPLICATION_JSON)
   public String findAllCultivos() throws IOException {
     Collection<Crop> crops = crpService.findAll();
     return mapper.writeValueAsString(crops);
   }
 
+  // @GET
+  // public String findAll(@QueryParam("page") Integer page, @QueryParam("cant") Integer cant, @QueryParam("search") String search) throws IOException {
+  //   Map<String, String> map = new HashMap<String, String>();
+
+  //   // convert JSON string to Map
+  //   map = mapper.readValue(search, new TypeReference<Map<String, String>>(){});
+
+  //   Page<Crop> crops = crpService.findByPage(page, cant, map);
+  //   return mapper.writeValueAsString(crops);
+  // }
+
   @GET
-  public String findAll(@QueryParam("page") Integer page, @QueryParam("cant") Integer cant, @QueryParam("search") String search) throws IOException {
-    Map<String, String> map = new HashMap<String, String>();
-
-    // convert JSON string to Map
-    map = mapper.readValue(search, new TypeReference<Map<String, String>>(){});
-
-    Page<Crop> crops = crpService.findByPage(page, cant, map);
-    return mapper.writeValueAsString(crops);
-  }
-
-  @GET
-  @Path("/findAllActiveCrops")
+  @Path("/actives")
   @Produces(MediaType.APPLICATION_JSON)
   public String findAllActive() throws IOException {
     Collection<Crop> activeCrops = crpService.findAllActive();
