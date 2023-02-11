@@ -1,0 +1,140 @@
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <strong>Registro climático</strong>
+    </div>
+    <div class="panel-body">
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label for="climateRecord_date" class="col-md-2 control-label">Fecha</label>
+                <div class="col-md-3">
+                    <input type="date" class="form-control" id="climateRecord_date" ng-model="data.date"
+                        value={{data.date}} ng-disabled="action == 'view'" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="climateRecord_minimumTemperature" class="col-md-2 control-label">Temperatura mínima
+                    (°C)</label>
+                <div class="col-md-3">
+                    <input type="number" class="form-control" id="climateRecord_minimumTemperature"
+                        ng-model="data.minimumTemperature" ng-disabled="action == 'view'">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="climateRecord_maximumTemperature" class="col-md-2 control-label">Temperatura máxima
+                    (°C)</label>
+                <div class="col-md-3">
+                    <input type="number" class="form-control" id="climateRecord_maximumTemperature"
+                        ng-model="data.maximumTemperature" ng-disabled="action == 'view'">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="climateRecord_windSpeed" class="col-md-2 control-label">Velocidad del viento (m/s)</label>
+                <div class="col-md-3">
+                    <input type="number" class="form-control" id="climateRecord_windSpeed" ng-model="data.windSpeed"
+                        ng-disabled="action == 'view'">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="climateRecord_precipProbability" class="col-md-2 control-label">Probabilidad de
+                    precipitación (%)</label>
+                <div class="col-md-3">
+                    <input type="number" class="form-control" id="climateRecord_precipProbability"
+                        ng-model="data.precipProbability" ng-disabled="action == 'view'">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="climateRecord_precipIntensity" class="col-md-2 control-label">Intensidad de precipitación
+                    (mm/h)</label>
+                <div class="col-md-3">
+                    <input type="number" class="form-control" id="climateRecord_precipIntensity"
+                        ng-model="data.precipIntensity" ng-disabled="action == 'view'">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="climateRecord_rainWater" class="col-md-2 control-label">Lluvia (mm)</label>
+                <div class="col-md-3">
+                    <input type="number" class="form-control" id="climateRecord_rainWater" ng-model="data.rainWater"
+                        ng-disabled="action == 'view'">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="climateRecord_waterAccumulated" class="col-md-2 control-label">Agua acumulada (mm)</label>
+                <div class="col-md-3">
+                    <input type="number" class="form-control" id="climateRecord_waterAccumulated"
+                        ng-model="data.waterAccumulated" ng-disabled="action == 'view'">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="climateRecord_cloudCover" class="col-md-2 control-label">Nubosidad (%)</label>
+                <div class="col-md-3">
+                    <input type="number" class="form-control" id="climateRecord_cloudCover" ng-model="data.cloudCover"
+                        ng-disabled="action == 'view'">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="climateRecord_atmosphericPressure" class="col-md-2 control-label">Presión atmosférica
+                    (hPa)</label>
+                <div class="col-md-3">
+                    <input type="number" class="form-control" id="climateRecord_atmosphericPressure"
+                        ng-model="data.atmosphericPressure" ng-disabled="action == 'view'">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="climateRecord_dewPoint" class="col-md-2 control-label">Punto de rocío (°C)</label>
+                <div class="col-md-3">
+                    <input type="number" class="form-control" id="climateRecord_dewPoint" ng-model="data.dewPoint"
+                        ng-disabled="action == 'view'">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="climateRecord_eto" class="col-md-2 control-label">Evapotranspiración del cultivo de
+                    referencia [ETo] (mm/día)</label>
+                <div class="col-md-3">
+                    <input type="number" class="form-control" id="climateRecord_eto" ng-model="data.eto"
+                        ng-disabled="action == 'view'">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="climateRecord_etc" class="col-md-2 control-label">Evapotranspiración del cultivo [ETc]
+                    (mm/día)</label>
+                <div class="col-md-3">
+                    <input type="number" class="form-control" id="climateRecord_etc" ng-model="data.etc"
+                        ng-disabled="action == 'view'">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="selectParcel">Parcela: </label>
+                <select class="form-control col-md-6" id="selectParcel" ng-model="data.parcel"
+                    data-ng-options="p as ('ID: ' + p.id + ' Nombre: ' + p.name ) for p in parcels track by p.id"
+                    ng-disabled="action == 'view'" required>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-3">
+                    <button type="submit" class="btn btn-success" ng-click="create()"
+                        ng-show="action == 'new'">Crear</button>
+                    <button type="submit" class="btn btn-success" ng-click="modify()"
+                        ng-show="action == 'edit'">Modificar</button>
+                    <button type="submit" class="btn btn-success" ng-click="cancel()"
+                        ng-show="action == 'new' || action == 'edit'">Cancelar</button>
+                    <button type="submit" class="btn btn-success" ng-click="cancel()"
+                        ng-show="action == 'view'">Atrás</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

@@ -19,6 +19,19 @@ app.config(['$routeProvider', function(routeprovider) {
 		controller: 'UserCropCtrl'
     })
 
+	.when('/climateRecords',{
+		templateUrl:'partials/user/climate-record-list.html',
+		controller: 'ClimateRecordsCtrl'
+	})
+	.when('/climateRecords/:action',{
+		templateUrl:'partials/user/climate-record-form.html',
+		controller: 'ClimateRecordCtrl'
+	})
+	.when('/climateRecords/:action/:id',{
+		templateUrl:'partials/user/climate-record-form.html',
+		controller: 'ClimateRecordCtrl'
+    })
+
 	.when('/admin/crops',{
 		templateUrl:'partials/admin/admin-crop-list.html',
 		controller: 'AdminCropsCtrl'
