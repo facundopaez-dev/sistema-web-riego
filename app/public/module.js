@@ -32,6 +32,11 @@ app.config(['$routeProvider', function(routeprovider) {
 		controller: 'AdminCropCtrl'
     })
 
+	.when('/admin/users',{
+		templateUrl:'partials/admin/user-list.html',
+		controller: 'UsersCtrl'
+	})
+
 	/* Parcel */
 	.when('/parcel',{
 		templateUrl:'partials/parcel-list.html',

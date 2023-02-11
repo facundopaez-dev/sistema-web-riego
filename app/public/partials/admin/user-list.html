@@ -1,0 +1,36 @@
+<div class="panel panel-info">
+	<div class="panel-heading">
+		<strong>Listado de usuarios</strong>
+	</div>
+	<table class="table table-condensed table-hover">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>Nombre de usuario</th>
+				<th>Nombre</th>
+				<th>Apellido</th>
+				<th>Correo elctrónico</th>
+				<th>Permiso de administrador</th>
+				<th class="text-right">Activo</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="u in data">
+				<td>{{u.id}}</td>
+				<td>{{u.username}}</td>
+				<td>{{u.name}}</td>
+				<td>{{u.lastName}}</td>
+				<td>{{u.email}}</td>
+				<td>{{u.superuser ? 'Sí' : 'No'}}</td>
+				<td class="text-right">{{u.active ? 'Sí' : 'No'}}</td>
+				<td class="text-right">
+					<div class="btn-group" role="group" aria-label="...">
+						<button type="button" class="btn btn-success" aria-label="Delete" ng-click="delete(u.id)">
+							<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+						</button>
+					</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
