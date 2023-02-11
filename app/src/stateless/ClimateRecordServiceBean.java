@@ -42,6 +42,42 @@ public  class ClimateRecordServiceBean {
   }
 
   /**
+   * Modifica los datos de un registro climatico en la base de
+   * datos subyacente
+   * 
+   * @param id
+   * @param modifiedClimateRecord
+   * @return referencia a un objeto de tipo ClimateRecord que tiene
+   * sus datos modificados en caso de encontrarse en la base de datos
+   * subyacente el registro climatico con el ID dado, en caso contrario
+   * null
+   */
+  public ClimateRecord modify(int id, ClimateRecord modifiedClimateRecord) {
+    ClimateRecord choosenClimateRecord = find(id);
+
+    if (choosenClimateRecord != null) {
+      choosenClimateRecord.setDate(modifiedClimateRecord.getDate());
+      choosenClimateRecord.setTimezone(modifiedClimateRecord.getTimezone());
+      choosenClimateRecord.setPrecipIntensity(modifiedClimateRecord.getPrecipIntensity());
+      choosenClimateRecord.setPrecipProbability(modifiedClimateRecord.getPrecipProbability());
+      choosenClimateRecord.setDewPoint(modifiedClimateRecord.getDewPoint());
+      choosenClimateRecord.setPressure(modifiedClimateRecord.getPressure());
+      choosenClimateRecord.setWindSpeed(modifiedClimateRecord.getWindSpeed());
+      choosenClimateRecord.setCloudCover(modifiedClimateRecord.getCloudCover());
+      choosenClimateRecord.setTemperatureMin(modifiedClimateRecord.getTemperatureMin());
+      choosenClimateRecord.setTemperatureMax(modifiedClimateRecord.getTemperatureMax());
+      choosenClimateRecord.setRainWater(modifiedClimateRecord.getRainWater());
+      choosenClimateRecord.setWaterAccumulated(modifiedClimateRecord.getWaterAccumulated());
+      choosenClimateRecord.setEto(modifiedClimateRecord.getEto());
+      choosenClimateRecord.setEtc(modifiedClimateRecord.getEtc());
+      choosenClimateRecord.setParcel(modifiedClimateRecord.getParcel());
+      return choosenClimateRecord;
+    }
+
+    return null;
+  }
+
+  /**
    * @param  givenDate
    * @param  givenParcel
    * @return registro climatico de la parcela dada en
