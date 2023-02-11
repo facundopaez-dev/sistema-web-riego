@@ -87,6 +87,7 @@ public class UserServiceBean {
       givenUser.setName(modifiedUser.getName());
       givenUser.setLastName(modifiedUser.getLastName());
       givenUser.setEmail(modifiedUser.getEmail());
+      return givenUser;
     }
 
     return null;
