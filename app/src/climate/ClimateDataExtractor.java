@@ -21,10 +21,10 @@ import java.util.Collection;
 import javax.ejb.EJB;
 import javax.ejb.Schedule;
 import javax.ejb.Stateless;
-import model.ClimateLog;
+import model.ClimateRecord;
 import model.InstanciaParcela;
 import model.Parcel;
-import stateless.ClimateLogServiceBean;
+import stateless.ClimateRecordServiceBean;
 import stateless.CropServiceBean;
 import stateless.InstanciaParcelaServiceBean;
 import stateless.MaximumInsolationServiceBean;
@@ -37,8 +37,8 @@ public class ClimateDataExtractor {
   // inject a reference to the ParcelServiceBean
   @EJB ParcelServiceBean parcelService;
 
-  // inject a reference to the ClimateLogServiceBean
-  @EJB ClimateLogServiceBean climateLogServiceBean;
+  // inject a reference to the ClimateRecordServiceBean
+  @EJB ClimateRecordServiceBean climateRecordServiceBean;
 
   // inject a reference to the SolarRadiationServiceBean
   @EJB SolarRadiationServiceBean solarService;
@@ -83,7 +83,7 @@ public class ClimateDataExtractor {
 
     double latitude = 0.0;
     double longitude = 0.0;
-    ClimateLog climateLog = null;
+    ClimateRecord climateLog = null;
 
     Calendar currentDate = Calendar.getInstance();
 
@@ -108,7 +108,7 @@ public class ClimateDataExtractor {
        * en la fecha actual para la parcela dada, entonces
        * se tiene que crear uno
        */
-      if (!climateLogServiceBean.exist(currentDate, currentParcel)) {
+      if (!climateRecordServiceBean.exist(currentDate, currentParcel)) {
         latitude = currentParcel.getLatitude();
         longitude = currentParcel.getLongitude();
 
@@ -171,7 +171,7 @@ public class ClimateDataExtractor {
          * asociado a la parcela actualmente usada por
          * la sentencia de repeticion
          */
-        climateLogServiceBean.create(climateLog);
+        climateRecordServiceBean.create(climateLog);
       } // End if
 
     } // End for

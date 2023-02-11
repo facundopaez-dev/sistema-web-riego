@@ -7,11 +7,11 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import model.ClimateLog;
+import model.ClimateRecord;
 import model.Parcel;
 
 @Stateless
-public  class ClimateLogServiceBean {
+public  class ClimateRecordServiceBean {
 
   /*
    * Instance variables
@@ -27,13 +27,13 @@ public  class ClimateLogServiceBean {
     return entityManager;
   }
 
-  public ClimateLog create(ClimateLog newClimateLog) {
-    getEntityManager().persist(newClimateLog);
-    return newClimateLog;
+  public ClimateRecord create(ClimateRecord newClimateRecord) {
+    getEntityManager().persist(newClimateRecord);
+    return newClimateRecord;
   }
 
-  public ClimateLog find(int id) {
-    return getEntityManager().find(ClimateLog.class, id);
+  public ClimateRecord find(int id) {
+    return getEntityManager().find(ClimateRecord.class, id);
   }
 
   /**
@@ -42,12 +42,12 @@ public  class ClimateLogServiceBean {
    * @return registro climatico de la parcela dada en
    * la fecha dada
    */
-  public ClimateLog find(Calendar givenDate, Parcel givenParcel) {
-    Query query = entityManager.createQuery("SELECT r FROM ClimateLog r WHERE r.date = :date AND r.parcel = :parcel");
+  public ClimateRecord find(Calendar givenDate, Parcel givenParcel) {
+    Query query = entityManager.createQuery("SELECT c FROM ClimateRecord c WHERE c.date = :date AND c.parcel = :parcel");
     query.setParameter("date", givenDate);
     query.setParameter("parcel", givenParcel);
 
-    return (ClimateLog) query.getSingleResult();
+    return (ClimateRecord) query.getSingleResult();
   }
 
   /**
@@ -62,7 +62,7 @@ public  class ClimateLogServiceBean {
    * con la fecha y la parcela dadas, en caso contrario retorna falso
    */
   public boolean exist(Calendar date, Parcel parcel) {
-    Query query = entityManager.createQuery("SELECT r FROM ClimateLog r WHERE (r.date = :date AND r.parcel = :parcel)");
+    Query query = entityManager.createQuery("SELECT c FROM ClimateRecord c WHERE (c.date = :date AND c.parcel = :parcel)");
     query.setParameter("date", date);
     query.setParameter("parcel", parcel);
 
@@ -71,8 +71,8 @@ public  class ClimateLogServiceBean {
     try {
       query.getSingleResult();
       result = true;
-    } catch(NoResultException ex) {
-
+    } catch(NoResultException e) {
+      e.printStackTrace();
     }
 
     return result;
@@ -87,7 +87,7 @@ public  class ClimateLogServiceBean {
    * @param waterAccumulated [milimetros]
    */
   public void updateWaterAccumulatedToday(Calendar givenDate, Parcel givenParcel, double waterAccumulated) {
-    Query query = entityManager.createQuery("UPDATE ClimateLog c SET c.waterAccumulated = :waterAccumulated WHERE (c.date = :givenDate AND c.parcel = :givenParcel)");
+    Query query = entityManager.createQuery("UPDATE ClimateRecord c SET c.waterAccumulated = :waterAccumulated WHERE (c.date = :givenDate AND c.parcel = :givenParcel)");
     query.setParameter("givenDate", givenDate);
     query.setParameter("givenParcel", givenParcel);
     query.setParameter("waterAccumulated", waterAccumulated);

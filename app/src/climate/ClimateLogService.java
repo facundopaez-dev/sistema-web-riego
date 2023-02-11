@@ -8,7 +8,7 @@
 
 package climate;
 
-import model.ClimateLog;
+import model.ClimateRecord;
 
 public class ClimateLogService {
 
@@ -57,7 +57,7 @@ public class ClimateLogService {
    * del pronostico obtenido en la fecha y en las coordenadas geograficas
    * dadas
    */
-  public ClimateLog getClimateLog(double latitude, double longitude, long time) {
+  public ClimateRecord getClimateLog(double latitude, double longitude, long time) {
     /*
      * Variable utilizada para crear, con los datos
      * climaticos que necesitamos del pronostico
@@ -89,12 +89,12 @@ public class ClimateLogService {
      * "Funcion del calculo del coeficiente (kc)
      * junto con sus pruebas, todo terminado"
      */
-    ClimateLog climateLog = new ClimateLog();
+    ClimateRecord climateLog = new ClimateRecord();
 
     /*
      * Carga el objeto de tipo registro del clima que
      * esta siendo referenciado por la variable de tipo
-     * por referencia ClimateLog que contiene su referencia, con los
+     * por referencia ClimateRecord que contiene su referencia, con los
      * datos climaticos que necesitamos del pronostico
      * obtenido de la llamada a la API del clima Dark Sky
      */

@@ -1,7 +1,7 @@
 <persistence xmlns="http://java.sun.com/xml/ns/persistence" version="1.0">
   <persistence-unit name="swcar">
     <jta-data-source>jdbc/swcar</jta-data-source>
-    <class>model.ClimateLog</class>
+    <class>model.ClimateRecord</class>
     <class>model.Crop</class>
     <class>model.InstanceParcelStatus</class>
     <class>model.InstanciaParcela</class>

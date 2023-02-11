@@ -19,10 +19,10 @@ import java.util.Collection;
 import javax.ejb.EJB;
 import javax.ejb.Schedule;
 import javax.ejb.Stateless;
-import model.ClimateLog;
+import model.ClimateRecord;
 import model.IrrigationLog;
 import model.Parcel;
-import stateless.ClimateLogServiceBean;
+import stateless.ClimateRecordServiceBean;
 import stateless.IrrigationLogServiceBean;
 import stateless.ParcelServiceBean;
 import util.UtilDate;
@@ -36,8 +36,8 @@ public class IrrigationLogGenerator {
   // inject a reference to the IrrigationLogServiceBean
   @EJB IrrigationLogServiceBean irrigationLogService;
 
-  // inject a reference to the ClimateLogServiceBean
-  @EJB ClimateLogServiceBean climateLogServiceBean;
+  // inject a reference to the ClimateRecordServiceBean
+  @EJB ClimateRecordServiceBean climateRecordServiceBean;
 
   /**
    * Este metodo tiene la finalidad crear y almacenar
@@ -77,7 +77,7 @@ public class IrrigationLogGenerator {
      * Variables para almacenar temporalmente los
      * datos del dia de ayer
      */
-    ClimateLog yesterdayClimateLog = null;
+    ClimateRecord yesterdayClimateLog = null;
     double yesterdayEto = 0.0;
     double yesterdayEtc = 0.0;
     double yesterdayRainWater = 0.0;
@@ -90,7 +90,7 @@ public class IrrigationLogGenerator {
      * a la fecha actual
      */
     Calendar tomorrowDate = UtilDate.getTomorrowDate();
-    ClimateLog tomorrowClimateLog = null;
+    ClimateRecord tomorrowClimateLog = null;
 
     /*
      * Fecha inmediatamente anterior a la fecha
@@ -120,7 +120,7 @@ public class IrrigationLogGenerator {
          * fecha actual
          */
         // TODO: Seguridad, mas adelante refactorizar
-        yesterdayClimateLog = climateLogServiceBean.find(yesterdayDate, currentParcel);
+        yesterdayClimateLog = climateRecordServiceBean.find(yesterdayDate, currentParcel);
         yesterdayEto = yesterdayClimateLog.getEto();
         yesterdayEtc = yesterdayClimateLog.getEtc();
         yesterdayRainWater = yesterdayClimateLog.getRainWater();

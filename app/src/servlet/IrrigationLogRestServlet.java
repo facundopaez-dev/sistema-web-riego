@@ -1,34 +1,26 @@
 package servlet;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import irrigation.WaterMath;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Collection;
 import javax.ejb.EJB;
-
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
-
+import model.ClimateRecord;
 import model.IrrigationLog;
 import model.Parcel;
-import model.ClimateLog;
-
+import stateless.ClimateRecordServiceBean;
 import stateless.IrrigationLogServiceBean;
-import stateless.ClimateLogServiceBean;
 import stateless.ParcelServiceBean;
-
-import java.util.Collection;
-import java.util.Calendar;
-
-import irrigation.WaterMath;
-
 import util.UtilDate;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.IOException;
 
 @Path("/irrigationLog")
 public class IrrigationLogRestServlet {
@@ -36,8 +28,8 @@ public class IrrigationLogRestServlet {
   // inject a reference to the IrrigationLogServiceBean slsb
   @EJB IrrigationLogServiceBean service;
 
-  // inject a reference to the ClimateLogServiceBean slsb
-  @EJB ClimateLogServiceBean climateLogServiceBean;
+  // inject a reference to the ClimateRecordServiceBean slsb
+  @EJB ClimateRecordServiceBean climateRecordServiceBean;
 
   // inject a reference to the ParcelServiceBean slsb
   @EJB ParcelServiceBean serviceParcel;
@@ -129,7 +121,7 @@ public class IrrigationLogRestServlet {
      */
     Calendar yesterdayDate = UtilDate.getYesterdayDate();
 
-    ClimateLog yesterdayClimateLog = climateLogServiceBean.find(yesterdayDate, givenParcel);
+    ClimateRecord yesterdayClimateLog = climateRecordServiceBean.find(yesterdayDate, givenParcel);
     yesterdayEto = yesterdayClimateLog.getEto();
     yesterdayEtc = yesterdayClimateLog.getEtc();
     yesterdayRainWater = yesterdayClimateLog.getRainWater();
@@ -138,7 +130,7 @@ public class IrrigationLogRestServlet {
     totalIrrigationWaterToday = service.getTotalWaterIrrigationToday(givenParcel);
 
     waterAccumulatedToday = WaterMath.getWaterAccumulatedToday(yesterdayEtc, yesterdayEto, yesterdayRainWater, waterAccumulatedYesterday, totalIrrigationWaterToday);
-    climateLogServiceBean.updateWaterAccumulatedToday(currentDate, givenParcel, waterAccumulatedToday);
+    climateRecordServiceBean.updateWaterAccumulatedToday(currentDate, givenParcel, waterAccumulatedToday);
   }
 
 }

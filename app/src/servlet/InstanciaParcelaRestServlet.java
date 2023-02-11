@@ -22,13 +22,13 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import model.ClimateLog;
+import model.ClimateRecord;
 import model.Crop;
 import model.InstanceParcelStatus;
 import model.InstanciaParcela;
 import model.IrrigationLog;
 import model.Parcel;
-import stateless.ClimateLogServiceBean;
+import stateless.ClimateRecordServiceBean;
 import stateless.CropServiceBean;
 import stateless.InstanceParcelStatusServiceBean;
 import stateless.InstanciaParcelaServiceBean;
@@ -44,8 +44,8 @@ public class InstanciaParcelaRestServlet {
   // inject a reference to the InstanciaParcelaServiceBean slsb
   @EJB InstanciaParcelaServiceBean service;
 
-  // inject a reference to the ClimateLogServiceBean slsb
-  @EJB ClimateLogServiceBean climateLogServiceBean;
+  // inject a reference to the ClimateRecordServiceBean slsb
+  @EJB ClimateRecordServiceBean climateRecordServiceBean;
 
   // inject a reference to the CropServiceBean slsb
   @EJB CropServiceBean cropService;
@@ -267,7 +267,7 @@ public class InstanciaParcelaRestServlet {
     double tomorrowPrecipitation = 0.0;
 
     ClimateLogService climateLogService = ClimateLogService.getInstance();
-    ClimateLog yesterdayClimateLog = null;
+    ClimateRecord yesterdayClimateLog = null;
     double yesterdayEto = 0.0;
     double yesterdayEtc = 0.0;
     double extraterrestrialSolarRadiation = 0.0;
@@ -287,7 +287,7 @@ public class InstanciaParcelaRestServlet {
     /*
      * Solicita el registro del clima del dia de mañana
      */
-    ClimateLog tomorrowClimateLog = climateLogService.getClimateLog(parcel.getLatitude(), parcel.getLongitude(), (tomorrowDate.getTimeInMillis() / 1000));
+    ClimateRecord tomorrowClimateLog = climateLogService.getClimateLog(parcel.getLatitude(), parcel.getLongitude(), (tomorrowDate.getTimeInMillis() / 1000));
     tomorrowPrecipitation = tomorrowClimateLog.getRainWater();
 
     /*
@@ -307,7 +307,7 @@ public class InstanciaParcelaRestServlet {
      * la base de datos, se lo tiene que pedir y se lo tiene
      * que persistir en la base de datos subyacente
      */
-    if (!(climateLogServiceBean.exist(yesterdayDate, parcel))) {
+    if (!(climateRecordServiceBean.exist(yesterdayDate, parcel))) {
       yesterdayClimateLog = climateLogService.getClimateLog(parcel.getLatitude(), parcel.getLongitude(), (yesterdayDate.getTimeInMillis() / 1000));
 
       extraterrestrialSolarRadiation = solarService.getRadiation(yesterdayDate.get(Calendar.MONTH), parcel.getLatitude());
@@ -329,14 +329,14 @@ public class InstanciaParcelaRestServlet {
       yesterdayClimateLog.setEto(yesterdayEto);
       yesterdayClimateLog.setEtc(yesterdayEtc);
       yesterdayClimateLog.setParcel(parcel);
-      climateLogServiceBean.create(yesterdayClimateLog);
+      climateRecordServiceBean.create(yesterdayClimateLog);
     }
 
     /*
      * Recupera el registro climatico de la parcela
      * de la fecha anterior a la fecha actual
      */
-    ClimateLog climateLog = climateLogServiceBean.find(yesterdayDate, parcel);
+    ClimateRecord climateLog = climateRecordServiceBean.find(yesterdayDate, parcel);
     suggestedIrrigationToday = WaterMath.getSuggestedIrrigation(parcel.getHectare(), climateLog.getEtc(), climateLog.getEto(), climateLog.getRainWater(), climateLog.getWaterAccumulated(), totalIrrigationWaterToday);
 
     IrrigationLog newIrrigationLog = new IrrigationLog();

@@ -29,31 +29,28 @@
 
 package model;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import java.util.Calendar;
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Table;
-import javax.persistence.ManyToOne;
-import javax.persistence.JoinColumn;
 import javax.persistence.UniqueConstraint;
-
+import util.UtilDate;
 import weatherApiClasses.ForecastResponse;
 
-import java.util.Calendar;
-
-import util.UtilDate;
-
 @Entity
-@Table(name="CLIMATE_LOG", uniqueConstraints={@UniqueConstraint(columnNames={"DATE", "FK_PARCEL"})})
-public class ClimateLog {
+@Table(name="CLIMATE_RECORD", uniqueConstraints={@UniqueConstraint(columnNames={"DATE", "FK_PARCEL"})})
+public class ClimateRecord {
 
   @Id
-  @GeneratedValue(strategy=GenerationType.IDENTITY)
-  @Column(name="CLIMATE_LOG_ID")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "ID")
   private int id;
 
   /*
@@ -61,7 +58,7 @@ public class ClimateLog {
    * en base a unas coordenadas geograficas
    * han sido solicitados
    */
-  @Column(name="DATE", nullable=false)
+  @Column(name = "DATE", nullable = false)
   @Temporal(TemporalType.DATE)
   private Calendar date;
 
@@ -71,7 +68,7 @@ public class ClimateLog {
    * El nombre de la zona horaria de la
    * IANA para la ubicacion solicitada
    */
-  @Column(name="TIME_ZONE", nullable=false)
+  @Column(name = "TIME_ZONE", nullable = false)
   private String timezone;
 
   /*
@@ -90,7 +87,7 @@ public class ClimateLog {
    * cual especifica que la intensidad de la precipitacion
    * esta dada en milimetros
    */
-  @Column(name="PRECIP_INTENSITY", nullable=false)
+  @Column(name = "PRECIP_INTENSITY", nullable = false)
   private Double precipIntensity;
 
   /*
@@ -99,7 +96,7 @@ public class ClimateLog {
    * La probabilidad de que ocurra una precipitacion,
    * entre 0 y 1, inclusive
    */
-  @Column(name="PRECIP_PROBABILITY", nullable=false)
+  @Column(name = "PRECIP_PROBABILITY", nullable = false)
   private Double precipProbability;
 
   /*
@@ -109,7 +106,7 @@ public class ClimateLog {
    * del servicio climatico en la unidad
    * de medida [°C]
    */
-  @Column(name="DEW_POINT", nullable=false)
+  @Column(name = "DEW_POINT", nullable = false)
   private Double dewPoint;
 
   /*
@@ -117,7 +114,7 @@ public class ClimateLog {
    *
    * La presion del aire a nivel del mar
    */
-  @Column(name="PRESSURE", nullable=false)
+  @Column(name = "PRESSURE", nullable = false)
   private Double pressure;
 
   /*
@@ -126,7 +123,7 @@ public class ClimateLog {
    * Con el uso de la unidad SI, este
    * fenomeno es medido en metros por segundo
    */
-  @Column(name="WIND_SPEED", nullable=false)
+  @Column(name = "WIND_SPEED", nullable = false)
   private Double windSpeed;
 
   /*
@@ -135,7 +132,7 @@ public class ClimateLog {
    * El porcentaje de cielo olcuido por nubes,
    * entre 0 y 1, inclusive
    */
-  @Column(name="CLOUD_COVER", nullable=false)
+  @Column(name = "CLOUD_COVER", nullable = false)
   private Double cloudCover;
 
   /*
@@ -145,7 +142,7 @@ public class ClimateLog {
    * fenomeno es medido en grados
    * centigrados
    */
-  @Column(name="TEMP_MIN", nullable=false)
+  @Column(name = "TEMP_MIN", nullable = false)
   private Double temperatureMin;
 
   /*
@@ -155,7 +152,7 @@ public class ClimateLog {
    * fenomeno es medido en grados
    * centigrados
    */
-  @Column(name="TEMP_MAX", nullable=false)
+  @Column(name = "TEMP_MAX", nullable = false)
   private Double temperatureMax;
 
   /*
@@ -167,7 +164,7 @@ public class ClimateLog {
    * es la intensidad (en milimetros de agua liquida por hora)
    * que ocurre en el momento dado
    */
-  @Column(name="RAIN_WATER", nullable=false)
+  @Column(name = "RAIN_WATER", nullable = false)
   private double rainWater;
 
   /*
@@ -184,7 +181,7 @@ public class ClimateLog {
    * y la cantidad de agua utilizada en los riegos realizados
    * en el dia de hoy por parte del usuario cliente
    */
-  @Column(name="WATER_ACCUMULATED", nullable=false)
+  @Column(name = "WATER_ACCUMULATED", nullable = false)
   private double waterAccumulated;
 
   /*
@@ -199,7 +196,7 @@ public class ClimateLog {
    * Para ver la formula de la ETo dirigase a la pagina
    * numero 25 del libro FAO numero 56
    */
-  @Column(name="ETO", nullable=false)
+  @Column(name = "ETO", nullable = false)
   private double eto;
 
   /*
@@ -214,15 +211,14 @@ public class ClimateLog {
    * Para ver la formula de la ETc dirigase a la pagina numero 6
    * del libro FAO numero 56
    */
-  @Column(name="ETC", nullable=false)
+  @Column(name = "ETC", nullable = false)
   private double etc;
 
   @ManyToOne
-  @JoinColumn(name="FK_PARCEL", nullable=false)
+  @JoinColumn(name = "FK_PARCEL", nullable = false)
   private Parcel parcel;
 
-  // Constructor method
-  public ClimateLog() {
+  public ClimateRecord() {
 
   }
 
