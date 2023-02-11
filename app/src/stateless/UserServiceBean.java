@@ -103,7 +103,7 @@ public class UserServiceBean {
    * admin
    */
   public Collection<User> findAll() {
-    Query query = getEntityManager().createQuery("SELECT u FROM User u WHERE u.username != :username");
+    Query query = getEntityManager().createQuery("SELECT u FROM User u WHERE u.username != :username ORDER BY u.id");
     query.setParameter("username", "admin");
 
     return (Collection) query.getResultList();
