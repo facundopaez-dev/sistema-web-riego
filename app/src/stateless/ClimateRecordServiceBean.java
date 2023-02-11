@@ -36,6 +36,11 @@ public  class ClimateRecordServiceBean {
     return getEntityManager().find(ClimateRecord.class, id);
   }
 
+  public Collection<ClimateRecord> findAll() {
+    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c ORDER BY c.id");
+    return (Collection) query.getResultList();
+  }
+
   /**
    * @param  givenDate
    * @param  givenParcel
