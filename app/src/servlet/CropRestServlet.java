@@ -33,7 +33,7 @@ public class CropRestServlet {
   @GET
   // @Path("/findAllCultivos")
   @Produces(MediaType.APPLICATION_JSON)
-  public String findAllCultivos() throws IOException {
+  public String findAll() throws IOException {
     Collection<Crop> crops = crpService.findAll();
     return mapper.writeValueAsString(crops);
   }
