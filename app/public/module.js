@@ -19,6 +19,19 @@ app.config(['$routeProvider', function(routeprovider) {
 		controller: 'UserCropCtrl'
     })
 
+	.when('/admin/crops',{
+		templateUrl:'partials/admin/admin-crop-list.html',
+		controller: 'AdminCropsCtrl'
+	})
+	.when('/admin/crops/:action',{
+		templateUrl:'partials/admin/admin-crop-form.html',
+		controller: 'AdminCropCtrl'
+	})
+	.when('/admin/crops/:action/:id',{
+		templateUrl:'partials/admin/admin-crop-form.html',
+		controller: 'AdminCropCtrl'
+    })
+
 	/* Parcel */
 	.when('/parcel',{
 		templateUrl:'partials/parcel-list.html',
