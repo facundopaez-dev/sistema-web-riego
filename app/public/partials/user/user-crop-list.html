@@ -1,0 +1,35 @@
+<div class="panel panel-info">
+	<div class="panel-heading">
+		<strong>Listado de cultivos</strong>
+	</div>
+	<table class="table table-condensed table-hover">
+		<thead>
+			<tr>
+				<th>Nombre</th>
+				<th>Etapa inicial (días)</th>
+				<th>Etapa de desarrollo (días)</th>
+				<th>Etapa media (días)</th>
+				<th>Etapa final (días)</th>
+				<th class="text-right">Activo</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="c in data">
+				<td>{{c.name}}</td>
+				<td>{{c.initialStage}}</td>
+				<td>{{c.developmentStage}}</td>
+				<td>{{c.middleStage}}</td>
+				<td>{{c.finalStage}}</td>
+				<td class="text-right">{{c.active ? 'Sí' : 'No'}}</td>
+				<td class="text-right">
+					<div class="btn-group" role="group" aria-label="...">
+						<a href="#!/crops/view/{{c.id}}" class="btn btn-success" role="button">
+							<span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+						</a>
+					</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>

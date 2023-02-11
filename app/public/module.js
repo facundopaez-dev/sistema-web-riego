@@ -6,18 +6,17 @@ var app = angular.module('app',['ngRoute', 'Pagination', 'ui.bootstrap', 'leafle
 app.config(['$routeProvider', function(routeprovider) {
 	routeprovider
 
-	/* Cultivos */
-	.when('/cultivos',{
-		templateUrl:'partials/cultivos-list.html',
-		controller: 'CultivosCtrl'
+	.when('/crops',{
+		templateUrl:'partials/user/user-crop-list.html',
+		controller: 'UserCropsCtrl'
 	})
-	.when('/cultivo/:action',{
-		templateUrl:'partials/cultivo-form.html',
-		controller: 'CultivoCtrl'
+	.when('/crops/:action',{
+		templateUrl:'partials/user/user-crop-form.html',
+		controller: 'UserCropCtrl'
 	})
-	.when('/cultivo/:action/:id',{
-		templateUrl:'partials/cultivo-form.html',
-		controller: 'CultivoCtrl'
+	.when('/crops/:action/:id',{
+		templateUrl:'partials/user/user-crop-form.html',
+		controller: 'UserCropCtrl'
     })
 
 	/* Parcel */
