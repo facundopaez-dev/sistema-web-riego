@@ -25,7 +25,7 @@ import stateless.Page;
 public class CropRestServlet {
 
   // inject a reference to the CropServiceBean slsb
-  @EJB CropServiceBean crpService;
+  @EJB CropServiceBean cropService;
 
   //mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
@@ -34,7 +34,7 @@ public class CropRestServlet {
   // @Path("/findAllCultivos")
   @Produces(MediaType.APPLICATION_JSON)
   public String findAll() throws IOException {
-    Collection<Crop> crops = crpService.findAll();
+    Collection<Crop> crops = cropService.findAll();
     return mapper.writeValueAsString(crops);
   }
 
@@ -45,7 +45,7 @@ public class CropRestServlet {
   //   // convert JSON string to Map
   //   map = mapper.readValue(search, new TypeReference<Map<String, String>>(){});
 
-  //   Page<Crop> crops = crpService.findByPage(page, cant, map);
+  //   Page<Crop> crops = cropService.findByPage(page, cant, map);
   //   return mapper.writeValueAsString(crops);
   // }
 
@@ -53,7 +53,7 @@ public class CropRestServlet {
   @Path("/actives")
   @Produces(MediaType.APPLICATION_JSON)
   public String findAllActive() throws IOException {
-    Collection<Crop> activeCrops = crpService.findAllActive();
+    Collection<Crop> activeCrops = cropService.findAllActive();
     return mapper.writeValueAsString(activeCrops);
   }
 
@@ -61,7 +61,7 @@ public class CropRestServlet {
   @Path("/{id}")
   @Produces(MediaType.APPLICATION_JSON)
   public String find(@PathParam("id") int id) throws IOException {
-    Crop givenCrop = crpService.find(id);
+    Crop givenCrop = cropService.find(id);
     return mapper.writeValueAsString(givenCrop);
   }
 
@@ -69,7 +69,7 @@ public class CropRestServlet {
   @Consumes(MediaType.APPLICATION_JSON)
   public String create(String json) throws IOException  {
     Crop newCrop = mapper.readValue(json,Crop.class);
-    newCrop = crpService.create(newCrop);
+    newCrop = cropService.create(newCrop);
     return mapper.writeValueAsString(newCrop);
   }
 
@@ -77,7 +77,7 @@ public class CropRestServlet {
   @Path("/{id}")
   @Produces(MediaType.APPLICATION_JSON)
   public String remove(@PathParam("id") int id) throws IOException {
-    Crop givenCrop = crpService.remove(id);
+    Crop givenCrop = cropService.remove(id);
     return mapper.writeValueAsString(givenCrop);
   }
 
@@ -86,7 +86,7 @@ public class CropRestServlet {
   @Produces(MediaType.APPLICATION_JSON)
   public String modify(@PathParam("id") int id, String json) throws IOException  {
     Crop modifiedCrop = mapper.readValue(json,Crop.class);
-    modifiedCrop = crpService.modify(id, modifiedCrop);
+    modifiedCrop = cropService.modify(id, modifiedCrop);
     return mapper.writeValueAsString(modifiedCrop);
   }
 
