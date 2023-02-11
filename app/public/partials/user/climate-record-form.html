@@ -4,6 +4,14 @@
     </div>
     <div class="panel-body">
         <form class="form-horizontal">
+            <div class="form-group" ng-hide="action == 'new' || action == 'edit'">
+                <label for="climateRecord_id" class="col-md-2 control-label">ID</label>
+                <div class="col-md-3">
+                    <input type="number" class="form-control" id="climateRecord_id" ng-model="data.id" value={{data.id}}
+                        ng-disabled="action == 'view'">
+                </div>
+            </div>
+
             <div class="form-group">
                 <label for="climateRecord_date" class="col-md-2 control-label">Fecha</label>
                 <div class="col-md-3">

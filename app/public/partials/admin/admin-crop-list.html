@@ -13,7 +13,7 @@
 				<th>Etapa de desarrollo (días)</th>
 				<th>Etapa media (días)</th>
 				<th>Etapa final (días)</th>
-				<th class="text-right">Activo</th>
+				<th>Activo</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -23,7 +23,7 @@
 				<td>{{c.developmentStage}}</td>
 				<td>{{c.middleStage}}</td>
 				<td>{{c.finalStage}}</td>
-				<td class="text-right">{{c.active ? 'Sí' : 'No'}}</td>
+				<td>{{c.active ? 'Sí' : 'No'}}</td>
 				<td class="text-right">
 					<div class="btn-group" role="group" aria-label="...">
 						<a href="#!/admin/crops/view/{{c.id}}" class="btn btn-success" role="button">

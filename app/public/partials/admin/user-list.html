@@ -11,7 +11,7 @@
 				<th>Apellido</th>
 				<th>Correo elctrónico</th>
 				<th>Permiso de administrador</th>
-				<th class="text-right">Activo</th>
+				<th>Activo</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -22,7 +22,7 @@
 				<td>{{u.lastName}}</td>
 				<td>{{u.email}}</td>
 				<td>{{u.superuser ? 'Sí' : 'No'}}</td>
-				<td class="text-right">{{u.active ? 'Sí' : 'No'}}</td>
+				<td>{{u.active ? 'Sí' : 'No'}}</td>
 				<td class="text-right">
 					<div class="btn-group" role="group" aria-label="...">
 						<button type="button" class="btn btn-success" aria-label="Delete" ng-click="delete(u.id)">

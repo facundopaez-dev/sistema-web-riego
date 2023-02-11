@@ -123,16 +123,12 @@ public class Crop {
 
   @Override
   public String toString() {
-    /*
-     * Entre los integrantes del equipo de desarrollo se ha establecido
-     * que las etapas de inicio y desarrollo son una sola, y es por esto
-     * que se suman los dias que duran ambas
-     */
     return String.format(
-      "Cultivo: %s\nID: %d\nDuración de la etapa inicial: %d días\nDuración de la etapa media: %d días\nDuración de la etapa final: %d días\nKc inicial: %.2f\nKc medio: %.2f\nKc final: %.2f\n",
+      "Cultivo: %s\nID: %d\nDuración de la etapa inicial: %d días\nDuración de la etapa de desarrollo: %d\nDuración de la etapa media: %d días\nDuración de la etapa final: %d días\nKc inicial: %.2f\nKc medio: %.2f\nKc final: %.2f\n",
       name,
       id,
-      (initialStage + developmentStage),
+      initialStage,
+      developmentStage,
       middleStage,
       finalStage,
       initialKc,
