@@ -11,7 +11,7 @@
     <class>model.Month</class>
     <class>model.Parcel</class>
     <class>model.SolarRadiation</class>
-    <class>model.Usuario</class>
+    <class>model.User</class>
     <properties>
       <property name="eclipselink.target-database" value="DERBY"/>
       <property name="eclipselink.jdbc.driver" value="org.apache.derby.jdbc.ClientDriver"/>

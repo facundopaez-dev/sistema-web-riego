@@ -40,7 +40,7 @@ public class Parcel {
 
   @ManyToOne
   @JoinColumn(name="FK_USER")
-  private Usuario user;
+  private User user;
 
   public Parcel() {
 
@@ -138,7 +138,7 @@ public class Parcel {
    * Returns value of user
    * @return
    */
-  public Usuario getUser() {
+  public User getUser() {
     return user;
   }
 
@@ -146,7 +146,7 @@ public class Parcel {
    * Sets new value of user
    * @param
    */
-  public void setUser(Usuario user) {
+  public void setUser(User user) {
     this.user = user;
   }
 

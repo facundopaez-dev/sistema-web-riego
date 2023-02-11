@@ -1,14 +1,24 @@
 -- DELETE
-DELETE FROM USUARIO;
-ALTER TABLE USUARIO ALTER COLUMN USUARIO_ID RESTART WITH 1;
+DELETE FROM IRRIGATION_SYSTEM_USER;
+ALTER TABLE IRRIGATION_SYSTEM_USER ALTER COLUMN ID RESTART WITH 1;
 
 -- INSERTS
+-- Nombre de usuario: admin, contraseña: admin
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, PASSWORD, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
+VALUES ('admin', '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 'Admin name', 'Admin last name', 'admin@eservice.com', 1, 1);
 
--- Usuarios administradores
--- Nombre de usuario: admin Contraseña: admin
-INSERT INTO USUARIO (USUARIO, PASSWORD, SUPER_USUARIO) VALUES ('admin', '21232f297a57a5a743894a0e4a801fc3', 1);
+-- Nombre de usuario: jane, contraseña: jane
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, PASSWORD, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
+VALUES ('jane', '81f8f6dde88365f3928796ec7aa53f72820b06db8664f5fe76a7eb13e24546a2', 'Jane', 'Doe', 'jane@eservice.com', 1, 1);
 
--- Usuarios clientes del sistema
--- Nombre de usuario: mretes Contraseña: 1234
-INSERT INTO USUARIO (USUARIO, NOMBRE, APELLIDO, PASSWORD, DNI, DIRECCION, TELEFONO, EMAIL, ESTADO, SUPER_USUARIO) VALUES ('mreyes', 'Milagros', 'Reyes', '81dc9bdb52d04dc20036dbd8313ed055', '48052150',
-  'Zarlach 1064', '280434', 'mreyes@gmail.com', 'ALTA', 0);
+-- Nombre de usuario: john, contraseña: john
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, PASSWORD, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
+VALUES ('john', '96d9632f363564cc3032521409cf22a852f2032eec099ed5967c0d000cec607a', 'John', 'Doe', 'john@eservice.com', 1, 0);
+
+-- Nombre de usuario: anya, contraseña: anya
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, PASSWORD, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
+VALUES ('anya', '33939d07e25f54e6432ad3b382e8d3d9e68522b6c3ef868f5c00410308fb6805', 'Anya', 'Doe', 'anya@eservice.com', 1, 0);
+
+-- Nombre de usuario: taylor, contraseña: taylor
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, PASSWORD, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
+VALUES ('taylor', '8e924025a26c584ad4ac6365116e09b852ae6b7016da4c0851e269348d93c228', 'Taylor', 'Doe', 'taylor@eservice.com', 1, 0);
