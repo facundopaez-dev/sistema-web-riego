@@ -27,7 +27,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.io.IOException;
 
-@Path("/parcel")
+@Path("/parcels")
 public class ParcelRestServlet {
 
   // inject a reference to the ParcelServiceBean slsb
@@ -95,16 +95,8 @@ public class ParcelRestServlet {
   @PUT
   @Path("/{id}")
   @Produces(MediaType.APPLICATION_JSON)
-  public String modify(@PathParam("id") int id, @QueryParam("name") String name, @QueryParam("hectare") int hectare, @QueryParam("latitude") double latitude,
-  @QueryParam("longitude") double longitude, @QueryParam("active") boolean active) throws IOException {
-
-    Parcel modifiedParcel = new Parcel();
-    modifiedParcel.setName(name);
-    modifiedParcel.setHectare(hectare);
-    modifiedParcel.setLatitude(latitude);
-    modifiedParcel.setLongitude(longitude);
-    modifiedParcel.setActive(active);
-
+  public String modify(@PathParam("id") int id, String json) throws IOException {
+    Parcel modifiedParcel = mapper.readValue(json, Parcel.class);
     return mapper.writeValueAsString(service.modify(id, modifiedParcel));
   }
 

@@ -1,0 +1,58 @@
+<div class="panel panel-info">
+	<div class="panel-heading">
+		<strong>Parcela</strong>
+	</div>
+	<div class="panel-body">
+		<form class="form-horizontal">
+			<div class="form-group" ng-hide="action == 'new'">
+				<label for="parcel_id" class="col-md-2 control-label">ID</label>
+				<div class="col-md-3">
+					<input type="text" class="form-control" id="parcel_id" ng-model="data.id"
+						ng-disabled="action == 'edit' || action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="parcel_name" class="col-md-2 control-label">Nombre</label>
+				<div class="col-md-3">
+					<input type="text" class="form-control" id="parcel_name" placeholder="Ej.: Parcela Sierra Grande 1"
+						ng-model="data.name" ng-disabled="action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="parcel_hectare" class="col-md-2 control-label">Hectárea</label>
+				<div class="col-md-3">
+					<input type="number" class="form-control" id="parcel_hectare" placeholder="Metros cuadrados"
+						ng-model="data.hectare" ng-disabled="action == 'view'" />
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="parcel_active" class="col-md-2 control-label">Activa</label>
+				<div class="col-md-3">
+					<input type="checkbox" value="False" id="parcel_active" ng-model="data.active"
+						ng-disabled="action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group">
+				<leaflet center="Madryn" event-broadcast="events" markers="markers" width="100%" height="480px">
+				</leaflet>
+			</div>
+
+			<div class="form-group">
+				<div class="col-md-offset-2 col-md-3">
+					<button type="submit" class="btn btn-success" ng-click="create()"
+						ng-show="action == 'new'">Crear</button>
+					<button type="submit" class="btn btn-success" ng-click="modify()"
+						ng-show="action == 'edit'">Modificar</button>
+					<button type="submit" class="btn btn-success" ng-click="cancel()"
+						ng-show="action == 'new' || action == 'edit'">Cancelar</button>
+					<button type="submit" class="btn btn-success" ng-click="cancel()"
+						ng-show="action == 'view'">Atrás</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>

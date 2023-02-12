@@ -4,7 +4,7 @@ app.service(
 		function ($http) {
 
 			this.findAll = function (callback) {
-				$http.get("rest/parcel/findAllParcels").then(
+				$http.get("rest/parcels/findAllParcels").then(
 					function (result) {
 						callback(false, result.data);
 					},
@@ -14,7 +14,7 @@ app.service(
 			}
 
 			this.findAllActive = function (callback) {
-				$http.get("rest/parcel/findAllActive").then(
+				$http.get("rest/parcels/findAllActive").then(
 					function (result) {
 						callback(false, result.data);
 					},
@@ -24,7 +24,7 @@ app.service(
 			}
 
 			this.searchByPage = function (search, page, cant, callback) {
-				$http.get('rest/parcel?page=' + page + '&cant=' + cant + "&search=" + JSON.stringify(search))
+				$http.get('rest/parcels?page=' + page + '&cant=' + cant + "&search=" + JSON.stringify(search))
 					.then(function (res) {
 						return callback(false, res.data)
 					}, function (err) {
@@ -33,7 +33,7 @@ app.service(
 			}
 
 			this.find = function (id, callback) {
-				$http.get("rest/parcel/" + id).then(
+				$http.get("rest/parcels/" + id).then(
 					function (result) {
 						callback(false, result.data);
 					},
@@ -42,8 +42,8 @@ app.service(
 					});
 			}
 
-			this.save = function (data, callback) {
-				$http.post("rest/parcel", data)
+			this.create = function (data, callback) {
+				$http.post("rest/parcels", data)
 					.then(
 						function (result) {
 							callback(false, result.data);
@@ -53,13 +53,8 @@ app.service(
 						});
 			}
 
-			this.update = function (id, name, hectare, latitude, longitude, active, callback) {
-				console.log("Actualizando: " + id + " - " + name);
-				$http({
-					method: "PUT",
-					url: "rest/parcel/" + id,
-					params: { "name": name, "hectare": hectare, "latitude": latitude, "longitude": longitude, "active": active }
-				})
+			this.modify = function (data, callback) {
+				$http.put("rest/parcels/" + data.id, data)
 					.then(
 						function (result) {
 							callback(false, result.data);
@@ -67,10 +62,10 @@ app.service(
 						function (error) {
 							callback(error);
 						});
-			}
+			};
 
 			this.delete = function (id, callback) {
-				$http.delete("rest/parcel/" + id)
+				$http.delete("rest/parcels/" + id)
 					.then(
 						function (result) {
 							callback(false, result.data);

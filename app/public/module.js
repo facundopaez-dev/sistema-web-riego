@@ -45,6 +45,21 @@ app.config(['$routeProvider', function(routeprovider) {
 		controller: 'PlantingRecordCtrl'
 	})
 
+	.when('/parcels',{
+		templateUrl:'partials/user/parcel-list.html',
+		controller: 'ParcelsCtrl'
+	})
+
+	.when('/parcels/:action',{
+		templateUrl:'partials/user/parcel-form.html',
+		controller: 'ParcelCtrl'
+	})
+
+	.when('/parcels/:action/:id',{
+		templateUrl:'partials/user/parcel-form.html',
+		controller: 'ParcelCtrl'
+	})
+
 	.when('/admin/crops',{
 		templateUrl:'partials/admin/admin-crop-list.html',
 		controller: 'AdminCropsCtrl'
@@ -63,23 +78,6 @@ app.config(['$routeProvider', function(routeprovider) {
 		controller: 'UsersCtrl'
 	})
 
-	/* Parcel */
-	.when('/parcel',{
-		templateUrl:'partials/parcel-list.html',
-		controller: 'ParcelsCtrl'
-	})
-
-	.when('/parcel/:action',{
-		templateUrl:'partials/parcel-form.html',
-		controller: 'ParcelCtrl'
-	})
-
-	.when('/parcel/:action/:id',{
-		templateUrl:'partials/parcel-form.html',
-		controller: 'ParcelCtrl'
-	})
-
-	/* De otra manera */
 	.otherwise({
 		templateUrl: 'partials/404.html'
 	})
