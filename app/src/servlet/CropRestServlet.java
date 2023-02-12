@@ -85,7 +85,7 @@ public class CropRestServlet {
   @Path("/{id}")
   @Produces(MediaType.APPLICATION_JSON)
   public String modify(@PathParam("id") int id, String json) throws IOException  {
-    Crop modifiedCrop = mapper.readValue(json,Crop.class);
+    Crop modifiedCrop = mapper.readValue(json, Crop.class);
     modifiedCrop = cropService.modify(id, modifiedCrop);
     return mapper.writeValueAsString(modifiedCrop);
   }
