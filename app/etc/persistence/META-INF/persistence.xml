@@ -4,7 +4,7 @@
     <class>model.ClimateRecord</class>
     <class>model.Crop</class>
     <class>model.InstanceParcelStatus</class>
-    <class>model.InstanciaParcela</class>
+    <class>model.PlantingRecord</class>
     <class>model.IrrigationLog</class>
     <class>model.Latitude</class>
     <class>model.MaximumInsolation</class>

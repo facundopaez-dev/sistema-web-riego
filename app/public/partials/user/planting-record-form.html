@@ -1,0 +1,58 @@
+<div class="panel panel-info">
+  <div class="panel-heading">
+    <strong>Registro de riego</strong>
+  </div>
+  <div class="panel-body">
+    <form class="form-horizontal">
+      <div class="form-group" ng-hide="action == 'new'">
+        <label for="plantingRecord_id" class="col-md-2 control-label">ID</label>
+        <div class="col-md-3">
+          <input type="number" class="form-control" id="plantingRecord_id" ng-model="data.id" value={{data.id}}
+            ng-disabled="action == 'edit' || action == 'view'">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="seedDate" class="col-md-2 control-label">Fecha de siembra</label>
+        <div class="col-md-3">
+          <input type="date" class="form-control" id="seedDate" ng-model="data.seedDate" value={{data.seedDate}}
+            ng-disabled="action == 'view'">
+        </div>
+      </div>
+
+      <div class="form-group" ng-hide="action == 'new'">
+        <label for="harvestDate" class="col-md-2 control-label">Fecha de cosecha</label>
+        <div class="col-md-3">
+          <input type="date" class="form-control" id="harvestDate" ng-model="data.harvestDate"
+            value={{data.harvestDate}} ng-disabled="action == 'view'">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="selectParcel">Parcela </label>
+        <select id="selectParcel" class="form-control col-md-6" ng-model="data.parcel"
+          data-ng-options="p as ('ID: ' + p.id + ' Nombre: ' + p.name ) for p in parcels track by p.id"
+          ng-disabled="action == 'view'">
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="selectCrop"> Cultivo </label>
+        <select id="selectCrop" class="form-control col-md-6" ng-model="data.crop"
+          data-ng-options="c as ('ID: ' + c.id + ' Nombre: ' + c.name  ) for c in crops track by c.id"
+          ng-disabled="action == 'view'">
+        </select>
+      </div>
+      <div class="form-group">
+        <div class="col-md-offset-2 col-md-3">
+          <button type="submit" class="btn btn-success" ng-click="create()" ng-show="action == 'new'">Crear</button>
+          <button type="submit" class="btn btn-success" ng-click="modify()"
+            ng-show="action == 'edit'">Modificar</button>
+          <button type="submit" class="btn btn-success" ng-click="cancel()"
+            ng-show="action == 'new' || action == 'edit'">Cancelar</button>
+          <button type="submit" class="btn btn-success" ng-click="cancel()" ng-show="action == 'view'">Atrás</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

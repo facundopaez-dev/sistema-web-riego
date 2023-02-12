@@ -25,24 +25,24 @@ import javax.ws.rs.core.MediaType;
 import model.ClimateRecord;
 import model.Crop;
 import model.InstanceParcelStatus;
-import model.InstanciaParcela;
+import model.PlantingRecord;
 import model.IrrigationLog;
 import model.Parcel;
 import stateless.ClimateRecordServiceBean;
 import stateless.CropServiceBean;
 import stateless.InstanceParcelStatusServiceBean;
-import stateless.InstanciaParcelaServiceBean;
+import stateless.PlantingRecordServiceBean;
 import stateless.IrrigationLogServiceBean;
 import stateless.MaximumInsolationServiceBean;
 import stateless.ParcelServiceBean;
 import stateless.SolarRadiationServiceBean;
 import util.UtilDate;
 
-@Path("/instanciaParcela")
-public class InstanciaParcelaRestServlet {
+@Path("/plantingRecords")
+public class PlantingRecordRestServlet {
 
-  // inject a reference to the InstanciaParcelaServiceBean slsb
-  @EJB InstanciaParcelaServiceBean service;
+  // inject a reference to the PlantingRecordServiceBean slsb
+  @EJB PlantingRecordServiceBean plantingRecordService;
 
   // inject a reference to the ClimateRecordServiceBean slsb
   @EJB ClimateRecordServiceBean climateRecordServiceBean;
@@ -71,34 +71,34 @@ public class InstanciaParcelaRestServlet {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String findAll() throws IOException {
-    Collection<InstanciaParcela> instancias = service.findAll();
-    return mapper.writeValueAsString(instancias);
+    Collection<PlantingRecord> plantingRecords = plantingRecordService.findAll();
+    return mapper.writeValueAsString(plantingRecords);
   }
 
   @GET
   @Path("/{id}")
   @Produces(MediaType.APPLICATION_JSON)
   public String find(@PathParam("id") int id) throws IOException {
-    InstanciaParcela instancia = service.find(id);
-    return mapper.writeValueAsString(instancia);
+    PlantingRecord plantingRecord = plantingRecordService.find(id);
+    return mapper.writeValueAsString(plantingRecord);
   }
 
   @GET
-  @Path("/findCurrentParcelInstance/{idParcel}")
+  @Path("/findCurrentPlantingRecord/{parcelId}")
   @Produces(MediaType.APPLICATION_JSON)
-  public String findCurrentParcelInstance(@PathParam("idParcel") int idParcel) throws IOException {
-    Parcel choosenParcel = serviceParcel.find(idParcel);
-    InstanciaParcela instancia = service.findInDevelopment(choosenParcel);
-    return mapper.writeValueAsString(instancia);
+  public String findCurrentPlantingRecord(@PathParam("parcelId") int parcelId) throws IOException {
+    Parcel givenParcel = serviceParcel.find(parcelId);
+    PlantingRecord plantingRecord = plantingRecordService.findInDevelopment(givenParcel);
+    return mapper.writeValueAsString(plantingRecord);
   }
 
   @GET
-  @Path("/findNewestParcelInstance/{idParcel}")
+  @Path("/findNewestPlantingRecord/{parcelId}")
   @Produces(MediaType.APPLICATION_JSON)
-  public String findNewestParcelInstance(@PathParam("idParcel") int idParcel) throws IOException {
-    Parcel choosenParcel = serviceParcel.find(idParcel);
-    InstanciaParcela instancia = service.findRecentFinished(choosenParcel);
-    return mapper.writeValueAsString(instancia);
+  public String findNewestPlantingRecord(@PathParam("parcelId") int parcelId) throws IOException {
+    Parcel givenParcel = serviceParcel.find(parcelId);
+    PlantingRecord newestPlantingRecord = plantingRecordService.findLastFinished(givenParcel);
+    return mapper.writeValueAsString(newestPlantingRecord);
   }
 
   // @GET
@@ -137,30 +137,24 @@ public class InstanciaParcelaRestServlet {
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
   public String create(String json) throws IOException  {
-    InstanciaParcela instancia = mapper.readValue(json, InstanciaParcela.class);
+    PlantingRecord newPlantingRecord = mapper.readValue(json, PlantingRecord.class);
+    PlantingRecord lastPlantingRecord = plantingRecordService.findLastFinished(newPlantingRecord.getParcel());
 
     /*
-     * Instancia de parcela (registro historico de parcela) mas
-     * reciente que esta en el estado "Finalizado"
+     * Si la fecha de cosecha del ultimo registro de plantacion finalizado
+     * es mayor o igual que la fecha de siembra del nuevo registro de
+     * plantacion, entonces no se tiene que persistir el nuevo registro de
+     * plantacion
      */
-    InstanciaParcela newestInstanceParcel = service.findRecentFinished(instancia.getParcel());
-
-    /*
-     * Si la fecha de cosecha de la instancia de parcela mas reciente
-     * que esta en el estado "Finalizado" es mayor o igual que la fecha de
-     * siembra de la nueva instancia de parcela, entonces no se tiene
-     * que persistir la nueva instancia de parcela
-     */
-    if ((newestInstanceParcel != null) && ((newestInstanceParcel.getFechaCosecha().compareTo(instancia.getFechaSiembra())) >= 0)) {
+    if ((lastPlantingRecord != null) && ((lastPlantingRecord.getHarvestDate().compareTo(newPlantingRecord.getSeedDate())) >= 0)) {
       return null;
     }
 
     /*
-     * La instancia de parcela (registro historico de parcela)
-     * actual es aquella instancia de parcela que a la fecha
-     * actual del sistema esta en el estado "En desarrollo"
+     * El registro de plantacion actual es el que esta en el
+     * estado "En desarrollo"
      */
-    InstanciaParcela currentParcelInstance = service.findInDevelopment(instancia.getParcel());
+    PlantingRecord currentPlantingRecord = plantingRecordService.findInDevelopment(newPlantingRecord.getParcel());
 
     /*
      * Si no hay un registro historico actual de parcela
@@ -169,19 +163,19 @@ public class InstanciaParcelaRestServlet {
      * estar en este nuevo registro historico actual de parcela
      * aun no ha llegado a su fecha de cosecha
      */
-    if (currentParcelInstance == null) {
+    if (currentPlantingRecord == null) {
       /*
        * En funcion de la fecha de siembra del cultivo dado y
        * de la suma de sus dias de vida (suma de la cantidad de
        * dias que dura cada una de sus etapas), se calcula
        * la fecha de cosecha del cultivo dado
        */
-      Calendar harvestDate = cropService.calculateHarvestDate(instancia.getFechaSiembra(), instancia.getCultivo());
-      instancia.setFechaCosecha(harvestDate);
-      instancia.setStatus(getStatus(harvestDate));
+      Calendar harvestDate = cropService.calculateHarvestDate(newPlantingRecord.getSeedDate(), newPlantingRecord.getCrop());
+      newPlantingRecord.setHarvestDate(harvestDate);
+      newPlantingRecord.setStatus(getStatus(harvestDate));
 
-      instancia = service.create(instancia);
-      return mapper.writeValueAsString(instancia);
+      newPlantingRecord = plantingRecordService.create(newPlantingRecord);
+      return mapper.writeValueAsString(newPlantingRecord);
     }
 
     return null;
@@ -191,51 +185,51 @@ public class InstanciaParcelaRestServlet {
   @Path("/{id}")
   @Produces(MediaType.APPLICATION_JSON)
   public String remove(@PathParam("id") int id) throws IOException {
-    InstanciaParcela instancia = service.remove(id);
-    return mapper.writeValueAsString(instancia);
+    PlantingRecord givenPlantingRecord = plantingRecordService.remove(id);
+    return mapper.writeValueAsString(givenPlantingRecord);
   }
 
   @PUT
   @Path("/{id}")
   @Produces(MediaType.APPLICATION_JSON)
-  public String change(@PathParam("id") int id, String json) throws IOException  {
-    InstanciaParcela instancia = mapper.readValue(json,InstanciaParcela.class);
+  public String modify(@PathParam("id") int id, String json) throws IOException  {
+    PlantingRecord givenPlantingRecord = mapper.readValue(json,PlantingRecord.class);
 
-    InstanciaParcela previuosParcelInstance = service.find(instancia.getParcel(), instancia.getId() - 1);
-    InstanciaParcela nextParcelInstance = service.find(instancia.getParcel(), instancia.getId() + 1);
+    PlantingRecord previuosPlantingRecord = plantingRecordService.find(givenPlantingRecord.getParcel(), givenPlantingRecord.getId() - 1);
+    PlantingRecord nextPlantingRecord = plantingRecordService.find(givenPlantingRecord.getParcel(), givenPlantingRecord.getId() + 1);
 
     /*
-     * Si la fecha de cosecha de la instancia de parcela anterior a la
-     * que se va a modificar es mayor a la fecha de siembra de la instancia
-     * de parcela que se va a modificar, no se tiene que realizar la modificacion
+     * Si la fecha de cosecha del registro de plantacion anterior al que
+     * se va a modificar es mayor a la fecha de siembra del registro de
+     * plantacion que se va a modificar, no se tiene que realizar la modificacion
      */
-    if ((previuosParcelInstance != null) && ((previuosParcelInstance.getFechaCosecha().compareTo(instancia.getFechaSiembra()) == 0)
-    || (previuosParcelInstance.getFechaCosecha().compareTo(instancia.getFechaSiembra()) > 0))) {
+    if ((previuosPlantingRecord != null) && ((previuosPlantingRecord.getHarvestDate().compareTo(givenPlantingRecord.getSeedDate()) == 0)
+    || (previuosPlantingRecord.getHarvestDate().compareTo(givenPlantingRecord.getSeedDate()) > 0))) {
       return null;
     }
 
     /*
-     * Si la fecha de cosecha de la instancia de parcela que se va a modificar
-     * es mayor que la fecha de siembra de la siguiente instancia de parcela
-     * a la que se va a modificar, no se tiene que realizar la modificacion
+     * Si la fecha de cosecha del registro de plantacion que se va a modificar
+     * es mayor que la fecha de siembra del siguiente registro de plantacion
+     * que se va a modificar, no se tiene que realizar la modificacion
      */
-    if ((nextParcelInstance != null) && ((instancia.getFechaCosecha().compareTo(nextParcelInstance.getFechaSiembra()) == 0)
-    || (instancia.getFechaCosecha().compareTo(nextParcelInstance.getFechaSiembra()) > 0))) {
+    if ((nextPlantingRecord != null) && ((givenPlantingRecord.getHarvestDate().compareTo(nextPlantingRecord.getSeedDate()) == 0)
+    || (givenPlantingRecord.getHarvestDate().compareTo(nextPlantingRecord.getSeedDate()) > 0))) {
       return null;
     }
 
     /*
-     * Si la fecha de siembra y la fecha de cosecha de la instancia
-     * de parcela que se va a modificar coinciden, no se tiene que
+     * Si la fecha de siembra y la fecha de cosecha del registro de
+     * plantacion que se va a modificar coinciden, no se tiene que
      * realizar la modificacion
      */
-    if ((instancia.getFechaSiembra() != null) && (instancia.getFechaCosecha() != null) && (instancia.getFechaSiembra().compareTo(instancia.getFechaCosecha()) == 0)) {
+    if ((givenPlantingRecord.getSeedDate() != null) && (givenPlantingRecord.getHarvestDate() != null) && (givenPlantingRecord.getSeedDate().compareTo(givenPlantingRecord.getHarvestDate()) == 0)) {
       return null;
     }
 
-    // if (instancia.getStatus().getName().equals("Finalizado")) {
-    //   instancia = service.change(id, instancia);
-    //   return mapper.writeValueAsString(instancia);
+    // if (givenPlantingRecord.getStatus().getName().equals("Finalizado")) {
+    //   givenPlantingRecord = plantingRecordService.modify(id, givenPlantingRecord);
+    //   return mapper.writeValueAsString(givenPlantingRecord);
     // }
 
     /*
@@ -246,23 +240,23 @@ public class InstanciaParcelaRestServlet {
      * dura la etapa de vida del cultivo dado se realiza la modificacion
      * del registro historico de parcela dado
      */
-    // if (!(excessStageLife(instancia.getCultivo(), instancia.getFechaSiembra(), instancia.getFechaCosecha()))) {
-    //   instancia.setStatus(getStatus(instancia.getFechaCosecha()));
-    //   instancia = service.change(id, instancia);
-    //   return mapper.writeValueAsString(instancia);
+    // if (!(excessStageLife(givenPlantingRecord.getCrop(), givenPlantingRecord.getSeedDate(), givenPlantingRecord.getHarvestDate()))) {
+    //   givenPlantingRecord.setStatus(getStatus(givenPlantingRecord.getHarvestDate()));
+    //   givenPlantingRecord = plantingRecordService.modify(id, givenPlantingRecord);
+    //   return mapper.writeValueAsString(givenPlantingRecord);
     // }
 
-    instancia.setStatus(getStatus(instancia.getFechaCosecha()));
-    instancia = service.change(id, instancia);
-    return mapper.writeValueAsString(instancia);
+    givenPlantingRecord.setStatus(getStatus(givenPlantingRecord.getHarvestDate()));
+    givenPlantingRecord = plantingRecordService.modify(id, givenPlantingRecord);
+    return mapper.writeValueAsString(givenPlantingRecord);
   }
 
   @GET
   @Path("/suggestedIrrigation/{id}")
   @Produces(MediaType.APPLICATION_JSON)
   public String getSuggestedIrrigation(@PathParam("id") int id) throws IOException {
-    InstanciaParcela choosenParcelInstance = service.find(id);
-    Parcel parcel = choosenParcelInstance.getParcel();
+    PlantingRecord givenPlantingRecord = plantingRecordService.find(id);
+    Parcel parcel = givenPlantingRecord.getParcel();
     double suggestedIrrigationToday = 0.0;
     double tomorrowPrecipitation = 0.0;
 
@@ -324,7 +318,7 @@ public class InstanciaParcelaRestServlet {
        * Evapotranspiracion del cultivo bajo condiciones esntandar (ETc)
        * del cultivo dado con la ETo del dia de ayer
        */
-      yesterdayEtc = cropService.getKc(choosenParcelInstance.getCultivo(), choosenParcelInstance.getFechaSiembra()) * yesterdayEto;
+      yesterdayEtc = cropService.getKc(givenPlantingRecord.getCrop(), givenPlantingRecord.getSeedDate()) * yesterdayEto;
 
       yesterdayClimateLog.setEto(yesterdayEto);
       yesterdayClimateLog.setEtc(yesterdayEtc);

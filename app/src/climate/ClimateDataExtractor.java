@@ -22,11 +22,11 @@ import javax.ejb.EJB;
 import javax.ejb.Schedule;
 import javax.ejb.Stateless;
 import model.ClimateRecord;
-import model.InstanciaParcela;
+import model.PlantingRecord;
 import model.Parcel;
 import stateless.ClimateRecordServiceBean;
 import stateless.CropServiceBean;
-import stateless.InstanciaParcelaServiceBean;
+import stateless.PlantingRecordServiceBean;
 import stateless.MaximumInsolationServiceBean;
 import stateless.ParcelServiceBean;
 import stateless.SolarRadiationServiceBean;
@@ -46,8 +46,8 @@ public class ClimateDataExtractor {
   // inject a reference to the MaximumInsolationServiceBean
   @EJB MaximumInsolationServiceBean insolationService;
 
-  // inject a reference to the InstanciaParcelaServiceBean
-  @EJB InstanciaParcelaServiceBean parcelInstanceService;
+  // inject a reference to the PlantingRecordServiceBean
+  @EJB PlantingRecordServiceBean plantingRecordService;
 
   // inject a reference to the CropServiceBean
   @EJB CropServiceBean cropService;
@@ -99,7 +99,7 @@ public class ClimateDataExtractor {
     double etc = 0.0;
     double extraterrestrialSolarRadiation = 0.0;
     double maximumInsolation = 0.0;
-    InstanciaParcela parcelInstance = null;
+    PlantingRecord parcelInstance = null;
 
     for (Parcel currentParcel : parcels) {
 
@@ -131,7 +131,7 @@ public class ClimateDataExtractor {
         climateLog.getDewPoint(), extraterrestrialSolarRadiation, maximumInsolation, climateLog.getCloudCover());
         climateLog.setEto(eto);
 
-        // parcelInstance = parcelInstanceService.findCurrentParcelInstance(currentParcel);
+        // parcelInstance = plantingRecordService.findCurrentParcelInstance(currentParcel);
 
         /*
          * Si existe un registro historico de la parcela dada
@@ -159,7 +159,7 @@ public class ClimateDataExtractor {
          * el cual calcular la ETc
          */
         if (parcelInstance != null) {
-          etc = cropService.getKc(parcelInstance.getCultivo(), parcelInstance.getFechaSiembra()) * eto;
+          etc = cropService.getKc(parcelInstance.getCrop(), parcelInstance.getSeedDate()) * eto;
         } else {
           etc = 0.0;
         }
