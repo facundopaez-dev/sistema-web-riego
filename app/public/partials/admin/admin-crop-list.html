@@ -3,11 +3,12 @@
 		<strong>Listado de cultivos</strong>
 	</div>
 	<div class="panel-body">
-		<a href="#!/admin/crops/new" class="btn btn-success" role="button">Crear cultivo</a>
+		<a href="#!/admin/crops/new" class="btn btn-success" role="button">Nuevo cultivo</a>
 	</div>
 	<table class="table table-condensed table-hover">
 		<thead>
 			<tr>
+				<th>ID</th>
 				<th>Nombre</th>
 				<th>Etapa inicial (días)</th>
 				<th>Etapa de desarrollo (días)</th>
@@ -18,6 +19,7 @@
 		</thead>
 		<tbody>
 			<tr ng-repeat="c in data">
+				<td>{{c.id}}</td>
 				<td>{{c.name}}</td>
 				<td>{{c.initialStage}}</td>
 				<td>{{c.developmentStage}}</td>

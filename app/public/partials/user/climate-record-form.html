@@ -4,11 +4,11 @@
     </div>
     <div class="panel-body">
         <form class="form-horizontal">
-            <div class="form-group" ng-hide="action == 'new' || action == 'edit'">
+            <div class="form-group" ng-hide="action == 'new'">
                 <label for="climateRecord_id" class="col-md-2 control-label">ID</label>
                 <div class="col-md-3">
                     <input type="number" class="form-control" id="climateRecord_id" ng-model="data.id" value={{data.id}}
-                        ng-disabled="action == 'view'">
+                        ng-disabled="action == 'edit' || action == 'view'">
                 </div>
             </div>
 
@@ -124,7 +124,7 @@
             </div>
 
             <div class="form-group">
-                <label for="selectParcel">Parcela: </label>
+                <label for="selectParcel">Parcela </label>
                 <select class="form-control col-md-6" id="selectParcel" ng-model="data.parcel"
                     data-ng-options="p as ('ID: ' + p.id + ' Nombre: ' + p.name ) for p in parcels track by p.id"
                     ng-disabled="action == 'view'" required>
