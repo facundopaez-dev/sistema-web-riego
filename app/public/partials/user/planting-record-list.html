@@ -64,7 +64,7 @@
               <p class="text-right">Parcela</p>
             </label>
             <div class="col-md-5">
-              <input type="text" class="form-control" id="nombreParcela" ng-model="irrigationLog.parcel.name"
+              <input type="text" class="form-control" id="nombreParcela" ng-model="irrigationRecord.parcel.name"
                 ng-disabled="true">
             </div>
           </div>
@@ -74,7 +74,7 @@
               <p class="text-right">Hectáreas de la parcela</p>
             </label>
             <div class="col-md-5">
-              <input type="number" class="form-control" id="hectareaParcela" ng-model="irrigationLog.parcel.hectare"
+              <input type="number" class="form-control" id="hectareaParcela" ng-model="irrigationRecord.parcel.hectare"
                 ng-disabled="true">
             </div>
           </div>
@@ -85,7 +85,7 @@
             </label>
             <div class="col-md-4">
               <input type="number" class="form-control" id="suggestedIrrigation"
-                ng-model="irrigationLog.suggestedIrrigation" ng-disabled="true">
+                ng-model="irrigationRecord.suggestedIrrigation" ng-disabled="true">
             </div>
           </div>
 
@@ -95,7 +95,7 @@
             </label>
             <div class="col-md-4">
               <input type="number" class="form-control" id="tomorrowPrecipitation"
-                ng-model="irrigationLog.tomorrowPrecipitation" ng-disabled="true">
+                ng-model="irrigationRecord.tomorrowPrecipitation" ng-disabled="true">
             </div>
           </div>
 
@@ -105,7 +105,7 @@
             </label>
             <div class="col-md-4">
               <input type="number" min="0" name="irrigationDone" class="form-control" id="irrigationDone"
-                placeholder="Riego Realizado" ng-model="irrigationLog.irrigationDone" required />
+                placeholder="Riego Realizado" ng-model="irrigationRecord.irrigationDone" required />
             </div>
             <div ng-show="formIrrigation.irrigationDone.$error.required" class="col-md-2">
               <p style="color: red">Requerido</p>
@@ -117,9 +117,9 @@
 
       <div class="modal-footer">
         <button type="button" class="btn btn-success" data-dismiss="modal" ng-click="cancel()">Cancelar</button>
-        <button type="button" class="btn btn-success" data-dismiss="modal" ng-click="saveIrrigationLog()"
+        <button type="button" class="btn btn-success" data-dismiss="modal" ng-click="saveIrrigationRecord()"
           ng-disabled="formIrrigation.irrigationDone.$error.required">
-          {{irrigationLog.id ? 'Actualizar':'Guardar'}}
+          {{irrigationRecord.id ? 'Actualizar':'Guardar'}}
         </button>
       </div>
 

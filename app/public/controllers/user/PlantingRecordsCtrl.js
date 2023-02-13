@@ -1,7 +1,7 @@
 app.controller(
 	"PlantingRecordsCtrl",
-	["$scope","$location","$route","PlantingRecordSrv", "IrrigationLogSrv",
-	function($scope, $location, $route, plantingRecordSrv, irrigationLogService) {
+	["$scope","$location","$route","PlantingRecordSrv", "IrrigationRecordSrv",
+	function($scope, $location, $route, plantingRecordSrv, irrigationRecordService) {
 		console.log("Cargando PlantingRecordsCtrl...")
 
 		function findAll(){
@@ -36,9 +36,9 @@ app.controller(
 			});
 		}
 
-		$scope.saveIrrigationLog = function() {
+		$scope.saveIrrigationRecord = function() {
 			if ($scope.data.irrigationDone >= 0) {
-				irrigationLogService.save($scope.data, function(error, data){
+				irrigationRecordService.save($scope.data, function(error, data){
 					if(error){
 						console.log(error);
 						return;
