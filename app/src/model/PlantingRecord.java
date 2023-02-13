@@ -40,9 +40,11 @@ public class PlantingRecord {
 
   @ManyToOne
   @JoinColumn(name = "FK_STATUS", nullable = false)
-  private InstanceParcelStatus status;
+  private PlantingRecordStatus status;
 
-  public PlantingRecord() {}
+  public PlantingRecord() {
+
+  }
 
   public int getId() {
     return id;
@@ -84,11 +86,11 @@ public class PlantingRecord {
     this.crop = crop;
   }
 
-  public InstanceParcelStatus getStatus() {
+  public PlantingRecordStatus getStatus() {
     return status;
   }
 
-  public void setStatus(InstanceParcelStatus status) {
+  public void setStatus(PlantingRecordStatus status) {
     this.status = status;
   }
 

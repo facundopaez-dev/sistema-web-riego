@@ -3,7 +3,7 @@
     <jta-data-source>jdbc/swcar</jta-data-source>
     <class>model.ClimateRecord</class>
     <class>model.Crop</class>
-    <class>model.InstanceParcelStatus</class>
+    <class>model.PlantingRecordStatus</class>
     <class>model.PlantingRecord</class>
     <class>model.IrrigationLog</class>
     <class>model.Latitude</class>

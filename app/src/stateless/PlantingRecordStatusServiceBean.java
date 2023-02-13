@@ -3,10 +3,10 @@ package stateless;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import model.InstanceParcelStatus;
+import model.PlantingRecordStatus;
 
 @Stateless
-public class InstanceParcelStatusServiceBean {
+public class PlantingRecordStatusServiceBean {
 
   @PersistenceContext(unitName="swcar")
   protected EntityManager entityManager;
@@ -20,12 +20,13 @@ public class InstanceParcelStatusServiceBean {
   }
 
   /**
-   * @param  id [identificador]
-   * @return referencia a objeto de tipo InstanceParcelStatus que tiene
-   * el identificador provisto
+   * 
+   * @param id
+   * @return referencia a un objeto de tipo PlantingRecordStatus
+   * correspondiente al ID dado
    */
-  public InstanceParcelStatus find(int id){
-    return getEntityManager().find(InstanceParcelStatus.class, id);
+  public PlantingRecordStatus find(int id){
+    return getEntityManager().find(PlantingRecordStatus.class, id);
   }
 
 }

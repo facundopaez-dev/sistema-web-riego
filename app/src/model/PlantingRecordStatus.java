@@ -1,35 +1,34 @@
 /*
- * Esta clase representa el estado del cultivo
- * que aparece como "sembrado" en la clase entidad
- * instancia parcela (registro historico de parcela)
+ * PlantingRecordStatus es la clase que representa el estado
+ * de un cultivo sembrado, lo cual, esta representado por la
+ * clase PlantingRecord.
  */
 
 package model;
 
-import javax.persistence.Id;
-import javax.persistence.Entity;
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="INSTANCIA_PARCELA_ESTADO")
-public class InstanceParcelStatus {
+@Table(name = "PLANTING_RECORD_STATUS")
+public class PlantingRecordStatus {
 
   @Id
-  @Column(name="INSTANCIA_PARCELA_ESTADO_ID")
-  @GeneratedValue(strategy=GenerationType.IDENTITY)
+  @Column(name = "ID")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
-  @Column(name="NOMBRE", nullable=false)
+  @Column(name = "NAME", nullable = false)
   private String name;
 
-  @Column(name="DESCRIPCION", nullable=false)
+  @Column(name = "DESCRIPTION", nullable = false)
   private String description;
 
-  // Constructor method
-  public InstanceParcelStatus() {
+  public PlantingRecordStatus() {
 
   }
 

@@ -24,17 +24,17 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import model.ClimateRecord;
 import model.Crop;
-import model.InstanceParcelStatus;
-import model.PlantingRecord;
 import model.IrrigationLog;
 import model.Parcel;
+import model.PlantingRecord;
+import model.PlantingRecordStatus;
 import stateless.ClimateRecordServiceBean;
 import stateless.CropServiceBean;
-import stateless.InstanceParcelStatusServiceBean;
-import stateless.PlantingRecordServiceBean;
 import stateless.IrrigationLogServiceBean;
 import stateless.MaximumInsolationServiceBean;
 import stateless.ParcelServiceBean;
+import stateless.PlantingRecordServiceBean;
+import stateless.PlantingRecordStatusServiceBean;
 import stateless.SolarRadiationServiceBean;
 import util.UtilDate;
 
@@ -53,8 +53,8 @@ public class PlantingRecordRestServlet {
   // inject a reference to the IrrigationLogServiceBean slsb
   @EJB IrrigationLogServiceBean irrigationLogService;
 
-  // inject a reference to the InstanceParcelStatusServiceBean slsb
-  @EJB InstanceParcelStatusServiceBean statusService;
+  // inject a reference to the PlantingRecordStatusServiceBean slsb
+  @EJB PlantingRecordStatusServiceBean statusService;
 
   // inject a reference to the ParcelServiceBean slsb
   @EJB ParcelServiceBean serviceParcel;
@@ -349,7 +349,7 @@ public class PlantingRecordRestServlet {
    * si la fecha de cosecha esta antes de la fecha actual del sistema
    * o si es igual a la misma
    */
-  private InstanceParcelStatus getStatus(Calendar harvestDate) {
+  private PlantingRecordStatus getStatus(Calendar harvestDate) {
     Calendar yesterdayCurrentDate = Calendar.getInstance();
     yesterdayCurrentDate.set(Calendar.DAY_OF_YEAR, yesterdayCurrentDate.get(Calendar.DAY_OF_YEAR) - 1);
 
