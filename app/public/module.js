@@ -65,6 +65,17 @@ app.config(['$routeProvider', function (routeprovider) {
 			controller: 'ParcelCtrl'
 		})
 
+		/*
+		Se utiliza la pagina web de inicio de sesion del usuario como
+		pagina web de inicio de sesion del administrador porque NO es
+		util implementar dos paginas web iguales en contenido, pero
+		con nombres diferentes, para el mismo proposito
+		*/
+		.when('/admin', {
+			templateUrl: 'partials/user/user-login.html',
+			controller: 'AdminLoginCtrl'
+		})
+
 		.when('/admin/crops', {
 			templateUrl: 'partials/admin/admin-crop-list.html',
 			controller: 'AdminCropsCtrl'
