@@ -15,18 +15,18 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import model.ClimateRecord;
-import model.IrrigationLog;
+import model.IrrigationRecord;
 import model.Parcel;
 import stateless.ClimateRecordServiceBean;
-import stateless.IrrigationLogServiceBean;
+import stateless.IrrigationRecordServiceBean;
 import stateless.ParcelServiceBean;
 import util.UtilDate;
 
-@Path("/irrigationLog")
-public class IrrigationLogRestServlet {
+@Path("/irrigationRecords")
+public class IrrigationRecordRestServlet {
 
-  // inject a reference to the IrrigationLogServiceBean slsb
-  @EJB IrrigationLogServiceBean service;
+  // inject a reference to the IrrigationRecordServiceBean slsb
+  @EJB IrrigationRecordServiceBean irrigationRecordService;
 
   // inject a reference to the ClimateRecordServiceBean slsb
   @EJB ClimateRecordServiceBean climateRecordServiceBean;
@@ -40,7 +40,7 @@ public class IrrigationLogRestServlet {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String findAllIrrigationLogs() throws IOException {
-    Collection<IrrigationLog> irrigationLogs = service.findAll();
+    Collection<IrrigationRecord> irrigationLogs = irrigationRecordService.findAll();
     return mapper.writeValueAsString(irrigationLogs);
   }
 
@@ -48,15 +48,15 @@ public class IrrigationLogRestServlet {
   @Path("/{id}")
   @Produces(MediaType.APPLICATION_JSON)
   public String find(@PathParam("id") int id) throws IOException {
-    IrrigationLog irrigationLog = service.find(id);
+    IrrigationRecord irrigationLog = irrigationRecordService.find(id);
     return mapper.writeValueAsString(irrigationLog);
   }
 
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
   public String create(String json) throws IOException {
-    IrrigationLog newIrrigationLog = mapper.readValue(json, IrrigationLog.class);
-    newIrrigationLog = service.create(newIrrigationLog);
+    IrrigationRecord newIrrigationLog = mapper.readValue(json, IrrigationRecord.class);
+    newIrrigationLog = irrigationRecordService.create(newIrrigationLog);
 
     /*
      * NOTE: Esto tiene que ser activado en el despliegue
@@ -73,7 +73,7 @@ public class IrrigationLogRestServlet {
   // @Path("/{id}")
   // @Produces(MediaType.APPLICATION_JSON)
   // public String remove(@PathParam("id") int id) throws IOException {
-  //   IrrigationLog irrigationLog = service.remove(id);
+  //   IrrigationRecord irrigationLog = irrigationRecordService.remove(id);
   //   return mapper.writeValueAsString(irrigationLog);
   // }
 
@@ -81,8 +81,8 @@ public class IrrigationLogRestServlet {
   @Path("/{id}")
   @Produces(MediaType.APPLICATION_JSON)
   public String modify(@PathParam("id") int id, String json) throws IOException {
-    IrrigationLog modifiedIrrigationLog = mapper.readValue(json, IrrigationLog.class);
-    return mapper.writeValueAsString(service.modify(id, modifiedIrrigationLog));
+    IrrigationRecord modifiedIrrigationLog = mapper.readValue(json, IrrigationRecord.class);
+    return mapper.writeValueAsString(irrigationRecordService.modify(id, modifiedIrrigationLog));
   }
 
   /**
@@ -127,7 +127,7 @@ public class IrrigationLogRestServlet {
     yesterdayRainWater = yesterdayClimateLog.getRainWater();
     waterAccumulatedYesterday = yesterdayClimateLog.getWaterAccumulated();
 
-    totalIrrigationWaterToday = service.getTotalWaterIrrigationToday(givenParcel);
+    totalIrrigationWaterToday = irrigationRecordService.getTotalWaterIrrigationToday(givenParcel);
 
     waterAccumulatedToday = WaterMath.getWaterAccumulatedToday(yesterdayEtc, yesterdayEto, yesterdayRainWater, waterAccumulatedYesterday, totalIrrigationWaterToday);
     climateRecordServiceBean.updateWaterAccumulatedToday(currentDate, givenParcel, waterAccumulatedToday);

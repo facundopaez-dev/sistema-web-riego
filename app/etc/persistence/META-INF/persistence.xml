@@ -5,7 +5,7 @@
     <class>model.Crop</class>
     <class>model.PlantingRecordStatus</class>
     <class>model.PlantingRecord</class>
-    <class>model.IrrigationLog</class>
+    <class>model.IrrigationRecord</class>
     <class>model.Latitude</class>
     <class>model.MaximumInsolation</class>
     <class>model.Month</class>

@@ -10,11 +10,11 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import model.IrrigationLog;
+import model.IrrigationRecord;
 import model.Parcel;
 
 @Stateless
-public  class IrrigationLogServiceBean {
+public  class IrrigationRecordServiceBean {
 
   /*
    * Instance variables
@@ -30,37 +30,37 @@ public  class IrrigationLogServiceBean {
     return entityManager;
   }
 
-  public IrrigationLog create(IrrigationLog irrigationLog) {
-    getEntityManager().persist(irrigationLog);
-    return irrigationLog;
+  public IrrigationRecord create(IrrigationRecord newIrrigationRecord) {
+    getEntityManager().persist(newIrrigationRecord);
+    return newIrrigationRecord;
   }
 
   /**
    * Actualiza o modifica la entidad asociada al id dado
    *
    * @param  id
-   * @param  modifiedIrrigationLog
+   * @param  modifiedIrrigationRecord
    * @return un valor no nulo en caso de modificar la entidad solicitada
    * mediante el id, en caso contrario retorna un valor nulo
    */
-  public IrrigationLog modify(int id, IrrigationLog modifiedIrrigationLog) {
-    IrrigationLog choosenIrrigationLog = find(id);
+  public IrrigationRecord modify(int id, IrrigationRecord modifiedIrrigationRecord) {
+    IrrigationRecord choosenIrrigationRecord = find(id);
 
-    if (choosenIrrigationLog != null) {
-      choosenIrrigationLog.setIrrigationDone(modifiedIrrigationLog.getIrrigationDone());
-      return choosenIrrigationLog;
+    if (choosenIrrigationRecord != null) {
+      choosenIrrigationRecord.setIrrigationDone(modifiedIrrigationRecord.getIrrigationDone());
+      return choosenIrrigationRecord;
     }
 
     return null;
   }
 
-  public IrrigationLog find(int id) {
-    return getEntityManager().find(IrrigationLog.class, id);
+  public IrrigationRecord find(int id) {
+    return getEntityManager().find(IrrigationRecord.class, id);
   }
 
-  public Collection<IrrigationLog> findAll() {
-    Query query = getEntityManager().createQuery("SELECT i FROM IrrigationLog i ORDER BY i.id");
-    return (Collection<IrrigationLog>) query.getResultList();
+  public Collection<IrrigationRecord> findAll() {
+    Query query = getEntityManager().createQuery("SELECT i FROM IrrigationRecord i ORDER BY i.id");
+    return (Collection) query.getResultList();
   }
 
   /**
@@ -80,7 +80,7 @@ public  class IrrigationLogServiceBean {
      * para un cultivo dado, de la parcela dada en la fecha
      * actual
      */
-    Query query = entityManager.createQuery("SELECT SUM(i.irrigationDone) FROM IrrigationLog i WHERE (i.date = :currentDate AND i.parcel = :givenParcel)");
+    Query query = entityManager.createQuery("SELECT SUM(i.irrigationDone) FROM IrrigationRecord i WHERE (i.date = :currentDate AND i.parcel = :givenParcel)");
     query.setParameter("currentDate", currentDate);
     query.setParameter("givenParcel", givenParcel);
 
@@ -89,7 +89,7 @@ public  class IrrigationLogServiceBean {
     try {
       result = (double) query.getSingleResult();
     } catch(NullPointerException e) {
-
+      e.printStackTrace();
     }
 
     return result;
@@ -107,7 +107,7 @@ public  class IrrigationLogServiceBean {
    * con la fecha y la parcela dadas, en caso contrario retorna falso
    */
   public boolean exist(Calendar givenDate, Parcel givenParcel) {
-    Query query = entityManager.createQuery("SELECT r FROM IrrigationLog r WHERE r.date = :givenDate AND r.parcel = :givenParcel");
+    Query query = entityManager.createQuery("SELECT r FROM IrrigationRecord r WHERE r.date = :givenDate AND r.parcel = :givenParcel");
     query.setParameter("givenDate", givenDate);
     query.setParameter("givenParcel", givenParcel);
 
@@ -116,21 +116,21 @@ public  class IrrigationLogServiceBean {
     try {
       query.getSingleResult();
       result = true;
-    } catch(NoResultException ex) {
-
+    } catch(NoResultException e) {
+      e.printStackTrace();
     }
 
     return result;
   }
 
-  public Page<IrrigationLog> findByPage(Integer page, Integer cantPerPage, Map<String, String> parameters) {
+  public Page<IrrigationRecord> findByPage(Integer page, Integer cantPerPage, Map<String, String> parameters) {
     // Genero el WHERE dinámicamente
     StringBuffer where = new StringBuffer(" WHERE 1=1");
     if (parameters != null)
       for (String param : parameters.keySet()) {
         Method method;
         try {
-          method = IrrigationLog.class.getMethod("get" + capitalize(param));
+          method = IrrigationRecord.class.getMethod("get" + capitalize(param));
           if (method == null || parameters.get(param) == null || parameters.get(param).isEmpty()) {
             continue;
           }
@@ -156,17 +156,17 @@ public  class IrrigationLogServiceBean {
 
     // Cuento el total de resultados
     Query countQuery = getEntityManager()
-        .createQuery("SELECT COUNT(e.id) FROM " + IrrigationLog.class.getSimpleName() + " e" + where.toString());
+        .createQuery("SELECT COUNT(e.id) FROM " + IrrigationRecord.class.getSimpleName() + " e" + where.toString());
 
     // Pagino
-    Query query = getEntityManager().createQuery("FROM " + IrrigationLog.class.getSimpleName() + " e" + where.toString());
+    Query query = getEntityManager().createQuery("FROM " + IrrigationRecord.class.getSimpleName() + " e" + where.toString());
     query.setMaxResults(cantPerPage);
     query.setFirstResult((page - 1) * cantPerPage);
     Integer count = ((Long) countQuery.getSingleResult()).intValue();
     Integer lastPage = (int) Math.ceil((double) count / (double) cantPerPage);
 
     // Armo respuesta
-    Page<IrrigationLog> resultPage = new Page<IrrigationLog>(page, count, page > 1 ? page - 1 : page,
+    Page<IrrigationRecord> resultPage = new Page<IrrigationRecord>(page, count, page > 1 ? page - 1 : page,
         page > lastPage ? page + 1 : lastPage, lastPage, query.getResultList());
     return resultPage;
   }

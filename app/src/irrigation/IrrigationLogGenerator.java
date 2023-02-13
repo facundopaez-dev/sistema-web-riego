@@ -20,10 +20,10 @@ import javax.ejb.EJB;
 import javax.ejb.Schedule;
 import javax.ejb.Stateless;
 import model.ClimateRecord;
-import model.IrrigationLog;
+import model.IrrigationRecord;
 import model.Parcel;
 import stateless.ClimateRecordServiceBean;
-import stateless.IrrigationLogServiceBean;
+import stateless.IrrigationRecordServiceBean;
 import stateless.ParcelServiceBean;
 import util.UtilDate;
 
@@ -33,8 +33,8 @@ public class IrrigationLogGenerator {
   // inject a reference to the ParcelServiceBean
   @EJB ParcelServiceBean parcelService;
 
-  // inject a reference to the IrrigationLogServiceBean
-  @EJB IrrigationLogServiceBean irrigationLogService;
+  // inject a reference to the IrrigationRecordServiceBean
+  @EJB IrrigationRecordServiceBean irrigationRecordService;
 
   // inject a reference to the ClimateRecordServiceBean
   @EJB ClimateRecordServiceBean climateRecordServiceBean;
@@ -65,7 +65,7 @@ public class IrrigationLogGenerator {
      * Registro actual de riego, es decir,
      * registro de riego para el dia de hoy
      */
-    IrrigationLog currentIrrigationLog = null;
+    IrrigationRecord currentIrrigationLog = null;
 
     /*
      * Riego sugerido actual, es decir,
@@ -106,8 +106,8 @@ public class IrrigationLogGenerator {
        * de riego en la fecha dada (en este caso la actual), se tiene
        * que crear uno para la fecha dada y asociarlo a la misma
        */
-      if (!irrigationLogService.exist(currentDate, currentParcel)) {
-        currentIrrigationLog = new IrrigationLog();
+      if (!irrigationRecordService.exist(currentDate, currentParcel)) {
+        currentIrrigationLog = new IrrigationRecord();
 
         /*
          * Establece la fecha del registro de riego
@@ -173,7 +173,7 @@ public class IrrigationLogGenerator {
          * registro historico de riego asociado a la
          * parcela dada
          */
-        irrigationLogService.create(currentIrrigationLog);
+        irrigationRecordService.create(currentIrrigationLog);
       } // End if
 
     } // End for

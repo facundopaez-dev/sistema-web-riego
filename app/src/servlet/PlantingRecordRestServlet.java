@@ -24,13 +24,13 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import model.ClimateRecord;
 import model.Crop;
-import model.IrrigationLog;
+import model.IrrigationRecord;
 import model.Parcel;
 import model.PlantingRecord;
 import model.PlantingRecordStatus;
 import stateless.ClimateRecordServiceBean;
 import stateless.CropServiceBean;
-import stateless.IrrigationLogServiceBean;
+import stateless.IrrigationRecordServiceBean;
 import stateless.MaximumInsolationServiceBean;
 import stateless.ParcelServiceBean;
 import stateless.PlantingRecordServiceBean;
@@ -50,8 +50,8 @@ public class PlantingRecordRestServlet {
   // inject a reference to the CropServiceBean slsb
   @EJB CropServiceBean cropService;
 
-  // inject a reference to the IrrigationLogServiceBean slsb
-  @EJB IrrigationLogServiceBean irrigationLogService;
+  // inject a reference to the IrrigationRecordServiceBean slsb
+  @EJB IrrigationRecordServiceBean irrigationRecordService;
 
   // inject a reference to the PlantingRecordStatusServiceBean slsb
   @EJB PlantingRecordStatusServiceBean statusService;
@@ -294,7 +294,7 @@ public class PlantingRecordRestServlet {
      * Cantidad total de agua utilizada en los riegos
      * realizados en el dia de hoy
      */
-    double totalIrrigationWaterToday = irrigationLogService.getTotalWaterIrrigationToday(parcel);
+    double totalIrrigationWaterToday = irrigationRecordService.getTotalWaterIrrigationToday(parcel);
 
     /*
      * Si el registro climatico del dia de ayer no existe en
@@ -333,7 +333,7 @@ public class PlantingRecordRestServlet {
     ClimateRecord climateLog = climateRecordServiceBean.find(yesterdayDate, parcel);
     suggestedIrrigationToday = WaterMath.getSuggestedIrrigation(parcel.getHectare(), climateLog.getEtc(), climateLog.getEto(), climateLog.getRainWater(), climateLog.getWaterAccumulated(), totalIrrigationWaterToday);
 
-    IrrigationLog newIrrigationLog = new IrrigationLog();
+    IrrigationRecord newIrrigationLog = new IrrigationRecord();
     newIrrigationLog.setDate(currentDate);
     newIrrigationLog.setSuggestedIrrigation(suggestedIrrigationToday);
     newIrrigationLog.setTomorrowPrecipitation(WaterMath.truncateToThreeDecimals(tomorrowPrecipitation));
