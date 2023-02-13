@@ -39,24 +39,24 @@ public class IrrigationRecordRestServlet {
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public String findAllIrrigationLogs() throws IOException {
-    Collection<IrrigationRecord> irrigationLogs = irrigationRecordService.findAll();
-    return mapper.writeValueAsString(irrigationLogs);
+  public String findAll() throws IOException {
+    Collection<IrrigationRecord> irrigationRecords = irrigationRecordService.findAll();
+    return mapper.writeValueAsString(irrigationRecords);
   }
 
   @GET
   @Path("/{id}")
   @Produces(MediaType.APPLICATION_JSON)
   public String find(@PathParam("id") int id) throws IOException {
-    IrrigationRecord irrigationLog = irrigationRecordService.find(id);
-    return mapper.writeValueAsString(irrigationLog);
+    IrrigationRecord irrigationRecord = irrigationRecordService.find(id);
+    return mapper.writeValueAsString(irrigationRecord);
   }
 
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
   public String create(String json) throws IOException {
-    IrrigationRecord newIrrigationLog = mapper.readValue(json, IrrigationRecord.class);
-    newIrrigationLog = irrigationRecordService.create(newIrrigationLog);
+    IrrigationRecord newIrrigationRecord = mapper.readValue(json, IrrigationRecord.class);
+    newIrrigationRecord = irrigationRecordService.create(newIrrigationRecord);
 
     /*
      * NOTE: Esto tiene que ser activado en el despliegue
@@ -65,24 +65,24 @@ public class IrrigationRecordRestServlet {
      * los registros climaticos de cada parcela para
      * cada dia del año
      */
-    // setWaterAccumulatedToday(newIrrigationLog.getParcel());
-    return mapper.writeValueAsString(newIrrigationLog);
+    // setWaterAccumulatedToday(newIrrigationRecord.getParcel());
+    return mapper.writeValueAsString(newIrrigationRecord);
   }
 
   // @DELETE
   // @Path("/{id}")
   // @Produces(MediaType.APPLICATION_JSON)
   // public String remove(@PathParam("id") int id) throws IOException {
-  //   IrrigationRecord irrigationLog = irrigationRecordService.remove(id);
-  //   return mapper.writeValueAsString(irrigationLog);
+  //   IrrigationRecord irrigationRecord = irrigationRecordService.remove(id);
+  //   return mapper.writeValueAsString(irrigationRecord);
   // }
 
   @PUT
   @Path("/{id}")
   @Produces(MediaType.APPLICATION_JSON)
   public String modify(@PathParam("id") int id, String json) throws IOException {
-    IrrigationRecord modifiedIrrigationLog = mapper.readValue(json, IrrigationRecord.class);
-    return mapper.writeValueAsString(irrigationRecordService.modify(id, modifiedIrrigationLog));
+    IrrigationRecord modifiedIrrigationRecord = mapper.readValue(json, IrrigationRecord.class);
+    return mapper.writeValueAsString(irrigationRecordService.modify(id, modifiedIrrigationRecord));
   }
 
   /**
