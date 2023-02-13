@@ -333,13 +333,13 @@ public class PlantingRecordRestServlet {
     ClimateRecord climateLog = climateRecordServiceBean.find(yesterdayDate, parcel);
     suggestedIrrigationToday = WaterMath.getSuggestedIrrigation(parcel.getHectare(), climateLog.getEtc(), climateLog.getEto(), climateLog.getRainWater(), climateLog.getWaterAccumulated(), totalIrrigationWaterToday);
 
-    IrrigationRecord newIrrigationLog = new IrrigationRecord();
-    newIrrigationLog.setDate(currentDate);
-    newIrrigationLog.setSuggestedIrrigation(suggestedIrrigationToday);
-    newIrrigationLog.setTomorrowPrecipitation(WaterMath.truncateToThreeDecimals(tomorrowPrecipitation));
-    newIrrigationLog.setParcel(parcel);
+    IrrigationRecord newIrrigationRecord = new IrrigationRecord();
+    newIrrigationRecord.setDate(currentDate);
+    newIrrigationRecord.setSuggestedIrrigation(suggestedIrrigationToday);
+    newIrrigationRecord.setTomorrowPrecipitation(WaterMath.truncateToThreeDecimals(tomorrowPrecipitation));
+    newIrrigationRecord.setParcel(parcel);
 
-    return mapper.writeValueAsString(newIrrigationLog);
+    return mapper.writeValueAsString(newIrrigationRecord);
   }
 
   /**

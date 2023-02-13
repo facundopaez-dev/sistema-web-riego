@@ -28,7 +28,7 @@ import stateless.ParcelServiceBean;
 import util.UtilDate;
 
 @Stateless
-public class IrrigationLogGenerator {
+public class IrrigationRecordGenerator {
 
   // inject a reference to the ParcelServiceBean
   @EJB ParcelServiceBean parcelService;
@@ -65,7 +65,7 @@ public class IrrigationLogGenerator {
      * Registro actual de riego, es decir,
      * registro de riego para el dia de hoy
      */
-    IrrigationRecord currentIrrigationLog = null;
+    IrrigationRecord currentIrrigationRecord = null;
 
     /*
      * Riego sugerido actual, es decir,
@@ -107,12 +107,12 @@ public class IrrigationLogGenerator {
        * que crear uno para la fecha dada y asociarlo a la misma
        */
       if (!irrigationRecordService.exist(currentDate, currentParcel)) {
-        currentIrrigationLog = new IrrigationRecord();
+        currentIrrigationRecord = new IrrigationRecord();
 
         /*
          * Establece la fecha del registro de riego
          */
-        currentIrrigationLog.setDate(currentDate);
+        currentIrrigationRecord.setDate(currentDate);
 
         /*
          * Recupera el registro climatico de la parcela
@@ -135,7 +135,7 @@ public class IrrigationLogGenerator {
          * el riego en el dia de hoy es 0.0
          */
         currentSuggestedIrrigation = WaterMath.getSuggestedIrrigation(currentParcel.getHectare(), yesterdayEtc, yesterdayEto, yesterdayRainWater, waterAccumulatedYesterday, 0.0);
-        currentIrrigationLog.setSuggestedIrrigation(currentSuggestedIrrigation);
+        currentIrrigationRecord.setSuggestedIrrigation(currentSuggestedIrrigation);
 
         /*
          * Se recupera el registro climatico del dia de mañana
@@ -148,7 +148,7 @@ public class IrrigationLogGenerator {
          * se lo usa con otro fin mas que para informar
          */
         tomorrowClimateLog = climateLogService.getClimateLog(currentParcel.getLatitude(), currentParcel.getLongitude(), (tomorrowDate.getTimeInMillis() / 1000));
-        currentIrrigationLog.setTomorrowPrecipitation(WaterMath.truncateToThreeDecimals(tomorrowClimateLog.getRainWater()));
+        currentIrrigationRecord.setTomorrowPrecipitation(WaterMath.truncateToThreeDecimals(tomorrowClimateLog.getRainWater()));
 
         /*
          * Si este bloque de codigo fuente se ejecuta es porque
@@ -165,15 +165,15 @@ public class IrrigationLogGenerator {
          * un registro del riego que no ha realizado el
          * usuario cliente
          */
-        currentIrrigationLog.setIrrigationDone(0.0);
-        currentIrrigationLog.setParcel(currentParcel);
+        currentIrrigationRecord.setIrrigationDone(0.0);
+        currentIrrigationRecord.setParcel(currentParcel);
 
         /*
          * Se crea en la base de datos subyacente el
          * registro historico de riego asociado a la
          * parcela dada
          */
-        irrigationRecordService.create(currentIrrigationLog);
+        irrigationRecordService.create(currentIrrigationRecord);
       } // End if
 
     } // End for
