@@ -1,0 +1,22 @@
+<div class="col-md-3 col-md-offset-3">
+    <form name="login_form">
+        <div class="form-group">
+            <label>Nombre de usuario</label>
+            <input type="text" name="username_field" class="form-control" placeholder="Ej.: JaneDoe"
+                ng-model="data.username" required />
+            <span ng-show="login_form.username_field.$dirty && login_form.username_field.$error.required"
+                class="help-block">El nombre de usuario es requerido</span>
+        </div>
+        <div class="form-group">
+            <label>Contraseña</label>
+            <input type="password" name="password_field" class="form-control" placeholder="Contraseña ultra secreta"
+                ng-model="data.password" required />
+            <span ng-show="login_form.password_field.$dirty && login_form.password_field.$error.required"
+                class="help-block">La contraseña es requerida</span>
+        </div>
+        <div class="form-group">
+            <button type="submit" ng-disabled="login_form.$invalid" class="btn btn-success" ng-click="login()">Iniciar
+                sesión</button>
+        </div>
+    </form>
+</div>
