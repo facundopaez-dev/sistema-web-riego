@@ -888,8 +888,8 @@ public class JwtManagerTest {
   }
 
   /**
-   * Crea y retorna un usuario con el nombre de usuario y la
-   * contraseña provistos
+   * Crea y retorna un usuario con los datos provistos en los
+   * parametros
    * 
    * @param username
    * @param password
