@@ -82,3 +82,46 @@ app.config(['$routeProvider', function(routeprovider) {
 		templateUrl: 'partials/404.html'
 	})
 }])
+
+
+/*
+JwtManager es la factory que se utiliza para el almacenamiento,
+obtencion y eliminacion de JWT
+*/
+app.factory('JwtManager', function ($window) {
+	/*
+	Con el valor de esta constante se obtiene el JWT del usuario que se
+	autentica satisfactoriamente
+	*/
+	const KEY = "loggedUser";
+
+	return {
+		/*
+		Cuando el usuario se autentica satisfactoriamente, se debe invocar
+		a esta funcion para almacenar el JWT del usuario en el almacenamiento
+		de sesion del navegador web
+		*/
+		setJwt: function (jwt) {
+			$window.localStorage.setItem(KEY, jwt);
+		},
+
+		/*
+		Esta funcion es necesaria para establecer el JWT (del usuario
+		que se autentica satisfactoriamente) en el encabezado de
+		autorizacion de cada peticion HTTP sea del cliente REST que
+		sea, un navegador web, una aplicacion del estilo POSTMAN, etc.
+		*/
+		getJwt: function () {
+			return $window.localStorage.getItem(KEY);
+		},
+
+		/*
+		Esta funcion debe ser invocada cuando el usuario cierra su
+		sesion, momento en el cual se debe eliminar su JWT del
+		almacenamiento local del navegador web
+		*/
+		removeJwt: function () {
+			$window.localStorage.removeItem(KEY);
+		}
+	}
+});
