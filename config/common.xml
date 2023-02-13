@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
 <project name="common">
-  <property file="common.properties"/>
+  <property file="common.properties" />
 
   <target name="clean">
-    <delete dir="build"/>
-    <delete dir="dist"/>
+    <delete dir="build" />
+    <delete dir="dist" />
   </target>
 
   <target name="setup">
-    <mkdir dir="build/model"/>
-    <mkdir dir="build/client"/>
-    <mkdir dir="build/test"/>
-    <mkdir dir="build/servlet/WEB-INF/classes"/>
-    <mkdir dir="dist"/>
-    <mkdir dir="dist/lib"/>
+    <mkdir dir="build/model" />
+    <mkdir dir="build/client" />
+    <mkdir dir="build/test" />
+    <mkdir dir="build/servlet/WEB-INF/classes" />
+    <mkdir dir="dist" />
+    <mkdir dir="dist/lib" />
     <available property="modelSrcExists" file="src/model" />
     <available property="servletSrcExists" file="src/servlet" />
     <available property="testSrcExists" file="src/test" />
@@ -23,18 +23,18 @@
 
   <target name="build_ear_without_war" depends="setup,build_jar">
     <copy todir="dist/ear/META-INF" failonerror="false">
-      <fileset file="etc/META-INF/application.xml"/>
+      <fileset file="etc/META-INF/application.xml" />
     </copy>
     <jar jarfile="dist/${example_name}.ear" update="yes">
-      <fileset file="dist/${example_name}.jar"/>
-      <fileset dir="dist/ear"/>
+      <fileset file="dist/${example_name}.jar" />
+      <fileset dir="dist/ear" />
 
     </jar>
   </target>
 
   <target name="build_jar" depends="setup" if="modelSrcExists">
     <copy todir="build/model" failonerror="false">
-      <fileset dir="etc/persistence"/>
+      <fileset dir="etc/persistence" />
     </copy>
     <javac destdir="build/model" debug="on">
       <src path="src/model" />
@@ -53,7 +53,7 @@
       </classpath>
     </javac>
     <jar jarfile="dist/lib/${example_name}.jar" update="true">
-      <fileset dir="build/model"/>
+      <fileset dir="build/model" />
     </jar>
   </target>
 
@@ -67,15 +67,16 @@
       </classpath>
     </javac>
     <war destfile="dist/${example_name}.war" webxml="etc/web/WEB-INF/web.xml" update="true">
-      <classes dir="build/servlet"/>
-      <lib dir="dist/lib"/>
-      <fileset dir="etc/web" excludesFile="etc/web/WEB-INF/web.xml"/>
-      <fileset dir="public"/>
-      <fileset dir="../public"/>
+      <classes dir="build/servlet" />
+      <lib dir="dist/lib" />
+      <fileset dir="etc/web" excludesFile="etc/web/WEB-INF/web.xml" />
+      <fileset dir="public" />
+      <fileset dir="../public" />
     </war>
   </target>
 
-  <!-- This target is for an application-managed EE project where there is no persistence injection on a session bean
+  <!-- This target is for an application-managed EE project where there is no persistence injection
+  on a session bean
   (injection is on a servlet) -->
   <target name="build_jar_without_persistence" depends="setup" if="modelSrcExists">
     <javac srcdir="src/model" destdir="build/model" debug="on">
@@ -84,15 +85,17 @@
       </classpath>
     </javac>
     <jar jarfile="dist/lib/${example_name}.jar" update="true">
-      <fileset dir="build/model"/>
+      <fileset dir="build/model" />
     </jar>
   </target>
 
-  <!-- This target is for an application-managed EE project where there is no persistence injection on a session bean
+  <!-- This target is for an application-managed EE project where there is no persistence injection
+  on a session bean
   (injection is on a servlet) -->
-  <target name="build_with_persistence_in_war" depends="build_war_with_persistence"/>
+  <target name="build_with_persistence_in_war" depends="build_war_with_persistence" />
 
-  <target name="build_war_with_persistence" depends="setup,build_jar_without_persistence" if="servletSrcExists">
+  <target name="build_war_with_persistence" depends="setup,build_jar_without_persistence"
+    if="servletSrcExists">
     <javac srcdir="src/servlet" destdir="build/servlet" debug="on">
       <classpath>
         <pathelement path="${CLIENT_CLASSPATH}" />
@@ -100,12 +103,12 @@
       </classpath>
     </javac>
     <copy todir="build/servlet" failonerror="false">
-      <fileset dir="etc/persistence"/>
+      <fileset dir="etc/persistence" />
     </copy>
     <war destfile="dist/${example_name}.war" webxml="etc/web/WEB-INF/web.xml" update="true">
-      <classes dir="build/servlet"/>
-      <lib dir="dist/lib"/>
-      <fileset dir="etc/web" excludesFile="etc/web/WEB-INF/web.xml"/>
+      <classes dir="build/servlet" />
+      <lib dir="dist/lib" />
+      <fileset dir="etc/web" excludesFile="etc/web/WEB-INF/web.xml" />
     </war>
   </target>
 
@@ -117,8 +120,8 @@
         <pathelement path="${JPA_CLASSPATH}" />
         <pathelement path="${CLIENT_CLASSPATH}" />
         <pathelement location="dist/lib/${example_name}.jar" />
-        <pathelement location="../lib/junit-4.12.jar"/>
-        <pathelement location="../lib/hamcrest-core-1.3.jar"/>
+        <pathelement location="../lib/junit-4.12.jar" />
+        <pathelement location="../lib/hamcrest-core-1.3.jar" />
       </classpath>
     </javac>
   </target>
@@ -131,10 +134,10 @@
         <pathelement path="${JPA_CLASSPATH}" />
         <pathelement path="${CLIENT_CLASSPATH}" />
         <pathelement location="dist/lib/${example_name}.jar" />
-        <pathelement location="../lib/junit-4.12.jar"/>
-        <pathelement location="../lib/hamcrest-core-1.3.jar"/>
-        <pathelement location="${DERBY_INSTALL}/lib/derby.jar"/>
-        <pathelement location="build/test"/>
+        <pathelement location="../lib/junit-4.12.jar" />
+        <pathelement location="../lib/hamcrest-core-1.3.jar" />
+        <pathelement location="${DERBY_INSTALL}/lib/derby.jar" />
+        <pathelement location="build/test" />
       </classpath>
       <formatter type="brief" usefile="false" />
       <batchtest>
@@ -148,324 +151,326 @@
   Comandos para iniciar el server y la base de datos.
 -->
 
-<!-- Inicia el servidor de aplicaciones -->
-<target name="start_app_server">
-  <exec executable="${SERVER_HOME}/bin/asadmin" failonerror="true" vmlauncher="false">
-    <arg line="start-domain"/>
-  </exec>
-</target>
+  <!-- Inicia el servidor de aplicaciones -->
+  <target name="start_app_server">
+    <exec executable="${SERVER_HOME}/bin/asadmin" failonerror="true" vmlauncher="false">
+      <arg line="start-domain" />
+    </exec>
+  </target>
 
-<!-- Inicia el servidor de base de datos DB -->
-<target name="start_db_server">
-  <exec executable="${SERVER_HOME}/bin/asadmin" failonerror="true" vmlauncher="false">
-    <arg line="start-database"/>
-  </exec>
-</target>
+  <!-- Inicia el servidor de base de datos DB -->
+  <target name="start_db_server">
+    <exec executable="${SERVER_HOME}/bin/asadmin" failonerror="true" vmlauncher="false">
+      <arg line="start-database" />
+    </exec>
+  </target>
 
 
-<!--
+  <!--
 Comandos para detener el server y la base de datos.
 -->
 
-<!-- Detiene el servidor de aplicaciones -->
-<target name="stop_app_server" >
-  <exec executable="${SERVER_HOME}/bin/asadmin" failonerror="true" vmlauncher="false">
-    <arg line="stop-domain"/>
-  </exec>
-</target>
+  <!-- Detiene el servidor de aplicaciones -->
+  <target name="stop_app_server">
+    <exec executable="${SERVER_HOME}/bin/asadmin" failonerror="true" vmlauncher="false">
+      <arg line="stop-domain" />
+    </exec>
+  </target>
 
-<!-- Detiene el servidor de base de datos DB -->
-<target name="stop_db_server" >
-  <exec executable="${SERVER_HOME}/bin/asadmin" failonerror="false" vmlauncher="false">
-    <arg line="stop-database"/>
-  </exec>
-</target>
-
-
-<!-- Elimina el dominio y lo vuelve a crear -->
-<target name="create_domain">
-  <exec executable="${SERVER_HOME}/bin/asadmin" failonerror="true" vmlauncher="false">
-    <arg line="create-domain --user admin --nopassword domain1"/>
-  </exec>
-</target>
-
-<target name="delete_domain">
-  <exec executable="${SERVER_HOME}/bin/asadmin" failonerror="true" vmlauncher="false">
-    <arg line="delete-domain domain1"/>
-  </exec>
-</target>
-
-<target name="run_sql">
-  <sql driver="org.apache.derby.jdbc.ClientDriver"
-    url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
-    userid="${DERBY_USER}"
-    password="${DERBY_PWD}"
-    src="etc/sql/db.sql"
-    onerror="continue">
-    <classpath>
-      <pathelement path="${DERBY_CLASSPATH}/lib"/>
-    </classpath>
-  </sql>
-</target>
-
-<!-- data loading dependencies -->
-<target name="run_solarRadiations_sql">
-  <sql driver="org.apache.derby.jdbc.ClientDriver"
-    url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
-    userid="${DERBY_USER}"
-    password="${DERBY_PWD}"
-    src="etc/sql/solarRadiation.sql"
-    onerror="continue">
-    <classpath>
-      <pathelement path="${DERBY_CLASSPATH}"/>
-    </classpath>
-  </sql>
-</target>
-
-<target name="run_maximumInsolations_sql">
-  <sql driver="org.apache.derby.jdbc.ClientDriver"
-    url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
-    userid="${DERBY_USER}"
-    password="${DERBY_PWD}"
-    src="etc/sql/maximumInsolation.sql"
-    onerror="continue">
-    <classpath>
-      <pathelement path="${DERBY_CLASSPATH}"/>
-    </classpath>
-  </sql>
-</target>
-
-<target name="run_deleteAll_sql">
-  <sql driver="org.apache.derby.jdbc.ClientDriver"
-    url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
-    userid="${DERBY_USER}"
-    password="${DERBY_PWD}"
-    src="etc/sql/deleteAll.sql"
-    onerror="continue">
-    <classpath>
-      <pathelement path="${DERBY_CLASSPATH}"/>
-    </classpath>
-  </sql>
-</target>
-
-<target name="run_users_sql">
-  <sql driver="org.apache.derby.jdbc.ClientDriver"
-    url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
-    userid="${DERBY_USER}"
-    password="${DERBY_PWD}"
-    src="etc/sql/users.sql"
-    onerror="continue">
-    <classpath>
-      <pathelement path="${DERBY_CLASSPATH}"/>
-    </classpath>
-  </sql>
-</target>
-
-<target name="run_irrigationLogs_sql">
-  <sql driver="org.apache.derby.jdbc.ClientDriver"
-    url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
-    userid="${DERBY_USER}"
-    password="${DERBY_PWD}"
-    src="etc/sql/irrigationLog.sql"
-    onerror="continue">
-    <classpath>
-      <pathelement path="${DERBY_CLASSPATH}"/>
-    </classpath>
-  </sql>
-</target>
-
-<target name="run_cultivo_sql">
-  <sql driver="org.apache.derby.jdbc.ClientDriver"
-    url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
-    userid="${DERBY_USER}"
-    password="${DERBY_PWD}"
-    src="etc/sql/insertsCultivo.sql"
-    onerror="continue">
-    <classpath>
-      <pathelement path="${DERBY_CLASSPATH}"/>
-    </classpath>
-  </sql>
-</target>
-
-<target name="run_parcels_sql">
-  <sql driver="org.apache.derby.jdbc.ClientDriver"
-    url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
-    userid="${DERBY_USER}"
-    password="${DERBY_PWD}"
-    src="etc/sql/parcels.sql"
-    onerror="continue">
-    <classpath>
-      <pathelement path="${DERBY_CLASSPATH}"/>
-    </classpath>
-  </sql>
-</target>
-
-<target name="run_climateLogs_sql">
-  <sql driver="org.apache.derby.jdbc.ClientDriver"
-    url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
-    userid="${DERBY_USER}"
-    password="${DERBY_PWD}"
-    src="etc/sql/climateLog.sql"
-    onerror="continue">
-    <classpath>
-      <pathelement path="${DERBY_CLASSPATH}"/>
-    </classpath>
-  </sql>
-</target>
-
-<!-- Esto fue creado para probar la capa de persistencia de datos de la
-clase entidad InstanceParcel, pero como fue reemplazada por la clase entidad
-InstanciaParcela ya no se lo usa, lo que a su vez hace que el archivo SQL
-llamado parcelLog quede sin utilizarse -->
-<!-- <target name="run_parcelLogs_sql">
-  <sql driver="org.apache.derby.jdbc.ClientDriver"
-    url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
-    userid="${DERBY_USER}"
-    password="${DERBY_PWD}"
-    src="etc/sql/parcelLog.sql"
-    onerror="continue">
-    <classpath>
-      <pathelement path="${DERBY_CLASSPATH}"/>
-    </classpath>
-  </sql>
-</target> -->
-
-<target name="run_deleteClimateLogs_sql">
-  <sql driver="org.apache.derby.jdbc.ClientDriver"
-    url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
-    userid="${DERBY_USER}"
-    password="${DERBY_PWD}"
-    src="etc/sql/deleteClimateLogs.sql"
-    onerror="continue">
-    <classpath>
-      <pathelement path="${DERBY_CLASSPATH}"/>
-    </classpath>
-  </sql>
-</target>
-
-<target name="run_forClimateLogFindTest_sql">
-  <sql driver="org.apache.derby.jdbc.ClientDriver"
-    url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
-    userid="${DERBY_USER}"
-    password="${DERBY_PWD}"
-    src="etc/sql/forClimateLogFindTest.sql"
-    onerror="continue">
-    <classpath>
-      <pathelement path="${DERBY_CLASSPATH}"/>
-    </classpath>
-  </sql>
-</target>
-
-<target name="run_instanciasParcelas_sql">
-  <sql driver="org.apache.derby.jdbc.ClientDriver"
-    url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
-    userid="${DERBY_USER}"
-    password="${DERBY_PWD}"
-    src="etc/sql/instanciasParcelas.sql"
-    onerror="continue">
-    <classpath>
-      <pathelement path="${DERBY_CLASSPATH}"/>
-    </classpath>
-  </sql>
-</target>
-
-<!-- Carga los estados en los cuales puede estar un cutivo "sembrado" en una
-instancia de parcela (registro historico de parcela) -->
-<target name="run_instanceParcelStatus_sql">
-  <sql driver="org.apache.derby.jdbc.ClientDriver"
-    url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
-    userid="${DERBY_USER}"
-    password="${DERBY_PWD}"
-    src="etc/sql/instanceParcelStatus.sql"
-    onerror="continue">
-    <classpath>
-      <pathelement path="${DERBY_CLASSPATH}"/>
-    </classpath>
-  </sql>
-</target>
-
-<target name="run_all_sql">
-  <sql driver="org.apache.derby.jdbc.ClientDriver"
-    url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
-    userid="${DERBY_USER}"
-    password="${DERBY_PWD}"
-    src="etc/sql/allInserts.sql"
-    onerror="continue">
-    <classpath>
-      <pathelement path="${DERBY_CLASSPATH}"/>
-    </classpath>
-  </sql>
-</target>
-
-<!-- Other commands -->
-<target name="deploy_war">
-  <echo message=" --user ${ADMIN_USER} ${PASSWORD_PREFIX} ${PASSWORD_FILE} deploy dist/${example_name}.war"/>
-  <exec executable="${SERVER_HOME}/bin/asadmin" failonerror="true" vmlauncher="false">
-    <arg line=" --user ${ADMIN_USER} ${PASSWORD_PREFIX} ${PASSWORD_FILE} deploy dist/${example_name}.war"/>
-  </exec>
-</target>
-
-<target name="undeploy_war">
-  <exec executable="${SERVER_HOME}/bin/asadmin" failonerror="true" vmlauncher="false">
-    <arg line=" --user ${ADMIN_USER} ${PASSWORD_PREFIX} ${PASSWORD_FILE} undeploy ${example_name}"/>
-  </exec>
-</target>
+  <!-- Detiene el servidor de base de datos DB -->
+  <target name="stop_db_server">
+    <exec executable="${SERVER_HOME}/bin/asadmin" failonerror="false" vmlauncher="false">
+      <arg line="stop-database" />
+    </exec>
+  </target>
 
 
+  <!-- Elimina el dominio y lo vuelve a crear -->
+  <target name="create_domain">
+    <exec executable="${SERVER_HOME}/bin/asadmin" failonerror="true" vmlauncher="false">
+      <arg line="create-domain --user admin --nopassword domain1" />
+    </exec>
+  </target>
 
-<target name="deploy_client">
-  <echo message="deploy to ${SERVER_HOME}/domains/domain1/applications/${example_name}"/>
-  <copy todir="${SERVER_HOME}/glassfish/domains/domain1/applications/${example_name}" failonerror="true">
-    <fileset dir="public"/>
-  </copy>
-</target>
+  <target name="delete_domain">
+    <exec executable="${SERVER_HOME}/bin/asadmin" failonerror="true" vmlauncher="false">
+      <arg line="delete-domain domain1" />
+    </exec>
+  </target>
+
+  <target name="run_sql">
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/db.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}/lib" />
+      </classpath>
+    </sql>
+  </target>
+
+  <!-- data loading dependencies -->
+  <target name="run_all_sql">
+    <!-- Borra el contenido de todas las tablas de la base de datos -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/removeAll.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla IRRIGATION_SYSTEM_USER -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/userInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla CROP -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/cropInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla PARCEL -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/parcelInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla PLANTING_RECORD_STATUS -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/plantingRecordStatusInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla PLANTING_RECORD -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/plantingRecordInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla CLIMATE_RECORD -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/climateRecordInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla IRRIGATION_RECORD -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/irrigationRecordInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla MONTH -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/monthInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla LATITUDE -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/latitudeInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla SOLAR_RADIATION -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/solarRadiationInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla MAXIMUM_INSOLATION -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/maximumInsolationInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla SECRET_KEY -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/secretKeyInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+  </target>
+
+  <target name="run_forClimateLogFindTest_sql">
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/forClimateLogFindTest.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+  </target>
+
+  <target name="run_eraseAll_sql">
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/removeAll.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+  </target>
+
+  <!-- Other commands -->
+  <target name="deploy_war">
+    <echo
+      message=" --user ${ADMIN_USER} ${PASSWORD_PREFIX} ${PASSWORD_FILE} deploy dist/${example_name}.war" />
+    <exec executable="${SERVER_HOME}/bin/asadmin" failonerror="true" vmlauncher="false">
+      <arg
+        line=" --user ${ADMIN_USER} ${PASSWORD_PREFIX} ${PASSWORD_FILE} deploy dist/${example_name}.war" />
+    </exec>
+  </target>
+
+  <target name="undeploy_war">
+    <exec executable="${SERVER_HOME}/bin/asadmin" failonerror="true" vmlauncher="false">
+      <arg line=" --user ${ADMIN_USER} ${PASSWORD_PREFIX} ${PASSWORD_FILE} undeploy ${example_name}" />
+    </exec>
+  </target>
 
 
+  <target name="deploy_client">
+    <echo message="deploy to ${SERVER_HOME}/domains/domain1/applications/${example_name}" />
+    <copy todir="${SERVER_HOME}/glassfish/domains/domain1/applications/${example_name}"
+      failonerror="true">
+      <fileset dir="public" />
+    </copy>
+  </target>
 
 
-
-<target name="create_datasource">
-  <exec executable="${SERVER_HOME}/bin/asadmin" failonerror="true" vmlauncher="false">
-    <arg line=" --user ${ADMIN_USER} ${PASSWORD_PREFIX} ${PASSWORD_FILE} create-jdbc-connection-pool
+  <target name="create_datasource">
+    <exec executable="${SERVER_HOME}/bin/asadmin" failonerror="true" vmlauncher="false">
+      <arg
+        line=" --user ${ADMIN_USER} ${PASSWORD_PREFIX} ${PASSWORD_FILE} create-jdbc-connection-pool
       --datasourceclassname org.apache.derby.jdbc.ClientXADataSource
       --restype javax.sql.XADataSource --property portNumber=${DERBY_PORT}:password=${DERBY_PWD}:user=${DERBY_USER}:serverName=${DERBY_HOST}:databaseName=${DB_NAME}:connectionAttributes=\;create\=true ${DB_NAME}" />
     </exec>
     <exec executable="${SERVER_HOME}/bin/asadmin" failonerror="true" vmlauncher="false">
-      <arg line=" --user ${ADMIN_USER} ${PASSWORD_PREFIX} ${PASSWORD_FILE} create-jdbc-resource
+      <arg
+        line=" --user ${ADMIN_USER} ${PASSWORD_PREFIX} ${PASSWORD_FILE} create-jdbc-resource
         --connectionpoolid ${DB_NAME} jdbc/${DB_NAME}" />
-      </exec>
-    </target>
+    </exec>
+  </target>
 
-    <!-- disable auto ddl creation on derby for composite ID attributes using EmbeddedId and IdClass - db.sql creates are significant here-->
-    <target name="create_datasource_no_ddl_create">
-      <exec executable="${SERVER_HOME}/bin/asadmin" failonerror="true" vmlauncher="false">
-        <arg line=" --user ${ADMIN_USER} ${PASSWORD_PREFIX} ${PASSWORD_FILE} create-jdbc-connection-pool
+  <!-- disable auto ddl creation on derby for composite ID attributes using EmbeddedId and IdClass -
+  db.sql creates are significant here-->
+  <target name="create_datasource_no_ddl_create">
+    <exec executable="${SERVER_HOME}/bin/asadmin" failonerror="true" vmlauncher="false">
+      <arg
+        line=" --user ${ADMIN_USER} ${PASSWORD_PREFIX} ${PASSWORD_FILE} create-jdbc-connection-pool
           --datasourceclassname org.apache.derby.jdbc.ClientXADataSource
           --restype javax.sql.XADataSource --property portNumber=${DERBY_PORT}:password=${DERBY_PWD}:user=${DERBY_USER}:serverName=${DERBY_HOST}:databaseName=${DB_NAME}:connectionAttributes=\;create\=false ${DB_NAME}" />
-        </exec>
-        <exec executable="${SERVER_HOME}/bin/asadmin" failonerror="true" vmlauncher="false">
-          <arg line=" --user ${ADMIN_USER} ${PASSWORD_PREFIX} ${PASSWORD_FILE} create-jdbc-resource
+    </exec>
+    <exec executable="${SERVER_HOME}/bin/asadmin" failonerror="true" vmlauncher="false">
+      <arg
+        line=" --user ${ADMIN_USER} ${PASSWORD_PREFIX} ${PASSWORD_FILE} create-jdbc-resource
             --connectionpoolid ${DB_NAME} jdbc/${DB_NAME}" />
-          </exec>
-        </target>
+    </exec>
+  </target>
 
-        <target name="remove_datasource">
-          <delete dir="${SERVER_HOME}/glassfish/databases/${DB_NAME}" failonerror="false"/>
-          <exec executable="${SERVER_HOME}/bin/asadmin" failonerror="true" vmlauncher="false">
-            <arg line=" --user ${ADMIN_USER} ${PASSWORD_PREFIX} ${PASSWORD_FILE} delete-jdbc-resource jdbc/${DB_NAME}" />
-          </exec>
-          <exec executable="${SERVER_HOME}/bin/asadmin" failonerror="true" vmlauncher="false">
-            <arg line=" --user ${ADMIN_USER} ${PASSWORD_PREFIX} ${PASSWORD_FILE} delete-jdbc-connection-pool ${DB_NAME}" />
-          </exec>
-        </target>
-
-
-        <target name="name" depends="init">
-          <echo>El nombre de este ejemplo es: ${example_name}.
-
-            Puede ser accedido entrando a la url http://localhost:8080/${example_name}/
-          </echo>
-        </target>
+  <target name="remove_datasource">
+    <delete dir="${SERVER_HOME}/glassfish/databases/${DB_NAME}" failonerror="false" />
+    <exec executable="${SERVER_HOME}/bin/asadmin" failonerror="true" vmlauncher="false">
+      <arg
+        line=" --user ${ADMIN_USER} ${PASSWORD_PREFIX} ${PASSWORD_FILE} delete-jdbc-resource jdbc/${DB_NAME}" />
+    </exec>
+    <exec executable="${SERVER_HOME}/bin/asadmin" failonerror="true" vmlauncher="false">
+      <arg
+        line=" --user ${ADMIN_USER} ${PASSWORD_PREFIX} ${PASSWORD_FILE} delete-jdbc-connection-pool ${DB_NAME}" />
+    </exec>
+  </target>
 
 
-      </project>
+  <target name="name" depends="init">
+    <echo>El nombre de este ejemplo es: ${example_name}.
+
+      Puede ser accedido entrando a la url http://localhost:8080/${example_name}/
+    </echo>
+  </target>
+
+
+</project>

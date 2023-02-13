@@ -1,10 +1,10 @@
 package model;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 @Entity
 public class Month {
@@ -13,34 +13,33 @@ public class Month {
    * Instance variables
    */
   @Id
-  @GeneratedValue(strategy=GenerationType.IDENTITY)
-  @Column(name="MONTH_ID")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "ID")
   private int id;
 
-  @Column(name="NAME_MONTH", unique=true)
-  private String nameMonth;
+  @Column(name = "NAME", unique = true)
+  private String name;
 
-  // Constructor method
   public Month() {
-    
+
   }
 
   /* Getters and setters */
 
-	/**
-	* Returns value of id
-	* @return id
-	*/
+  /**
+   * Returns value of id
+   * @return id
+   */
   public int getId() {
-		return id;
-	}
+    return id;
+  }
 
   /**
-   * Returns value of nameMonth
-   * @return nameMonth
+   * Returns value of name
+   * @return name
    */
-  public String getMonth() {
-    return nameMonth;
+  public String getName() {
+    return name;
   }
 
 }

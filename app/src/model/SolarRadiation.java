@@ -6,52 +6,51 @@
 
 package model;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.Id;
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 @Entity
-@Table(name="SOLAR_RADIATION")
+@Table(name = "SOLAR_RADIATION")
 public class SolarRadiation {
 
   /*
    * Instance variables
    */
   @Id
-  @GeneratedValue(strategy=GenerationType.IDENTITY)
-  @Column(name="SOLAR_RADIATION_ID")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "ID")
   private int id;
 
-  @Column(name="SOLAR_RADIATION_VALUE")
+  @Column(name = "VALUE")
   private float solarRadiationValue;
 
   @ManyToOne
-  @JoinColumn(name="FK_LATITUDE")
+  @JoinColumn(name = "FK_LATITUDE")
   private Latitude decimalLatitude;
 
   @ManyToOne
-  @JoinColumn(name="FK_MONTH")
+  @JoinColumn(name = "FK_MONTH")
   private Month month;
 
-  // Constructor method
   public SolarRadiation() {
 
   }
 
   /* Getters and setters */
 
-	/**
-	* Returns value of id
-	* @return
-	*/
-	public int getId() {
-		return id;
-	}
+  /**
+   * Returns value of id
+   * @return
+   */
+  public int getId() {
+    return id;
+  }
 
   /**
    * Returns value of solarRadiationValue
@@ -61,13 +60,13 @@ public class SolarRadiation {
     return solarRadiationValue;
   }
 
-	/**
-	* Returns value of decimalLatitude
-	* @return decimalLatitude
-	*/
-	public Latitude getLatitude() {
-		return decimalLatitude;
-	}
+  /**
+   * Returns value of decimalLatitude
+   * @return decimalLatitude
+   */
+  public Latitude getLatitude() {
+    return decimalLatitude;
+  }
 
   /**
    * Returns value of month

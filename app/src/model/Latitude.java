@@ -1,10 +1,10 @@
 package model;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 @Entity
 public class Latitude {
@@ -13,27 +13,26 @@ public class Latitude {
    * Instance variables
    */
   @Id
-  @GeneratedValue(strategy=GenerationType.IDENTITY)
-  @Column(name="LATITUDE_ID")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "ID")
   private int id;
 
-  @Column(name="DECIMAL_LATITUDE", unique=true)
+  @Column(name = "DECIMAL_LATITUDE", unique = true)
   private int decimalLatitude;
 
-  // Constructor method
   public Latitude() {
-    
+
   }
 
   /* Getters and setters */
 
-	/**
-	* Returns value of id
-	* @return id
-	*/
-	public int getId() {
-		return id;
-	}
+  /**
+   * Returns value of id
+   * @return id
+   */
+  public int getId() {
+    return id;
+  }
 
   /**
    * Returns value of decimalLatitude
