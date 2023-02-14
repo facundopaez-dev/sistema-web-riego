@@ -1,18 +1,17 @@
 app.controller(
-	"UsersCtrl",
-	["$scope", "$location", "$route", "UserSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
-		function ($scope, $location, $route, userService, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
-			console.log("UsersCtrl loaded...")
+    "AdminHomeCtrl",
+    ["$scope", "$location", "AuthHeaderManager", "AccessManager", "LogoutManager",
+        function ($scope, $location, authHeaderManager, accessManager, logoutManager) {
 
-			/*
-			Si el usuario que tiene una sesion abierta no tiene permiso de administrador,
-			no se le da acceso a la pagina correspondiente a este controller y se lo redirige
-			a la pagina de inicio del usuario
-			*/
-			if (accessManager.isUserLoggedIn() && !accessManager.loggedAsAdmin()) {
-				$location.path("/home");
-				return;
-			}
+            /*
+            Si el usuario que tiene una sesion abierta no tiene permiso de administrador,
+            no se le da acceso a la pagina correspondiente a este controller y se lo redirige
+            a la pagina de inicio del usuario
+             */
+            if (accessManager.isUserLoggedIn() && !accessManager.loggedAsAdmin()) {
+                $location.path("/home");
+                return;
+            }
 
             /*
             Cuando el usuario abre una sesion satisfactoriamente y no la cierra,
@@ -37,34 +36,6 @@ app.controller(
                 authHeaderManager.setJwtAuthHeader();
             }
 
-			function findAll() {
-				userService.findAll(function (error, data) {
-					if (error) {
-						console.log("Ocurrió un error: " + error);
-						errorResponseManager.checkResponse(error);
-						return;
-					}
-
-					$scope.data = data;
-				})
-			}
-
-			$scope.delete = function (id) {
-
-				console.log("Deleting: " + id)
-
-				userService.delete(id, function (error, data) {
-					if (error) {
-						console.log(error);
-						errorResponseManager.checkResponse(error);
-						return;
-					}
-
-					$location.path("/adminHome/users");
-					$route.reload()
-				});
-			}
-
             $scope.logout = function () {
                 /*
                 LogoutManager es la factory encargada de realizar el cierre de
@@ -82,5 +53,4 @@ app.controller(
                 logoutManager.logout();
             }
 
-			findAll();
-		}]);
+        }]);

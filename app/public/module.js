@@ -6,64 +6,72 @@ var app = angular.module('app', ['ngRoute', 'Pagination', 'ui.bootstrap', 'leafl
 app.config(['$routeProvider', function (routeprovider) {
 	routeprovider
 
+		/* Rutas del usuario */
 		.when('/', {
 			templateUrl: 'partials/user/user-login.html',
 			controller: 'UserLoginCtrl'
 		})
 
-		.when('/crops', {
+		.when('/home', {
+			templateUrl: 'partials/user/home.html',
+			controller: 'HomeCtrl'
+		})
+
+		.when('/home/crops', {
 			templateUrl: 'partials/user/user-crop-list.html',
 			controller: 'UserCropsCtrl'
 		})
-		.when('/crops/:action', {
+		.when('/home/crops/:action', {
 			templateUrl: 'partials/user/user-crop-form.html',
 			controller: 'UserCropCtrl'
 		})
-		.when('/crops/:action/:id', {
+		.when('/home/crops/:action/:id', {
 			templateUrl: 'partials/user/user-crop-form.html',
 			controller: 'UserCropCtrl'
 		})
 
-		.when('/climateRecords', {
-			templateUrl: 'partials/user/climate-record-list.html',
-			controller: 'ClimateRecordsCtrl'
-		})
-		.when('/climateRecords/:action', {
-			templateUrl: 'partials/user/climate-record-form.html',
-			controller: 'ClimateRecordCtrl'
-		})
-		.when('/climateRecords/:action/:id', {
-			templateUrl: 'partials/user/climate-record-form.html',
-			controller: 'ClimateRecordCtrl'
-		})
-
-		.when('/plantingRecords', {
-			templateUrl: 'partials/user/planting-record-list.html',
-			controller: 'PlantingRecordsCtrl'
-		})
-		.when('/plantingRecords/:action', {
-			templateUrl: 'partials/user/planting-record-form.html',
-			controller: 'PlantingRecordCtrl'
-		})
-		.when('/plantingRecords/:action/:id', {
-			templateUrl: 'partials/user/planting-record-form.html',
-			controller: 'PlantingRecordCtrl'
-		})
-
-		.when('/parcels', {
+		.when('/home/parcels', {
 			templateUrl: 'partials/user/parcel-list.html',
 			controller: 'ParcelsCtrl'
 		})
 
-		.when('/parcels/:action', {
+		.when('/home/parcels/:action', {
 			templateUrl: 'partials/user/parcel-form.html',
 			controller: 'ParcelCtrl'
 		})
 
-		.when('/parcels/:action/:id', {
+		.when('/home/parcels/:action/:id', {
 			templateUrl: 'partials/user/parcel-form.html',
 			controller: 'ParcelCtrl'
 		})
+
+		.when('/home/climateRecords', {
+			templateUrl: 'partials/user/climate-record-list.html',
+			controller: 'ClimateRecordsCtrl'
+		})
+		.when('/home/climateRecords/:action', {
+			templateUrl: 'partials/user/climate-record-form.html',
+			controller: 'ClimateRecordCtrl'
+		})
+		.when('/home/climateRecords/:action/:id', {
+			templateUrl: 'partials/user/climate-record-form.html',
+			controller: 'ClimateRecordCtrl'
+		})
+
+		.when('/home/plantingRecords', {
+			templateUrl: 'partials/user/planting-record-list.html',
+			controller: 'PlantingRecordsCtrl'
+		})
+		.when('/home/plantingRecords/:action', {
+			templateUrl: 'partials/user/planting-record-form.html',
+			controller: 'PlantingRecordCtrl'
+		})
+		.when('/home/plantingRecords/:action/:id', {
+			templateUrl: 'partials/user/planting-record-form.html',
+			controller: 'PlantingRecordCtrl'
+		})
+
+		/* Rutas del administrador */
 
 		/*
 		Se utiliza la pagina web de inicio de sesion del usuario como
@@ -76,22 +84,27 @@ app.config(['$routeProvider', function (routeprovider) {
 			controller: 'AdminLoginCtrl'
 		})
 
-		.when('/admin/crops', {
+		.when('/adminHome', {
+			templateUrl: 'partials/admin/admin-home.html',
+			controller: 'AdminHomeCtrl'
+		})
+
+		.when('/adminHome/users', {
+			templateUrl: 'partials/admin/user-list.html',
+			controller: 'UsersCtrl'
+		})
+
+		.when('/adminHome/crops', {
 			templateUrl: 'partials/admin/admin-crop-list.html',
 			controller: 'AdminCropsCtrl'
 		})
-		.when('/admin/crops/:action', {
+		.when('/adminHome/crops/:action', {
 			templateUrl: 'partials/admin/admin-crop-form.html',
 			controller: 'AdminCropCtrl'
 		})
-		.when('/admin/crops/:action/:id', {
+		.when('/adminHome/crops/:action/:id', {
 			templateUrl: 'partials/admin/admin-crop-form.html',
 			controller: 'AdminCropCtrl'
-		})
-
-		.when('/admin/users', {
-			templateUrl: 'partials/admin/user-list.html',
-			controller: 'UsersCtrl'
 		})
 
 		.otherwise({
@@ -493,3 +506,92 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 		}
 	}
 }]);
+
+/*
+LogoutManager es la factory que se utiliza para realizar el cierre
+de sesion del usuario tenga este o no permiso de administrador
+*/
+app.factory('LogoutManager', ['JwtManager', 'ErrorResponseManager', 'AuthHeaderManager', 'AccessManager', 'LogoutSrv', '$location',
+	function (jwtManager, errorResponseManager, authHeaderManager, accessManager, logoutSrv, $location) {
+		return {
+			/**
+			 * Esta funcion realiza el cierre de sesion del usuario. Durante
+			 * este cierre realiza la peticion HTTP de cierre de sesion (elimina
+			 * logicamente la sesion activa del usuario en la base de datos, la
+			 * cual, esta en el lado servidor), la eliminacion del JWT del usuario,
+			 * el borrado del contenido del encabezado HTTP de autorizacion, el
+			 * establecimiento en false del valor asociado a la clave "superuser"
+			 * del almacenamiento local del navegador web y la redireccion a la
+			 * pagina web de inicio de sesion correspondiente dependiendo si el
+			 * usuario inicio sesion como administrador o no.
+			 */
+			logout: function () {
+				/*
+				Con esta peticion se elimina logicamente de la base de datos
+				(en el backend) la sesion activa del usuario. Si no se hace
+				esta eliminacion lo que sucedera es que, cuando el usuario
+				que abrio y cerro su sesion, intente abrir otra sesion, la
+				aplicacion no se lo permitira, ya que la sesion anteriormente
+				cerrada aun sigue activa.
+		
+				Cuando se elimina logicamente una sesion activa de la base
+				de datos subyacente (en el backend), la sesion pasa a estar
+				inactiva. De esta manera, el usuario que abrio y cerro su
+				sesion, puede abrir nuevamente otra sesion.
+				*/
+				logoutSrv.logout(function (error) {
+					if (error) {
+						console.log(error);
+						errorResponseManager.checkResponse(error);
+					}
+				});
+
+				/*
+				Cuando el usuario cliente cierra su sesion, se elimina su JWT
+				del almacenamiento local del navegador web
+				*/
+				jwtManager.removeJwt();
+
+				/*
+				Cuando el usuario cierra su sesion, se elimina el contenido
+				del encabezado de autorizacion HTTP, ya que de no hacerlo la
+				aplicacion usara el mismo JWT para todas las peticiones HTTP,
+				lo cual, producira que la aplicacion del lado servidor
+				devuelva datos que no pertenecen al usuario que tiene una
+				sesion abierta
+				*/
+				authHeaderManager.clearAuthHeader();
+
+				/*
+				Si el usuario inicio sesion como administrador (siempre y cuando
+				tenga permiso de administrador), se establece en false el valor
+				asociado a la clave "superuser" y se redirige al usuario a la
+				pagina web de inicio de sesion del administrador
+				*/
+				if (accessManager.loggedAsAdmin()) {
+					/*
+					Cuando un administrador cierra su sesion, la variable booleana que se utiliza
+					para controlar su acceso a las paginas web a las que accede un usuario, se
+					establece en false, ya que de no hacerlo dicha variable tendria el valor
+					true y se le impediria el acceso a dichas paginas web a un administrador
+					cuando inicie sesion a traves de la pagina de inicio de sesion del usuario
+					*/
+					accessManager.clearAsAdmin();
+
+					/*
+					Cuando el administrador cierra su sesion, se lo redirige a la pagina web
+					de inicio de sesion del administrador
+					*/
+					$location.path("/admin");
+					return;
+				}
+
+				/*
+				Cuando el usuario cliente cierra su sesion, se lo redirige a la pagina de
+				inicio de sesion
+				*/
+				$location.path("/");
+			}
+		}
+	}
+]);
