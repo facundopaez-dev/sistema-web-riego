@@ -39,7 +39,7 @@ public class Parcel {
   private boolean active;
 
   @ManyToOne
-  @JoinColumn(name = "FK_USER")
+  @JoinColumn(name = "FK_USER", nullable = false)
   private User user;
 
   public Parcel() {
