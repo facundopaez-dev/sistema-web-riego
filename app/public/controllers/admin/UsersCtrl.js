@@ -2,7 +2,18 @@ app.controller(
 	"UsersCtrl",
 	["$scope", "$location", "$route", "UserSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
 		function ($scope, $location, $route, userService, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
-			console.log("UsersCtrl loaded...")
+
+            console.log("UsersCtrl loaded...")
+
+			/*
+            Si el usuario NO tiene una sesion abierta, se le impide el acceso a
+            la pagina web correspondiente a este controller y se lo redirige a
+            la pagina web de inicio de sesion correspondiente
+            */
+            if (!accessManager.isUserLoggedIn()) {
+                $location.path("/admin");
+                return;
+            }
 
 			/*
 			Si el usuario que tiene una sesion abierta no tiene permiso de administrador,

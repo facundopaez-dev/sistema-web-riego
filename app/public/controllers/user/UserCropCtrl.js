@@ -18,6 +18,16 @@ app.controller(
 
       console.log("UserCropCtrl loaded with action: " + $params.action)
 
+			/*
+			Si el usuario NO tiene una sesion abierta, se le impide el acceso a
+			la pagina web correspondiente a este controller y se lo redirige a
+			la pagina web de inicio de sesion correspondiente
+			*/
+			if (!accessManager.isUserLoggedIn()) {
+				$location.path("/");
+				return;
+			}
+
       /*
       Si el usuario que tiene una sesion abierta tiene permiso de
       administrador, se lo redirige a la pagina de inicio del

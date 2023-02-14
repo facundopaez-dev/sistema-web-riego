@@ -2,7 +2,18 @@ app.controller(
   "ParcelsCtrl",
   ["$scope", "$location", "$route", "ParcelSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
     function ($scope, $location, $route, parcelService, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
+      
       console.log("ParcelsCtrl loaded...")
+
+      /*
+      Si el usuario NO tiene una sesion abierta, se le impide el acceso a
+      la pagina web correspondiente a este controller y se lo redirige a
+      la pagina web de inicio de sesion correspondiente
+      */
+      if (!accessManager.isUserLoggedIn()) {
+        $location.path("/");
+        return;
+      }
 
       /*
       Si el usuario que tiene una sesion abierta tiene permiso de
