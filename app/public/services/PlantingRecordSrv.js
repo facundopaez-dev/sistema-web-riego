@@ -51,6 +51,7 @@ app.service("PlantingRecordSrv", ["$http", function ($http) {
       });
   }
 
+  // TODO: Comprobar para que sirve esto
   this.findCurrentPlantingRecord = function (idParcel, callback) {
     $http.get("rest/plantingRecords/findCurrentPlantingRecord/" + idParcel).then(
       function (result) {
@@ -61,6 +62,7 @@ app.service("PlantingRecordSrv", ["$http", function ($http) {
       });
   }
 
+  // TODO: Comprobar para que sirve esto
   this.checkStageCropLife = function (crop, seedDate, harvestDate, callback) {
 
     if ((seedDate != null) && (harvestDate != null)) {
@@ -80,6 +82,7 @@ app.service("PlantingRecordSrv", ["$http", function ($http) {
 
   };
 
+  // TODO: Comprobar para que sirve esto
   // this.checkStageCropLife = function(data, callback) {
   //   $http.get("rest/plantingRecords/checkStageCropLife/" + data)
   //   .then(

@@ -222,6 +222,7 @@ app.controller(
             alert("Ocurrio un error: " + error);
             return;
           }
+
           $scope.crops = crops;
         })
       }
