@@ -1,7 +1,7 @@
 app.controller(
   "ClimateRecordCtrl",
-  ["$scope", "$location", "$routeParams", "ClimateRecordSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
-    function ($scope, $location, $params, climateRecordService, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
+  ["$scope", "$location", "$routeParams", "ClimateRecordSrv", "ParcelSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
+    function ($scope, $location, $params, climateRecordService, parcelService, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
 
       console.log("ClimateRecordCtrl loaded with action: " + $params.action)
 
@@ -122,6 +122,21 @@ app.controller(
       }
 
       $scope.action = $params.action;
+
+      function findAllActiveParcels() {
+        parcelService.findAllActive(function (error, parcels) {
+          if (error) {
+            alert("Ocurrio un error: " + error);
+            return;
+          }
+
+          $scope.parcels = parcels;
+        })
+      }
+
+      if ($scope.action == 'new' || $scope.action == 'edit' || $scope.action == 'view') {
+        findAllActiveParcels();
+      }
 
       if ($scope.action == 'edit' || $scope.action == 'view') {
         find($params.id);
