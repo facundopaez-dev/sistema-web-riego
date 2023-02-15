@@ -14,11 +14,11 @@
  * la unidad SI, la cual establece lo siguiente:
  *
  * precipIntensity: Milimetros por hora.
- * temperatureMin: Grados centigrados.
- * temperatureMax: Grados centigrados.
+ * minimumTemperature: Grados centigrados.
+ * maximumTemperature: Grados centigrados.
  * dewPoint: Grados centigrados.
  * windSpeed: Metros por segundo.
- * pressure: Hectopascales.
+ * atmosphericPressure: Hectopascales.
  *
  * La presion atmosferica la tenemos que convertir
  * de hectopascales a kilopascales porque la formula
@@ -114,8 +114,8 @@ public class ClimateRecord {
    *
    * La presion del aire a nivel del mar
    */
-  @Column(name = "PRESSURE", nullable = false)
-  private Double pressure;
+  @Column(name = "ATMOSPHERIC_PRESSURE", nullable = false)
+  private Double atmosphericPressure;
 
   /*
    * Velocidad del viento
@@ -142,8 +142,8 @@ public class ClimateRecord {
    * fenomeno es medido en grados
    * centigrados
    */
-  @Column(name = "TEMP_MIN", nullable = false)
-  private Double temperatureMin;
+  @Column(name = "MIN_TEMP", nullable = false)
+  private Double minimumTemperature;
 
   /*
    * Temperatura maxima [°C]
@@ -152,8 +152,8 @@ public class ClimateRecord {
    * fenomeno es medido en grados
    * centigrados
    */
-  @Column(name = "TEMP_MAX", nullable = false)
-  private Double temperatureMax;
+  @Column(name = "MAX_TEMP", nullable = false)
+  private Double maximumTemperature;
 
   /*
    * Cantidad total de agua de lluvia [milimetros]
@@ -311,19 +311,19 @@ public class ClimateRecord {
 	}
 
 	/**
-	 * Returns value of pressure
+	 * Returns value of atmosphericPressure
 	 * @return
 	 */
-	public Double getPressure() {
-		return pressure;
+	public Double getAtmosphericPressure() {
+		return atmosphericPressure;
 	}
 
 	/**
-	 * Sets new value of pressure
+	 * Sets new value of atmosphericPressure
 	 * @param
 	 */
-	public void setPressure(Double pressure) {
-		this.pressure = pressure;
+	public void setAtmosphericPressure(Double atmosphericPressure) {
+		this.atmosphericPressure = atmosphericPressure;
 	}
 
 	/**
@@ -359,35 +359,35 @@ public class ClimateRecord {
 	}
 
 	/**
-	 * Returns value of temperatureMin
+	 * Returns value of minimumTemperature
 	 * @return
 	 */
-	public Double getTemperatureMin() {
-		return temperatureMin;
+	public Double getMinimumTemperature() {
+		return minimumTemperature;
 	}
 
 	/**
-	 * Sets new value of temperatureMin
+	 * Sets new value of minimumTemperature
 	 * @param
 	 */
-	public void setTemperatureMin(Double temperatureMin) {
-		this.temperatureMin = temperatureMin;
+	public void setMinimumTemperature(Double minimumTemperature) {
+		this.minimumTemperature = minimumTemperature;
 	}
 
   /**
-	 * Returns value of temperatureMax
+	 * Returns value of maximumTemperature
 	 * @return
 	 */
-	public Double getTemperatureMax() {
-		return temperatureMax;
+	public Double getMaximumTemperature() {
+		return maximumTemperature;
 	}
 
 	/**
-	 * Sets new value of temperatureMax
+	 * Sets new value of maximumTemperature
 	 * @param
 	 */
-	public void setTemperatureMax(Double temperatureMax) {
-		this.temperatureMax = temperatureMax;
+	public void setMaximumTemperature(Double maximumTemperature) {
+		this.maximumTemperature = maximumTemperature;
 	}
 
   /**
@@ -486,11 +486,11 @@ public class ClimateRecord {
    *
    * Unidades SI:
    * Intensidad de precipitación (precipIntensity) [milimetros por hora]
-   * Temperatura minima (temperatureMin) [°C]
-   * Temperatura maxima (temperatureMax) [°C]
+   * Temperatura minima (minimumTemperature) [°C]
+   * Temperatura maxima (maximumTemperature) [°C]
    * Punto de rocio (dewPoint) [°C]
    * Velocidad del viento (windSpeed) [metros por segundo]
-   * Presion atmosferica (pressure) [hectopascales] convertida a [kPa]
+   * Presion atmosferica (atmosphericPressure) [hectopascales] convertida a [kPa]
    *
    * @param forecastResponse (pronostico) este parametro contiene
    * todos los datos climaticos devueltos por la llamada a la API
@@ -537,7 +537,7 @@ public class ClimateRecord {
      *
      * 1 hectopascales = 0.1 kilopascales
      */
-    pressure = forecastResponse.getDaily().getData().get(0).getPressure() * 0.1;
+    atmosphericPressure = forecastResponse.getDaily().getData().get(0).getPressure() * 0.1;
 
     /*
      * Velocidad del viento [metros por segundo]
@@ -551,8 +551,8 @@ public class ClimateRecord {
     cloudCover = forecastResponse.getDaily().getData().get(0).getCloudCover();
 
     // [°C]
-    temperatureMin = forecastResponse.getDaily().getData().get(0).getTemperatureMin();
-    temperatureMax = forecastResponse.getDaily().getData().get(0).getTemperatureMax();
+    minimumTemperature = forecastResponse.getDaily().getData().get(0).getTemperatureMin();
+    maximumTemperature = forecastResponse.getDaily().getData().get(0).getTemperatureMax();
 
     /*
      * La intensidad (en milimetros de agua líquida por hora) de precipitación que
@@ -597,8 +597,24 @@ public class ClimateRecord {
 
   @Override
   public String toString() {
-    return String.format("ID: %d\nLatitud: %f (grados decimales) Longitud: %f (grados decimales)\nZona horaria: %s\nFecha: %s\nIntensidad de precipitación: %f (milímetros/hora)\nProbabilidad de precipitación: %f (entre 0 y 1)\nPunto de rocío: %f (°C)\nPresión atmosférica: %f (kPa)\nVelocidad del viento: %f (metros/segundo)\nNubosidad: %f (entre 0 y 1)\nTemperatura mínima: %f (°C)\nTemperatura máxima: %f (°C)\nCantidad total de agua de lluvia: %f (milímetros)\nCantidad de agua acumulada: %f\n",
-    id, parcel.getLatitude(), parcel.getLongitude(), timezone, UtilDate.formatDate(date), precipIntensity, precipProbability, dewPoint, pressure, windSpeed, cloudCover, temperatureMin, temperatureMax, rainWater, waterAccumulated);
+    return String.format(
+      "ID: %d\nLatitud: %f (grados decimales) Longitud: %f (grados decimales)\nZona horaria: %s\nFecha: %s\nIntensidad de precipitación: %f (milímetros/hora)\nProbabilidad de precipitación: %f (entre 0 y 1)\nPunto de rocío: %f (°C)\nPresión atmosférica: %f (kPa)\nVelocidad del viento: %f (metros/segundo)\nNubosidad: %f (entre 0 y 1)\nTemperatura mínima: %f (°C)\nTemperatura máxima: %f (°C)\nCantidad total de agua de lluvia: %f (milímetros)\nCantidad de agua acumulada: %f\n",
+      id,
+      parcel.getLatitude(),
+      parcel.getLongitude(),
+      timezone,
+      UtilDate.formatDate(date),
+      precipIntensity,
+      precipProbability,
+      dewPoint,
+      atmosphericPressure,
+      windSpeed,
+      cloudCover,
+      minimumTemperature,
+      maximumTemperature,
+      rainWater,
+      waterAccumulated
+    );
   }
 
 }
