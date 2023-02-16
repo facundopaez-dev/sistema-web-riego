@@ -3,6 +3,20 @@ app.controller(
     ["$scope", "$location", "AuthSrv", "JwtManager", "AuthHeaderManager", "AccessManager", "ErrorResponseManager",
         function ($scope, $location, authService, jwtManager, authHeaderManager, accessManager, errorResponseManager) {
 
+            /*
+            Este control es para evitar que el usuario que tiene una
+            sesion abierta, vuelva a la pagina de inicio de sesion del
+            usuario al presionar el boton de retroceso.
+
+            Si el usuario tiene una sesion abierta y presiona el boton de
+            retroceso, se lo redirige a la pagina de inicio del usuario
+            (home).
+            */
+            if (accessManager.isUserLoggedIn()) {
+                $location.path("/home");
+                return;
+            }
+
             $scope.login = function () {
                 authService.authenticateUser($scope.data, function (error, data) {
                     /*

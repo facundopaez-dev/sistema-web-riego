@@ -10,6 +10,7 @@
     <class>model.MaximumInsolation</class>
     <class>model.Month</class>
     <class>model.Parcel</class>
+    <class>model.Session</class>
     <class>model.SolarRadiation</class>
     <class>model.User</class>
     <class>model.SecretKey</class>

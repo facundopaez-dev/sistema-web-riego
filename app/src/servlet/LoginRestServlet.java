@@ -13,6 +13,7 @@ import javax.ws.rs.core.Response.Status;
 import model.SecretKey;
 import model.User;
 import stateless.SecretKeyServiceBean;
+import stateless.SessionServiceBean;
 import stateless.UserServiceBean;
 import util.ErrorResponse;
 import util.ReasonError;
@@ -27,6 +28,9 @@ public class LoginRestServlet {
 
   @EJB
   SecretKeyServiceBean secretKeyService;
+
+  @EJB
+  SessionServiceBean sessionService;
 
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
@@ -71,10 +75,38 @@ public class LoginRestServlet {
     givenUser = userService.findByUsername(givenUser.getUsername());
 
     /*
+     * Si el usuario tiene una sesion abierta e intenta abrir otra
+     * sesion, la aplicacion del lado servidor devuelve el mensaje
+     * HTTP 401 (Unauthorized) junto con el mensaje "No es posible
+     * tener mas de una sesion abierta simultaneamente" (contenido
+     * en el enum ReasonError).
+     * 
+     * Para realizar este control se necesita el ID del usuario
+     * recuperado de la base de datos subyacente y no el ID del
+     * usuario obtenido mediante el mapeo de JSON a POJO, ya
+     * que el primero tiene el ID correcto y el segundo siempre
+     * tiene el ID igual a cero.
+     * 
+     * El motivo por el cual el ID del segundo es cero es que
+     * id es una variable de instancia de tipo int de la clase
+     * User, y las variables de instancia de tipo int siempre
+     * se inicialiazan de manera automatica con 0.
+     * 
+     * Utilizar el ID del usuario obtenido mediante el mapeo
+     * de JSON a POJO, hara que este control permita que un
+     * usuario abra mas de una sesion con su cuenta, lo cual
+     * no es lo que se busca con dicho control.
+     */
+    if (sessionService.checkActiveSession(givenUser.getId())) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.MULTIPLE_SESSIONS)).build();
+    }
+
+    /*
      * Si el flujo de ejecucion de este metodo llega a este punto, es
-     * debido a que el usuario es autentico (es quien dice ser) y la
-     * cuenta con la que inicia sesion esta activada, por lo tanto, se
-     * inicia la sesion solicitada
+     * debido a que el usuario es autentico (es quien dice ser), la
+     * cuenta con la que intenta iniciar sesion esta activada y no
+     * tiene una sesion activa, por lo tanto, se inicia la sesion
+     * solicitada
      */
 
     /*
@@ -83,6 +115,15 @@ public class LoginRestServlet {
      */
     SecretKey secretKey = secretKeyService.find();
     Token newToken = new Token(JwtManager.createJwt(givenUser.getId(), givenUser.getSuperuser(), secretKey.getValue()));
+
+    /*
+     * Se crea y persiste una sesion activa para el usuario
+     * que la abre. Esto es necesario para el control de
+     * prevencion de inicio de sesion multiple realizado
+     * luego de obtener el usuario mediante su nombre.
+     */
+    sessionService
+      .create(givenUser, JwtManager.getDateIssue(newToken.getJwt(), secretKey.getValue()), JwtManager.getExpirationDate(newToken.getJwt(), secretKey.getValue()));
 
     /*
      * Si el usuario es autentico y NO tiene una sesion activa, el servidor
@@ -149,11 +190,38 @@ public class LoginRestServlet {
     }
 
     /*
+     * Si el usuario tiene una sesion abierta e intenta abrir otra
+     * sesion, la aplicacion del lado servidor devuelve el mensaje
+     * HTTP 401 (Unauthorized) junto con el mensaje "No es posible
+     * tener mas de una sesion abierta simultaneamente" (contenido
+     * en el enum ReasonError).
+     * 
+     * Para realizar este control se necesita el ID del usuario
+     * recuperado de la base de datos subyacente y no el ID del
+     * usuario obtenido mediante el mapeo de JSON a POJO, ya
+     * que el primero tiene el ID correcto y el segundo siempre
+     * tiene el ID igual a cero.
+     * 
+     * El motivo por el cual el ID del segundo es cero es que
+     * id es una variable de instancia de tipo int de la clase
+     * User, y las variables de instancia de tipo int siempre
+     * se inicialiazan de manera automatica con 0.
+     * 
+     * Utilizar el ID del usuario obtenido mediante el mapeo
+     * de JSON a POJO, hara que este control permita que un
+     * usuario abra mas de una sesion con su cuenta, lo cual
+     * no es lo que se busca con dicho control.
+     */
+    if (sessionService.checkActiveSession(givenUser.getId())) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.MULTIPLE_SESSIONS)).build();
+    }
+
+    /*
      * Si el flujo de ejecucion de este metodo llega a este punto, es
      * debido a que el usuario es autentico (es quien dice ser), la
-     * cuenta con la que inicia sesion esta activada, y tiene el
-     * permiso de super usuario (administrador), por lo tanto, se
-     * inicia la sesion solicitada
+     * cuenta con la que intenta iniciar sesion esta activada, tiene
+     * el permiso de super usuario (administrador) y no tiene una
+     * sesion activa, por lo tanto, se inicia la sesion solicitada
      */
 
     /*
@@ -162,6 +230,15 @@ public class LoginRestServlet {
      */
     SecretKey secretKey = secretKeyService.find();
     Token newToken = new Token(JwtManager.createJwt(givenUser.getId(), givenUser.getSuperuser(), secretKey.getValue()));
+
+    /*
+     * Se crea y persiste una sesion activa para el usuario
+     * que la abre. Esto es necesario para el control de
+     * prevencion de inicio de sesion multiple realizado
+     * luego de obtener el usuario mediante su nombre.
+     */
+    sessionService
+      .create(givenUser, JwtManager.getDateIssue(newToken.getJwt(), secretKey.getValue()), JwtManager.getExpirationDate(newToken.getJwt(), secretKey.getValue()));
 
     /*
      * Si el usuario es autentico y NO tiene una sesion activa, el servidor

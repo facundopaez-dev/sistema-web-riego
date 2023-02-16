@@ -3,6 +3,20 @@ app.controller(
     ["$scope", "$location", "AuthSrv", "JwtManager", "AuthHeaderManager", "AccessManager", "ErrorResponseManager",
         function ($scope, $location, authService, jwtManager, authHeaderManager, accessManager, errorResponseManager) {
 
+            /*
+            Este control es para evitar que el administrador que tiene una
+            sesion abierta, vuelva a la pagina de inicio de sesion del
+            administrador al presionar el boton de retroceso.
+
+            Si el administrador tiene una sesion abierta y presiona el boton de
+            retroceso, se lo redirige a la pagina de inicio del administrador
+            (admin home).
+            */
+            if (accessManager.isUserLoggedIn()) {
+                $location.path("/adminHome");
+                return;
+            }
+
             $scope.login = function () {
                 authService.authenticateAdmin($scope.data, function (error, data) {
                     /*
