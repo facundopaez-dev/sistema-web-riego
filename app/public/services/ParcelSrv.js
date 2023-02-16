@@ -4,7 +4,7 @@ app.service(
 		function ($http) {
 
 			this.findAll = function (callback) {
-				$http.get("rest/parcels/findAllParcels").then(
+				$http.get("rest/parcels").then(
 					function (result) {
 						callback(false, result.data);
 					},
@@ -14,7 +14,7 @@ app.service(
 			}
 
 			this.findAllActive = function (callback) {
-				$http.get("rest/parcels/findAllActive").then(
+				$http.get("rest/parcels/actives").then(
 					function (result) {
 						callback(false, result.data);
 					},

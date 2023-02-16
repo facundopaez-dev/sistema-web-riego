@@ -5,20 +5,21 @@ import java.util.Collection;
 import java.util.Map;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import model.Parcel;
 
 @Stateless
-public  class ParcelServiceBean {
+public class ParcelServiceBean {
 
   /*
    * Instance variables
    */
-  @PersistenceContext(unitName="swcar")
+  @PersistenceContext(unitName = "swcar")
   private EntityManager entityManager;
 
-  public void setEntityManager(EntityManager localEntityManager){
+  public void setEntityManager(EntityManager localEntityManager) {
     entityManager = localEntityManager;
   }
 
@@ -32,34 +33,39 @@ public  class ParcelServiceBean {
   }
 
   /**
-   * Elimina un campo mediante su id
-   *
-   * @param  id
-   * @return No nulo en caso de haber eliminado el campo, en caso contrario nulo
+   * Elimina logicamente una parcela de un usuario
+   * 
+   * @param userId
+   * @param parcelId
+   * @return referencia a un objeto de tipo Parcel si la parcela
+   * a eliminar pertenece al usuario con el ID dado, null en
+   * caso contrario
    */
-  public Parcel remove(int id) {
-    Parcel parcel = find(id);
+  public Parcel remove(int userId, int parcelId) {
+    Parcel givenParcel = find(userId, parcelId);
 
-    if (parcel != null) {
-      parcel.setActive(false);
-      return parcel;
+    if (givenParcel != null) {
+      givenParcel.setActive(false);
+      return givenParcel;
     }
 
     return null;
   }
 
   /**
-   * Actualiza o modifica la entidad asociada al id dado
+   * Modifica una parcela de un usuario
    *
-   * @param  id
-   * @param  modifiedParcel
-   * @return un valor no nulo en caso de modificar la entidad solicitada
-   * mediante el id, en caso contrario retorna un valor nulo
+   * @param userId
+   * @param parcelId
+   * @param modifiedParcel
+   * @return referencia a un objeto de tipo Parcel si se modifica
+   * la parcela con el ID y el ID de usuario provistos, null en
+   * caso contrario
    */
-  public Parcel modify(int id, Parcel modifiedParcel) {
-    Parcel givenParcel = find(id);
+  public Parcel modify(int userId, int parcelId, Parcel modifiedParcel) {
+    Parcel chosenParcel = find(userId, parcelId);
 
-    if (givenParcel != null) {
+    if (chosenParcel != null) {
       /*
        * TODO: Leer
        * Probablemente se tenga que hacer una validacion
@@ -67,12 +73,12 @@ public  class ParcelServiceBean {
        * para si mismo mas de una parcela con nombre
        * repetido
        */
-      givenParcel.setName(modifiedParcel.getName());
-      givenParcel.setHectare(modifiedParcel.getHectare());
-      givenParcel.setLongitude(modifiedParcel.getLongitude());
-      givenParcel.setLatitude(modifiedParcel.getLatitude());
-      givenParcel.setActive(modifiedParcel.getActive());
-      return givenParcel;
+      chosenParcel.setName(modifiedParcel.getName());
+      chosenParcel.setHectare(modifiedParcel.getHectare());
+      chosenParcel.setLongitude(modifiedParcel.getLongitude());
+      chosenParcel.setLatitude(modifiedParcel.getLatitude());
+      chosenParcel.setActive(modifiedParcel.getActive());
+      return chosenParcel;
     }
 
     return null;
@@ -82,17 +88,101 @@ public  class ParcelServiceBean {
     return getEntityManager().find(Parcel.class, id);
   }
 
+  /**
+   * Retorna una parcela de un usuario
+   * 
+   * @param userId
+   * @param parcelId
+   * @return referencia a un objeto de tipo Parcel perteneciente
+   * al usuario con el ID dado
+   */
+  public Parcel find(int userId, int parcelId) {
+    Query query = entityManager.createQuery("SELECT p FROM Parcel p WHERE (p.id = :parcelId AND p.user.id = :userId)");
+    query.setParameter("parcelId", parcelId);
+    query.setParameter("userId", userId);
+
+    return (Parcel) query.getSingleResult();
+  }
+
+  /**
+   * Comprueba si una parcela pertenece a un usuario.
+   * 
+   * Retorna true si y solo si una parcela pertenece a un
+   * usuario.
+   * 
+   * @param userId
+   * @param parcelId
+   * @return true si se encuentra la parcela con el ID y el
+   * ID de usuario provistos, false en caso contrario
+   */
+  public boolean checkUserOwnership(int userId, int parcelId) {
+    boolean result = false;
+
+    try {
+      find(userId, parcelId);
+      result = true;
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * Retorna todas las parcelas registradas en la base de
+   * datos subyacente, por lo tanto, retorna todas las
+   * parcelas de todos los usuarios registrados en dicha
+   * base de datos
+   * 
+   * @return referencia a un objeto de tipo Collection que
+   * contiene todas las parcelas registradas en la base de
+   * datos subyacente
+   */
   public Collection<Parcel> findAll() {
-    Query query = getEntityManager().createQuery("SELECT p FROM Parcel p ORDER BY p.id");
+    Query query = entityManager.createQuery("SELECT p FROM Parcel p ORDER BY p.id");
     return (Collection) query.getResultList();
   }
 
   /**
-   * @return coleccion con todas las parcelas que estan activas
+   * Retorna las parcelas de un usuario
+   * 
+   * @param userId
+   * @return referencia a un objeto de tipo Collection que
+   * contiene todas las parcelas del usuario con el ID dado
    */
-  public Collection<Parcel> findAllActive() {
-    Query query = getEntityManager().createQuery("SELECT p FROM Parcel p WHERE p.active = TRUE ORDER BY p.id");
+  public Collection<Parcel> findAll(int userId) {
+    Query query = entityManager.createQuery("SELECT p FROM Parcel p WHERE p.user.id = :userId ORDER BY p.id");
+    query.setParameter("userId", userId);
+
     return (Collection) query.getResultList();
+  }
+
+  /**
+   * Retorna las parcelas activas de un usuario
+   * 
+   * @param userId
+   * @return referencia a un objeto de tipo Collection que
+   * contiene todas las parcelas activas del usuario con
+   * el ID dado
+   */
+  public Collection<Parcel> findAllActive(int userId) {
+    Query query = getEntityManager().createQuery("SELECT p FROM Parcel p WHERE (p.user.id = :userId AND p.active = TRUE) ORDER BY p.id");
+    query.setParameter("userId", userId);
+
+    return (Collection) query.getResultList();
+  }
+
+  /**
+   * Comprueba la existencia de una parcela en la base de datos
+   * subyacente. Retorna true si y solo si existe la parcela
+   * con el ID dado.
+   * 
+   * @param id
+   * @return true si la parcela con el ID dado existe en la
+   * base de datos subyacente, false en caso contrario
+   */
+  public boolean checkExistence(int id) {
+    return (getEntityManager().find(Parcel.class, id) != null);
   }
 
   public Page<Parcel> findByPage(Integer page, Integer cantPerPage, Map<String, String> parameters) {

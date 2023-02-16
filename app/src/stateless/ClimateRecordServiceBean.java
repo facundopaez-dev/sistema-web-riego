@@ -32,49 +32,112 @@ public  class ClimateRecordServiceBean {
     return newClimateRecord;
   }
 
-  public ClimateRecord find(int id) {
-    return getEntityManager().find(ClimateRecord.class, id);
+  /**
+   * Retorna un registro climatico perteneciente a una de las
+   * parcelas de un usuario
+   * 
+   * @param userId
+   * @param climateRecordId
+   * @return referencia a un objeto de tipo ClimateRecord perteneciente
+   * a una parcela del usuario con el ID dado
+   */
+  public ClimateRecord find(int userId, int climateRecordId) {
+    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (c.id = :climateRecordId AND p.user.id = :userId)");
+    query.setParameter("climateRecordId", climateRecordId);
+    query.setParameter("userId", userId);
+
+    return (ClimateRecord) query.getSingleResult();
   }
 
-  public Collection<ClimateRecord> findAll() {
-    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c ORDER BY c.id");
+  /**
+   * Retorna los registros climaticos de las parcelas de un
+   * usuario
+   * 
+   * @param userId
+   * @return referencia a un objeto de tipo Collection que
+   * contiene los registros climaticos de las parcelas
+   * pertenecientes al usuario con el ID dado
+   */
+  public Collection<ClimateRecord> findAll(int userId) {
+    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (p.user.id = :userId) ORDER BY c.id");
+    query.setParameter("userId", userId);
+
     return (Collection) query.getResultList();
   }
 
   /**
-   * Modifica los datos de un registro climatico en la base de
-   * datos subyacente
-   * 
-   * @param id
+   * Modifica un registro climatico perteneciente a una parcela
+   * de un usuario
+   *
+   * @param userId
+   * @param climateRecordId
    * @param modifiedClimateRecord
-   * @return referencia a un objeto de tipo ClimateRecord que tiene
-   * sus datos modificados en caso de encontrarse en la base de datos
-   * subyacente el registro climatico con el ID dado, en caso contrario
-   * null
+   * @return referencia a un objeto de tipo ClimateRecord si el registro climatico
+   * a modificar pertenece a una parcela de un usuario con el ID dado, null en caso
+   * contrario
    */
-  public ClimateRecord modify(int id, ClimateRecord modifiedClimateRecord) {
-    ClimateRecord choosenClimateRecord = find(id);
+  public ClimateRecord modify(int userId, int climateRecordId, ClimateRecord modifiedClimateRecord) {
+    ClimateRecord chosenClimateRecord = find(userId, climateRecordId);
 
-    if (choosenClimateRecord != null) {
-      choosenClimateRecord.setDate(modifiedClimateRecord.getDate());
-      choosenClimateRecord.setTimezone(modifiedClimateRecord.getTimezone());
-      choosenClimateRecord.setPrecipIntensity(modifiedClimateRecord.getPrecipIntensity());
-      choosenClimateRecord.setPrecipProbability(modifiedClimateRecord.getPrecipProbability());
-      choosenClimateRecord.setDewPoint(modifiedClimateRecord.getDewPoint());
-      choosenClimateRecord.setPressure(modifiedClimateRecord.getPressure());
-      choosenClimateRecord.setWindSpeed(modifiedClimateRecord.getWindSpeed());
-      choosenClimateRecord.setCloudCover(modifiedClimateRecord.getCloudCover());
-      choosenClimateRecord.setTemperatureMin(modifiedClimateRecord.getTemperatureMin());
-      choosenClimateRecord.setTemperatureMax(modifiedClimateRecord.getTemperatureMax());
-      choosenClimateRecord.setRainWater(modifiedClimateRecord.getRainWater());
-      choosenClimateRecord.setWaterAccumulated(modifiedClimateRecord.getWaterAccumulated());
-      choosenClimateRecord.setEto(modifiedClimateRecord.getEto());
-      choosenClimateRecord.setEtc(modifiedClimateRecord.getEtc());
-      choosenClimateRecord.setParcel(modifiedClimateRecord.getParcel());
-      return choosenClimateRecord;
+    if (chosenClimateRecord != null) {
+      chosenClimateRecord.setDate(modifiedClimateRecord.getDate());
+      chosenClimateRecord.setTimezone(modifiedClimateRecord.getTimezone());
+      chosenClimateRecord.setPrecipIntensity(modifiedClimateRecord.getPrecipIntensity());
+      chosenClimateRecord.setPrecipProbability(modifiedClimateRecord.getPrecipProbability());
+      chosenClimateRecord.setDewPoint(modifiedClimateRecord.getDewPoint());
+      chosenClimateRecord.setAtmosphericPressure(modifiedClimateRecord.getAtmosphericPressure());
+      chosenClimateRecord.setWindSpeed(modifiedClimateRecord.getWindSpeed());
+      chosenClimateRecord.setCloudCover(modifiedClimateRecord.getCloudCover());
+      chosenClimateRecord.setMinimumTemperature(modifiedClimateRecord.getMinimumTemperature());
+      chosenClimateRecord.setMaximumTemperature(modifiedClimateRecord.getMaximumTemperature());
+      chosenClimateRecord.setRainWater(modifiedClimateRecord.getRainWater());
+      chosenClimateRecord.setWaterAccumulated(modifiedClimateRecord.getWaterAccumulated());
+      chosenClimateRecord.setEto(modifiedClimateRecord.getEto());
+      chosenClimateRecord.setEtc(modifiedClimateRecord.getEtc());
+      chosenClimateRecord.setParcel(modifiedClimateRecord.getParcel());
+      return chosenClimateRecord;
     }
 
     return null;
+  }
+
+  /**
+   * Comprueba si un registro climatico pertenece a un usuario
+   * dado, mediante la relacion muchos a uno que hay entre los
+   * modelos de datos ClimateRecord y Parcel.
+   * 
+   * Retorna true si y solo si el registro climatico pertenece
+   * al usuario dado.
+   * 
+   * @param userId
+   * @param climateRecordId
+   * @return true si se encuentra el registro climatico con el
+   * ID y el ID de usuario provistos, false en caso contrario
+   */
+  public boolean checkUserOwnership(int userId, int climateRecordId) {
+    boolean result = false;
+
+    try {
+      find(userId, climateRecordId);
+      result = true;
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * Comprueba la existencia de un registro climatico en la base
+   * de datos subyacente. Retorna true si y solo si existe el
+   * registro climatico con el ID dado.
+   * 
+   * @param id
+   * @return true si el registro climatico con el ID dado existe
+   * en la base de datos subyacente, false en caso contrario
+   */
+  public boolean checkExistence(int id) {
+    return (getEntityManager().find(ClimateRecord.class, id) != null);
   }
 
   /**

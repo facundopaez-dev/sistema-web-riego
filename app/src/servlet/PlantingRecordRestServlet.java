@@ -21,7 +21,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import model.ClimateRecord;
 import model.Crop;
 import model.IrrigationRecord;
@@ -35,25 +39,31 @@ import stateless.MaximumInsolationServiceBean;
 import stateless.ParcelServiceBean;
 import stateless.PlantingRecordServiceBean;
 import stateless.PlantingRecordStatusServiceBean;
+import stateless.SecretKeyServiceBean;
 import stateless.SolarRadiationServiceBean;
+import util.ErrorResponse;
+import util.ReasonError;
+import util.RequestManager;
 import util.UtilDate;
+import utilJwt.AuthHeaderManager;
+import utilJwt.JwtManager;
 
 @Path("/plantingRecords")
 public class PlantingRecordRestServlet {
 
-  // inject a reference to the PlantingRecordServiceBean slsb
+  // inject a reference to the PlantingRecordServiceBean
   @EJB PlantingRecordServiceBean plantingRecordService;
 
-  // inject a reference to the ClimateRecordServiceBean slsb
+  // inject a reference to the ClimateRecordServiceBean
   @EJB ClimateRecordServiceBean climateRecordServiceBean;
 
-  // inject a reference to the CropServiceBean slsb
+  // inject a reference to the CropServiceBean
   @EJB CropServiceBean cropService;
 
-  // inject a reference to the IrrigationRecordServiceBean slsb
+  // inject a reference to the IrrigationRecordServiceBean
   @EJB IrrigationRecordServiceBean irrigationRecordService;
 
-  // inject a reference to the PlantingRecordStatusServiceBean slsb
+  // inject a reference to the PlantingRecordStatusServiceBean
   @EJB PlantingRecordStatusServiceBean statusService;
 
   // inject a reference to the ParcelServiceBean slsb
@@ -65,190 +75,413 @@ public class PlantingRecordRestServlet {
   // inject a reference to the MaximumInsolationServiceBean
   @EJB MaximumInsolationServiceBean insolationService;
 
-  // mapea lista de pojo a JSON
+  // inject a reference to the SecretKeyServiceBean
+  @EJB SecretKeyServiceBean secretKeyService;
+
+  // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public String findAll() throws IOException {
-    Collection<PlantingRecord> plantingRecords = plantingRecordService.findAll();
-    return mapper.writeValueAsString(plantingRecords);
+  public Response findAll(@Context HttpHeaders request) throws IOException {
+    Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
+
+    /*
+     * Si el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP NO
+     * es ACCEPTED, se devuelve el estado de error de la misma.
+     * 
+     * Que el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP sea
+     * ACCEPTED, significa que la peticion es valida,
+     * debido a que el encabezado de autorizacion de la misma
+     * cumple las siguientes condiciones:
+     * - Esta presente.
+     * - No esta vacio.
+     * - Cumple con la convencion de JWT.
+     * - Contiene un JWT valido.
+     */
+    if (!RequestManager.isAccepted(givenResponse)) {
+      return givenResponse;
+    }
+
+    /*
+     * Obtiene el JWT del valor del encabezado de autorizacion
+     * de una peticion HTTP
+     */
+    String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
+
+    /*
+     * Obtiene el ID de usuario contenido en la carga util del
+     * JWT del encabezado de autorizacion de una peticion HTTP
+     */
+    int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el valor del encabezado de autorizacion de la peticion HTTP
+     * dada, tiene un JWT valido, la aplicacion del lado servidor
+     * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
+     * por el cliente
+     */
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(plantingRecordService.findAll(userId))).build();
   }
 
   @GET
   @Path("/{id}")
   @Produces(MediaType.APPLICATION_JSON)
-  public String find(@PathParam("id") int id) throws IOException {
-    PlantingRecord plantingRecord = plantingRecordService.find(id);
-    return mapper.writeValueAsString(plantingRecord);
-  }
+  public Response find(@Context HttpHeaders request, @PathParam("id") int plantingRecordId) throws IOException {
+    Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
 
-  @GET
-  @Path("/findCurrentPlantingRecord/{parcelId}")
-  @Produces(MediaType.APPLICATION_JSON)
-  public String findCurrentPlantingRecord(@PathParam("parcelId") int parcelId) throws IOException {
-    Parcel givenParcel = serviceParcel.find(parcelId);
-    PlantingRecord plantingRecord = plantingRecordService.findInDevelopment(givenParcel);
-    return mapper.writeValueAsString(plantingRecord);
-  }
+    /*
+     * Si el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP NO
+     * es ACCEPTED, se devuelve el estado de error de la misma.
+     * 
+     * Que el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP sea
+     * ACCEPTED, significa que la peticion es valida,
+     * debido a que el encabezado de autorizacion de la misma
+     * cumple las siguientes condiciones:
+     * - Esta presente.
+     * - No esta vacio.
+     * - Cumple con la convencion de JWT.
+     * - Contiene un JWT valido.
+     */
+    if (!RequestManager.isAccepted(givenResponse)) {
+      return givenResponse;
+    }
 
-  @GET
-  @Path("/findNewestPlantingRecord/{parcelId}")
-  @Produces(MediaType.APPLICATION_JSON)
-  public String findNewestPlantingRecord(@PathParam("parcelId") int parcelId) throws IOException {
-    Parcel givenParcel = serviceParcel.find(parcelId);
-    PlantingRecord newestPlantingRecord = plantingRecordService.findLastFinished(givenParcel);
-    return mapper.writeValueAsString(newestPlantingRecord);
-  }
+    /*
+     * Si el dato solicitado no existe en la base de datos
+     * subyacente, la aplicacion del lado servidor devuelve
+     * el mensaje HTTP 404 (Not found) junton con el mensaje
+     * "Recurso no encontrado" y no se realiza la operacion
+     * solicitada
+     */
+    if (!plantingRecordService.checkExistence(plantingRecordId)) {
+      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
+    }
 
-  // @GET
-  // @Path("/checkStageCropLife/{idCrop}")
-  // @Produces(MediaType.APPLICATION_JSON)
-  // public String checkStageCropLife(@PathParam("idCrop") int idCrop, @QueryParam("fechaSiembra") String fechaSiembra,
-  // @QueryParam("fechaCosecha") String fechaCosecha) throws IOException, ParseException {
-  //   Crop choosenCrop = cropService.find(idCrop);
-  //
-  //   SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
-  //   Calendar seedDate = Calendar.getInstance();
-  //   Calendar harvestDate = Calendar.getInstance();
-  //
-  //   /*
-  //    * Fechas convertidas de String a Date
-  //    */
-  //   Date dateSeedDate = new Date(dateFormatter.parse(fechaSiembra).getTime());
-  //   Date dateHarvestDate = new Date(dateFormatter.parse(fechaCosecha).getTime());
-  //
-  //   seedDate.set(dateSeedDate.getYear(), dateSeedDate.getMonth(), dateSeedDate.getDate());
-  //   harvestDate.set(dateHarvestDate.getYear(), dateHarvestDate.getMonth(), dateHarvestDate.getDate());
-  //
-  //   /*
-  //    * Si la diferencia en dias entre la fecha de siembra
-  //    * y la fecha de cosecha ingresadas es mayor a la cantidad
-  //    * total de dias de vida que vive el cultivo dado, retorna
-  //    * el cultivo dado como "error"
-  //    */
-  //   if (excessStageLife(choosenCrop, seedDate, harvestDate)) {
-  //     return mapper.writeValueAsString(choosenCrop);
-  //   }
-  //
-  //   return mapper.writeValueAsString(null);
-  // }
+    /*
+     * Obtiene el JWT del valor del encabezado de autorizacion
+     * de una peticion HTTP
+     */
+    String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
+
+    /*
+     * Obtiene el ID de usuario contenido en la carga util del
+     * JWT del encabezado de autorizacion de una peticion HTTP
+     */
+    int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si al usuario que hizo esta peticion HTTP, no le pertenece
+     * el dato solicitado, la aplicacion del lado servidor
+     * devuelve el mensaje HTTP 403 (Forbidden) junto con el
+     * mensaje "Acceso no autorizado" (contenido en el enum
+     * ReasonError) y no se realiza la operacion solicitada
+     */
+    if (!plantingRecordService.checkUserOwnership(userId, plantingRecordId)) {
+      return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
+    }
+
+    /*
+     * Si el valor del encabezado de autorizacion de la peticion HTTP
+     * dada, tiene un JWT valido, la aplicacion del lado servidor
+     * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
+     * por el cliente
+     */
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(plantingRecordService.findByUserId(userId, plantingRecordId))).build();
+  }
 
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  public String create(String json) throws IOException  {
+  public Response create(@Context HttpHeaders request, String json) throws IOException {
+    Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
+
+    /*
+     * Si el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP NO
+     * es ACCEPTED, se devuelve el estado de error de la misma.
+     * 
+     * Que el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP sea
+     * ACCEPTED, significa que la peticion es valida,
+     * debido a que el encabezado de autorizacion de la misma
+     * cumple las siguientes condiciones:
+     * - Esta presente.
+     * - No esta vacio.
+     * - Cumple con la convencion de JWT.
+     * - Contiene un JWT valido.
+     */
+    if (!RequestManager.isAccepted(givenResponse)) {
+      return givenResponse;
+    }
+
     PlantingRecord newPlantingRecord = mapper.readValue(json, PlantingRecord.class);
-    PlantingRecord lastPlantingRecord = plantingRecordService.findLastFinished(newPlantingRecord.getParcel());
 
     /*
-     * Si la fecha de cosecha del ultimo registro de plantacion finalizado
-     * es mayor o igual que la fecha de siembra del nuevo registro de
-     * plantacion, entonces no se tiene que persistir el nuevo registro de
-     * plantacion
+     * Si la fecha de siembra del registro de plantacion a
+     * crear NO esta definida, la aplicacion del lado
+     * servidor retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "La fecha de siembra debe estar
+     * definida" y no se realiza la operacion solicitada
      */
-    if ((lastPlantingRecord != null) && ((lastPlantingRecord.getHarvestDate().compareTo(newPlantingRecord.getSeedDate())) >= 0)) {
-      return null;
+    if (newPlantingRecord.getSeedDate() == null) {
+      return Response.status(Response.Status.BAD_REQUEST)
+        .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INDEFINITE_SEED_DATE))).build();
     }
 
     /*
-     * El registro de plantacion actual es el que esta en el
-     * estado "En desarrollo"
+     * Se calcula la fecha de cosecha del cultivo del nuevo
+     * registro de plantacion en funcion de la fecha de siembra
+     * y el ciclo de vida del cultivo
      */
-    PlantingRecord currentPlantingRecord = plantingRecordService.findInDevelopment(newPlantingRecord.getParcel());
+    Calendar harvestDate = cropService.calculateHarvestDate(newPlantingRecord.getSeedDate(), newPlantingRecord.getCrop());
+    newPlantingRecord.setHarvestDate(harvestDate);
 
     /*
-     * Si no hay un registro historico actual de parcela
-     * entonces se procede a crear el nuevo registro historico
-     * de parcela, el cual es el actual porque su cultivo al
-     * estar en este nuevo registro historico actual de parcela
-     * aun no ha llegado a su fecha de cosecha
+     * Se establece el estado del nuevo registro de plantacion
+     * en base a la fecha de cosecha de su cultivo
      */
-    if (currentPlantingRecord == null) {
+    newPlantingRecord.setStatus(statusService.calculateStatus(newPlantingRecord.getHarvestDate()));
+
+    /*
+     * Si la parcela del registro de plantacion a crear NO
+     * esta definida, la aplicacion del lado servidor retorna
+     * el mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "La parcela debe estar definida" y no se realiza la
+     * operacion solicitada
+     */
+    if (newPlantingRecord.getParcel() == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INDEFINITE_PARCEL))).build();
+    }
+
+    /*
+     * Si el cultivo del registro de plantacion a crear NO
+     * esta definido, la aplicacion del lado servidor retorna
+     * el mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "El cultivo debe estar definido" y no se realiza la
+     * operacion solicitada
+     */
+    if (newPlantingRecord.getCrop() == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INDEFINITE_CROP))).build();
+    }
+
+    /*
+     * Si la parcela para la que se quiere crear un registro
+     * de plantacion, tiene registros de plantacion, se comprueba
+     * si la misma tiene un registro de plantacion en desarrollo
+     * y si la fecha de cosecha de su ultimo registro de plantacion
+     * finalizado es mayor o igual a la fecha de siembra del
+     * registro de plantacion que se quiere crear
+     */
+    if (plantingRecordService.thereIsPlantingRecords(newPlantingRecord.getParcel())) {
       /*
-       * En funcion de la fecha de siembra del cultivo dado y
-       * de la suma de sus dias de vida (suma de la cantidad de
-       * dias que dura cada una de sus etapas), se calcula
-       * la fecha de cosecha del cultivo dado
+       * Si hay un registro de plantacion en desarrollo para
+       * la parcela del registro de plantacion que se quiere
+       * crear, la aplicacion del lado servidor retorna el
+       * mensaje HTTP 400 (Bad request) junto con el mensaje
+       * "No esta permitido crear un registro de plantacion
+       * para una parcela que tiene un registro de plantacion
+       * en desarrollo" y no se realiza la operacion solicitada
        */
-      Calendar harvestDate = cropService.calculateHarvestDate(newPlantingRecord.getSeedDate(), newPlantingRecord.getCrop());
-      newPlantingRecord.setHarvestDate(harvestDate);
-      newPlantingRecord.setStatus(getStatus(harvestDate));
+      if (plantingRecordService.checkOneInDevelopment(newPlantingRecord.getParcel())) {
+        return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.CREATION_NOT_ALLOWED_IN_DEVELOPMENT))).build();
+      }
 
-      newPlantingRecord = plantingRecordService.create(newPlantingRecord);
-      return mapper.writeValueAsString(newPlantingRecord);
-    }
+      PlantingRecord lastFinishedPlantingRecord = plantingRecordService.findLastFinished(newPlantingRecord.getParcel());
 
-    return null;
-  }
+      /*
+       * Si la fecha de cosecha del ultimo registro de plantacion
+       * finalizado es mayor o igual a la fecha de siembra del
+       * registro de plantacion que se quiere crear, la aplicacion
+       * del lado servidor retorna el mensaje HTTP 400 (Bad request)
+       * junto con el mensaje "No esta permitido crear un registro
+       * de plantacion con una fecha de siembra anterior o igual a
+       * la fecha de cosecha del ultimo registro de plantacion
+       * finalizado de una parcela".
+       */
+      if (plantingRecordService.checkDateOverlap(lastFinishedPlantingRecord.getHarvestDate(), newPlantingRecord.getSeedDate())) {
+        return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.DATE_OVERLAP_ON_CREATION))).build();
+      }
 
-  @DELETE
-  @Path("/{id}")
-  @Produces(MediaType.APPLICATION_JSON)
-  public String remove(@PathParam("id") int id) throws IOException {
-    PlantingRecord givenPlantingRecord = plantingRecordService.remove(id);
-    return mapper.writeValueAsString(givenPlantingRecord);
+    } // End if
+
+    /*
+     * Si el valor del encabezado de autorizacion de la peticion HTTP
+     * dada, tiene un JWT valido y no se cumplen las condiciones de
+     * los controles para la creacion de un registro de plantacion, la
+     * aplicacion del lado servidor devuelve el mensaje HTTP 200 (Ok)
+     * junto con los datos que el cliente solicito persistir
+     */
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(plantingRecordService.create(newPlantingRecord))).build();
   }
 
   @PUT
   @Path("/{id}")
   @Produces(MediaType.APPLICATION_JSON)
-  public String modify(@PathParam("id") int id, String json) throws IOException  {
-    PlantingRecord givenPlantingRecord = mapper.readValue(json,PlantingRecord.class);
-
-    PlantingRecord previuosPlantingRecord = plantingRecordService.find(givenPlantingRecord.getParcel(), givenPlantingRecord.getId() - 1);
-    PlantingRecord nextPlantingRecord = plantingRecordService.find(givenPlantingRecord.getParcel(), givenPlantingRecord.getId() + 1);
+  public Response modify(@Context HttpHeaders request, @PathParam("id") int plantingRecordId, String json) throws IOException {
+    Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
 
     /*
-     * Si la fecha de cosecha del registro de plantacion anterior al que
-     * se va a modificar es mayor a la fecha de siembra del registro de
-     * plantacion que se va a modificar, no se tiene que realizar la modificacion
+     * Si el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP NO
+     * es ACCEPTED, se devuelve el estado de error de la misma.
+     * 
+     * Que el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP sea
+     * ACCEPTED, significa que la peticion es valida,
+     * debido a que el encabezado de autorizacion de la misma
+     * cumple las siguientes condiciones:
+     * - Esta presente.
+     * - No esta vacio.
+     * - Cumple con la convencion de JWT.
+     * - Contiene un JWT valido.
      */
-    if ((previuosPlantingRecord != null) && ((previuosPlantingRecord.getHarvestDate().compareTo(givenPlantingRecord.getSeedDate()) == 0)
-    || (previuosPlantingRecord.getHarvestDate().compareTo(givenPlantingRecord.getSeedDate()) > 0))) {
-      return null;
+    if (!RequestManager.isAccepted(givenResponse)) {
+      return givenResponse;
     }
 
     /*
-     * Si la fecha de cosecha del registro de plantacion que se va a modificar
-     * es mayor que la fecha de siembra del siguiente registro de plantacion
-     * que se va a modificar, no se tiene que realizar la modificacion
+     * Si el dato solicitado no existe en la base de datos
+     * subyacente, la aplicacion del lado servidor devuelve
+     * el mensaje HTTP 404 (Not found) junton con el mensaje
+     * "Recurso no encontrado" y no se realiza la operacion
+     * solicitada
      */
-    if ((nextPlantingRecord != null) && ((givenPlantingRecord.getHarvestDate().compareTo(nextPlantingRecord.getSeedDate()) == 0)
-    || (givenPlantingRecord.getHarvestDate().compareTo(nextPlantingRecord.getSeedDate()) > 0))) {
-      return null;
+    if (!plantingRecordService.checkExistence(plantingRecordId)) {
+      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
     }
 
     /*
-     * Si la fecha de siembra y la fecha de cosecha del registro de
-     * plantacion que se va a modificar coinciden, no se tiene que
-     * realizar la modificacion
+     * Obtiene el JWT del valor del encabezado de autorizacion
+     * de una peticion HTTP
      */
-    if ((givenPlantingRecord.getSeedDate() != null) && (givenPlantingRecord.getHarvestDate() != null) && (givenPlantingRecord.getSeedDate().compareTo(givenPlantingRecord.getHarvestDate()) == 0)) {
-      return null;
-    }
-
-    // if (givenPlantingRecord.getStatus().getName().equals("Finalizado")) {
-    //   givenPlantingRecord = plantingRecordService.modify(id, givenPlantingRecord);
-    //   return mapper.writeValueAsString(givenPlantingRecord);
-    // }
+    String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
 
     /*
-     * NOTE: Falta hacerlo funcionar
-     *
-     * Si la diferencia en dias entre la fecha de siembra y la fecha
-     * de cosecha ingresadas no es mayor que la cantidad de dias que
-     * dura la etapa de vida del cultivo dado se realiza la modificacion
-     * del registro historico de parcela dado
+     * Obtiene el ID de usuario contenido en la carga util del
+     * JWT del encabezado de autorizacion de una peticion HTTP
      */
-    // if (!(excessStageLife(givenPlantingRecord.getCrop(), givenPlantingRecord.getSeedDate(), givenPlantingRecord.getHarvestDate()))) {
-    //   givenPlantingRecord.setStatus(getStatus(givenPlantingRecord.getHarvestDate()));
-    //   givenPlantingRecord = plantingRecordService.modify(id, givenPlantingRecord);
-    //   return mapper.writeValueAsString(givenPlantingRecord);
-    // }
+    int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
 
-    givenPlantingRecord.setStatus(getStatus(givenPlantingRecord.getHarvestDate()));
-    givenPlantingRecord = plantingRecordService.modify(id, givenPlantingRecord);
-    return mapper.writeValueAsString(givenPlantingRecord);
+    /*
+     * Si al usuario que hizo esta peticion HTTP, no le pertenece
+     * el dato solicitado, la aplicacion del lado servidor
+     * devuelve el mensaje HTTP 403 (Forbidden) junto con el
+     * mensaje "Acceso no autorizado" (contenido en el enum
+     * ReasonError) y no se realiza la operacion solicitada
+     */
+    if (!plantingRecordService.checkUserOwnership(userId, plantingRecordId)) {
+      return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
+    }
+
+    PlantingRecord modifiedPlantingRecord = mapper.readValue(json, PlantingRecord.class);
+
+    /*
+     * Si la fecha de siembra o la fecha de cosecha NO esta
+     * definida, o ambas NO esta definidas, la aplicacion del
+     * lado servidor retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "Las fechas deben estar definidas"
+     * y no se realiza la operacion solicitada
+     */
+    if (modifiedPlantingRecord.getSeedDate() == null || modifiedPlantingRecord.getHarvestDate() == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INDEFINITE_DATES))).build();
+    }
+
+    /*
+     * Si la fecha de siembra es mayor o igual a la fecha de
+     * cosecha del registro de plantacion a modificar, la
+     * aplicacion del lado servidor retorna el mensaje
+     * HTTP 400 (Bad request) junto con el mensaje "La fecha
+     * de siembra no debe ser mayor o igual a la fecha de
+     * cosecha" y no se realiza la operacion solicitada
+     */
+    if (plantingRecordService.checkDateOverlap(modifiedPlantingRecord.getSeedDate(), modifiedPlantingRecord.getHarvestDate())) {
+      return Response
+        .status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.OVERLAP_BETWEEN_SEED_DATE_AND_HARVEST_DATE))).build();
+    }
+
+    /*
+     * Si la parcela del registro de plantacion a modificar NO
+     * esta definida, la aplicacion del lado servidor retorna
+     * el mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "La parcela debe estar definida" y no se realiza la
+     * operacion solicitada
+     */
+    if (modifiedPlantingRecord.getParcel() == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INDEFINITE_PARCEL))).build();
+    }
+
+    /*
+     * Si el cultivo del registro de plantacion a modificar NO
+     * esta definido, la aplicacion del lado servidor retorna
+     * el mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "El cultivo debe estar definido" y no se realiza la
+     * operacion solicitada
+     */
+    if (modifiedPlantingRecord.getCrop() == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INDEFINITE_CROP))).build();
+    }
+
+    /*
+     * Si existe el registro de plantacion anterior al
+     * registro de plantacion a modificar, y si la fecha de
+     * cosecha del registro de plantacion anterior es mayor
+     * o igual a la fecha de siembra del registro de
+     * plantacion a modificar, la aplicacion del lado
+     * servidor retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "La fecha de siembra no debe ser
+     * anterior o igual a la fecha de cosecha del registro de
+     * plantacion inmediatamente anterior" y no se realiza la
+     * operacion solicitada
+     */
+    if (plantingRecordService.checkPrevious(modifiedPlantingRecord.getId(), modifiedPlantingRecord.getParcel())) {
+      PlantingRecord previousPlantingRecord = plantingRecordService.find(modifiedPlantingRecord.getId() - 1, modifiedPlantingRecord.getParcel());
+
+      if (plantingRecordService.checkDateOverlap(previousPlantingRecord.getHarvestDate(), modifiedPlantingRecord.getSeedDate())) {
+        return Response
+          .status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.DATE_OVERLAP_WITH_PREVIOUS_PLANTING_RECORD))).build();
+      }
+
+    }
+
+    /*
+     * Si existe el registro de plantacion siguiente al registro
+     * de plantacion a modificar, y si la fecha de cosecha de
+     * este es mayor o igual a la fecha de siembra del registro
+     * de plantacion siguiente, la aplicacion del lado servidor
+     * retorna el mensaje HTTP 400 (Bad request) junto con el
+     * mensaje "La fecha de cosecha no debe ser posterior o
+     * igual a la fecha de siembra del registro de plantacion
+     * inmediatamente siguiente" y no se realiza la operacion
+     * solicitada
+     */
+    if (plantingRecordService.checkNext(modifiedPlantingRecord.getId(), modifiedPlantingRecord.getParcel())) {
+      PlantingRecord nextPlantingRecord = plantingRecordService.find(modifiedPlantingRecord.getId() + 1, modifiedPlantingRecord.getParcel());
+
+      if (plantingRecordService.checkDateOverlap(modifiedPlantingRecord.getHarvestDate(), nextPlantingRecord.getSeedDate())) {
+        return Response
+          .status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.DATE_OVERLAP_WITH_NEXT_PLANTING_RECORD))).build();
+      }
+
+    }
+
+    /*
+     * Se establece el estado del registro de plantacion a
+     * modificar en base a la fecha de cosecha de su cultivo
+     */
+    modifiedPlantingRecord.setStatus(statusService.calculateStatus(modifiedPlantingRecord.getHarvestDate()));
+
+    /*
+     * Si el valor del encabezado de autorizacion de la peticion HTTP
+     * dada, tiene un JWT valido, la aplicacion del lado servidor
+     * devuelve el mensaje HTTP 200 (Ok) junto con los datos que el
+     * cliente solicito actualizar
+     */
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(plantingRecordService.modify(userId, plantingRecordId, modifiedPlantingRecord))).build();
   }
 
   @GET
@@ -311,7 +544,7 @@ public class PlantingRecordRestServlet {
        * Evapotranspiracion del cultivo de referencia (ETo) con las
        * condiciones climaticas del registro climatico del dia de ayer
        */
-      yesterdayEto = Eto.getEto(yesterdayClimateLog.getTemperatureMin(), yesterdayClimateLog.getTemperatureMax(), yesterdayClimateLog.getPressure(), yesterdayClimateLog.getWindSpeed(),
+      yesterdayEto = Eto.getEto(yesterdayClimateLog.getMinimumTemperature(), yesterdayClimateLog.getMaximumTemperature(), yesterdayClimateLog.getAtmosphericPressure(), yesterdayClimateLog.getWindSpeed(),
       yesterdayClimateLog.getDewPoint(), extraterrestrialSolarRadiation, maximumInsolation, yesterdayClimateLog.getCloudCover());
 
       /*
@@ -342,34 +575,61 @@ public class PlantingRecordRestServlet {
     return mapper.writeValueAsString(newIrrigationRecord);
   }
 
-  /**
-   * @param  harvestDate [fecha de cosecha]
-   * @return el estado "En desarrollo" si la fecha de cosecha esta
-   * despues de la fecha actual del sistema y el estado "Finalizado"
-   * si la fecha de cosecha esta antes de la fecha actual del sistema
-   * o si es igual a la misma
-   */
-  private PlantingRecordStatus getStatus(Calendar harvestDate) {
-    Calendar yesterdayCurrentDate = Calendar.getInstance();
-    yesterdayCurrentDate.set(Calendar.DAY_OF_YEAR, yesterdayCurrentDate.get(Calendar.DAY_OF_YEAR) - 1);
-
-    /*
-     * Si la fecha de cosecha del registro historico de parcela
-     * esta despues de la fecha actual del sistema - un dia retorna el
-     * estado "En desarrollo"
-     */
-    if ((harvestDate.compareTo(yesterdayCurrentDate)) > 0) {
-      return statusService.find(2);
-    }
-
-    /*
-     * En cambio si la fecha de cosecha del registro historico
-     * de parcela esta antes de la fecha actual del sistema
-     * o es igual a la misma, retorna el estado "Finalizado"
-     */
-    return statusService.find(1);
+  // TODO: Comprobar para que sirve esto
+  @GET
+  @Path("/findCurrentPlantingRecord/{parcelId}")
+  @Produces(MediaType.APPLICATION_JSON)
+  public String findCurrentPlantingRecord(@PathParam("parcelId") int parcelId) throws IOException {
+    Parcel givenParcel = serviceParcel.find(parcelId);
+    PlantingRecord plantingRecord = plantingRecordService.findInDevelopment(givenParcel);
+    return mapper.writeValueAsString(plantingRecord);
   }
 
+  // TODO: Comprobar para que sirve esto
+  @GET
+  @Path("/findNewestPlantingRecord/{parcelId}")
+  @Produces(MediaType.APPLICATION_JSON)
+  public String findNewestPlantingRecord(@PathParam("parcelId") int parcelId) throws IOException {
+    Parcel givenParcel = serviceParcel.find(parcelId);
+    PlantingRecord newestPlantingRecord = plantingRecordService.findLastFinished(givenParcel);
+    return mapper.writeValueAsString(newestPlantingRecord);
+  }
+
+  // TODO: Comprobar para que sirve esto
+  // @GET
+  // @Path("/checkStageCropLife/{idCrop}")
+  // @Produces(MediaType.APPLICATION_JSON)
+  // public String checkStageCropLife(@PathParam("idCrop") int idCrop, @QueryParam("fechaSiembra") String fechaSiembra,
+  // @QueryParam("fechaCosecha") String fechaCosecha) throws IOException, ParseException {
+  //   Crop choosenCrop = cropService.find(idCrop);
+  //
+  //   SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+  //   Calendar seedDate = Calendar.getInstance();
+  //   Calendar harvestDate = Calendar.getInstance();
+  //
+  //   /*
+  //    * Fechas convertidas de String a Date
+  //    */
+  //   Date dateSeedDate = new Date(dateFormatter.parse(fechaSiembra).getTime());
+  //   Date dateHarvestDate = new Date(dateFormatter.parse(fechaCosecha).getTime());
+  //
+  //   seedDate.set(dateSeedDate.getYear(), dateSeedDate.getMonth(), dateSeedDate.getDate());
+  //   harvestDate.set(dateHarvestDate.getYear(), dateHarvestDate.getMonth(), dateHarvestDate.getDate());
+  //
+  //   /*
+  //    * Si la diferencia en dias entre la fecha de siembra
+  //    * y la fecha de cosecha ingresadas es mayor a la cantidad
+  //    * total de dias de vida que vive el cultivo dado, retorna
+  //    * el cultivo dado como "error"
+  //    */
+  //   if (excessStageLife(choosenCrop, seedDate, harvestDate)) {
+  //     return mapper.writeValueAsString(choosenCrop);
+  //   }
+  //
+  //   return mapper.writeValueAsString(null);
+  // }
+
+  // TODO: Comprobar para que sirve esto
   /**
    * @param  givenCrop
    * @param  seedDate    [fecha de siembra]

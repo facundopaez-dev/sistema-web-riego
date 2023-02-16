@@ -110,6 +110,19 @@ public class CropServiceBean {
   }
 
   /**
+   * Comprueba la existencia de un cultivo en la base de datos
+   * subyacente. Retorna true si y solo si existe el cultivo
+   * con el ID dado.
+   * 
+   * @param id
+   * @return true si el cultivo con el ID dado existe en la
+   * base de datos subyacente, false en caso contrario
+   */
+  public boolean checkExistence(int id) {
+    return (getEntityManager().find(Crop.class, id) != null);
+  }
+
+  /**
    * *** NOTA ***
    * Este metodo es unicamente para la clase de prueba
    * unitaria KcTest, con lo cual no sera utilizado

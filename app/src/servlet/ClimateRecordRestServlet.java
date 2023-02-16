@@ -11,49 +11,248 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import model.ClimateRecord;
 import stateless.ClimateRecordServiceBean;
+import stateless.SecretKeyServiceBean;
+import util.ErrorResponse;
+import util.ReasonError;
+import util.RequestManager;
+import utilJwt.AuthHeaderManager;
+import utilJwt.JwtManager;
 
 @Path("/climateRecords")
 public class ClimateRecordRestServlet {
 
   // inject a reference to the ClimateRecordServiceBean slsb
   @EJB ClimateRecordServiceBean climateRecordService;
+  @EJB SecretKeyServiceBean secretKeyService;
 
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public String findAll() throws IOException {
-    Collection<ClimateRecord> climateRecords = climateRecordService.findAll();
-    return mapper.writeValueAsString(climateRecords);
+  public Response findAll(@Context HttpHeaders request) throws IOException {
+    Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
+
+    /*
+     * Si el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP NO
+     * es ACCEPTED, se devuelve el estado de error de la misma.
+     * 
+     * Que el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP sea
+     * ACCEPTED, significa que la peticion es valida,
+     * debido a que el encabezado de autorizacion de la misma
+     * cumple las siguientes condiciones:
+     * - Esta presente.
+     * - No esta vacio.
+     * - Cumple con la convencion de JWT.
+     * - Contiene un JWT valido.
+     */
+    if (!RequestManager.isAccepted(givenResponse)) {
+      return givenResponse;
+    }
+
+    /*
+     * Obtiene el JWT del valor del encabezado de autorizacion
+     * de una peticion HTTP
+     */
+    String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
+
+    /*
+     * Obtiene el ID de usuario contenido en la carga util del
+     * JWT del encabezado de autorizacion de una peticion HTTP
+     */
+    int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el valor del encabezado de autorizacion de la peticion HTTP
+     * dada, tiene un JWT valido, la aplicacion del lado servidor
+     * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
+     * por el cliente
+     */
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(climateRecordService.findAll(userId))).build();
   }
 
   @GET
   @Path("/{id}")
   @Produces(MediaType.APPLICATION_JSON)
-  public String find(@PathParam("id") int id) throws IOException {
-    ClimateRecord givenClimateRecord = climateRecordService.find(id);
-    return mapper.writeValueAsString(givenClimateRecord);
+  public Response find(@Context HttpHeaders request, @PathParam("id") int climateRecordId) throws IOException {
+    Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
+
+    /*
+     * Si el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP NO
+     * es ACCEPTED, se devuelve el estado de error de la misma.
+     * 
+     * Que el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP sea
+     * ACCEPTED, significa que la peticion es valida,
+     * debido a que el encabezado de autorizacion de la misma
+     * cumple las siguientes condiciones:
+     * - Esta presente.
+     * - No esta vacio.
+     * - Cumple con la convencion de JWT.
+     * - Contiene un JWT valido.
+     */
+    if (!RequestManager.isAccepted(givenResponse)) {
+      return givenResponse;
+    }
+
+    /*
+     * Si el dato solicitado no existe en la base de datos
+     * subyacente, la aplicacion del lado servidor devuelve
+     * el mensaje HTTP 404 (Not found) junton con el mensaje
+     * "Recurso no encontrado" y no se realiza la operacion
+     * solicitada
+     */
+    if (!climateRecordService.checkExistence(climateRecordId)) {
+      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
+    }
+
+    /*
+     * Obtiene el JWT del valor del encabezado de autorizacion
+     * de una peticion HTTP
+     */
+    String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
+
+    /*
+     * Obtiene el ID de usuario contenido en la carga util del
+     * JWT del encabezado de autorizacion de una peticion HTTP
+     */
+    int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si al usuario que hizo esta peticion HTTP, no le pertenece
+     * el registro climatico solicitado (debido a que ninguna de
+     * sus parcelas tiene el registro climatico solicitado), la
+     * aplicacion del lado servidor devuelve el mensaje HTTP 403
+     * (Forbidden) junto con el mensaje "Acceso no autorizado"
+     * (contenido en el enum ReasonError) y no se realiza la
+     * operacion solicitada
+     */
+    if (!climateRecordService.checkUserOwnership(userId, climateRecordId)) {
+      return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
+    }
+
+    /*
+     * Si el valor del encabezado de autorizacion de la peticion HTTP
+     * dada, tiene un JWT valido, la aplicacion del lado servidor
+     * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
+     * por el cliente
+     */
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(climateRecordService.find(userId, climateRecordId))).build();
   }
 
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  public String create(String json) throws IOException  {
-    ClimateRecord newClimateRecord = mapper.readValue(json,ClimateRecord.class);
-    newClimateRecord = climateRecordService.create(newClimateRecord);
-    return mapper.writeValueAsString(newClimateRecord);
+  public Response create(@Context HttpHeaders request, String json) throws IOException {
+    Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
+
+    /*
+     * Si el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP NO
+     * es ACCEPTED, se devuelve el estado de error de la misma.
+     * 
+     * Que el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP sea
+     * ACCEPTED, significa que la peticion es valida,
+     * debido a que el encabezado de autorizacion de la misma
+     * cumple las siguientes condiciones:
+     * - Esta presente.
+     * - No esta vacio.
+     * - Cumple con la convencion de JWT.
+     * - Contiene un JWT valido.
+     */
+    if (!RequestManager.isAccepted(givenResponse)) {
+      return givenResponse;
+    }
+
+    /*
+     * Si el valor del encabezado de autorizacion de la peticion HTTP
+     * dada, tiene un JWT valido, la aplicacion del lado servidor
+     * devuelve el mensaje HTTP 200 (Ok) junto con los datos que el
+     * cliente solicito persistir
+     */
+    ClimateRecord newClimateRecord = mapper.readValue(json, ClimateRecord.class);
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(climateRecordService.create(newClimateRecord))).build();
   }
 
   @PUT
   @Path("/{id}")
   @Produces(MediaType.APPLICATION_JSON)
-  public String modify(@PathParam("id") int id, String json) throws IOException  {
+  public Response modify(@Context HttpHeaders request, @PathParam("id") int climateRecordId, String json) throws IOException {
+    Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
+
+    /*
+     * Si el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP NO
+     * es ACCEPTED, se devuelve el estado de error de la misma.
+     * 
+     * Que el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP sea
+     * ACCEPTED, significa que la peticion es valida,
+     * debido a que el encabezado de autorizacion de la misma
+     * cumple las siguientes condiciones:
+     * - Esta presente.
+     * - No esta vacio.
+     * - Cumple con la convencion de JWT.
+     * - Contiene un JWT valido.
+     */
+    if (!RequestManager.isAccepted(givenResponse)) {
+      return givenResponse;
+    }
+
+    /*
+     * Si el dato solicitado no existe en la base de datos
+     * subyacente, la aplicacion del lado servidor devuelve
+     * el mensaje HTTP 404 (Not found) junton con el mensaje
+     * "Recurso no encontrado" y no se realiza la operacion
+     * solicitada
+     */
+    if (!climateRecordService.checkExistence(climateRecordId)) {
+      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
+    }
+
+    /*
+     * Obtiene el JWT del valor del encabezado de autorizacion
+     * de una peticion HTTP
+     */
+    String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
+
+    /*
+     * Obtiene el ID de usuario contenido en la carga util del
+     * JWT del encabezado de autorizacion de una peticion HTTP
+     */
+    int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si al usuario que hizo esta peticion HTTP, no le pertenece
+     * el registro climatico solicitado (debido a que ninguna de
+     * sus parcelas tiene el registro climatico solicitado), la
+     * aplicacion del lado servidor devuelve el mensaje HTTP 403
+     * (Forbidden) junto con el mensaje "Acceso no autorizado"
+     * (contenido en el enum ReasonError) y no se realiza la
+     * operacion solicitada
+     */
+    if (!climateRecordService.checkUserOwnership(userId, climateRecordId)) {
+      return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
+    }
+
+    /*
+     * Si el valor del encabezado de autorizacion de la peticion HTTP
+     * dada, tiene un JWT valido, la aplicacion del lado servidor
+     * devuelve el mensaje HTTP 200 (Ok) junto con los datos que el
+     * cliente solicito actualizar
+     */
     ClimateRecord modifiedClimateRecord = mapper.readValue(json, ClimateRecord.class);
-    modifiedClimateRecord = climateRecordService.modify(id, modifiedClimateRecord);
-    return mapper.writeValueAsString(modifiedClimateRecord);
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(climateRecordService.modify(userId, climateRecordId, modifiedClimateRecord))).build();
   }
 
 }

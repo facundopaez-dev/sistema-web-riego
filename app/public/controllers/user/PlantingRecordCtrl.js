@@ -98,45 +98,6 @@ app.controller(
           return;
         }
 
-        /*
-        Si ya hay un registro historico de parcela de la parcela dada
-        en el estado "En desarrollo", entonces no se tiene que crear
-        el nuevo registro historico de parcela
-         */
-        plantingRecordService.findCurrentPlantingRecord($scope.data.parcel.id, function (error, data) {
-          /*
-          Todo este bloque de codigo sin el bloque de codigo llamado
-          findCurrentPlantingRecord (el de la clase PlantingRecordServiceBean, Java)
-          no sirve, ya que este bloque de codigo solo muestra el cartel que esta mas
-          abajo y no hace nada mas que eso, mientras que el metodo Java mencionado
-          utilizado en el metodo create de la PlantingRecordRestServlet permite
-          determinar si se tiene que persistir o no el nuevo registro de plantacion
-           */
-
-          // TODO: Borrar este bloque de codigo cuando se implmente este control en el backend
-
-          if (error) {
-            console.log(error);
-            return;
-          }
-
-          $scope.data = data;
-
-          if ($scope.data != null) {
-            alert("No está permitido crear un registro de plantación habiendo otro en el estado 'En desarrollo' para la misma parcela");
-            return;
-          }
-
-        });
-
-        /*
-        Si el ultimo registro historico de parcela esta en el estado
-        "Finalizado" pero la fecha de siembra del nuevo registro
-        historico de parcela esta detras de la fecha de cosecha del
-        registro historico de parcela anterior, entonces no se tiene
-        que crear el nuevo registro historico de parcela
-         */
-
         plantingRecordService.create($scope.data, function (error, data) {
           if (error) {
             console.log(error);
