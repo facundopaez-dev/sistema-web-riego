@@ -222,6 +222,21 @@ app.factory('JwtManager', function ($window) {
 		*/
 		removeJwt: function () {
 			$window.localStorage.removeItem(KEY);
+		},
+
+		/**
+		 * 
+		 * @returns carga util del JWT del usuario
+		 */
+		getPayload: function () {
+			var token = this.getJwt();
+			var base64Url = token.split('.')[1];
+			var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+			var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
+				return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+			}).join(''));
+
+			return JSON.parse(jsonPayload);
 		}
 	}
 });
@@ -595,3 +610,124 @@ app.factory('LogoutManager', ['JwtManager', 'ErrorResponseManager', 'AuthHeaderM
 		}
 	}
 ]);
+
+/*
+ExpirationManager es la factory que se utiliza para verificar si
+la sesion del usuario expiro o no, y en base a esto realizar
+determinadas acciones, como eliminar el JWT del usuario del
+almacenamiento local del navegador, por ejemplo
+*/
+app.factory('ExpirationManager', ['JwtManager', 'AuthHeaderManager', function (jwtManager, authHeaderManager) {
+	return {
+		/**
+		 * 
+		 * @returns true si el JWT del usuario expiro, false
+		 * en caso contrario
+		 */
+		isExpire: function () {
+			var currentTime = this.getTimestampInSeconds();
+
+			/*
+			Obtiene la carga util del JWT que esta en el
+			almacenamiento local del navegador web.
+
+			Este JWT es del usuario y es devuelto por la
+			aplicacion del lado servidor ante un satisfactorio
+			inicio de sesion del usuario.
+			*/
+			var payload = jwtManager.getPayload();
+
+			/*
+			Si el tiempo actual es estrictamente mayor que el
+			tiempo de expiracion del JWT del usuario, significa
+			que el JWT expiro, por lo tanto, la sesion del usuario
+			expiro.
+			*/
+			if (currentTime > payload.exp) {
+				return true;
+			}
+
+			return false;
+		},
+
+		/**
+		 * Elimina el JWT del usuario del almacenamiento local del
+		 * navegador web y del encabezado de autorizacion HTTP.
+		 * 
+		 * Esta funcion debe ser invocada cuando el JWT del usuario
+		 * expira (sesion expirada), ya que un JWT expirado no es
+		 * valido para realizar peticiones HTTP, con lo cual, se lo
+		 * debe eliminar del almacenamiento local del navegador web
+		 * y del encabezado de autorizacion HTTP.
+		 */
+		clearUserState: function () {
+			jwtManager.removeJwt();
+			authHeaderManager.clearAuthHeader();
+		},
+
+		displayExpiredSessionMessage: function () {
+			alert("Sesión expirada");
+		},
+
+		/**
+		 * 
+		 * @returns el tiempo actual en segundos
+		 */
+		getTimestampInSeconds: function () {
+			return Math.floor(Date.now() / 1000)
+		}
+	}
+}]);
+
+/*
+RedirectManager es la factory que se utiliza para redirigir
+al usuario a la pagina de inicio de sesion correspondiente (*)
+cuando el usuario cierra su sesion y cuando esta expira.
+
+(*) Si el usuario inicio sesion como usuario, esto es a traves
+de la pagina web de inicio de sesion del usuario, esta
+factory redirige al usuario a dicha pagina web. En cambio,
+si el usuario inicio sesion como administrador, esto es a
+traves de la pagina web de inicio de sesion del administrador,
+esta factory redirige al administrador a dicha pagina web.
+*/
+app.factory('RedirectManager', ['AccessManager', '$location', function (accessManager, $location) {
+	return {
+		redirectUser: function () {
+			/*
+			Si el usuario inicio sesion como administrador (siempre y cuando
+			tenga permiso de administrador), se establece en false el valor
+			asociado a la clave "superuser" y se redirige al usuario a la
+			pagina web de inicio de sesion del administrador.
+
+			Esta descripcion es para cuando el usuario cierra su sesion (lo cual,
+			se hace a traves de la factory LogoutManager) y para cuando expira la
+			sesion del usuario (lo cual, se comprueba mediante la factory ExpirationManager).
+			*/
+			if (accessManager.loggedAsAdmin()) {
+				/*
+				Cuando un administrador cierra su sesion o cuando expira su sesion, la variable
+				booleana que se utiliza para controlar su acceso a las paginas web a las que
+				accede un usuario, se establece en false, ya que de no hacerlo dicha variable
+				tendria el valor true y se le impediria el acceso a dichas paginas web a un
+				administrador cuando inicie sesion a traves de la pagina de inicio de sesion
+				del usuario
+				*/
+				accessManager.clearAsAdmin();
+
+				/*
+				Cuando el administrador cierra su sesion o cuando expira su sesion, se lo
+				redirige a la pagina web de inicio de sesion del administrador
+				*/
+				$location.path("/admin");
+				return;
+			}
+
+			/*
+			Cuando el usuario cliente cierra su sesion o cuando expira su sesion, se lo
+			redirige a la pagina de inicio de sesion del usuario
+			*/
+			$location.path("/");
+		}
+	}
+}]);

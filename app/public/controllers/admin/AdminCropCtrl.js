@@ -1,7 +1,8 @@
 app.controller(
   "AdminCropCtrl",
   ["$scope", "$location", "$routeParams", "CropSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
-    function ($scope, $location, $params, cropService, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
+    "ExpirationManager", "RedirectManager",
+    function ($scope, $location, $params, cropService, accessManager, errorResponseManager, authHeaderManager, logoutManager, expirationManager, redirectManager) {
 
       console.log("AdminCropCtrl loaded with action: " + $params.action)
 
@@ -22,6 +23,37 @@ app.controller(
       */
       if (accessManager.isUserLoggedIn() && !accessManager.loggedAsAdmin()) {
         $location.path("/home");
+        return;
+      }
+
+      /*
+      Cada vez que el usuario presiona los botones para crear, editar o
+      ver un dato correspondiente a este controller, se debe comprobar
+      si su JWT expiro o no. En el caso en el que JWT expiro, se redirige
+      al usuario a la pagina web de inicio de sesion correspondiente. En caso
+      contrario, se realiza la accion solicitada por el usuario mediante
+      el boton pulsado.
+      */
+      if (expirationManager.isExpire()) {
+        expirationManager.displayExpiredSessionMessage();
+
+        /*
+        Elimina el JWT del usuario del almacenamiento local del navegador
+        web y del encabezado de autorizacion HTTP, ya que un JWT expirado
+        no es valido para realizar peticiones HTTP a la aplicacion del
+        lado servidor
+        */
+        expirationManager.clearUserState();
+
+        /*
+        Redirige al usuario a la pagina web de inicio de sesion en funcion
+        de si inicio sesion como usuario o como administrador. Si inicio
+        sesion como usuario, redirige al usuario a la pagina web de
+        inicio de sesion del usuario. En cambio, si inicio sesion como
+        administrador, redirige al administrador a la pagina web de
+        inicio de sesion del administrador.
+        */
+        redirectManager.redirectUser();
         return;
       }
 

@@ -1,7 +1,7 @@
 app.controller(
 	"UsersCtrl",
-	["$scope", "$location", "$route", "UserSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
-		function ($scope, $location, $route, userService, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
+	["$scope", "$location", "UserSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
+		function ($scope, $location, userService, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
 
             console.log("UsersCtrl loaded...")
 
@@ -58,22 +58,6 @@ app.controller(
 
 					$scope.data = data;
 				})
-			}
-
-			$scope.delete = function (id) {
-
-				console.log("Deleting: " + id)
-
-				userService.delete(id, function (error, data) {
-					if (error) {
-						console.log(error);
-						errorResponseManager.checkResponse(error);
-						return;
-					}
-
-					$location.path("/adminHome/users");
-					$route.reload()
-				});
 			}
 
             $scope.logout = function () {

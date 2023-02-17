@@ -29,63 +29,6 @@ public class UserServiceBeanTest {
   }
 
   @Test
-  public void testDelete() {
-    System.out.println("********************************** Prueba del metodo delete **********************************");
-    System.out.println("- El metodo delete de la clase UserServiceBean elimina logicamente un usuario de la base");
-    System.out.println("de datos subyacente. Esto significa que establece el atributo active de un usuario en false.");
-    System.out.println();
-    System.out.println("En esta prueba se persistira un usuario activo (tiene su atributo active en true) en la base");
-    System.out.println("de datos subyacente, el cual, luego se eliminara logicamente de la misma y se recuperara,");
-    System.out.println("momento en el cual su atributo active debera tener el valor false.");
-    System.out.println();
-
-    /*
-     * Creacion y persistencia de un usuario
-     */
-    User givenUser = new User();
-    givenUser.setUsername("given");
-    givenUser.setPassword("Super secret password");
-    givenUser.setName("Given");
-    givenUser.setLastName("Us");
-    givenUser.setEmail("given@eservice.com");
-    givenUser.setActive(true);
-
-    entityManager.getTransaction().begin();
-    givenUser = userService.create(givenUser);
-    entityManager.getTransaction().commit();
-
-    printUserData(givenUser);
-
-    /*
-     * Se agrega el usuario creado a una coleccion para su posterior
-     * eliminacion de la base de datos subyacente, lo cual se hace
-     * para que la misma tenga el estado que tenia antes de la ejecucion
-     * de esta prueba unitaria
-     */
-    users.add(givenUser);
-
-    /*
-     * Seccion de prueba
-     */
-    userService.delete(givenUser.getId());
-
-    /*
-     * El valor devuelto por el metodo getActive de la clase User, invocado
-     * en este usuario debe ser false porque a dicho usuario se lo elimino
-     * logicamente mediante la instruccion anterior
-     */
-    boolean activeUser = userService.find(givenUser.getId()).getActive();
-
-    System.out.println("Resultado esperado: " + false);
-    System.out.println("* Valor obtenido: " + activeUser);
-    System.out.println();
-
-    assertFalse(activeUser);
-
-    System.out.println("* Prueba ejecutada satisfactoriamente *");
-  }
-
-  @Test
   public void testModify() {
     System.out.println("*********************************** Prueba del metodo modify ***********************************");
     System.out.println("- El metodo modify de la clase UserServiceBean modifica el nombre de usuario, el");

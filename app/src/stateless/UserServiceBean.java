@@ -29,27 +29,11 @@ public class UserServiceBean {
   }
 
   /**
-   * Elimina logicamente un usuario de la base de datos subyacente
-   * 
-   * @param id
-   * @return referencia a un objeto de tipo User con su variable
-   * de instancia "active" en false en caso de encontrarse en la
-   * base de datos subyacente el usuario con el ID dado, en caso
-   * contrario null
-   */
-  public User delete(int id) {
-    User givenUser = find(id);
-
-    if (givenUser != null) {
-      givenUser.setActive(false);
-      return givenUser;
-    }
-
-    return null;
-  }
-
-  /**
-   * Elimina fisicamente un usuario de la base de datos subyacente
+   * Elimina fisicamente un usuario de la base de datos subyacente.
+   * Este metodo es para las pruebas unitarias en las que se
+   * persisten usuarios, los cuales, deben ser borrados de la
+   * base de datos subyacente luego de la ejecucion de dichas
+   * pruebas.
    * 
    * @param id
    * @return referencia a un objeto de tipo User con su variable

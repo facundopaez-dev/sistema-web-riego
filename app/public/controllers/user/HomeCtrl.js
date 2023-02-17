@@ -1,7 +1,7 @@
 app.controller(
     "HomeCtrl",
-    ["$scope", "$location", "AuthHeaderManager", "AccessManager", "LogoutManager",
-        function ($scope, $location, authHeaderManager, accessManager, logoutManager) {
+    ["$scope", "$location", "AuthHeaderManager", "AccessManager", "LogoutManager", "ExpirationManager", "RedirectManager",
+        function ($scope, $location, authHeaderManager, accessManager, logoutManager, expirationManager, redirectManager) {
 
             console.log("HomeCtrl loaded...");
 
@@ -26,6 +26,35 @@ app.controller(
             */
             if (accessManager.isUserLoggedIn() && accessManager.loggedAsAdmin()) {
                 $location.path("/adminHome");
+                return;
+            }
+
+            /*
+            Cuando el usuario accede a la pagina de inicio, se debe comprobar
+            si su JWT expiro o no. En el caso en el que JWT expiro, se redirige
+            al usuario a la pagina web de inicio de sesion correspondiente. En caso
+            contrario, se deja al usuario en la pagina de inicio.
+            */
+            if (expirationManager.isExpire()) {
+                expirationManager.displayExpiredSessionMessage();
+
+                /*
+                Elimina el JWT del usuario del almacenamiento local del navegador
+                web y del encabezado de autorizacion HTTP, ya que un JWT expirado
+                no es valido para realizar peticiones HTTP a la aplicacion del
+                lado servidor
+                */
+                expirationManager.clearUserState();
+
+                /*
+                Redirige al usuario a la pagina web de inicio de sesion en funcion
+                de si inicio sesion como usuario o como administrador. Si inicio
+                sesion como usuario, redirige al usuario a la pagina web de
+                inicio de sesion del usuario. En cambio, si inicio sesion como
+                administrador, redirige al administrador a la pagina web de
+                inicio de sesion del administrador.
+                */
+                redirectManager.redirectUser();
                 return;
             }
 

@@ -6,61 +6,83 @@ import java.util.Collection;
 import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import model.User;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import stateless.SecretKeyServiceBean;
 import stateless.UserServiceBean;
+import util.ErrorResponse;
+import util.ReasonError;
+import util.RequestManager;
+import utilJwt.AuthHeaderManager;
+import utilJwt.JwtManager;
 
 @Path("/users")
 public class UserRestServlet {
 
   // inject a reference to the UserServiceBean slsb
   @EJB UserServiceBean userService;
+  @EJB SecretKeyServiceBean secretKeyService;
 
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-	public String findAll() throws IOException {
-		Collection<User> users = userService.findAll();
-    return mapper.writeValueAsString(users);
+	public Response findAll(@Context HttpHeaders request) throws IOException {
+    Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
+
+    /*
+     * Si el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP NO
+     * es ACCEPTED, se devuelve el estado de error de la misma.
+     * 
+     * Que el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP sea
+     * ACCEPTED, significa que la peticion es valida,
+     * debido a que el encabezado de autorizacion de la misma
+     * cumple las siguientes condiciones:
+     * - Esta presente.
+     * - No esta vacio.
+     * - Cumple con la convencion de JWT.
+     * - Contiene un JWT valido.
+     */
+    if (!RequestManager.isAccepted(givenResponse)) {
+      return givenResponse;
+    }
+
+    /*
+     * Obtiene el JWT del valor del encabezado de autorizacion
+     * de una peticion HTTP
+     */
+    String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
+
+    /*
+     * Si el usuario que solicita esta operacion no tiene el permiso de
+     * administrador (superuser), la aplicacion del lado servidor devuelve
+     * el mensaje HTTP 403 (Forbidden) junto con el mensaje "Acceso no
+     * autorizado" (esta contenido en el enum ReasonError) y no se realiza
+     * la operacion solicitada
+     */
+    if (!JwtManager.getSuperuser(jwt, secretKeyService.find().getValue())) {
+      return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
+    }
+
+    /*
+     * Si el valor del encabezado de autorizacion de la peticion HTTP
+     * dada, tiene un JWT valido, la aplicacion del lado servidor
+     * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
+     * por el cliente
+     */
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(userService.findAll())).build();
 	}
-
-  @GET
-  @Path("/{id}")
-  @Produces(MediaType.APPLICATION_JSON)
-  public String find(@PathParam("id") int id) throws IOException {
-    User givenUser = userService.find(id);
-    return mapper.writeValueAsString(givenUser);
-  }
-
-  @POST
-  @Consumes(MediaType.APPLICATION_JSON)
-  public String create(String json) throws IOException {
-    User newUser = mapper.readValue(json, User.class);
-    return mapper.writeValueAsString(userService.create(newUser));
-  }
-
-  @DELETE
-  @Path("/{id}")
-  @Produces(MediaType.APPLICATION_JSON)
-  public String delete(@PathParam("id") int id) throws IOException {
-    return mapper.writeValueAsString(userService.delete(id));
-  }
-
-  @PUT
-  @Path("/{id}")
-  @Produces(MediaType.APPLICATION_JSON)
-  public String modify(String json, @PathParam("id") int id) throws IOException {
-    User modifiedUser = mapper.readValue(json, User.class);
-    return mapper.writeValueAsString(userService.modify(id, modifiedUser));
-  }
 
 }

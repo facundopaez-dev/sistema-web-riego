@@ -34,17 +34,6 @@ app.service(
 						});
 			}
 
-			this.delete = function (id, callback) {
-				$http.delete("rest/users/" + id)
-					.then(
-						function (result) {
-							callback(false, result.data);
-						},
-						function (error) {
-							callback(error);
-						});
-			}
-
 			this.modify = function (data, callback) {
 				$http.put("rest/users/" + data.id, data)
 					.then(
