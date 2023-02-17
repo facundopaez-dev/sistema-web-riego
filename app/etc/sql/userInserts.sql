@@ -17,3 +17,8 @@ VALUES ('anya', '33939d07e25f54e6432ad3b382e8d3d9e68522b6c3ef868f5c00410308fb680
 -- Nombre de usuario: taylor, contraseña: taylor
 INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, PASSWORD, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
 VALUES ('taylor', '8e924025a26c584ad4ac6365116e09b852ae6b7016da4c0851e269348d93c228', 'Taylor', 'Doe', 'taylor@eservice.com', 1, 0);
+
+-- LEER: Este usuario es necesario para la prueba de la implementacion correspondiente a la tarea 85 de la pila del producto
+-- Nombre de usuario: jack, contraseña: jack
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, PASSWORD, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
+VALUES ('jack', '31611159e7e6ff7843ea4627745e89225fc866621cfcfdbd40871af4413747cc', 'Jack', 'Doe', 'jack@eservice.com', 1, 0);

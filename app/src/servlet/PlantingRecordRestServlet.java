@@ -241,6 +241,19 @@ public class PlantingRecordRestServlet {
     newPlantingRecord.setHarvestDate(harvestDate);
 
     /*
+     * Si la fecha de siembra del registro de plantacion que se
+     * quiere crear es mayor estricta (posterior) a la fecha actual,
+     * la aplicacion del lado servidor retorna el mensaje HTTP 400
+     * (Bad request) junto con el mensaje "No esta permitido crear
+     * un registro de plantacion con una fecha de siembra estrictamente
+     * mayor (posterior) que la fecha actual"
+     */
+    if (plantingRecordService.isFromFuture(newPlantingRecord)) {
+      return Response.status(Response.Status.BAD_REQUEST)
+        .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.CREATION_FUTURE_PLANTING_RECORD_NOT_ALLOWED))).build();
+    }
+
+    /*
      * Se establece el estado del nuevo registro de plantacion
      * en base a la fecha de cosecha de su cultivo
      */

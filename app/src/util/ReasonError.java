@@ -20,7 +20,8 @@ public enum ReasonError {
   OVERLAP_BETWEEN_SEED_DATE_AND_HARVEST_DATE("La fecha de siembra no debe ser mayor o igual a la fecha de cosecha"),
   DATE_OVERLAP_WITH_PREVIOUS_PLANTING_RECORD("La fecha de siembra no debe ser anterior o igual a la fecha de cosecha del registro de plantación inmediatamente anterior"),
   DATE_OVERLAP_WITH_NEXT_PLANTING_RECORD("La fecha de cosecha no debe ser posterior o igual a la fecha de siembra del registro de plantación inmediatamente siguiente"),
-  INDEFINITE_DATES("Las fechas deben estar definidas");
+  INDEFINITE_DATES("Las fechas deben estar definidas"),
+  CREATION_FUTURE_PLANTING_RECORD_NOT_ALLOWED("No está permitido crear un registro de plantación con una fecha de siembra estrictamente mayor (posterior) que la fecha actual");
 
   private final String reason;
 

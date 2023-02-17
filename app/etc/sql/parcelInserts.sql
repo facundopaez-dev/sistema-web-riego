@@ -33,3 +33,11 @@ INSERT INTO PARCEL (HECTARE, LATITUDE, LONGITUDE, NAME, ACTIVE, FK_USER) VALUES 
 
 -- Parcela con coordenadas geograficas de San Antonio Oeste (Rio Negro)
 INSERT INTO PARCEL (HECTARE, LATITUDE, LONGITUDE, NAME, ACTIVE, FK_USER) VALUES (9, -40.73333,-64.93333, 'Parcela San Antonio Oeste 1', 0, 5);
+
+-- LEER: Estas parcelas pertenecen al usario Jack, el cual, es necesario para probar la implementacion correspondiente a la tarea 85
+-- de la pila del producto
+-- Parcela con coordenadas geograficas de Gaiman (Chubut)
+INSERT INTO PARCEL (HECTARE, LATITUDE, LONGITUDE, NAME, ACTIVE, FK_USER) VALUES (1, -43.28333, -65.48333, 'Parcela Gaiman 1', 1, 6);
+
+-- Parcela con coordenadas geograficas de Puerto Piramides (Chubut)
+INSERT INTO PARCEL (HECTARE, LATITUDE, LONGITUDE, NAME, ACTIVE, FK_USER) VALUES (0.5, -42.56667, -64.28333, 'Parcela Pirámides 1', 1, 6);
