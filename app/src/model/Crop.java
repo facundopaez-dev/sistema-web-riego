@@ -14,31 +14,31 @@ public class Crop {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
-  @Column(name = "NAME")
+  @Column(name = "NAME", nullable = false)
   private String name;
 
-  @Column(name = "INITIAL_STAGE")
+  @Column(name = "INITIAL_STAGE", nullable = false)
   private int initialStage;
 
-  @Column(name = "DEVELOPMENT_STAGE")
+  @Column(name = "DEVELOPMENT_STAGE", nullable = false)
   private int developmentStage;
 
-  @Column(name = "MIDDLE_STAGE")
+  @Column(name = "MIDDLE_STAGE", nullable = false)
   private int middleStage;
 
-  @Column(name = "FINAL_STAGE")
+  @Column(name = "FINAL_STAGE", nullable = false)
   private int finalStage;
 
-  @Column(name = "INITIAL_KC")
+  @Column(name = "INITIAL_KC", nullable = false)
   private double initialKc;
 
-  @Column(name = "MIDDLE_KC")
+  @Column(name = "MIDDLE_KC", nullable = false)
   private double middleKc;
 
-  @Column(name = "FINAL_KC")
+  @Column(name = "FINAL_KC", nullable = false)
   private double finalKc;
 
-  @Column(name = "ACTIVE")
+  @Column(name = "ACTIVE", nullable = false)
   private boolean active;
 
   public Crop() {
