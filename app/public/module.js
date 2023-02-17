@@ -526,8 +526,8 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 LogoutManager es la factory que se utiliza para realizar el cierre
 de sesion del usuario tenga este o no permiso de administrador
 */
-app.factory('LogoutManager', ['JwtManager', 'ErrorResponseManager', 'AuthHeaderManager', 'AccessManager', 'LogoutSrv', '$location',
-	function (jwtManager, errorResponseManager, authHeaderManager, accessManager, logoutSrv, $location) {
+app.factory('LogoutManager', ['JwtManager', 'ErrorResponseManager', 'AuthHeaderManager', 'RedirectManager', 'LogoutSrv',
+	function (jwtManager, errorResponseManager, authHeaderManager, redirectManager, logoutSrv) {
 		return {
 			/**
 			 * Esta funcion realiza el cierre de sesion del usuario. Durante
@@ -578,34 +578,15 @@ app.factory('LogoutManager', ['JwtManager', 'ErrorResponseManager', 'AuthHeaderM
 				authHeaderManager.clearAuthHeader();
 
 				/*
-				Si el usuario inicio sesion como administrador (siempre y cuando
-				tenga permiso de administrador), se establece en false el valor
-				asociado a la clave "superuser" y se redirige al usuario a la
-				pagina web de inicio de sesion del administrador
+				Redirige al usuario a la pagina web de inicio de sesion en
+				funcion de si inicio sesion como usuario o como administrador.
+				Si el usuario inicio sesion como usuario, y la cierra, la
+				aplicacion lo redirige a la pagina web de inicio de sesion del
+				usuario. En cambio, si inicio sesion como administrador, y la
+				cierra, la aplicacion lo redirige a la pagina web de inicio de
+				sesion del administrador.
 				*/
-				if (accessManager.loggedAsAdmin()) {
-					/*
-					Cuando un administrador cierra su sesion, la variable booleana que se utiliza
-					para controlar su acceso a las paginas web a las que accede un usuario, se
-					establece en false, ya que de no hacerlo dicha variable tendria el valor
-					true y se le impediria el acceso a dichas paginas web a un administrador
-					cuando inicie sesion a traves de la pagina de inicio de sesion del usuario
-					*/
-					accessManager.clearAsAdmin();
-
-					/*
-					Cuando el administrador cierra su sesion, se lo redirige a la pagina web
-					de inicio de sesion del administrador
-					*/
-					$location.path("/admin");
-					return;
-				}
-
-				/*
-				Cuando el usuario cliente cierra su sesion, se lo redirige a la pagina de
-				inicio de sesion
-				*/
-				$location.path("/");
+				redirectManager.redirectUser();
 			}
 		}
 	}
