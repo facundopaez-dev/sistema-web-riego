@@ -22,6 +22,7 @@ class Parcela {
 
 class Cultivo {
 -id
+-nombre
 -etapaInicial
 -etapaDesarrollo
 -etapaMedia
@@ -29,6 +30,7 @@ class Cultivo {
 -kcInicial
 -kcMedio
 -kcFinal
+-cicloVida
 -activo
 }
 
