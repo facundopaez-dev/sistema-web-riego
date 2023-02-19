@@ -98,7 +98,7 @@ class RadiacionSolar {
 
 class InsolacionMaxima {
 -id
--valorInsolacionMaxima
+-valor
 }
 
 @enduml
