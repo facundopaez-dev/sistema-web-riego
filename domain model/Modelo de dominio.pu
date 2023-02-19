@@ -93,7 +93,7 @@ class Latitud {
 
 class RadiacionSolar {
 -id
--valorRadiacionSolar
+-valor
 }
 
 class InsolacionMaxima {
