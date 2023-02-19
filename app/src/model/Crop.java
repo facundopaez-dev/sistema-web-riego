@@ -38,6 +38,9 @@ public class Crop {
   @Column(name = "FINAL_KC", nullable = false)
   private double finalKc;
 
+  @Column(name = "LIFE_CYCLE", nullable = false)
+  private int lifeCycle;
+
   @Column(name = "ACTIVE", nullable = false)
   private boolean active;
 
@@ -113,6 +116,14 @@ public class Crop {
     this.finalKc = finalKc;
   }
 
+  public int getLifeCycle() {
+    return lifeCycle;
+  }
+
+  public void setLifeCycle(int lifeCycle) {
+    this.lifeCycle = lifeCycle;
+  }
+
   public boolean getActive() {
     return active;
   }
@@ -124,16 +135,18 @@ public class Crop {
   @Override
   public String toString() {
     return String.format(
-      "Cultivo: %s\nID: %d\nDuración de la etapa inicial: %d días\nDuración de la etapa de desarrollo: %d\nDuración de la etapa media: %d días\nDuración de la etapa final: %d días\nKc inicial: %.2f\nKc medio: %.2f\nKc final: %.2f\n",
-      name,
+      "ID: %d\nCultivo: %s\nEtapa inicial (días): %d\nEtapa de desarrollo (días): %d\nEtapa media (días): %d\nEtapa final (días): %d\nKc inicial: %.2f\nKc medio: %.2f\nKc final: %.2f\nCiclo de vida (días): %d\nActivo: %b",
       id,
+      name,
       initialStage,
       developmentStage,
       middleStage,
       finalStage,
       initialKc,
       middleKc,
-      finalKc
+      finalKc,
+      lifeCycle,
+      active
     );
   }
 

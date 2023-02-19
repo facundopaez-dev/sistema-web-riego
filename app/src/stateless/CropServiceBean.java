@@ -418,60 +418,119 @@ public class CropServiceBean {
   }
 
   /**
-   * Calcula la fecha de cosecha de un cultivo a partir de su fecha
-   * de siembra
-   *
-   * @param  seedDate [fecha de siembra]
-   * @param  crop     [cultivo]
-   * @return fecha de cosecha del cultivo dado
+   * Calcula la fecha de cosecha de un cultivo a partir de su fecha de
+   * siembra y su ciclo de vida
+   * 
+   * @param seedDate
+   * @param plantedCrop
+   * @return
    */
-  public Calendar calculateHarvestDate(Calendar seedDate, Crop crop) {
-    // Fecha de cosecha
+  public Calendar calculateHarvestDate(Calendar seedDate, Crop plantedCrop) {
     Calendar harvestDate = Calendar.getInstance();
+    int daysYear = 365;
 
     /*
-     * La cantidad total de dias de vida del cultivo dado
-     * es igual a la suma de la duracion en dias de cada una
-     * de sus etapas
+     * Dias de vida del cultivo sembrado a partir de su fecha
+     * de siembra
      */
-    int totalDaysLife = crop.getInitialStage() + crop.getDevelopmentStage() + crop.getMiddleStage() + crop.getFinalStage();
+    int daysCropLife = seedDate.get(Calendar.DAY_OF_YEAR) + plantedCrop.getLifeCycle();
 
     /*
-     * Si el numero del dia de siembra en el año mas la cantidad
-     * total de dias de vida del cultivo dado es mayor a 365
-     * (por ende, la fecha de siembra y la fecha de cosecha no
-     * estan en el mismo año), la fecha de cosecha es igual fecha
-     * de siembra mas la cantidad total de dias de vida del cultivo
-     * dado menos 365
+     * Esta variable representa los dias de vida del cultivo
+     * en el año en el que se lo siembra. Esta variable y la
+     * variable daysLifeFollowingYear son necesarias para
+     * calcular la fecha de cosecha en el caso en el que
+     * la cantidad de dias de vida del cultivo calculada
+     * a partir de su fecha de siembra, supera la cantidad
+     * de dias del año
      */
-    if ((seedDate.get(Calendar.DAY_OF_YEAR) + totalDaysLife) > 365) {
-      harvestDate.set(Calendar.DAY_OF_YEAR, ((seedDate.get(Calendar.DAY_OF_YEAR) + totalDaysLife) - 365));
+    int daysLifePlantingYear = 0;
+
+    /*
+     * Esta variable representa los dias de vida del cultivo
+     * en el año siguiente al año en el que se lo siembra.
+     * Esta variable recibe un valor mayor a cero si la cantidad
+     * de dias de vida del cultivo sembrado calculada a partir de
+     * su fecha de siembra, es mayor a la cantidad de dias del año.
+     */
+    int daysLifeFollowingYear = 0;
+
+    /*
+     * Si el año de la fecha de siembra es bisiesto, la cantidad
+     * de dias en el año que se tiene que utilizar para calcular
+     * la fecha de cosecha de un cultivo sembrado es 366
+     */
+    if (isLeapYear(seedDate.get(Calendar.YEAR))) {
+      daysYear = 366;
+    }
+
+    /*
+     * Si la cantidad de dias de vida del cultivo sembrado calculada a
+     * partir de su fecha de siembra, supera la cantidad de dias del año,
+     * la fecha de cosecha tiene un año mas que la fecha de siembra y su
+     * dia se calcula de la siguiente manera:
+     * 
+     * dias de vida del cultivo en el año de la fecha de siembra =
+     *  dias del año - numero de dia de la fecha de siembra en el año + 1 (*)
+     * 
+     * dias de vida del cultivo en el año siguiente a la fecha de siembra =
+     *  ciclo de vida del cultivo sembrado - dias de vida del cultivo en el
+     *  año de la fecha de siembra
+     * 
+     * Con el segundo valor se establece el dia en el año de la fecha
+     * de cosecha.
+     * 
+     * (*) El "+ 1" se debe a que para calcular la fecha de cosecha se cuenta
+     * desde el dia de la fecha de siembra, y para incluir a este dia en el
+     * calculo de la cantidad de dias de vida del cultivo en el año de la fecha
+     * de siembra, se suma un uno.
+     */
+    if (daysCropLife > daysYear) {
+      daysLifePlantingYear = daysYear - seedDate.get(Calendar.DAY_OF_YEAR) + 1;
+      daysLifeFollowingYear = plantedCrop.getLifeCycle() - daysLifePlantingYear;
+      harvestDate.set(Calendar.DAY_OF_YEAR, daysLifeFollowingYear);
       harvestDate.set(Calendar.YEAR, seedDate.get(Calendar.YEAR) + 1);
       return harvestDate;
     }
 
     /*
-     * Si el numero del dia de siembra en el año mas la cantidad
-     * total de dias de vida del cultivo dado no es mayor a 365
-     * (por ende, la fecha de siembra y la fecha de cosecha estan
-     * en el mismo año), la fecha de cosecha es igual a la fecha
-     * de siembra mas la cantidad total de dias de vida del cultivo
-     * dado
+     * Si la cantidad de dias de vida del cultivo sembrado calculada a
+     * partir de su fecha de siembra, NO supera la cantidad de dias del
+     * año, la fecha de cosecha tiene el mismo año que la fecha de
+     * siembra y el dia de la fecha de cosecha es el numero de dia de
+     * la fecha de siembra en el año mas los dias de vida del cultivo
+     * en el año en el que se lo siembra menos un dia (*).
+     * 
+     * (*) El "- 1" se debe a que para calcular la fecha de cosecha se
+     * cuenta desde el dia de la fecha de siembra y no desde el dia
+     * siguiente al mismo.
      */
-    harvestDate.set(Calendar.DAY_OF_YEAR, (seedDate.get(Calendar.DAY_OF_YEAR) + totalDaysLife));
+    harvestDate.set(Calendar.DAY_OF_YEAR, daysCropLife - 1);
+    harvestDate.set(Calendar.YEAR, seedDate.get(Calendar.YEAR));
     return harvestDate;
+  }
+
+  /**
+   * Retorna true si y solo si un año es bisiesto
+   * 
+   * @param givenYear
+   * @return true si el año representado por givenYear es
+   * bisiesto, false en caso contrario
+   */
+  private boolean isLeapYear(int givenYear) {
+    return ((givenYear % 4) == 0);
   }
 
   /**
    * Retorna el cultivo que tiene el nombre dado
    * 
    * @param cropName
-   * @return referencia a un objeto de tipo Crop que contiene
-   * el nombre dado
+   * @return referencia a un objeto de tipo Crop que representa
+   * al cultivo con el nombre dado
    */
   public Crop findByName(String cropName) {
-    Query query = getEntityManager().createQuery("SELECT c FROM Crop c WHERE c.name = :cropName");
-    query.setParameter("cropName", cropName.toUpperCase());
+    Query query = getEntityManager().createQuery("SELECT c FROM Crop c WHERE UPPER(c.name) = UPPER(:cropName)");
+    query.setParameter("cropName", cropName);
 
     return (Crop) query.getSingleResult();
   }
