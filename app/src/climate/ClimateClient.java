@@ -32,7 +32,7 @@ public class ClimateClient {
 
   /*
    * URL incompleto del servicio web a utilizar para
-   * obtener los datos climaticos en base a una fecha
+   * obtener los datos metereologicos en base a una fecha
    * y una coordenada geografica
    */
   private static final String INCOMPLETE_WEATHER_URL = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/";
@@ -66,7 +66,7 @@ public class ClimateClient {
    * @param givenParcel
    * @param datetimeEpoch [tiempo UNIX]
    * @return referencia a un objeto de tipo ClimateRecord que
-   * contiene los datos climaticos obtenidos en base a una
+   * contiene los datos metereologicos obtenidos en base a una
    * coordenada geografica y una fecha en tiempo UNIX
    */
   public static ClimateRecord getForecast(Parcel givenParcel, long datetimeEpoch) {
@@ -102,8 +102,8 @@ public class ClimateClient {
   private static Forecast requestWeatherData(double latitude, double longitude, long datetimeEpoch) {
     /*
      * Contendra el resultado de la llamada a la API
-     * climatica utilizada (en este caso Visual Crossing
-     * Weather) en formato JSON
+     * metereologica utilizada (en este caso Visual
+     * Crossing Weather) en formato JSON
      */
     String resultApiCall = null;
 
@@ -163,7 +163,7 @@ public class ClimateClient {
    * @param longitude [grados decimales]
    * @param datetimeEpoch [tiempo UNIX]
    * @return referencia a un objeto de tipo String que contiene el URL necesario
-   * para realizar una solicitud a la API climatica Visual Crossing Weather
+   * para realizar una solicitud a la API metereologica Visual Crossing Weather
    */
   private static String getCompleteWeatherUrl(double latitude, double longitude, long datetimeEpoch) {
     return INCOMPLETE_WEATHER_URL + latitude + "," + longitude + "/" + datetimeEpoch + "?" + API_KEY + QUERY_STRING;
