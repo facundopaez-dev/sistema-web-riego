@@ -101,7 +101,7 @@ public class IrrigationRecordRestServlet {
   private void setWaterAccumulatedToday(Parcel givenParcel) {
     double yesterdayEto = 0.0;
     double yesterdayEtc = 0.0;
-    double yesterdayRainWater = 0.0;
+    double yesterdayTotalPrecipitation = 0.0;
     double waterAccumulatedYesterday = 0.0;
     double totalIrrigationWaterToday = 0.0;
     double waterAccumulatedToday = 0.0;
@@ -124,12 +124,12 @@ public class IrrigationRecordRestServlet {
     ClimateRecord yesterdayClimateLog = climateRecordServiceBean.find(yesterdayDate, givenParcel);
     yesterdayEto = yesterdayClimateLog.getEto();
     yesterdayEtc = yesterdayClimateLog.getEtc();
-    yesterdayRainWater = yesterdayClimateLog.getRainWater();
+    yesterdayTotalPrecipitation = yesterdayClimateLog.getTotalPrecipitation();
     waterAccumulatedYesterday = yesterdayClimateLog.getWaterAccumulated();
 
     totalIrrigationWaterToday = irrigationRecordService.getTotalWaterIrrigationToday(givenParcel);
 
-    waterAccumulatedToday = WaterMath.getWaterAccumulatedToday(yesterdayEtc, yesterdayEto, yesterdayRainWater, waterAccumulatedYesterday, totalIrrigationWaterToday);
+    waterAccumulatedToday = WaterMath.getWaterAccumulatedToday(yesterdayEtc, yesterdayEto, yesterdayTotalPrecipitation, waterAccumulatedYesterday, totalIrrigationWaterToday);
     climateRecordServiceBean.updateWaterAccumulatedToday(currentDate, givenParcel, waterAccumulatedToday);
   }
 

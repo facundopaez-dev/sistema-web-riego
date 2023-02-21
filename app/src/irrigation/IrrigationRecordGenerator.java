@@ -11,7 +11,7 @@
 
 package irrigation;
 
-import climate.ClimateLogService;
+import climate.ClimateClient;
 import irrigation.WaterMath;
 import java.lang.Math;
 import java.util.Calendar;
@@ -57,7 +57,6 @@ public class IrrigationRecordGenerator {
   // @Schedule(second="*", minute="59", hour="23", persistent=false)
   // @Schedule(second="*/5", minute="*", hour="*", persistent=false)
   private void execute() {
-    ClimateLogService climateLogService = ClimateLogService.getInstance();
     Collection<Parcel> parcels = parcelService.findAll();
     Calendar currentDate = Calendar.getInstance();
 
@@ -80,7 +79,7 @@ public class IrrigationRecordGenerator {
     ClimateRecord yesterdayClimateLog = null;
     double yesterdayEto = 0.0;
     double yesterdayEtc = 0.0;
-    double yesterdayRainWater = 0.0;
+    double yesterdayTotalPrecipitation = 0.0;
     double waterAccumulatedYesterday = 0.0;
 
     /*
@@ -123,7 +122,7 @@ public class IrrigationRecordGenerator {
         yesterdayClimateLog = climateRecordServiceBean.find(yesterdayDate, currentParcel);
         yesterdayEto = yesterdayClimateLog.getEto();
         yesterdayEtc = yesterdayClimateLog.getEtc();
-        yesterdayRainWater = yesterdayClimateLog.getRainWater();
+        yesterdayTotalPrecipitation = yesterdayClimateLog.getTotalPrecipitation();
         waterAccumulatedYesterday = yesterdayClimateLog.getWaterAccumulated();
 
         /*
@@ -134,7 +133,7 @@ public class IrrigationRecordGenerator {
          * en la fecha dada, la cantidad total de agua utilizada en
          * el riego en el dia de hoy es 0.0
          */
-        currentSuggestedIrrigation = WaterMath.getSuggestedIrrigation(currentParcel.getHectare(), yesterdayEtc, yesterdayEto, yesterdayRainWater, waterAccumulatedYesterday, 0.0);
+        currentSuggestedIrrigation = WaterMath.getSuggestedIrrigation(currentParcel.getHectare(), yesterdayEtc, yesterdayEto, yesterdayTotalPrecipitation, waterAccumulatedYesterday, 0.0);
         currentIrrigationRecord.setSuggestedIrrigation(currentSuggestedIrrigation);
 
         /*
@@ -147,8 +146,8 @@ public class IrrigationRecordGenerator {
          * historico de riego solo es un dato informativo, no
          * se lo usa con otro fin mas que para informar
          */
-        tomorrowClimateLog = climateLogService.getClimateLog(currentParcel.getLatitude(), currentParcel.getLongitude(), (tomorrowDate.getTimeInMillis() / 1000));
-        currentIrrigationRecord.setTomorrowPrecipitation(WaterMath.truncateToThreeDecimals(tomorrowClimateLog.getRainWater()));
+        tomorrowClimateLog = ClimateClient.getForecast(currentParcel, (tomorrowDate.getTimeInMillis() / 1000));
+        currentIrrigationRecord.setTomorrowPrecipitation(WaterMath.truncateToThreeDecimals(tomorrowClimateLog.getTotalPrecipitation()));
 
         /*
          * Si este bloque de codigo fuente se ejecuta es porque

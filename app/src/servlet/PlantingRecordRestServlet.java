@@ -1,6 +1,6 @@
 package servlet;
 
-import climate.ClimateLogService;
+import climate.ClimateClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import et.Eto;
 import irrigation.WaterMath;
@@ -506,7 +506,6 @@ public class PlantingRecordRestServlet {
     double suggestedIrrigationToday = 0.0;
     double tomorrowPrecipitation = 0.0;
 
-    ClimateLogService climateLogService = ClimateLogService.getInstance();
     ClimateRecord yesterdayClimateLog = null;
     double yesterdayEto = 0.0;
     double yesterdayEtc = 0.0;
@@ -527,8 +526,8 @@ public class PlantingRecordRestServlet {
     /*
      * Solicita el registro del clima del dia de mañana
      */
-    ClimateRecord tomorrowClimateLog = climateLogService.getClimateLog(parcel.getLatitude(), parcel.getLongitude(), (tomorrowDate.getTimeInMillis() / 1000));
-    tomorrowPrecipitation = tomorrowClimateLog.getRainWater();
+    ClimateRecord tomorrowClimateLog = ClimateClient.getForecast(parcel, (tomorrowDate.getTimeInMillis() / 1000));
+    tomorrowPrecipitation = tomorrowClimateLog.getTotalPrecipitation();
 
     /*
      * Fecha del dia inmediatamente anterior a la fecha
@@ -548,7 +547,7 @@ public class PlantingRecordRestServlet {
      * que persistir en la base de datos subyacente
      */
     if (!(climateRecordServiceBean.exist(yesterdayDate, parcel))) {
-      yesterdayClimateLog = climateLogService.getClimateLog(parcel.getLatitude(), parcel.getLongitude(), (yesterdayDate.getTimeInMillis() / 1000));
+      yesterdayClimateLog = ClimateClient.getForecast(parcel, (yesterdayDate.getTimeInMillis() / 1000));
 
       extraterrestrialSolarRadiation = solarService.getRadiation(yesterdayDate.get(Calendar.MONTH), parcel.getLatitude());
       maximumInsolation = insolationService.getInsolation(yesterdayDate.get(Calendar.MONTH), parcel.getLatitude());
@@ -558,7 +557,7 @@ public class PlantingRecordRestServlet {
        * condiciones climaticas del registro climatico del dia de ayer
        */
       yesterdayEto = Eto.getEto(yesterdayClimateLog.getMinimumTemperature(), yesterdayClimateLog.getMaximumTemperature(), yesterdayClimateLog.getAtmosphericPressure(), yesterdayClimateLog.getWindSpeed(),
-      yesterdayClimateLog.getDewPoint(), extraterrestrialSolarRadiation, maximumInsolation, yesterdayClimateLog.getCloudCover());
+        yesterdayClimateLog.getDewPoint(), extraterrestrialSolarRadiation, maximumInsolation, yesterdayClimateLog.getCloudCover());
 
       /*
        * Evapotranspiracion del cultivo bajo condiciones esntandar (ETc)
@@ -577,7 +576,7 @@ public class PlantingRecordRestServlet {
      * de la fecha anterior a la fecha actual
      */
     ClimateRecord climateLog = climateRecordServiceBean.find(yesterdayDate, parcel);
-    suggestedIrrigationToday = WaterMath.getSuggestedIrrigation(parcel.getHectare(), climateLog.getEtc(), climateLog.getEto(), climateLog.getRainWater(), climateLog.getWaterAccumulated(), totalIrrigationWaterToday);
+    suggestedIrrigationToday = WaterMath.getSuggestedIrrigation(parcel.getHectare(), climateLog.getEtc(), climateLog.getEto(), climateLog.getTotalPrecipitation(), climateLog.getWaterAccumulated(), totalIrrigationWaterToday);
 
     IrrigationRecord newIrrigationRecord = new IrrigationRecord();
     newIrrigationRecord.setDate(currentDate);

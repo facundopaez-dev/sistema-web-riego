@@ -72,15 +72,6 @@ public class ClimateDataExtractor {
   private void execute() {
     Collection<Parcel> parcels = parcelService.findAll();
 
-    /*
-     * Obtiene una referencia a un objeto del tipo
-     * clase de servicio de registro climatico, para
-     * obtener los registros climaticos de unas
-     * coordenadas geograficas dadas en una fecha
-     * dada
-     */
-    ClimateLogService climateLogService = ClimateLogService.getInstance();
-
     double latitude = 0.0;
     double longitude = 0.0;
     ClimateRecord climateLog = null;
@@ -117,7 +108,7 @@ public class ClimateDataExtractor {
          * coordenadas geograficas de las parcelas y de la fecha
          * actual en formato UNIX TIMESTAMP
          */
-        climateLog = climateLogService.getClimateLog(latitude, longitude, unixTime);
+        climateLog = ClimateClient.getForecast(currentParcel, unixTime);
         climateLog.setParcel(currentParcel);
 
         extraterrestrialSolarRadiation = solarService.getRadiation(currentDate.get(Calendar.MONTH), latitude);
