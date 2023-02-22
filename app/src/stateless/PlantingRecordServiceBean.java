@@ -147,6 +147,25 @@ public class PlantingRecordServiceBean {
   }
 
   /**
+   * Retorna los registros de plantacion de una parcela mediante
+   * su nombre y el ID del usuario al que pertenece
+   * 
+   * @param userId
+   * @param givenParcelName
+   * @return referencia a un objeto de tipo Collection que
+   * contiene los registros de plantacion de la parcela que
+   * tiene el nombre dado y que pertenece al usuario con el
+   * ID dado
+   */
+  public Collection<PlantingRecord> findAllByParcelName(int userId, String givenParcelName) {
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r WHERE (r.parcel.name = :givenParcelName AND r.parcel.user.id = :userId) ORDER BY r.id");
+    query.setParameter("userId", userId);
+    query.setParameter("givenParcelName", givenParcelName);
+
+    return (Collection) query.getResultList();
+  }
+
+  /**
    * Retorna el registro de plantacion en desarrollo de una
    * parcela, si existe.
    * 

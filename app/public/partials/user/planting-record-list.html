@@ -61,9 +61,22 @@
   <div class="panel-heading">
     <strong>Listado de registros de plantación</strong>
   </div>
+
+  <form class="form-inline">
+    <div class="form-group">
+      <!-- Campo de parcela -->
+      <input name="parcel" type="text" ng-model="parcel" placeholder="Ej.: Puerto Madryn 1"
+        uib-typeahead="parcel as parcel.name for parcel in findParcel($viewValue)" typeahead-loading="loadingLocations"
+        class="form-control" typeahead-editable="false" typeahead-min-lenght="3">
+    </div>
+    <button class="btn btn-default" ng-click="findAllByParcelName()">Filtrar</button>
+    <button class="btn btn-default" ng-click="reset()">Reiniciar listado</button>
+  </form>
+
   <div class="panel-body">
     <a href="#!/home/plantingRecords/new" class="btn btn-success" role="button">Nuevo registro de plantación</a>
   </div>
+
   <table class="table table-condensed table-hover table-fixed-top">
     <thead>
       <tr>

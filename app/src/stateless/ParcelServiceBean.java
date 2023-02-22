@@ -105,6 +105,33 @@ public class ParcelServiceBean {
   }
 
   /**
+   * Retorna las parcelas de un usuario que coincidan con el nombre
+   * de parcela dado
+   * 
+   * @param parcelName
+   * @return referencia a un objeto de tipo Collection que contiene
+   * todas las parcelas del usuario con el ID dado que tienen un
+   * nombre que coincide con el nombre de parcela dado
+   */
+  public Collection<Parcel> findByName(int userId, String parcelName) {
+    StringBuffer queryStr = new StringBuffer("SELECT p FROM Parcel p");
+
+    if (parcelName != null) {
+      queryStr.append(" WHERE (p.user.id = :userId AND UPPER(p.name) LIKE :name)");
+    }
+
+    Query query = entityManager.createQuery(queryStr.toString());
+    query.setParameter("userId", userId);
+
+    if (parcelName != null) {
+      query.setParameter("name", "%" + parcelName.toUpperCase() + "%");
+    }
+
+    Collection<Parcel> operators = (Collection) query.getResultList();
+    return operators;
+  }
+
+  /**
    * Comprueba si una parcela pertenece a un usuario.
    * 
    * Retorna true si y solo si una parcela pertenece a un

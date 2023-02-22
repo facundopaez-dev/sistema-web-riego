@@ -51,6 +51,16 @@ app.service("PlantingRecordSrv", ["$http", function ($http) {
       });
   }
 
+  this.findAllByParcelName = function (parcelName, callback) {
+    $http.get("rest/plantingRecords/findAllByParcelName/" + parcelName).then(
+      function (result) {
+        callback(false, result.data);
+      },
+      function (error) {
+        callback(error);
+      });
+  };
+
   // TODO: Comprobar para que sirve esto
   this.findCurrentPlantingRecord = function (idParcel, callback) {
     $http.get("rest/plantingRecords/findCurrentPlantingRecord/" + idParcel).then(

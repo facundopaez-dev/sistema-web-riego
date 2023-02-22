@@ -1,8 +1,8 @@
 app.controller(
 	"PlantingRecordsCtrl",
-	["$scope", "$location", "PlantingRecordSrv", "IrrigationRecordSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
-		function ($scope, $location, plantingRecordSrv, irrigationRecordService, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
-			
+	["$scope", "$location", "PlantingRecordSrv", "ParcelSrv", "IrrigationRecordSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
+		function ($scope, $location, plantingRecordSrv, parcelSrv, irrigationRecordService, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
+
 			console.log("Cargando PlantingRecordsCtrl...")
 
 			/*
@@ -118,6 +118,44 @@ app.controller(
 				administrador o no.
 				*/
 				logoutManager.logout();
+			}
+
+			// Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
+			$scope.findParcel = function (parcelName) {
+				return parcelSrv.findByName(parcelName).
+					then(function (response) {
+						var parcels = [];
+						for (var i = 0; i < response.data.length; i++) {
+							parcels.push(response.data[i]);
+						}
+
+						return parcels;
+					});;
+			}
+
+			/*
+			Trae el listado de registros de plantacion pertenecientes
+			a la parcela con el nombre dado
+			*/
+			$scope.findAllByParcelName = function () {
+				plantingRecordSrv.findAllByParcelName($scope.parcel.name, function (error, data) {
+					if (error) {
+						console.log(error);
+						errorResponseManager.checkResponse(error);
+						return;
+					}
+
+					$scope.data = data;
+				})
+			}
+
+			/*
+			Trae el listado de todos los registros de plantacion de
+			todas las parcelas del usuario cuando este presiona el
+			boton "Reiniciar listado"
+			*/
+			$scope.reset = function () {
+				findAll();
 			}
 
 			findAll();
