@@ -48,32 +48,34 @@
 
 <div class="panel panel-info">
 	<div class="panel-heading">
-		<strong>Listado de usuarios</strong>
+		<strong>Tipo de cultivo</strong>
 	</div>
-	<table class="table table-condensed table-hover">
-		<thead>
-			<tr>
-				<th>ID</th>
-				<th>Nombre de usuario</th>
-				<th>Nombre</th>
-				<th>Apellido</th>
-				<th>Correo elctrónico</th>
-				<th>Permiso de administrador</th>
-				<th>Activo</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr ng-repeat="u in data">
-				<td>{{u.id}}</td>
-				<td>{{u.username}}</td>
-				<td>{{u.name}}</td>
-				<td>{{u.lastName}}</td>
-				<td>{{u.email}}</td>
-				<td>{{u.superuser ? 'Sí' : 'No'}}</td>
-				<td>{{u.active ? 'Sí' : 'No'}}</td>
-				<td class="text-right">
-				</td>
-			</tr>
-		</tbody>
-	</table>
+	<div class="panel-body">
+		<form class="form-horizontal">
+			<div class="form-group" ng-hide="action == 'new'">
+				<label for="typeCrop_id" class="col-md-2 control-label">ID</label>
+				<div class="col-md-3">
+					<input type="text" class="form-control" id="typeCrop_id" ng-model="data.id"
+						ng-disabled="action == 'edit' || action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="typeCrop_name" class="col-md-2 control-label">Nombre</label>
+				<div class="col-md-3">
+					<input type="text" class="form-control" id="typeCrop_name" placeholder="Ej.: Hortaliza"
+						ng-model="data.name" ng-disabled="action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group">
+				<div class="col-md-offset-2 col-md-3">
+					<button type="submit" class="btn btn-success" ng-click="create()"
+						ng-show="action == 'new'">Crear</button>
+					<button type="submit" class="btn btn-success" ng-click="cancel()"
+						ng-show="action == 'new' || action == 'edit'">Cancelar</button>
+				</div>
+			</div>
+		</form>
+	</div>
 </div>

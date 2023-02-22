@@ -5,6 +5,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 @Entity
 public class Crop {
@@ -43,6 +45,10 @@ public class Crop {
 
   @Column(name = "ACTIVE", nullable = false)
   private boolean active;
+
+  @ManyToOne
+  @JoinColumn(name = "FK_TYPE_CROP", nullable = false)
+  private TypeCrop typeCrop;
 
   public Crop() {
 
@@ -132,12 +138,21 @@ public class Crop {
     this.active = active;
   }
 
+  public TypeCrop getTypeCrop() {
+    return typeCrop;
+  }
+
+  public void setTypeCrop(TypeCrop typeCrop) {
+    this.typeCrop = typeCrop;
+  }
+
   @Override
   public String toString() {
     return String.format(
-      "ID: %d\nCultivo: %s\nEtapa inicial (días): %d\nEtapa de desarrollo (días): %d\nEtapa media (días): %d\nEtapa final (días): %d\nKc inicial: %.2f\nKc medio: %.2f\nKc final: %.2f\nCiclo de vida (días): %d\nActivo: %b",
+      "ID: %d\nCultivo: %s\nTipo de cultivo: %s\nEtapa inicial (días): %d\nEtapa de desarrollo (días): %d\nEtapa media (días): %d\nEtapa final (días): %d\nKc inicial: %.2f\nKc medio: %.2f\nKc final: %.2f\nCiclo de vida (días): %d\nActivo: %b",
       id,
       name,
+      typeCrop.getName(),
       initialStage,
       developmentStage,
       middleStage,

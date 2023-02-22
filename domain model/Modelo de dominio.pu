@@ -10,6 +10,7 @@ RadiacionSolar "*"-->"1" Mes
 RadiacionSolar "*"-->"1" Latitud
 InsolacionMaxima "*"-->"1" Mes
 InsolacionMaxima "*"-->"1" Latitud
+Cultivo "*"-->"1" TipoCultivo
 
 class Parcela {
 -id
@@ -32,6 +33,11 @@ class Cultivo {
 -kcFinal
 -cicloVida
 -activo
+}
+
+class TipoCultivo {
+-id
+-nombre
 }
 
 class RegistroClimatico {

@@ -94,6 +94,19 @@ app.config(['$routeProvider', function (routeprovider) {
 			controller: 'UsersCtrl'
 		})
 
+		.when('/adminHome/typeCrops', {
+			templateUrl: 'partials/admin/type-crop-list.html',
+			controller: 'TypeCropsCtrl'
+		})
+		.when('/adminHome/typeCrops/:action', {
+			templateUrl: 'partials/admin/type-crop-form.html',
+			controller: 'TypeCropCtrl'
+		})
+		.when('/adminHome/typeCrops/:action/:id', {
+			templateUrl: 'partials/admin/type-crop-form.html',
+			controller: 'TypeCropCtrl'
+		})
+
 		.when('/adminHome/crops', {
 			templateUrl: 'partials/admin/admin-crop-list.html',
 			controller: 'AdminCropsCtrl'

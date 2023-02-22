@@ -30,6 +30,17 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
+			<a class="navbar-brand" href="#!/adminHome/typeCrops">Tipos de cultivos</a>
+		</div>
+
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+				aria-expanded="false" aria-controls="navbar">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
 			<a class="navbar-brand" ng-click="logout()">Cerrar sesión</a>
 		</div>
 	</div>
@@ -53,6 +64,14 @@
 				<label for="crop_name" class="col-md-2 control-label">Nombre</label>
 				<div class="col-md-3">
 					<input type="text" class="form-control" id="crop_name" ng-model="data.name"
+						ng-disabled="action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="typeCrop_name" class="col-md-2 control-label">Tipo de cultivo</label>
+				<div class="col-md-3">
+					<input type="text" class="form-control" id="typeCrop_name" ng-model="data.typeCrop.name"
 						ng-disabled="action == 'view'">
 				</div>
 			</div>

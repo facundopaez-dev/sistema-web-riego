@@ -48,30 +48,25 @@
 
 <div class="panel panel-info">
 	<div class="panel-heading">
-		<strong>Listado de usuarios</strong>
+		<strong>Listado de tipos de cultivos</strong>
+	</div>
+	<div class="panel-body">
+		<a href="#!/adminHome/typeCrops/new" class="btn btn-success" role="button">Nuevo tipo de cultivo</a>
 	</div>
 	<table class="table table-condensed table-hover">
 		<thead>
 			<tr>
 				<th>ID</th>
-				<th>Nombre de usuario</th>
 				<th>Nombre</th>
-				<th>Apellido</th>
-				<th>Correo elctrónico</th>
-				<th>Permiso de administrador</th>
-				<th>Activo</th>
 			</tr>
 		</thead>
 		<tbody>
-			<tr ng-repeat="u in data">
-				<td>{{u.id}}</td>
-				<td>{{u.username}}</td>
-				<td>{{u.name}}</td>
-				<td>{{u.lastName}}</td>
-				<td>{{u.email}}</td>
-				<td>{{u.superuser ? 'Sí' : 'No'}}</td>
-				<td>{{u.active ? 'Sí' : 'No'}}</td>
+			<tr ng-repeat="t in data">
+				<td>{{t.id}}</td>
+				<td>{{t.name}}</td>
 				<td class="text-right">
+					<div class="btn-group" role="group" aria-label="...">
+					</div>
 				</td>
 			</tr>
 		</tbody>
