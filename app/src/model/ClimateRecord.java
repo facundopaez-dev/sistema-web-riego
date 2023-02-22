@@ -148,15 +148,16 @@ public class ClimateRecord {
    * dia de la fecha para la cual se obtienen datos
    * metereologicos.
    *
-   * Este valor se calcula multiplicando el valor precip
-   * por 24, ya que precip es la tasa de precipitacion en
-   * milimetros por hora del dia y la ubicacion para los
-   * cuales se obtienen datos metereologicos.
+   * Si el grupo de unidades que se utiliza para obtener
+   * datos metereologicos es metric, precip es la tasa
+   * de precipitacion medida en milimetros por hora del
+   * dia y la ubicacion para los cuales se obtienen datos
+   * metereologicos. Por lo tanto, multiplicar precip * 24
+   * es la precipitacion total medida en milimetros por dia.
    * 
-   * Este valor es la cantidad de milimetros de precipitacion
-   * por dia si el grupo de unidades para obtener los datos
-   * metereologicos de Visual Crossing Weather es metric,
-   * segun el siguiente enlace:
+   * El siguiente enlace contiene las unidades de medida de
+   * cada grupo de unidades en los que se pueden obtener
+   * datos metereologicos de Visual Crossing Weather.
    * 
    * https://www.visualcrossing.com/resources/documentation/weather-api/unit-groups-and-measurement-units/
    */
