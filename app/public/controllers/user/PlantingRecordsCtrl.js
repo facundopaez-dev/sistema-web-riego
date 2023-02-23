@@ -65,7 +65,7 @@ app.controller(
 			}
 
 			$scope.calculateSuggestedIrrigation = function (id) {
-				plantingRecordSrv.calculateSuggestedIrrigation(id, function (error, data) {
+				plantingRecordSrv.calculateSuggestedIrrigation(id, function (error, irrigationRecord) {
 					if (error) {
 						console.log(error);
 						errorResponseManager.checkResponse(error);
@@ -73,29 +73,23 @@ app.controller(
 					}
 
 					/*
-					Si esta sentencia no esta, no se puede ver el riego
+					Si esta instruccion no esta, no se puede ver el riego
 					sugerido en el modal
 					*/
-					$scope.data = data;
-
-					/*
-					Esto impide que el modal no sea desplegado
-					*/
-					// $location.path("/plantingRecords");
-					// $route.reload();
+					$scope.irrigationRecord = irrigationRecord;
 				});
 			}
 
 			$scope.saveIrrigationRecord = function () {
-				if ($scope.data.irrigationDone >= 0) {
-					irrigationRecordService.save($scope.data, function (error, data) {
+				if ($scope.irrigationRecord.irrigationDone >= 0) {
+					irrigationRecordService.save($scope.irrigationRecord, function (error, irrigationRecord) {
 						if (error) {
 							console.log(error);
 							errorResponseManager.checkResponse(error);
 							return;
 						}
 
-						$scope.data = data;
+						$scope.irrigationRecord = irrigationRecord;
 					});
 				} else {
 					alert("El riego realizado debe ser mayor o igual a cero");
@@ -147,6 +141,10 @@ app.controller(
 
 					$scope.data = data;
 				})
+			}
+
+			$scope.cancel = function () {
+				$location.path("/home/plantingRecords");
 			}
 
 			/*
