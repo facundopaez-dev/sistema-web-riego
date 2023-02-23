@@ -85,6 +85,18 @@ app.controller(
         $location.path("/adminHome/typeCrops");
       }
 
+      function find(id) {
+        typeCropService.find(id, function (error, data) {
+          if (error) {
+            console.log(error);
+            errorResponseManager.checkResponse(error);
+            return;
+          }
+
+          $scope.data = data;
+        });
+      }
+
       // Expresion regular para validar el nombre del tipo de cultivo
       const regexp = new RegExp("[A-Za-z]+(\\s[A-Za-z]+)*", "g");
       const UNDEFINED_CROP_TYPE_NAME = "El nombre del tipo de cultivo debe estar definido";
@@ -116,6 +128,42 @@ app.controller(
         }
 
         typeCropService.create($scope.data, function (error, data) {
+          if (error) {
+            console.log(error);
+            errorResponseManager.checkResponse(error);
+            return;
+          }
+
+          $scope.data = data;
+          $location.path("/adminHome/typeCrops")
+        });
+      }
+
+      $scope.modify = function () {
+        /*
+        Si la propiedad "data" de $scope tiene el valor undefined,
+        significa que el usuario pulso el boton "Modificar" con el campo
+        "Nombre" vacio. Por lo tanto, no se invoca al service de tipo
+        de cultivo para la modificacion de un tipo de cultivo.
+        */
+        if ($scope.data == undefined) {
+          alert(UNDEFINED_CROP_TYPE_NAME);
+          return;
+        }
+
+        /*
+        Si el nombre del tipo de cultivo ingresado NO es valida (es
+        decir, no contiene unicamente letras, y un espacio en blanco
+        entre palabra y palabra si llega a ser necesario), no se
+        invoca al service de tipo de cultivo para la modificacion de
+        un tipo de cultivo
+        */
+        if (!regexp.test($scope.data.name)) {
+          alert(INVALID_NAME);
+          return;
+        }
+
+        typeCropService.modify($scope.data, function (error, data) {
           if (error) {
             console.log(error);
             errorResponseManager.checkResponse(error);

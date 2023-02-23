@@ -13,6 +13,16 @@ app.service(
 					});
 			}
 
+			this.find = function (id, callback) {
+				$http.get("rest/typeCrops/" + id).then(
+					function (result) {
+						callback(false, result.data);
+					},
+					function (error) {
+						callback(error);
+					});
+			}
+
 			this.create = function (data, callback) {
 				$http.post("rest/typeCrops", data)
 					.then(
@@ -23,6 +33,17 @@ app.service(
 							callback(error);
 						});
 			}
+
+			this.modify = function (data, callback) {
+				$http.put("rest/typeCrops/" + data.id, data)
+					.then(
+						function (result) {
+							callback(false, result.data);
+						},
+						function (error) {
+							callback(error);
+						});
+			};
 
 		}
 	]);

@@ -35,6 +35,26 @@ public class TypeCropServiceBean {
   }
 
   /**
+   * Modifica el nombre de un tipo de cultivo
+   * 
+   * @param typeCropId
+   * @param modifiedTypeCrop
+   * @return referencia a un objeto de tipo TypeCrop que contiene las
+   *         modificaciones realizadas si se encuentra el tipo de
+   *         cultivo con el ID dado, null en caso contrario
+   */
+  public TypeCrop modify(int typeCropId, TypeCrop modifiedTypeCrop) {
+    TypeCrop chosenTypeCrop = find(typeCropId);
+
+    if (chosenTypeCrop != null) {
+      chosenTypeCrop.setName(modifiedTypeCrop.getName());
+      return chosenTypeCrop;
+    }
+
+    return null;
+  }
+
+  /**
    * 
    * @return referencia a un objeto de tipo Collection que
    * contiene todos los tipos de cultivos
@@ -113,6 +133,52 @@ public class TypeCropServiceBean {
     }
 
     return (findByName(cropTypeName) != null);
+  }
+
+  /**
+   * Retorna el tipo de cultivo que tiene el nombre dado y un
+   * ID distinto al del tipo de cultivo del ID dado
+   * 
+   * @param id
+   * @return referencia a un objeto de tipo TypeCrop que
+   *         representa al tipo de cultivo que tiene un ID
+   *         distinto al ID dado y un nombre igual al nombre
+   *         dado en el caso en el que se encuentre dicho
+   *         tipo de cultivo, en caso contrario null
+   */
+  public TypeCrop find(int id, String name) {
+    /*
+     * Esta consulta obtiene el tipo de cultivo que tiene su
+     * nombre igual al nombre de un tipo de cultivo del
+     * conjunto de tipos de cultivos en el que NO esta el
+     * tipo de cultivo del ID dado
+     */
+    Query query = getEntityManager().createQuery("SELECT t FROM TypeCrop t WHERE (t.id != :cropTypeId AND UPPER(t.name) = UPPER(:cropTypeName))");
+    query.setParameter("cropTypeId", id);
+    query.setParameter("cropTypeName", name);
+
+    TypeCrop typeCrop = null;
+
+    try {
+      typeCrop = (TypeCrop) query.getSingleResult();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return typeCrop;
+  }
+
+  /**
+   * Retorna true si y solo si hay un tipo de cultivo con un
+   * nombre igual al nombre dado y un ID distinto al ID dado
+   * 
+   * @param id
+   * @return true si hay un tipo de cultivo con un nombre igual
+   *         al nombre dado y un ID distinto al ID dado, en
+   *         caso contrario false
+   */
+  public boolean checkRepeated(int id, String name) {
+    return (find(id, name) != null);
   }
 
 }
