@@ -1,8 +1,9 @@
 app.controller(
   "AdminCropCtrl",
-  ["$scope", "$location", "$routeParams", "CropSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
+  ["$scope", "$location", "$routeParams", "CropSrv", "TypeCropSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
     "ExpirationManager", "RedirectManager",
-    function ($scope, $location, $params, cropService, accessManager, errorResponseManager, authHeaderManager, logoutManager, expirationManager, redirectManager) {
+    function ($scope, $location, $params, cropService, typeCropSrv, accessManager, errorResponseManager, authHeaderManager, logoutManager, expirationManager,
+        redirectManager) {
 
       console.log("AdminCropCtrl loaded with action: " + $params.action)
 
@@ -120,6 +121,19 @@ app.controller(
           $scope.data = data;
           $location.path("/adminHome/crops")
         });
+      }
+
+      // Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
+      $scope.findTypeCrop = function (typeCropName) {
+        return typeCropSrv.findByName(typeCropName).
+          then(function (response) {
+            var typeCrops = [];
+            for (var i = 0; i < response.data.length; i++) {
+              typeCrops.push(response.data[i]);
+            }
+
+            return typeCrops;
+          });;
       }
 
       $scope.cancel = function () {

@@ -80,6 +80,7 @@ public class CropServiceBean {
       givenCrop.setMiddleKc(modifiedCrop.getMiddleKc());
       givenCrop.setFinalKc(modifiedCrop.getFinalKc());
       givenCrop.setActive(modifiedCrop.getActive());
+      givenCrop.setTypeCrop(modifiedCrop.getTypeCrop());
       return givenCrop;
     }
 

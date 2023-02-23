@@ -45,5 +45,10 @@ app.service(
 						});
 			};
 
+			// Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
+			this.findByName = function (name) {
+				return $http.get("rest/typeCrops/?typeCropName=" + name);
+			}
+
 		}
 	]);

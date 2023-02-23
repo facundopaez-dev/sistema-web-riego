@@ -68,11 +68,14 @@
 				</div>
 			</div>
 
+			<!-- Esto permite hacer la busqueda mediante el ingreso de caracteres -->
 			<div class="form-group">
-				<label for="typeCrop_name" class="col-md-2 control-label">Tipo de cultivo</label>
+				<label for="typeCrop" class="col-md-2 control-label">Tipo de cultivo</label>
 				<div class="col-md-3">
-					<input type="text" class="form-control" id="typeCrop_name" ng-model="data.typeCrop.name"
-						ng-disabled="action == 'view'">
+					<input name="typeCrop" type="text" ng-model="data.typeCrop" placeholder="Ej.: Hortaliza"
+					uib-typeahead="typeCrop as typeCrop.name for typeCrop in findTypeCrop($viewValue)" typeahead-loading="loadingLocations"
+					class="form-control" typeahead-editable="false" typeahead-min-lenght="3" ng-disabled="action == 'view'">
+					<i ng-show="loadingLocations" class="glyphicon glyphicon-refresh"></i>
 				</div>
 			</div>
 

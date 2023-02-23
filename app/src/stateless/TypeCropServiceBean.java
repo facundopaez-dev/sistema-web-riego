@@ -69,6 +69,32 @@ public class TypeCropServiceBean {
   }
 
   /**
+   * Retorna los tipso de cultivo que tienen un nombre que coincide
+   * con el nombre de tipo de cultivo dado
+   * 
+   * @param typeCropName
+   * @return referencia a un objeto de tipo Collection que contiene
+   *         todos los tipos de cultivos que tienen un nombre que
+   *         coincide con el nombre de tipo de cultivo dado
+   */
+  public Collection<TypeCrop> searchByName(String typeCropName) {
+    StringBuffer queryStr = new StringBuffer("SELECT t FROM TypeCrop t ");
+
+    if (typeCropName != null) {
+      queryStr.append(" WHERE UPPER(t.name) LIKE :name ");
+    }
+
+    Query query = getEntityManager().createQuery(queryStr.toString());
+
+    if (typeCropName != null) {
+      query.setParameter("name", "%" + typeCropName.toUpperCase() + "%");
+    }
+
+    Collection<TypeCrop> enterprises = (Collection) query.getResultList();
+    return enterprises;
+  }
+
+  /**
    * Retorna el tipo de cultivo que tiene el nombre dado
    * 
    * @param cropTypeName
