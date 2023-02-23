@@ -10,6 +10,10 @@ import model.ClimateRecord;
 import model.Parcel;
 import weatherApiClasses.Day;
 import weatherApiClasses.Forecast;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.HttpsURLConnection;
 
 /*
  * ClimateCliente es la clase que se utiliza para obtener datos
@@ -50,8 +54,7 @@ public class ClimateClient {
    * (rain, snow, freezing rain, ice), la velocidad del
    * viento, la presion atmosferica y la nubosidad
    */
-  private static final String QUERY_STRING =
-    "&unitGroup=metric&include=days&elements=datetimeEpoch,tempmax,tempmin,dew,humidity,precip,precipprob,preciptype,windspeed,pressure,cloudcover";
+  private static final String QUERY_STRING = "&unitGroup=metric&include=days&elements=datetimeEpoch,tempmax,tempmin,dew,humidity,precip,precipprob,preciptype,windspeed,pressure,cloudcover";
 
   /*
    * Biblioteca creada por Google para convertir formato
@@ -66,8 +69,8 @@ public class ClimateClient {
    * @param givenParcel
    * @param datetimeEpoch [tiempo UNIX]
    * @return referencia a un objeto de tipo ClimateRecord que
-   * contiene los datos metereologicos obtenidos en base a una
-   * coordenada geografica y una fecha en tiempo UNIX
+   *         contiene los datos metereologicos obtenidos en base a una
+   *         coordenada geografica y una fecha en tiempo UNIX
    */
   public static ClimateRecord getForecast(Parcel givenParcel, long datetimeEpoch) {
     ClimateRecord newClimateRecord = new ClimateRecord();
@@ -92,14 +95,69 @@ public class ClimateClient {
    * Obtiene los datos metereologicos para una ubicacion geografica
    * en una fecha dada
    * 
-   * @param latitude [grados decimales]
-   * @param longitude [grados decimales]
+   * @param latitude      [grados decimales]
+   * @param longitude     [grados decimales]
    * @param datetimeEpoch [tiempo UNIX]
    * @return referencia a un objeto de tipo Forecast que
-   * contiene los datos metereologicos obtenidos para una
-   * latitud y una longitud, en una fecha en tiempo UNIX
+   *         contiene los datos metereologicos obtenidos para una
+   *         latitud y una longitud, en una fecha en tiempo UNIX
    */
   private static Forecast requestWeatherData(double latitude, double longitude, long datetimeEpoch) {
+    /*
+     * Si no se agrega este bloque de codigo antes del bloque de
+     * codigo que realiza la invocacion a la API climatica Visual
+     * Crossing Weather, la aplicacion del lado servidor lanza la
+     * siguiente excepcion:
+     * 
+     * javax.net.ssl.SSLHandshakeException: sun.security.validator.ValidatorException:
+     * PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException:
+     * unable to find valid certification path to requested target
+     * 
+     * El motivo de esta excepcion es que la JVM no confia en el
+     * certificado SSL. El certificado puede estar autofirmado o
+     * puede estar firmado por una CA (autoridad de certificacion)
+     * cuyo certificado no se encuentra en el almacenamiento de
+     * certificados de la JVM.
+     * 
+     * Lo que se debe hacer para solucionar este problema es agregar
+     * codigo fuente para confiar en el certificado proporcionado por
+     * el host y para importar el certificado antes de consumir el URL
+     * de peticion de la API climatica. Esto es lo que hace el siguiente
+     * bloque de codigo fuente.
+     * 
+     * Esta excepcion surgio luego de eliminar la carpeta sun del
+     * archivo grizzly-npn-bootstrap.jar de la siguiente ruta:
+     * glassfish5/glassfish/modules/endorsed.
+     * 
+     * El motivo por el cual se elimino esta carpeta es para evitar
+     * que la aplicacion lance la sigueinte excepcion al invocar a
+     * la API climatica:
+     * 
+     * javax.servlet.ServletException: org.glassfish.jersey.server.ContainerException:
+     * java.lang.NoClassDefFoundError: sun/security/ssl/HelloExtension
+     */
+    TrustManager[] trustAllCerts = new TrustManager[] {
+        new X509TrustManager() {
+          public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+            return null;
+          }
+
+          public void checkClientTrusted(
+              java.security.cert.X509Certificate[] certs, String authType) {
+          }
+
+          public void checkServerTrusted(
+              java.security.cert.X509Certificate[] certs, String authType) {
+          }
+        } };
+
+    try {
+      SSLContext sc = SSLContext.getInstance("SSL");
+      sc.init(null, trustAllCerts, new java.security.SecureRandom());
+      HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+    } catch (Exception e) {
+    }
+
     /*
      * Contendra el resultado de la llamada a la API
      * metereologica utilizada (en este caso Visual
@@ -159,11 +217,12 @@ public class ClimateClient {
    * por hora, la probabilidad de precipitacion, el tipo de precipitacion,
    * la velocidad del viento, la presion atmosferica y la nubosidad
    * 
-   * @param latitude [grados decimales]
-   * @param longitude [grados decimales]
+   * @param latitude      [grados decimales]
+   * @param longitude     [grados decimales]
    * @param datetimeEpoch [tiempo UNIX]
    * @return referencia a un objeto de tipo String que contiene el URL necesario
-   * para realizar una solicitud a la API metereologica Visual Crossing Weather
+   *         para realizar una solicitud a la API metereologica Visual Crossing
+   *         Weather
    */
   private static String getCompleteWeatherUrl(double latitude, double longitude, long datetimeEpoch) {
     return INCOMPLETE_WEATHER_URL + latitude + "," + longitude + "/" + datetimeEpoch + "?" + API_KEY + QUERY_STRING;
@@ -180,9 +239,9 @@ public class ClimateClient {
   private static void setClimateRecord(ClimateRecord givenClimateRecord, Forecast givenForecast) {
     /*
      * Obtencion de los datos metereologicos solicitados
-     * para un dia (una fecha) para una ubicacion geografica
+     * en un dia (una fecha) para una ubicacion geografica
      */
-    Day givenDay = givenForecast.getDay();
+    Day givenDay = givenForecast.getDays().get(0);
 
     Calendar date = Calendar.getInstance();
 
@@ -241,7 +300,8 @@ public class ClimateClient {
 
       /*
        * Segun la documentacion de Visual Crossing Weather del siguiente
-       * enlace: https://www.visualcrossing.com/resources/documentation/weather-data/weather-data-documentation/
+       * enlace:
+       * https://www.visualcrossing.com/resources/documentation/weather-data/weather-data-documentation/
        * 
        * hay cuatro tipos de precipitaciones: rain, freezing rain, snow e ice.
        * 

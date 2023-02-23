@@ -10,6 +10,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
@@ -24,6 +25,8 @@ import util.ReasonError;
 import util.RequestManager;
 import utilJwt.AuthHeaderManager;
 import utilJwt.JwtManager;
+import climate.ClimateClient;
+import model.Parcel;
 
 @Path("/climateRecords")
 public class ClimateRecordRestServlet {
@@ -254,5 +257,26 @@ public class ClimateRecordRestServlet {
     ClimateRecord modifiedClimateRecord = mapper.readValue(json, ClimateRecord.class);
     return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(climateRecordService.modify(userId, climateRecordId, modifiedClimateRecord))).build();
   }
+
+  /**
+   * Este metodo REST esta para probar que la invocacion a la API
+   * climatica Visual Crossing Weather funciona como corresponde
+   * 
+   * @param latitude
+   * @param longitude
+   * @param time
+   * @return conjunto de datos metereologicos obtenidos en un dia
+   *         para una ubicacion geografica
+   * @throws IOException
+   */
+  @GET
+  @Path("/apiCallTest")
+  @Produces(MediaType.APPLICATION_JSON)
+	public String getForecast(@QueryParam("latitude") double latitude, @QueryParam("longitude") double longitude, @QueryParam("time") long time) throws IOException {
+    Parcel givenParcel = new Parcel();
+    givenParcel.setLatitude(latitude);
+    givenParcel.setLongitude(longitude);
+    return mapper.writeValueAsString(ClimateClient.getForecast(givenParcel, time));
+	}
 
 }

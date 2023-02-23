@@ -109,16 +109,4 @@ public class Forecast {
     return days;
   }
 
-  /**
-   * Retorna el conjunto de datos metereologicos solicitados
-   * para un dia (una fecha) en una ubicacion geografica
-   * 
-   * @return referencia a un objeto de tipo Day que contiene
-   * los datos metereologicos solicitados para una ubcacion
-   * geografica en un dia dado (una fecha dada)
-   */
-  public Day getDay() {
-    return days.get(0);
-  }
-
 }
