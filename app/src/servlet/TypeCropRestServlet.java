@@ -215,7 +215,7 @@ public class TypeCropRestServlet {
 
     /*
      * Si el nombre del tipo de cultivo ingresado, ya existe en la
-     * base de datos subyacente, la aplciacion del lado servidor
+     * base de datos subyacente, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 400 (Bad request) junto con el
      * mensaje "El tipo de cultivo ingresado ya existe" y no se
      * realiza la operacion solicitada
