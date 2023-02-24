@@ -97,13 +97,14 @@ app.controller(
         });
       }
 
-      // Expresion regular para validar el nombre del tipo de cultivo
-      const regexp = new RegExp("[A-Za-z]+(\\s[A-Za-z]+)*", "g");
       const UNDEFINED_CROP_TYPE_NAME = "El nombre del tipo de cultivo debe estar definido";
       const INVALID_NAME =
-        "Nombre incorrecto: el nombre para un tipo de cultivo sólo puede contener letras, y un espacio en blanco entre palabra y palabra si llega a ser necesario";
+        "Nombre incorrecto: el nombre para un tipo de cultivo sólo puede contener letras, y un espacio en blanco entre palabra y palabra si está formado por más de una palabra";
 
       $scope.create = function () {
+        // Expresion regular para validar el nombre del tipo de cultivo
+        var nameRegexp = /^[A-Za-zÀ-ÿ]+(\s[A-Za-zÀ-ÿ]+)*$/g;
+
         /*
         Si la propiedad "data" de $scope tiene el valor undefined,
         significa que el usuario pulso el boton "Crear" con el campo
@@ -116,13 +117,17 @@ app.controller(
         }
 
         /*
-        Si el nombre del tipo de cultivo ingresado NO es valida (es
-        decir, no contiene unicamente letras, y un espacio en blanco
-        entre palabra y palabra si llega a ser necesario), no se
-        invoca al service de tipo de cultivo para la creacion de
-        un tipo de cultivo
+        Si el nombre del tipo de cultivo ingresado NO es valido (es
+        decir, NO contiene unicamente letras, y un espacio en blanco
+        entre palabra y palabra si esta formado por mas de una palabra),
+        la aplicacion muestra el siguiente mensaje y no ejecuta la instruccion
+        que realiza la peticion HTTP para registrar un tipo de cultivo.
+
+        "Nombre incorrecto: el nombre para un tipo de cultivo solo puede
+        contener letras, y un espacio en blanco entre palabra y palabra
+        si esta formado por mas de una palabra".
         */
-        if (!regexp.test($scope.data.name)) {
+        if (!nameRegexp.exec($scope.data.name)) {
           alert(INVALID_NAME);
           return;
         }
@@ -140,6 +145,9 @@ app.controller(
       }
 
       $scope.modify = function () {
+        // Expresion regular para validar el nombre del tipo de cultivo
+        var nameRegexp = /^[A-Za-zÀ-ÿ]+(\s[A-Za-zÀ-ÿ]+)*$/g;
+
         /*
         Si la propiedad "data" de $scope tiene el valor undefined,
         significa que el usuario pulso el boton "Modificar" con el campo
@@ -152,13 +160,17 @@ app.controller(
         }
 
         /*
-        Si el nombre del tipo de cultivo ingresado NO es valida (es
-        decir, no contiene unicamente letras, y un espacio en blanco
-        entre palabra y palabra si llega a ser necesario), no se
-        invoca al service de tipo de cultivo para la modificacion de
-        un tipo de cultivo
+        Si el nombre del tipo de cultivo ingresado NO es valido (es
+        decir, NO contiene unicamente letras, y un espacio en blanco
+        entre palabra y palabra si esta formado por mas de una palabra),
+        la aplicacion muestra el siguiente mensaje y no ejecuta la instruccion
+        que realiza la peticion HTTP para modificar un tipo de cultivo.
+
+        "Nombre incorrecto: el nombre para un tipo de cultivo solo puede
+        contener letras, y un espacio en blanco entre palabra y palabra
+        si esta formado por mas de una palabra".
         */
-        if (!regexp.test($scope.data.name)) {
+        if (!nameRegexp.exec($scope.data.name)) {
           alert(INVALID_NAME);
           return;
         }

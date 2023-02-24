@@ -260,7 +260,7 @@ public class TypeCropRestServlet {
      * un espacio en blanco entre palabra y palabra si llega a ser
      * necesario" y no se realiza la operacion solicitada
      */
-    if (!newTypeCrop.getName().matches("[A-Za-zÀ-ÿ]+(\\s[A-Za-zÀ-ÿ]+)*")) {
+    if (!newTypeCrop.getName().matches("^[A-Za-zÀ-ÿ]+(\\s[A-Za-zÀ-ÿ]+)*$")) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_CROP_TYPE_NAME))).build();
     }
 
@@ -347,7 +347,7 @@ public class TypeCropRestServlet {
      * un espacio en blanco entre palabra y palabra si llega a ser
      * necesario" y no se realiza la operacion solicitada
      */
-    if (!modifiedTypeCrop.getName().matches("[A-Za-zÀ-ÿ]+(\\s[A-Za-zÀ-ÿ]+)*")) {
+    if (!modifiedTypeCrop.getName().matches("^[A-Za-zÀ-ÿ]+(\\s[A-Za-zÀ-ÿ]+)*$")) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_CROP_TYPE_NAME))).build();
     }
 

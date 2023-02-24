@@ -25,7 +25,7 @@ public enum ReasonError {
   CREATION_FUTURE_PLANTING_RECORD_NOT_ALLOWED("No está permitido crear un registro de plantación con una fecha de siembra estrictamente mayor (posterior) que la fecha actual"),
   UNDEFINED_CROP_TYPE_NAME("El nombre del tipo de cultivo debe estar definido"),
   TYPE_CROP_ALREADY_EXISTING("El tipo de cultivo ingresado ya existe"),
-  INVALID_CROP_TYPE_NAME("Nombre incorrecto: el nombre para un tipo de cultivo sólo puede contener letras, y un espacio en blanco entre palabra y palabra si llega a ser necesario"),
+  INVALID_CROP_TYPE_NAME("Nombre incorrecto: el nombre para un tipo de cultivo sólo puede contener letras, y un espacio en blanco entre palabra y palabra si está formado por más de una palabra"),
   UNDEFINED_USERNAME("El nombre de usuario debe estar definido"),
   UNDEFINED_NAME("El nombre debe estar definido"),
   UNDEFINED_LAST_NAME("El apellido debe estar definido"),
