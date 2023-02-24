@@ -6,6 +6,12 @@ var app = angular.module('app', ['ngRoute', 'Pagination', 'ui.bootstrap', 'leafl
 app.config(['$routeProvider', function (routeprovider) {
 	routeprovider
 
+		/* Ruta para el registro de usuario */
+		.when('/signup', {
+			templateUrl: 'partials/user/sign-up-form.html',
+			controller: 'SignupCtrl'
+		})
+
 		/* Rutas del usuario */
 		.when('/', {
 			templateUrl: 'partials/user/user-login.html',

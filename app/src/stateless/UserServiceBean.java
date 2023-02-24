@@ -122,6 +122,30 @@ public class UserServiceBean {
   }
 
   /**
+   * Busca un usuario en la base de datos subyacente mediante una
+   * direccion de correo electronico
+   * 
+   * @param email
+   * @return referencia a un objeto de tipo User en caso de encontrarse
+   *         en la base de datos subyacente, el usuario con la direccion
+   *         de correo electronico provista, en caso contrario null
+   */
+  public User findByEmail(String email) {
+    Query query = getEntityManager().createQuery("SELECT u FROM User u WHERE UPPER(u.email) = UPPER(:email)");
+    query.setParameter("email", email);
+
+    User user = null;
+
+    try {
+      user = (User) query.getSingleResult();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return user;
+  }
+
+  /**
    * Realiza la autenticacion de un usuario mediante el nombre de usuario
    * y la contraseña que provee
    *
@@ -196,6 +220,67 @@ public class UserServiceBean {
   public boolean checkSuperuserPermission(String username) {
     User givenUser = findByUsername(username);
     return givenUser.getSuperuser();
+  }
+
+  /**
+   * Retorna true si y solo si el nombre de usuario existe en
+   * la base de datos subyacente
+   * 
+   * @param username
+   * @return true si el nombre de usuario existe en la base
+   * de datos subyacente, en caso contrario false
+   */
+  public boolean checkExistenceUsername(String username) {
+    /*
+     * Si el nombre de usuario tiene el valor null, se retorna
+     * false, ya que realizar la busqueda de un nombre de
+     * usuario con este valor es similar a buscar un nombre
+     * de usuario inexistente en la base de datos subyacente.
+     * 
+     * Con este control se evita realizar una consulta a la base
+     * de datos comparando el nombre de usuario con el valor
+     * null. Si no se realiza este control y se realiza esta
+     * consulta a la base de datos, ocurre la excepcion
+     * SQLSyntaxErrorException, debido a que la comparacion de
+     * un atributo con el valor null incumple la sintaxis del
+     * proveedor del motor de base de datos.
+     */
+    if (username == null) {
+      return false;
+    }
+
+    return (findByUsername(username) != null);
+  }
+
+  /**
+   * Retorna true si y solo si la direccion de correo electronico
+   * existe en la base de datos subyacente
+   * 
+   * @param email
+   * @return true si la direccion de correo electronico existe en
+   * la base de datos subyacente, en caso contrario false
+   */
+  public boolean checkExistenceEmail(String email) {
+    /*
+     * Si la direccion de correo electronico tiene el valor
+     * null, se retorna false, ya que realizar la busqueda
+     * de una direccion de correo electronico con este valor
+     * es similar a buscar una direccion de correo electronico
+     * inexistente en la base de datos subyacente.
+     * 
+     * Con este control se evita realizar una consulta a la base
+     * de datos comparando la direccion de correo electronico
+     * con el valor null. Si no se realiza este control y se
+     * realiza esta consulta a la base de datos, ocurre la excepcion
+     * SQLSyntaxErrorException, debido a que la comparacion de
+     * un atributo con el valor null incumple la sintaxis del
+     * proveedor del motor de base de datos.
+     */
+    if (email == null) {
+      return false;
+    }
+
+    return (findByEmail(email) != null);
   }
 
 }

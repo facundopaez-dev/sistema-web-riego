@@ -75,6 +75,17 @@ public class LoginRestServlet {
     givenUser = userService.findByUsername(givenUser.getUsername());
 
     /*
+     * Si la cuenta con la que el usuario intenta iniciar sesion NO
+     * esta activada, la aplicacion del lado servidor retorna el
+     * mensaje HTTP 401 (Unauthorized) junto con el mensaje "Nombre
+     * de usuario o contraseña incorrectos" y no se inicia la sesion
+     * solicitada
+     */
+    if (!givenUser.getActive()) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.USERNAME_OR_PASSWORD_INCORRECT)).build();
+    }
+
+    /*
      * Si el usuario tiene una sesion abierta e intenta abrir otra
      * sesion, la aplicacion del lado servidor devuelve el mensaje
      * HTTP 401 (Unauthorized) junto con el mensaje "No es posible
@@ -174,6 +185,17 @@ public class LoginRestServlet {
      * por el usuario en la pagina web de inicio de sesion
      */
     givenUser = userService.findByUsername(givenUser.getUsername());
+
+    /*
+     * Si la cuenta con la que el usuario intenta iniciar sesion NO
+     * esta activada, la aplicacion del lado servidor retorna el
+     * mensaje HTTP 401 (Unauthorized) junto con el mensaje "Nombre
+     * de usuario o contraseña incorrectos" y no se inicia la sesion
+     * solicitada
+     */
+    if (!givenUser.getActive()) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.USERNAME_OR_PASSWORD_INCORRECT)).build();
+    }
 
     /*
      * La comprobacion del permiso de super usuario (administrador) del usuario nunca

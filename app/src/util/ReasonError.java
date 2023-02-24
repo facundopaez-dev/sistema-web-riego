@@ -11,6 +11,7 @@ public enum ReasonError {
   UNAUTHORIZED_ACCESS("Acceso no autorizado"),
   RESOURCE_NOT_FOUND("Recurso no encontrado"),
   MULTIPLE_SESSIONS("No es posible tener más de una sesión abierta simultáneamente"),
+  USERNAME_ALREADY_USED("Nombre de usuario ya utilizado, elija otro"),
   EMAIL_ALREADY_USED("Correo electrónico ya utilizado, elija otro"),
   INDEFINITE_SEED_DATE("La fecha de siembra debe estar definida"),
   INDEFINITE_PARCEL("La parcela debe estar definida"),
@@ -24,7 +25,20 @@ public enum ReasonError {
   CREATION_FUTURE_PLANTING_RECORD_NOT_ALLOWED("No está permitido crear un registro de plantación con una fecha de siembra estrictamente mayor (posterior) que la fecha actual"),
   UNDEFINED_CROP_TYPE_NAME("El nombre del tipo de cultivo debe estar definido"),
   TYPE_CROP_ALREADY_EXISTING("El tipo de cultivo ingresado ya existe"),
-  INVALID_CROP_TYPE_NAME("Nombre incorrecto: el nombre para un tipo de cultivo sólo puede contener letras, y un espacio en blanco entre palabra y palabra si llega a ser necesario");
+  INVALID_CROP_TYPE_NAME("Nombre incorrecto: el nombre para un tipo de cultivo sólo puede contener letras, y un espacio en blanco entre palabra y palabra si llega a ser necesario"),
+  UNDEFINED_USERNAME("El nombre de usuario debe estar definido"),
+  UNDEFINED_NAME("El nombre debe estar definido"),
+  UNDEFINED_LAST_NAME("El apellido debe estar definido"),
+  UNDEFINED_EMAIL("La dirección de correo electrónico debe estar definida"),
+  UNDEFINED_PASSWORD("La contraseña debe estar definida"),
+  UNDEFINED_CONFIRMED_PASSWORD("La confirmación de la contraseña debe estar definida"),
+  MALFORMED_USERNAME("El nombre debe usuario debe tener una longitud de entre 4 y 15 caracteres, comenzar con caracteres alfabéticos seguido o no de números y/o guiones bajos"),
+  MALFORMED_NAME("El nombre debe tener una longitud de entre 4 y 30 caracteres alfabéticos, empezar con una letra mayúscula seguido de letras minúsculas, tener un espacio en blanco entre nombre y nombre si hay mas de un nombre, y los nombres que vienen después del primero deben empezar con una letra mayúscula seguido de letras minúsculas"),
+  MALFORMED_LAST_NAME("El apellido debe tener una longitud de entre 4 y 20 caracteres alfabéticos, empezar con una letra mayúscula seguido de letras minúsculas, tener un espacio en blanco entre apellido y apellido si hay más de un apellido, y los apellidos que vienen después del primero deben empezar con una letra mayúscula seguido de letras minúsculas"),
+  MALFORMED_EMAIL("La dirección de correo electrónico no es válida"),
+  MALFORMED_PASSWORD("La contraseña debe tener como mínimo 8 caracteres de longitud, una letra minúscula, una letra mayúscula y un número de 0 a 9, con o sin caracteres especiales"),
+  INCORRECTLY_CONFIRMED_PASSWORD("La confirmación de la contraseña no es igual a la contraseña ingresada"),
+  EMPTY_SIGN_UP_FORM("Debe completar todos los campos del formulario de registro");
 
   private final String reason;
 
