@@ -62,8 +62,7 @@ public class LoginRestServlet {
      * o contraseña incorrectos" y no se inicia la sesion solicitada
      */
     if (!userService.authenticate(givenUser.getUsername(), givenUser.getPassword())) {
-      return Response.status(Response.Status.UNAUTHORIZED)
-      .entity(new ErrorResponse(ReasonError.USERNAME_OR_PASSWORD_INCORRECT)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.USERNAME_OR_PASSWORD_INCORRECT)).build();
     }
 
     /*
@@ -174,8 +173,7 @@ public class LoginRestServlet {
      * o contraseña incorrectos" y no se inicia la sesion solicitada
      */
     if (!userService.authenticate(givenUser.getUsername(), givenUser.getPassword())) {
-      return Response.status(Response.Status.UNAUTHORIZED)
-      .entity(new ErrorResponse(ReasonError.USERNAME_OR_PASSWORD_INCORRECT)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.USERNAME_OR_PASSWORD_INCORRECT)).build();
     }
 
     /*
