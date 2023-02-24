@@ -253,12 +253,13 @@ public class TypeCropRestServlet {
 
     /*
      * Si el nombre del tipo de cultivo NO contiene unicamente letras,
-     * y un espacio en blanco entre palabra y palabra si llega a ser
-     * necesario, la aplicacion del lado servidor devuelve el mensaje
-     * HTTP 400 (Bad request) junto con el mensaje "Nombre incorrecto:
-     * el nombre para un tipo de cultivo sólo puede contener letras, y
-     * un espacio en blanco entre palabra y palabra si llega a ser
-     * necesario" y no se realiza la operacion solicitada
+     * y un espacio en blanco entre palabra y palabra si esta formado
+     * por mas de una palabra, la aplicacion del lado servidor devuelve
+     * el mensaje HTTP 400 (Bad request) junto con el mensaje "Nombre
+     * incorrecto: el nombre para un tipo de cultivo sólo puede contener
+     * letras, y un espacio en blanco entre palabra y palabra si esta
+     * formado por mas de una palabra" y no se realiza la operacion
+     * solicitada
      */
     if (!newTypeCrop.getName().matches("^[A-Za-zÀ-ÿ]+(\\s[A-Za-zÀ-ÿ]+)*$")) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_CROP_TYPE_NAME))).build();
@@ -340,12 +341,13 @@ public class TypeCropRestServlet {
 
     /*
      * Si el nombre del tipo de cultivo NO contiene unicamente letras,
-     * y un espacio en blanco entre palabra y palabra si llega a ser
-     * necesario, la aplicacion del lado servidor devuelve el mensaje
-     * HTTP 400 (Bad request) junto con el mensaje "Nombre incorrecto:
-     * el nombre para un tipo de cultivo sólo puede contener letras, y
-     * un espacio en blanco entre palabra y palabra si llega a ser
-     * necesario" y no se realiza la operacion solicitada
+     * y un espacio en blanco entre palabra y palabra si esta formado
+     * por mas de una palabra, la aplicacion del lado servidor devuelve
+     * el mensaje HTTP 400 (Bad request) junto con el mensaje "Nombre
+     * incorrecto: el nombre para un tipo de cultivo sólo puede contener
+     * letras, y un espacio en blanco entre palabra y palabra si esta
+     * formado por mas de una palabra" y no se realiza la operacion
+     * solicitada
      */
     if (!modifiedTypeCrop.getName().matches("^[A-Za-zÀ-ÿ]+(\\s[A-Za-zÀ-ÿ]+)*$")) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_CROP_TYPE_NAME))).build();
