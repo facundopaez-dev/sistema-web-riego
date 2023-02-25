@@ -109,7 +109,7 @@
             </div>
 
             <div class="form-group">
-                <label for="climateRecord_windSpeed" class="col-md-2 control-label">Velocidad del viento (m/s)</label>
+                <label for="climateRecord_windSpeed" class="col-md-2 control-label">Velocidad del viento (km/h)</label>
                 <div class="col-md-3">
                     <input type="number" class="form-control" id="climateRecord_windSpeed" ng-model="data.windSpeed"
                         ng-disabled="action == 'view'">
@@ -118,7 +118,7 @@
 
             <div class="form-group">
                 <label for="climateRecord_precipProbability" class="col-md-2 control-label">Probabilidad de
-                    precipitación (%)</label>
+                    precipitación (0% - 100%)</label>
                 <div class="col-md-3">
                     <input type="number" class="form-control" id="climateRecord_precipProbability"
                         ng-model="data.precipProbability" ng-disabled="action == 'view'">
@@ -144,7 +144,8 @@
             </div>
 
             <div class="form-group">
-                <label for="climateRecord_waterAccumulated" class="col-md-2 control-label">Agua acumulada (mm)</label>
+                <label for="climateRecord_waterAccumulated" class="col-md-2 control-label">Agua acumulada del día
+                    (mm/día)</label>
                 <div class="col-md-3">
                     <input type="number" class="form-control" id="climateRecord_waterAccumulated"
                         ng-model="data.waterAccumulated" ng-disabled="action == 'view'">
@@ -152,7 +153,7 @@
             </div>
 
             <div class="form-group">
-                <label for="climateRecord_cloudCover" class="col-md-2 control-label">Nubosidad (%)</label>
+                <label for="climateRecord_cloudCover" class="col-md-2 control-label">Nubosidad (0% - 100%)</label>
                 <div class="col-md-3">
                     <input type="number" class="form-control" id="climateRecord_cloudCover" ng-model="data.cloudCover"
                         ng-disabled="action == 'view'">
@@ -161,7 +162,7 @@
 
             <div class="form-group">
                 <label for="climateRecord_atmosphericPressure" class="col-md-2 control-label">Presión atmosférica
-                    (hPa)</label>
+                    [milibares (hectopascales)]</label>
                 <div class="col-md-3">
                     <input type="number" class="form-control" id="climateRecord_atmosphericPressure"
                         ng-model="data.atmosphericPressure" ng-disabled="action == 'view'">
