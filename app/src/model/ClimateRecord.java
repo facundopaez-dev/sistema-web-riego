@@ -156,7 +156,7 @@ public class ClimateRecord {
   private double totalPrecipitation;
 
   /*
-   * Cantidad de agua acumulada [milimetros] en el dia de
+   * Cantidad de agua acumulada [milimetros/dia] en el dia de
    * la fecha para la cual se obtienen los datos metereologicos,
    * la cual, es el agua de dicho dia a favor para el dia de
    * mañana.
