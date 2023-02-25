@@ -35,7 +35,7 @@ app.service(
             }
 
             this.modify = function (data, callback) {
-                $http.put("rest/climateRecords", data)
+                $http.put("rest/climateRecords/" + data.id, data)
                     .then(
                         function (result) {
                             callback(false, result.data);

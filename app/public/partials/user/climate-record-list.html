@@ -81,7 +81,7 @@
                 <th>Fecha</th>
                 <th>Temp. mínima (°C)</th>
                 <th>Temp. máxima (°C)</th>
-                <th>Lluvia (mm)</th>
+                <th>Precip. total del día (mm/día)</th>
                 <th>Velocidad del viento (m/2)</th>
                 <th>Parcela</th>
             </tr>
@@ -91,7 +91,7 @@
                 <td>{{c.date | date:'dd/MM/yyyy'}}</td>
                 <td>{{c.minimumTemperature}}</td>
                 <td>{{c.maximumTemperature}}</td>
-                <td>{{c.rainWater}}</td>
+                <td>{{c.totalPrecipitation}}</td>
                 <td>{{c.windSpeed}}</td>
                 <td>{{c.parcel.name}}</td>
                 <td class="text-right">
