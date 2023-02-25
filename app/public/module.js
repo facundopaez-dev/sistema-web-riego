@@ -22,6 +22,10 @@ app.config(['$routeProvider', function (routeprovider) {
 			templateUrl: 'partials/user/home.html',
 			controller: 'HomeCtrl'
 		})
+		.when('/home/account/:action/:id', {
+			templateUrl: 'partials/user/user-account-form.html',
+			controller: 'UserAccountCtrl'
+		})
 
 		.when('/home/crops', {
 			templateUrl: 'partials/user/user-crop-list.html',
@@ -93,6 +97,10 @@ app.config(['$routeProvider', function (routeprovider) {
 		.when('/adminHome', {
 			templateUrl: 'partials/admin/admin-home.html',
 			controller: 'AdminHomeCtrl'
+		})
+		.when('/adminHome/account/:action/:id', {
+			templateUrl: 'partials/admin/admin-account-form.html',
+			controller: 'AdminAccountCtrl'
 		})
 
 		.when('/adminHome/users', {

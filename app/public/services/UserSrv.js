@@ -13,6 +13,21 @@ app.service(
 					});
 			}
 
+			/*
+			Esta funcion es para que el usuario pueda ver los
+			datos de su cuenta en la lista de la pagina de
+			inicio del usuario (home)
+			*/
+			this.findMyAccount = function (callback) {
+				$http.get("rest/users/myAccount").then(
+					function (result) {
+						callback(false, result.data);
+					},
+					function (error) {
+						callback(error);
+					});
+			}
+
 			this.find = function (id, callback) {
 				$http.get("rest/users/" + id).then(
 					function (result) {

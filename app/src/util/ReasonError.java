@@ -33,12 +33,12 @@ public enum ReasonError {
   UNDEFINED_PASSWORD("La contraseña debe estar definida"),
   UNDEFINED_CONFIRMED_PASSWORD("La confirmación de la contraseña debe estar definida"),
   MALFORMED_USERNAME("El nombre debe usuario debe tener una longitud de entre 4 y 15 caracteres, comenzar con caracteres alfabéticos seguido o no de números y/o guiones bajos"),
-  MALFORMED_NAME("El nombre debe tener una longitud de entre 4 y 30 caracteres alfabéticos, empezar con una letra mayúscula seguido de letras minúsculas, tener un espacio en blanco entre nombre y nombre si hay mas de un nombre, y los nombres que vienen después del primero deben empezar con una letra mayúscula seguido de letras minúsculas"),
-  MALFORMED_LAST_NAME("El apellido debe tener una longitud de entre 4 y 20 caracteres alfabéticos, empezar con una letra mayúscula seguido de letras minúsculas, tener un espacio en blanco entre apellido y apellido si hay más de un apellido, y los apellidos que vienen después del primero deben empezar con una letra mayúscula seguido de letras minúsculas"),
+  MALFORMED_NAME("El nombre debe tener una longitud de entre 3 y 30 caracteres alfabéticos, empezar con una letra mayúscula seguido de letras minúsculas, tener un espacio en blanco entre nombre y nombre si hay mas de un nombre, y los nombres que vienen después del primero deben empezar con una letra mayúscula seguido de letras minúsculas"),
+  MALFORMED_LAST_NAME("El apellido debe tener una longitud de entre 3 y 30 caracteres alfabéticos, empezar con una letra mayúscula seguido de letras minúsculas, tener un espacio en blanco entre apellido y apellido si hay más de un apellido, y los apellidos que vienen después del primero deben empezar con una letra mayúscula seguido de letras minúsculas"),
   MALFORMED_EMAIL("La dirección de correo electrónico no es válida"),
   MALFORMED_PASSWORD("La contraseña debe tener como mínimo 8 caracteres de longitud, una letra minúscula, una letra mayúscula y un número de 0 a 9, con o sin caracteres especiales"),
   INCORRECTLY_CONFIRMED_PASSWORD("La confirmación de la contraseña no es igual a la contraseña ingresada"),
-  EMPTY_SIGN_UP_FORM("Debe completar todos los campos del formulario de registro");
+  EMPTY_SIGN_UP_FORM("Debe completar todos los campos del formulario");
 
   private final String reason;
 

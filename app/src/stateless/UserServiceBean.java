@@ -84,6 +84,31 @@ public class UserServiceBean {
   }
 
   /**
+   * Retorna el usuario que tiene el ID dado.
+   * 
+   * El motivo de este metodo es la directiva ng-repeat de AngularJS,
+   * la cual, opera con una coleccion de datos. El objetivo es implementar
+   * una pagina web para que el usuario pueda ver sus datos en una lista
+   * de una fila. Es decir, lo que se quiere es que los datos del usuario
+   * que tiene una sesion abierta, se vean en forma de fila, y en una unica
+   * fila.
+   * 
+   * Para lograr este objetivo se debe retornar una coleccion con un
+   * unico usuario, el que tiene una sesion abierta, porque la directiva
+   * ng-repeat opera con una coleccion de datos.
+   * 
+   * @param userId
+   * @return referencia a un objeto de tipo Collection que contiene
+   *         unicamente un usuario: el correspondiente al ID dado
+   */
+  public Collection<User> findMyUser(int userId) {
+    Query query = getEntityManager().createQuery("SELECT u FROM User u WHERE u.id = :userId");
+    query.setParameter("userId", userId);
+
+    return (Collection) query.getResultList();
+  }
+
+  /**
    * @return referencia a un objeto de tipo Collection que contiene
    * todos los usuarios (activos e inactivos), excepto el usuario
    * admin
@@ -132,6 +157,82 @@ public class UserServiceBean {
    */
   public User findByEmail(String email) {
     Query query = getEntityManager().createQuery("SELECT u FROM User u WHERE UPPER(u.email) = UPPER(:email)");
+    query.setParameter("email", email);
+
+    User user = null;
+
+    try {
+      user = (User) query.getSingleResult();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return user;
+  }
+
+  /**
+   * Retorna una referencia a un objeto de tipo User si y solo si el
+   * nombre de usuario existe dentro del conjunto de usuarios en el
+   * que NO esta el usuario del ID dado. El motivo por el cual se hace
+   * esta descripcion de esta manera es que un usuario tiene un nombre
+   * de usuario.
+   * 
+   * Este metodo es para cuando el usuario que tiene el ID dado modifica
+   * su nombre de usuario. Lo que se busca con este metodo es verificar
+   * que el nombre de usuario modificado NO este registrado en la cuenta
+   * de otro usuario.
+   * 
+   * Si el nombre de usuario modificado NO esta registrado en la cuenta
+   * de otro usuario, la aplicacion realiza la modificacion del nombre
+   * de usuario. En caso contrario, no la realiza.
+   * 
+   * @param userId
+   * @param username
+   * @return referencia a un objeto de tipo User si el nombre de usuario
+   *         existe dentro del conjunto de usuarios en el que NO esta el
+   *         usuario del ID dado, en caso contrario null
+   */
+  public User findByUsername(int userId, String username) {
+    Query query = getEntityManager().createQuery("SELECT u FROM User u WHERE (u.id != :userId AND UPPER(u.username) = UPPER(:username))");
+    query.setParameter("userId", userId);
+    query.setParameter("username", username);
+
+    User user = null;
+
+    try {
+      user = (User) query.getSingleResult();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return user;
+  }
+
+  /**
+   * Retorna una referencia a un objeto de tipo User si y solo si la
+   * direccion de correo electronico existe dentro del conjunto de
+   * usuarios en el que NO esta el usuario del ID dado. El motivo por
+   * el cual se hace esta descripcion de esta manera es que un usuario
+   * tiene una direccion de correo electronico.
+   * 
+   * Este metodo es para cuando el usuario que tiene el ID dado modifica
+   * su direccion de correo electronico. Lo que se busca con este metodo
+   * es verificar que la direccion de correo electronica modificada NO
+   * este registrada en la cuenta de otro usuario.
+   * 
+   * Si la direccion de correo electronico modificada NO esta registrada
+   * en la cuenta de otro usuario, la aplicacion realiza la modificacion
+   * de la direccion de correo electronico. En caso contrario, no la realiza.
+   * 
+   * @param userId
+   * @param username
+   * @return referencia a un objeto de tipo User si el nombre de usuario
+   *         existe dentro del conjunto de usuarios en el que NO esta el
+   *         usuario del ID dado, en caso contrario null
+   */
+  public User findByEmail(int userId, String email) {
+    Query query = getEntityManager().createQuery("SELECT u FROM User u WHERE (u.id != :userId AND UPPER(u.email) = UPPER(:email))");
+    query.setParameter("userId", userId);
     query.setParameter("email", email);
 
     User user = null;
@@ -281,6 +382,93 @@ public class UserServiceBean {
     }
 
     return (findByEmail(email) != null);
+  }
+
+  /**
+   * Retorna true si y solo si el nombre de usuario existe dentro del
+   * conjunto de usuarios en el que NO esta el usuario del ID dado. El
+   * motivo por el cual se hace esta descripcion de esta manera es que
+   * un usuario tiene un nombre de usuario.
+   * 
+   * Este metodo es para cuando el usuario que tiene el ID dado modifica
+   * su nombre de usuario. Lo que se busca con este metodo es verificar
+   * que el nombre de usuario modificado NO este registrado en la cuenta
+   * de otro usuario.
+   * 
+   * Si el nombre de usuario modificado NO esta registrado en la
+   * cuenta de otro usuario, la aplicacion realiza la modificacion
+   * del nombre de usuario. En caso contrario, no la realiza.
+   * 
+   * @param userId
+   * @param username
+   * @return true si el nombre de usuario existe dentro del conjunto
+   *         de usuarios en el que NO esta el usuario del ID dado, en
+   *         caso contrario false
+   */
+  public boolean checkExistenceUsername(int userId, String username) {
+    /*
+     * Si el nombre de usuario tiene el valor null, se retorna
+     * false, ya que realizar la busqueda de un nombre de
+     * usuario con este valor es similar a buscar un nombre
+     * de usuario inexistente en la base de datos subyacente.
+     * 
+     * Con este control se evita realizar una consulta a la base
+     * de datos comparando el nombre de usuario con el valor
+     * null. Si no se realiza este control y se realiza esta
+     * consulta a la base de datos, ocurre la excepcion
+     * SQLSyntaxErrorException, debido a que la comparacion de
+     * un atributo con el valor null incumple la sintaxis del
+     * proveedor del motor de base de datos.
+     */
+    if (username == null) {
+      return false;
+    }
+
+    return (findByUsername(userId, username) != null);
+  }
+
+  /**
+   * Retorna true si y solo si la direccion de correo electronico esta
+   * dentro del conjunto de usuarios en el que NO esta el usuario del
+   * ID dado. El motivo por el cual se hace esta descripcion de esta
+   * manera es que un usuario tiene una direccion de correo electronico.
+   * 
+   * Este metodo es para cuando el usuario que tiene el ID dado modifica
+   * su direccion de correo electronico. Lo que se busca con este metodo
+   * es verificar que la direccion de correo electronica modificada NO
+   * este registrada en la cuenta de otro usuario.
+   * 
+   * Si la direccion de correo electronico modificada NO esta registrada
+   * en la cuenta de otro usuario, la aplicacion realiza la modificacion
+   * de la direccion de correo electronico. En caso contrario, no la realiza.
+   * 
+   * @param userId
+   * @param email
+   * @return true si la direccion de correo electronico existe dentro
+   *         del conjunto de usuarios en el que NO esta el usuario del
+   *         ID dado, en caso contrario false
+   */
+  public boolean checkExistenceEmail(int userId, String email) {
+    /*
+     * Si la direccion de correo electronico tiene el valor
+     * null, se retorna false, ya que realizar la busqueda
+     * de una direccion de correo electronico con este valor
+     * es similar a buscar una direccion de correo electronico
+     * inexistente en la base de datos subyacente.
+     * 
+     * Con este control se evita realizar una consulta a la base
+     * de datos comparando la direccion de correo electronico
+     * con el valor null. Si no se realiza este control y se
+     * realiza esta consulta a la base de datos, ocurre la excepcion
+     * SQLSyntaxErrorException, debido a que la comparacion de
+     * un atributo con el valor null incumple la sintaxis del
+     * proveedor del motor de base de datos.
+     */
+    if (email == null) {
+      return false;
+    }
+
+    return (findByEmail(userId, email) != null);
   }
 
 }

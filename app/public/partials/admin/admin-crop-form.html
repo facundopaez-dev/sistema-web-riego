@@ -8,6 +8,17 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
+			<a class="navbar-brand" href="#!/adminHome">Cuenta</a>
+		</div>
+
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+				aria-expanded="false" aria-controls="navbar">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
 			<a class="navbar-brand" href="#!/adminHome/users">Usuarios</a>
 		</div>
 
@@ -73,8 +84,9 @@
 				<label for="typeCrop" class="col-md-2 control-label">Tipo de cultivo</label>
 				<div class="col-md-3">
 					<input name="typeCrop" type="text" ng-model="data.typeCrop" placeholder="Ej.: Hortaliza"
-					uib-typeahead="typeCrop as typeCrop.name for typeCrop in findTypeCrop($viewValue)" typeahead-loading="loadingLocations"
-					class="form-control" typeahead-editable="false" typeahead-min-lenght="3" ng-disabled="action == 'view'">
+						uib-typeahead="typeCrop as typeCrop.name for typeCrop in findTypeCrop($viewValue)"
+						typeahead-loading="loadingLocations" class="form-control" typeahead-editable="false"
+						typeahead-min-lenght="3" ng-disabled="action == 'view'">
 					<i ng-show="loadingLocations" class="glyphicon glyphicon-refresh"></i>
 				</div>
 			</div>

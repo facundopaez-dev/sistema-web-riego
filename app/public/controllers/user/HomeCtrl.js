@@ -1,7 +1,7 @@
 app.controller(
     "HomeCtrl",
-    ["$scope", "$location", "AuthHeaderManager", "AccessManager", "LogoutManager", "ExpirationManager", "RedirectManager",
-        function ($scope, $location, authHeaderManager, accessManager, logoutManager, expirationManager, redirectManager) {
+    ["$scope", "$location", "UserSrv", "AuthHeaderManager", "AccessManager", "LogoutManager", "ExpirationManager", "ErrorResponseManager", "RedirectManager",
+        function ($scope, $location, userService, authHeaderManager, accessManager, logoutManager, expirationManager, errorResponseManager, redirectManager) {
 
             console.log("HomeCtrl loaded...");
 
@@ -81,6 +81,18 @@ app.controller(
                 authHeaderManager.setJwtAuthHeader();
             }
 
+            function findMyAccount() {
+                userService.findMyAccount(function (error, data) {
+                    if (error) {
+                        console.log("Ocurrió un error: " + error);
+                        errorResponseManager.checkResponse(error);
+                        return;
+                    }
+
+                    $scope.data = data;
+                })
+            }
+
             $scope.logout = function () {
                 /*
                 LogoutManager es la factory encargada de realizar el cierre de
@@ -98,4 +110,5 @@ app.controller(
                 logoutManager.logout();
             }
 
+            findMyAccount();
         }]);
