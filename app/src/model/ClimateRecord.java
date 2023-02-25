@@ -311,17 +311,11 @@ public class ClimateRecord {
 	}
 
 	/**
-	 * Sets new value of windSpeed.
-   * 
-   * Se divide la velocidad del viento entre 3.6 para
-   * convertirla de kilometros por hora a metros por
-   * segundo, ya que la formula de la ETo requiere que
-   * la velocidad del viento este en metros por segundo.
-   * 
+	 * Sets new value of windSpeed
 	 * @param
 	 */
 	public void setWindSpeed(double windSpeed) {
-		this.windSpeed = (windSpeed / 3.6);
+		this.windSpeed = windSpeed;
 	}
 
 	/**
