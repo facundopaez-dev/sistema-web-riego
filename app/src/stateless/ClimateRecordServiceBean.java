@@ -81,7 +81,6 @@ public  class ClimateRecordServiceBean {
 
     if (chosenClimateRecord != null) {
       chosenClimateRecord.setDate(modifiedClimateRecord.getDate());
-      chosenClimateRecord.setTimezone(modifiedClimateRecord.getTimezone());
       chosenClimateRecord.setPrecipPerHour(modifiedClimateRecord.getPrecipPerHour());
       chosenClimateRecord.setPrecipProbability(modifiedClimateRecord.getPrecipProbability());
       chosenClimateRecord.setDewPoint(modifiedClimateRecord.getDewPoint());

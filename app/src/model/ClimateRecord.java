@@ -65,15 +65,6 @@ public class ClimateRecord {
   private Calendar date;
 
   /*
-   * Zona horaria
-   *
-   * El nombre de la zona horaria de la
-   * IANA para la ubicacion solicitada
-   */
-  @Column(name = "TIME_ZONE", nullable = false)
-  private String timezone;
-
-  /*
    * Precipitacion [milimetros/hora] (si se usa el
    * grupo de unidades metric para la obtencion de
    * los datos metereologicos de la API Visual Crossing
@@ -248,22 +239,6 @@ public class ClimateRecord {
   }
 
   /**
-   * Returns value of timezone
-   * @return
-   */
-  public String getTimezone() {
-    return timezone;
-  }
-
-  /**
-   * Sets new value of timezone
-   * @param
-   */
-  public void setTimezone(String timezone) {
-    this.timezone = timezone;
-  }
-
-	/**
 	 * Returns value of precipPerHour
 	 * @return
 	 */
@@ -480,11 +455,10 @@ public class ClimateRecord {
   @Override
   public String toString() {
     return String.format(
-      "ID: %d\nLatitud: %f (grados decimales) Longitud: %f (grados decimales)\nZona horaria: %s\nFecha: %s\nPrecipitación: %f milímetros/hora\nProbabilidad de precipitación: %f [porcentaje 0 - 100]\nPunto de rocío: %f °C\nPresión atmosférica: %f hectopascales (milibares)\nVelocidad del viento: %f metros/segundo\nNubosidad: %f [porcentaje 0 - 100]\nTemperatura mínima: %f °C\nTemperatura máxima: %f °C\nCantidad total de precipitacion: %f milímetros\nCantidad de agua acumulada: %f milímetros\n",
+      "ID: %d\nLatitud: %f (grados decimales) Longitud: %f (grados decimales)\nFecha: %s\nPrecipitación: %f milímetros/hora\nProbabilidad de precipitación: %f [porcentaje 0 - 100]\nPunto de rocío: %f °C\nPresión atmosférica: %f hectopascales (milibares)\nVelocidad del viento: %f metros/segundo\nNubosidad: %f [porcentaje 0 - 100]\nTemperatura mínima: %f °C\nTemperatura máxima: %f °C\nCantidad total de precipitacion: %f milímetros\nCantidad de agua acumulada: %f milímetros\n",
       id,
       parcel.getLatitude(),
       parcel.getLongitude(),
-      timezone,
       UtilDate.formatDate(date),
       precipPerHour,
       precipProbability,

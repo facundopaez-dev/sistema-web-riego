@@ -252,7 +252,6 @@ public class ClimateClient {
     date.setTimeInMillis(givenDay.getDatetimeEpoch() * 1000);
 
     givenClimateRecord.setDate(date);
-    givenClimateRecord.setTimezone(givenForecast.getTimezone());
     givenClimateRecord.setDewPoint(givenDay.getDew());
     givenClimateRecord.setAtmosphericPressure(givenDay.getPressure());
 

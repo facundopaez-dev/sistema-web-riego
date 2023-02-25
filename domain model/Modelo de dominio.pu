@@ -43,7 +43,6 @@ class TipoCultivo {
 class RegistroClimatico {
 -id
 -fecha
--zonaHoraria
 -precipitacionHora
 -probabilidadPrecipitacion
 -puntoRocio
