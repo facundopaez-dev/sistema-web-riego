@@ -116,6 +116,11 @@ app.controller(
           }
 
           $scope.data = data;
+
+          if ($scope.data.date != null) {
+            $scope.data.date = new Date($scope.data.date);
+          }
+
           $location.path("/home/climateRecords")
         });
       }
@@ -129,6 +134,11 @@ app.controller(
           }
 
           $scope.data = data;
+
+          if ($scope.data.date != null) {
+            $scope.data.date = new Date($scope.data.date);
+          }
+
           $location.path("/home/climateRecords")
         });
       }
