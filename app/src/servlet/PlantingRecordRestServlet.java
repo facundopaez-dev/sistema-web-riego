@@ -573,7 +573,14 @@ public class PlantingRecordRestServlet {
      * Solicita el registro del clima del dia de mañana
      */
     ClimateRecord tomorrowClimateLog = ClimateClient.getForecast(parcel, (tomorrowDate.getTimeInMillis() / 1000));
-    tomorrowPrecipitation = tomorrowClimateLog.getTotalPrecipitation();
+
+    /*
+     * El atributo precip del modelo de datos ClimateRecord representa
+     * la precipitacion del dia en milimetros. La unidad en la que se
+     * mide este dato corresponde a la API Visual Crossing Weather y
+     * al grupo de unidades en el que se le solicita datos metereologicos.
+     */
+    tomorrowPrecipitation = tomorrowClimateLog.getPrecip();
 
     /*
      * Fecha del dia inmediatamente anterior a la fecha
@@ -622,7 +629,7 @@ public class PlantingRecordRestServlet {
      * de la fecha anterior a la fecha actual
      */
     ClimateRecord climateLog = climateRecordServiceBean.find(yesterdayDate, parcel);
-    suggestedIrrigationToday = WaterMath.getSuggestedIrrigation(parcel.getHectare(), climateLog.getEtc(), climateLog.getEto(), climateLog.getTotalPrecipitation(), climateLog.getWaterAccumulated(), totalIrrigationWaterToday);
+    suggestedIrrigationToday = WaterMath.getSuggestedIrrigation(parcel.getHectare(), climateLog.getEtc(), climateLog.getEto(), climateLog.getPrecip(), climateLog.getWaterAccumulated(), totalIrrigationWaterToday);
 
     IrrigationRecord newIrrigationRecord = new IrrigationRecord();
     newIrrigationRecord.setDate(currentDate);

@@ -79,7 +79,7 @@ public class IrrigationRecordGenerator {
     ClimateRecord yesterdayClimateLog = null;
     double yesterdayEto = 0.0;
     double yesterdayEtc = 0.0;
-    double yesterdayTotalPrecipitation = 0.0;
+    double yesterdayPrecip = 0.0;
     double waterAccumulatedYesterday = 0.0;
 
     /*
@@ -122,7 +122,14 @@ public class IrrigationRecordGenerator {
         yesterdayClimateLog = climateRecordServiceBean.find(yesterdayDate, currentParcel);
         yesterdayEto = yesterdayClimateLog.getEto();
         yesterdayEtc = yesterdayClimateLog.getEtc();
-        yesterdayTotalPrecipitation = yesterdayClimateLog.getTotalPrecipitation();
+
+        /*
+         * El atributo precip del modelo de datos ClimateRecord representa
+         * la precipitacion del dia en milimetros. La unidad en la que se
+         * mide este dato corresponde a la API Visual Crossing Weather y
+         * al grupo de unidades en el que se le solicita datos metereologicos.
+         */
+        yesterdayPrecip = yesterdayClimateLog.getPrecip();
         waterAccumulatedYesterday = yesterdayClimateLog.getWaterAccumulated();
 
         /*
@@ -133,21 +140,22 @@ public class IrrigationRecordGenerator {
          * en la fecha dada, la cantidad total de agua utilizada en
          * el riego en el dia de hoy es 0.0
          */
-        currentSuggestedIrrigation = WaterMath.getSuggestedIrrigation(currentParcel.getHectare(), yesterdayEtc, yesterdayEto, yesterdayTotalPrecipitation, waterAccumulatedYesterday, 0.0);
+        currentSuggestedIrrigation = WaterMath.getSuggestedIrrigation(currentParcel.getHectare(), yesterdayEtc, yesterdayEto, yesterdayPrecip, waterAccumulatedYesterday, 0.0);
         currentIrrigationRecord.setSuggestedIrrigation(currentSuggestedIrrigation);
 
         /*
-         * Se recupera el registro climatico del dia de mañana
-         * y de el se obtiene la cantidad de agua de lluvia del
-         * dia de mañana para establecerla en el registro historico
-         * de riego del dia de hoy
-         *
-         * La precipiacion del dia de mañana en el registro
-         * historico de riego solo es un dato informativo, no
-         * se lo usa con otro fin mas que para informar
+         * Se recuperan los datos metereologicos del dia de mañana
+         * y de ellos se usa la precipitacion del dia de mañana para
+         * establecerla como precipitacion de dicho dia en el registro
+         * de riego del dia de hoy.
+         * 
+         * La precipitacion del dia de mañana en este registro de
+         * riego solo es un dato informativo, NO se lo usa con otro
+         * fin mas que para informar, en el registro de riego del dia
+         * de hoy, la precipitacion del dia de mañana.
          */
         tomorrowClimateLog = ClimateClient.getForecast(currentParcel, (tomorrowDate.getTimeInMillis() / 1000));
-        currentIrrigationRecord.setTomorrowPrecipitation(WaterMath.truncateToThreeDecimals(tomorrowClimateLog.getTotalPrecipitation()));
+        currentIrrigationRecord.setTomorrowPrecipitation(WaterMath.truncateToThreeDecimals(tomorrowClimateLog.getPrecip()));
 
         /*
          * Si este bloque de codigo fuente se ejecuta es porque

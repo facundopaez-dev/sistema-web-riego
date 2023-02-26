@@ -101,7 +101,7 @@ public class IrrigationRecordRestServlet {
   private void setWaterAccumulatedToday(Parcel givenParcel) {
     double yesterdayEto = 0.0;
     double yesterdayEtc = 0.0;
-    double yesterdayTotalPrecipitation = 0.0;
+    double yesterdayPrecip = 0.0;
     double waterAccumulatedYesterday = 0.0;
     double totalIrrigationWaterToday = 0.0;
     double waterAccumulatedToday = 0.0;
@@ -124,12 +124,19 @@ public class IrrigationRecordRestServlet {
     ClimateRecord yesterdayClimateLog = climateRecordServiceBean.find(yesterdayDate, givenParcel);
     yesterdayEto = yesterdayClimateLog.getEto();
     yesterdayEtc = yesterdayClimateLog.getEtc();
-    yesterdayTotalPrecipitation = yesterdayClimateLog.getTotalPrecipitation();
+
+    /*
+     * El atributo precip del modelo de datos ClimateRecord representa
+     * la precipitacion del dia en milimetros. La unidad en la que se
+     * mide este dato corresponde a la API Visual Crossing Weather y
+     * al grupo de unidades en el que se le solicita datos metereologicos.
+     */
+    yesterdayPrecip = yesterdayClimateLog.getPrecip();
     waterAccumulatedYesterday = yesterdayClimateLog.getWaterAccumulated();
 
     totalIrrigationWaterToday = irrigationRecordService.getTotalWaterIrrigationToday(givenParcel);
 
-    waterAccumulatedToday = WaterMath.getWaterAccumulatedToday(yesterdayEtc, yesterdayEto, yesterdayTotalPrecipitation, waterAccumulatedYesterday, totalIrrigationWaterToday);
+    waterAccumulatedToday = WaterMath.getWaterAccumulatedToday(yesterdayEtc, yesterdayEto, yesterdayPrecip, waterAccumulatedYesterday, totalIrrigationWaterToday);
     climateRecordServiceBean.updateWaterAccumulatedToday(currentDate, givenParcel, waterAccumulatedToday);
   }
 

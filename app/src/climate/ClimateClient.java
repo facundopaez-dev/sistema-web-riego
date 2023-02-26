@@ -210,12 +210,13 @@ public class ClimateClient {
   /**
    * Retorna el URL completo con la latitud, la longitud, la fecha en
    * tiempo UNIX, la clave proporcionada por la API Visual Crossing
-   * Weather, el sistema de unidad de medidas metric, el parametro de
-   * consulta include para obtener los datos metereologicos de un dia,
-   * el tiempo desde la epoca (1 de enero de 1970), la temperatura maxima,
-   * la temperatura minima, el punto de rocio, la humedad, la precipitacion
-   * por hora, la probabilidad de precipitacion, el tipo de precipitacion,
-   * la velocidad del viento, la presion atmosferica y la nubosidad
+   * Weather, el grupo de unidades de medida metric y el parametro de
+   * consulta include para obtener los siguientes datos metereologicos
+   * de un dia, incluido su fecha: el tiempo desde la epoca (1 de enero
+   * de 1970), la temperatura maxima, la temperatura minima, el punto de
+   * rocio, la humedad, la precipitacion, la probabilidad de precipitacion,
+   * el tipo de precipitacion, la velocidad del viento, la presion atmosferica
+   * y la nubosidad
    * 
    * @param latitude      [grados decimales]
    * @param longitude     [grados decimales]
@@ -269,10 +270,12 @@ public class ClimateClient {
      * del viento esta medida en kilometros por hora.
      * 
      * La formula de la ETo requiere que la velocidad del viento
-     * este medida en metros por segundo. Por este motivo se
-     * convierte la velocidad del viento de kilometros por hora
-     * a metros por segundo dentro del metodo setWindSpeed de
-     * la clase ClimateRecord.
+     * este medida en metros por segundo. Por este motivo es
+     * necesario que se convierta, en alguna parte pertinente
+     * del codigo fuente, la velocidad del viento de kilometros
+     * por hora a metros por segundo antes de usar este dato
+     * metereologico en el metodo que calcula la ETo, el cual,
+     * se llama getEto y pertenece a la clase Eto.
      */
     givenClimateRecord.setWindSpeed(givenDay.getWindspeed());
     givenClimateRecord.setCloudCover(givenDay.getCloudcover());
@@ -294,9 +297,6 @@ public class ClimateClient {
      * null.
      */
     if ((givenDay.getPreciptype() != null)) {
-      givenClimateRecord.setPrecipPerHour(givenDay.getPrecip());
-      givenClimateRecord.setPrecipProbability(givenDay.getPrecipprob());
-
       /*
        * Segun la documentacion de Visual Crossing Weather del siguiente
        * enlace:
@@ -316,40 +316,27 @@ public class ClimateClient {
        * en un ejemplo en el que haya 10 centimetros de nieve, hay en total
        * 10 milimetros de agua. Esta la conversion de nieve a agua liquida.
        * 
-       * El dato metereologico precip indica la cantidad de precipitacion
-       * por hora en el dia de la fecha y la ubicacion para la cual se
-       * solicitan datos metereologicos. Esto es lo que dice la documentacion
-       * de Visual Crossing Weather del siguiente enlace:
-       * 
-       * https://www.visualcrossing.com/resources/blog/how-to-replace-the-dark-sky-api-using-the-visual-crossing-timeline-weather-api/
-       * 
        * Si el grupo de unidades utilizado para solicitar datos metereologicos
-       * es metric, precip es la cantidad de precipitacion en milimetros por
-       * hora. Esto lo se por la documentacion de Visual Crossing Weather del
-       * siguiente enlace:
+       * de Visual Crossing Weather es metric, precip es la cantidad de precipitacion
+       * en milimetros, segun la documentacion de dicha API del siguiente enlace:
        * 
        * https://www.visualcrossing.com/resources/documentation/weather-api/unit-groups-and-measurement-units/
        * 
-       * Por lo tanto, para obtener la cantidad total de precipitacion en
-       * milimetros para el dia y la ubicacion geografica para los cuales
-       * se solicitan datos metereologicos, se debe multiplicar precip por 24.
-       * 
-       * Si precip representa la cantidad de nieve en milimetros por hora
-       * (siempre y cuando preciptype sea snow), no es necesario realizar
-       * ninguna conversion de centimetros a milimetros, ya que los
-       * datos metereologico se solicitan con el grupo de unidades metric,
-       * el cual, mide la precipitacion en milimetros.
+       * Por lo tanto, si se usa el grupo de unidades metric para solicitar
+       * datos metereologicos a la API Visual Crossing Weather y el tipo de
+       * precipitacion en una llamada a dicha API es nieve, no es necesario
+       * realizar la conversion de nieve a agua liquida.
        */
-      givenClimateRecord.setTotalPrecipitation(givenDay.getPrecip() * 24);
+      givenClimateRecord.setPrecip(givenDay.getPrecip());
+      givenClimateRecord.setPrecipProbability(givenDay.getPrecipprob());
     }
 
     /*
      * Si el tipo de precipitacion tiene el valor null en el conjunto
      * de datos metereologicos devuelto por una llamada a la API Visual
-     * Crossing Weather (VSC), las variables de instancia precipPerHour,
-     * precipProbability y totalPrecipitation de una instancia de
-     * tipo ClimateRecord se inicializan en 0.0, debido a que son
-     * variables de instancia.
+     * Crossing Weather (VSC), las variables de instancia precip y
+     * precipProbability de una instancia de tipo ClimateRecord se
+     * inicializan en 0.0, debido a que son variables de instancia.
      */
   }
 

@@ -43,7 +43,7 @@ class TipoCultivo {
 class RegistroClimatico {
 -id
 -fecha
--precipitacionHora
+-precipitacion
 -probabilidadPrecipitacion
 -puntoRocio
 -presionAtmosferica
@@ -51,7 +51,6 @@ class RegistroClimatico {
 -nubosidad
 -temperaturaMinima
 -temperaturaMaxima
--precipitacionTotal
 -cantidadAguaAcumulada
 -eto
 -etc

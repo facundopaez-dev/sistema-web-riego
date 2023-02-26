@@ -65,26 +65,27 @@ public class ClimateRecord {
   private Calendar date;
 
   /*
-   * Precipitacion [milimetros/hora] (si se usa el
+   * Precipitacion del dia [milimetros/dia] (si se usa el
    * grupo de unidades metric para la obtencion de
    * los datos metereologicos de la API Visual Crossing
-   * Weather).
+   * Weather), segun la documentacion de Visual Crossing
+   * Weather.
    * 
-   * Proporciona una tasa de precipitacion por hora, segun
-   * la documentacion de Visual Crossing Weather del siguiente
-   * enlace: https://www.visualcrossing.com/resources/blog/how-to-replace-the-dark-sky-api-using-the-visual-crossing-timeline-weather-api/
-   *
    * Este valor depende de la probabilidad (es decir,
    * suponiendo que ocurre alguna precipitacion).
    *
    * En la cadena de consulta para la llamada a la API
-   * del clima, esta establecido que el grupo de unidades
-   * en la cual deben ser devueltos los datos metereologicos
-   * es metric, el cual, especifica que la precipitacion
-   * esta medida en milimetros.
+   * del clima en la clase ClimateClient, esta establecido
+   * que el grupo de unidades en la cual deben ser devueltos
+   * los datos metereologicos es metric, el cual, especifica
+   * que la precipitacion esta medida en milimetros, segun
+   * la documentacion de Visual Crossing Weather en el
+   * siguiente enlace:
+   * 
+   * https://www.visualcrossing.com/resources/documentation/weather-api/unit-groups-and-measurement-units/
    */
-  @Column(name = "PRECIP_PER_HOUR", nullable = false)
-  private double precipPerHour;
+  @Column(name = "PRECIP", nullable = false)
+  private double precip;
 
   /*
    * Probabilidad de la precipitacion [0% a 100%]
@@ -133,27 +134,6 @@ public class ClimateRecord {
    */
   @Column(name = "MAX_TEMP", nullable = false)
   private double maximumTemperature;
-
-  /*
-   * Cantidad total de precipitacion [milimetros/dia] en el
-   * dia de la fecha para la cual se obtienen datos
-   * metereologicos.
-   *
-   * Si el grupo de unidades que se utiliza para obtener
-   * datos metereologicos es metric, precip es la tasa
-   * de precipitacion medida en milimetros por hora del
-   * dia y la ubicacion para los cuales se obtienen datos
-   * metereologicos. Por lo tanto, multiplicar precip * 24
-   * es la precipitacion total medida en milimetros por dia.
-   * 
-   * El siguiente enlace contiene las unidades de medida de
-   * cada grupo de unidades en los que se pueden obtener
-   * datos metereologicos de Visual Crossing Weather.
-   * 
-   * https://www.visualcrossing.com/resources/documentation/weather-api/unit-groups-and-measurement-units/
-   */
-  @Column(name = "TOTAL_PRECIPITATION", nullable = false)
-  private double totalPrecipitation;
 
   /*
    * Cantidad de agua acumulada [milimetros/dia] en el dia de
@@ -239,19 +219,19 @@ public class ClimateRecord {
   }
 
   /**
-	 * Returns value of precipPerHour
+	 * Returns value of precip
 	 * @return
 	 */
-	public double getPrecipPerHour() {
-		return precipPerHour;
+	public double getPrecip() {
+		return precip;
 	}
 
 	/**
-	 * Sets new value of precipPerHour
+	 * Sets new value of precip
 	 * @param
 	 */
-	public void setPrecipPerHour(double precipPerHour) {
-		this.precipPerHour = precipPerHour;
+	public void setPrecip(double precip) {
+		this.precip = precip;
 	}
 
   /**
@@ -367,22 +347,6 @@ public class ClimateRecord {
 	}
 
   /**
-   * Returns value of totalPrecipitation
-   * @return
-   */
-  public double getTotalPrecipitation() {
-    return totalPrecipitation;
-  }
-
-  /**
-   * Sets new value of totalPrecipitation
-   * @param
-   */
-  public void setTotalPrecipitation(double totalPrecipitation) {
-    this.totalPrecipitation = totalPrecipitation;
-  }
-
-  /**
    * Returns value of waterAccumulated
    * @return
    */
@@ -449,12 +413,12 @@ public class ClimateRecord {
   @Override
   public String toString() {
     return String.format(
-      "ID: %d\nLatitud: %f (grados decimales) Longitud: %f (grados decimales)\nFecha: %s\nPrecipitación: %f milímetros/hora\nProbabilidad de precipitación: %f [porcentaje 0 - 100]\nPunto de rocío: %f °C\nPresión atmosférica: %f hectopascales (milibares)\nVelocidad del viento: %f metros/segundo\nNubosidad: %f [porcentaje 0 - 100]\nTemperatura mínima: %f °C\nTemperatura máxima: %f °C\nCantidad total de precipitacion: %f milímetros\nCantidad de agua acumulada: %f milímetros\n",
+      "ID: %d\nLatitud: %f (grados decimales) Longitud: %f (grados decimales)\nFecha: %s\nPrecipitación del día: %f milímetros/día\nProbabilidad de precipitación: %f [porcentaje 0 - 100]\nPunto de rocío: %f °C\nPresión atmosférica: %f hectopascales (milibares)\nVelocidad del viento: %f kilómetros/por hora\nNubosidad: %f [porcentaje 0 - 100]\nTemperatura mínima: %f °C\nTemperatura máxima: %f °C\nCantidad de agua acumulada: %f milímetros/día\n",
       id,
       parcel.getLatitude(),
       parcel.getLongitude(),
       UtilDate.formatDate(date),
-      precipPerHour,
+      precip,
       precipProbability,
       dewPoint,
       atmosphericPressure,
@@ -462,7 +426,6 @@ public class ClimateRecord {
       cloudCover,
       minimumTemperature,
       maximumTemperature,
-      totalPrecipitation,
       waterAccumulated
     );
   }

@@ -81,7 +81,7 @@ public  class ClimateRecordServiceBean {
 
     if (chosenClimateRecord != null) {
       chosenClimateRecord.setDate(modifiedClimateRecord.getDate());
-      chosenClimateRecord.setPrecipPerHour(modifiedClimateRecord.getPrecipPerHour());
+      chosenClimateRecord.setPrecip(modifiedClimateRecord.getPrecip());
       chosenClimateRecord.setPrecipProbability(modifiedClimateRecord.getPrecipProbability());
       chosenClimateRecord.setDewPoint(modifiedClimateRecord.getDewPoint());
       chosenClimateRecord.setAtmosphericPressure(modifiedClimateRecord.getAtmosphericPressure());
@@ -89,7 +89,6 @@ public  class ClimateRecordServiceBean {
       chosenClimateRecord.setCloudCover(modifiedClimateRecord.getCloudCover());
       chosenClimateRecord.setMinimumTemperature(modifiedClimateRecord.getMinimumTemperature());
       chosenClimateRecord.setMaximumTemperature(modifiedClimateRecord.getMaximumTemperature());
-      chosenClimateRecord.setTotalPrecipitation(modifiedClimateRecord.getTotalPrecipitation());
       chosenClimateRecord.setWaterAccumulated(modifiedClimateRecord.getWaterAccumulated());
       chosenClimateRecord.setEto(modifiedClimateRecord.getEto());
       chosenClimateRecord.setEtc(modifiedClimateRecord.getEtc());
