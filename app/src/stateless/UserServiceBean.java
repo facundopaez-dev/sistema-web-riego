@@ -247,18 +247,19 @@ public class UserServiceBean {
   }
 
   /**
-   * Realiza la autenticacion de un usuario mediante el nombre de usuario
-   * y la contraseña que provee
+   * Retorna true si y solo si el nombre de usuario y la contraseña
+   * provistos son iguales a uno de los pares (nombre de usuario, contraseña)
+   * que estan almacenados en la base de datos subyacente. De esta manera,
+   * se realiza la autenticacion del usuario que inicia sesion en la
+   * aplicacion.
    *
-   * @param username el nombre de usuario que se usa para autentificar
-   * (demostrar que el usuario es quien dice ser) la cuenta del usuario
-   * que inicia sesion
-   * @param plainPassword la contraseña que se usa para autentificar
-   * (demostrar que el usuario es quien dice ser) la cuenta del usuario
-   * que inicia sesion
+   * @param username provisto por el usuario cuando inicia sesion en la
+   * aplicacion para demostrar que es quien dice ser
+   * @param plainPassword provisto por el usuario cuando inicia sesion
+   * en la aplicacion para demostrar que es quien dice ser
    * @return true si el nombre de usuario y la contraseña provistos son
-   * iguales al nombre de usuario y la contraseña que estan almacenados
-   * en la base de datos subyacente, false en caso contrario
+   * iguales a uno de los pares (nombre de usuario, contraseña) que estan
+   * almacenados en la base de datos subyacente, en caso contrario false
    */
   public boolean authenticate(String username, String plainPassword) {
     /*
@@ -279,20 +280,34 @@ public class UserServiceBean {
       return false;
     }
 
+    return (findByUsernameAndPassword(username, plainPassword) != null);
+  }
+
+  /**
+   * Retorna una referencia a un objeto de tipo User si y solo si
+   * se encuentra en la base de datos subyacente, el usuario
+   * correspondiente al nombre de usuario y la contraseña dados
+   * 
+   * @param username
+   * @param plainPassword
+   * @return referencia a un objeto de tipo User si se encuentra en
+   * la base de datos subyacente, el usuario correspondiente al
+   * nombre de usuario y la contraseña dados, en caso contrario null
+   */
+  private User findByUsernameAndPassword(String username, String plainPassword) {
     Query query = getEntityManager().createQuery("SELECT u FROM User u WHERE UPPER(u.username) = UPPER(:username) AND UPPER(u.password) = UPPER(:password)");
     query.setParameter("username", username);
     query.setParameter("password", getPasswordHash(plainPassword));
 
-    boolean result = false;
+    User givenUser = null;
 
     try {
-      query.getSingleResult();
-      result = true;
+      givenUser = (User) query.getSingleResult();
     } catch (NoResultException e) {
       e.printStackTrace();
     }
 
-    return result;
+    return givenUser;
   }
 
   /**
