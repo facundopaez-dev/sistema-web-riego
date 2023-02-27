@@ -10,7 +10,7 @@ import javax.ws.rs.core.Response.Status;
 import util.ErrorResponse;
 import util.ReasonError;
 import model.User;
-import model.UserData;
+import model.SignupFormData;
 import stateless.UserServiceBean;
 import util.Email;
 
@@ -42,7 +42,7 @@ public class SignupRestServlet {
       return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.EMPTY_SIGN_UP_FORM)).build();
     }
 
-    UserData newUserData = mapper.readValue(json, UserData.class);
+    SignupFormData newUserData = mapper.readValue(json, SignupFormData.class);
 
     /*
      * ******************************************
@@ -286,7 +286,7 @@ public class SignupRestServlet {
    * @param newUser
    * @param newUserData
    */
-  private void setUser(User newUser, UserData newUserData) {
+  private void setUser(User newUser, SignupFormData newUserData) {
     newUser.setUsername(newUserData.getUsername());
     newUser.setName(newUserData.getName());
     newUser.setLastName(newUserData.getLastName());

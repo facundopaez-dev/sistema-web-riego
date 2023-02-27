@@ -1,11 +1,11 @@
 package model;
 
 /*
- * UserData es la clase que se utiliza para tomar los
+ * SignupFormData es la clase que se utiliza para tomar los
  * datos ingresados por el usuario en el formulario de
  * registro de usuario
  */
-public class UserData {
+public class SignupFormData {
 
   private String username;
   private String name;
@@ -14,7 +14,7 @@ public class UserData {
   private String password;
   private String passwordConfirmed;
 
-  public UserData() {
+  public SignupFormData() {
 
   }
 
