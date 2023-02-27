@@ -169,7 +169,7 @@ app.controller(
       function findAllActiveParcels() {
         parcelService.findAllActive(function (error, parcels) {
           if (error) {
-            alert("Ocurrio un error: " + error);
+            console.log("Ocurrio un error: " + error);
             return;
           }
 
@@ -177,12 +177,34 @@ app.controller(
         })
       }
 
-      if ($scope.action == 'new' || $scope.action == 'edit' || $scope.action == 'view') {
+      function findAllParcels() {
+        parcelService.findAll(function (error, parcels) {
+          if (error) {
+            console.log("Ocurrio un error: " + error);
+            return;
+          }
+
+          $scope.parcels = parcels;
+        })
+      }
+
+      if ($scope.action == 'new' || $scope.action == 'edit') {
         findAllActiveParcels();
       }
 
       if ($scope.action == 'edit' || $scope.action == 'view') {
         find($params.id);
+      }
+
+      /*
+      En la visualizacion de un registro climatico se debe poder
+      ver la parcela a la que pertenece un registro climatico,
+      independientemente de si esta activa o inactiva. Para esto
+      se deben recuperar todas las parcelas del usuario, tanto las
+      activas como las inactivas.
+      */
+      if ($scope.action == 'view') {
+        findAllParcels();
       }
 
     }]);
