@@ -4,7 +4,7 @@ app.controller(
 
     console.log("SignupCtrl loaded...");
 
-    const EMPTY_SIGN_UP_FORM = "Debe completar todos los campos del formulario de registro";
+    const EMPTY_SIGN_UP_FORM = "Debe completar todos los campos del formulario";
     const UNDEFINED_USERNAME = "El nombre de usuario debe estar definido";
     const UNDEFINED_NAME = "El nombre debe estar definido";
     const UNDEFINED_LAST_NAME = "El apellido debe estar definido";
@@ -12,8 +12,8 @@ app.controller(
     const UNDEFINED_PASSWORD = "La contraseña debe estar definida";
     const UNDEFINED_CONFIRMED_PASSWORD = "La confirmación de la contraseña debe estar definida";
     const MALFORMED_USERNAME = "El nombre debe usuario debe tener una longitud de entre 4 y 15 caracteres, comenzar con caracteres alfabéticos seguido o no de números y/o guiones bajos";
-    const MALFORMED_NAME = "El nombre debe tener una longitud de entre 4 y 30 caracteres alfabéticos, empezar con una letra mayúscula seguido de letras minúsculas, tener un espacio en blanco entre nombre y nombre si hay mas de un nombre, y los nombres que vienen después del primero deben empezar con una letra mayúscula seguido de letras minúsculas";
-    const MALFORMED_LAST_NAME = "El apellido debe tener una longitud de entre 4 y 20 caracteres alfabéticos, empezar con una letra mayúscula seguido de letras minúsculas, tener un espacio en blanco entre apellido y apellido si hay más de un apellido, y los apellidos que vienen después del primero deben empezar con una letra mayúscula seguido de letras minúsculas";
+    const MALFORMED_NAME = "El nombre debe tener una longitud de entre 3 y 30 caracteres alfabéticos, empezar con una letra mayúscula seguido de letras minúsculas, tener un espacio en blanco entre nombre y nombre si hay más de un nombre, y los nombres que vienen después del primero deben empezar con una letra mayúscula seguido de letras minúsculas";
+    const MALFORMED_LAST_NAME = "El apellido debe tener una longitud de entre 3 y 30 caracteres alfabéticos, empezar con una letra mayúscula seguido de letras minúsculas, tener un espacio en blanco entre apellido y apellido si hay más de un apellido, y los apellidos que vienen después del primero deben empezar con una letra mayúscula seguido de letras minúsculas";
     const MALFORMED_EMAIL = "La dirección de correo electrónico no es válida";
     const MALFORMED_PASSWORD = "La contraseña debe tener como mínimo 8 caracteres de longitud, una letra minúscula, una letra mayúscula y un número de 0 a 9, con o sin caracteres especiales";
     const INCORRECTLY_CONFIRMED_PASSWORD = "La confirmación de la contraseña no es igual a la contraseña ingresada";
@@ -24,8 +24,8 @@ app.controller(
       del formulario de registro de usuario
       */
       var usernameRegexp = /^[A-Za-z][A-Za-z0-9_]{3,14}$/g;
-      var nameRegexp = /^[A-Z](?=.{3,29}$)[a-z]+(?:\s[A-Z][a-z]+)*$/g;
-      var lastNameRegexp = /^[A-Z](?=.{3,19}$)[a-z]+(?:\s[A-Z][a-z]+)*$/g;
+      var nameRegexp = /^[A-Z](?=.{2,29}$)[a-z]+(?:\s[A-Z][a-z]+)*$/g;
+      var lastNameRegexp = /^[A-Z](?=.{2,29}$)[a-z]+(?:\s[A-Z][a-z]+)*$/g;
       var emailRegexp = /^(?=.{1,64}@)[a-z0-9_-]+(\.[a-z0-9_-]+)*@[^-][a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/g;
       var passwordRegexp = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{7,}$/g;
 
@@ -128,7 +128,7 @@ app.controller(
       }
 
       /*
-      Si el nombre NO tiene una longitud entre 4 y 30 caracteres
+      Si el nombre NO tiene una longitud entre 3 y 30 caracteres
       alfabeticos, NO empieza con una letra mayuscula seguida de
       letras minusculas, NO tiene un espacio en blanco entre nombre
       y nombre en el caso en el que el usuario tenga mas de un nombre,
@@ -137,7 +137,7 @@ app.controller(
       muestra el siguiente mensaje y no ejecuta la la instruccion que
       realiza la peticion HTTP para registrar a un usuario.
       
-      "El nombre debe tener una longitud de entre 4 y 30 caracteres
+      "El nombre debe tener una longitud de entre 3 y 30 caracteres
       alfabeticos, empezar con una letra mayuscula seguido de letras
       minusculas, tener un espacio en blanco entre nombre y nombre si
       hay mas de un nombre, y los nombres que vienen despues del primero
@@ -149,12 +149,16 @@ app.controller(
       }
 
       /*
-      Si el apellido NO tiene una longitud de entre 4 y 20 caracteres
-      alfabeticos, la aplicacion muestra el siguiente mensaje y no
-      ejecuta la instruccion que realiza la peticion HTTP para registrar
-      un usuario.
+      Si el apellido NO tiene una longitud de entre 3 y 30 caracteres
+      alfabeticos, NO empieza con una letra mayuscula seguida de
+      letras minusculas, NO tiene un espacio en blanco entre apellido
+      y apellido en el caso en el que el usuario tenga mas de un apellido,
+      y los apellidos que vienen a continuacion del primero NO empiezan
+      con una letra mayuscula seguida de letras minusculas, la aplicacion
+      muestra el siguiente mensaje y no ejecuta la instruccion que realiza
+      la peticion HTTP para registrar a un usuario.
 
-      "El apellido debe tener una longitud de entre 4 y 20 caracteres
+      "El apellido debe tener una longitud de entre 3 y 30 caracteres
       alfabeticos, empezar con una letra mayuscula seguido de letras
       minusculas, tener un espacio en blanco entre apellido y apellido
       si hay mas de un apellido, y los apellidos que vienen despues del

@@ -132,14 +132,14 @@ public class SignupRestServlet {
     }
 
     /*
-     * Si el nombre NO tiene una longitud entre 4 y 30 caracteres
+     * Si el nombre NO tiene una longitud entre 3 y 30 caracteres
      * alfabeticos, NO empieza con una letra mayuscula seguida de
      * letras minusculas, NO tiene un espacio en blanco entre nombre
      * y nombre en el caso en el que el usuario tenga mas de un nombre,
      * y los nombres que vienen a continuacion del primero NO empiezan
      * con una letra mayuscula seguida de letras minusculas, la aplicacion
      * del lado servidor retorna el mensaje HTTP 400 (Bad request) junto
-     * con el mensaje "El nombre debe tener una longitud de entre 4 y 30
+     * con el mensaje "El nombre debe tener una longitud de entre 3 y 30
      * caracteres alfabeticos, empezar con una letra mayuscula seguido
      * de letras minusculas, tener un espacio en blanco entre nombre y
      * nombre si hay mas de un nombre, y los nombres que vienen despues
@@ -149,8 +149,8 @@ public class SignupRestServlet {
      * La expresion [A-Z] hace que el nombre deba empezar con una letra
      * mayuscula.
      * 
-     * La expresion (?=.{3,29}$) hace que el nombre deba tener una
-     * longitud de entre 4 y 30 caracteres.
+     * La expresion (?=.{2,29}$) hace que el nombre deba tener una
+     * longitud de entre 3 y 30 caracteres.
      * 
      * La expresion [a-z]+ hace que el nombre deba tener una o mas
      * letras minusculas.
@@ -160,22 +160,26 @@ public class SignupRestServlet {
      * blanco, y que empiece con una letra mayuscula seguido de
      * letras minusculas.
      */
-    if (!newUserData.getName().matches("^[A-Z](?=.{3,29}$)[a-z]+(?:\\h[A-Z][a-z]+)*$")) {
+    if (!newUserData.getName().matches("^[A-Z](?=.{2,29}$)[a-z]+(?:\\h[A-Z][a-z]+)*$")) {
       return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.MALFORMED_NAME)).build();
     }
 
     /*
-     * Si el apellido NO tiene una longitud de entre 4 y 20 caracteres
-     * alfabeticos, la aplicacion del lado servidor retorna el mensaje
-     * HTTP 400 (Bad request) junto con el mensaje "El apellido debe tener
-     * una longitud de entre 4 y 20 caracteres alfabeticos, empezar con una
-     * letra mayuscula seguido de letras minusculas, tener un espacio en
-     * blanco entre apellido y apellido si hay mas de un apellido, y los
-     * apellidos que vienen despues del primero deben empezar con una letra
-     * mayuscula seguido de letras minusculas" y no se realiza la operacion
-     * solicitada.
+     * Si el apellido NO tiene una longitud de entre 3 y 30 caracteres
+     * alfabeticos, NO empieza con una letra mayuscula seguida de
+     * letras minusculas, NO tiene un espacio en blanco entre apellido
+     * y apellido en el caso en el que el usuario tenga mas de un apellido,
+     * y los apellidos que vienen a continuacion del primero NO empiezan
+     * con una letra mayuscula seguida de letras minusculas, la aplicacion
+     * del lado servidor retorna el mensaje HTTP 400 (Bad request) junto con
+     * el mensaje "El apellido debe tener una longitud de entre 3 y 30 caracteres
+     * alfabeticos, empezar con una letra mayuscula seguido de letras minusculas,
+     * tener un espacio en blanco entre apellido y apellido si hay mas de un
+     * apellido, y los apellidos que vienen despues del primero deben empezar con
+     * una letra mayuscula seguido de letras minusculas" y no se realiza la
+     * operacion solicitada
      */
-    if (!newUserData.getLastName().matches("^[A-Z](?=.{3,19}$)[a-z]+(?:\\h[A-Z][a-z]+)*$")) {
+    if (!newUserData.getLastName().matches("^[A-Z](?=.{2,29}$)[a-z]+(?:\\h[A-Z][a-z]+)*$")) {
       return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.MALFORMED_LAST_NAME)).build();
     }
 
