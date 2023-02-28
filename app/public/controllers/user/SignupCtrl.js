@@ -197,7 +197,7 @@ app.controller(
       }
 
       /*
-      Si la contraseña y la confirmacion de la contraseña NO coincidenn,
+      Si la contraseña y la confirmacion de la contraseña NO coinciden,
       la aplicacion muestra el mensaje "La confirmacion de la contraseña
       no es igual a la contraseña ingresada" y no ejecuta la instruccion
       que realiza la peticion HTTP para registrar a un usuario

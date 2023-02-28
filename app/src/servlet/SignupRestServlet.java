@@ -214,7 +214,7 @@ public class SignupRestServlet {
 
     /*
      * Si la contraseña y la confirmacion de la contraseña NO
-     * coincidenn, la aplicacion del lado servidor retorna el mensaje
+     * coinciden, la aplicacion del lado servidor retorna el mensaje
      * HTTP 400 (Bad request) junto con el mensaje "La confirmacion de
      * la contraseña no es igual a la contraseña ingresada" y no se
      * realiza la operacion solicitada
