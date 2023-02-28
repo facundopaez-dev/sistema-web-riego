@@ -26,6 +26,10 @@ app.config(['$routeProvider', function (routeprovider) {
 			templateUrl: 'partials/user/user-account-form.html',
 			controller: 'UserAccountCtrl'
 		})
+		.when('/home/account/modifyPassword', {
+			templateUrl: 'partials/user/user-password-change-form.html',
+			controller: 'UserPasswordChangeCtrl'
+		})
 
 		.when('/home/crops', {
 			templateUrl: 'partials/user/user-crop-list.html',
@@ -101,6 +105,10 @@ app.config(['$routeProvider', function (routeprovider) {
 		.when('/adminHome/account/:action/:id', {
 			templateUrl: 'partials/admin/admin-account-form.html',
 			controller: 'AdminAccountCtrl'
+		})
+		.when('/adminHome/account/modifyPassword', {
+			templateUrl: 'partials/admin/admin-password-change-form.html',
+			controller: 'AdminPasswordChangeCtrl'
 		})
 
 		.when('/adminHome/users', {

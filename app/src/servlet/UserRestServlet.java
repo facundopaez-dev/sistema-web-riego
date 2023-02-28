@@ -22,6 +22,7 @@ import util.RequestManager;
 import utilJwt.AuthHeaderManager;
 import utilJwt.JwtManager;
 import model.User;
+import model.PasswordChangeFormData;
 
 @Path("/users")
 public class UserRestServlet {
@@ -375,6 +376,164 @@ public class UserRestServlet {
      * modificar
      */
     return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(userService.modify(userId, myModifiedUser))).build();
+  }
+
+  @PUT
+  @Path("/modifyPassword")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response modifyPassword(@Context HttpHeaders request, String json) throws IOException {
+    Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
+
+    /*
+     * Si el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP NO
+     * es ACCEPTED, se devuelve el estado de error de la misma.
+     * 
+     * Que el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP sea
+     * ACCEPTED, significa que la peticion es valida,
+     * debido a que el encabezado de autorizacion de la misma
+     * cumple las siguientes condiciones:
+     * - Esta presente.
+     * - No esta vacio.
+     * - Cumple con la convencion de JWT.
+     * - Contiene un JWT valido.
+     */
+    if (!RequestManager.isAccepted(givenResponse)) {
+      return givenResponse;
+    }
+
+    /*
+     * ******************************************
+     * Controles sobre la definicion de los datos
+     * ******************************************
+     */
+
+    /*
+     * Si el objeto de tipo String referenciado por la referencia
+     * contenida en el variable de tipo por referencia json de tipo
+     * String, esta vacio, significa que el usuario quiso modificar
+     * su contraseña con el formulario de modificacion de contraseña
+     * totalmente vacio. Por lo tanto, la aplicacion del lado servidor
+     * retorna el mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "Debe completar todos los campos del formulario" y no se realiza
+     * la operacion solicitada
+     */
+    if (json.isEmpty()) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.EMPTY_FORM)).build();
+    }
+
+    PasswordChangeFormData newPasswordData = mapper.readValue(json, PasswordChangeFormData.class);
+
+    /*
+     * Si el usuario presiona el boton "Modificar" con el campo de la
+     * contraseña vacio, la aplicacion del lado servidor retorna el
+     * mensaje HTTP 400 (Bad request) junto con el mensaje "La contraseña
+     * debe estar definida" y no se realiza la operacion solicitada
+     */
+    if (newPasswordData.getPassword() == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_PASSWORD)).build();
+    }
+
+    /*
+     * Si el usuario presiona el boton "Modificar" con el campo de la
+     * nueva contraseña vacio, la aplicacion del lado servidor retorna
+     * el mensaje HTTP 400 (Bad request) junto con el mensaje "La nueva
+     * contraseña debe estar definida" y no se realiza la operacion
+     * solicitada
+     */
+    if (newPasswordData.getNewPassword() == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_NEW_PASSWORD)).build();
+    }
+
+    /*
+     * Si el usuario presiona el boton "Modificar" con el campo de la
+     * confirmacion de la nueva contraseña vacio, la aplicacion del
+     * lado servidor retorna el mensaje HTTP 400 (Bad request) junto
+     * con el mensaje "La confirmacion de la nueva contraseña debe
+     * estar definida" y no se realiza la operacion solicitada
+     */
+    if (newPasswordData.getNewPasswordConfirmed() == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_CONFIRMED_NEW_PASSWORD)).build();
+    }
+
+    /*
+     * *************************************
+     * Controles sobre la forma de los datos
+     * *************************************
+     */
+
+    /*
+     * Si la nueva contraseña NO contiene como minimo 8 caracteres de longitud,
+     * una letra minuscula, una letra mayuscula y un numero 0 a 9, la
+     * aplicacion del lado servidor retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "La contraseña debe tener como minimo 8
+     * caracteres de longitud, una letra minuscula, una letra mayuscula y un
+     * numero de 0 a 9, con o sin caracteres especiales" y no se realiza
+     * la operacion solicitada
+     */
+    if (!(newPasswordData.getNewPassword().matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{7,}$"))) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.MALFORMED_NEW_PASSWORD)).build();
+    }
+
+    /*
+     * ********************************************************************************************
+     * Control sobre la igualdad entre la nueva contraseña y la confirmacion de la nueva contraseña
+     * ********************************************************************************************
+     */
+
+    /*
+     * Si la la nueva contraseña y la confirmacion de la nueva contraseña
+     * NO son iguales, la aplicacion del lado servidor retorna el mensaje
+     * HTTP 400 (Bad request) junto con el mensaje "La confirmación de la
+     * nueva contraseña no es igual a la nueva contraseña ingresada"
+     */
+    if (!(newPasswordData.getNewPassword().equals(newPasswordData.getNewPasswordConfirmed()))) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INCORRECTLY_CONFIRMED_NEW_PASSWORD)).build();
+    }
+
+    /*
+     * *************************
+     * Autenticacion del usuario
+     * *************************
+     */
+
+    /*
+     * Obtiene el JWT del valor del encabezado de autorizacion
+     * de una peticion HTTP
+     */
+    String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
+
+    /*
+     * Obtiene el ID de usuario contenido en la carga util del
+     * JWT del encabezado de autorizacion de una peticion HTTP
+     */
+    int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Se recupera el usuario completo de la base de datos
+     * subyacente para autenticar que realmente el es el
+     * que quiere modificar su contraseña
+     */
+    User givenUser = userService.find(userId);
+
+    /*
+     * Si la contraseña ingresada por el usuario no es la correcta,
+     * la aplicacion del lado servidor retorna el mensaje HTTP 400
+     * (Bad request) junto con el mensaje "Contraseña incorrecta"
+     * y no se realiza la operacion solicitada
+     */
+    if (!(userService.authenticate(givenUser.getUsername(), newPasswordData.getPassword()))) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INCORRECT_PASSWORD)).build();
+    }
+
+    /*
+     * Si se cumplen todos los controles, la aplicacion del lado
+     * servidor modifica la contraseña del usuario y retorna el
+     * mensaje HTTP 200 (Ok)
+     */
+    userService.modifyPassword(userId, newPasswordData.getNewPassword());
+    return Response.status(Response.Status.OK).build();
   }
 
 }

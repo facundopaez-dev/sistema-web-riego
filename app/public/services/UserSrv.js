@@ -60,5 +60,16 @@ app.service(
 						});
 			};
 
+			this.modifyPassword = function (data, callback) {
+				$http.put("rest/users/modifyPassword", data)
+					.then(
+						function (result) {
+							callback(false, result.data);
+						},
+						function (error) {
+							callback(error);
+						});
+			};
+
 		}
 	]);

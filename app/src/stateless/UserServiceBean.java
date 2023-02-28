@@ -486,4 +486,18 @@ public class UserServiceBean {
     return (findByEmail(userId, email) != null);
   }
 
+  /**
+   * Modifica la contraseña del usuario correspondiente al ID dado
+   * con la nueva contraseña ingresada por el mismo
+   * 
+   * @param userId
+   * @param newPlainPassword
+   */
+  public void modifyPassword(int userId, String newPlainPassword) {
+    Query query = getEntityManager().createQuery("UPDATE User u SET u.password = :newPassword WHERE u.id = :userId");
+    query.setParameter("userId", userId);
+    query.setParameter("newPassword", getPasswordHash(newPlainPassword));
+    query.executeUpdate();
+  }
+
 }
