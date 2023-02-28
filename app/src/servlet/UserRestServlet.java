@@ -170,9 +170,9 @@ public class UserRestServlet {
 	}
 
   @PUT
-  @Path("/{id}")
+  @Path("/modify")
   @Produces(MediaType.APPLICATION_JSON)
-  public Response modify(@Context HttpHeaders request, @PathParam("id") int userId, String json) throws IOException {
+  public Response modify(@Context HttpHeaders request, String json) throws IOException {
     Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
 
     /*
@@ -193,6 +193,18 @@ public class UserRestServlet {
     if (!RequestManager.isAccepted(givenResponse)) {
       return givenResponse;
     }
+
+    /*
+     * Obtiene el JWT del valor del encabezado de autorizacion
+     * de una peticion HTTP
+     */
+    String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
+
+    /*
+     * Obtiene el ID de usuario contenido en la carga util del
+     * JWT del encabezado de autorizacion de una peticion HTTP
+     */
+    int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
 
     /*
      * Si el objeto de tipo String referenciado por la referencia

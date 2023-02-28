@@ -50,7 +50,7 @@ app.service(
 			}
 
 			this.modify = function (data, callback) {
-				$http.put("rest/users/" + data.id, data)
+				$http.put("rest/users/modify", data)
 					.then(
 						function (result) {
 							callback(false, result.data);
