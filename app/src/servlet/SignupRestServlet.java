@@ -39,7 +39,7 @@ public class SignupRestServlet {
      * operacion solicitada
      */
     if (json.isEmpty()) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.EMPTY_SIGN_UP_FORM)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.EMPTY_FORM)).build();
     }
 
     SignupFormData newUserData = mapper.readValue(json, SignupFormData.class);

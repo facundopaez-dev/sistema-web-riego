@@ -205,7 +205,7 @@ public class UserRestServlet {
      * operacion solicitada
      */
     if (json.isEmpty()) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.EMPTY_SIGN_UP_FORM)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.EMPTY_FORM)).build();
     }
 
     User myModifiedUser = mapper.readValue(json, User.class);
