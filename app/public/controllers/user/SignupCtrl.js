@@ -202,7 +202,7 @@ app.controller(
       no es igual a la contraseña ingresada" y no ejecuta la instruccion
       que realiza la peticion HTTP para registrar a un usuario
       */
-      if (!($scope.data.password.toUpperCase() == $scope.data.passwordConfirmed.toUpperCase())) {
+      if (!($scope.data.password == $scope.data.passwordConfirmed)) {
         alert(INCORRECTLY_CONFIRMED_PASSWORD);
         return;
       }
