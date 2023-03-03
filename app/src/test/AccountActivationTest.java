@@ -8,7 +8,9 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import model.AccountActivationLink;
+import model.User;
 import stateless.AccountActivationLinkServiceBean;
+import stateless.UserServiceBean;
 import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -18,7 +20,9 @@ public class AccountActivationTest {
   private static EntityManager entityManager;
   private static EntityManagerFactory entityManagerFactory;
   private static AccountActivationLinkServiceBean accountActivationLinkService;
+  private static UserServiceBean userService;
   private static Collection<AccountActivationLink> accountActivationLinks;
+  private static Collection<User> users;
 
   @BeforeClass
   public static void preTest() {
@@ -28,7 +32,11 @@ public class AccountActivationTest {
     accountActivationLinkService = new AccountActivationLinkServiceBean();
     accountActivationLinkService.setEntityManager(entityManager);
 
+    userService = new UserServiceBean();
+    userService.setEntityManager(entityManager);
+
     accountActivationLinks = new ArrayList<>();
+    users = new ArrayList<>();
   }
 
   @Test
@@ -84,24 +92,35 @@ public class AccountActivationTest {
     threeExpirationDate.setTimeInMillis(threeDateIssue.getTimeInMillis() + 10800000);
 
     /*
-     * Creacion de enalces de activacion
+     * Creacion y persistencia de un usuario para los
+     * enlaces de activacion
      */
-    String givenUserEmail = "testuserone@eservice.com";
+    User givenUser = new User();
+    givenUser.setUsername("testuserone");
+    givenUser.setName("Jackson");
+    givenUser.setLastName("Doe");
+    givenUser.setPassword("Ultra secret password");
+    givenUser.setEmail("testuserone@eservice.com");
 
+    givenUser = userService.create(givenUser);
+
+    /*
+     * Creacion de enlaces de activacion
+     */
     AccountActivationLink firstNewAccountActivationLink = new AccountActivationLink();
     firstNewAccountActivationLink.setDateIssue(firstDateIssue);
     firstNewAccountActivationLink.setExpirationDate(firstExpirationDate);
-    firstNewAccountActivationLink.setUserEmail(givenUserEmail);
+    firstNewAccountActivationLink.setUser(givenUser);
 
     AccountActivationLink secondNewAccountActivationLink = new AccountActivationLink();
     secondNewAccountActivationLink.setDateIssue(secondDateIssue);
     secondNewAccountActivationLink.setExpirationDate(secondExpirationDate);
-    secondNewAccountActivationLink.setUserEmail(givenUserEmail);
+    secondNewAccountActivationLink.setUser(givenUser);
 
     AccountActivationLink threeNewAccountActivationLink = new AccountActivationLink();
     threeNewAccountActivationLink.setDateIssue(threeDateIssue);
     threeNewAccountActivationLink.setExpirationDate(threeExpirationDate);
-    threeNewAccountActivationLink.setUserEmail(givenUserEmail);
+    threeNewAccountActivationLink.setUser(givenUser);
 
     /*
      * Persistencia de enlaces de activacion
@@ -119,12 +138,13 @@ public class AccountActivationTest {
     entityManager.getTransaction().commit();
 
     /*
-     * Se agregan los enlaces de activacion para su posterior
-     * eliminacion de la base de datos subyacente
+     * Los datos creados se agregan a una coleccion para su
+     * posterior eliminacion de la base de datos subyacente
      */
     accountActivationLinks.add(firstNewAccountActivationLink);
     accountActivationLinks.add(secondNewAccountActivationLink);
     accountActivationLinks.add(threeNewAccountActivationLink);
+    users.add(givenUser);
 
     /*
      * Se imprimen por pantalla los enlaces de activacion de cuenta
@@ -135,7 +155,7 @@ public class AccountActivationTest {
      * de cuenta mas reciente de un usuario registrado.
      */
     System.out.println("* Impresion de los enlaces de activacion de la cuenta del usuario que tiene el correo");
-    System.out.println("electronico " + givenUserEmail);
+    System.out.println("electronico " + givenUser.getEmail());
     System.out.println();
 
     for (AccountActivationLink currentAccountActivationLink : accountActivationLinks) {
@@ -145,20 +165,29 @@ public class AccountActivationTest {
     /*
      * Seccion de prueba
      */
-    AccountActivationLink latestAccountActivationLink = accountActivationLinkService.findByUserEmail(givenUserEmail);
+    AccountActivationLink latestAccountActivationLink = accountActivationLinkService.findByUserEmail(givenUser.getEmail());
 
     System.out.println("Valor esperado (ID del enlace de activacion mas reciente): " + threeNewAccountActivationLink.getId());
     System.out.println("* Resultado obtenido (ID del enlace de activacion mas reciente): " + latestAccountActivationLink.getId());
     System.out.println();
 
-    assertEquals(threeNewAccountActivationLink.getId(), latestAccountActivationLink.getId());
+    /*
+     * Si el ID del enlace de activacion de cuenta mas reciente
+     * obtenido de la base de datos subyacente, es igual al ID
+     * del tercer enlace de activacion de cuenta creado y persistido,
+     * significa que el metodo findByUserEmail de la clase
+     * AccountActivationLinkServiceBean retorna el enlace de activacion
+     * de cuenta mas reciente de un usuario, y, por ende, la prueba es
+     * pasada satisfactoriamente
+     */
+    assertTrue(latestAccountActivationLink.getId() == threeNewAccountActivationLink.getId());
 
     System.out.println("* Prueba pasada satisfactoriamente *");
   }
 
   @Test
   public void testOneCheckConsumed() {
-    System.out.println("*************************** Prueba del metodo checkConsumed ***************************");
+    System.out.println("*************************** Prueba uno del metodo checkConsumed ***************************");
     System.out.println("- El metodo checkConsumed de la clase AccountActivationLink retorna true si el enlace");
     System.out.println("de activacion de la cuenta de un usuario fue consumido, y false en caso contrario.");
     System.out.println();
@@ -167,25 +196,39 @@ public class AccountActivationTest {
     System.out.println();
 
     /*
+     * Creacion y persistencia de un usuario para un
+     * enlace de activacion
+     */
+    User givenUser = new User();
+    givenUser.setUsername("testusertwo");
+    givenUser.setName("Jackie");
+    givenUser.setLastName("Doe");
+    givenUser.setPassword("Ultra secret password");
+    givenUser.setEmail("testusertwo@eservice.com");
+
+    givenUser = userService.create(givenUser);
+
+    /*
      * Creacion y persistencia de un enlace de activacion
      */
-    String givenUserEmail = "testusertwo@eservice.com";
-    AccountActivationLink newAccountActivationLink;
-
     entityManager.getTransaction().begin();
-    newAccountActivationLink = accountActivationLinkService.create(givenUserEmail);
+    AccountActivationLink newAccountActivationLink = accountActivationLinkService.create(givenUser);
     entityManager.getTransaction().commit();
 
     /*
-     * Se agrega el enlace de activacion a una coleccion para
-     * su posterior eliminacion de la base de datos subyacente
+     * Los datos creados se agregan a una coleccion para su
+     * posterior eliminacion de la base de datos subyacente
      */
     accountActivationLinks.add(newAccountActivationLink);
+    users.add(givenUser);
+
+    System.out.println("* Impresion de un enlace de activacion de cuenta");
+    System.out.println(newAccountActivationLink);
 
     /*
      * Seccion de prueba
      */
-    boolean result = accountActivationLinkService.checkConsumed(newAccountActivationLink.getUserEmail());
+    boolean result = accountActivationLinkService.checkConsumed(newAccountActivationLink.getUser().getEmail());
 
     System.out.println("Valor esperado: " + false);
     System.out.println("* Resultado obtenido: " + result);
@@ -196,17 +239,89 @@ public class AccountActivationTest {
     System.out.println("* Prueba pasada satisfactoriamente *");
   }
 
+  @Test
+  public void testTwoCheckConsumed() {
+    System.out.println("*************************** Prueba dos del metodo checkConsumed ***************************");
+    System.out.println("- El metodo checkConsumed de la clase AccountActivationLink retorna true si el enlace");
+    System.out.println("de activacion de la cuenta de un usuario fue consumido, y false en caso contrario.");
+    System.out.println();
+    System.out.println("En esta prueba se crea y persiste un enlace de activacion con su variable consumed en");
+    System.out.println("true. Por lo tanto, el metodo checkConsumed debe retornar el valor booleano true.");
+    System.out.println();
+
+    /*
+     * Creacion y persistencia de un usuario para un
+     * enlace de activacion
+     */
+    User givenUser = new User();
+    givenUser.setUsername("testuserthree");
+    givenUser.setName("Joe");
+    givenUser.setLastName("Doe");
+    givenUser.setPassword("Ultra secret password");
+    givenUser.setEmail("testuserthree@eservice.com");
+
+    givenUser = userService.create(givenUser);
+
+    /*
+     * Creacion de la fecha de emision y de la fecha de expiracion para
+     * un enlace de activacion de cuenta. La fecha de expiracion esta
+     * 60 minutos despues de la fecha de emision.
+     */
+    Calendar dateIssue = Calendar.getInstance();
+    Calendar expirationDate = Calendar.getInstance();
+    expirationDate.setTimeInMillis(dateIssue.getTimeInMillis() + 3600000);
+
+    /*
+     * Creacion y persistencia de un enlace de activacion
+     */
+    AccountActivationLink newAccountActivationLink = new AccountActivationLink();
+    newAccountActivationLink.setDateIssue(dateIssue);
+    newAccountActivationLink.setExpirationDate(expirationDate);
+    newAccountActivationLink.setUser(givenUser);
+    newAccountActivationLink.setConsumed(true);
+
+    entityManager.getTransaction().begin();
+    newAccountActivationLink = accountActivationLinkService.create(newAccountActivationLink);
+    entityManager.getTransaction().commit();
+
+    /*
+     * Los datos creados se agregan a una coleccion para su
+     * posterior eliminacion de la base de datos subyacente
+     */
+    accountActivationLinks.add(newAccountActivationLink);
+    users.add(givenUser);
+
+    System.out.println("* Impresion de un enlace de activacion de cuenta");
+    System.out.println(newAccountActivationLink);
+
+    /*
+     * Seccion de prueba
+     */
+    boolean result = accountActivationLinkService.checkConsumed(newAccountActivationLink.getUser().getEmail());
+
+    System.out.println("Valor esperado: " + true);
+    System.out.println("* Resultado obtenido: " + result);
+    System.out.println();
+
+    assertTrue(result);
+
+    System.out.println("* Prueba pasada satisfactoriamente *");
+  }
+
   @AfterClass
   public static void postTest() {
     entityManager.getTransaction().begin();
 
     /*
-     * Elimina de la base de datos subyacente los enlaces de activation
-     * de cuenta persistidos durante la ejecucion de las pruebas unitarias
-     * para dejarla en su estado original, es decir, para dejarla en el
-     * estado en el que estaba antes de que se persistieran los enlaces
-     * de activacion de cuenta creados
+     * Se eliminan de la base de datos subyacente los datos persistidos
+     * durante la ejecucion de las pruebas unitarias para que la misma
+     * quede en su estado original, es decir, para dejarla en el estado
+     * en el que estaba antes de que se persistieran dichos datos
      */
+    for (User currentUser : users) {
+      userService.remove(currentUser.getId());
+    }
+
     for (AccountActivationLink currentAccontActivationLink : accountActivationLinks) {
       accountActivationLinkService.remove(currentAccontActivationLink.getId());
     }
