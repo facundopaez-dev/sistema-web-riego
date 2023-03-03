@@ -42,6 +42,7 @@
 
       <!-- Observacion: Los paquetes del estilo servlet no son referenciados aca -->
       <!-- Los nuevos paquetes de la carpeta src tienen que ser referenciados aca -->
+      <src path="src/accountsAdministration" />
       <src path="src/climate" />
       <src path="src/et" />
       <src path="src/irrigation" />
@@ -413,6 +414,19 @@ Comandos para detener el server y la base de datos.
       onerror="continue">
       <classpath>
         <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+  </target>
+
+  <target name="run_t89_sql">
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/t89.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}/lib" />
       </classpath>
     </sql>
   </target>

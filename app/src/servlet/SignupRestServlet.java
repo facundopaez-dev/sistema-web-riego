@@ -12,6 +12,7 @@ import util.ReasonError;
 import model.User;
 import model.SignupFormData;
 import stateless.UserServiceBean;
+import stateless.AccountActivationLinkServiceBean;
 import util.Email;
 
 @Path("/signup")
@@ -20,6 +21,7 @@ public class SignupRestServlet {
   // inject a reference to the UserServiceBean slsb
   @EJB
   UserServiceBean userService;
+  @EJB AccountActivationLinkServiceBean accountActivationLinkService;
 
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
@@ -260,7 +262,19 @@ public class SignupRestServlet {
      */
     User newUser = new User();
     setUser(newUser, newUserData);
-    userService.create(newUser);
+
+    /*
+     * El metodo create de la clase UserServiceBean retorna una
+     * referencia a un objeto de tipo User que contiene el ID
+     * resultante de persistir un objeto de tipo User
+     */
+    newUser = userService.create(newUser);
+
+    /*
+     * Se persiste en la base de datos subyacente un enlace de
+     * activacion de cuenta para el usuario registrado
+     */
+    accountActivationLinkService.create(newUser);
 
     /*
      * Si se cumplen todos los controles, se envia un correo

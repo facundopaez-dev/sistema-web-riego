@@ -33,6 +33,11 @@
     find(Calendar givenDate, Parcel currentParcel) de la clase ClimateLogServiceBean -->
   <target name="findclimate" depends="init, run_forClimateLogFindTest_sql" />
 
+  <!-- Comando para cargar la base de datos con los datos necesarios para probar el modulo
+  automatico de eliminacion de enlaces de activacion expirados y NO consumidos, y las cuentas
+  registradas asociadas a los mismos -->
+  <target name="t89" depends="init, run_t89_sql" />
+
   <target name="init">
     <property name="example_name" value="swcar" />
     <property name="DB_NAME" value="swcar" />

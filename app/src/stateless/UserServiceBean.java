@@ -29,17 +29,12 @@ public class UserServiceBean {
   }
 
   /**
-   * Elimina fisicamente un usuario de la base de datos subyacente.
-   * Este metodo es para las pruebas unitarias en las que se
-   * persisten usuarios, los cuales, deben ser borrados de la
-   * base de datos subyacente luego de la ejecucion de dichas
-   * pruebas.
+   * Elimina fisicamente un usuario de la base de datos subyacente
    * 
    * @param id
-   * @return referencia a un objeto de tipo User con su variable
-   * de instancia "active" en false en caso de encontrarse en la
-   * base de datos subyacente el usuario con el ID dado, en caso
-   * contrario null
+   * @return referencia a un objeto de tipo User en caso de eliminarse
+   * de la base de datos subyacente, el usuario correspondiente al ID
+   * dado, en caso contrario null
    */
   public User remove(int id) {
     User givenUser = find(id);
@@ -498,6 +493,21 @@ public class UserServiceBean {
     query.setParameter("userId", userId);
     query.setParameter("newPassword", getPasswordHash(newPlainPassword));
     query.executeUpdate();
+  }
+
+  /**
+   * Activa al usuario que tiene el correo electronico dado.
+   * De esta manera, el usuario puede iniciar sesion en la
+   * aplicacion.
+   * 
+   * Establece en true (1) el atributo active del usuario
+   * correspondiente al correo electronico dado.
+   * 
+   * @param email
+   */
+  public void activateUser(String email) {
+    User givenUser = findByEmail(email);
+    givenUser.setActive(true);
   }
 
 }

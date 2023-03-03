@@ -11,6 +11,7 @@ RadiacionSolar "*"-->"1" Latitud
 InsolacionMaxima "*"-->"1" Mes
 InsolacionMaxima "*"-->"1" Latitud
 Cultivo "*"-->"1" TipoCultivo
+EnlaceActivacionCuenta "1" --> "1" Usuario
 
 class Parcela {
 -id
@@ -104,6 +105,13 @@ class RadiacionSolar {
 class InsolacionMaxima {
 -id
 -valor
+}
+
+class EnlaceActivacionCuenta {
+-id
+-fechaEmision
+-fechaExpiracion
+-consumido
 }
 
 @enduml

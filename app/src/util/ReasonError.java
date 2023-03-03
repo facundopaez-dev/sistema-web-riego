@@ -44,7 +44,8 @@ public enum ReasonError {
   UNDEFINED_NEW_PASSWORD("La nueva contraseña debe estar definida"),
   UNDEFINED_CONFIRMED_NEW_PASSWORD("La confirmación de la nueva contraseña debe estar definida"),
   MALFORMED_NEW_PASSWORD("La nueva contraseña debe tener como mínimo 8 caracteres de longitud, una letra minúscula, una letra mayúscula y un número de 0 a 9, con o sin caracteres especiales"),
-  INCORRECTLY_CONFIRMED_NEW_PASSWORD("La confirmación de la nueva contraseña no es igual a la nueva contraseña ingresada");
+  INCORRECTLY_CONFIRMED_NEW_PASSWORD("La confirmación de la nueva contraseña no es igual a la nueva contraseña ingresada"),
+  ACCOUNT_ACTIVATION_LINK_EXPIRED("Enlace de activación de cuenta expirado, vuelva a registrarse");
 
   private final String reason;
 

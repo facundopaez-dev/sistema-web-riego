@@ -12,6 +12,12 @@ app.config(['$routeProvider', function (routeprovider) {
 			controller: 'SignupCtrl'
 		})
 
+		/* Ruta para la activacion de la cuenta del usuario */
+		.when('/activateAccount/:email', {
+			templateUrl: 'partials/user/user-account-activation.html',
+			controller: 'UserAccountActivationCtrl'
+		})
+
 		/* Rutas del usuario */
 		.when('/', {
 			templateUrl: 'partials/user/user-login.html',

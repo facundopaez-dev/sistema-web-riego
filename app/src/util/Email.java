@@ -105,7 +105,7 @@ public class Email {
       PROPERTIES.put("mail.smtp.port", PORT);
       PROPERTIES.put("mail.smtp.auth", "true");
       PROPERTIES.put("mail.smtp.starttls.enable", "true");
-      PROPERTIES.put("mail.smtp.ssl.trust", "smtp.gmail.com");
+      PROPERTIES.put("mail.smtp.ssl.trust", HOST);
     }
 
     return PROPERTIES;
@@ -172,8 +172,7 @@ public class Email {
    * de registro
    */
   private static String createConfirmationMessage(String recipientEmail) {
-    return new String("Haga clic en el siguiente enlace para confirmar su registro: http://localhost:8080/swcar/rest/activateAccount?email="
-    + recipientEmail
+    return new String("Haga clic en el siguiente enlace para confirmar su registro: http://localhost:8080/swcar/#!/activateAccount/" + recipientEmail
     + "\n\nSi no confirma el registro de su cuenta, la misma no se activará. En consecuencia, no la podrá utilizar para iniciar sesión en la aplicación.");
   }
 
