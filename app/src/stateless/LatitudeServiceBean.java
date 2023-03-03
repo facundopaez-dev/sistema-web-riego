@@ -7,15 +7,15 @@ import javax.persistence.Query;
 import model.Latitude;
 
 @Stateless
-public  class LatitudeServiceBean {
+public class LatitudeServiceBean {
 
   /*
    * Instance variables
    */
-  @PersistenceContext(unitName="swcar")
+  @PersistenceContext(unitName = "swcar")
   private EntityManager entityManager;
 
-  public void setEntityManager(EntityManager localEntityManager){
+  public void setEntityManager(EntityManager localEntityManager) {
     entityManager = localEntityManager;
   }
 

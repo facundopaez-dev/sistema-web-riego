@@ -15,10 +15,10 @@ import model.Crop;
 @Stateless
 public class CropServiceBean {
 
-  @PersistenceContext(unitName="swcar")
+  @PersistenceContext(unitName = "swcar")
   protected EntityManager em;
 
-  public void setEntityManager(EntityManager emLocal){
+  public void setEntityManager(EntityManager emLocal) {
     em = emLocal;
   }
 

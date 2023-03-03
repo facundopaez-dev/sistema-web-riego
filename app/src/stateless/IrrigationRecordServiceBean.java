@@ -14,15 +14,15 @@ import model.IrrigationRecord;
 import model.Parcel;
 
 @Stateless
-public  class IrrigationRecordServiceBean {
+public class IrrigationRecordServiceBean {
 
   /*
    * Instance variables
    */
-  @PersistenceContext(unitName="swcar")
+  @PersistenceContext(unitName = "swcar")
   private EntityManager entityManager;
 
-  public void setEntityManager(EntityManager localEntityManager){
+  public void setEntityManager(EntityManager localEntityManager) {
     entityManager = localEntityManager;
   }
 

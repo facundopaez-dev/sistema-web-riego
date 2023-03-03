@@ -11,15 +11,15 @@ import model.ClimateRecord;
 import model.Parcel;
 
 @Stateless
-public  class ClimateRecordServiceBean {
+public class ClimateRecordServiceBean {
 
   /*
    * Instance variables
    */
-  @PersistenceContext(unitName="swcar")
+  @PersistenceContext(unitName = "swcar")
   private EntityManager entityManager;
 
-  public void setEntityManager(EntityManager localEntityManager){
+  public void setEntityManager(EntityManager localEntityManager) {
     entityManager = localEntityManager;
   }
 

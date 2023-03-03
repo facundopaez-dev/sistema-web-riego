@@ -10,7 +10,7 @@ import model.Month;
 import model.SolarRadiation;
 
 @Stateless
-public  class SolarRadiationServiceBean {
+public class SolarRadiationServiceBean {
 
   // inject a reference to the MonthServiceBean
   @EJB MonthServiceBean monthService;
@@ -21,10 +21,10 @@ public  class SolarRadiationServiceBean {
   /*
    * Instance variables
    */
-  @PersistenceContext(unitName="swcar")
+  @PersistenceContext(unitName = "swcar")
   private EntityManager entityManager;
 
-  public void setEntityManager(EntityManager localEntityManager){
+  public void setEntityManager(EntityManager localEntityManager) {
     entityManager = localEntityManager;
   }
 

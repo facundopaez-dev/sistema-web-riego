@@ -10,7 +10,7 @@ import model.MaximumInsolation;
 import model.Month;
 
 @Stateless
-public  class MaximumInsolationServiceBean {
+public class MaximumInsolationServiceBean {
 
   // inject a reference to the MonthServiceBean
   @EJB MonthServiceBean monthService;
@@ -21,10 +21,10 @@ public  class MaximumInsolationServiceBean {
   /*
    * Instance variables
    */
-  @PersistenceContext(unitName="swcar")
+  @PersistenceContext(unitName = "swcar")
   private EntityManager entityManager;
 
-  public void setEntityManager(EntityManager localEntityManager){
+  public void setEntityManager(EntityManager localEntityManager) {
     entityManager = localEntityManager;
   }
 

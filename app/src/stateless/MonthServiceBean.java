@@ -7,15 +7,15 @@ import javax.persistence.Query;
 import model.Month;
 
 @Stateless
-public  class MonthServiceBean {
+public class MonthServiceBean {
 
   /*
    * Instance variables
    */
-  @PersistenceContext(unitName="swcar")
+  @PersistenceContext(unitName = "swcar")
   private EntityManager entityManager;
 
-  public void setEntityManager(EntityManager localEntityManager){
+  public void setEntityManager(EntityManager localEntityManager) {
     entityManager = localEntityManager;
   }
 
