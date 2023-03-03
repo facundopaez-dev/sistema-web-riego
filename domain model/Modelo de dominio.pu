@@ -122,4 +122,9 @@ class Sesion {
 -cerrada
 }
 
+class ClaveSecreta {
+-id
+-value
+}
+
 @enduml
