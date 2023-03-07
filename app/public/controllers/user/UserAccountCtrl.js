@@ -91,7 +91,7 @@ app.controller(
         authHeaderManager.setJwtAuthHeader();
       }
 
-      const EMPTY_SIGN_UP_FORM = "Debe completar todos los campos del formulario de registro";
+      const EMPTY_FORM = "Debe completar todos los campos del formulario";
       const UNDEFINED_USERNAME = "El nombre de usuario debe estar definido";
       const UNDEFINED_NAME = "El nombre debe estar definido";
       const UNDEFINED_LAST_NAME = "El apellido debe estar definido";
@@ -121,7 +121,7 @@ app.controller(
       $scope.modify = function () {
         /*
         Expresiones regulares para validar los datos de entrada
-        del formulario de registro de usuario
+        del formulario
         */
         var usernameRegexp = /^[A-Za-z][A-Za-z0-9_]{3,14}$/g;
         var nameRegexp = /^[A-Z](?=.{2,29}$)[a-z]+(?:\s[A-Z][a-z]+)*$/g;
@@ -131,13 +131,13 @@ app.controller(
         /*
         Si la propiedad data de $scope tiene el valor undefined,
         significa que el usuario presiono el boton "Modificar"
-        con todos los campos vacios del formulario de registro,
-        por lo tanto, la aplicacion muestra el mensaje dado y no
-        ejecuta la instruccion que realiza la peticion HTTP para
-        registrar a un usuario
+        con todos los campos vacios del formulario, por lo tanto,
+        la aplicacion muestra el mensaje dado y no ejecuta la
+        instruccion que realiza la peticion HTTP para registrar
+        a un usuario
         */
         if ($scope.data == undefined) {
-          alert(EMPTY_SIGN_UP_FORM);
+          alert(EMPTY_FORM);
           return;
         }
 
@@ -151,8 +151,8 @@ app.controller(
         Si el nombre de usuario NO esta definido cuando el usuario
         presiona el boton "Modificar", la aplicacion muestra el
         mensaje "El nombre de usuario debe estar definido" y no
-        ejecuta la instruccion que realiza la peticion HTTP para
-        registrar a un usuario
+        ejecuta la instruccion que realiza la peticion HTTP
+        correspondiente a este controller
         */
         if ($scope.data.username == undefined) {
           alert(UNDEFINED_USERNAME);
@@ -163,7 +163,7 @@ app.controller(
         Si el nombre NO esta definido cuando el usuario presiona
         el boton "Modificar", la aplicacion muestra el mensaje
         "El nombre debe estar definido" y no ejecuta la instruccion
-        que realiza la peticion HTTP para registrar a un usuario
+        que realiza la peticion HTTP correspondiente a este controller
         */
         if ($scope.data.name == undefined) {
           alert(UNDEFINED_NAME);
@@ -174,7 +174,7 @@ app.controller(
         Si el apellido NO esta definido cuando el usuario presiona
         el boton "Modificar", la aplicacion muestra el mensaje
         "El apellido debe estar definido" y no ejecuta la instruccion
-        que realiza la peticion HTTP para registrar a un usuario
+        que realiza la peticion HTTP correspondiente a este controller
         */
         if ($scope.data.lastName == undefined) {
           alert(UNDEFINED_LAST_NAME);
@@ -186,7 +186,7 @@ app.controller(
         cuando el usuario presiona el boton "Modificar", la
         aplicacion muestra el mensaje "La direccion de correo
         electronico debe estar definida" y no ejecuta la instruccion
-        que realiza la peticion HTTP para registrar a un usuario
+        que realiza la peticion HTTP correspondiente a este controller
         */
         if ($scope.data.email == undefined) {
           alert(UNDEFINED_EMAIL);
@@ -204,7 +204,7 @@ app.controller(
         y 15 caracteres, y NO empieza con caracteres alfabeticos
         con o sin numeros y/o guiones bajos, la aplicacion muestra
         el siguiente mensaje y no ejecuta la instruccion que realiza
-        la peticion HTTP para registrar a un usuario:
+        la peticion HTTP correspondiente a este controller:
         
         "El nombre debe usuario debe tener una longitud de entre 4 y
         15 caracteres, comenzar con caracteres alfabeticos seguido o
@@ -223,7 +223,7 @@ app.controller(
         y los nombres que vienen a continuacion del primero NO empiezan
         con una letra mayuscula seguida de letras minusculas, la aplicacion
         muestra el siguiente mensaje y no ejecuta la la instruccion que
-        realiza la peticion HTTP para registrar a un usuario.
+        realiza la peticion HTTP correspondiente a este controller.
         
         "El nombre debe tener una longitud de entre 3 y 30 caracteres
         alfabeticos, empezar con una letra mayuscula seguido de letras

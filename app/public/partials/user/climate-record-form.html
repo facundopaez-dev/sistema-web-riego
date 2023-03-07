@@ -128,8 +128,8 @@
             <div class="form-group">
                 <label for="climateRecord_precip" class="col-md-2 control-label">Precipitación del día (mm/día)</label>
                 <div class="col-md-3">
-                    <input type="number" class="form-control" id="climateRecord_precip"
-                        ng-model="data.precip" ng-disabled="action == 'view'">
+                    <input type="number" class="form-control" id="climateRecord_precip" ng-model="data.precip"
+                        ng-disabled="action == 'view'">
                 </div>
             </div>
 
@@ -199,10 +199,9 @@
                         ng-show="action == 'new'">Crear</button>
                     <button type="submit" class="btn btn-success" ng-click="modify()"
                         ng-show="action == 'edit'">Modificar</button>
-                    <button type="submit" class="btn btn-success" ng-click="cancel()"
+                    <button class="btn btn-success" ng-click="cancel()"
                         ng-show="action == 'new' || action == 'edit'">Cancelar</button>
-                    <button type="submit" class="btn btn-success" ng-click="cancel()"
-                        ng-show="action == 'view'">Atrás</button>
+                    <button class="btn btn-success" ng-click="cancel()" ng-show="action == 'view'">Atrás</button>
                 </div>
             </div>
         </form>

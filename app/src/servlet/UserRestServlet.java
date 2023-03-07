@@ -503,7 +503,7 @@ public class UserRestServlet {
      */
 
     /*
-     * Si la la nueva contraseña y la confirmacion de la nueva contraseña
+     * Si la nueva contraseña y la confirmacion de la nueva contraseña
      * NO son iguales, la aplicacion del lado servidor retorna el mensaje
      * HTTP 400 (Bad request) junto con el mensaje "La confirmación de la
      * nueva contraseña no es igual a la nueva contraseña ingresada"

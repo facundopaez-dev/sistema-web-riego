@@ -4,7 +4,7 @@ app.controller(
 
     console.log("SignupCtrl loaded...");
 
-    const EMPTY_SIGN_UP_FORM = "Debe completar todos los campos del formulario";
+    const EMPTY_FORM = "Debe completar todos los campos del formulario";
     const UNDEFINED_USERNAME = "El nombre de usuario debe estar definido";
     const UNDEFINED_NAME = "El nombre debe estar definido";
     const UNDEFINED_LAST_NAME = "El apellido debe estar definido";
@@ -38,7 +38,7 @@ app.controller(
       registrar a un usuario
       */
       if ($scope.data == undefined) {
-        alert(EMPTY_SIGN_UP_FORM);
+        alert(EMPTY_FORM);
         return;
       }
 
