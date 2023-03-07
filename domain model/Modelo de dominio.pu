@@ -132,7 +132,7 @@ class Sesion {
 
 class ClaveSecreta {
 -id
--value
+-valor
 }
 
 @enduml
