@@ -66,22 +66,24 @@ public class AccountActivationLinkServiceBean {
    * representa un enlace de activacion de cuenta que tiene el correo
    * electronico dado, y un tiempo de expiracion de 48 horas desde la
    * fecha y la hora desde las que se lo emitio, las cuales, son la
-   * fecha y la hora en la que un usuario se registra en la aplicacion
+   * fecha y la hora en las que un usuario se registra en la aplicacion
    */
   private AccountActivationLink getInstance(User user) {
     /*
-     * El metodo getInstance de la clase Calendar retorna una
-     * referencia a un objeto de tipo Calendar que contiene la
-     * fecha y la hora actuales. Por lo tanto, dateIssue contiene
-     * la fecha y la hora en las que se crea un enlace de activacion
-     * de cuenta.
+     * El metodo getInstance de la clase Calendar retorna una referencia
+     * a un objeto de tipo Calendar que contiene la fecha y la hora
+     * actuales. Por lo tanto, el objeto referenciado por la referencia
+     * de tipo Calendar contenida en la variable de tipo por referencia
+     * dateIssue de tipo Calendar, contiene la fecha y la hora en las que
+     * se crea un enlace de activacion de cuenta.
      */
     Calendar dateIssue = Calendar.getInstance();
 
     /*
      * La fecha y la hora de expiracion de un enlace de activacion
-     * de cuenta se establece en 48 horas despues de la fecha y la
-     * hora en la que se emite (crea) dicho enlace
+     * de cuenta se establece en 48 horas (172800000 en milisegundos)
+     * a partir de la fecha y la hora en la que se emite (crea) dicho
+     * enlace
      */
     Calendar expirationDate = Calendar.getInstance();
     expirationDate.setTimeInMillis(dateIssue.getTimeInMillis() + 172800000);
