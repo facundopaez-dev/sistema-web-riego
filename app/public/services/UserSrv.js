@@ -71,5 +71,38 @@ app.service(
 						});
 			};
 
+			this.sendEmailPasswordRecovery = function (data, callback) {
+				$http.put("rest/users/passwordResetEmail", data)
+					.then(
+						function (result) {
+							callback(false);
+						},
+						function (error) {
+							callback(error);
+						});
+			};
+
+			this.resetPassword = function (jwtResetPassword, data, callback) {
+				$http.put("rest/users/resetPassword/" + jwtResetPassword, data)
+					.then(
+						function (result) {
+							callback(false);
+						},
+						function (error) {
+							callback(error);
+						});
+			};
+
+			this.checkPasswordResetLink = function (jwtResetPassword, callback) {
+				$http.get("rest/users/checkPasswordResetLink/" + jwtResetPassword)
+					.then(
+						function (result) {
+							callback(false);
+						},
+						function (error) {
+							callback(error);
+						});
+			};
+
 		}
 	]);

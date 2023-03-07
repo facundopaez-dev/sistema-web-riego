@@ -45,7 +45,11 @@ public enum ReasonError {
   UNDEFINED_CONFIRMED_NEW_PASSWORD("La confirmación de la nueva contraseña debe estar definida"),
   MALFORMED_NEW_PASSWORD("La nueva contraseña debe tener como mínimo 8 caracteres de longitud, una letra minúscula, una letra mayúscula y un número de 0 a 9, con o sin caracteres especiales"),
   INCORRECTLY_CONFIRMED_NEW_PASSWORD("La confirmación de la nueva contraseña no es igual a la nueva contraseña ingresada"),
-  ACCOUNT_ACTIVATION_LINK_EXPIRED("Enlace de activación de cuenta expirado, vuelva a registrarse");
+  ACCOUNT_ACTIVATION_LINK_EXPIRED("Enlace de activación de cuenta expirado, vuelva a registrarse"),
+  THERE_IS_NO_ACCOUNT_WITH_EMAIL_ADDRESS_ENTERED("No existe una cuenta con la dirección de correo electrónico ingresada"),
+  INVALID_PASSWORD_RESET_LINK("Enlace de restablecimiento de contraseña inválido"),
+  PASSWORD_RESET_LINK_EXPIRED("Enlace de restablecimiento de contraseña expirado"),
+  INACTIVE_USER_TO_RECOVER_PASSWORD("Para recuperar su contraseña primero debe activar su cuenta mediante el correo electrónico de confirmación de registro");
 
   private final String reason;
 

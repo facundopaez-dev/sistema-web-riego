@@ -16,13 +16,20 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import stateless.SecretKeyServiceBean;
 import stateless.UserServiceBean;
+import stateless.PasswordResetLinkServiceBean;
 import util.ErrorResponse;
 import util.ReasonError;
+import util.SuccessfullyResponse;
+import util.ReasonSuccess;
 import util.RequestManager;
 import utilJwt.AuthHeaderManager;
 import utilJwt.JwtManager;
 import model.User;
+import model.DataEmailFormPasswordReset;
 import model.PasswordChangeFormData;
+import model.PasswordResetFormData;
+import model.PasswordResetLink;
+import util.Email;
 
 @Path("/users")
 public class UserRestServlet {
@@ -30,6 +37,7 @@ public class UserRestServlet {
   // inject a reference to the UserServiceBean slsb
   @EJB UserServiceBean userService;
   @EJB SecretKeyServiceBean secretKeyService;
+  @EJB PasswordResetLinkServiceBean passwordResetLinkService;
 
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
@@ -545,6 +553,368 @@ public class UserRestServlet {
      * mensaje HTTP 200 (Ok)
      */
     userService.modifyPassword(userId, newPasswordData.getNewPassword());
+    return Response.status(Response.Status.OK).build();
+  }
+
+  @PUT
+  @Path("/passwordResetEmail")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response sendEmailPasswordRecovery(String json) throws IOException {
+    /*
+     * ******************************************
+     * Controles sobre la definicion de los datos
+     * ******************************************
+     */
+
+    /*
+     * Si el objeto de tipo String referenciado por la referencia
+     * contenida en el variable de tipo por referencia json de tipo
+     * String, esta vacio, significa que el usuario NO completo el
+     * formulario con su correo electronico para el restablecimiento
+     * de la contraseña de su cuenta. Por lo tanto, la aplicacion del
+     * lado servidor retorna el mensaje HTTP 400 (Bad request) junto
+     * con el mensaje "La direcion de correo electronico debe estar
+     * definida" y no se realiza la operacion solicitada
+     */
+    if (json.isEmpty()) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_EMAIL)).build();
+    }
+
+    DataEmailFormPasswordReset dataEmailFormPasswordReset = mapper.readValue(json, DataEmailFormPasswordReset.class);
+
+    /*
+     * ***********************************
+     * Control sobre la forma de los datos
+     * ***********************************
+     */
+
+    /*
+     * Si la direccion de correo electronico NO es valida, la aplicacion
+     * del lado servidor retorna el mensaje HTTP 400 (Bad request) junto
+     * con el mensaje "La direccion de correo electronico no es valida" y
+     * no se realiza la operacion solicitada
+     */
+    if (!dataEmailFormPasswordReset.getEmail().matches("^(?=.{1,64}@)[\\p{L}0-9_-]+(\\.[\\p{L}0-9_-]+)*@[^-][\\p{L}0-9-]+(\\.[\\p{L}0-9-]+)*(\\.[\\p{L}]{2,})$")) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.MALFORMED_EMAIL)).build();
+    }
+
+    /*
+     * ****************************************
+     * Control sobre la existencia de los datos
+     * ****************************************
+     */
+
+    /*
+     * Si la direccion de correo electronico NO esta registrada en ninguna
+     * cuenta, la aplicacion del lado servidor retorna el mensaje HTTP 400
+     * (Bad request) junto con el mensaje "No existe una cuenta con la dirección
+     * de correo electrónico ingresada" y no se realiza la operacion solicitada
+     */
+    if (!userService.checkExistenceEmail(dataEmailFormPasswordReset.getEmail())) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.THERE_IS_NO_ACCOUNT_WITH_EMAIL_ADDRESS_ENTERED)).build();
+    }
+
+    /*
+     * *********************************************************
+     * Control sobre el estado (si esta activo o no) del usuario
+     * correspondiente al correo electronico dado
+     * *********************************************************
+     */
+
+    /*
+     * Si la cuenta correspondiente al correo electronico ingresado por
+     * el usuario para recuperar su contraseña, esta inactiva, la aplicacion
+     * del lado servidor retorna el mensaje HTTP 400 (Bad request) junto con
+     * el mensaje "Para recuperar su contraseña primero debe activar su cuenta
+     * mediante el correo electronico de confirmacion de registro" y no se realiza
+     * la operacion solicitada
+     */
+    if (!userService.isActive(dataEmailFormPasswordReset.getEmail())) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INACTIVE_USER_TO_RECOVER_PASSWORD)).build();
+    }
+
+    /*
+     * Si se cumplen todos los controles:
+     * - se crea y persiste un enlace de restablecimiento de contraseña,
+     * - se crea un JWT con el ID de dicho enlace y el correo electronico
+     * ingresado por el usuario para el restablecimiento de la contraseña
+     * de su cuenta, y
+     * - se envia a dicho correo un correo electronico que contiene el
+     * enlace de restablecimiento de contraseña, el cual, tiene el JWT
+     * creado.
+     */
+    PasswordResetLink givenPasswordRestLink = passwordResetLinkService.create(userService.findByEmail(dataEmailFormPasswordReset.getEmail()));
+    String jwtResetPassword = JwtManager.createJwt(givenPasswordRestLink.getId(), dataEmailFormPasswordReset.getEmail(), secretKeyService.find().getValue());
+    Email.sendPasswordResetEmail(dataEmailFormPasswordReset.getEmail(), jwtResetPassword);
+
+    /*
+     * Si se cumplen todos los controles, la aplicacion del lado
+     * servidor envia un correo para el restablecimiento de la
+     * contraseña a la direccion de correo electronico ingresada
+     * por el usuario para ello, y retorna el mensaje HTTP 200
+     * (Ok) junto con el mensaje "Correo electrónico de restablecimiento
+     * de contraseña enviado a su casilla de correo electrónico"
+     */
+    return Response.status(Response.Status.OK).entity(new SuccessfullyResponse(ReasonSuccess.PASSWORD_RESET_EMAIL_SENT)).build();
+  }
+
+  @PUT
+  @Path("/resetPassword/{jwtResetPassword}")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response resetPassword(@PathParam("jwtResetPassword") String jwt, String json) throws IOException {
+    /*
+     * *****************************************************
+     * Controles sobre el JWT del enlace de restablecimiento
+     * de contraseña
+     * *****************************************************
+     */
+
+    /*
+     * Si el JWT para el restablecimiento de la contraseñ esta
+     * vacio, la aplicacion del lado servidor retorna el mensaje
+     * HTTP 400 (Bad request) junto con el mensaje "Enlace de
+     * restablecimiento de contraseña invalido" y no se realiza
+     * la operacion solicitada
+     */
+    if (jwt.isEmpty()) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_PASSWORD_RESET_LINK)).build();
+    }
+
+    /*
+     * Si la firma del JWT que esta como parametro de ruta en un
+     * enlace de restablecimiento de contraseña, NO coincide con
+     * los datos de su encabezado y carga util, la aplicacion del
+     * lado servidor retorna el mensaje HTTP 400 (Bad request) junto
+     * con el mensaje "Enlace de restablecimiento de contraseña
+     * invalido" y no se realiza la operacion solicitada
+     */
+    if (!JwtManager.validateJwt(jwt, secretKeyService.find().getValue())) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_PASSWORD_RESET_LINK)).build();
+    }
+
+    PasswordResetFormData passwordResetFormData = mapper.readValue(json, PasswordResetFormData.class);
+
+    /*
+     * ******************************************
+     * Controles sobre la definicion de los datos
+     * ******************************************
+     */
+
+    /*
+     * Si la nueva contraseña NO esta definida, la aplicacion del
+     * lado servidor retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "La nueva contraseña debe estar
+     * definida" y no se realiza la operacion solicitada
+     */
+    if (passwordResetFormData.getNewPassword() == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_NEW_PASSWORD)).build();
+    }
+
+    /*
+     * Si la confirmacion de la nueva contraseña NO esta definida,
+     * la aplicacion del lado servidor retorna el mensaje HTTP 400
+     * (Bad request) junto con el mensaje "La confirmación de la
+     * nueva contraseña debe estar definida" y no se realiza la
+     * operacion solicitada
+     */
+    if (passwordResetFormData.getNewPasswordConfirmed() == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_CONFIRMED_NEW_PASSWORD)).build();
+    }
+
+    /*
+     * *************************************
+     * Controles sobre la forma de los datos
+     * *************************************
+     */
+
+    /*
+     * Si la nueva contraseña NO contiene como minimo 8 caracteres de longitud,
+     * una letra minuscula, una letra mayuscula y un numero 0 a 9, la
+     * aplicacion del lado servidor retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "La nueva contraseña debe tener como minimo 8
+     * caracteres de longitud, una letra minuscula, una letra mayuscula y un
+     * numero de 0 a 9, con o sin caracteres especiales" y no se realiza
+     * la operacion solicitada
+     */
+    if (!passwordResetFormData.getNewPassword().matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{7,}$")) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.MALFORMED_NEW_PASSWORD)).build();
+    }
+
+    /*
+     * ********************************************************************************************
+     * Control sobre la igualdad entre la nueva contraseña y la confirmacion de la nueva contraseña
+     * ********************************************************************************************
+     */
+
+    /*
+     * Si la la nueva contraseña y la confirmacion de la nueva contraseña
+     * NO son iguales, la aplicacion del lado servidor retorna el mensaje
+     * HTTP 400 (Bad request) junto con el mensaje "La confirmación de la
+     * nueva contraseña no es igual a la nueva contraseña ingresada"
+     */
+    if (!(passwordResetFormData.getNewPassword().equals(passwordResetFormData.getNewPasswordConfirmed()))) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INCORRECTLY_CONFIRMED_NEW_PASSWORD)).build();
+    }
+
+    /*
+     * ***********************************************************
+     * Controles sobre el enlace de restablecimiento de contraseña
+     * ***********************************************************
+     */
+
+    int passwordResetLinkId = JwtManager.getPasswordResetLinkId(jwt, secretKeyService.find().getValue());
+    String userEmail = JwtManager.getUserEmail(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si en la base de datos subyacente NO existe un enlace de
+     * restablecimiento de contraseña con el ID dado y asociado
+     * al correo electronico dado, la aplicacion del lado servidor
+     * retorna el mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "Enlace de restablecimiento de contraseña invalido" y no se
+     * realiza la operacion solicitada
+     */
+    if (!passwordResetLinkService.checkExistence(passwordResetLinkId, userEmail)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_PASSWORD_RESET_LINK)).build();
+    }
+
+    /*
+     * Si el enlace de restablecimiento de contraseña correspondiente
+     * al ID dado y asociado al correo electronico dado, ya fue consumido
+     * (es decir, fue utilizado por su respectivo usuario para el restablecimiento
+     * de la contraseña de su cuenta), la aplicacion del lado servidor
+     * retorna el mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "Enlace de restablecimiento de contraseña invalido" y no realiza
+     * la operacion solicitada
+     */
+    if (passwordResetLinkService.checkConsumed(passwordResetLinkId, userEmail)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_PASSWORD_RESET_LINK)).build();
+    }
+
+    /*
+     * Si el enlace de restablecimiento de contraseña correspondiente
+     * al ID dado y asociado al correo electronico dado, expiro, la
+     * aplicacion del lado servidor retorna el mensaje HTTP 400 (Bad
+     * request) junto con el mensaje "Enlace de restablecimiento de
+     * contraseña expirado" y no se realiza la operacion solicitada
+     */
+    if (passwordResetLinkService.checkExpiration(passwordResetLinkId, userEmail)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.PASSWORD_RESET_LINK_EXPIRED)).build();
+    }
+
+    /*
+     * Si se pasan todos los controles para el restablecimiento de la
+     * contraseña de la cuenta de un usuario, la aplicacion del lado
+     * servidor modifica la contraseña del usuario correspondiente
+     * al correo electronico dado con la nueva contraseña, establece
+     * el atributo consumed del enlace de restablecimiento de
+     * contraseña dado en 1, y retorna el mensaje HTTP 200 (Ok) junto
+     * con el mensaje "Contraseña restablecida satisfactoriamente".
+     * 
+     * Un enlace de restablecimiento de contraseña es consumido cuando
+     * el usuario que solicito dicho restablecimiento, accede a dicho
+     * enlace y restablece su contraseña.
+     */
+    userService.modifyPassword(userService.findByEmail(userEmail).getId(), passwordResetFormData.getNewPassword());
+    passwordResetLinkService.setConsumed(passwordResetLinkId);
+    return Response.status(Response.Status.OK).entity(new SuccessfullyResponse(ReasonSuccess.PASSWORD_RESET_SUCCESSFULLY)).build();
+  }
+
+  /*
+   * Este metodo REST es unicamente para realizar controles
+   * sobre un enlace de restablecimiento de contraseña, los
+   * cuales, son los siguientes:
+   * - comprobar su existencia en la base de datos subyacente,
+   * - comprobar si fue consumido, y
+   * - comprobar si expiro.
+   * 
+   * Un enlace de restablecimiento de contraseña es consumido
+   * cuando el usuario que solicito dicho restablecimiento,
+   * accede a dicho enlace y restablece su contraseña.
+   */
+  @GET
+  @Path("/checkPasswordResetLink/{jwtResetPassword}")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response checkPasswordResetLink(@PathParam("jwtResetPassword") String jwt) throws IOException {
+    /*
+     * *****************************************************
+     * Controles sobre el JWT del enlace de restablecimiento
+     * de contraseña
+     * *****************************************************
+     */
+
+    /*
+     * Si el JWT para el restablecimiento de la contraseñ esta
+     * vacio, la aplicacion del lado servidor retorna el mensaje
+     * HTTP 400 (Bad request) junto con el mensaje "Enlace de
+     * restablecimiento de contraseña invalido" y no se realiza
+     * la operacion solicitada
+     */
+    if (jwt.isEmpty()) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_PASSWORD_RESET_LINK)).build();
+    }
+
+    /*
+     * Si la firma del JWT que esta como parametro de ruta en un
+     * enlace de restablecimiento de contraseña, no coincide con
+     * los datos de su encabezado y carga util, la aplicacion del
+     * lado servidor retorna el mensaje HTTP 400 (Bad request) junto
+     * con el mensaje "Enlace de restablecimiento de contraseña
+     * invalido" y no se realiza la operacion solicitada
+     */
+    if (!JwtManager.validateJwt(jwt, secretKeyService.find().getValue())) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_PASSWORD_RESET_LINK)).build();
+    }
+
+    /*
+     * ***********************************************************
+     * Controles sobre el enlace de restablecimiento de contraseña
+     * ***********************************************************
+     */
+
+    int passwordResetLinkId = JwtManager.getPasswordResetLinkId(jwt, secretKeyService.find().getValue());
+    String userEmail = JwtManager.getUserEmail(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si en la base de datos subyacente NO existe un enlace de
+     * restablecimiento de contraseña con el ID dado y asociado
+     * al correo electronico dado, la aplicacion del lado servidor
+     * retorna el mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "Enlace de restablecimiento de contraseña invalido" y no se
+     * realiza la operacion solicitada
+     */
+    if (!passwordResetLinkService.checkExistence(passwordResetLinkId, userEmail)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_PASSWORD_RESET_LINK)).build();
+    }
+
+    /*
+     * Si el enlace de restablecimiento de contraseña correspondiente
+     * al ID dado y asociado al correo electronico dado, ya fue consumido
+     * (es decir, fue utilizado por su respectivo usuario para el restablecimiento
+     * de la contraseña de su cuenta), la aplicacion del lado servidor
+     * retorna el mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "Enlace de restablecimiento de contraseña invalido" y no realiza
+     * la operacion solicitada
+     */
+    if (passwordResetLinkService.checkConsumed(passwordResetLinkId, userEmail)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_PASSWORD_RESET_LINK)).build();
+    }
+
+    /*
+     * Si el enlace de restablecimiento de contraseña correspondiente
+     * al ID dado y asociado al correo electronico dado, expiro, la
+     * aplicacion del lado servidor retorna el mensaje HTTP 400 (Bad
+     * request) junto con el mensaje "Enlace de restablecimiento de
+     * contraseña expirado" y no se realiza la operacion solicitada
+     */
+    if (passwordResetLinkService.checkExpiration(passwordResetLinkId, userEmail)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.PASSWORD_RESET_LINK_EXPIRED)).build();
+    }
+
+    /*
+     * Si se pasan los controles sobre el enlace de restablecimiento
+     * de contraseña, la aplicacion del lado servidor retorna el
+     * mensaje HTTP 200 (Ok)
+     */
     return Response.status(Response.Status.OK).build();
   }
 

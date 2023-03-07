@@ -47,10 +47,11 @@ public class Email {
   private static final Properties PROPERTIES = new Properties();
 
   /*
-   * Constante utilizada para establecer el asunto de un correo electronico
-   * de confirmacion de registro
+   * Constantes utilizadas para el asunto de distintos tipos de
+   * correo electronico
    */
   private static final String CONFIRMATION_REGISTRATION = "Confirmación de registro";
+  private static final String PASSWORD_RESET = "Restablecimiento de contraseña";
 
   /*
    * Esta constante contiene una referencia a un objeto de tipo Authenticator
@@ -166,6 +167,20 @@ public class Email {
   }
 
   /**
+   * Realiza el envio de un correo electronico de restablecimiento
+   * de contraseña a la direccion de correo electronico ingresada
+   * por el usuario en la pagina web desplegada por oprimir el
+   * boton "Recuperar contraseña" en la pagina web de inicio de
+   * sesion
+   * 
+   * @param recipientEmail
+   * @param jwtResetPassword
+   */
+  public static void sendPasswordResetEmail(String recipientEmail, String jwtResetPassword) {
+    sendEmail(recipientEmail, PASSWORD_RESET, createPasswordResetEmailBody(jwtResetPassword));
+  }
+
+  /**
    * @param recipientEmail
    * @return referencia a un objeto de tipo String que contiene
    * el mensaje (cuerpo) de un correo electronico de confirmacion
@@ -174,6 +189,17 @@ public class Email {
   private static String createConfirmationMessage(String recipientEmail) {
     return new String("Haga clic en el siguiente enlace para confirmar su registro: http://localhost:8080/swcar/#!/activateAccount/" + recipientEmail
     + "\n\nSi no confirma el registro de su cuenta, la misma no se activará. En consecuencia, no la podrá utilizar para iniciar sesión en la aplicación.");
+  }
+
+  /**
+   * @param jwtResetPassword
+   * @return referencia a un objeto de tipo String que contiene
+   * el mensaje (cuerpo) de un correo electronico de restablecimiento
+   * de contraseña
+   */
+  private static String createPasswordResetEmailBody(String jwtResetPassword) {
+    return new String("Haga clic en el siguiente enlace para restablecer su contraseña: http://localhost:8080/swcar/#!/resetPassword/" + jwtResetPassword
+    + "\n\nEste enlace expirará en 60 minutos. En consecuencia, no lo podrá utilizar para restablecer su contraseña en la aplicación.");
   }
 
 }

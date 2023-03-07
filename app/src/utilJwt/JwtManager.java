@@ -25,6 +25,8 @@ public class JwtManager {
    */
   private static final String USER_ID = "userId";
   private static final String SUPERUSER = "superuser";
+  private static final String PASSWORD_RESET_LINK_ID = "passwordResetLinkId";
+  private static final String USER_EMAIL = "userEmail";
 
   /*
    * La fecha de emision se utiliza para establecer el tiempo en el
@@ -50,6 +52,8 @@ public class JwtManager {
   private static final String SUPERUSER_KEY = "\"superuser\"";
   private static final String ISSUED_AT_KEY = "\"iat\"";
   private static final String EXPIRES_AT_KEY = "\"exp\"";
+  private static final String PASSWORD_RESET_LINK_ID_KEY = "\"passwordResetLinkId\"";
+  private static final String USER_EMAIL_KEY = "\"userEmail\"";
 
   /*
    * El metodo constructor tiene el modificador de acceso 'private'
@@ -88,6 +92,26 @@ public class JwtManager {
     jwtCreator.withClaim(SUPERUSER, superuserPermission);
     jwtCreator.withIssuedAt(dateIssue);
     jwtCreator.withExpiresAt(expirationDate);
+
+    return jwtCreator.sign(Algorithm.HMAC256(secretKey));
+  }
+
+  /**
+   * Crea un JWT con el ID de un enlace de restablecimiento de contraseña
+   * y la direccion de correo electronico ingresada por el usuario para
+   * dicho restablecimiento
+   * 
+   * @param passwordResetLinkId
+   * @param email
+   * @param secretKey clave secreta con la que se firma un JWT
+   * @return referencia a un objeto de tipo String que contiene un JWT
+   * utilizado para el restablecimiento de la contraseña de la cuenta
+   * de un usuario
+   */
+  public static String createJwt(int passwordResetLinkId, String email, String secretKey) {
+    JWTCreator.Builder jwtCreator = JWT.create();
+    jwtCreator.withClaim(PASSWORD_RESET_LINK_ID, passwordResetLinkId);
+    jwtCreator.withClaim(USER_EMAIL, email);
 
     return jwtCreator.sign(Algorithm.HMAC256(secretKey));
   }
@@ -181,6 +205,7 @@ public class JwtManager {
    * Recupera el ID de usuario contenido en la carga util de un JWT
    * 
    * @param jwt
+   * @param secretKey clave secreta con la que se firma un JWT
    * @return entero que contiene el ID de usuario contenido en la
    * carga util de un JWT
    */
@@ -255,6 +280,43 @@ public class JwtManager {
     expirationDate.setTimeInMillis(expirationTime * 1000);
 
     return expirationDate;
+  }
+
+  /**
+   * Recupera el ID del enlace de restablecimiento de contraseña
+   * contenido en la carga util de un JWT (de restablecimiento
+   * de contraseña).
+   * 
+   * Este metodo es necesario para el restablecimiento de la
+   * contraseña de la cuenta de un usuario.
+   * 
+   * @param jwt
+   * @param secretKey clave secreta con la que se firma un JWT
+   * @return entero que contiene el ID del enlace de restablecimiento
+   * de contraseña contenido en la carga util de un JWT (de
+   * restablecimiento de contraseña)
+   */
+  public static int getPasswordResetLinkId(String jwt, String secretKey) {
+    String payload = getDecodedPayload(jwt, secretKey);
+    return Integer.parseInt(getValueKey(PASSWORD_RESET_LINK_ID_KEY, payload));
+  }
+
+  /**
+   * Recupera el correo electronico contenido en el carga util de
+   * un JWT (de restablecimiento de contraseña).
+   * 
+   * Este metodo es necesario para el restablecimiento de la
+   * contraseña de la cuenta de un usuario.
+   * 
+   * @param jwt
+   * @param secretKey clave secreta con la que se firma un JWT
+   * @return referencia a un objeto de tipo String que contiene
+   * el correo electronico contenido en la carga util de un JWT
+   * (de restablecimiento de contraseña)
+   */
+  public static String getUserEmail(String jwt, String secretKey) {
+    String payload = getDecodedPayload(jwt, secretKey);
+    return (getValueKey(USER_EMAIL_KEY, payload).replace("\"", ""));
   }
 
   /**

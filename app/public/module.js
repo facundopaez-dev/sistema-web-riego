@@ -18,6 +18,18 @@ app.config(['$routeProvider', function (routeprovider) {
 			controller: 'UserAccountActivationCtrl'
 		})
 
+		/* Ruta para la pagina web en la que se ingresa el correo electronico para restablecer la contraseña */
+		.when('/passwordResetEmail', {
+			templateUrl: 'partials/email-password-recovery-form.html',
+			controller: 'EmailPasswordRecoveryCtrl'
+		})
+
+		/* Ruta para el formulario de restablecimiento de la contraseña */
+		.when('/resetPassword/:jwtResetPassword', {
+			templateUrl: 'partials/reset-password-form.html',
+			controller: 'ResetPasswordCtrl'
+		})
+
 		/* Rutas del usuario */
 		.when('/', {
 			templateUrl: 'partials/user/user-login.html',

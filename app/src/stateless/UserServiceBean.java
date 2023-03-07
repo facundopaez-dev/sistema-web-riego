@@ -510,4 +510,26 @@ public class UserServiceBean {
     givenUser.setActive(true);
   }
 
+  /**
+   * Retorna true si y solo si el usuario correspondiente al correo
+   * electronico dado, esta activo.
+   * 
+   * Hay que tener en cuenta que este metodo debe ser invocado luego
+   * de invocar al metodo checkExistenceEmail(String email) de esta
+   * clase. Esto se debe a que se puede consultar si un usuario esta
+   * activo o no mediante un correo electronico con el valor null.
+   * En este caso, si se hace esta consulta sin invocar primero al
+   * metodo checkExistenceEmail(String email) ocurrira la excepcion
+   * SQLSyntaxErrorException, ya que la comparacion de un atributo
+   * con el valor null incumple la sintaxis del proveedor del motor
+   * de base de datos.
+   * 
+   * @param email
+   * @return true si el usuario correspondiente al correo
+   * electronico dado, esta activo, en caso contrario false
+   */
+  public boolean isActive(String email) {
+    return findByEmail(email).getActive();
+  }
+
 }

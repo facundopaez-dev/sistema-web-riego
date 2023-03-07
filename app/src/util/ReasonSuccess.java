@@ -6,7 +6,9 @@ package util;
  * peticion HTTP, es realizada satisfactoriamente
  */
 public enum ReasonSuccess {
-  ACCOUNT_ACTIVATED("Cuenta satisfactoriamente activada");
+  ACCOUNT_ACTIVATED("Cuenta satisfactoriamente activada"),
+  PASSWORD_RESET_EMAIL_SENT("Correo electrónico de restablecimiento de contraseña enviado a su casilla de correo electrónico"),
+  PASSWORD_RESET_SUCCESSFULLY("Contraseña restablecida satisfactoriamente");
 
   private final String reason;
 

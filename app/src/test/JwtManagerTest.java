@@ -866,6 +866,71 @@ public class JwtManagerTest {
     printSuccessfulMessage();
   }
 
+  @Test
+  public void testPasswordResetJwt() {
+    System.out.println("******** Prueba de la recuperacion de los datos de un JWT para el restablecimiento de la contraseña ********");
+    System.out.println("- En esta prueba se creara un JWT de restablecimiento de contraseña y con este se demostrara que los metodos");
+    System.out.println("getPasswordResetLinkId(jwt, secretKey) y getUserEmail(jwt, secretKey) de la clase JwtManager funcionan");
+    System.out.println("correctamente.");
+    System.out.println();
+
+    /*
+     * Datos para la creacion de un JWT de restablecimiento
+     * de contraseña
+     */
+    int passwordResetLinkId = 90;
+    String givenUserEmail = "given_user@eservice.com";
+
+    System.out.println("* Datos utilizados para crear un JWT de restablecimiento de contraseña");
+    System.out.println("ID de enlace de restablecimiento de contraseña: " + passwordResetLinkId);
+    System.out.println("Correo electronico utilizado para dicho restablecimiento: " + givenUserEmail);
+    System.out.println();
+
+    /*
+     * Creacion de un JWT para el restablecimiento de la contraseña
+     */
+    String passwordResetJwt = JwtManager.createJwt(passwordResetLinkId, givenUserEmail, secretKey);
+    System.out.println("* JWT de restablecimiento de contraseña");
+    System.out.println(passwordResetJwt);
+    System.out.println();
+
+    /*
+     * Seccion de prueba de la recuperacion del ID de un
+     * enlace de restablecimiento de contraseña, contenido
+     * en la carga util de un JWT (de restablecimiento de
+     * contraseña)
+     */
+    int obtainedPasswordResetLinkId = JwtManager.getPasswordResetLinkId(passwordResetJwt, secretKey);
+
+    System.out.println("* Prueba para la recuperacion del ID de un enlace de restablecimiento de contraseña contenido");
+    System.out.println("en la carga util de un JWT");
+    System.out.println();
+    System.out.println("ID de enlace restablecimiento de contraseña esperado: " + passwordResetLinkId);
+    System.out.println("* ID de enlace de restablecimiento de contraseña obtenido: " + obtainedPasswordResetLinkId);
+    System.out.println();
+
+    assertTrue(obtainedPasswordResetLinkId == passwordResetLinkId);
+
+    /*
+     * Seccion de prueba para la recuperacion del correo
+     * electronico utilizado para el restablecimiento de
+     * la contraseña de un usuario y contenido en la carga
+     * util de un JWT (de restablecimiento de contraseña)
+     */
+    String obtainedUserEmail = JwtManager.getUserEmail(passwordResetJwt, secretKey);
+
+    System.out.println("* Prueba para la recuperacion del correo electronico utilizado para el restablecimiento de la");
+    System.out.println("contraseña de la cuenta de un usuario y contenido en la carga util de un JWT");
+    System.out.println();
+    System.out.println("Correo electronico de enlace de restablecimiento de contraseña esperado: " + givenUserEmail);
+    System.out.println("* Correo electronico de enlace de restablecimiento de contraseña obtenido: " + obtainedUserEmail);
+    System.out.println();
+
+    assertTrue(obtainedUserEmail.equals(givenUserEmail));
+
+    System.out.println("* Prueba pasada satisfactoriamente *");
+  }
+
   @AfterClass
   public static void postTest() {
     entityManager.getTransaction().begin();
