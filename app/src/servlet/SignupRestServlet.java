@@ -21,7 +21,9 @@ public class SignupRestServlet {
   // inject a reference to the UserServiceBean slsb
   @EJB
   UserServiceBean userService;
-  @EJB AccountActivationLinkServiceBean accountActivationLinkService;
+
+  @EJB
+  AccountActivationLinkServiceBean accountActivationLinkService;
 
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
