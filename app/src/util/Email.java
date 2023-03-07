@@ -163,7 +163,7 @@ public class Email {
    * @param recipientEmail
    */
   public static void sendConfirmationEmail(String recipientEmail) {
-    sendEmail(recipientEmail, CONFIRMATION_REGISTRATION, createConfirmationMessage(recipientEmail));
+    sendEmail(recipientEmail, CONFIRMATION_REGISTRATION, createConfirmationEmailBody(recipientEmail));
   }
 
   /**
@@ -186,7 +186,7 @@ public class Email {
    * el mensaje (cuerpo) de un correo electronico de confirmacion
    * de registro
    */
-  private static String createConfirmationMessage(String recipientEmail) {
+  private static String createConfirmationEmailBody(String recipientEmail) {
     return new String("Haga clic en el siguiente enlace para confirmar su registro: http://localhost:8080/swcar/#!/activateAccount/" + recipientEmail
     + "\n\nSi no confirma el registro de su cuenta, la misma no se activará. En consecuencia, no la podrá utilizar para iniciar sesión en la aplicación.");
   }
