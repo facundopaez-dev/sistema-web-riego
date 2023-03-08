@@ -692,6 +692,19 @@ public class UserRestServlet {
       return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_PASSWORD_RESET_LINK)).build();
     }
 
+    /*
+     * Si el objeto de tipo String referenciado por la referencia
+     * contenida en la variable de tipo por referencia json de tipo
+     * String, esta vacio, significa que el formulario correspondiente
+     * a este metodo REST esta vacio (es decir, sus campos estan vacios).
+     * Por lo tanto, la aplicacion del lado servidor retorna el mensaje
+     * HTTP 400 (Bad request) junto con el mensaje "Debe completar todos
+     * los campos del formulario" y no se realiza la operacion solicitada
+     */
+    if (json.isEmpty()) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.EMPTY_FORM)).build();
+    }
+
     PasswordResetFormData passwordResetFormData = mapper.readValue(json, PasswordResetFormData.class);
 
     /*
