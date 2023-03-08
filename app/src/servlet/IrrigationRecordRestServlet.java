@@ -190,7 +190,7 @@ public class IrrigationRecordRestServlet {
 
     /*
      * Si el objeto de tipo String referenciado por la referencia
-     * contenida en el variable de tipo por referencia json de tipo
+     * contenida en la variable de tipo por referencia json de tipo
      * String, esta vacio, significa que el formulario correspondiente
      * a este metodo REST esta vacio (es decir, sus campos estan vacios).
      * Por lo tanto, la aplicacion del lado servidor retorna el mensaje

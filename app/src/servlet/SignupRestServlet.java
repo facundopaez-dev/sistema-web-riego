@@ -32,7 +32,7 @@ public class SignupRestServlet {
   public Response signup(String json) throws IOException {
     /*
      * Si el objeto de tipo String referenciado por la
-     * referencia contenida en el variable de tipo por
+     * referencia contenida en la variable de tipo por
      * referencia json de tipo String, esta vacio,
      * significa que el usuario quiso registrarse con
      * el formulario de registro totalmente vacio.

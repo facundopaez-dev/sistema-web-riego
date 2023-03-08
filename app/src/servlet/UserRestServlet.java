@@ -216,7 +216,7 @@ public class UserRestServlet {
 
     /*
      * Si el objeto de tipo String referenciado por la referencia
-     * contenida en el variable de tipo por referencia json de tipo
+     * contenida en la variable de tipo por referencia json de tipo
      * String, esta vacio, significa que el usuario quiso modificar
      * sus datos con el formulario de modificacion de datos totalmente
      * vacio. Por lo tanto, la aplicacion del lado servidor retorna el
@@ -431,7 +431,7 @@ public class UserRestServlet {
 
     /*
      * Si el objeto de tipo String referenciado por la referencia
-     * contenida en el variable de tipo por referencia json de tipo
+     * contenida en la variable de tipo por referencia json de tipo
      * String, esta vacio, significa que el usuario quiso modificar
      * su contraseña con el formulario de modificacion de contraseña
      * totalmente vacio. Por lo tanto, la aplicacion del lado servidor
@@ -568,7 +568,7 @@ public class UserRestServlet {
 
     /*
      * Si el objeto de tipo String referenciado por la referencia
-     * contenida en el variable de tipo por referencia json de tipo
+     * contenida en la variable de tipo por referencia json de tipo
      * String, esta vacio, significa que el usuario NO completo el
      * formulario con su correo electronico para el restablecimiento
      * de la contraseña de su cuenta. Por lo tanto, la aplicacion del
