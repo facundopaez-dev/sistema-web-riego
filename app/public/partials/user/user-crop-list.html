@@ -86,6 +86,7 @@
 	<table class="table table-condensed table-hover">
 		<thead>
 			<tr>
+				<th>ID</th>
 				<th>Nombre</th>
 				<th>Etapa inicial (días)</th>
 				<th>Etapa de desarrollo (días)</th>
@@ -96,6 +97,7 @@
 		</thead>
 		<tbody>
 			<tr ng-repeat="c in data">
+				<td>{{c.id}}</td>
 				<td>{{c.name}}</td>
 				<td>{{c.initialStage}}</td>
 				<td>{{c.developmentStage}}</td>
