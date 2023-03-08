@@ -49,7 +49,8 @@ public enum ReasonError {
   THERE_IS_NO_ACCOUNT_WITH_EMAIL_ADDRESS_ENTERED("No existe una cuenta con la dirección de correo electrónico ingresada"),
   INVALID_PASSWORD_RESET_LINK("Enlace de restablecimiento de contraseña inválido"),
   PASSWORD_RESET_LINK_EXPIRED("Enlace de restablecimiento de contraseña expirado"),
-  INACTIVE_USER_TO_RECOVER_PASSWORD("Para recuperar su contraseña primero debe activar su cuenta mediante el correo electrónico de confirmación de registro");
+  INACTIVE_USER_TO_RECOVER_PASSWORD("Para recuperar su contraseña primero debe activar su cuenta mediante el correo electrónico de confirmación de registro"),
+  NEGATIVE_REALIZED_IRRIGATION("El riego realizado en el día de hoy debe ser mayor o igual a cero");
 
   private final String reason;
 

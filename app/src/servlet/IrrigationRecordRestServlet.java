@@ -19,63 +19,260 @@ import model.IrrigationRecord;
 import model.Parcel;
 import stateless.ClimateRecordServiceBean;
 import stateless.IrrigationRecordServiceBean;
-import stateless.ParcelServiceBean;
+import stateless.PlantingRecordServiceBean;
+import stateless.SecretKeyServiceBean;
 import util.UtilDate;
+import util.ErrorResponse;
+import util.ReasonError;
+import util.RequestManager;
+import utilJwt.AuthHeaderManager;
+import utilJwt.JwtManager;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 
 @Path("/irrigationRecords")
 public class IrrigationRecordRestServlet {
 
   // inject a reference to the IrrigationRecordServiceBean slsb
-  @EJB IrrigationRecordServiceBean irrigationRecordService;
+  @EJB
+  IrrigationRecordServiceBean irrigationRecordService;
 
-  // inject a reference to the ClimateRecordServiceBean slsb
-  @EJB ClimateRecordServiceBean climateRecordServiceBean;
+  @EJB
+  PlantingRecordServiceBean plantingRecordService;
 
-  // inject a reference to the ParcelServiceBean slsb
-  @EJB ParcelServiceBean serviceParcel;
+  @EJB
+  ClimateRecordServiceBean climateRecordServiceBean;
 
-  //mapea lista de pojo a JSON
+  @EJB
+  SecretKeyServiceBean secretKeyService;
+
+  // mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public String findAll() throws IOException {
-    Collection<IrrigationRecord> irrigationRecords = irrigationRecordService.findAll();
-    return mapper.writeValueAsString(irrigationRecords);
+  public Response findAll(@Context HttpHeaders request) throws IOException {
+    Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
+
+    /*
+     * Si el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP NO
+     * es ACCEPTED, se devuelve el estado de error de la misma.
+     * 
+     * Que el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP sea
+     * ACCEPTED, significa que la peticion es valida,
+     * debido a que el encabezado de autorizacion de la misma
+     * cumple las siguientes condiciones:
+     * - Esta presente.
+     * - No esta vacio.
+     * - Cumple con la convencion de JWT.
+     * - Contiene un JWT valido.
+     */
+    if (!RequestManager.isAccepted(givenResponse)) {
+      return givenResponse;
+    }
+
+    /*
+     * Obtiene el JWT del valor del encabezado de autorizacion
+     * de una peticion HTTP
+     */
+    String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
+
+    /*
+     * Obtiene el ID de usuario contenido en la carga util del
+     * JWT del encabezado de autorizacion de una peticion HTTP
+     */
+    int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el valor del encabezado de autorizacion de la peticion HTTP
+     * dada, tiene un JWT valido, la aplicacion del lado servidor
+     * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
+     * por el cliente
+     */
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(irrigationRecordService.findAll(userId))).build();
   }
 
   @GET
   @Path("/{id}")
   @Produces(MediaType.APPLICATION_JSON)
-  public String find(@PathParam("id") int id) throws IOException {
-    IrrigationRecord irrigationRecord = irrigationRecordService.find(id);
-    return mapper.writeValueAsString(irrigationRecord);
+  public Response find(@Context HttpHeaders request, @PathParam("id") int irrigationRecordId) throws IOException {
+    Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
+
+    /*
+     * Si el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP NO
+     * es ACCEPTED, se devuelve el estado de error de la misma.
+     * 
+     * Que el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP sea
+     * ACCEPTED, significa que la peticion es valida,
+     * debido a que el encabezado de autorizacion de la misma
+     * cumple las siguientes condiciones:
+     * - Esta presente.
+     * - No esta vacio.
+     * - Cumple con la convencion de JWT.
+     * - Contiene un JWT valido.
+     */
+    if (!RequestManager.isAccepted(givenResponse)) {
+      return givenResponse;
+    }
+
+    /*
+     * Si el dato solicitado no existe en la base de datos
+     * subyacente, la aplicacion del lado servidor devuelve
+     * el mensaje HTTP 404 (Not found) junton con el mensaje
+     * "Recurso no encontrado" y no se realiza la operacion
+     * solicitada
+     */
+    if (!irrigationRecordService.checkExistence(irrigationRecordId)) {
+      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
+    }
+
+    /*
+     * Obtiene el JWT del valor del encabezado de autorizacion
+     * de una peticion HTTP
+     */
+    String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
+
+    /*
+     * Obtiene el ID de usuario contenido en la carga util del
+     * JWT del encabezado de autorizacion de una peticion HTTP
+     */
+    int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si al usuario que hizo esta peticion HTTP, no le pertenece
+     * el dato solicitado, la aplicacion del lado servidor
+     * devuelve el mensaje HTTP 403 (Forbidden) junto con el
+     * mensaje "Acceso no autorizado" (contenido en el enum
+     * ReasonError) y no se realiza la operacion solicitada
+     */
+    if (!irrigationRecordService.checkUserOwnership(userId, irrigationRecordId)) {
+      return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
+    }
+
+    /*
+     * Si el valor del encabezado de autorizacion de la peticion HTTP
+     * dada, tiene un JWT valido, la aplicacion del lado servidor
+     * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
+     * por el cliente
+     */
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(irrigationRecordService.find(userId, irrigationRecordId))).build();
   }
 
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  public String create(String json) throws IOException {
-    IrrigationRecord newIrrigationRecord = mapper.readValue(json, IrrigationRecord.class);
-    newIrrigationRecord = irrigationRecordService.create(newIrrigationRecord);
+  public Response create(@Context HttpHeaders request, String json) throws IOException {
+    Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
 
     /*
-     * NOTE: Esto tiene que ser activado en el despliegue
+     * Si el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP NO
+     * es ACCEPTED, se devuelve el estado de error de la misma.
+     * 
+     * Que el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP sea
+     * ACCEPTED, significa que la peticion es valida,
+     * debido a que el encabezado de autorizacion de la misma
+     * cumple las siguientes condiciones:
+     * - Esta presente.
+     * - No esta vacio.
+     * - Cumple con la convencion de JWT.
+     * - Contiene un JWT valido.
+     */
+    if (!RequestManager.isAccepted(givenResponse)) {
+      return givenResponse;
+    }
+
+    /*
+     * Si el objeto de tipo String referenciado por la referencia
+     * contenida en el variable de tipo por referencia json de tipo
+     * String, esta vacio, significa que el formulario correspondiente
+     * a este metodo REST esta vacio (es decir, sus campos estan vacios).
+     * Por lo tanto, la aplicacion del lado servidor retorna el mensaje
+     * HTTP 400 (Bad request) junto con el mensaje "Debe completar todos
+     * los campos del formulario" y no se realiza la operacion solicitada
+     */
+    if (json.isEmpty()) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EMPTY_FORM))).build();
+    }
+
+    IrrigationRecord newIrrigationRecord = mapper.readValue(json, IrrigationRecord.class);
+
+    /*
+     * ******************************************
+     * Controles sobre la definicion de los datos
+     * ******************************************
+     */
+
+    /*
+     * Si la parcela NO esta definida, la aplicacion del lado
+     * servidor retorna el mensaje HTTP 400 (Bad request) junto
+     * con el mensaje "La parcela debe estar definida" y no se
+     * realiza la operacion solicitada
+     */
+    if (newIrrigationRecord.getParcel() == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INDEFINITE_PARCEL))).build();
+    }
+
+    /*
+     * *************************************
+     * Controles sobre la forma de los datos
+     * *************************************
+     */
+
+    /*
+     * Si el riego realizado es negativo, la aplicacion del lado
+     * servidor retorna el mensaje HTTP 400 (Bad request) junto
+     * con el mensaje "El riego realizado en el dia de hoy debe
+     * ser mayor o igual a cero" y no se realiza la operacion
+     * solicitada
+     */
+    if (newIrrigationRecord.getIrrigationDone() < 0) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NEGATIVE_REALIZED_IRRIGATION))).build();
+    }
+
+    /*
+     * El metodo getInstance de la clase Calendar retorna
+     * una referencia a un objeto de tipo Calendar que
+     * contiene la fecha actual.
+     * 
+     * Solo esta permitido crear registros de plantacion
+     * con la fecha actual. Este es el motivo de esta
+     * instruccion.
+     */
+    newIrrigationRecord.setDate(Calendar.getInstance());
+
+    /*
+     * Si la parcela para la cual se crea un registro de riego,
+     * tiene un cultivo en desarrollo, se establece dicho cultivo
+     * en el nuevo registro de riego
+     */
+    if (plantingRecordService.checkOneInDevelopment(newIrrigationRecord.getParcel())) {
+      newIrrigationRecord.setCrop(plantingRecordService.findInDevelopment(newIrrigationRecord.getParcel()).getCrop());
+    }
+
+    /*
+     * Si el valor del encabezado de autorizacion de la peticion HTTP
+     * dada, tiene un JWT valido, la aplicacion del lado servidor
+     * devuelve el mensaje HTTP 200 (Ok) junto con los datos que el
+     * cliente solicito persistir
+     */
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(irrigationRecordService.create(newIrrigationRecord))).build();
+
+    /*
+     * TODO: Esto tiene que ser activado en el despliegue
      * final de la aplicacion cuando este listo y en
      * funcionamiento el modulo que obtiene y almacena
      * los registros climaticos de cada parcela para
      * cada dia del año
      */
     // setWaterAccumulatedToday(newIrrigationRecord.getParcel());
-    return mapper.writeValueAsString(newIrrigationRecord);
   }
-
-  // @DELETE
-  // @Path("/{id}")
-  // @Produces(MediaType.APPLICATION_JSON)
-  // public String remove(@PathParam("id") int id) throws IOException {
-  //   IrrigationRecord irrigationRecord = irrigationRecordService.remove(id);
-  //   return mapper.writeValueAsString(irrigationRecord);
-  // }
 
   @PUT
   @Path("/{id}")
@@ -136,7 +333,8 @@ public class IrrigationRecordRestServlet {
 
     totalIrrigationWaterToday = irrigationRecordService.getTotalWaterIrrigationToday(givenParcel);
 
-    waterAccumulatedToday = WaterMath.getWaterAccumulatedToday(yesterdayEtc, yesterdayEto, yesterdayPrecip, waterAccumulatedYesterday, totalIrrigationWaterToday);
+    waterAccumulatedToday = WaterMath.getWaterAccumulatedToday(yesterdayEtc, yesterdayEto, yesterdayPrecip,
+        waterAccumulatedYesterday, totalIrrigationWaterToday);
     climateRecordServiceBean.updateWaterAccumulatedToday(currentDate, givenParcel, waterAccumulatedToday);
   }
 

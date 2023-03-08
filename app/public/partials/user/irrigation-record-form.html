@@ -81,92 +81,82 @@
 
 <div class="panel panel-info">
 	<div class="panel-heading">
-		<strong>Cultivo</strong>
+		<strong>Registro de riego</strong>
 	</div>
 	<div class="panel-body">
 		<form class="form-horizontal">
-			<div class="form-group">
-				<label for="crop_name" class="col-md-2 control-label">Nombre</label>
+			<div class="form-group" ng-hide="action == 'new'">
+				<label for="irrigationRecord_id" class="col-md-2 control-label">ID</label>
 				<div class="col-md-3">
-					<input type="text" class="form-control" id="crop_name" ng-model="data.name"
-						ng-disabled="action == 'view'">
+					<input type="number" class="form-control" id="irrigationRecord_id" ng-model="data.id"
+						ng-disabled="action == 'edit' || action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group" ng-hide="action == 'new'">
+				<label for="date" class="col-md-2 control-label">Fecha</label>
+				<div class="col-md-3">
+					<input type="date" class="form-control" id="date" ng-model="data.date" value={{data.date}}
+						ng-disabled="action == 'edit' || action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group" ng-hide="action == 'new'">
+				<label for="suggestedIrrigation" class="col-md-2 control-label">Riego sugerido [mm/día]</label>
+				<div class="col-md-3">
+					<input type="number" class="form-control" id="suggestedIrrigation"
+						ng-model="data.suggestedIrrigation" ng-disabled="action == 'edit' || action == 'view'">
 				</div>
 			</div>
 
 			<div class="form-group">
-				<label for="typeCrop_name" class="col-md-2 control-label">Tipo de cultivo</label>
+				<label for="irrigationDone" class="col-md-2 control-label">Riego realizado [mm/día]</label>
 				<div class="col-md-3">
-					<input type="text" class="form-control" id="typeCrop_name" ng-model="data.typeCrop.name"
-						ng-disabled="action == 'view'">
+					<input type="number" class="form-control" id="irrigationDone" ng-model="data.irrigationDone"
+						ng-disabled="action == 'view'" required>
+				</div>
+			</div>
+
+			<div class="form-group" ng-hide="action == 'new'">
+				<label for="tomorrowPrecipitation" class="col-md-2 control-label">Precipitación del día de mañana
+					[mm/día]</label>
+				<div class="col-md-3">
+					<input type="number" class="form-control" id="tomorrowPrecipitation"
+						ng-model="data.tomorrowPrecipitation" ng-disabled="action == 'edit' || action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group" ng-hide="action == 'new'">
+				<label for="systemGenerated" class="col-md-2 control-label">Generado por el sistema</label>
+				<div class="col-md-3">
+					<input type="checkbox" value="False" id="systemGenerated" ng-model="data.systemGenerated"
+						ng-disabled="action == 'edit' || action == 'view'">
 				</div>
 			</div>
 
 			<div class="form-group">
-				<label for="initial_stage_crop" class="col-md-2 control-label">Etapa inicial (días)</label>
-				<div class="col-md-3">
-					<input type="number" class="form-control" id="initial_stage_crop" ng-model="data.initialStage"
-						ng-disabled="action == 'view'">
-				</div>
+				<label for="selectParcel">Parcela</label>
+				<select id="selectParcel" class="form-control col-md-6" ng-model="data.parcel"
+					data-ng-options="p as ('ID: ' + p.id + ' Nombre: ' + p.name ) for p in parcels track by p.id"
+					ng-disabled="action == 'view'" required>
+				</select>
 			</div>
 
-			<div class="form-group">
-				<label for="development_stage_crop" class="col-md-2 control-label">Etapa de desarrollo (días)</label>
-				<div class="col-md-3">
-					<input type="number" class="form-control" id="development_stage_crop"
-						ng-model="data.developmentStage" ng-disabled="action == 'view'">
-				</div>
-			</div>
-
-			<div class="form-group">
-				<label for="middle_stage_crop" class="col-md-2 control-label">Etapa media (días)</label>
-				<div class="col-md-3">
-					<input type="number" class="form-control" id="middle_stage_crop" ng-model="data.middleStage"
-						ng-disabled="action == 'view'">
-				</div>
-			</div>
-
-			<div class="form-group">
-				<label for="final_stage_crop" class="col-md-2 control-label">Etapa final (días)</label>
-				<div class="col-md-3">
-					<input type="number" class="form-control" id="final_stage_crop" ng-model="data.finalStage"
-						ng-disabled="action == 'view'">
-				</div>
-			</div>
-
-			<div class="form-group">
-				<label for="initial_kc" class="col-md-2 control-label">Coficiente inicial (kc inicial)</label>
-				<div class="col-md-3">
-					<input type="number" class="form-control" id="initial_kc" ng-model="data.initialKc"
-						ng-disabled="action == 'view'">
-				</div>
-			</div>
-
-			<div class="form-group">
-				<label for="middle_kc" class="col-md-2 control-label">Coficiente medio (kc medio)</label>
-				<div class="col-md-3">
-					<input type="number" class="form-control" id="middle_kc" ng-model="data.middleKc"
-						ng-disabled="action == 'view'">
-				</div>
-			</div>
-
-			<div class="form-group">
-				<label for="final_kd" class="col-md-2 control-label">Coficiente final (kc final)</label>
-				<div class="col-md-3">
-					<input type="number" class="form-control" id="final_kd" ng-model="data.finalKc"
-						ng-disabled="action == 'view'">
-				</div>
-			</div>
-
-			<div class="form-group">
-				<label for="crop_active" class="col-md-2 control-label">Activo</label>
-				<div class="col-md-3">
-					<input type="checkbox" id="crop_active" ng-model="data.active" ng-disabled="action == 'view'">
-				</div>
+			<div class="form-group" ng-hide="action == 'new'">
+				<label for="selectCrop">Cultivo</label>
+				<select id="selectCrop" class="form-control col-md-6" ng-model="data.crop"
+					data-ng-options="c as ('ID: ' + c.id + ' Nombre: ' + c.name  ) for c in crops track by c.id"
+					ng-disabled="action == 'edit' || action == 'view'">
+				</select>
 			</div>
 
 			<div class="form-group">
 				<div class="col-md-offset-2 col-md-3">
-					<button class="btn btn-success" ng-click="goBack()">Atrás</button>
+					<button type="submit" class="btn btn-success" ng-click="create()"
+						ng-show="action == 'new'">Crear</button>
+					<button class="btn btn-success" ng-click="cancel()"
+						ng-show="action == 'new' || action == 'edit'">Cancelar</button>
+					<button class="btn btn-success" ng-click="cancel()" ng-show="action == 'view'">Atrás</button>
 				</div>
 			</div>
 		</form>

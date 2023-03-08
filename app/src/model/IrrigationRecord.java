@@ -1,9 +1,3 @@
-/*
- * Esta clase representa el registro histórico de riego
- * y es necesaria para la tarea de obtener la cantidad
- * de agua de riego
- */
-
 package model;
 
 import java.util.Calendar;
@@ -23,67 +17,65 @@ import util.UtilDate;
 @Table(name = "IRRIGATION_RECORD")
 public class IrrigationRecord {
 
-  /*
-   * Instance variables
-   */
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "ID")
   private int id;
 
   @Column(name = "DATE", nullable = false)
-  @Temporal(TemporalType.DATE)
+  @Temporal(TemporalType.TIMESTAMP)
   private Calendar date;
 
   /*
-   * Riego sugerido
-   *
-   * Esta variable contiene el resultado de aplicar la
-   * formula de la evapotranspiracion del cultivo bajo
-   * condiciones estandar (ETc), la cual da la cantidad
-   * de agua que se va a evaporar (de un cultivo) en
-   * un cultivo se, con lo cual esta variable tiene
-   * que recibir su valor en milimetros
-   *
-   * La cantidad de agua que va a evaporar un cultivo
-   * es la cantidad de agua que tenemos que reponer
-   * mediante el riego
-   *
-   * ETc = ETo (evapotranspiracion del cultivo de
-   * referencia) * Kc (coeficiente del cultivo)
-   *
-   * La ETc se determina en funcion de datos climaticos (para la ETo)
-   * correspondientes a la ubicacion en donde se encuentra
-   * el cultivo sobre el cual se quiere saber la cantidad
-   * de agua de riego y en funcion del coeficiente de dicho
-   * cultivo (Kc)
+   * Riego sugerido [mm/dia]
    */
   @Column(name = "SUGGESTED_IRRIGATION", nullable = false)
   private double suggestedIrrigation;
 
   /*
-   * Riego realizado
-   *
-   * Este valor sera establecido por el usuario
-   * y tiene que estar en milimetros porque el
-   * riego para los cultivos se mide en milimetros
-   * y esto lo podemos ver en la formula FAO
-   * Penman-Monteith, la cual utiliza la unidad
-   * de medida milimetros para indicar la cantidad
-   * de agua  que se va a evaporar
+   * Riego realizado [mm/dia]
+   * 
+   * Esta variable es establecida por el usuario y representa
+   * la cantidad de agua en milimetros por dia utilizada
+   * para el riego de un cultivo.
    */
   @Column(name = "IRRIGATION_DONE", nullable = false)
   private double irrigationDone;
 
   /*
-   * Precipitacion total del dia de mañana [milimetros]
+   * Precipitacion del dia de mañana [mm/dia]
+   * 
+   * Esta variable es para informar al usuario la precipitacion
+   * del dia de mañana. No se utiliza su valor para calcular la
+   * cantidad de agua de riego para un cultivo, y es establecida
+   * por la aplicacion cuando calcula dicha cantidad.
    */
   @Column(name = "TOMORROW_PRECIPITATION", nullable = false)
   private double tomorrowPrecipitation;
 
+  /*
+   * Esta variable representa si un registro de riego es generado
+   * por el sistema o por el usuario.
+   * 
+   * Si un registro de riego tiene su atributo systemGenerated
+   * en 1, significa que fue generado por el sistema. En caso
+   * contrario, significa que fue generado por el usuario.
+   * 
+   * El riego sugerido y la precipitacion del dia de mañana
+   * en un registro de riego generado por el usuario tienen
+   * el valor 0, ya que estos valores son generados por la
+   * aplicacion cuando crea un registro de riego.
+   */
+  @Column(name = "SYSTEM_GENERATED", nullable = false)
+  private boolean systemGenerated;
+
   @ManyToOne
   @JoinColumn(name = "FK_PARCEL", nullable = false)
   private Parcel parcel;
+
+  @ManyToOne
+  @JoinColumn(name = "FK_CROP")
+  private Crop crop;
 
   public IrrigationRecord() {
 
@@ -91,6 +83,7 @@ public class IrrigationRecord {
 
   /**
    * Returns value of id
+   * 
    * @return
    */
   public int getId() {
@@ -99,6 +92,7 @@ public class IrrigationRecord {
 
   /**
    * Returns value of date
+   * 
    * @return date
    */
   public Calendar getDate() {
@@ -107,6 +101,7 @@ public class IrrigationRecord {
 
   /**
    * Sets new value of date
+   * 
    * @param date
    */
   public void setDate(Calendar date) {
@@ -115,6 +110,7 @@ public class IrrigationRecord {
 
   /**
    * Returns value of suggestedIrrigation
+   * 
    * @return
    */
   public double getSuggestedIrrigation() {
@@ -123,6 +119,7 @@ public class IrrigationRecord {
 
   /**
    * Sets new value of suggestedIrrigation
+   * 
    * @param
    */
   public void setSuggestedIrrigation(double suggestedIrrigation) {
@@ -131,6 +128,7 @@ public class IrrigationRecord {
 
   /**
    * Returns value of irrigationDone
+   * 
    * @return
    */
   public double getIrrigationDone() {
@@ -139,6 +137,7 @@ public class IrrigationRecord {
 
   /**
    * Sets new value of irrigationDone
+   * 
    * @param
    */
   public void setIrrigationDone(double irrigationDone) {
@@ -147,6 +146,7 @@ public class IrrigationRecord {
 
   /**
    * Returns value of tomorrowPrecipitation
+   * 
    * @return
    */
   public double getTomorrowPrecipitation() {
@@ -155,6 +155,7 @@ public class IrrigationRecord {
 
   /**
    * Sets new value of tomorrowPrecipitation
+   * 
    * @param
    */
   public void setTomorrowPrecipitation(double tomorrowPrecipitation) {
@@ -162,7 +163,26 @@ public class IrrigationRecord {
   }
 
   /**
+   * Returns value of systemGenerated
+   * 
+   * @return
+   */
+  public boolean getSystemGenerated() {
+    return systemGenerated;
+  }
+
+  /**
+   * Sets new value of systemGenerated
+   * 
+   * @param
+   */
+  public void setSystemGenerated(boolean systemGenerated) {
+    this.systemGenerated = systemGenerated;
+  }
+
+  /**
    * Returns value of parcel
+   * 
    * @return
    */
   public Parcel getParcel() {
@@ -171,23 +191,43 @@ public class IrrigationRecord {
 
   /**
    * Sets new value of parcel
+   * 
    * @param
    */
   public void setParcel(Parcel parcel) {
     this.parcel = parcel;
   }
 
+  /**
+   * Returns value of crop
+   * 
+   * @return
+   */
+  public Crop getCrop() {
+    return crop;
+  }
+
+  /**
+   * Sets new value of crop
+   * 
+   * @param
+   */
+  public void setCrop(Crop crop) {
+    this.crop = crop;
+  }
+
   @Override
   public String toString() {
     return String.format(
-      "ID: %d\nFecha de riego: %s\nRiego sugerido: %.f\nRiego realizado: %f\nPrecipitación total estimada del día de mañana: %d\nID de parcela: %d\n",
-      id,
-      UtilDate.formatDate(date),
-      suggestedIrrigation,
-      irrigationDone,
-      tomorrowPrecipitation,
-      parcel.getId()
-    );
+        "ID: %d\nFecha de riego: %s\nRiego sugerido: %.f [mm/día]\nRiego realizado: %f [mm/día]\nPrecipitación del día de mañana: %d [mm/día]\nGenerado por el sistema: %b\nID de parcela: %d\nCultivo: %s\n",
+        id,
+        UtilDate.formatDate(date),
+        suggestedIrrigation,
+        irrigationDone,
+        tomorrowPrecipitation,
+        systemGenerated,
+        parcel.getId(),
+        crop.getName());
   }
 
 }

@@ -14,6 +14,7 @@ Cultivo "*"-->"1" TipoCultivo
 EnlaceActivacionCuenta "1" --> "1" Usuario
 EnlaceRestablecimientoContraseña "*" --> "1" Usuario
 Sesion "*" --> "1" Usuario
+RegistroRiego "*" --> "1" Cultivo
 
 class Parcela {
 -id
@@ -70,6 +71,8 @@ class RegistroRiego {
 -fecha
 -riegoSugerido
 -riegoRealizado
+-precipitacionMañana
+-generadoSistema
 }
 
 class Usuario {

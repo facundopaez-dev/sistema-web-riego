@@ -77,6 +77,19 @@ app.config(['$routeProvider', function (routeprovider) {
 			controller: 'ParcelCtrl'
 		})
 
+		.when('/home/irrigationRecords', {
+			templateUrl: 'partials/user/irrigation-record-list.html',
+			controller: 'IrrigationRecordsCtrl'
+		})
+		.when('/home/irrigationRecords/:action', {
+			templateUrl: 'partials/user/irrigation-record-form.html',
+			controller: 'IrrigationRecordCtrl'
+		})
+		.when('/home/irrigationRecords/:action/:id', {
+			templateUrl: 'partials/user/irrigation-record-form.html',
+			controller: 'IrrigationRecordCtrl'
+		})
+
 		.when('/home/climateRecords', {
 			templateUrl: 'partials/user/climate-record-list.html',
 			controller: 'ClimateRecordsCtrl'

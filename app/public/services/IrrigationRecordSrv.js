@@ -3,7 +3,27 @@ app.service(
   ["$http",
     function ($http) {
 
-      this.save = function (data, callback) {
+      this.findAll = function (callback) {
+        $http.get("rest/irrigationRecords").then(
+          function (result) {
+            callback(false, result.data);
+          },
+          function (error) {
+            callback(error);
+          });
+      }
+
+      this.find = function (id, callback) {
+        $http.get("rest/irrigationRecords/" + id).then(
+          function (result) {
+            callback(false, result.data);
+          },
+          function (error) {
+            callback(error);
+          });
+      }
+
+      this.create = function (data, callback) {
         $http.post("rest/irrigationRecords", data)
           .then(
             function (result) {

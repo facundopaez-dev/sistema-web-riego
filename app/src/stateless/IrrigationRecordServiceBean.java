@@ -58,9 +58,77 @@ public class IrrigationRecordServiceBean {
     return getEntityManager().find(IrrigationRecord.class, id);
   }
 
-  public Collection<IrrigationRecord> findAll() {
-    Query query = getEntityManager().createQuery("SELECT i FROM IrrigationRecord i ORDER BY i.id");
+  /**
+   * Retorna un registro de riego perteneciente a una parcela
+   * de un usuario
+   * 
+   * @param userId
+   * @param irrigationRecordId
+   * @return referencia a un objeto de tipo IrrigationRecord
+   * perteneciente a una parcela de un usuario con el ID dado
+   */
+  public IrrigationRecord find(int userId, int irrigationRecordId) {
+    Query query = entityManager.createQuery("SELECT i FROM IrrigationRecord i WHERE (i.id = :irrigationRecordId AND i.parcel.user.id = :userId)");
+    query.setParameter("irrigationRecordId", irrigationRecordId);
+    query.setParameter("userId", userId);
+
+    return (IrrigationRecord) query.getSingleResult();
+  }
+
+  /**
+   * Retorna todos los registros de riego de todas las
+   * parcelas de un usuario
+   * 
+   * @param userId
+   * @return referencia a un objeto de tipo Collection que
+   * contiene todos los registros de riego de todas las
+   * parcelas del usuario con el ID dado
+   */
+  public Collection<IrrigationRecord> findAll(int userId) {
+    Query query = entityManager.createQuery("SELECT i FROM IrrigationRecord i WHERE (i.parcel.user.id = :userId) ORDER BY i.id");
+    query.setParameter("userId", userId);
+
     return (Collection) query.getResultList();
+  }
+
+  /**
+   * Comprueba la existencia de un registro de riego en la base
+   * de datos subyacente. Retorna true si y solo si existe el
+   * registro de riego con el ID dado.
+   * 
+   * @param id
+   * @return true si el registro de riego con el ID dado existe
+   * en la base de datos subyacente, en caso contrario false
+   */
+  public boolean checkExistence(int id) {
+    return (getEntityManager().find(IrrigationRecord.class, id) != null);
+  }
+
+  /**
+   * Comprueba si un registro de riego pertenece a un usuario
+   * a traves de la relacion muchos a uno que hay entre la
+   * entidad parcela y la entidad usuario.
+   * 
+   * Retorna true si y solo si un registro de riego pertenece
+   * a una parcela de un usuario.
+   * 
+   * @param userId
+   * @param irrigationRecordId
+   * @return true si se encuentra el registro de riego con el ID
+   * perteneciente una parcela del usuario con el ID dado, en caso
+   * contrario false
+   */
+  public boolean checkUserOwnership(int userId, int irrigationRecordId) {
+    boolean result = false;
+
+    try {
+      find(userId, irrigationRecordId);
+      result = true;
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
   }
 
   /**
