@@ -89,7 +89,7 @@ public class CalculateHarvestDateTest {
 
     /*
      * Si la fecha esperada es igual a la fecha de cosecha,
-     * el metodo comparteTo de la clase Calendar retorna 0
+     * el metodo compareTo de la clase Calendar retorna 0
      */
     assertTrue(expectedDate.compareTo(harvestDate) == 0);
 
@@ -146,7 +146,7 @@ public class CalculateHarvestDateTest {
 
     /*
      * Si la fecha esperada es igual a la fecha de cosecha,
-     * el metodo comparteTo de la clase Calendar retorna 0
+     * el metodo compareTo de la clase Calendar retorna 0
      */
     assertTrue(expectedDate.compareTo(harvestDate) == 0);
 
@@ -203,7 +203,7 @@ public class CalculateHarvestDateTest {
 
     /*
      * Si la fecha esperada es igual a la fecha de cosecha,
-     * el metodo comparteTo de la clase Calendar retorna 0
+     * el metodo compareTo de la clase Calendar retorna 0
      */
     assertTrue(expectedDate.compareTo(harvestDate) == 0);
 
@@ -259,7 +259,7 @@ public class CalculateHarvestDateTest {
 
     /*
      * Si la fecha esperada es igual a la fecha de cosecha,
-     * el metodo comparteTo de la clase Calendar retorna 0
+     * el metodo compareTo de la clase Calendar retorna 0
      */
     assertTrue(expectedDate.compareTo(harvestDate) == 0);
 
@@ -317,7 +317,7 @@ public class CalculateHarvestDateTest {
 
     /*
      * Si la fecha esperada es igual a la fecha de cosecha,
-     * el metodo comparteTo de la clase Calendar retorna 0
+     * el metodo compareTo de la clase Calendar retorna 0
      */
     assertTrue(expectedDate.compareTo(harvestDate) == 0);
 
