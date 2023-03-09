@@ -92,7 +92,7 @@ app.controller(
       }
 
       const EMPTY_FORM = "Debe completar todos los campos del formulario";
-      const NEGATIVE_REALIZED_IRRIGATION = "El riego realizado en el día de hoy debe ser mayor o igual a cero";
+      const NEGATIVE_REALIZED_IRRIGATION = "El riego realizado debe ser mayor o igual a cero";
       const INDEFINITE_PARCEL = "La parcela debe estar definida";
 
       function find(id) {
@@ -147,6 +147,47 @@ app.controller(
         }
 
         irrigationRecordService.create($scope.data, function (error, data) {
+          if (error) {
+            console.log(error);
+            errorResponseManager.checkResponse(error);
+            return;
+          }
+
+          $scope.data = data;
+
+          if ($scope.data.date != null) {
+            $scope.data.date = new Date($scope.data.date);
+          }
+
+          $location.path("/home/irrigationRecords")
+        });
+      }
+
+      $scope.modify = function () {
+        /*
+        El motivo por el cual NO se verifica si el formulario
+        tiene sus campos modificables vacios ni si la parcela
+        esta definida (operaciones que se realizan en la creacion
+        de un registro de riego) es que en la modificacion siempre
+        se recupera un registro de riego, el cual, por defecto
+        tiene el riego realizado y la parcela definidos. Por lo
+        tanto, cuando se invoca a esta funcion, la propiedad data
+        de $scope siempre tiene el riego realizado y la parcela
+        definidos.
+        */
+
+        /*
+        Si el riego realizado es estrictamente menor a cero,
+        la aplicacion muestra el mensaje dado y no ejecuta
+        la instruccion que realiza la peticion HTTP correspondiente
+        a este controller
+        */
+        if ($scope.data.irrigationDone < 0) {
+          alert(NEGATIVE_REALIZED_IRRIGATION);
+          return;
+        }
+
+        irrigationRecordService.modify($scope.data, function (error, data) {
           if (error) {
             console.log(error);
             errorResponseManager.checkResponse(error);
@@ -225,19 +266,18 @@ app.controller(
 
       if ($scope.action == 'edit' || $scope.action == 'view') {
         find($params.id);
+        findAllCrops();
       }
 
       /*
       En la visualizacion de un registro de riego se debe poder
-      ver la parcela y el cultivo a los que pertenece un registro
-      de riego independientemente de si estan activos o inactivos.
-      Para esto se deben recuperar todas las parcelas del usuario
-      y todos los cultivos del sistema, tanto los activos como los
-      inactivos.
+      ver la parcela a la que pertenece un registro de riego
+      independientemente de si la misma esta activa o inactiva.
+      Para esto se deben recuperar todas las parcelas del usuario,
+      tanto las activas como las inactivas.
       */
       if ($scope.action == 'view') {
         findAllParcels();
-        findAllCrops();
       }
 
     }]);

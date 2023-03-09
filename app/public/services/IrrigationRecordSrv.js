@@ -34,5 +34,16 @@ app.service(
             });
       }
 
+      this.modify = function (data, callback) {
+        $http.put("rest/irrigationRecords/" + data.id, data)
+          .then(
+            function (result) {
+              callback(false, result.data);
+            },
+            function (error) {
+              callback(error);
+            });
+      };
+
     }
   ]);

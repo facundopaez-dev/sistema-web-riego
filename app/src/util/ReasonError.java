@@ -50,7 +50,8 @@ public enum ReasonError {
   INVALID_PASSWORD_RESET_LINK("Enlace de restablecimiento de contraseña inválido"),
   PASSWORD_RESET_LINK_EXPIRED("Enlace de restablecimiento de contraseña expirado"),
   INACTIVE_USER_TO_RECOVER_PASSWORD("Para recuperar su contraseña primero debe activar su cuenta mediante el correo electrónico de confirmación de registro"),
-  NEGATIVE_REALIZED_IRRIGATION("El riego realizado en el día de hoy debe ser mayor o igual a cero");
+  NEGATIVE_REALIZED_IRRIGATION("El riego realizado debe ser mayor o igual a cero"),
+  MODIFICATION_PAST_IRRIGATION_RECORD_NOT_ALLOWED("No está permitida la modificación de un registro de riego del pasado");
 
   private final String reason;
 

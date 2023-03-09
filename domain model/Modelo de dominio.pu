@@ -73,6 +73,7 @@ class RegistroRiego {
 -riegoRealizado
 -precipitacionMañana
 -generadoSistema
+-modificable
 }
 
 class Usuario {
