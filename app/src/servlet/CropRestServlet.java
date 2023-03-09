@@ -144,7 +144,7 @@ public class CropRestServlet {
     /*
      * Si el dato solicitado no existe en la base de datos
      * subyacente, la aplicacion del lado servidor devuelve
-     * el mensaje HTTP 404 (Not found) junton con el mensaje
+     * el mensaje HTTP 404 (Not found) junto con el mensaje
      * "Recurso no encontrado" y no se realiza la operacion
      * solicitada
      */
@@ -246,7 +246,7 @@ public class CropRestServlet {
     /*
      * Si el dato solicitado no existe en la base de datos
      * subyacente, la aplicacion del lado servidor devuelve
-     * el mensaje HTTP 404 (Not found) junton con el mensaje
+     * el mensaje HTTP 404 (Not found) junto con el mensaje
      * "Recurso no encontrado" y no se realiza la operacion
      * solicitada
      */
@@ -308,7 +308,7 @@ public class CropRestServlet {
     /*
      * Si el dato solicitado no existe en la base de datos
      * subyacente, la aplicacion del lado servidor devuelve
-     * el mensaje HTTP 404 (Not found) junton con el mensaje
+     * el mensaje HTTP 404 (Not found) junto con el mensaje
      * "Recurso no encontrado" y no se realiza la operacion
      * solicitada
      */

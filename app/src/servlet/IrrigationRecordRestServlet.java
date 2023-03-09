@@ -228,9 +228,8 @@ public class IrrigationRecordRestServlet {
     /*
      * Si el riego realizado es negativo, la aplicacion del lado
      * servidor retorna el mensaje HTTP 400 (Bad request) junto
-     * con el mensaje "El riego realizado en el dia de hoy debe
-     * ser mayor o igual a cero" y no se realiza la operacion
-     * solicitada
+     * con el mensaje "El riego realizado debe ser mayor o igual
+     * a cero" y no se realiza la operacion solicitada
      */
     if (newIrrigationRecord.getIrrigationDone() < 0) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NEGATIVE_REALIZED_IRRIGATION))).build();

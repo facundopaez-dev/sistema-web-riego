@@ -141,14 +141,14 @@ public class ClimateRecord {
    * la cual, es el agua de dicho dia a favor para el dia de
    * mañana.
    *
-   * Este valor se calcula haciendo la diferencia entre
-   * la ETc del dia de ayer o la ETo del dia de ayer
-   * (en caso de que en el dia de ayer no haya habido
-   * un cultivo sembrado en la parcela dada, por ende, la
-   * ETc es cero), la cantidad de agua de lluvia del dia
-   * de ayer, la cantidad de agua acumulada del dia de ayer
-   * y la cantidad de agua utilizada en los riegos realizados
-   * en el dia de hoy por parte del usuario.
+   * Este valor se calcula haciendo la diferencia entre la ETc
+   * del dia de ayer o la ETo del dia de ayer (en caso de que
+   * en el dia de ayer no haya habido un cultivo sembrado en
+   * la parcela dada, por ende, la ETc es cero), la cantidad
+   * de agua de lluvia del dia de ayer, la cantidad de agua
+   * acumulada del dia de ayer y la cantidad de agua utilizada
+   * en los riegos realizados en el dia de hoy por parte del
+   * usuario.
    */
   @Column(name = "WATER_ACCUMULATED", nullable = false)
   private double waterAccumulated;

@@ -45,9 +45,9 @@ public class PlantingRecordServiceBean {
    * @param userId
    * @param plantingRecordId
    * @param modifiedPlantingRecord
-   * @return referencia a un objeto de tipo PlantingRecord si el registro de plantacion
-   * a modificar pertenece a una parcela del usuario con el ID dado, null en caso
-   * contrario
+   * @return referencia a un objeto de tipo PlantingRecord si el
+   * registro de plantacion a modificar pertenece a una parcela del
+   * usuario con el ID dado, en caso contrario null
    */
   public PlantingRecord modify(int userId, int plantingRecordId, PlantingRecord modifiedPlantingRecord) {
     PlantingRecord chosenPlantingRecord = findByUserId(userId, plantingRecordId);
@@ -73,7 +73,10 @@ public class PlantingRecordServiceBean {
    * @param plantingRecordId
    * @param givenParcel
    * @return referencia a un objeto de tipo PlantingRecord que
-   * representa al registro de plantacion de una parcela
+   * representa el registro de plantacion de una parcela en
+   * caso de encontrarse en la base de datos subyacente el
+   * registro de plantacion correspondiente al ID y la parcela
+   * dados, en caso contrario null
    */
   public PlantingRecord find(int plantingRecordId, Parcel givenParcel) {
     Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r WHERE (r.id = :plantingRecordId AND r.parcel = :givenParcel)");
@@ -97,8 +100,11 @@ public class PlantingRecordServiceBean {
    * 
    * @param userId
    * @param plantingRecordId
-   * @return referencia a un objeto de tipo PlantingRecord perteneciente
-   * a una parcela del usuario con el ID dado
+   * @return referencia a un objeto de tipo PlantingRecord que
+   * representa el registro de plantacion de una parcela de un
+   * usuario en caso de encontrarse en la base de datos subyacente
+   * el registro de plantacion con el ID dado y asociado al usuario
+   * del ID dado, en caso contrario null
    */
   public PlantingRecord findByUserId(int userId, int plantingRecordId) {
     Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (r.id = :plantingRecordId AND p.user.id = :userId)");
