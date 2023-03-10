@@ -127,11 +127,26 @@ app.controller(
 					});;
 			}
 
+			const UNDEFINED_PARCEL = "La parcela debe estar definida";
+
 			/*
 			Trae el listado de registros de plantacion pertenecientes
 			a la parcela con el nombre dado
 			*/
 			$scope.findAllByParcelName = function () {
+				/*
+				Si la propiedad parcel de $scope tiene el valor undefined,
+				significa que NO se cargo una parcela en el campo del nombre
+				de parcela para filtrar registros de plantacion por una parcela.
+				Por lo tanto, la aplicacion muestra el mensaje dado y no ejecuta
+				la instruccion que realiza la peticion HTTP correspondiente esta
+				funcion.
+				*/
+				if ($scope.parcel == undefined) {
+					alert(UNDEFINED_PARCEL);
+					return;
+				}
+
 				plantingRecordSrv.findAllByParcelName($scope.parcel.name, function (error, data) {
 					if (error) {
 						console.log(error);
@@ -153,6 +168,12 @@ app.controller(
 			boton "Reiniciar listado"
 			*/
 			$scope.reset = function () {
+				/*
+				Esta instruccion es para eliminar el contenido del campo
+				del nombre de parcela cuando el usuario presiona el boton
+				de reinicio del listado de registros de plantacion
+				*/
+				$scope.parcel = undefined;
 				findAll();
 			}
 
