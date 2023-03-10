@@ -286,8 +286,8 @@ public class IrrigationRecordRestServlet {
      * una referencia a un objeto de tipo Calendar que
      * contiene la fecha actual.
      * 
-     * Solo esta permitido crear registros de plantacion
-     * con la fecha actual. Este es el motivo de esta
+     * Solo esta permitido crear un registro de riego con
+     * la fecha actual. Este es el motivo de esta
      * instruccion.
      */
     newIrrigationRecord.setDate(Calendar.getInstance());
