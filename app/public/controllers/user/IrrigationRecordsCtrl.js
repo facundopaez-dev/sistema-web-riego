@@ -1,7 +1,7 @@
 app.controller(
 	"IrrigationRecordsCtrl",
-	["$scope", "$location", "IrrigationRecordSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
-		function ($scope, $location, irrigationRecordService, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
+	["$scope", "$location", "IrrigationRecordSrv", "ParcelSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
+		function ($scope, $location, irrigationRecordService, parcelSrv, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
 
 			console.log("IrrigationRecordsCtrl loaded...")
 
@@ -80,6 +80,59 @@ app.controller(
 				administrador o no.
 				*/
 				logoutManager.logout();
+			}
+
+			// Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
+			$scope.findParcel = function (parcelName) {
+				return parcelSrv.findByName(parcelName).
+					then(function (response) {
+						var parcels = [];
+						for (var i = 0; i < response.data.length; i++) {
+							parcels.push(response.data[i]);
+						}
+
+						return parcels;
+					});
+			}
+
+			const UNDEFINED_PARCEL = "La parcela debe estar definida";
+
+			/*
+			Trae el listado de registros de riego pertenecientes
+			a la parcela con el nombre dado
+			*/
+			$scope.findAllByParcelName = function () {
+				/*
+				Si la propiedad parcel de $scope tiene el valor undefined,
+				significa que NO se cargo una parcela en el campo del nombre
+				de una parcela para filtrar registros de riego por una parcela.
+				Por lo tanto, la aplicacion muestra el mensaje dado y no ejecuta
+				la instruccion que realiza la peticion HTTP correspondiente esta
+				funcion.
+				*/
+				if ($scope.parcel == undefined) {
+					alert(UNDEFINED_PARCEL);
+					return;
+				}
+
+				irrigationRecordService.findAllByParcelName($scope.parcel.name, function (error, data) {
+					if (error) {
+						console.log(error);
+						errorResponseManager.checkResponse(error);
+						return;
+					}
+
+					$scope.data = data;
+				})
+			}
+
+			/*
+			Trae el listado de todos los registros de riego de todas
+			las parcelas del usuario cuando este presiona el boton
+			"Reiniciar listado"
+			*/
+			$scope.reset = function () {
+				findAll();
 			}
 
 			findAll();

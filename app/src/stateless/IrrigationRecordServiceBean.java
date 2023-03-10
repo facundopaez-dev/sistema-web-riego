@@ -107,6 +107,24 @@ public class IrrigationRecordServiceBean {
   }
 
   /**
+   * Retorna los registros de riego de una parcela mediante
+   * su nombre y el ID del usuario al que pertenece
+   * 
+   * @param userId
+   * @param givenParcelName
+   * @return referencia a un objeto de tipo Collection que
+   * contiene los registros de riego de la parcela que tiene
+   * el nombre dado y que pertenece al usuario con el ID dado
+   */
+  public Collection<IrrigationRecord> findAllByParcelName(int userId, String givenParcelName) {
+    Query query = getEntityManager().createQuery("SELECT i FROM IrrigationRecord i WHERE (i.parcel.name = :givenParcelName AND i.parcel.user.id = :userId) ORDER BY i.id");
+    query.setParameter("userId", userId);
+    query.setParameter("givenParcelName", givenParcelName);
+
+    return (Collection) query.getResultList();
+  }
+
+  /**
    * Retorna todos los registros de riego modificables de
    * todas las parcelas de un usuario
    * 
