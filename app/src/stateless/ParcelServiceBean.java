@@ -108,7 +108,7 @@ public class ParcelServiceBean {
 
     try {
       givenParcel = (Parcel) query.getSingleResult();
-    } catch (Exception e) {
+    } catch (NoResultException e) {
       e.printStackTrace();
     }
 
