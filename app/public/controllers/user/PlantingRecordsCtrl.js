@@ -171,7 +171,8 @@ app.controller(
 				/*
 				Esta instruccion es para eliminar el contenido del campo
 				del nombre de parcela cuando el usuario presiona el boton
-				de reinicio del listado de registros de plantacion
+				de reinicio del listado de los datos correspondientes a
+				este controller
 				*/
 				$scope.parcel = undefined;
 				findAll();

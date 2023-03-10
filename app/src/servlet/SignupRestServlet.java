@@ -39,8 +39,8 @@ public class SignupRestServlet {
      * Por lo tanto, la aplicacion del lado servidor
      * retorna el mensaje HTTP 400 (Bad request) junto
      * con el mensaje "Debe completar todos los campos
-     * del formulario de registro" y no se realiza la
-     * operacion solicitada
+     * del formulario" y no se realiza la operacion
+     * solicitada
      */
     if (json.isEmpty()) {
       return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.EMPTY_FORM)).build();
