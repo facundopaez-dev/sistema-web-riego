@@ -132,6 +132,13 @@ app.controller(
 			"Reiniciar listado"
 			*/
 			$scope.reset = function () {
+				/*
+				Esta instruccion es para eliminar el contenido del campo
+				del nombre de parcela cuando el usuario presiona el boton
+				de reinicio del listado de los datos correspondientes a
+				este controller
+				*/
+				$scope.parcel = undefined;
 				findAll();
 			}
 
