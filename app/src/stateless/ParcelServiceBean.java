@@ -272,7 +272,7 @@ public class ParcelServiceBean {
   }
 
   /**
-   * Retorna true si y solo si el usuario con el ID tiene
+   * Retorna true si y solo si el usuario con el ID dado tiene
    * una parcela con el nombre dado.
    * 
    * Este metodo es para evitar que el usuario registre

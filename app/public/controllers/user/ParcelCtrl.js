@@ -209,7 +209,7 @@ app.controller(
           Las coordendas geograficas del marcador colocado en el mapa por
           parte del usuario, mediante el formulario de creacion, son cargadas
           en los atributos latitud y longitud de la parcela a crear
-         */
+          */
           $scope.data.latitude = $scope.markers[0].lat;
           $scope.data.longitude = $scope.markers[0].lng;
         }

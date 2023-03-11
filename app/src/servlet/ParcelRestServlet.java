@@ -329,9 +329,9 @@ public class ParcelRestServlet {
     /*
      * Si dentro del conjunto de parcelas del usuario hay una
      * parcela con el nombre de la nueva parcela, la aplicacion
-     * retorna el mensaje HTTP 400 (Bad request) junto con el
-     * mensaje "Nombre de parcela ya utilizado, elija otro" y
-     * no se realiza la operacion solicitada
+     * del lado servidor retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "Nombre de parcela ya utilizado, elija
+     * otro" y no se realiza la operacion solicitada
      */
     if (parcelService.checkExistence(userId, newParcel.getName())) {
       return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.PARCEL_NAME_ALREADY_USED)).build();
