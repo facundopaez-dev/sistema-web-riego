@@ -96,6 +96,12 @@ app.controller(
         $location.path("/home/parcels");
       }
 
+      const EMPTY_FORM = "Debe completar todos los campos del formulario";
+      const PARCEL_NAME_UNDEFINED = "El nombre de la parcela debe estar definido";
+      const INVALID_PARCEL_NAME = "El nombre de una parcela debe empezar con una palabra formada únicamente por caracteres alfabéticos y puede tener más de una palabra formada únicamente por caracteres alfanuméricos";
+      const INVALID_NUMBER_OF_HECTARES = "La cantidad de hectáreas debe ser mayor a 0.0";
+      const UNDEFINED_GEOGRAPHIC_COORDINATE = "La coordenada geográfica de la parcela debe estar definida";
+
       function find(id) {
         service.find(id, function (error, data) {
           if (error) {
@@ -129,13 +135,84 @@ app.controller(
       }
 
       $scope.create = function () {
+        // Expresion regular para validar el nombre de la parcela
+        var nameRegexp = /^^[A-Za-zÀ-ÿ]+(\s[A-Za-zÀ-ÿ]*[0-9]*[A-Za-zÀ-ÿ]*)*$/g;
+
         /*
-        Las coordendas geograficas del marcador colocado en el mapa por
-        parte del usuario, mediante el formulario de creacion, son cargadas
-        en los atributos latitud y longitud de la parcela a crear
+        Si la propiedad data de $scope tiene el valor undefined,
+        significa que los campos del formulario correspondiente
+        a este controller, estan vacios. Por lo tanto, la aplicacion
+        muestra el mensaje dado y no ejecuta la instruccion que
+        realiza la peticion HTTP correspondiente a esta funcion.
         */
-        $scope.data.latitude = $scope.markers[0].lat;
-        $scope.data.longitude = $scope.markers[0].lng;
+        if ($scope.data == undefined) {
+          alert(EMPTY_FORM);
+          return;
+        }
+
+        /*
+        Si el nombre de la parcela NO esta definido, la aplicacion
+        muestra el mensaje dado y no ejecuta la instruccion que
+        realiza la peticion HTTP correspondiente a esta funcion
+        */
+        if ($scope.data.name == undefined) {
+          alert(PARCEL_NAME_UNDEFINED);
+          return;
+        }
+
+        /*
+        Si el nombre de la parcela NO empieza con una cadena
+        formada unicamente por caracteres alfabeticos seguido
+        de palabras formadas unicamente por caracteres alfanumericos,
+        la aplicacion muestra el mensaje dado y no ejecuta la
+        instruccion que realiza la peticion HTTP correspondiente
+        a esta funcion
+        */
+        if (!nameRegexp.exec($scope.data.name)) {
+          alert(INVALID_PARCEL_NAME);
+          return;
+        }
+
+        /*
+        Si la cantidad de hectareas NO esta definida o si esta definida,
+        pero es menor o igual a 0.0, la aplicacion muestra el mensaje
+        dado y no ejecuta la instruccion que realiza la peticion HTTP
+        correspondiente a este controller
+        */
+        if ($scope.data.hectare == undefined || $scope.data.hectare <= 0.0) {
+          alert(INVALID_NUMBER_OF_HECTARES);
+          return;
+        }
+
+        /*
+        Si el elemento del indice 0 del arreglo markers de $scope
+        tiene el valor undefined, significa que no se selecciono
+        una ubicacion geografica para la parcela mediante el mapa.
+        Por lo tanto, la aplicacion muestra el mensaje dado y no
+        ejecuta la instruccion que realiza la peticion HTTP
+        correspondiente a esta funcion.
+        */
+        if ($scope.markers[0] == undefined) {
+          alert(UNDEFINED_GEOGRAPHIC_COORDINATE);
+          return;
+        }
+
+        /*
+        Si la propiedad data de $scope NO tiene el valor undefined
+        (lo cual, aparentemente ocurre cuando se completa un campo
+        del formulario de la parcela) se crean (aparentemente) las
+        propiedades latitude y longitude en data y se le asignan
+        la latitud y la longitud elegidas en el mapa
+        */
+        if ($scope.data != undefined) {
+          /*
+          Las coordendas geograficas del marcador colocado en el mapa por
+          parte del usuario, mediante el formulario de creacion, son cargadas
+          en los atributos latitud y longitud de la parcela a crear
+         */
+          $scope.data.latitude = $scope.markers[0].lat;
+          $scope.data.longitude = $scope.markers[0].lng;
+        }
 
         service.create($scope.data, function (error, data) {
           if (error) {

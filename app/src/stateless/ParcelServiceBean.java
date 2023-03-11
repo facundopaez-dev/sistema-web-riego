@@ -116,6 +116,34 @@ public class ParcelServiceBean {
   }
 
   /**
+   * Retorna una parcela de un usuario mediante el nombre de
+   * parcela si y solo si se encuentra en la base de datos
+   * subyacente
+   * 
+   * @param userId
+   * @param parcelName
+   * @return referencia a un objeto de tipo Parcel que representa
+   * una parcela de un usuario en caso de encontrarse en la base
+   * de datos subyacente la parcela con el nombre dado y asociada
+   * al usuario con el ID dado, en caso contrario null
+   */
+  public Parcel find(int userId, String parcelName) {
+    Query query = entityManager.createQuery("SELECT p FROM Parcel p WHERE (UPPER(p.name) = UPPER(:givenParcelName) AND p.user.id = :userId)");
+    query.setParameter("givenParcelName", parcelName);
+    query.setParameter("userId", userId);
+
+    Parcel givenParcel = null;
+
+    try {
+      givenParcel = (Parcel) query.getSingleResult();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return givenParcel;
+  }
+
+  /**
    * Retorna las parcelas de un usuario que tienen un nombre que
    * coincide con el nombre de parcela dado
    * 
@@ -210,6 +238,25 @@ public class ParcelServiceBean {
    */
   public boolean checkExistence(int id) {
     return (getEntityManager().find(Parcel.class, id) != null);
+  }
+
+  /**
+   * Retorna true si y solo si el usuario con el ID tiene
+   * una parcela con el nombre dado.
+   * 
+   * Este metodo es para evitar que el usuario registre
+   * una parcela con un nombre igual al nombre de una
+   * de sus parcelas. Es decir, es para evitar que registre
+   * una parcela con un nombre repetido dentro de su conjunto
+   * de parcelas.
+   * 
+   * @param userId
+   * @param parcelName
+   * @return true si el usuario con el ID dado tiene una
+   * parcela con el nombre dado, en caso contrario false
+   */
+  public boolean checkExistence(int userId, String parcelName) {
+    return (find(userId, parcelName) != null);
   }
 
   public Page<Parcel> findByPage(Integer page, Integer cantPerPage, Map<String, String> parameters) {

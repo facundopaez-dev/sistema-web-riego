@@ -271,6 +271,50 @@ public class ParcelRestServlet {
     }
 
     /*
+     * Si el objeto de tipo String referenciado por la
+     * referencia contenida en la variable de tipo por
+     * referencia json de tipo String, esta vacio,
+     * significa que el usuario intento registrar una
+     * parcela con los campos vacios del formulario de
+     * registro. Por lo tanto, la aplicacion del lado
+     * servidor retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "Debe completar todos los
+     * campos del formulario" y no se realiza la operacion
+     * solicitada
+     */
+    if (json.isEmpty()) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.EMPTY_FORM)).build();
+    }
+
+    Parcel newParcel = mapper.readValue(json, Parcel.class);
+
+    /*
+     * Si el nombre de la nueva parcela no esta definido, la
+     * aplicacion del lado servidor retorna el mensaje HTTP
+     * 400 (Bad request) junto con el mensaje "El nombre de
+     * la parcela debe estar definido" y no se realiza la
+     * operacion solicitada
+     */
+    if (newParcel.getName() == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.PARCEL_NAME_UNDEFINED)).build();
+    }
+
+    /*
+     * Si el nombre de la nueva parcela NO empieza con caracteres
+     * alfabeticos, seguido de un espacio en blanco entre palabra
+     * y palabra en el caso en el que el nombre este formado por
+     * mas de una palabra, la aplicacion del lado servidor retorna
+     * el mensaje HTTP 400 (Bad request) junto con el mensaje "El
+     * nombre de una parcela debe empezar con una palabra formada
+     * unicamente por caracteres alfabeticos y puede tener mas de
+     * una palabra formada por caracteres alfanuméricos" y no se
+     * realiza la operacion solicitada
+     */
+    if (!newParcel.getName().matches("^[A-Za-zÀ-ÿ]+(\\s[A-Za-zÀ-ÿ]*[0-9]*[A-Za-zÀ-ÿ]*)*$")) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_PARCEL_NAME)).build();
+    }
+
+    /*
      * Obtiene el JWT del valor del encabezado de autorizacion
      * de una peticion HTTP
      */
@@ -283,12 +327,33 @@ public class ParcelRestServlet {
     int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
 
     /*
+     * Si dentro del conjunto de parcelas del usuario hay una
+     * parcela con el nombre de la nueva parcela, la aplicacion
+     * retorna el mensaje HTTP 400 (Bad request) junto con el
+     * mensaje "Nombre de parcela ya utilizado, elija otro" y
+     * no se realiza la operacion solicitada
+     */
+    if (parcelService.checkExistence(userId, newParcel.getName())) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.PARCEL_NAME_ALREADY_USED)).build();
+    }
+
+    /*
+     * Si la cantidad de hectareas de la nueva parcela es menor
+     * o igual a 0.0, la aplicacion del lado servidor retorna el
+     * mensaje HTTP 400 (Bad request) junto con el mensaje "La
+     * cantidad de hectareas debe ser mayor a 0.0" y no se realiza
+     * la operacion solicitada
+     */
+    if (newParcel.getHectare() <= 0.0) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_NUMBER_OF_HECTARES)).build();
+    }
+
+    /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos que el
      * cliente solicito persistir
      */
-    Parcel newParcel = mapper.readValue(json, Parcel.class);
     newParcel.setUser(userService.find(userId));
     return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(parcelService.create(newParcel))).build();
   }

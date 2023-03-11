@@ -1,6 +1,5 @@
 package model;
 
-import java.util.Calendar;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,21 +7,18 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 @Entity
+@Table(name = "PARCEL", uniqueConstraints = { @UniqueConstraint(columnNames = { "NAME", "FK_USER" }) })
 public class Parcel {
 
-  /*
-   * Instance variables
-   */
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "ID")
   private int id;
 
-  // TODO: Establecer clave compuesta con este atributo y el identificador del usuario
   @Column(name = "NAME", nullable = false)
   private String name;
 
@@ -48,6 +44,7 @@ public class Parcel {
 
   /**
    * Returns value of id
+   * 
    * @return
    */
   public int getId() {
@@ -56,6 +53,7 @@ public class Parcel {
 
   /**
    * Returns value of name
+   * 
    * @return name
    */
   public String getName() {
@@ -64,6 +62,7 @@ public class Parcel {
 
   /**
    * Sets new value of name
+   * 
    * @param name
    */
   public void setName(String name) {
@@ -72,6 +71,7 @@ public class Parcel {
 
   /**
    * Returns value of hectare
+   * 
    * @return
    */
   public double getHectare() {
@@ -80,6 +80,7 @@ public class Parcel {
 
   /**
    * Sets new value of hectare
+   * 
    * @param
    */
   public void setHectare(double hectare) {
@@ -88,6 +89,7 @@ public class Parcel {
 
   /**
    * Returns value of latitude
+   * 
    * @return
    */
   public double getLatitude() {
@@ -96,6 +98,7 @@ public class Parcel {
 
   /**
    * Sets new value of latitude
+   * 
    * @param
    */
   public void setLatitude(double latitude) {
@@ -104,6 +107,7 @@ public class Parcel {
 
   /**
    * Returns value of longitude
+   * 
    * @return
    */
   public double getLongitude() {
@@ -112,6 +116,7 @@ public class Parcel {
 
   /**
    * Sets new value of longitude
+   * 
    * @param
    */
   public void setLongitude(double longitude) {
@@ -120,6 +125,7 @@ public class Parcel {
 
   /**
    * Returns value of active
+   * 
    * @return
    */
   public boolean getActive() {
@@ -128,6 +134,7 @@ public class Parcel {
 
   /**
    * Sets new value of active
+   * 
    * @param
    */
   public void setActive(boolean active) {
@@ -136,6 +143,7 @@ public class Parcel {
 
   /**
    * Returns value of user
+   * 
    * @return
    */
   public User getUser() {
@@ -144,6 +152,7 @@ public class Parcel {
 
   /**
    * Sets new value of user
+   * 
    * @param
    */
   public void setUser(User user) {
@@ -153,14 +162,13 @@ public class Parcel {
   @Override
   public String toString() {
     return String.format(
-      "ID: %d\nNombre: %s\nHectarea: %f\nLatitud: %f\nLongitud: %f\nActiva: %b\nUsuario ID: %d\n",
-      id,
-      hectare,
-      latitude,
-      longitude,
-      active,
-      user.getId()
-    );
+        "ID: %d\nNombre: %s\nHectarea: %f\nLatitud: %f\nLongitud: %f\nActiva: %b\nID de usuario: %d\n",
+        id,
+        hectare,
+        latitude,
+        longitude,
+        active,
+        user.getId());
   }
 
 }

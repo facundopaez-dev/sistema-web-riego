@@ -97,7 +97,7 @@
 				<label for="parcel_name" class="col-md-2 control-label">Nombre</label>
 				<div class="col-md-3">
 					<input type="text" class="form-control" id="parcel_name" placeholder="Ej.: Parcela Sierra Grande 1"
-						ng-model="data.name" ng-disabled="action == 'view'">
+						ng-model="data.name" ng-disabled="action == 'view'" required>
 				</div>
 			</div>
 
@@ -105,7 +105,7 @@
 				<label for="parcel_hectare" class="col-md-2 control-label">Hectárea</label>
 				<div class="col-md-3">
 					<input type="number" class="form-control" id="parcel_hectare" placeholder="Metros cuadrados"
-						ng-model="data.hectare" ng-disabled="action == 'view'" />
+						ng-model="data.hectare" ng-disabled="action == 'view'" required>
 				</div>
 			</div>
 
