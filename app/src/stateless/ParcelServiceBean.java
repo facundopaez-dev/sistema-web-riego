@@ -144,6 +144,37 @@ public class ParcelServiceBean {
   }
 
   /**
+   * Retorna una referencia a un objeto de tipo Parcel si y solo si se
+   * encuentra en el conjunto de parcelas del usuario con el ID dado
+   * y en el que no esta la parcela del ID dado, una parcela que tiene
+   * un nombre igual al nombre dado
+   * 
+   * @param userId
+   * @param parcelId
+   * @param parcelName
+   * @return referencia a un objeto de tipo Parcel que representa
+   * la parcela que tiene el nombre dado y que pertenece al conjunto
+   * de parcelas del usuario con el ID dado en el que no esta la parcela
+   * del ID dado, en caso contrario null
+   */
+  public Parcel find(int userId, int parcelId, String parcelName) {
+    Query query = entityManager.createQuery("SELECT p FROM Parcel p WHERE (p.id != :givenParcelId AND UPPER(p.name) = UPPER(:givenParcelName) AND p.user.id = :userId)");
+    query.setParameter("givenParcelId", parcelId);
+    query.setParameter("givenParcelName", parcelName);
+    query.setParameter("userId", userId);
+
+    Parcel givenParcel = null;
+
+    try {
+      givenParcel = (Parcel) query.getSingleResult();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return givenParcel;
+  }
+
+  /**
    * Retorna las parcelas de un usuario que tienen un nombre que
    * coincide con el nombre de parcela dado
    * 
@@ -257,6 +288,26 @@ public class ParcelServiceBean {
    */
   public boolean checkExistence(int userId, String parcelName) {
     return (find(userId, parcelName) != null);
+  }
+
+  /**
+   * Retorna true si y solo si hay una parcela con el nombre dado
+   * dentro del conjunto de parcelas del usuario con el ID dado en
+   * el que no esta la parcela del ID dado.
+   * 
+   * Este metodo es para evitar que haya una parcela con un nombre
+   * repetido dentro del conjunto de parcelas de un usuario durante
+   * la modificacion de una parcela.
+   * 
+   * @param userId
+   * @param parcelId
+   * @param parcelName
+   * @return true si hay una parcela con el nombre dado dentro del
+   * conjunto de parcelas del usuario con el ID dado en el que no
+   * esta la parcela del ID dado, en caso contrario false
+   */
+  public boolean checkRepeated(int userId, int parcelId, String parcelName) {
+    return (find(userId, parcelId, parcelName) != null);
   }
 
   public Page<Parcel> findByPage(Integer page, Integer cantPerPage, Map<String, String> parameters) {

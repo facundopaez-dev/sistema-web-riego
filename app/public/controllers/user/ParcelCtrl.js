@@ -227,9 +227,46 @@ app.controller(
       }
 
       $scope.modify = function () {
+        // Expresion regular para validar el nombre de la parcela
+        var nameRegexp = /^[A-Za-zÀ-ÿ]+(\s[A-Za-zÀ-ÿ]*[0-9]*[A-Za-zÀ-ÿ]*)*$/g;
+
+        /*
+        Si el nombre de la parcela NO esta definido, la aplicacion
+        muestra el mensaje dado y no ejecuta la instruccion que
+        realiza la peticion HTTP correspondiente a esta funcion
+        */
+        if ($scope.data.name == undefined) {
+          alert(PARCEL_NAME_UNDEFINED);
+          return;
+        }
+
+        /*
+        Si el nombre de la parcela NO empieza con una cadena
+        formada unicamente por caracteres alfabeticos seguido
+        de palabras formadas unicamente por caracteres alfanumericos,
+        la aplicacion muestra el mensaje dado y no ejecuta la
+        instruccion que realiza la peticion HTTP correspondiente
+        a esta funcion
+        */
+        if (!nameRegexp.exec($scope.data.name)) {
+          alert(INVALID_PARCEL_NAME);
+          return;
+        }
+
+        /*
+        Si la cantidad de hectareas NO esta definida o si esta definida,
+        pero es menor o igual a 0.0, la aplicacion muestra el mensaje
+        dado y no ejecuta la instruccion que realiza la peticion HTTP
+        correspondiente a este controller
+        */
+        if ($scope.data.hectares == undefined || $scope.data.hectares <= 0.0) {
+          alert(INVALID_NUMBER_OF_HECTARES);
+          return;
+        }
+
         /*
         Las coordendas geograficas del marcador colocado en el mapa por
-        parte del usuario, mediante el formulario de edicion, son cargadas
+        parte del usuario, mediante el formulario de parcela, son cargadas
         en los atributos latitud y longitud de la parcela a modificar
         */
         $scope.data.latitude = $scope.markers[0].lat;

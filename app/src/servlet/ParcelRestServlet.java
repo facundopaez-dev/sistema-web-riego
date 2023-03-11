@@ -486,12 +486,79 @@ public class ParcelRestServlet {
     }
 
     /*
-     * Si el valor del encabezado de autorizacion de la peticion HTTP
-     * dada, tiene un JWT valido, la aplicacion del lado servidor
-     * devuelve el mensaje HTTP 200 (Ok) junto con los datos que el
-     * cliente solicito actualizar
+     * Si el objeto de tipo String referenciado por la
+     * referencia contenida en la variable de tipo por
+     * referencia json de tipo String, esta vacio,
+     * significa que el usuario intento modificar una
+     * parcela con datos indefinidos. Por lo tanto, la
+     * aplicacion del lado servidor retorna el mensaje
+     * HTTP 400 (Bad request) junto con el mensaje "Debe
+     * completar todos los campos del formulario" y no
+     * se realiza la operacion solicitada
      */
+    if (json.isEmpty()) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.EMPTY_FORM)).build();
+    }
+
     Parcel modifiedParcel = mapper.readValue(json, Parcel.class);
+
+    /*
+     * Si el nombre de la parcela a modificar no esta definido,
+     * la aplicacion del lado servidor retorna el mensaje HTTP
+     * 400 (Bad request) junto con el mensaje "El nombre de
+     * la parcela debe estar definido" y no se realiza la
+     * operacion solicitada
+     */
+    if (modifiedParcel.getName() == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.PARCEL_NAME_UNDEFINED)).build();
+    }
+
+    /*
+     * Si el nombre de la parcela a modificar NO empieza con
+     * una cadena formada unicamente por caracteres alfabeticos
+     * seguida por mas de una cadena formada por caracteres alfanumericos
+     * en caso de que el nombre este formado por mas de una palabra,
+     * la aplicacion del lado servidor retorna el mensaje HTTP 400
+     * (Bad request) junto con el mensaje "El nombre de una parcela
+     * debe empezar con una palabra formada unicamente por caracteres
+     * alfabeticos y puede tener mas de una palabra formada por caracteres
+     * alfanuméricos" y no se realiza la operacion solicitada
+     */
+    if (!modifiedParcel.getName().matches("^[A-Za-zÀ-ÿ]+(\\s[A-Za-zÀ-ÿ]*[0-9]*[A-Za-zÀ-ÿ]*)*$")) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_PARCEL_NAME)).build();
+    }
+
+    /*
+     * Si dentro del conjunto de parcelas del usuario hay una
+     * parcela que tiene el nombre de la parcela a modificar, la
+     * aplicacion del lado servidor retorna el mensaje HTTP 400
+     * (Bad request) junto con el mensaje "Nombre de parcela ya
+     * utilizado, elija otro" y no se realiza la operacion
+     * solicitada
+     */
+    if (parcelService.checkRepeated(userId, parcelId, modifiedParcel.getName())) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.PARCEL_NAME_ALREADY_USED)).build();
+    }
+
+    /*
+     * Si la cantidad de hectareas de la parcela a modificar es
+     * menor o igual a 0.0, la aplicacion del lado servidor retorna
+     * el mensaje HTTP 400 (Bad request) junto con el mensaje "La
+     * cantidad de hectareas debe ser mayor a 0.0" y no se realiza
+     * la operacion solicitada
+     */
+    if (modifiedParcel.getHectares() <= 0.0) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_NUMBER_OF_HECTARES)).build();
+    }
+
+    /*
+     * Si el valor del encabezado de autorizacion de la peticion HTTP
+     * dada, tiene un JWT valido, y se pasan todos los controles para
+     * la modificacion del dato correspondiente a este bloque de codigo
+     * de esta API REST, la aplicacion del lado servidor devuelve el
+     * mensaje HTTP 200 (Ok) junto con el dato que el cliente solicito
+     * modificar
+     */
     return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(parcelService.modify(userId, parcelId, modifiedParcel))).build();
   }
 
