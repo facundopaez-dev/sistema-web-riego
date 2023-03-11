@@ -140,7 +140,7 @@ public class IrrigationRecordGenerator {
          * en la fecha dada, la cantidad total de agua utilizada en
          * el riego en el dia de hoy es 0.0
          */
-        currentSuggestedIrrigation = WaterMath.getSuggestedIrrigation(currentParcel.getHectare(), yesterdayEtc, yesterdayEto, yesterdayPrecip, waterAccumulatedYesterday, 0.0);
+        currentSuggestedIrrigation = WaterMath.getSuggestedIrrigation(currentParcel.getHectares(), yesterdayEtc, yesterdayEto, yesterdayPrecip, waterAccumulatedYesterday, 0.0);
         currentIrrigationRecord.setSuggestedIrrigation(currentSuggestedIrrigation);
 
         /*

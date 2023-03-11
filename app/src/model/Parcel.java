@@ -22,8 +22,8 @@ public class Parcel {
   @Column(name = "NAME", nullable = false)
   private String name;
 
-  @Column(name = "HECTARE", nullable = false)
-  private double hectare;
+  @Column(name = "HECTARES", nullable = false)
+  private double hectares;
 
   @Column(name = "LATITUDE", nullable = false)
   private double latitude; // en grados decimales
@@ -70,21 +70,21 @@ public class Parcel {
   }
 
   /**
-   * Returns value of hectare
+   * Returns value of hectares
    * 
    * @return
    */
-  public double getHectare() {
-    return hectare;
+  public double getHectares() {
+    return hectares;
   }
 
   /**
-   * Sets new value of hectare
+   * Sets new value of hectares
    * 
    * @param
    */
-  public void setHectare(double hectare) {
-    this.hectare = hectare;
+  public void setHectares(double hectares) {
+    this.hectares = hectares;
   }
 
   /**
@@ -162,9 +162,9 @@ public class Parcel {
   @Override
   public String toString() {
     return String.format(
-        "ID: %d\nNombre: %s\nHectarea: %f\nLatitud: %f\nLongitud: %f\nActiva: %b\nID de usuario: %d\n",
+        "ID: %d\nNombre: %s\nHectáreas: %f\nLatitud: %f\nLongitud: %f\nActiva: %b\nID de usuario: %d\n",
         id,
-        hectare,
+        hectares,
         latitude,
         longitude,
         active,

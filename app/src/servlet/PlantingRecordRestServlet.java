@@ -629,7 +629,7 @@ public class PlantingRecordRestServlet {
      * de la fecha anterior a la fecha actual
      */
     ClimateRecord climateLog = climateRecordServiceBean.find(yesterdayDate, parcel);
-    suggestedIrrigationToday = WaterMath.getSuggestedIrrigation(parcel.getHectare(), climateLog.getEtc(), climateLog.getEto(), climateLog.getPrecip(), climateLog.getWaterAccumulated(), totalIrrigationWaterToday);
+    suggestedIrrigationToday = WaterMath.getSuggestedIrrigation(parcel.getHectares(), climateLog.getEtc(), climateLog.getEto(), climateLog.getPrecip(), climateLog.getWaterAccumulated(), totalIrrigationWaterToday);
 
     IrrigationRecord newIrrigationRecord = new IrrigationRecord();
     newIrrigationRecord.setDate(currentDate);

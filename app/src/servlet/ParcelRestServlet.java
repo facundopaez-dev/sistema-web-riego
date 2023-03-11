@@ -344,7 +344,7 @@ public class ParcelRestServlet {
      * cantidad de hectareas debe ser mayor a 0.0" y no se realiza
      * la operacion solicitada
      */
-    if (newParcel.getHectare() <= 0.0) {
+    if (newParcel.getHectares() <= 0.0) {
       return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_NUMBER_OF_HECTARES)).build();
     }
 

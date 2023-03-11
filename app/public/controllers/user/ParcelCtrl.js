@@ -179,7 +179,7 @@ app.controller(
         dado y no ejecuta la instruccion que realiza la peticion HTTP
         correspondiente a este controller
         */
-        if ($scope.data.hectare == undefined || $scope.data.hectare <= 0.0) {
+        if ($scope.data.hectares == undefined || $scope.data.hectares <= 0.0) {
           alert(INVALID_NUMBER_OF_HECTARES);
           return;
         }

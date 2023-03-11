@@ -23,14 +23,14 @@ public class WaterMath {
    * En pocas palabras, calcula el riego sugerido en milimetros para el
    * dia de hoy en funcion de lo que ha sucedido en el dia de ayer
    *
-   * @param  hectare                   [hectarea de la parcela sobre la cual estan plantados los cultivos del usuario cliente]
+   * @param  hectares                  [hectareas de la parcela sobre la cual estan plantados los cultivos del usuario cliente]
    * @param  yesterdayEtc              [ETc del dia de ayer] [milimetros]
    * @param  yesterdayEto              [ETo del dia de ayer] [milimetros]
    * @param  yesterdayRainWater        [cantidad de agua de lluvia del dia de ayer] [milimetros]
    * @param  waterAccumulatedYesterday [cantidad de agua acumulada del dia de ayer] [milimetros]
    * @return el riego sugerido [milimetros] para el dia de hoy
    */
-  public static double getSuggestedIrrigation(double hectare, double yesterdayEtc, double yesterdayEto, double yesterdayRainWater, double waterAccumulatedYesterday,
+  public static double getSuggestedIrrigation(double hectares, double yesterdayEtc, double yesterdayEto, double yesterdayRainWater, double waterAccumulatedYesterday,
   double totalIrrigationWaterToday) {
     // public static double getSuggestedIrrigation(double yesterdayEtc, double yesterdayEto, double yesterdayRainWater, double waterAccumulatedYesterday, double totalIrrigationWaterToday) {
 
@@ -87,7 +87,7 @@ public class WaterMath {
     //   suggestedIrrigationToday = yesterdayEvapotranspiration - (yesterdayRainWater + waterAccumulatedYesterday + totalIrrigationWaterToday);
     // }
     //
-    // suggestedIrrigationToday = hectare * suggestedIrrigationToday;
+    // suggestedIrrigationToday = hectares * suggestedIrrigationToday;
 
     /*
      * Necesidad total de riego del cultivo dado
@@ -100,7 +100,7 @@ public class WaterMath {
      * de lluvia del dia de ayer y la cantidad de agua
      * acumulada del dia de ayer
      */
-    double totalNeedIrrigation = hectare * (yesterdayEvapotranspiration - (yesterdayRainWater + waterAccumulatedYesterday));
+    double totalNeedIrrigation = hectares * (yesterdayEvapotranspiration - (yesterdayRainWater + waterAccumulatedYesterday));
 
     if (totalNeedIrrigation > (yesterdayRainWater + waterAccumulatedYesterday + totalIrrigationWaterToday)) {
       suggestedIrrigationToday = totalNeedIrrigation - (yesterdayRainWater + waterAccumulatedYesterday + totalIrrigationWaterToday);

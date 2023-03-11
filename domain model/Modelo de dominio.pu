@@ -19,7 +19,7 @@ RegistroRiego "*" --> "1" Cultivo
 class Parcela {
 -id
 -nombre
--hectarea
+-hectareas
 -latitud
 -longitud
 -activa

@@ -35,7 +35,7 @@ public class ClimateClientTest {
     newParcel.setName("Comodoro Rivadavia");
     newParcel.setLatitude(-45.86413);
     newParcel.setLongitude(-67.49656);
-    newParcel.setHectare(2);
+    newParcel.setHectares(2);
 
     /*
      * 31 de diciembre de 2023 en tiempo UNIX
@@ -68,7 +68,7 @@ public class ClimateClientTest {
     newParcel.setName("Bahia Blanca");
     newParcel.setLatitude(-38.71959);
     newParcel.setLongitude(-62.27243);
-    newParcel.setHectare(2);
+    newParcel.setHectares(2);
 
     /*
      * 1 de enero de 2023 en tiempo UNIX
@@ -101,7 +101,7 @@ public class ClimateClientTest {
     newParcel.setName("Puerto Madryn");
     newParcel.setLatitude(-42.7692);
     newParcel.setLongitude(-65.03851);
-    newParcel.setHectare(2);
+    newParcel.setHectares(2);
 
     /*
      * El objeto de tipo Calendar referenciado por la referencia
