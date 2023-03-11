@@ -136,7 +136,7 @@ app.controller(
 
       $scope.create = function () {
         // Expresion regular para validar el nombre de la parcela
-        var nameRegexp = /^^[A-Za-zÀ-ÿ]+(\s[A-Za-zÀ-ÿ]*[0-9]*[A-Za-zÀ-ÿ]*)*$/g;
+        var nameRegexp = /^[A-Za-zÀ-ÿ]+(\s[A-Za-zÀ-ÿ]*[0-9]*[A-Za-zÀ-ÿ]*)*$/g;
 
         /*
         Si la propiedad data de $scope tiene el valor undefined,
