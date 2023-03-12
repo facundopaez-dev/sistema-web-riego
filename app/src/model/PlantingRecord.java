@@ -97,15 +97,14 @@ public class PlantingRecord {
   @Override
   public String toString() {
     return String.format(
-      "ID: %d\nFecha de siembra: %s\nFecha de cosecha: %s\nParcela: %s (%d)\nCultivo: %s\nEstado: %s\n",
-      id,
-      UtilDate.formatDate(seedDate),
-      UtilDate.formatDate(harvestDate),
-      parcel.getName(),
-      parcel.getId(),
-      crop.getName(),
-      status.getName()
-    );
+        "ID: %d\nFecha de siembra: %s\nFecha de cosecha: %s\nParcela: %s (ID = %d)\nCultivo: %s\nEstado: %s\n",
+        id,
+        UtilDate.formatDate(seedDate),
+        UtilDate.formatDate(harvestDate),
+        parcel.getName(),
+        parcel.getId(),
+        crop.getName(),
+        status.getName());
   }
 
 }
