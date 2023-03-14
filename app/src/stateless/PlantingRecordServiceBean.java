@@ -17,6 +17,7 @@ public class PlantingRecordServiceBean {
 
   @PersistenceContext(unitName = "swcar")
   protected EntityManager entityManager;
+  private final String NON_EXISTENT_CROP = "Cultivo inexistente";
 
   public void setEntityManager(EntityManager emLocal) {
     entityManager = emLocal;
@@ -344,6 +345,171 @@ public class PlantingRecordServiceBean {
    */
   public boolean isFromFuture(PlantingRecord givenPlantingRecord) {
     return givenPlantingRecord.getSeedDate().after(Calendar.getInstance());
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo Collection que contiene
+   * referencias a objetos de tipo String que contienen los nombres
+   * de los cultivos que mas veces fueron plantados de los cultivos
+   * plantados en una parcela durante un periodo dado por dos fechas.
+   * En el caso en el que no existen tales cultivos, retorna una
+   * referencia a un objeto de tipo Collection vacio, es decir, que
+   * no tiene ninguna referencia a un objeto de tipo String.
+   */
+  private Collection<String> searchMostPlantedCrop(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    /*
+     * Cuenta la cantidad de veces que fue plantado cada uno de
+     * los cultivos que se plantaron en una parcela en un periodo
+     * dado por dos fechas, y selecciona la cantidad mas grande.
+     * 
+     * Hay que tener en cuenta que puede haber mas de un cultivo
+     * que haya sido plantado en mayor medida y la misma cantidad
+     * de veces en una parcela durante un periodo dado por dos fechas.
+     * Por lo tanto, la consulta (queryString) correspondiente a esta
+     * condicion puede retornar mas de un nombre de cultivo como
+     * los cultivos que mas veces fueron plantados de los cultivos
+     * plantados en una parcela en un periodo dado por dos fechas.
+     */
+    String conditionHaving = "(SELECT MAX(SUBQUERY.AMOUNT_CROP) FROM (SELECT FK_CROP, COUNT(FK_CROP) AS AMOUNT_CROP FROM PLANTING_RECORD "
+        + "WHERE (((?1 > SEED_DATE AND ?1 <= HARVEST_DATE AND HARVEST_DATE <= ?2) OR "
+        + "(SEED_DATE >= ?1 AND HARVEST_DATE <= ?2) OR "
+        + "(?2 < HARVEST_DATE AND ?1 <= SEED_DATE AND SEED_DATE <= ?2)) AND FK_PARCEL = ?3 AND FK_STATUS = 1) GROUP BY FK_CROP) AS SUBQUERY))";
+
+    /*
+     * Con esta condicion se seleccionan todos los registros de
+     * plantacion finalizados (*) de una parcela que estan entre
+     * la fecha desde y la fecha hasta dadas.
+     * 
+     * Con la primera condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra estrictamente menor (esta antes) que la fecha
+     * desde (1), y su fecha de cosecha mayor o igual que la fecha
+     * desde (1) y menor o igual que la fecha hasta (2). Es decir,
+     * se selecciona el registro de plantacion finalizado de una
+     * parcela que tiene unicamente su fecha de cosecha dentro
+     * del periodo que va desde la fecha desde (1) a la fecha hasta
+     * (2) dadas.
+     * 
+     * Con la segunda condicion se seleccionan los registros de
+     * plantacion finalizados (*) de una parcela que tienen su
+     * fecha de siembra mayor o igual que la fecha desde (1) y
+     * su fecha de cosecha menor o igual que la fecha hasta (2).
+     * Es decir, se seleccionan los registros de plantacion que
+     * tienen su fecha de siembra y su fecha de cosecha dentro
+     * del periodo que va desde la fecha desde (1) a la fecha
+     * hasta (2).
+     * 
+     * Con la tercera conidicon se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su
+     * fecha de cosecha estrictamente mayor (esta despues) que
+     * la fecha hasta (2), y su fecha de siembra mayor o igual
+     * que la fecha desde (1) y menor o igual que la fecha hasta
+     * (2). Es decir, se selecciona el registro de plantacion
+     * finalizado de una parcela que tiene unicamente su fecha
+     * de siembra dentro del periodo que va desde la fecha desde
+     * (1) a la fecha hasta (2).
+     * 
+     * (*) El ID para el estado finalizado de un registro de
+     * plantacion es el 1, siempre y cuando no se modifique el
+     * orden en el que se ejecutan las instrucciones de insercion
+     * del archivo plantingRecordStatusInserts.sql de la ruta
+     * app/etc/sql.
+     */
+    String conditionWhere = "((?1 > SEED_DATE AND ?1 <= HARVEST_DATE AND HARVEST_DATE <= ?2) OR "
+        + "(SEED_DATE >= ?1 AND HARVEST_DATE <= ?2) OR "
+        + "(?2 < HARVEST_DATE AND ?1 <= SEED_DATE AND SEED_DATE <= ?2)) AND FK_PARCEL = ?3 AND FK_STATUS = 1 ";
+
+    /*
+     * Selecciona el ID del cultivo que mas veces fue plantado de
+     * los cultivos plantados en una parcela durante un periodo
+     * dado por dos fechas.
+     * 
+     * Hay que tener en cuenta que puede haber mas de un cultivo que
+     * haya sido plantado en mayor medida y la misma cantidad de veces
+     * en una parcela durante un periodo dado por dos fechas. Por lo
+     * tanto, esta subconsulta puede seleccionar el ID de mas de un
+     * cultivo como los IDs de los cultivos que mas veces fueron
+     * plantados de los cultivos plantados en una parcela durante un
+     * periodo dado por dos fechas.
+     */
+    String subQuery = "(SELECT FK_CROP FROM PLANTING_RECORD WHERE " + conditionWhere
+        + "GROUP BY FK_CROP HAVING COUNT(FK_CROP) = " + conditionHaving;
+
+    /*
+     * Selecciona el nombre del cultivo que mas veces fue plantado
+     * de los cultivos plantados en una parcela durante el periodo
+     * dado por dos fechas.
+     * 
+     * Esta consulta SQL opera unicamente con los registros de
+     * plantacion de una parcela que estan en el estado "Finalizado".
+     * Por lo tanto, selecciona el nombre del cultivo que mas veces
+     * fue plantado de los cultivos plantados en una parcela durante
+     * el periodo dado por dos fechas haciendo uso unicamente de los
+     * registros de plantacion finalizados de una parcela.
+     * 
+     * Hay que tener en cuenta que puede haber mas de un cultivo que
+     * haya sido plantado en mayor medida y la misma cantidad de veces
+     * en una parcela durante un periodo dado por dos fechas. Por lo
+     * tanto, esta consulta puede seleccionar el nombre de mas de un
+     * cultivo como los nombres de los cultivos que mas veces fueron
+     * plantados en una parcela durante un periodo dado por dos fechas.
+     */
+    String queryString = "SELECT NAME FROM CROP WHERE ID IN " + subQuery;
+
+    Query query = getEntityManager().createNativeQuery(queryString);
+    query.setParameter(1, dateFrom);
+    query.setParameter(2, dateUntil);
+    query.setParameter(3, parcelId);
+
+    Collection<String> cropNames = null;
+
+    try {
+      cropNames = (Collection) query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return cropNames;
+  }
+
+  /**
+   * Retorna el nombre del cultivo que mas veces fue plantado de los
+   * cultivos plantados en una parcela durante un periodo dado por
+   * dos fechas si y solo si existe tal cultivo
+   * 
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo String que contiene
+   * el nombre del cultivo que mas veces fue plantado de los
+   * cultivos plantados en una parcela durante un periodo dado
+   * por dos fechas, si existe dicho cultivo, en caso contrario
+   * retorna la referencia a un objeto de tipo String que contiene
+   * la cadena "Cultivo inexistente"
+   */
+  public String findMostPlantedCrop(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    Collection<String> cropNames = searchMostPlantedCrop(parcelId, dateFrom, dateUntil);
+
+    /*
+     * Si la coleccion devuelta por el metodo searchMostPlantedCrop,
+     * esta vacia o su tamaño es mayor a 1 significa que no se encontro
+     * el cultivo que mas veces fue plantado o que existe mas de un cultivo
+     * plantado en mayor medida de los cultivos plantados en una parcela
+     * durante un periodo dado por dos fechas.
+     * 
+     * En ambos casos se retorna la cadena "Cultivo no existente". En
+     * el segundo caso se retorna dicha cadena porque el cultivo que
+     * mas veces fue plantado de los cultivos plantados en una parcela
+     * durante un periodo dado por dos fechas es uno solo.
+     */
+    if (cropNames.isEmpty() || cropNames.size() > 1) {
+      return NON_EXISTENT_CROP;
+    }
+
+    return (String) cropNames.toArray()[0];
   }
 
 }

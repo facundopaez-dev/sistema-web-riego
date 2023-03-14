@@ -38,6 +38,10 @@
   registradas asociadas a los mismos -->
   <target name="t89" depends="init, run_t89_sql" />
 
+  <!-- Comando para cargar la base de datos subyacente con los datos necesarios para probar la tarea
+  100 de la pila del producto -->
+  <target name="t100" depends="init, run_t100_sql" />
+
   <target name="init">
     <property name="example_name" value="swcar" />
     <property name="DB_NAME" value="swcar" />
