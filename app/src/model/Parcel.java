@@ -164,6 +164,7 @@ public class Parcel {
     return String.format(
         "ID: %d\nNombre: %s\nHectáreas: %f\nLatitud: %f\nLongitud: %f\nActiva: %b\nID de usuario: %d\n",
         id,
+        name,
         hectares,
         latitude,
         longitude,
