@@ -3,6 +3,7 @@ package stateless;
 import java.util.Calendar;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -11,6 +12,7 @@ import javax.persistence.Query;
 import model.Crop;
 import model.Parcel;
 import model.PlantingRecord;
+import util.UtilDate;
 
 @Stateless
 public class PlantingRecordServiceBean {
@@ -170,6 +172,50 @@ public class PlantingRecordServiceBean {
     query.setParameter("givenParcelName", givenParcelName);
 
     return (Collection) query.getResultList();
+  }
+
+  /**
+   * Retorna los registros de plantacion finalizados de una
+   * parcela que estan dentro de un periodo definido por dos
+   * fechas
+   * 
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo Collection que
+   * contiene los registros de plantacion finalizados de
+   * una parcela que se encuentran dentro de un periodo
+   * definido por dos fechas
+   */
+  public List<PlantingRecord> findAllByPeriod(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    /*
+     * Con esta condicion se seleccionan todos los registros de
+     * plantacion finalizados (*) de una parcela que estan entre
+     * la fecha desde y la fecha hasta dadas.
+     * 
+     * Para ser mas especifico se seleccionan los registros de
+     * plantacion finalizados de una parcela que tienen su fecha
+     * de siembra mayor o igual que la fecha desde y su fecha de
+     * cosecha menor o igual que la fecha hasta. Es decir, se
+     * seleccionan los registros de plantacion que tienen su
+     * fecha de siembra y su fecha de cosecha dentro del periodo
+     * que va desde la fecha desde a la fecha hasta.
+     * 
+     * (*) El ID para el estado finalizado de un registro de
+     * plantacion es el 1, siempre y cuando no se modifique el
+     * orden en el que se ejecutan las instrucciones de insercion
+     * del archivo plantingRecordStatusInserts.sql de la ruta
+     * app/etc/sql.
+     */
+    String conditionWhere = "(r.parcel.id = :givenParcelId AND r.status.id = 1 AND (r.seedDate >= :givenDateFrom AND r.harvestDate <= :givenDateUntil))";
+
+    Query query = getEntityManager()
+        .createQuery("SELECT r FROM PlantingRecord r WHERE " + conditionWhere + " ORDER BY r.id");
+    query.setParameter("givenParcelId", parcelId);
+    query.setParameter("givenDateFrom", dateFrom);
+    query.setParameter("givenDateUntil", dateUntil);
+
+    return (List) query.getResultList();
   }
 
   /**
@@ -993,6 +1039,291 @@ public class PlantingRecordServiceBean {
     }
 
     return (String) cropNames.toArray()[0];
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return cantidad de dias en los que una parcela no tuvo
+   * ningun cultivo plantado dentro de un periodo definido por
+   * dos fechas, contemplando los años bisiestos y no bisiestos
+   */
+  public int calculateDaysWithoutCrops(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    /*
+     * Obtiene todos los registros de plantacion finalizados
+     * de una parcela que estan dentro de un periodo definido
+     * por dos fechas
+     */
+    List<PlantingRecord> plantingRecords = findAllByPeriod(parcelId, dateFrom, dateUntil);
+    int daysWithoutCrops = 0;
+
+    /*
+     * Calcula la diferencia de dias que hay entre la fecha
+     * desde y la fecha de siembra del primer registro de
+     * plantacion finalizado de una parcela, el cual, esta
+     * dentro de un periodo definido por dos fechas. El
+     * resultado de esta diferencia es la cantidad de dias
+     * en los que una parcela no tuvo ningun cultivo plantado
+     * desde el dia de la fecha desde (incluido) hasta el
+     * dia de la fecha de siembra (excluido) de su primer
+     * registro de plantacion, el cual, pertenece a un
+     * periodo definido por dos fechas.
+     * 
+     * Se incluye el dia de la fecha desde en la cantidad de
+     * dias en los que una parcela no tuvo ningun cultivo
+     * plantado porque la fecha desde cuenta como un dia en
+     * el que una parcela no tuvo ningun cultivo plantado.
+     * 
+     * Se excluye el dia de la fecha de siembra de la cantidad
+     * de dias en los que una parcela no tuvo ningun cultivo
+     * plantado porque la fecha de siembra no cuenta como
+     * un dia en el que una parcela no tuvo ningun cultivo
+     * plantado.
+     */
+    daysWithoutCrops = calculateDifferenceDateFromAndSeedDate(dateFrom, plantingRecords.get(0).getSeedDate());
+
+    /*
+     * Calcula la diferencia de dias que hay entre la fecha
+     * de cosecha del ultimo registro de plantacion finalizado
+     * de una parcela y la fecha hasta. Este registro de
+     * plantacion esta dentro de un periodo definido por
+     * dos fechas. El resultado de esta diferencia es la
+     * cantidad de dias en los que una parcela no tuvo
+     * ningun cultivo plantado desde el dia de la fecha de
+     * cosecha (excluido) de su ultimo registro de plantacion
+     * hasta el dia de la fecha hasta (incluido). Este
+     * registro de plantacion pertenece a un periodo definido
+     * por dos fechas.
+     * 
+     * Se excluye el dia de la fecha de cosecha de la cantidad
+     * de dias en los que una parcela no tuvo ningun cultivo
+     * plantado porque la fecha de cosecha no cuenta como
+     * un dia en el que una parcela no tuvo ningun cultivo
+     * plantado.
+     * 
+     * Se incluye el dia de la fecha hasta en la cantidad de
+     * dias en los que una parcela no tuvo ningun cultivo
+     * plantado porque la fecha hasta cuenta como un dia en
+     * el que una parcela no tuvo ningun cultivo plantado.
+     */
+    daysWithoutCrops = daysWithoutCrops + calculateDifferenceHarvestDateAndDateUntil(plantingRecords.get(plantingRecords.size() - 1).getHarvestDate(), dateUntil);
+
+    Calendar harvestDateCurrentPlantingRecord;
+    Calendar seedDateNextPlantingRecord;
+
+    for (int i = 0; i < plantingRecords.size() - 1; i++) {
+      harvestDateCurrentPlantingRecord = plantingRecords.get(i).getHarvestDate();
+      seedDateNextPlantingRecord = plantingRecords.get(i + 1).getSeedDate();
+
+      /*
+       * Si la fecha de cosecha del registro de plantacion (finalizado)
+       * actual y la fecha de siembra del siguiente registro de plantacion
+       * (finalizado) tienen el mismo año, y si la diferencia de dias
+       * entre ambas es mayor a 1, significa que dicha fecha de siembra
+       * NO es el dia inmediatamente siguiente a dicha fecha de cosecha.
+       * 
+       * Por lo tanto, a la cantidad de dias en los que una parcela
+       * no tuvo ningun cultivo plantado desde una fecha desde hasta
+       * una fecha hasta, se le suma la diferencia de dias que hay
+       * entre la fecha de siembra del siguiente registro de plantacion
+       * y la fecha de cosecha del registro de plantacion actual
+       * menos uno, ya que la fecha de siembra no cuenta como un dia
+       * en el que una parcela no tuvo ningun cultivo plantado.
+       * 
+       * Si la diferencia de dias entre la fecha de siembra del
+       * siguiente registro de plantacion y la fecha de cosecha
+       * del registro de plantacion actual es igual 1, significa
+       * que dicha fecha de siembra es el dia inmediatamente
+       * siguiente a dicha fecha de cosecha. Por lo tanto, no
+       * se cuenta esta diferencia como un dia en el que una
+       * parcela no tuvo ningun cultivo plantado.
+       * 
+       * La instruccion if que esta dentro del bloque then de la
+       * primera instruccion if se puede eliminar, pero si se lo
+       * hace y si la fecha de cosecha del registro de plantacion
+       * actual y la fecha de siembra del siguiente registro de
+       * plantacion son iguales, se restara una unidad a la cantidad
+       * de dias en los que una parcela no tuvo ningun cultivo
+       * plantado, lo cual, es erroneo.
+       */
+      if (UtilDate.sameYear(harvestDateCurrentPlantingRecord, seedDateNextPlantingRecord)) {
+
+        if ((seedDateNextPlantingRecord.get(Calendar.DAY_OF_YEAR) - harvestDateCurrentPlantingRecord.get(Calendar.DAY_OF_YEAR)) > 1) {
+          daysWithoutCrops = daysWithoutCrops + UtilDate
+              .calculateDifferenceDaysWithinSameYear(harvestDateCurrentPlantingRecord, seedDateNextPlantingRecord) - 1;
+        }
+
+      } else {
+        /*
+         * Si el año de la fecha de cosecha del registro de
+         * plantacion actual es bisiesto, la diferencia de
+         * dias entre el ultimo dia del año de la fecha de
+         * cosecha y el dia de la fecha de cosecha se calcula
+         * contemplando 366 dias.
+         * 
+         * Ambos calculos excluyen a la fecha de cosecha del
+         * resultado, ya que la fecha de cosecha no cuenta
+         * como un dia en el que una parcela no tuvo ningun
+         * cultivo plantado.
+         */
+        if (UtilDate.isLeapYear(harvestDateCurrentPlantingRecord.get(Calendar.YEAR))) {
+          daysWithoutCrops = daysWithoutCrops + (366 - harvestDateCurrentPlantingRecord.get(Calendar.DAY_OF_YEAR));
+        } else {
+          daysWithoutCrops = daysWithoutCrops + (365 - harvestDateCurrentPlantingRecord.get(Calendar.DAY_OF_YEAR));
+        }
+
+        /*
+         * A la cantidad de dias en los que una parcela no tuvo
+         * ningun cultivo plantado se le suma el numero de dia
+         * en el año de la fecha de siembra del siguiente
+         * registro de plantacion menos uno, ya que la fecha
+         * de siembra no cuenta como un dia en el que una
+         * parcela no tuvo ningun cultivo plantado
+         */
+        daysWithoutCrops = daysWithoutCrops + (seedDateNextPlantingRecord.get(Calendar.DAY_OF_YEAR) - 1);
+
+        /*
+         * A la cantidad de dias en los que una parcela no tuvo
+         * ningun cultivo plantado se le suma la cantidad de dias
+         * que hay entre el año de la fecha de cosecha del
+         * registro de plantacion actual y el año de la fecha de
+         * siemabra del siguiente registro de plantacion, excluyendo
+         * la cantidad total de dias de ambos años, ya que estos
+         * años se tuvieron en cuenta en los calculos anteriores
+         */
+        daysWithoutCrops = daysWithoutCrops + UtilDate.calculateDifferenceDaysThroughYears(
+            harvestDateCurrentPlantingRecord.get(Calendar.YEAR), seedDateNextPlantingRecord.get(Calendar.YEAR));
+      } // End if
+
+    } // End for
+
+    return daysWithoutCrops;
+  }
+
+  /**
+   * @param dateFrom
+   * @param seedDate
+   * @return cantidad de dias que hay entre la fecha desde y la
+   * fecha de siembra, incluyendo el dia de la fecha desde (ya
+   * que cuenta como un dia en el que una parcela no tuvo ningun
+   * cultivo plantado), excluyendo el dia de la fecha de siembra
+   * (ya que no cuenta como un dia en el que una parcela no tuvo
+   * ningun cultivo plantado) y contemplando los años bisiestos y
+   * no bisiestos que hay entre ambas fechas
+   */
+  private int calculateDifferenceDateFromAndSeedDate(Calendar dateFrom, Calendar seedDate) {
+    /*
+     * Si la fecha desde y la fecha de siembra tienen el mismo
+     * año, se retorna la diferencia de dias que hay entre ellas
+     * haciendo la resta entre el numero de dia en el año de
+     * la fecha de siembra y el numero de dia en el año de la
+     * fecha desde
+     */
+    if (UtilDate.sameYear(dateFrom, seedDate)) {
+      return UtilDate.calculateDifferenceDaysWithinSameYear(dateFrom, seedDate);
+    }
+
+    int daysDifference = 0;
+
+    /*
+     * Calcula la cantidad de dias que hay entre el dia de la
+     * fecha desde y el ultimo dia del año de la fecha desde,
+     * contemplando si el año de dicha fecha es bisiesto o no.
+     * 
+     * El "+ 1" en ambos calculos es para incluir el dia de la
+     * fecha desde en el resultado, ya que este dia no cuenta
+     * como un dia en el que una parcela no tuvo ningun cultivo
+     * plantado.
+     */
+    if (UtilDate.isLeapYear(dateFrom.get(Calendar.YEAR))) {
+      daysDifference = 366 - dateFrom.get(Calendar.DAY_OF_YEAR) + 1;
+    } else {
+      daysDifference = 365 - dateFrom.get(Calendar.DAY_OF_YEAR) + 1;
+    }
+
+    /*
+     * A la diferencia de dias que hay entre la fecha desde y la
+     * fecha de siembra se le suma el numero de dia en el año de
+     * la fecha de siembra menos uno, ya que el dia de la fecha
+     * de siembra no cuenta como un dia en el que una parcela no
+     * tuvo ningun cultivo plantado
+     */
+    daysDifference = daysDifference + seedDate.get(Calendar.DAY_OF_YEAR) - 1;
+
+    /*
+     * Calcula la cantidad de dias que hay entre el año de la fecha
+     * desde y el año de la fecha de siembra, excluyendo la cantidad
+     * total de dias de ambos y contemplando los años bisiestos y no
+     * bisiestos que hay entre ambos. La cantidad total de dias del
+     * año de la fecha desde y del año de la fecha de siembra se
+     * excluye porque estos años se tuvieron en cuenta en los calculos
+     * previos.
+     */
+    daysDifference = daysDifference + UtilDate.calculateDifferenceDaysThroughYears(dateFrom.get(Calendar.YEAR), seedDate.get(Calendar.YEAR));
+    return daysDifference;
+  }
+
+  /**
+   * @param harvestDate
+   * @param dateUntil
+   * @return cantidad de dias que hay entre la fecha de cosecha y
+   * la fecha hasta, excluyendo el dia de la fecha de cosecha (ya
+   * que no cuenta como un dia en el que una parcela no tuvo ningun
+   * cultivo plantado), incluyendo el dia de la fecha hasta (ya que
+   * cuenta como un dia en el que una parcela no tuvo ningun cultivo
+   * plantado) y contemplando los años bisiestos y no bisiestos que
+   * hay entre ambas fechas
+   */
+  private int calculateDifferenceHarvestDateAndDateUntil(Calendar harvestDate, Calendar dateUntil) {
+    /*
+     * Si la fecha de cosecha y la fecha hasta tienen el mismo
+     * año, se retorna la diferencia de dias que hay entre ellas
+     * haciendo la resta entre el numero de dia en el año de
+     * la fecha de cosecha y el numero de dia en el año de la
+     * fecha hasta
+     */
+    if (UtilDate.sameYear(harvestDate, dateUntil)) {
+      return UtilDate.calculateDifferenceDaysWithinSameYear(harvestDate, dateUntil);
+    }
+
+    int daysDifference = 0;
+
+    /*
+     * Calcula la cantidad de dias que hay entre el dia de la
+     * fecha de cosecha y el ultimo dia del año de la fecha de
+     * cosecha, contemplando si el año de dicha fecha es bisiesto
+     * o no.
+     * 
+     * Ambos calculos excluyen al dia de la fecha de cosecha del
+     * resultado, ya que este dia no cuenta como un dia en el que
+     * una parcela no tuvo ningun cultivo plantado.
+     */
+    if (UtilDate.isLeapYear(harvestDate.get(Calendar.YEAR))) {
+      daysDifference = 366 - harvestDate.get(Calendar.DAY_OF_YEAR);
+    } else {
+      daysDifference = 365 - harvestDate.get(Calendar.DAY_OF_YEAR);
+    }
+
+    /*
+     * A la diferencia de dias que hay entre la fecha de cosecha y
+     * la fecha hasta se le suma el numero de dia en el año de
+     * la fecha hasta, ya que este dia cuenta como un dia en el
+     * que una parcela no tuvo ningun cultivo plantado
+     */
+    daysDifference = daysDifference + dateUntil.get(Calendar.DAY_OF_YEAR);
+
+    /*
+     * Calcula la cantidad de dias que hay entre el año de la fecha
+     * de cosecha y el año de la fecha hasta, excluyendo la cantidad
+     * total de dias de ambos y contemplando los años bisiestos y no
+     * bisiestos que hay entre ambos. La cantidad total de dias del
+     * año de la fecha de cosecha y del año de la fecha hasta se
+     * excluye porque estos años se tuvieron en cuenta en los calculos
+     * previos.
+     */
+    daysDifference = daysDifference + UtilDate.calculateDifferenceDaysThroughYears(harvestDate.get(Calendar.YEAR), dateUntil.get(Calendar.YEAR));
+    return daysDifference;
   }
 
 }
