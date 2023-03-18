@@ -290,8 +290,8 @@ public class ClimateClient {
      * de datos metereologicos para indicar la ausencia de datos, como
      * informacion metereologica faltante o datos desconocidos. No se
      * utiliza el valor null para indicar un valor cero. Por ejemplo,
-     * un valor de precipitación desconocido se marcará como vacío o
-     * null. Una cantidad cero de precipitación se indicará con el
+     * un valor de precipitacion desconocido se marcara como vacio o
+     * null. Una cantidad cero de precipitacion se indicara con el
      * valor cero. Este es el motivo por el cual se realiza un control
      * sobre el tipo de precipitacion verificando si tiene el valor
      * null.
@@ -300,6 +300,7 @@ public class ClimateClient {
       /*
        * Segun la documentacion de Visual Crossing Weather del siguiente
        * enlace:
+       * 
        * https://www.visualcrossing.com/resources/documentation/weather-data/weather-data-documentation/
        * 
        * hay cuatro tipos de precipitaciones: rain, freezing rain, snow e ice.
