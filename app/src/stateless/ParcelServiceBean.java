@@ -85,13 +85,6 @@ public class ParcelServiceBean {
     Parcel chosenParcel = find(userId, parcelId);
 
     if (chosenParcel != null) {
-      /*
-       * TODO: Leer
-       * Probablemente se tenga que hacer una validacion
-       * que impida que un mismo usuario cliente cargue
-       * para si mismo mas de una parcela con nombre
-       * repetido
-       */
       chosenParcel.setName(modifiedParcel.getName());
       chosenParcel.setHectares(modifiedParcel.getHectares());
       chosenParcel.setLongitude(modifiedParcel.getLongitude());

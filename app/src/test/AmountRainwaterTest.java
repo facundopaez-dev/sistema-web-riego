@@ -107,7 +107,7 @@ public class AmountRainwaterTest {
   @Test
   public void testTwoCalculateAmountRainwaterByPeriod() {
     System.out.println("****************************** Prueba dos del metodo calculateAmountRainwaterByPeriod ******************************");
-    System.out.println("-  Los registros climaticos comprendidos en un periodo definido por dos fechas, tienen distintas cantidades de agua de");
+    System.out.println("- Los registros climaticos comprendidos en un periodo definido por dos fechas, tienen distintas cantidades de agua de");
     System.out.println("lluvia. Por lo tanto, la cantidad total de agua de lluvia es distinta de cero.");
     System.out.println();
     System.out.println("Dada una parcela con 30 registros climaticos, teniendo 10 de ellos 1 mm/dia de agua de lluvia, 5 de ellos 0 mm/dia de");
