@@ -2,6 +2,7 @@
 
 Parcela "*"-->"1" Usuario
 RegistroClimatico "*"-->"1" Parcela
+RegistroClimatico "1"<-->"*" TipoPrecipitacion
 RegistroRiego "*"-->"1" Parcela
 RegistroPlantacion "*"-->"1" Parcela
 RegistroPlantacion "*"-->"1" Cultivo
@@ -58,6 +59,11 @@ class RegistroClimatico {
 -cantidadAguaAcumulada
 -eto
 -etc
+}
+
+class TipoPrecipitacion {
+-id
+-nombre
 }
 
 class RegistroPlantacion {

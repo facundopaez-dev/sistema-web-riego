@@ -33,6 +33,7 @@
  package model;
 
 import java.util.Calendar;
+import java.util.Collection;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -40,9 +41,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.CascadeType;
 import javax.persistence.UniqueConstraint;
 import util.UtilDate;
 
@@ -92,6 +95,32 @@ public class ClimateRecord {
    */
   @Column(name = "PRECIP_PROBABILITY", nullable = false)
   private double precipProbability;
+
+  /*
+   * Seguna la documentacion de Visual Crossing Weather, los
+   * valores posibles del tipo de precipitacion devueltos por
+   * esta API incluyen lluvia (rain), nieve (snow), lluvia helada
+   * (freezing rain) y granizo (ice).
+   * 
+   * Esto se lo encuentra en el siguiente enlace:
+   * 
+   * https://www.visualcrossing.com/resources/documentation/weather-data/weather-data-documentation/
+   * 
+   * Hay que tener en cuenta que una invocacion a Visual Crossing
+   * Weather puede devolver un conjunto de datos metereologicos en
+   * el que preciptype tenga el valor null.
+   * 
+   * Segun la documentacion del enlace de este comentario, Visual
+   * Crossing Weather utiliza el valor null dentro del conjunto de
+   * datos metereologicos para indicar la ausencia de datos, como
+   * informacion metereologica faltante o datos desconocidos. No se
+   * utiliza el valor null para indicar un valor cero. Por ejemplo,
+   * un valor de precipitacion desconocido se marcara como vacio o
+   * null. Una cantidad cero de precipitacion se indicara con el
+   * valor cero.
+   */
+  @OneToMany(mappedBy = "climateRecord", cascade = CascadeType.PERSIST)
+  private Collection<TypePrecipitation> precipTypes;
 
   /*
    * Punto de rocio [°C]
@@ -251,6 +280,22 @@ public class ClimateRecord {
 	}
 
 	/**
+	 * Returns value of precipTypes
+	 * @return
+	 */
+	public Collection<TypePrecipitation> getPrecipTypes() {
+		return precipTypes;
+	}
+
+	/**
+	 * Sets new value of precipTypes
+	 * @param
+	 */
+	public void setPrecipTypes(Collection<TypePrecipitation> precipTypes) {
+		this.precipTypes = precipTypes;
+	}
+
+  /**
 	 * Returns value of dewPoint
 	 * @return
 	 */
@@ -413,21 +458,21 @@ public class ClimateRecord {
   @Override
   public String toString() {
     return String.format(
-      "ID: %d\nLatitud: %f (grados decimales) Longitud: %f (grados decimales)\nFecha: %s\nPrecipitación del día: %f milímetros/día\nProbabilidad de precipitación: %f [porcentaje 0 - 100]\nPunto de rocío: %f °C\nPresión atmosférica: %f hectopascales (milibares)\nVelocidad del viento: %f kilómetros/por hora\nNubosidad: %f [porcentaje 0 - 100]\nTemperatura mínima: %f °C\nTemperatura máxima: %f °C\nCantidad de agua acumulada: %f milímetros/día\n",
-      id,
-      parcel.getLatitude(),
-      parcel.getLongitude(),
-      UtilDate.formatDate(date),
-      precip,
-      precipProbability,
-      dewPoint,
-      atmosphericPressure,
-      windSpeed,
-      cloudCover,
-      minimumTemperature,
-      maximumTemperature,
-      waterAccumulated
-    );
+        "ID: %d\nLatitud: %f (grados decimales) Longitud: %f (grados decimales)\nFecha: %s\nPrecipitación del día: %f milímetros/día\nProbabilidad de precipitación: %f [porcentaje 0 - 100]\nPunto de rocío: %f °C\nPresión atmosférica: %f hectopascales (milibares)\nVelocidad del viento: %f kilómetros/por hora\nNubosidad: %f [porcentaje 0 - 100]\nTemperatura mínima: %f °C\nTemperatura máxima: %f °C\nCantidad de agua acumulada: %f milímetros/día\nTipos de precipitacion: %s\n",
+        id,
+        parcel.getLatitude(),
+        parcel.getLongitude(),
+        UtilDate.formatDate(date),
+        precip,
+        precipProbability,
+        dewPoint,
+        atmosphericPressure,
+        windSpeed,
+        cloudCover,
+        minimumTemperature,
+        maximumTemperature,
+        waterAccumulated,
+        precipTypes);
   }
 
 }

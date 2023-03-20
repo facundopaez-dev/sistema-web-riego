@@ -15,6 +15,7 @@
     <class>model.Session</class>
     <class>model.SolarRadiation</class>
     <class>model.TypeCrop</class>
+    <class>model.TypePrecipitation</class>
     <class>model.User</class>
     <class>model.SecretKey</class>
     <properties>

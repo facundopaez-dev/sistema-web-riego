@@ -6,8 +6,11 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.ArrayList;
 import model.ClimateRecord;
 import model.Parcel;
+import model.TypePrecipitation;
 import weatherApiClasses.Day;
 import weatherApiClasses.Forecast;
 import javax.net.ssl.TrustManager;
@@ -329,6 +332,7 @@ public class ClimateClient {
        * realizar la conversion de nieve a agua liquida.
        */
       givenClimateRecord.setPrecip(givenDay.getPrecip());
+      givenClimateRecord.setPrecipTypes(setPrecipTypes(givenClimateRecord, givenDay.getPreciptype()));
       givenClimateRecord.setPrecipProbability(givenDay.getPrecipprob());
     }
 
@@ -339,6 +343,28 @@ public class ClimateClient {
      * precipProbability de una instancia de tipo ClimateRecord se
      * inicializan en 0.0, debido a que son variables de instancia.
      */
+  }
+
+  /**
+   * @param givenClimateRecord
+   * @param givenPrecipTypes
+   * @return referencia a un objeto de tipo Collection que
+   * contiene los tipos de precipitacion del conjunto de
+   * datos metereologicos devuelto por una llamada a
+   * Visual Crossing Weather
+   */
+  private static Collection<TypePrecipitation> setPrecipTypes(ClimateRecord givenClimateRecord, Collection<String> givenPrecipTypes) {
+    Collection<TypePrecipitation> precipTypes = new ArrayList();
+    TypePrecipitation newPrecipType;
+
+    for (String currentPrecipType : givenPrecipTypes) {
+      newPrecipType = new TypePrecipitation();
+      newPrecipType.setName(currentPrecipType);
+      newPrecipType.setClimateRecord(givenClimateRecord);
+      precipTypes.add(newPrecipType);
+    }
+
+    return precipTypes;
   }
 
 }

@@ -33,6 +33,25 @@ public class ParcelServiceBean {
   }
 
   /**
+   * Elimina una parcela fisicamente mediante su ID
+   * 
+   * @param id
+   * @return referencia a un objeto de tipo Parcel en
+   * caso de eliminarse de la base de datos subyacente
+   * la parcela con el ID dado, en caso contrario null
+   */
+  public Parcel remove(int id) {
+    Parcel givenParcel = find(id);
+
+    if (givenParcel != null) {
+      getEntityManager().remove(givenParcel);
+      return givenParcel;
+    }
+
+    return null;
+  }
+
+  /**
    * Elimina logicamente una parcela de un usuario
    * 
    * @param userId

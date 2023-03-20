@@ -33,6 +33,30 @@ public class ClimateRecordServiceBean {
   }
 
   /**
+   * Elimina un registro climatico fisicamente mediante su ID
+   * 
+   * @param id
+   * @return referencia a un objeto de tipo ClimateRecord en
+   * caso de eliminarse de la base de datos subyacente el
+   * registro climatico con el ID dado, en caso contrario
+   * null
+   */
+  public ClimateRecord remove(int id) {
+    ClimateRecord givenClimateRecord = find(id);
+
+    if (givenClimateRecord != null) {
+      getEntityManager().remove(givenClimateRecord);
+      return givenClimateRecord;
+    }
+
+    return null;
+  }
+
+  public ClimateRecord find(int id) {
+    return getEntityManager().find(ClimateRecord.class, id);
+  }
+
+  /**
    * Retorna un registro climatico perteneciente a una de las
    * parcelas de un usuario
    * 
@@ -194,6 +218,41 @@ public class ClimateRecordServiceBean {
     query.setParameter("givenParcel", givenParcel);
     query.setParameter("waterAccumulated", waterAccumulated);
     query.executeUpdate();
+  }
+
+  /**
+   * Calcula la cantidad total de agua de lluvia que cayo sobre
+   * una parcela en un periodo definido por dos fechas. Esta
+   * cantidad de agua esta medida en milimetros por periodo.
+   * 
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return cantidad total de agua de lluvia que cayo sobre
+   * una parcela en un periodo definido por dos fechas
+   */
+  public double calculateAmountRainwaterByPeriod(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    /*
+     * Con esta condicion, la consulta selecciona todos los
+     * registros climaticos de una parcela que estan
+     * comprendidos en un periodo definido por dos fechas en
+     * los que esta la lluvia como una de las precipitaciones
+     */
+    String conditionWhere = "(c.parcel.id = :givenParcelId AND :givenDateFrom <= c.date AND c.date <= :givenDateUntil AND t.name = 'rain')";
+
+    /*
+     * Suma la cantidad de agua de lluvia de cada uno de los
+     * registros climaticos de una parcela que estan comprendidos
+     * en un periodo definido por dos fechas, obteniendo la
+     * cantidad total de agua de lluvia que cayo sobre una
+     * parcela en un periodo dado
+     */
+    Query query = entityManager.createQuery("SELECT SUM(c.precip) FROM TypePrecipitation t JOIN t.climateRecord c WHERE " + conditionWhere);
+    query.setParameter("givenParcelId", parcelId);
+    query.setParameter("givenDateFrom", dateFrom);
+    query.setParameter("givenDateUntil", dateUntil);
+
+    return (double) query.getSingleResult();
   }
 
 }
