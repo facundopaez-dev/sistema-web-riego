@@ -1048,15 +1048,32 @@ public class PlantingRecordServiceBean {
    * @return cantidad de dias en los que una parcela no tuvo
    * ningun cultivo plantado dentro de un periodo definido por
    * dos fechas, contemplando los años bisiestos y no bisiestos
+   * que pueden haber en dicho periodo, si una parcela tiene
+   * registros de plantacion finalizados en el periodo en el
+   * que se quiere obtener dicha cantidad. En caso contrario,
+   * -1, valor que representa informacion no disponible.
    */
   public int calculateDaysWithoutCrops(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    int daysWithoutCrops = 0;
+
     /*
      * Obtiene todos los registros de plantacion finalizados
      * de una parcela que estan dentro de un periodo definido
      * por dos fechas
      */
     List<PlantingRecord> plantingRecords = findAllByPeriod(parcelId, dateFrom, dateUntil);
-    int daysWithoutCrops = 0;
+
+    /*
+     * Si la parcela correspondiente al ID dado no tiene ningun
+     * registro de plantacion finalizado en un periodo definido
+     * por dos fechas, se retorna -1 como valor indicativo de
+     * que la cantidad de dias en los que una parcela no tuvo
+     * ningun cultivo plantado en un periodo dado, no esta
+     * disponible
+     */
+    if (plantingRecords.size() == 0) {
+      return -1;
+    }
 
     /*
      * Calcula la diferencia de dias que hay entre la fecha

@@ -514,6 +514,71 @@ public class DaysWithoutCropsTest {
     System.out.println("- Prueba pasada satisfactoriamente");
   }
 
+  @Test
+  public void testSeveDaysWithoutCrop() {
+    System.out.println("********************************** Prueba siete del metodo calculateDaysWithoutCrops **********************************");
+    System.out.println("- Calculo de la cantidad de dias en los que una parcela no tuvo ningun cultivo plantado para una parcela que no tiene");
+    System.out.println("ningun registro de plantacion finalizado en un periodo definido por dos fechas.");
+    System.out.println();
+    System.out.println("Dada una parcela que no tiene ningun registro de plantacion finalizado en un periodo definido por una fecha desde y una");
+    System.out.println("fecha hasta, la aplicacion debera retornar -1 como valor indicativo de que la cantidad de dias en los que una parcela no");
+    System.out.println("tuvo ningun cultivo plantado en el periodo dado, no esta disponible.");
+    System.out.println();
+
+    /*
+     * Parcela de prueba
+     */
+    Parcel givenParcel = parcelService.find(7);
+
+    System.out.println("* Parcela de prueba");
+    System.out.println(givenParcel);
+
+    /*
+     * Estas fechas definen el periodo dentro del cual
+     * se calcula la cantidad de dias en los que una
+     * parcela no tuvo ningun cultivo plantado haciendo
+     * uso de sus registros de plantacion finalizados
+     * y comprendidos en dicho periodo
+     */
+    Calendar dateFrom = Calendar.getInstance();
+    dateFrom.set(Calendar.YEAR, 2020);
+    dateFrom.set(Calendar.MONTH, JANUARY);
+    dateFrom.set(Calendar.DAY_OF_MONTH, 2);
+
+    Calendar dateUntil = Calendar.getInstance();
+    dateUntil.set(Calendar.YEAR, 2021);
+    dateUntil.set(Calendar.MONTH, FEBRUARY);
+    dateUntil.set(Calendar.DAY_OF_MONTH, 2);
+
+    System.out.println("* Periodo en el cual se obtendra la cantidad de dias en los que la parcela con ID = "
+        + givenParcel.getId() + " no tuvo ningun cultivo plantado");
+    System.out.println("Fecha desde: " + UtilDate.formatDate(dateFrom));
+    System.out.println("Fecha hasta: " + UtilDate.formatDate(dateUntil));
+    System.out.println();
+
+    List<PlantingRecord> plantingRecords = plantingRecordService.findAllByPeriod(givenParcel.getId(), dateFrom, dateUntil);
+
+    System.out.println("Cantidad de registros de plantacion finalizados de esta parcela en el periodo ["
+        + UtilDate.formatDate(dateFrom) + ", " + UtilDate.formatDate(dateUntil) + "]: "
+        + plantingRecords.size());
+    System.out.println();
+
+    /*
+     * Seccion de prueba
+     */
+    int expectedResult = -1;
+    int result = plantingRecordService.calculateDaysWithoutCrops(givenParcel.getId(), dateFrom, dateUntil);
+
+    System.out.println("* Seccion de prueba *");
+    System.out.println("Resultado esperado: " + expectedResult);
+    System.out.println("Valor devuelto por el metodo calculateDaysWithoutCrops: " + result);
+    System.out.println();
+
+    assertTrue(expectedResult == result);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+  }
+
   @AfterClass
   public static void postTest() {
     // Cierra las conexiones
