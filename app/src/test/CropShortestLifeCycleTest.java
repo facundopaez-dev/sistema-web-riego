@@ -317,8 +317,8 @@ public class CropShortestLifeCycleTest {
     System.out.println("- No existen registros de plantacion en el estado 'Finalizado'. Por lo tanto, no existe el cultivo plantado con el menor ciclo");
     System.out.println("de vida.");
     System.out.println();
-    System.out.println("Dada una parcela que no tiene registros de plantacion en el estado 'Finalizado', la aplicacion debe retornar como resultado la");
-    System.out.println("cadena 'Cultivo inexistente'.");
+    System.out.println("Dada una parcela que no tiene registros de plantacion en el estado 'Finalizado' en un periodo definido por una fecha desde y una");
+    System.out.println("fecha hasta, la aplicacion debe retornar como resultado la cadena 'Cultivo inexistente'.");
     System.out.println();
 
     /*

@@ -229,8 +229,8 @@ public class MostPlantedCropTest {
     System.out.println("********************************** Prueba cuatro del metodo findMostPlantedCrop **********************************");
     System.out.println("- No existe el cultivo que mas veces fue plantado porque NO hay registros de plantacion finalizados.");
     System.out.println();
-    System.out.println("Dada una parcela que no tiene ningun registro de plantacion en el estado 'Finalizado', la aplicacion debera retornar");
-    System.out.println("como resultado la cadena 'Cultivo inexistente'.");
+    System.out.println("Dada una parcela que no tiene ningun registro de plantacion en el estado 'Finalizado' en un periodo definido por una");
+    System.out.println("fecha desde y una fecha hasta, la aplicacion debera retornar como resultado la cadena 'Cultivo inexistente'.");
     System.out.println();
 
     /*

@@ -317,8 +317,8 @@ public class CropLongestLifeCycleTest {
     System.out.println("- No existen registros de plantacion en el estado 'Finalizado'. Por lo tanto, no existe el cultivo plantado con el mayor ciclo");
     System.out.println("de vida.");
     System.out.println();
-    System.out.println("Dada una parcela que no tiene ningun registro de plantacion en el estado 'Finalizado', la aplicacion debera retornar como");
-    System.out.println("resultado la cadena 'Cultivo inexistente'.");
+    System.out.println("Dada una parcela que no tiene ningun registro de plantacion en el estado 'Finalizado' en un periodo definido por una fecha desde");
+    System.out.println("y una fecha hasta, la aplicacion debera retornar como resultado la cadena 'Cultivo inexistente'.");
     System.out.println();
 
     /*
