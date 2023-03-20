@@ -149,20 +149,19 @@ public class Crop {
   @Override
   public String toString() {
     return String.format(
-      "ID: %d\nCultivo: %s\nTipo de cultivo: %s\nEtapa inicial (días): %d\nEtapa de desarrollo (días): %d\nEtapa media (días): %d\nEtapa final (días): %d\nKc inicial: %.2f\nKc medio: %.2f\nKc final: %.2f\nCiclo de vida (días): %d\nActivo: %b",
-      id,
-      name,
-      typeCrop.getName(),
-      initialStage,
-      developmentStage,
-      middleStage,
-      finalStage,
-      initialKc,
-      middleKc,
-      finalKc,
-      lifeCycle,
-      active
-    );
+        "ID: %d\nCultivo: %s\nTipo de cultivo: %s\nEtapa inicial (días): %d\nEtapa de desarrollo (días): %d\nEtapa media (días): %d\nEtapa final (días): %d\nKc inicial: %.2f\nKc medio: %.2f\nKc final: %.2f\nCiclo de vida (días): %d\nActivo: %b",
+        id,
+        name,
+        typeCrop.getName(),
+        initialStage,
+        developmentStage,
+        middleStage,
+        finalStage,
+        initialKc,
+        middleKc,
+        finalKc,
+        lifeCycle,
+        active);
   }
 
 }

@@ -30,7 +30,7 @@
  * del paquete et (abreviacion de evapotranspiracion).
  */
 
- package model;
+package model;
 
 import java.util.Calendar;
 import java.util.Collection;
@@ -50,7 +50,7 @@ import javax.persistence.UniqueConstraint;
 import util.UtilDate;
 
 @Entity
-@Table(name="CLIMATE_RECORD", uniqueConstraints={@UniqueConstraint(columnNames={"DATE", "FK_PARCEL"})})
+@Table(name = "CLIMATE_RECORD", uniqueConstraints = { @UniqueConstraint(columnNames = { "DATE", "FK_PARCEL" }) })
 public class ClimateRecord {
 
   @Id
@@ -85,7 +85,8 @@ public class ClimateRecord {
    * la documentacion de Visual Crossing Weather en el
    * siguiente enlace:
    * 
-   * https://www.visualcrossing.com/resources/documentation/weather-api/unit-groups-and-measurement-units/
+   * https://www.visualcrossing.com/resources/documentation/weather-api/unit-
+   * groups-and-measurement-units/
    */
   @Column(name = "PRECIP", nullable = false)
   private double precip;
@@ -104,7 +105,8 @@ public class ClimateRecord {
    * 
    * Esto se lo encuentra en el siguiente enlace:
    * 
-   * https://www.visualcrossing.com/resources/documentation/weather-data/weather-data-documentation/
+   * https://www.visualcrossing.com/resources/documentation/weather-data/weather-
+   * data-documentation/
    * 
    * Hay que tener en cuenta que una invocacion a Visual Crossing
    * Weather puede devolver un conjunto de datos metereologicos en
@@ -223,16 +225,18 @@ public class ClimateRecord {
 
   }
 
-	/**
-	 * Returns value of id
-	 * @return
-	 */
-	public int getId() {
-		return id;
-	}
+  /**
+   * Returns value of id
+   * 
+   * @return
+   */
+  public int getId() {
+    return id;
+  }
 
   /**
    * Returns value of date
+   * 
    * @return
    */
   public Calendar getDate() {
@@ -241,6 +245,7 @@ public class ClimateRecord {
 
   /**
    * Sets new value of date
+   * 
    * @param
    */
   public void setDate(Calendar date) {
@@ -248,151 +253,170 @@ public class ClimateRecord {
   }
 
   /**
-	 * Returns value of precip
-	 * @return
-	 */
-	public double getPrecip() {
-		return precip;
-	}
-
-	/**
-	 * Sets new value of precip
-	 * @param
-	 */
-	public void setPrecip(double precip) {
-		this.precip = precip;
-	}
+   * Returns value of precip
+   * 
+   * @return
+   */
+  public double getPrecip() {
+    return precip;
+  }
 
   /**
-	 * Returns value of precipProbability
-	 * @return
-	 */
-	public double getPrecipProbability() {
-		return precipProbability;
-	}
-
-	/**
-	 * Sets new value of precipProbability
-	 * @param
-	 */
-	public void setPrecipProbability(double precipProbability) {
-		this.precipProbability = precipProbability;
-	}
-
-	/**
-	 * Returns value of precipTypes
-	 * @return
-	 */
-	public Collection<TypePrecipitation> getPrecipTypes() {
-		return precipTypes;
-	}
-
-	/**
-	 * Sets new value of precipTypes
-	 * @param
-	 */
-	public void setPrecipTypes(Collection<TypePrecipitation> precipTypes) {
-		this.precipTypes = precipTypes;
-	}
+   * Sets new value of precip
+   * 
+   * @param
+   */
+  public void setPrecip(double precip) {
+    this.precip = precip;
+  }
 
   /**
-	 * Returns value of dewPoint
-	 * @return
-	 */
-	public double getDewPoint() {
-		return dewPoint;
-	}
-
-	/**
-	 * Sets new value of dewPoint
-	 * @param
-	 */
-	public void setDewPoint(double dewPoint) {
-		this.dewPoint = dewPoint;
-	}
-
-	/**
-	 * Returns value of atmosphericPressure
-	 * @return
-	 */
-	public double getAtmosphericPressure() {
-		return atmosphericPressure;
-	}
-
-	/**
-	 * Sets new value of atmosphericPressure
-	 * @param
-	 */
-	public void setAtmosphericPressure(double atmosphericPressure) {
-		this.atmosphericPressure = atmosphericPressure;
-	}
-
-	/**
-	 * Returns value of windSpeed
-	 * @return
-	 */
-	public double getWindSpeed() {
-		return windSpeed;
-	}
-
-	/**
-	 * Sets new value of windSpeed
-	 * @param
-	 */
-	public void setWindSpeed(double windSpeed) {
-		this.windSpeed = windSpeed;
-	}
-
-	/**
-	 * Returns value of cloudCover
-	 * @return
-	 */
-	public double getCloudCover() {
-		return cloudCover;
-	}
-
-	/**
-	 * Sets new value of cloudCover
-	 * @param
-	 */
-	public void setCloudCover(double cloudCover) {
-		this.cloudCover = cloudCover;
-	}
-
-	/**
-	 * Returns value of minimumTemperature
-	 * @return
-	 */
-	public double getMinimumTemperature() {
-		return minimumTemperature;
-	}
-
-	/**
-	 * Sets new value of minimumTemperature
-	 * @param
-	 */
-	public void setMinimumTemperature(double minimumTemperature) {
-		this.minimumTemperature = minimumTemperature;
-	}
+   * Returns value of precipProbability
+   * 
+   * @return
+   */
+  public double getPrecipProbability() {
+    return precipProbability;
+  }
 
   /**
-	 * Returns value of maximumTemperature
-	 * @return
-	 */
-	public double getMaximumTemperature() {
-		return maximumTemperature;
-	}
+   * Sets new value of precipProbability
+   * 
+   * @param
+   */
+  public void setPrecipProbability(double precipProbability) {
+    this.precipProbability = precipProbability;
+  }
 
-	/**
-	 * Sets new value of maximumTemperature
-	 * @param
-	 */
-	public void setMaximumTemperature(double maximumTemperature) {
-		this.maximumTemperature = maximumTemperature;
-	}
+  /**
+   * Returns value of precipTypes
+   * 
+   * @return
+   */
+  public Collection<TypePrecipitation> getPrecipTypes() {
+    return precipTypes;
+  }
+
+  /**
+   * Sets new value of precipTypes
+   * 
+   * @param
+   */
+  public void setPrecipTypes(Collection<TypePrecipitation> precipTypes) {
+    this.precipTypes = precipTypes;
+  }
+
+  /**
+   * Returns value of dewPoint
+   * 
+   * @return
+   */
+  public double getDewPoint() {
+    return dewPoint;
+  }
+
+  /**
+   * Sets new value of dewPoint
+   * 
+   * @param
+   */
+  public void setDewPoint(double dewPoint) {
+    this.dewPoint = dewPoint;
+  }
+
+  /**
+   * Returns value of atmosphericPressure
+   * 
+   * @return
+   */
+  public double getAtmosphericPressure() {
+    return atmosphericPressure;
+  }
+
+  /**
+   * Sets new value of atmosphericPressure
+   * 
+   * @param
+   */
+  public void setAtmosphericPressure(double atmosphericPressure) {
+    this.atmosphericPressure = atmosphericPressure;
+  }
+
+  /**
+   * Returns value of windSpeed
+   * 
+   * @return
+   */
+  public double getWindSpeed() {
+    return windSpeed;
+  }
+
+  /**
+   * Sets new value of windSpeed
+   * 
+   * @param
+   */
+  public void setWindSpeed(double windSpeed) {
+    this.windSpeed = windSpeed;
+  }
+
+  /**
+   * Returns value of cloudCover
+   * 
+   * @return
+   */
+  public double getCloudCover() {
+    return cloudCover;
+  }
+
+  /**
+   * Sets new value of cloudCover
+   * 
+   * @param
+   */
+  public void setCloudCover(double cloudCover) {
+    this.cloudCover = cloudCover;
+  }
+
+  /**
+   * Returns value of minimumTemperature
+   * 
+   * @return
+   */
+  public double getMinimumTemperature() {
+    return minimumTemperature;
+  }
+
+  /**
+   * Sets new value of minimumTemperature
+   * 
+   * @param
+   */
+  public void setMinimumTemperature(double minimumTemperature) {
+    this.minimumTemperature = minimumTemperature;
+  }
+
+  /**
+   * Returns value of maximumTemperature
+   * 
+   * @return
+   */
+  public double getMaximumTemperature() {
+    return maximumTemperature;
+  }
+
+  /**
+   * Sets new value of maximumTemperature
+   * 
+   * @param
+   */
+  public void setMaximumTemperature(double maximumTemperature) {
+    this.maximumTemperature = maximumTemperature;
+  }
 
   /**
    * Returns value of waterAccumulated
+   * 
    * @return
    */
   public double getWaterAccumulated() {
@@ -401,6 +425,7 @@ public class ClimateRecord {
 
   /**
    * Sets new value of waterAccumulated
+   * 
    * @param
    */
   public void setWaterAccumulated(double waterAccumulated) {
@@ -408,23 +433,26 @@ public class ClimateRecord {
   }
 
   /**
-	 * Returns value of eto
-	 * @return
-	 */
-	public double getEto() {
-		return eto;
-	}
+   * Returns value of eto
+   * 
+   * @return
+   */
+  public double getEto() {
+    return eto;
+  }
 
-	/**
-	 * Sets new value of eto
-	 * @param
-	 */
-	public void setEto(double eto) {
-		this.eto = eto;
-	}
+  /**
+   * Sets new value of eto
+   * 
+   * @param
+   */
+  public void setEto(double eto) {
+    this.eto = eto;
+  }
 
   /**
    * Returns value of etc
+   * 
    * @return
    */
   public double getEtc() {
@@ -433,6 +461,7 @@ public class ClimateRecord {
 
   /**
    * Sets new value of etc
+   * 
    * @param
    */
   public void setEtc(double etc) {
@@ -441,6 +470,7 @@ public class ClimateRecord {
 
   /**
    * Returns value of parcel
+   * 
    * @return
    */
   public Parcel getParcel() {
@@ -449,6 +479,7 @@ public class ClimateRecord {
 
   /**
    * Sets new value of parcel
+   * 
    * @param
    */
   public void setParcel(Parcel parcel) {

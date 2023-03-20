@@ -48,6 +48,7 @@ public class MaximumInsolation {
 
   /**
    * Returns value of id
+   * 
    * @return
    */
   public int getId() {
@@ -56,6 +57,7 @@ public class MaximumInsolation {
 
   /**
    * Returns value of decimalLatitude
+   * 
    * @return decimalLatitude
    */
   public Latitude getLatitude() {
@@ -64,6 +66,7 @@ public class MaximumInsolation {
 
   /**
    * Returns value of maximumInsolationValue
+   * 
    * @return
    */
   public float getInsolation() {
@@ -72,6 +75,7 @@ public class MaximumInsolation {
 
   /**
    * Returns value of month
+   * 
    * @return
    */
   public Month getMonth() {

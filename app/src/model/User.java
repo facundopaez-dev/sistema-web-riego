@@ -109,16 +109,15 @@ public class User {
   @Override
   public String toString() {
     return String.format(
-      "ID: %d\nUsername: %s\nPassword: %s\nName: %s\nLast name: %s\nEmail: %s\nActive: %b\nSuperuser: %b\n",
-      id,
-      username,
-      password,
-      name,
-      lastName,
-      email,
-      active,
-      superuser
-    );
+        "ID: %d\nUsername: %s\nPassword: %s\nName: %s\nLast name: %s\nEmail: %s\nActive: %b\nSuperuser: %b\n",
+        id,
+        username,
+        password,
+        name,
+        lastName,
+        email,
+        active,
+        superuser);
   }
 
 }

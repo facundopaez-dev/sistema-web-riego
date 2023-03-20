@@ -28,6 +28,7 @@ public class Latitude {
 
   /**
    * Returns value of id
+   * 
    * @return id
    */
   public int getId() {
@@ -36,6 +37,7 @@ public class Latitude {
 
   /**
    * Returns value of decimalLatitude
+   * 
    * @return decimalLatitude
    */
   public int getLatitude() {
@@ -44,6 +46,7 @@ public class Latitude {
 
   /**
    * Sets new value of decimalLatitude
+   * 
    * @param decimalLatitude
    */
   public void setLatitude(int decimalLatitude) {

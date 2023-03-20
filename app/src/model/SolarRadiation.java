@@ -46,6 +46,7 @@ public class SolarRadiation {
 
   /**
    * Returns value of id
+   * 
    * @return
    */
   public int getId() {
@@ -54,6 +55,7 @@ public class SolarRadiation {
 
   /**
    * Returns value of solarRadiationValue
+   * 
    * @return
    */
   public float getRadiation() {
@@ -62,6 +64,7 @@ public class SolarRadiation {
 
   /**
    * Returns value of decimalLatitude
+   * 
    * @return decimalLatitude
    */
   public Latitude getLatitude() {
@@ -70,6 +73,7 @@ public class SolarRadiation {
 
   /**
    * Returns value of month
+   * 
    * @return
    */
   public Month getMonth() {

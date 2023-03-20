@@ -88,7 +88,7 @@ public class IrrigationRecord {
    * false es mediante el metodo unsetModifiable de la clase
    * IrrigationRecordManager. Este metodo establece el atributo
    * modifiable de un registro de riego del pasado en false, ya
-   * que un registro de riego del pasado NO se debe poder modificar. 
+   * que un registro de riego del pasado NO se debe poder modificar.
    */
   @Column(name = "MODIFIABLE", nullable = false)
   private boolean modifiable;

@@ -26,7 +26,8 @@ public class SecretKey {
   @Column(name = "VALUE", nullable = false)
   private String value;
 
-  public SecretKey() {}
+  public SecretKey() {
+  }
 
   public int getId() {
     return id;

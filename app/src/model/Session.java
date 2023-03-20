@@ -59,6 +59,7 @@ public class Session {
 
   /**
    * Returns value of id
+   * 
    * @return
    */
   public int getId() {
@@ -67,6 +68,7 @@ public class Session {
 
   /**
    * Returns value of dateIssue
+   * 
    * @return
    */
   public Calendar getDateIssue() {
@@ -75,6 +77,7 @@ public class Session {
 
   /**
    * Sets new value of dateIssue
+   * 
    * @param
    */
   public void setDateIssue(Calendar dateIssue) {
@@ -83,6 +86,7 @@ public class Session {
 
   /**
    * Returns value of expirationDate
+   * 
    * @return
    */
   public Calendar getExpirationDate() {
@@ -91,6 +95,7 @@ public class Session {
 
   /**
    * Sets new value of expirationDate
+   * 
    * @param
    */
   public void setExpirationDate(Calendar expirationDate) {
@@ -99,6 +104,7 @@ public class Session {
 
   /**
    * Returns value of closed
+   * 
    * @return
    */
   public boolean getClosed() {
@@ -107,6 +113,7 @@ public class Session {
 
   /**
    * Sets new value of closed
+   * 
    * @param
    */
   public void setClosed(boolean closed) {
@@ -115,6 +122,7 @@ public class Session {
 
   /**
    * Returns value of user
+   * 
    * @return
    */
   public User getUser() {
@@ -123,6 +131,7 @@ public class Session {
 
   /**
    * Sets new value of user
+   * 
    * @param
    */
   public void setUser(User user) {
