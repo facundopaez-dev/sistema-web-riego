@@ -9,6 +9,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import model.ClimateRecord;
 import model.Parcel;
+import java.lang.NullPointerException;
 
 @Stateless
 public class ClimateRecordServiceBean {
@@ -221,15 +222,19 @@ public class ClimateRecordServiceBean {
   }
 
   /**
-   * Calcula la cantidad total de agua de lluvia que cayo sobre
-   * una parcela en un periodo definido por dos fechas. Esta
-   * cantidad de agua esta medida en milimetros por periodo.
+   * Calcula la cantidad total de agua de lluvia [mm/periodo]
+   * que cayo sobre una parcela en un periodo definido por dos
+   * fechas si y solo si una parcela tiene registros climaticos
+   * en el periodo en el que se quiere calcular dicha cantidad.
    * 
    * @param parcelId
    * @param dateFrom
    * @param dateUntil
    * @return cantidad total de agua de lluvia que cayo sobre
-   * una parcela en un periodo definido por dos fechas
+   * una parcela en un periodo definido por dos fechas, si
+   * una parcela tiene registros climaticos en el periodo en
+   * el que se quiere obtener dicha cantidad. En caso contrario,
+   * -1.0, valor que representa informacion no disponible.
    */
   public double calculateAmountRainwaterByPeriod(int parcelId, Calendar dateFrom, Calendar dateUntil) {
     /*
@@ -252,7 +257,30 @@ public class ClimateRecordServiceBean {
     query.setParameter("givenDateFrom", dateFrom);
     query.setParameter("givenDateUntil", dateUntil);
 
-    return (double) query.getSingleResult();
+    double amountRainwater = -1.0;
+
+    try {
+      /*
+       * Si se realiza la consulta JPQL de este metodo en SQL
+       * con una parcela que no tiene ningun registro climatico
+       * asociado en un periodo definido por dos fechas, se
+       * observara que el valor devuelto es NULL. Por lo tanto,
+       * es necesario contemplar este caso en el codigo fuente
+       * de este metodo.
+       * 
+       * En caso de que se solicite la cantidad total de agua
+       * de lluvia que cayo sobre una parcela en un periodo
+       * definido por dos fechas para una parcela que no
+       * tiene ningun registro climatico asociado en un
+       * periodo dado, se retorna el valor -1.0, el cual
+       * indica informacion no disponible.
+       */
+      amountRainwater = (double) query.getSingleResult();
+    } catch (NullPointerException e) {
+      e.printStackTrace();
+    }
+
+    return amountRainwater;
   }
 
 }

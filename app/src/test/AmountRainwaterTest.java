@@ -154,6 +154,54 @@ public class AmountRainwaterTest {
     System.out.println("- Prueba pasada satisfactoriamente");
   }
 
+  @Test
+  public void testThreeCalculateAmountRainwaterByPeriod() {
+    System.out.println("****************************** Prueba tres del metodo calculateAmountRainwaterByPeriod ******************************");
+    System.out.println("- No existen registros climaticos asociados a una parcela. Por lo tanto, la cantidad total de agua de lluvia es -1.0");
+    System.out.println("(valor que representa informacion no disponible).");
+    System.out.println();
+    System.out.println("Dada una parcela que no tiene registros climaticos en un periodo definido por dos fechas, la aplicacion debera retornar");
+    System.out.println("-1.0 como valor indicativo de que la cantidad total de agua de lluvia en el periodo dado no esta disponible.");
+    System.out.println();
+
+    Parcel givenParcel = parcelService.find(3);
+    System.out.println("* Datos de la parcela de prueba");
+    System.out.println(givenParcel);
+
+    /*
+     * Fechas que definen el periodo en el cual se obtendra
+     * la cantidad total de agua de lluvia que cayo sobre
+     * una parcela
+     */
+    Calendar dateFrom = Calendar.getInstance();
+    dateFrom.set(Calendar.YEAR, 2023);
+    dateFrom.set(Calendar.MONTH, JANUARY);
+    dateFrom.set(Calendar.DAY_OF_MONTH, 1);
+
+    Calendar dateUntil = Calendar.getInstance();
+    dateUntil.set(Calendar.YEAR, 2023);
+    dateUntil.set(Calendar.MONTH, JANUARY);
+    dateUntil.set(Calendar.DAY_OF_MONTH, 30);
+
+    System.out.println("* Periodo en el cual se obtendra la cantidad total de agua de lluvia que cayo sobre la parcela con ID = " + givenParcel.getId());
+    System.out.println("[" + UtilDate.formatDate(dateFrom) + ", " + UtilDate.formatDate(dateUntil) + "]");
+    System.out.println();
+
+    /*
+     * Seccion de prueba
+     */
+    double expectedResult = -1.0;
+    double result = climateRecordService.calculateAmountRainwaterByPeriod(givenParcel.getId(), dateFrom, dateUntil);
+
+    System.out.println("Resultado esperado: " + expectedResult);
+    System.out.println("* Resultado devuelto por el metodo calculateAmountRainwaterByPeriod: " + result);
+    System.out.println();
+
+    assertEquals(expectedResult, result, 1e-8);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+  }
+
   @AfterClass
   public static void postTest() {
     // Cierra las conexiones
