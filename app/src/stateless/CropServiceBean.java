@@ -424,7 +424,9 @@ public class CropServiceBean {
    * 
    * @param seedDate
    * @param plantedCrop
-   * @return
+   * @return referencia a un objeto de tipo Calendar que contiene
+   * la fecha de cosecha de un cultivo, la cual es calculada a partir
+   * de la fecha de siembra y el ciclo de vida del mismo
    */
   public Calendar calculateHarvestDate(Calendar seedDate, Crop plantedCrop) {
     Calendar harvestDate = Calendar.getInstance();
