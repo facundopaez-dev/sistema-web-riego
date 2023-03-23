@@ -219,6 +219,112 @@ public class PlantingRecordServiceBean {
   }
 
   /**
+   * Retorna todos los registros de plantacion finalizados de
+   * una parcela de un usuario
+   * 
+   * @param userId
+   * @param parcelId
+   * @return referencia a un objeto de tipo Collection que
+   * contiene los registros de plantacion finalizados de una
+   * parcela de un usuario
+   */
+  public Collection<PlantingRecord> findAllByParcelId(int userId, int parcelId) {
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (p.id = :givenParcelId AND p.user.id = :givenUserId AND r.status.name = 'Finalizado') ORDER BY r.id");
+    query.setParameter("givenUserId", userId);
+    query.setParameter("givenParcelId", parcelId);
+
+    return (Collection) query.getResultList();
+  }
+
+  /**
+   * Retorna todos los registros de plantacion finalizados
+   * de una parcela de un usuario que estan en un periodo
+   * definido por dos fechas
+   * 
+   * @param userId
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo Collection que
+   * contiene los registros de plantacion finalziados de una
+   * parcela de un usuario que estan en un periodo definido
+   * por dos fechas
+   */
+  public Collection<PlantingRecord> findAllByParcelIdAndPeriod(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    /*
+     * Con esta condicion se seleccionan todos los registros de
+     * plantacion finalizados (*) de una parcela que estan entre
+     * la fecha desde y la fecha hasta dadas.
+     * 
+     * Con la primera condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra estrictamente menor (esta antes) que la fecha
+     * desde (1), y su fecha de cosecha mayor o igual que la fecha
+     * desde (1) y menor o igual que la fecha hasta (2). Es decir,
+     * se selecciona el registro de plantacion finalizado de una
+     * parcela que tiene unicamente su fecha de cosecha dentro
+     * del periodo que va desde la fecha desde (1) a la fecha hasta
+     * (2) dadas.
+     * 
+     * Con la segunda condicion se seleccionan los registros de
+     * plantacion finalizados (*) de una parcela que tienen su
+     * fecha de siembra mayor o igual que la fecha desde (1) y
+     * su fecha de cosecha menor o igual que la fecha hasta (2).
+     * Es decir, se seleccionan los registros de plantacion que
+     * tienen su fecha de siembra y su fecha de cosecha dentro
+     * del periodo que va desde la fecha desde (1) a la fecha
+     * hasta (2).
+     * 
+     * Con la tercera conidicon se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su
+     * fecha de cosecha estrictamente mayor (esta despues) que
+     * la fecha hasta (2), y su fecha de siembra mayor o igual
+     * que la fecha desde (1) y menor o igual que la fecha hasta
+     * (2). Es decir, se selecciona el registro de plantacion
+     * finalizado de una parcela que tiene unicamente su fecha
+     * de siembra dentro del periodo que va desde la fecha desde
+     * (1) a la fecha hasta (2).
+     * 
+     * (*) El ID para el estado finalizado de un registro de
+     * plantacion es el 1, siempre y cuando no se modifique el
+     * orden en el que se ejecutan las instrucciones de insercion
+     * del archivo plantingRecordStatusInserts.sql de la ruta
+     * app/etc/sql.
+     * 
+     * El motivo por el cual esta condicion esta en este metodo
+     * es que se la usa para obtener los siguientes datos de
+     * una parcela:
+     * - el cultivo que mas veces se planto,
+     * - el cultivo que menos veces se planto,
+     * - el cultivo plantado con el mayor ciclo de vida,
+     * - el cultivo plantado con el menor ciclo de vida, y
+     * - la cantidad de dias en los que una parcela no tuvo
+     * ningun cultivo plantado.
+     * 
+     * Estos datos son parte del informe estadistico de una
+     * parcela.
+     */
+    String dateCondition = "(:givenDateFrom > r.seedDate AND :givenDateFrom <= r.harvestDate AND r.harvestDate <= :givenDateUntil) OR "
+        + "(r.seedDate >= :givenDateFrom AND r.harvestDate <= :givenDateUntil) OR "
+        + "(:givenDateUntil < r.harvestDate AND :givenDateFrom <= r.seedDate AND r.seedDate <= :givenDateUntil)";
+
+    String conditionWhere = "(p.id = :givenParcelId AND p.user.id = :givenUserId AND r.status.name = 'Finalizado' AND (" + dateCondition + "))";
+
+    /*
+     * Selecciona los registros de plantacion finalizados
+     * de una parcela de un usuario que estan en un periodo
+     * definido por dos fechas
+     */
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE " + conditionWhere + " ORDER BY r.id");
+    query.setParameter("givenUserId", userId);
+    query.setParameter("givenParcelId", parcelId);
+    query.setParameter("givenDateFrom", dateFrom);
+    query.setParameter("givenDateUntil", dateUntil);
+
+    return (Collection) query.getResultList();
+  }
+
+  /**
    * Retorna el registro de plantacion en desarrollo de una
    * parcela, si existe.
    * 
@@ -309,6 +415,36 @@ public class PlantingRecordServiceBean {
    */
   public boolean checkNext(int referencePlantingRecordId, Parcel givenParcel) {
     return (find(referencePlantingRecordId + 1, givenParcel) != null);
+  }
+
+  /**
+   * Retorna true si y solo si una parcela de un usuario tiene
+   * registros de plantacion finalizados
+   * 
+   * @param userId
+   * @param parcelId
+   * @return true si una parcela de un usuario tiene registros
+   * de plantacion finalizados, en caso contrario false
+   */
+  public boolean hasFinishedPlantingRecords(int userId, int parcelId) {
+    return !findAllByParcelId(userId, parcelId).isEmpty();
+  }
+
+  /**
+   * Retorna true si y solo si una parcela de un usuario tiene
+   * registros de plantacion finalizados en un periodo definido
+   * por dos fechas
+   * 
+   * @param userId
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return true si una parcela de un usuario tiene registros
+   * de plantacion finalizados en un periodo definido por dos
+   * fechas, en caso contrario false
+   */
+  public boolean hasFinishedPlantingRecords(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    return !findAllByParcelIdAndPeriod(userId, parcelId, dateFrom, dateUntil).isEmpty();
   }
 
   /**

@@ -41,3 +41,6 @@ INSERT INTO PARCEL (HECTARES, LATITUDE, LONGITUDE, NAME, ACTIVE, FK_USER) VALUES
 
 -- Parcela con coordenadas geograficas de Puerto Piramides (Chubut)
 INSERT INTO PARCEL (HECTARES, LATITUDE, LONGITUDE, NAME, ACTIVE, FK_USER) VALUES (0.5, -42.56667, -64.28333, 'Parcela Pirámides 1', 1, 6);
+
+-- Parcela con coordenadas geograficas de Ushuaia (Tierra del Fuego)
+INSERT INTO PARCEL (HECTARES, LATITUDE, LONGITUDE, NAME, ACTIVE, FK_USER) VALUES (1, -54.81084, -68.31591, 'Parcela Ushuaia 1', 1, 2);

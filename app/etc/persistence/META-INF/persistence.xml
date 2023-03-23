@@ -14,6 +14,7 @@
     <class>model.PasswordResetLink</class>
     <class>model.Session</class>
     <class>model.SolarRadiation</class>
+    <class>model.StatisticalReport</class>
     <class>model.TypeCrop</class>
     <class>model.TypePrecipitation</class>
     <class>model.User</class>

@@ -538,6 +538,21 @@ public class CropServiceBean {
     return (Crop) query.getSingleResult();
   }
 
+  /**
+   * Retorna el menor ciclo de vida del ciclo de vida de
+   * los cultivos si y solo si hay cultivos registrados
+   * en la base de datos subyacente. En caso contrario,
+   * esta consulta retornara el valor null, lo cual,
+   * generara problemas.
+   * 
+   * @return menor ciclo de vida del ciclo de vida de los
+   * cultivos registrados en la base de datos subyacente
+   */
+  public int findShortestLifeCycle() {
+    Query query = getEntityManager().createQuery("SELECT MIN(c.lifeCycle) FROM Crop c");
+    return (int) query.getSingleResult();
+  }
+
   public Page<Crop> findByPage(Integer page, Integer cantPerPage, Map<String, String> parameters) {
     // Genero el WHERE dinámicamente
     StringBuffer where = new StringBuffer(" WHERE 1=1");

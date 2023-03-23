@@ -1,6 +1,7 @@
 @startuml
 
 Parcela "*"-->"1" Usuario
+InformeEstadistico "*"-->"1" Parcela
 RegistroClimatico "*"-->"1" Parcela
 RegistroClimatico "1"<-->"*" TipoPrecipitacion
 RegistroRiego "*"-->"1" Parcela
@@ -24,6 +25,18 @@ class Parcela {
 -latitud
 -longitud
 -activa
+}
+
+class InformeEstadistico {
+-id
+-fechaDesde
+-fechaHasta
+-cultivoMasPlantado
+-cultivoMenosPlantado
+-cultivoPlantadoMayorCicloVida
+-cultivoPlantadoMenorCicloVida
+-diasSinCultivoPlantado
+-cantidadTotalAguaLluvia
 }
 
 class Cultivo {

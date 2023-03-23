@@ -917,6 +917,105 @@ Comandos para detener el server y la base de datos.
     </sql>
   </target>
 
+  <!-- Carga de datos para la tarea 106 de la pila del producto -->
+  <target name="run_t106_sql">
+    <!-- Borra el contenido de todas las tablas de la base de datos -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/removeAll.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla IRRIGATION_SYSTEM_USER -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/userInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla TYPE_CROP -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/typeCropInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla CROP -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/cropInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla PARCEL -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/parcelInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla PLANTING_RECORD_STATUS -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/plantingRecordStatusInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla SECRET_KEY -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/secretKeyInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carta las tablas PLANTING_RECORDS, CLIMATE_RECORDS y TYPE_PRECIPITATION -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/t106Inserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}/lib" />
+      </classpath>
+    </sql>
+  </target>
+
   <!-- Other commands -->
   <target name="deploy_war">
     <echo

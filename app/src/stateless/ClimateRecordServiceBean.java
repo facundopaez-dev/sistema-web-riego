@@ -91,6 +91,47 @@ public class ClimateRecordServiceBean {
   }
 
   /**
+   * Retorna todos los registros climaticos de una parcela
+   * de un usuario
+   * 
+   * @param userId
+   * @param parcelId
+   * @return referencia a un objeto de tipo Collection que
+   * contiene los registros climaticos de una parcela de un
+   * usuario
+   */
+  public Collection<ClimateRecord> findAllByParcelId(int userId, int parcelId) {
+    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (p.id = :givenParcelId AND p.user.id = :givenUserId) ORDER BY c.id");
+    query.setParameter("givenUserId", userId);
+    query.setParameter("givenParcelId", parcelId);
+
+    return (Collection) query.getResultList();
+  }
+
+  /**
+   * Retorna todos los registros climaticos de una parcela
+   * de un usuario que estan en un periodo definido por dos
+   * fechas
+   * 
+   * @param userId
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo Collection que
+   * contiene los registros climaticos de una parcela de un
+   * usuario que estan en un periodo definido por dos fechas
+   */
+  public Collection<ClimateRecord> findAllByParcelIdAndPeriod(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (p.id = :givenParcelId AND p.user.id = :givenUserId AND :givenDateFrom <= c.date AND c.date <= :givenDateUntil) ORDER BY c.id");
+    query.setParameter("givenUserId", userId);
+    query.setParameter("givenParcelId", parcelId);
+    query.setParameter("givenDateFrom", dateFrom);
+    query.setParameter("givenDateUntil", dateUntil);
+
+    return (Collection) query.getResultList();
+  }
+
+  /**
    * Modifica un registro climatico perteneciente a una parcela
    * de un usuario
    *
@@ -281,6 +322,35 @@ public class ClimateRecordServiceBean {
     }
 
     return amountRainwater;
+  }
+
+  /**
+   * Retorna true si y solo si una parcela de un usuario
+   * tiene registros climaticos
+   * 
+   * @param userId
+   * @param parcelId
+   * @return true si una parcela tiene registros climaticos,
+   * en caso contrario false
+   */
+  public boolean hasClimateRecords(int userId, int parcelId) {
+    return !findAllByParcelId(userId, parcelId).isEmpty();
+  }
+
+  /**
+   * Retorna true si y solo si una parcela de un usuario
+   * tiene registros climaticos en un periodo definido por
+   * dos fechas
+   * 
+   * @param userId
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return true si una parcela tiene registros climaticos,
+   * en caso contrario false
+   */
+  public boolean hasClimateRecords(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    return !findAllByParcelIdAndPeriod(userId, parcelId, dateFrom, dateUntil).isEmpty();
   }
 
 }

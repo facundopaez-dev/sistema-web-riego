@@ -116,6 +116,19 @@ app.config(['$routeProvider', function (routeprovider) {
 			controller: 'PlantingRecordCtrl'
 		})
 
+		.when('/home/statisticalReports', {
+			templateUrl: 'partials/user/statistical-report-list.html',
+			controller: 'StatisticalReportsCtrl'
+		})
+		.when('/home/statisticalReports/:action', {
+			templateUrl: 'partials/user/statistical-report-form.html',
+			controller: 'StatisticalReportCtrl'
+		})
+		.when('/home/statisticalReports/:action/:id', {
+			templateUrl: 'partials/user/statistical-report-form.html',
+			controller: 'StatisticalReportCtrl'
+		})
+
 		/* Rutas del administrador */
 
 		/*

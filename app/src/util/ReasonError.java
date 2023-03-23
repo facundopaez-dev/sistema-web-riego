@@ -55,7 +55,10 @@ public enum ReasonError {
   PARCEL_NAME_UNDEFINED("El nombre de la parcela debe estar definido"),
   INVALID_NUMBER_OF_HECTARES("La cantidad de hectáreas debe ser mayor a 0.0"),
   INVALID_PARCEL_NAME("El nombre de una parcela debe empezar con una palabra formada únicamente por caracteres alfabéticos y puede tener más de una palabra formada únicamente por caracteres alfanuméricos"),
-  PARCEL_NAME_ALREADY_USED("Nombre de parcela ya utilizado, elija otro");
+  PARCEL_NAME_ALREADY_USED("Nombre de parcela ya utilizado, elija otro"),
+  DATE_FROM_UNDEFINED("La fecha desde debe estar definida"),
+  DATE_FROM_AND_DATE_UNTIL_OVERLAPPING("La fecha desde no debe ser mayor o igual a la fecha hasta"),
+  CLIMATE_RECORDS_AND_PLANTING_RECORDS_DO_NOT_EXIST("La parcela seleccionada no tiene registros climáticos ni registros de plantación finalizados para generar un informe estadístico");
 
   private final String reason;
 
