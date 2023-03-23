@@ -11,6 +11,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import model.Crop;
+import util.UtilDate;
 
 @Stateless
 public class CropServiceBean {
@@ -463,7 +464,7 @@ public class CropServiceBean {
      * de dias en el año que se tiene que utilizar para calcular
      * la fecha de cosecha de un cultivo sembrado es 366
      */
-    if (isLeapYear(seedDate.get(Calendar.YEAR))) {
+    if (UtilDate.isLeapYear(seedDate.get(Calendar.YEAR))) {
       daysYear = 366;
     }
 
@@ -511,17 +512,6 @@ public class CropServiceBean {
     harvestDate.set(Calendar.DAY_OF_YEAR, daysCropLife - 1);
     harvestDate.set(Calendar.YEAR, seedDate.get(Calendar.YEAR));
     return harvestDate;
-  }
-
-  /**
-   * Retorna true si y solo si un año es bisiesto
-   * 
-   * @param givenYear
-   * @return true si el año representado por givenYear es
-   * bisiesto, false en caso contrario
-   */
-  private boolean isLeapYear(int givenYear) {
-    return ((givenYear % 4) == 0);
   }
 
   /**
