@@ -335,7 +335,7 @@ public class PlantingRecordRestServlet {
      * finalizado es mayor o igual a la fecha de siembra del
      * registro de plantacion que se quiere crear
      */
-    if (plantingRecordService.thereIsPlantingRecords(newPlantingRecord.getParcel())) {
+    if (plantingRecordService.hasPlantingRecords(newPlantingRecord.getParcel())) {
       /*
        * Si hay un registro de plantacion en desarrollo para
        * la parcela del registro de plantacion que se quiere

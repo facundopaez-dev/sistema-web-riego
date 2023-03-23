@@ -454,7 +454,7 @@ public class PlantingRecordServiceBean {
    * @return true si una parcela tiene registros de plantacion,
    * false en caso contrario
    */
-  public boolean thereIsPlantingRecords(Parcel givenParcel) {
+  public boolean hasPlantingRecords(Parcel givenParcel) {
     return !findAll(givenParcel).isEmpty();
   }
 
