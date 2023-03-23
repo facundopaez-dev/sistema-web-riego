@@ -41,10 +41,6 @@ public class TypePrecipitation {
     this.name = name;
   }
 
-  public ClimateRecord getClimateRecord() {
-    return climateRecord;
-  }
-
   public void setClimateRecord(ClimateRecord climateRecord) {
     this.climateRecord = climateRecord;
   }

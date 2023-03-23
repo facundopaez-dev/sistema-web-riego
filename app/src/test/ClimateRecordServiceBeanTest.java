@@ -146,17 +146,10 @@ public class ClimateRecordServiceBeanTest {
      * el ORM utilizado retorna la referencia a este objeto, el
      * cual contiene su variable de instancia id con un valor
      * distinto de cero. Por lo tanto, si se persiste satisfactoriamente
-     * un tipo de precipitacion, su ID debe ser distinto de cero,
-     * y ademas su variable de instancia climateRecord debe
-     * tener la referencia del registro climatico persistido,
-     * con lo cual, el ID del registro climatico de un tipo de
-     * precipitacion debe ser igual al ID del registro climatico
-     * persistido.
+     * un tipo de precipitacion, su ID debe ser distinto de cero.
      */
     assertTrue(typePrecipitationRain.getId() != 0);
     assertTrue(typePrecipitationSnow.getId() != 0);
-    assertTrue(typePrecipitationRain.getClimateRecord().getId() == givenClimateRecord.getId());
-    assertTrue(typePrecipitationSnow.getClimateRecord().getId() == givenClimateRecord.getId());
 
     System.out.println("* Tipos de precipitacion persistidos");
     System.out.println("* Prueba pasada satisfactoriamente *");
