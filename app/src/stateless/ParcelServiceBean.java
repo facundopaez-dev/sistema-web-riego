@@ -101,15 +101,15 @@ public class ParcelServiceBean {
   }
 
   /**
-   * Retorna una parcela de un usuario si y solo si se encuentra
-   * en la base de datos subyacente
+   * Retorna una parcela de un usuario si y solo si existe en
+   * la base de datos subyacente
    * 
    * @param userId
    * @param parcelId
    * @return referencia a un objeto de tipo Parcel que representa
-   * una parcela de un usuario en caso de encontrarse en la base
-   * de datos subyacente la parcela con el ID dado asociada al
-   * usuario del ID dado, en caso contrario null
+   * una parcela de un usuario en caso de existir en la base de
+   * datos subyacente una parcela con el ID dado asociada al
+   * usuario del ID dado. En caso contrario, null.
    */
   public Parcel find(int userId, int parcelId) {
     Query query = entityManager.createQuery("SELECT p FROM Parcel p WHERE (p.id = :parcelId AND p.user.id = :userId)");
