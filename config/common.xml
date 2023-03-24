@@ -1016,7 +1016,7 @@ Comandos para detener el server y la base de datos.
     </sql>
   </target>
 
-  <!-- Carga de datos para la tarea 106 de la pila del producto -->
+  <!-- Carga de datos para la tarea 107 de la pila del producto -->
   <target name="run_t107_sql">
     <!-- Borra el contenido de todas las tablas de la base de datos -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"

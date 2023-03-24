@@ -157,7 +157,8 @@ public class PlantingRecordServiceBean {
 
   /**
    * Retorna los registros de plantacion de una parcela mediante
-   * su nombre y el ID del usuario al que pertenece
+   * el nombre de una parcela y el ID del usuario al que pertenece
+   * una parcela
    * 
    * @param userId
    * @param givenParcelName
