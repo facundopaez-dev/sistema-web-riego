@@ -59,19 +59,31 @@ public class ClimateRecordServiceBean {
 
   /**
    * Retorna un registro climatico perteneciente a una de las
-   * parcelas de un usuario
+   * parcelas de un usuario si y solo si existe en la base
+   * de datos subyacente
    * 
    * @param userId
    * @param climateRecordId
-   * @return referencia a un objeto de tipo ClimateRecord perteneciente
-   * a una parcela del usuario con el ID dado
+   * @return referencia a un objeto de tipo ClimateRecord que
+   * representa un registro climatico en caso de existir en
+   * la base de datos subyacente un registro climatico con
+   * el ID dado asociado a una parcela del usuario del ID
+   * dado. En caso contrario, null.
    */
   public ClimateRecord find(int userId, int climateRecordId) {
     Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (c.id = :climateRecordId AND p.user.id = :userId)");
     query.setParameter("climateRecordId", climateRecordId);
     query.setParameter("userId", userId);
 
-    return (ClimateRecord) query.getSingleResult();
+    ClimateRecord givenClimateRecord = null;
+
+    try {
+      givenClimateRecord = (ClimateRecord) query.getSingleResult();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return givenClimateRecord;
   }
 
   /**
@@ -198,16 +210,7 @@ public class ClimateRecordServiceBean {
    * ID y el ID de usuario provistos, false en caso contrario
    */
   public boolean checkUserOwnership(int userId, int climateRecordId) {
-    boolean result = false;
-
-    try {
-      find(userId, climateRecordId);
-      result = true;
-    } catch (NoResultException e) {
-      e.printStackTrace();
-    }
-
-    return result;
+    return (find(userId, climateRecordId) != null);
   }
 
   /**
