@@ -1,8 +1,8 @@
 app.controller(
 	"ClimateRecordsCtrl",
-	["$scope", "$location", "ClimateRecordSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
-		function ($scope, $location, climateRecordSrv, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
-			
+	["$scope", "$location", "ClimateRecordSrv", "ParcelSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
+		function ($scope, $location, climateRecordSrv, parcelSrv, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
+
 			console.log("ClimateRecordsCtrl loaded...")
 
 			/*
@@ -80,6 +80,66 @@ app.controller(
 				administrador o no.
 				*/
 				logoutManager.logout();
+			}
+
+			// Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
+			$scope.findParcel = function (parcelName) {
+				return parcelSrv.findByName(parcelName).
+					then(function (response) {
+						var parcels = [];
+						for (var i = 0; i < response.data.length; i++) {
+							parcels.push(response.data[i]);
+						}
+
+						return parcels;
+					});
+			}
+
+			const UNDEFINED_PARCEL = "La parcela debe estar definida";
+
+			/*
+			Trae el listado de los datos correspondientes a este controller
+			que pertenecen a la parcela con el nombre dado
+			*/
+			$scope.findAllByParcelName = function () {
+				/*
+				Si la propiedad parcel de $scope tiene el valor undefined,
+				significa que NO se cargo una parcela en el campo del nombre
+				de una parcela para filtrar los datos correspondientes a este
+				controller que pertenecen a una parcela. Por lo tanto, la aplicacion
+				muestra el mensaje dado y no ejecuta la instruccion que realiza
+				la peticion HTTP correspondiente esta funcion.
+				*/
+				if ($scope.parcel == undefined) {
+					alert(UNDEFINED_PARCEL);
+					return;
+				}
+
+				climateRecordSrv.findAllByParcelName($scope.parcel.name, function (error, data) {
+					if (error) {
+						console.log(error);
+						errorResponseManager.checkResponse(error);
+						return;
+					}
+
+					$scope.data = data;
+				})
+			}
+
+			/*
+			Trae el listado de todos los datos correspondientes a
+			este controller que pertenecen a todas las parcelas del
+			usuario cuando este presiona el boton "Reiniciar listado"
+			*/
+			$scope.reset = function () {
+				/*
+				Esta instruccion es para eliminar el contenido del campo
+				del nombre de parcela cuando el usuario presiona el boton
+				de reinicio del listado de los datos correspondientes a
+				este controller
+				*/
+				$scope.parcel = undefined;
+				findAll();
 			}
 
 			findAll();

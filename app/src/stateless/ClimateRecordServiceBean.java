@@ -91,6 +91,25 @@ public class ClimateRecordServiceBean {
   }
 
   /**
+   * Retorna los registros climaticos de una parcela mediante
+   * el nombre de una parcela y el ID del usuario al que pertenece
+   * una parcela
+   * 
+   * @param userId
+   * @param givenParcelName
+   * @return referencia a un objeto de tipo Collection que
+   * contiene los registros climaticos de la parcela que tiene
+   * el nombre dado y que pertenece al usuario con el ID dado
+   */
+  public Collection<ClimateRecord> findAllByParcelName(int userId, String givenParcelName) {
+    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c WHERE (c.parcel.name = :givenParcelName AND c.parcel.user.id = :userId) ORDER BY c.id");
+    query.setParameter("userId", userId);
+    query.setParameter("givenParcelName", givenParcelName);
+
+    return (Collection) query.getResultList();
+  }
+
+  /**
    * Retorna todos los registros climaticos de una parcela
    * de un usuario
    * 
