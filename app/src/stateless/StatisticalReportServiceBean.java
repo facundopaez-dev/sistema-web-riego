@@ -89,6 +89,25 @@ public class StatisticalReportServiceBean {
   }
 
   /**
+   * Retorna los informes estadisticos de una parcela mediante
+   * el nombre de una parcela y el ID del usuario al que pertenece
+   * una parcela
+   * 
+   * @param userId
+   * @param givenParcelName
+   * @return referencia a un objeto de tipo Collection que
+   * contiene los informes estadisticos de la parcela que tiene
+   * el nombre dado y que pertenece al usuario con el ID dado
+   */
+  public Collection<StatisticalReport> findAllByParcelName(int userId, String givenParcelName) {
+    Query query = getEntityManager().createQuery("SELECT s FROM StatisticalReport s WHERE (s.parcel.name = :givenParcelName AND s.parcel.user.id = :userId) ORDER BY s.id");
+    query.setParameter("userId", userId);
+    query.setParameter("givenParcelName", givenParcelName);
+
+    return (Collection) query.getResultList();
+  }
+
+  /**
    * Comprueba si un informe estadistico pertenece a un usuario
    * dado, mediante la relacion muchos a uno que hay entre los
    * modelos de datos StatisticalReport y Parcel.

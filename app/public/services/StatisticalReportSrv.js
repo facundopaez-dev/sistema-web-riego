@@ -45,5 +45,15 @@ app.service(
                         });
             }
 
+            this.findAllByParcelName = function (parcelName, callback) {
+                $http.get("rest/statisticalReports/findAllByParcelName/" + parcelName).then(
+                    function (result) {
+                        callback(false, result.data);
+                    },
+                    function (error) {
+                        callback(error);
+                    });
+            };
+
         }
     ]);
