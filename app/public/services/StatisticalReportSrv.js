@@ -34,5 +34,16 @@ app.service(
                         });
             }
 
+            this.delete = function (id, callback) {
+                $http.delete("rest/statisticalReports/" + id)
+                    .then(
+                        function (result) {
+                            callback(false, result.data);
+                        },
+                        function (error) {
+                            callback(error);
+                        });
+            }
+
         }
     ]);

@@ -1,8 +1,8 @@
 app.controller(
 	"StatisticalReportsCtrl",
-	["$scope", "$location", "StatisticalReportSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
-		function ($scope, $location, statisticalReportService, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
-			
+	["$scope", "$location", "$route", "StatisticalReportSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
+		function ($scope, $location, $route, statisticalReportService, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
+
 			console.log("StatisticalReportsCtrl loaded...")
 
 			/*
@@ -63,6 +63,21 @@ app.controller(
 
 					$scope.data = data;
 				})
+			}
+
+			$scope.delete = function (id) {
+				console.log("Deleting: " + id)
+
+				statisticalReportService.delete(id, function (error) {
+					if (error) {
+						console.log(error);
+						errorResponseManager.checkResponse(error);
+						return;
+					}
+
+					$location.path("/home/statisticalReports");
+					$route.reload()
+				});
 			}
 
 			$scope.logout = function () {

@@ -33,6 +33,29 @@ public class StatisticalReportServiceBean {
   }
 
   /**
+   * Elimina fisicamente un informe estadistico perteneciente a una
+   * parcela de un usuario
+   * 
+   * @param userId
+   * @param statisticalReportId
+   * @return referencia a un objeto de tipo StatisticalReport en
+   * caso de eliminarse de la base de datos subyacente el informe
+   * estadistico que tiene el ID dado y que esta asociado a una
+   * parcela de un usuario que tiene el ID de usuario dado, en
+   * caso contrario null
+   */
+  public StatisticalReport remove(int userId, int statisticalReportId) {
+    StatisticalReport givenClimateRecord = find(userId, statisticalReportId);
+
+    if (givenClimateRecord != null) {
+      getEntityManager().remove(givenClimateRecord);
+      return givenClimateRecord;
+    }
+
+    return null;
+  }
+
+  /**
    * Retorna un informe estadistico perteneciente a una de las
    * parcelas de un usuario
    * 
