@@ -57,19 +57,31 @@ public class StatisticalReportServiceBean {
 
   /**
    * Retorna un informe estadistico perteneciente a una de las
-   * parcelas de un usuario
+   * parcelas de un usuario si y solo si existe en la base
+   * de datos subyacente
    * 
    * @param userId
    * @param statisticalReportId
    * @return referencia a un objeto de tipo StatisticalReport
-   * perteneciente a una parcela del usuario con el ID dado
+   * que representa un informe estadistico en caso de existir
+   * en la base de datos subyacente un informe estadistico con
+   * el ID dado asociado a una parcela del usuario del ID dado.
+   * En caso contrario, null.
    */
   public StatisticalReport find(int userId, int statisticalReportId) {
     Query query = getEntityManager().createQuery("SELECT s FROM StatisticalReport s JOIN s.parcel p WHERE (s.id = :statisticalReportId AND p.user.id = :userId)");
     query.setParameter("statisticalReportId", statisticalReportId);
     query.setParameter("userId", userId);
 
-    return (StatisticalReport) query.getSingleResult();
+    StatisticalReport givenStatisticalReport = null;
+
+    try {
+      givenStatisticalReport = (StatisticalReport) query.getSingleResult();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return givenStatisticalReport;
   }
 
   /**
@@ -121,16 +133,7 @@ public class StatisticalReportServiceBean {
    * ID y el ID de usuario provistos, false en caso contrario
    */
   public boolean checkUserOwnership(int userId, int statisticalReportId) {
-    boolean result = false;
-
-    try {
-      find(userId, statisticalReportId);
-      result = true;
-    } catch (NoResultException e) {
-      e.printStackTrace();
-    }
-
-    return result;
+    return (find(userId, statisticalReportId) != null);
   }
 
   /**
