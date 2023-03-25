@@ -12,6 +12,7 @@ import javax.persistence.Query;
 import model.Crop;
 import model.Parcel;
 import model.PlantingRecord;
+import model.PlantingRecordStatus;
 import util.UtilDate;
 
 @Stateless
@@ -234,6 +235,28 @@ public class PlantingRecordServiceBean {
     query.setParameter("givenUserId", userId);
     query.setParameter("givenParcelId", parcelId);
 
+    return (Collection) query.getResultList();
+  }
+
+  /**
+   * Retorna todos los registros de plantacion en desarrollo
+   * de todas las parcelas registradas en la base de datos
+   * subyacente.
+   * 
+   * Este metodo es para el metodo automatico modifyStatus
+   * de la clase PlantingRecordManager. El metodo modifyStatus
+   * se ocupa de comprobar si la fecha de cosecha de un
+   * registro de plantacion presuntamente en desarrollo
+   * es estrictamente menor a la fecha actual y en base
+   * a esto establece el estado finalizado en el registro.
+   * 
+   * @return referencia a un objeto de tipo Collection que
+   * contiene todos los registros de plantacion en desarrollo
+   * de todas las parcelas registradas en la base de datos
+   * subyacente
+   */
+  public Collection<PlantingRecord> findAllInDevelopment() {
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r WHERE r.status.name = 'En desarrollo' ORDER BY r.id");
     return (Collection) query.getResultList();
   }
 
@@ -1478,6 +1501,89 @@ public class PlantingRecordServiceBean {
      */
     daysDifference = daysDifference + UtilDate.calculateDifferenceDaysThroughYears(harvestDate.get(Calendar.YEAR), dateUntil.get(Calendar.YEAR));
     return daysDifference;
+  }
+
+  /**
+   * Retorna true si y solo si la fecha de cosecha de un
+   * registro de plantacion presuntamente en desarrollo es
+   * mayor o igual a la fecha actual. Un registro de
+   * plantacion que presuntamente esta en desarrollo y tiene
+   * su fecha de cosecha estrictamente menor a la fecha actual,
+   * es un registro de plantacion finalizado. En cambio,
+   * un registro de plantacion que tiene su fecha de cosecha
+   * igual o mayor a la fecha actual es un registro de
+   * plantacion en desarrollo.
+   * 
+   * Este metodo es para el metodo automatico modifyStatus
+   * de la clase PlantingRecordManager. El metodo modifyStatus
+   * se ocupa de comprobar si la fecha de cosecha de un
+   * registro de plantacion presuntamente en desarrollo
+   * es estrictamente menor a la fecha actual y en base
+   * a esto establece el estado finalizado en el registro.
+   * 
+   * @param plantingRecord
+   * @return true si la fecha de cosecha de un registro de
+   * plantacion presuntamente en desarrollo es mayor o igual
+   * a la fecha actual, en caso contrario false.
+   * Tambien retorna false en el caso en el que el estado
+   * de un registro de plantacion sea el estado finalizado.
+   */
+  public boolean checkDevelopmentStatus(PlantingRecord plantingRecord) {
+    /*
+     * Si el registro de plantacion dado esta en el estado "Finalizado",
+     * se retorna false como indicador de que no esta en el estado "En
+     * desarrollo"
+     */
+    if (plantingRecord.getStatus().getName().equals("Finalizado")) {
+      return false;
+    }
+
+    Calendar currentDate = Calendar.getInstance();
+
+    /*
+     * Si el año o el mes de la fecha de cosecha de un registro de
+     * plantacion presuntamente en desarrollo es estrictamente
+     * mayor al año o el mes de la fecha actual, se retorna true
+     * como indicativo de que este registro esta en desarrollo.
+     * 
+     * Si el año y el mes de la fecha de cosecha de un registro
+     * de plantacion presuntamente en desarrollo son menores o
+     * iguales al año y al mes de la fecha actual, se compara
+     * el numero de dia en el año de la fecha de cosecha de
+     * dicho registro con el numero de dia en el año de la
+     * fecha actual. Si el numero de dia en el año de la
+     * fecha de cosecha es mayor o igual al numero de dia
+     * en el año de la fecha actual, se retorna true como
+     * indicativo de que el registro de plantacion
+     * correspondiente a la fecha de cosecha, esta en
+     * desarrollo.
+     */
+    if (plantingRecord.getHarvestDate().get(Calendar.YEAR) > currentDate.get(Calendar.YEAR)) {
+      return true;
+    }
+
+    if (plantingRecord.getHarvestDate().get(Calendar.MONTH) > currentDate.get(Calendar.MONTH)) {
+      return true;
+    }
+
+    if (plantingRecord.getHarvestDate().get(Calendar.DAY_OF_YEAR) >= currentDate.get(Calendar.DAY_OF_YEAR)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Establece un estado en un registro de plantacion
+   * 
+   * @param plantingRecordId
+   * @param plantingRecordStatus
+   */
+  public void setStatus(int plantingRecordId, PlantingRecordStatus plantingRecordStatus) {
+    Query query = entityManager.createQuery("UPDATE PlantingRecord p SET p.status = :givenStatus WHERE p.id = :givenId");
+    query.setParameter("givenStatus", plantingRecordStatus);
+    query.setParameter("givenId", plantingRecordId);
+    query.executeUpdate();
   }
 
 }
