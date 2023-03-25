@@ -541,7 +541,7 @@ public class StatisticalReportRestServlet {
      * la misma. Dicho valor representa informacion no
      * disponible.
      */
-    if (daysWithoutCrops > 0) {
+    if (daysWithoutCrops >= 0) {
       statisticalReport.setDaysWithoutCrops(String.valueOf(daysWithoutCrops));
     } else {
       statisticalReport.setDaysWithoutCrops(DATA_NOT_AVAILABLE);
@@ -555,7 +555,7 @@ public class StatisticalReportRestServlet {
      * la misma. Dicho valor representa informacion no
      * disponible.
      */
-    if (totalAmountRainwter > 0) {
+    if (totalAmountRainwter >= 0.0) {
       statisticalReport.setTotalAmountRainwater(String.valueOf(totalAmountRainwter));
     } else {
       statisticalReport.setTotalAmountRainwater(DATA_NOT_AVAILABLE);
