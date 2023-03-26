@@ -152,4 +152,67 @@ public class UtilDate {
     return daysDifference;
   }
 
+  /**
+   * Calcula la cantidad de dias que hay entre una fecha y otra
+   * fecha. Hay que tener en cuenta que para que este metodo
+   * funcione correctamente, la fecha uno NO debe ser
+   * estrictamente mayor a la fecha dos.
+   * 
+   * Pienso que lo mejor es hacer que este metodo compruebe
+   * si la fecha uno es estrictamente mayor a la fecha dos,
+   * y en caso de que lo sea, este metodo debe lanzar una
+   * excepcion que describa el problema ocurrido. Por falta
+   * de tiempo no implemento esto.
+   * 
+   * Por lo tanto, se debe comprobar si la fecha uno es
+   * estrictamente mayor a la fecha dos antes de invocar
+   * a este metodo para evitar errores logicos, y, por ende,
+   * para evitar que la aplicacion tenga un comportamiento
+   * erroneo.
+   * 
+   * @param dateOne
+   * @param dateTwo
+   * @return entero que representa la cantidad de dias de
+   *         diferencia que hay entre una fecha dos y una
+   *         fecha uno
+   */
+  public static int calculateDifferenceBetweenDates(Calendar dateOne, Calendar dateTwo) {
+    /*
+     * Si la fecha uno y la fecha dos tienen el mismo año,
+     * se calcula directamente la diferencia entre el
+     * numero de dia en el año de la fecha dos y el
+     * numero de dia en el año de la fecha uno
+     */
+    if (sameYear(dateOne, dateTwo)) {
+      return calculateDifferenceDaysWithinSameYear(dateOne, dateTwo);
+    }
+
+    int daysDifference = 0;
+    int daysYear = 365;
+
+    /*
+     * Si el año de la fecha uno es bisiesto, se utiliza
+     * 366 dias para calcular la cantidad de dias que hay
+     * entre la fecha dos y la fecha uno
+     */
+    if (UtilDate.isLeapYear(dateOne.get(Calendar.YEAR))) {
+      daysYear = 366;
+    }
+
+    /*
+     * Si la fecha dos tiene un año mas que la fecha uno,
+     * la cantidad de dias que hay entre las dos fechas se
+     * calcula de la siguiente manera:
+     * 
+     * dias de diferencia = numero de dias en el año - numero
+     * de dia en el año de la fecha uno
+     * 
+     * dias de diferencia = dias de diferencia + numero de dia
+     * en el año de la fecha dos
+     */
+    daysDifference = daysYear - dateOne.get(Calendar.DAY_OF_YEAR);
+    daysDifference = daysDifference + dateTwo.get(Calendar.DAY_OF_YEAR);
+    return daysDifference;
+  }
+
 }

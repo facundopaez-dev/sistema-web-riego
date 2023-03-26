@@ -318,9 +318,11 @@ public class StatisticalReportRestServlet {
      * de vida del ciclo de vida de los cultivos registrados
      * en la base de datos subyacente.
      */
-    if ((newStatisticalReport.getDateUntil() != null) && ((newStatisticalReport.getDateUntil().get(Calendar.DAY_OF_YEAR)
-        - newStatisticalReport.getDateFrom().get(Calendar.DAY_OF_YEAR) + 1) < cropService.findShortestLifeCycle())) {
-      String message = "La fecha hasta debe ser igual a " + cropService.findShortestLifeCycle()
+    if ((newStatisticalReport.getDateUntil() != null)
+        && ((UtilDate.calculateDifferenceBetweenDates(newStatisticalReport.getDateFrom(),
+            newStatisticalReport.getDateUntil()) + 1) < cropService.findShortestLifeCycle())) {
+      String message = "La fecha hasta debe ser igual a " +
+          cropService.findShortestLifeCycle()
           + " días contando a partir de la fecha desde (incluida), en este caso la fecha hasta debe ser "
           + UtilDate.formatDate(statisticalReportService.calculateDateUntil(newStatisticalReport.getDateFrom(),
               cropService.findShortestLifeCycle()));
