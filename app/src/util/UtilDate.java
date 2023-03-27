@@ -215,4 +215,53 @@ public class UtilDate {
     return daysDifference;
   }
 
+  /**
+   * @param dateOne
+   * @param dateTwo
+   * @return -1 si la fecha uno es estrictamente menor a la fecha
+   * dos, 0 si la fecha uno y la fecha dos son iguales y 1 si la
+   * fecha uno es estrictamente mayor a la fecha dos
+   */
+  public static int compareTo(Calendar dateOne, Calendar dateTwo) {
+    /*
+     * Si el año de la fecha uno es menor al año de la fecha
+     * dos, se retorna -1 como indicativo de que la fecha
+     * uno es estrictamente menor a la fecha dos
+     */
+    if (dateOne.get(Calendar.YEAR) < dateTwo.get(Calendar.YEAR)) {
+      return -1;
+    }
+
+    /*
+     * Si el año de la fecha uno es mayor al año de la fecha
+     * dos, se retorna 1 como indicativo de que la fecha
+     * uno es estrictamente mayor a la fecha dos
+     */
+    if (dateOne.get(Calendar.YEAR) > dateTwo.get(Calendar.YEAR)) {
+      return 1;
+    }
+
+    /*
+     * Si el numero de dia en el año de la fecha uno es
+     * menor al numero de dia en el año de la fecha dos,
+     * se retorna -1 como indicativo de que la fecha uno
+     * es estrictamente menor a la fecha dos
+     */
+    if (dateOne.get(Calendar.DAY_OF_YEAR) < dateTwo.get(Calendar.DAY_OF_YEAR)) {
+      return -1;
+    }
+
+    /*
+     * Si el numero de dia en el año de la fecha uno es
+     * mayor al numero de dia en el año de la fecha dos,
+     * se retorna 1 como indicativo de que la fecha uno
+     * es estrictamente mayor a la fecha dos
+     */
+    if (dateOne.get(Calendar.DAY_OF_YEAR) > dateTwo.get(Calendar.DAY_OF_YEAR)) {
+      return 1;
+    }
+
+    return 0;
+  }
+
 }
