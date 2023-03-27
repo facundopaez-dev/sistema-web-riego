@@ -191,17 +191,42 @@ public class PlantingRecordServiceBean {
    */
   public List<PlantingRecord> findAllByPeriod(int parcelId, Calendar dateFrom, Calendar dateUntil) {
     /*
-     * Con esta condicion se seleccionan todos los registros de
-     * plantacion finalizados (*) de una parcela que estan entre
-     * la fecha desde y la fecha hasta dadas.
+     * Con la primera condicion de las fechas se seleccionan los
+     * registros de plantacion finalizados (*) de una parcela
+     * que tienen su fecha de siembra mayor o igual a la fecha
+     * desde y menor estricto a la fecha hasta o que tienen su
+     * fecha de siembra mayor estricto a la fecha desde y menor
+     * o igual a la fecha hasta, y que tienen su fecha de
+     * cosecha mayor o igual a la fecha hasta. En otras palabras,
+     * con la primera condicion de las fechas se seleccionan
+     * los registros de plantacion finalizados en los que la
+     * fecha desde y la fecha hasta estan dentro del periodo
+     * definido por la fecha de siembra y la fecha de cosecha o
+     * en los que solo la fecha hasta esta dentro del periodo
+     * definido por la fecha de siembra y la fecha de cosecha.
      * 
-     * Para ser mas especifico se seleccionan los registros de
-     * plantacion finalizados de una parcela que tienen su fecha
-     * de siembra mayor o igual que la fecha desde y su fecha de
-     * cosecha menor o igual que la fecha hasta. Es decir, se
-     * seleccionan los registros de plantacion que tienen su
-     * fecha de siembra y su fecha de cosecha dentro del periodo
-     * que va desde la fecha desde a la fecha hasta.
+     * Con la segunda condicion de las fechas se seleccionan los
+     * registros de plantacion finalizados (*) de una parcela que
+     * tienen su fecha de siembra mayor o igual a la fecha desde
+     * y su fecha de cosecha menor o igual a la fecha hasta. En
+     * otras palabras, con la segunda condicion de las fechas se
+     * seleccionan los registros de plantacion finalizados en los
+     * que la fecha de siembra y la fecha de cosecha estan dentro
+     * del periodo definido por la fecha desde y la fecha hasta.
+     * 
+     * Con la tercera condicion de las fechas se seleccionan los
+     * registros de plantacion finalizados (*) de una parcela que
+     * tienen su fecha de cosecha mayor estricto que la fecha desde
+     * y menor o igual que la fecha hasta o que tienen su fecha de
+     * cosecha mayor o igual que la fecha desde y menor estricto
+     * que la fecha hasta, y que tienen su fecha de siembra menor
+     * o igual que la fecha desde. En otras palabras, con la tercera
+     * condicion de las fechas se seleccionan los registros de
+     * plantacion finalizados en los que la fecha desde y la fecha
+     * hasta estan dentro del periodo definido por la fecha de
+     * siembra y la fecha de cosecha o en los que solo la fecha
+     * desde esta dentro del periodo definido por la fecha de
+     * siembra y la fecha de cosecha.
      * 
      * (*) El ID para el estado finalizado de un registro de
      * plantacion es el 1, siempre y cuando no se modifique el
@@ -209,7 +234,10 @@ public class PlantingRecordServiceBean {
      * del archivo plantingRecordStatusInserts.sql de la ruta
      * app/etc/sql.
      */
-    String conditionWhere = "(r.parcel.id = :givenParcelId AND r.status.id = 1 AND (r.seedDate >= :givenDateFrom AND r.harvestDate <= :givenDateUntil))";
+    String conditionWhere = "(r.parcel.id = :givenParcelId AND r.status.id = 1 AND "
+        + "((((r.seedDate >= :givenDateFrom AND :givenDateUntil > r.seedDate) OR (r.seedDate > :givenDateFrom AND :givenDateUntil >= r.seedDate)) AND :givenDateUntil <= r.harvestDate) OR "
+        + "(r.seedDate >= :givenDateFrom AND r.harvestDate <= :givenDateUntil) OR "
+        + "(:givenDateFrom >= r.seedDate AND ((:givenDateFrom < r.harvestDate AND :givenDateUntil >= r.harvestDate) OR (:givenDateFrom <= r.harvestDate AND :givenDateUntil > r.harvestDate)))))";
 
     Query query = getEntityManager()
         .createQuery("SELECT r FROM PlantingRecord r WHERE " + conditionWhere + " ORDER BY r.id");
