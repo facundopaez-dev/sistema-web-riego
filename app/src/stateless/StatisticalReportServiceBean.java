@@ -195,9 +195,11 @@ public class StatisticalReportServiceBean {
      * partir del numero de dia en el año de la fecha desde
      * y el menor ciclo de vida (medido en dias) menos uno,
      * es menor o igual a la cantidad de dias que hay en el
-     * año, la fecha hasta esta en el año de la fecha desde
+     * año de la fecha desde, la fecha hasta esta en el mismo
+     * año que la fecha desde
      */
     if (numberDayYearDateUntil <= daysYear) {
+      dateUntil.set(Calendar.YEAR, dateFrom.get(Calendar.YEAR));
       dateUntil.set(Calendar.DAY_OF_YEAR, numberDayYearDateUntil);
       return dateUntil;
     }
