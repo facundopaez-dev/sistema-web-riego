@@ -1492,6 +1492,30 @@ public class PlantingRecordServiceBean {
       return UtilDate.calculateDifferenceDaysWithinSameYear(harvestDate, dateUntil);
     }
 
+    /*
+     * Si la fecha hasta tiene un año menos que la fecha de
+     * cosecha, se retorna 0, ya que en este caso no hay
+     * ningun dia entre la fecha de cosecha y la fecha hasta
+     * que cuente como un dia en el que una parcela no tuvo
+     * ningun cultivo plantado. Si la fecha hasta tiene un
+     * año menos que la fecha de cosecha, significa que es
+     * menor a la fecha de cosecha.
+     * 
+     * Con este control se cubre el caso en el que la fecha
+     * desde es estrictamente menor a la fecha de siembra
+     * y la fecha de cosecha es mayor o igual a la fecha
+     * de siembra y tiene un año menos que la fecha de
+     * cosecha. En este caso, no hay ningun dia entre la
+     * fecha de cosecha y la fecha hasta que cuente como
+     * un dia en el que una parcela no tuvo ningun cultivo
+     * plantado. Por lo tanto, se retorna 0 como la cantidad
+     * de dias en los que una parcela no tuvo ningun cultivo
+     * plantado entre una fecha de cosecha y una fecha hasta.
+     */
+    if (UtilDate.compareTo(dateUntil, harvestDate) < 0) {
+      return 0;
+    }
+
     int daysDifference = 0;
 
     /*
