@@ -95,12 +95,15 @@ public class TypeCropServiceBean {
   }
 
   /**
-   * Retorna el tipo de cultivo que tiene el nombre dado
+   * Retorna el tipo de cultivo que tiene el nombre dado si
+   * y solo si existe en la base de datos subyacente un
+   * tipo de cultivo con el nombre dado
    * 
    * @param cropTypeName
    * @return referencia a un objeto de tipo TypeCrop que
-   * representa el tipo de cultivo correspondiente al
-   * nombre del tipo de cultivo dado
+   * representa el tipo de cultivo que tiene el nombre
+   * dado, si existe en la base de datos subyacente. En
+   * caso contrario, null.
    */
   public TypeCrop findByName(String cropTypeName) {
     Query query = getEntityManager().createQuery("SELECT t FROM TypeCrop t WHERE UPPER(t.name) = UPPER(:cropTypeName)");
@@ -136,8 +139,9 @@ public class TypeCropServiceBean {
    * 
    * @param cropTypeName
    * @return true si existe el tipo de cultivo con el nombre
-   * dado, false en caso contrario. Tambien retorna false en
-   * el caso en el que se el valor null como argumento.
+   * dado en la base de datos subyacente, false en caso contrario.
+   * Tambien retorna false en el caso en el que el argumento tiene
+   * el valor null.
    */
   public boolean checkExistence(String cropTypeName) {
     /*
