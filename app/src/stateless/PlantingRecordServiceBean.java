@@ -22,8 +22,8 @@ public class PlantingRecordServiceBean {
   protected EntityManager entityManager;
   private final String NON_EXISTENT_CROP = "Cultivo inexistente";
 
-  public void setEntityManager(EntityManager emLocal) {
-    entityManager = emLocal;
+  public void setEntityManager(EntityManager localEntityManager) {
+    entityManager = localEntityManager;
   }
 
   public EntityManager getEntityManager() {

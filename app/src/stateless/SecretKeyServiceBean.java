@@ -11,14 +11,14 @@ public class SecretKeyServiceBean {
   private final int SECRET_KEY_ID = 1;
 
   @PersistenceContext(unitName = "swcar")
-  protected EntityManager em;
+  protected EntityManager entityManager;
 
-  public void setEntityManager(EntityManager emLocal) {
-    em = emLocal;
+  public void setEntityManager(EntityManager localEntityManager) {
+    entityManager = localEntityManager;
   }
 
   public EntityManager getEntityManager() {
-    return em;
+    return entityManager;
   }
 
   /**

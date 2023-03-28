@@ -13,8 +13,8 @@ public class PlantingRecordStatusServiceBean {
   @PersistenceContext(unitName = "swcar")
   protected EntityManager entityManager;
 
-  public void setEntityManager(EntityManager emLocal) {
-    entityManager = emLocal;
+  public void setEntityManager(EntityManager localEntityManager) {
+    entityManager = localEntityManager;
   }
 
   public EntityManager getEntityManager() {

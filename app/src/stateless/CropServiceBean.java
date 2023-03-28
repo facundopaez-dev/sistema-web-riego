@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Map;
-import javax.annotation.Resource;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -18,14 +17,14 @@ import util.UtilDate;
 public class CropServiceBean {
 
   @PersistenceContext(unitName = "swcar")
-  protected EntityManager em;
+  protected EntityManager entityManager;
 
-  public void setEntityManager(EntityManager emLocal) {
-    em = emLocal;
+  public void setEntityManager(EntityManager localEntityManager) {
+    entityManager = localEntityManager;
   }
 
   public EntityManager getEntityManager() {
-    return em;
+    return entityManager;
   }
 
   /**

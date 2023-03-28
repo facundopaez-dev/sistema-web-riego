@@ -3,23 +3,23 @@ package stateless;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import model.TypeCrop;
 import javax.persistence.Query;
-import java.util.Collection;
 import javax.persistence.NoResultException;
+import java.util.Collection;
+import model.TypeCrop;
 
 @Stateless
 public class TypeCropServiceBean {
 
   @PersistenceContext(unitName = "swcar")
-  protected EntityManager em;
+  protected EntityManager entityManager;
 
-  public void setEntityManager(EntityManager emLocal) {
-    em = emLocal;
+  public void setEntityManager(EntityManager localEntityManager) {
+    entityManager = localEntityManager;
   }
 
   public EntityManager getEntityManager() {
-    return em;
+    return entityManager;
   }
 
   /**
