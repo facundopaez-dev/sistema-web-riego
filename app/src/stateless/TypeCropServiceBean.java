@@ -167,14 +167,15 @@ public class TypeCropServiceBean {
 
   /**
    * Retorna el tipo de cultivo que tiene el nombre dado y un
-   * ID distinto al del tipo de cultivo del ID dado
+   * ID distinto al del tipo de cultivo del ID dado, si y solo
+   * si existe en la base de datos subyacente
    * 
    * @param id
    * @return referencia a un objeto de tipo TypeCrop que
    *         representa al tipo de cultivo que tiene un ID
    *         distinto al ID dado y un nombre igual al nombre
-   *         dado en el caso en el que se encuentre dicho
-   *         tipo de cultivo, en caso contrario null
+   *         dado, si existe en la base de datos subyacente.
+   *         En caso contrario, null.
    */
   public TypeCrop find(int id, String name) {
     /*
@@ -199,13 +200,15 @@ public class TypeCropServiceBean {
   }
 
   /**
-   * Retorna true si y solo si hay un tipo de cultivo con un
-   * nombre igual al nombre dado y un ID distinto al ID dado
+   * Retorna true si y solo si en la base de datos subyacente
+   * eixste un tipo de cultivo con un nombre igual al nombre
+   * dado y un ID distinto al ID dado
    * 
    * @param id
-   * @return true si hay un tipo de cultivo con un nombre igual
-   *         al nombre dado y un ID distinto al ID dado, en
-   *         caso contrario false
+   * @return true si en la base de datos subyacente existe un
+   *         un tipo de cultivo con un nombre igual al nombre
+   *         dado y un ID distinto al ID dado, en caso contrario
+   *         false
    */
   public boolean checkRepeated(int id, String name) {
     return (find(id, name) != null);
