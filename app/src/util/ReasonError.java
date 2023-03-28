@@ -58,7 +58,8 @@ public enum ReasonError {
   PARCEL_NAME_ALREADY_USED("Nombre de parcela ya utilizado, elija otro"),
   DATE_FROM_UNDEFINED("La fecha desde debe estar definida"),
   DATE_FROM_AND_DATE_UNTIL_OVERLAPPING("La fecha desde no debe ser mayor o igual a la fecha hasta"),
-  CLIMATE_RECORDS_AND_PLANTING_RECORDS_DO_NOT_EXIST("La parcela seleccionada no tiene registros climáticos ni registros de plantación finalizados para generar un informe estadístico");
+  CLIMATE_RECORDS_AND_PLANTING_RECORDS_DO_NOT_EXIST("La parcela seleccionada no tiene registros climáticos ni registros de plantación finalizados para generar un informe estadístico"),
+  CROP_NAME_ALREADY_USED("Nombre de cultivo ya utilizado, elija otro");
 
   private final String reason;
 

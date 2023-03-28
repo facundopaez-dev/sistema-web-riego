@@ -208,13 +208,25 @@ public class CropRestServlet {
       return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
     }
 
+    Crop newCrop = mapper.readValue(json, Crop.class);
+
+    /*
+     * Si en la base de datos subyacente existe un cultivo con el
+     * nombre del cultivo nuevo, la aplicacion del lado servidor
+     * retorna el mensaje HTTP 400 (Bad request) junto con el
+     * mensaje "Nombre de cultivo ya utilizado, elija otro" y
+     * no se realiza la operacion solicitada
+     */
+    if (cropService.checkExistence(newCrop.getName())) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.CROP_NAME_ALREADY_USED))).build();
+    }
+
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos que el
      * cliente solicito persistir
      */
-    Crop newCrop = mapper.readValue(json, Crop.class);
     return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(cropService.create(newCrop))).build();
   }
 

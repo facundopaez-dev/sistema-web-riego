@@ -10,6 +10,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.NoResultException;
 import model.Crop;
 import util.UtilDate;
 
@@ -93,6 +94,31 @@ public class CropServiceBean {
   }
 
   /**
+   * Retorna el cultivo que tiene el nombre dado si y solo si
+   * existe en la base de datos subyacente un cultivo con el
+   * nombre dado
+   * 
+   * @param cropName
+   * @return referencia a un objeto de tipo Crop que representa
+   * el cultivo que tiene el nombre dado, si existe en la base
+   * de datos subyacente. En caso contrario, retorna null.
+   */
+  public Crop findByName(String cropName) {
+    Query query = getEntityManager().createQuery("SELECT c FROM Crop c WHERE UPPER(c.name) = UPPER(:cropGivenName)");
+    query.setParameter("cropGivenName", cropName);
+
+    Crop givenCrop = null;
+
+    try {
+      givenCrop = (Crop) query.getSingleResult();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return givenCrop;
+  }
+
+  /**
    * @return referencia a un objeto de tipo Collection que
    * contiene todos los cultivos, tanto los eliminados
    * logicamente (inactivos) como los que no
@@ -122,6 +148,38 @@ public class CropServiceBean {
    */
   public boolean checkExistence(int id) {
     return (getEntityManager().find(Crop.class, id) != null);
+  }
+
+  /**
+   * Retorna true si y solo si existe un cultivo con el nombre
+   * dado en la base de datos subyacente
+   * 
+   * @param cropName
+   * @return true si existe el cultivo con el nombre dado en
+   * la base de datos subyacente, false en caso contrario.
+   * Tambien retorna false en el caso en el que el argumento
+   * tiene el valor null.
+   */
+  public boolean checkExistence(String cropName) {
+    /*
+     * Si el nombre del cultivo tiene el valor null, se retorna
+     * false, ya que realizar la busqueda de un cultivo con un
+     * nombre con este valor es similar a buscar un cultivo
+     * inexistente en la base de datos subyacente.
+     * 
+     * Con este control se evita realizar una consulta a la base
+     * de datos comparando el nombre del cultivo con el valor null.
+     * Si no se realiza este control y se realiza esta consulta a
+     * la base de datos, ocurre la excepcion SQLSyntaxErrorException,
+     * debido a que la comparacion de un atributo con el valor
+     * null incumple la sintaxis del proveedor del motor de base
+     * de datos.
+     */
+    if (cropName == null) {
+      return false;
+    }
+
+    return (findByName(cropName) != null);
   }
 
   /**
@@ -512,20 +570,6 @@ public class CropServiceBean {
     harvestDate.set(Calendar.DAY_OF_YEAR, daysCropLife - 1);
     harvestDate.set(Calendar.YEAR, seedDate.get(Calendar.YEAR));
     return harvestDate;
-  }
-
-  /**
-   * Retorna el cultivo que tiene el nombre dado
-   * 
-   * @param cropName
-   * @return referencia a un objeto de tipo Crop que representa
-   * al cultivo con el nombre dado
-   */
-  public Crop findByName(String cropName) {
-    Query query = getEntityManager().createQuery("SELECT c FROM Crop c WHERE UPPER(c.name) = UPPER(:cropName)");
-    query.setParameter("cropName", cropName);
-
-    return (Crop) query.getSingleResult();
   }
 
   /**
