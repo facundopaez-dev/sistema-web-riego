@@ -115,7 +115,7 @@ public class UtilDate {
      * de dia en el año de la fecha dos y el numero de dia en
      * el año de la fecha uno
      */
-    if ((dateTwo.compareTo(dateOne) >= 0) && (dateOne.get(Calendar.YEAR) == dateTwo.get(Calendar.YEAR))) {
+    if ((compareTo(dateTwo, dateOne) >= 0) && (sameYear(dateOne, dateTwo))) {
       return (dateTwo.get(Calendar.DAY_OF_YEAR) - dateOne.get(Calendar.DAY_OF_YEAR));
     }
 
