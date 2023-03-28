@@ -599,7 +599,7 @@ public class PlantingRecordRestServlet {
      * la base de datos, se lo tiene que pedir y se lo tiene
      * que persistir en la base de datos subyacente
      */
-    if (!(climateRecordServiceBean.exist(yesterdayDate, parcel))) {
+    if (!(climateRecordServiceBean.checkExistence(yesterdayDate, parcel))) {
       yesterdayClimateLog = ClimateClient.getForecast(parcel, (yesterdayDate.getTimeInMillis() / 1000));
 
       extraterrestrialSolarRadiation = solarService.getRadiation(yesterdayDate.get(Calendar.MONTH), parcel.getLatitude());
