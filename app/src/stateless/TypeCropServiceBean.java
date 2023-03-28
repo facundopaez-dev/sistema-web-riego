@@ -201,7 +201,7 @@ public class TypeCropServiceBean {
 
   /**
    * Retorna true si y solo si en la base de datos subyacente
-   * eixste un tipo de cultivo con un nombre igual al nombre
+   * existe un tipo de cultivo con un nombre igual al nombre
    * dado y un ID distinto al ID dado
    * 
    * @param id
