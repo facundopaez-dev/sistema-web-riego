@@ -227,45 +227,47 @@ public class ClimateRecordServiceBean {
   }
 
   /**
-   * @param  givenDate
-   * @param  givenParcel
-   * @return registro climatico de la parcela dada en
-   * la fecha dada
+   * Recupera un registro climatico de una parcela mediante
+   * una fecha si y solo si existe en la base de datos
+   * subyacente
+   * 
+   * @param givenDate
+   * @param givenParcel
+   * @return referencia a un objeto de tipo ClimateRecord que
+   * representa el registro climatico que tiene una fecha dada
+   * y pertenece a una parcela, si existe en la base de datos
+   * subyacente. En caso contrario, null.
    */
   public ClimateRecord find(Calendar givenDate, Parcel givenParcel) {
-    Query query = entityManager.createQuery("SELECT c FROM ClimateRecord c WHERE c.date = :date AND c.parcel = :parcel");
-    query.setParameter("date", givenDate);
-    query.setParameter("parcel", givenParcel);
+    Query query = entityManager.createQuery("SELECT c FROM ClimateRecord c WHERE (c.date = :givenDate AND c.parcel = :givenParcel)");
+    query.setParameter("givenDate", givenDate);
+    query.setParameter("givenParcel", givenParcel);
 
-    return (ClimateRecord) query.getSingleResult();
-  }
-
-  /**
-   * Comprueba si la parcela dada tiene un registro
-   * climatico asociado (en la base de datos) y si lo
-   * tiene retorna verdadero, en caso contrario retorna
-   * falso
-   *
-   * @param  date
-   * @param  parcel
-   * @return verdadero en caso de enccontrar un registro del clima
-   * con la fecha y la parcela dadas, en caso contrario retorna falso
-   */
-  public boolean exist(Calendar date, Parcel parcel) {
-    Query query = entityManager.createQuery("SELECT c FROM ClimateRecord c WHERE (c.date = :date AND c.parcel = :parcel)");
-    query.setParameter("date", date);
-    query.setParameter("parcel", parcel);
-
-    boolean result = false;
+    ClimateRecord givenClimateRecord = null;
 
     try {
-      query.getSingleResult();
-      result = true;
-    } catch(NoResultException e) {
+      givenClimateRecord = (ClimateRecord) query.getSingleResult();
+    } catch (NoResultException e) {
       e.printStackTrace();
     }
 
-    return result;
+    return givenClimateRecord;
+  }
+
+  /**
+   * Comprueba la existencia de un registro climatico en la base
+   * de datos subyacente. Retorna true si y solo si existe en
+   * la base de datos el registro climatico con una fecha dada
+   * perteneciente a una parcela dada.
+   * 
+   * @param givenDate
+   * @param givenParcel
+   * @return true si el registro climatico con una fecha dada
+   * perteneciente a una parcela dada existe en la base de datos
+   * subyacente, en caso contrario false
+   */
+  public boolean checkExistence(Calendar givenDate, Parcel givenParcel) {
+    return (find(givenDate, givenParcel) != null);
   }
 
   /**
