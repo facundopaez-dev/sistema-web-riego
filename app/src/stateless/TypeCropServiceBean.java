@@ -177,7 +177,7 @@ public class TypeCropServiceBean {
    *         dado, si existe en la base de datos subyacente.
    *         En caso contrario, null.
    */
-  public TypeCrop find(int id, String name) {
+  private TypeCrop findRepeated(int id, String name) {
     /*
      * Esta consulta obtiene el tipo de cultivo que tiene su
      * nombre igual al nombre de un tipo de cultivo del
@@ -211,7 +211,7 @@ public class TypeCropServiceBean {
    *         false
    */
   public boolean checkRepeated(int id, String name) {
-    return (find(id, name) != null);
+    return (findRepeated(id, name) != null);
   }
 
 }
