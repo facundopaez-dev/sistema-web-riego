@@ -105,7 +105,7 @@ public class IrrigationRecordGenerator {
        * de riego en la fecha dada (en este caso la actual), se tiene
        * que crear uno para la fecha dada y asociarlo a la misma
        */
-      if (!irrigationRecordService.exist(currentDate, currentParcel)) {
+      if (!irrigationRecordService.checkExistence(currentDate, currentParcel)) {
         currentIrrigationRecord = new IrrigationRecord();
 
         /*

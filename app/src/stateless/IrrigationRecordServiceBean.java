@@ -91,6 +91,34 @@ public class IrrigationRecordServiceBean {
   }
 
   /**
+   * Recupera un registro de riego de una parcela mediante
+   * una fecha si y solo si existe en la base de datos
+   * subyacente
+   * 
+   * @param givenDate
+   * @param givenParcel
+   * @return referencia a un objeto de tipo IrrigationRecord que
+   * representa el registro de riego que tiene una fecha dada
+   * y pertenece a una parcela, si existe en la base de datos
+   * subyacente. En caso contrario, null.
+   */
+  public IrrigationRecord find(Calendar givenDate, Parcel givenParcel) {
+    Query query = entityManager.createQuery("SELECT i FROM IrrigationRecord i WHERE (i.date = :givenDate AND i.parcel = :givenParcel)");
+    query.setParameter("givenDate", givenDate);
+    query.setParameter("givenParcel", givenParcel);
+
+    IrrigationRecord givenIrrigationRecord = null;
+
+    try {
+      givenIrrigationRecord = (IrrigationRecord) query.getSingleResult();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return givenIrrigationRecord;
+  }
+
+  /**
    * Retorna todos los registros de riego de todas las
    * parcelas de un usuario
    * 
@@ -202,31 +230,19 @@ public class IrrigationRecordServiceBean {
   }
 
   /**
-   * Comprueba si la parcela dada tiene un registro
-   * de riego asociado (en la base de datos) y si lo
-   * tiene retorna verdadero, en caso contrario retorna
-   * falso
-   *
-   * @param  givenDate
-   * @param  givenParcel
-   * @return verdadero en caso de enccontrar un registro de riego
-   * con la fecha y la parcela dadas, en caso contrario retorna falso
+   * Comprueba la existencia de un registro de riego en la base
+   * de datos subyacente. Retorna true si y solo si existe en
+   * la base de datos el registro de riego con una fecha dada
+   * perteneciente a una parcela dada.
+   * 
+   * @param givenDate
+   * @param givenParcel
+   * @return true si el registro de riego con una fecha dada
+   * perteneciente a una parcela dada existe en la base de datos
+   * subyacente, en caso contrario false
    */
-  public boolean exist(Calendar givenDate, Parcel givenParcel) {
-    Query query = entityManager.createQuery("SELECT r FROM IrrigationRecord r WHERE r.date = :givenDate AND r.parcel = :givenParcel");
-    query.setParameter("givenDate", givenDate);
-    query.setParameter("givenParcel", givenParcel);
-
-    boolean result = false;
-
-    try {
-      query.getSingleResult();
-      result = true;
-    } catch(NoResultException e) {
-      e.printStackTrace();
-    }
-
-    return result;
+  public boolean checkExistence(Calendar givenDate, Parcel givenParcel) {
+    return (find(givenDate, givenParcel) != null);
   }
 
   /**
