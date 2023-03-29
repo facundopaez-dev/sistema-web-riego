@@ -40,8 +40,7 @@ public class ClimateRecordManager {
   /**
    * Obtiene y persiste de manera automatica los datos
    * metereologicos de la fecha actual para todas las
-   * parcelas registradas en la base de datos subyacente,
-   * tanto para las activas como para las inactivas.
+   * parcelas activas de la base de datos subyacente.
    * 
    * Esto lo realiza cada dos horas a partir de las 00:00
    * horas, debido a que quizas en alguna hora del dia,
@@ -66,9 +65,8 @@ public class ClimateRecordManager {
    * La segunda anotacion es para probar que el metodo hace
    * lo que se espera que haga: obtener y persistir los
    * datos metereologicos de la fecha actual para cada
-   * una de las parcelas registradas en la base de datos
-   * subyacente, tanto para las activas como para las
-   * inactivas.
+   * una de las parcelas activas de la base de datos
+   * subyacente
    * 
    * @param second="*"
    * @param minute="*"
@@ -79,7 +77,7 @@ public class ClimateRecordManager {
   // @Schedule(second = "*", minute = "*", hour = "0/2", persistent = false)
   // @Schedule(second = "*/5", minute = "*", hour = "*", persistent = false)
   private void getCurrentWeatherDataset() {
-    Collection<Parcel> parcels = parcelService.findAll();
+    Collection<Parcel> activeParcels = parcelService.findAllActive();
     Calendar currentDate = Calendar.getInstance();
     ClimateRecord climateRecord = null;
     PlantingRecord plantingRecord = null;
@@ -101,11 +99,10 @@ public class ClimateRecordManager {
 
     /*
      * Obtiene y persiste los datos metereologicos de la fecha
-     * actual para todas las parcelas que NO tienen los datos
-     * metereologicos de dicha fecha, tanto para las activas
-     * como para las inactivas
+     * actual para todas las parcelas activas que NO tienen los
+     * datos metereologicos de dicha fecha
      */
-    for (Parcel currentParcel : parcels) {
+    for (Parcel currentParcel : activeParcels) {
       /*
        * Si en la base de datos subyacente no existe un registro
        * climatico con la fecha actual para la parcela actual,

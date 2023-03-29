@@ -256,6 +256,19 @@ public class ParcelServiceBean {
   }
 
   /**
+   * Retorna las parcelas activas de la base de datos
+   * subyacente
+   * 
+   * @return referencia a un objeto de tipo Collection que
+   * contiene todas las parcelas activas de la base de datos
+   * subyacente
+   */
+  public Collection<Parcel> findAllActive() {
+    Query query = getEntityManager().createQuery("SELECT p FROM Parcel p WHERE p.active = TRUE ORDER BY p.id");
+    return (Collection) query.getResultList();
+  }
+
+  /**
    * Retorna las parcelas activas de un usuario
    * 
    * @param userId
