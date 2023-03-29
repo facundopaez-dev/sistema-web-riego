@@ -474,7 +474,52 @@ public class CropRestServlet {
       return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
     }
 
+    /*
+     * ************************************************
+     * Control sobre el llenado del formulario del dato
+     * correspondiente a este clase
+     * ************************************************
+     */
+
+    /*
+     * Si el objeto correspondiente a la referencia contenida
+     * en la variable de tipo por referencia de tipo String json,
+     * esta vacio, significa que el formulario del dato correspondiente
+     * a esta clase, esta vacio. Por lo tanto, la aplicacion del
+     * lado servidor retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "Debe completar todos los campos
+     * del formulario" y no se realiza la operacion solicitada
+     */
+    if (json.isEmpty()) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EMPTY_FORM))).build();
+    }
+
     Crop modifiedCrop = mapper.readValue(json, Crop.class);
+
+    /*
+     * Si el nombre del cultivo a modificar NO esta definido, la
+     * aplicacion del lado servidor retorna el mensaje HTTP
+     * 400 (Bad request) junto con el mensaje "El nombre del
+     * cultivo debe estar definido" y no se realiza la
+     * operacion solicitada
+     */
+    if (modifiedCrop.getName() == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_CROP_NAME))).build();
+    }
+
+    /*
+     * Si el nombre del cultivo NO contiene unicamente letras, y
+     * un espacio en blanco entre palabra y palabra si esta formado
+     * por mas de una palabra, la aplicacion del lado servidor retorna
+     * el mensaje HTTP 400 (Bad request) junto con el mensaje "El nombre
+     * de un cultivo debe empezar con una palabra formada unicamente por
+     * caracteres alfabeticos y puede tener más de una palabra formada
+     * unicamente por caracteres alfabeticos" y no se realiza la
+     * operacion solicitada
+     */
+    if (!modifiedCrop.getName().matches("^[A-Za-zÀ-ÿ]+(\\s[A-Za-zÀ-ÿ]+)*$")) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_CROP_NAME))).build();
+    }
 
     /*
      * Si el cultivo modificado tiene un nombre igual al nombre de
@@ -485,6 +530,89 @@ public class CropRestServlet {
      */
     if (cropService.checkRepeated(id, modifiedCrop.getName())) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.CROP_NAME_ALREADY_USED))).build();
+    }
+
+    /*
+     * Si el tipo del cultivo a modificar NO esta definido, la
+     * aplicacion del lado servidor retorna el mensaje HTTP
+     * 400 (Bad request) junto con el mensaje "El tipo del
+     * cultivo debe estar definido" y no se realiza la
+     * operacion solicitada
+     */
+    if (modifiedCrop.getTypeCrop() == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.TYPE_CROP_UNDEFINED))).build();
+    }
+
+    String message = null;
+
+    /*
+     * **********************************************
+     * Controles sobre las etapas de vida del cultivo
+     * **********************************************
+     */
+
+    /*
+     * Si una de las etapas de vida del cultivo a modificar
+     * tiene un valor menor o igual a cero, la aplicacion del
+     * lado servidor retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "El <nombre del campo de etapa
+     * de vida> debe ser mayor a cero" y no se realiza la
+     * operacion solicitada
+     */
+    if (modifiedCrop.getInitialStage() <= 0) {
+      message = "La etapa inicial debe ser mayor a cero";
+      PersonalizedResponse personalizedResponse = new PersonalizedResponse(message);
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(personalizedResponse)).build();
+    }
+
+    if (modifiedCrop.getDevelopmentStage() <= 0) {
+      message = "La etapa de desarrollo debe ser mayor a cero";
+      PersonalizedResponse personalizedResponse = new PersonalizedResponse(message);
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(personalizedResponse)).build();
+    }
+
+    if (modifiedCrop.getMiddleStage() <= 0) {
+      message = "La etapa media debe ser mayor a cero";
+      PersonalizedResponse personalizedResponse = new PersonalizedResponse(message);
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(personalizedResponse)).build();
+    }
+
+    if (modifiedCrop.getFinalStage() <= 0) {
+      message = "La etapa final debe ser mayor a cero";
+      PersonalizedResponse personalizedResponse = new PersonalizedResponse(message);
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(personalizedResponse)).build();
+    }
+
+    /*
+     * ********************************************
+     * Controles sobre los coeficientes del cultivo
+     * ********************************************
+     */
+
+    /*
+     * Si uno de los coeficientes del cultivo a modificar
+     * tiene un valor menor o igual a 0.0, la aplicacion del
+     * lado servidor retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "El <nombre de campo de coeficiente
+     * de cultivo> debe ser mayor a 0.0" y no se realiza
+     * la operacion solicitada
+     */
+    if (modifiedCrop.getInitialKc() <= 0.0) {
+      message = "El coeficiente inicial del cultivo debe ser mayor a 0.0";
+      PersonalizedResponse personalizedResponse = new PersonalizedResponse(message);
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(personalizedResponse)).build();      
+    }
+
+    if (modifiedCrop.getMiddleKc() <= 0.0) {
+      message = "El coeficiente medio del cultivo debe ser mayor a 0.0";
+      PersonalizedResponse personalizedResponse = new PersonalizedResponse(message);
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(personalizedResponse)).build();      
+    }
+
+    if (modifiedCrop.getFinalKc() <= 0.0) {
+      message = "El coeficiente final del cultivo debe ser mayor a 0.0";
+      PersonalizedResponse personalizedResponse = new PersonalizedResponse(message);
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(personalizedResponse)).build();      
     }
 
     /*

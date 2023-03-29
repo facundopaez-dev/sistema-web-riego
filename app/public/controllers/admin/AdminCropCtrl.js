@@ -275,7 +275,7 @@ app.controller(
         /*
         Si el coeficiente medio NO esta definido, la aplicacion
         muestra el mensaje dado y no realiza la operacion solicitada
-        */        
+        */
         if ($scope.data.middleKc == undefined) {
           alert(UNDEFINED_MIDDLE_KC);
           return;
@@ -294,7 +294,7 @@ app.controller(
         /*
         Si el coeficiente final NO esta definido, la aplicacion
         muestra el mensaje dado y no realiza la operacion solicitada
-        */  
+        */
         if ($scope.data.finalKc == undefined) {
           alert(UNDEFINED_FINAL_KC);
           return;
@@ -323,6 +323,115 @@ app.controller(
       }
 
       $scope.modify = function () {
+        // Expresion regular para validar el nombre del cultivo
+        var nameRegexp = /^[A-Za-zÀ-ÿ]+(\s[A-Za-zÀ-ÿ]+)*$/g;
+
+        /*
+        Si el nombre del dato correspondiente a este controller
+        NO contiene unicamente letras, y un espacio en blanco entre
+        palabra y palabra si esta formado por mas de una palabra, la
+        aplicacion muestra el mensaje dado y no realiza la operacion
+        solicitada
+        */
+        if (!nameRegexp.exec($scope.data.name)) {
+          alert(INVALID_CROP_NAME);
+          return;
+        }
+
+        /*
+        Si el tipo del dato correspondiente a este controller NO
+        esta definido, la aplicacion muestra el mensaje dado y no
+        realiza la operacion solicitada
+        */
+        if ($scope.data.typeCrop == undefined) {
+          alert(TYPE_CROP_UNDEFINED);
+          return;
+        }
+
+        /*
+        *************************************************
+        Controles sobre los valores de las etapas de vida
+        de un cultivo
+        *************************************************
+        */
+
+        /*
+        Si la etapa inicial tiene un valor menor o igual a cero,
+        la aplicacion muestra el mensaje dado y no realiza la
+        operacion solicitada
+        */
+        if ($scope.data.initialStage <= 0) {
+          alert(INVALID_INITIAL_STAGE);
+          return;
+        }
+
+        /*
+        Si la etapa de desarrollo tiene un valor menor o igual a
+        cero, la aplicacion muestra el mensaje dado y no realiza
+        la operacion solicitada
+        */
+        if ($scope.data.developmentStage <= 0) {
+          alert(INVALID_DEVELOPMENT_STAGE);
+          return;
+        }
+
+        /*
+        Si la etapa media tiene un valor menor o igual a cero,
+        la aplicacion muestra el mensaje dado y no realiza la
+        operacion solicitada
+        */
+        if ($scope.data.middleStage <= 0) {
+          alert(INVALID_MIDDLE_STAGE);
+          return;
+        }
+
+        /*
+        Si la etapa final tiene un valor menor o igual a cero,
+        la aplicacion muestra el mensaje dado y no realiza la
+        operacion solicitada
+        */
+        if ($scope.data.finalStage <= 0) {
+          alert(INVALID_FINAL_STAGE);
+          return;
+        }
+
+        /*
+        **************************************************
+        Controles sobre los valores de los coeficientes de
+        un cultivo
+        **************************************************
+        */
+
+        /*
+        Si el coeficiente inicial tiene un valor menor o igual a
+        0.0, la aplicacion muestra el mensaje dado y no realiza la
+        operacion solicitada
+        */
+        if ($scope.data.initialKc <= 0.0) {
+          alert(INVALID_INITIAL_KC);
+          return;
+        }
+
+        /*
+        Si el coeficiente medio tiene un valor menor o igual a
+        0.0, la aplicacion muestra el mensaje dado y no realiza la
+        operacion solicitada
+        */
+        if ($scope.data.middleKc <= 0.0) {
+          alert(INVALID_MIDDLE_KC);
+          return;
+        }
+
+        /*
+        Si el coeficiente final tiene un valor menor o igual a
+        0.0, la aplicacion muestra el mensaje dado y no realiza
+        la operacion solicitada
+        */
+        if ($scope.data.finalKc <= 0.0) {
+          alert(INVALID_FINAL_KC);
+          return;
+        }
+
         cropService.modify($scope.data, function (error, data) {
           if (error) {
             console.log(error);
