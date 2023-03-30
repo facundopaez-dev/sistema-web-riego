@@ -171,6 +171,7 @@ public class TypeCropServiceBean {
    * si existe en la base de datos subyacente
    * 
    * @param id
+   * @param name
    * @return referencia a un objeto de tipo TypeCrop que
    *         representa al tipo de cultivo que tiene un ID
    *         distinto al ID dado y un nombre igual al nombre
@@ -205,8 +206,9 @@ public class TypeCropServiceBean {
    * dado y un ID distinto al ID dado
    * 
    * @param id
+   * @param name
    * @return true si en la base de datos subyacente existe un
-   *         un tipo de cultivo con un nombre igual al nombre
+   *         tipo de cultivo con un nombre igual al nombre
    *         dado y un ID distinto al ID dado, en caso contrario
    *         false
    */
