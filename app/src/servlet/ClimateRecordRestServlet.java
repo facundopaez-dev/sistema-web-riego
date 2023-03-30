@@ -308,13 +308,27 @@ public class ClimateRecordRestServlet {
       return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
     }
 
+    ClimateRecord modifiedClimateRecord = mapper.readValue(json, ClimateRecord.class);
+
+    /*
+     * Si el registro climatico a modificar de una parcela,
+     * tiene una fecha igual a la fecha de otro registro
+     * climatico de la misma parcela, la aplicacion del
+     * lado servidor retorna el mensaje HTTP 400 (Bad
+     * request) junto con el mensaje "Ya existe un registro
+     * climatico con la fecha ingresada para la parcela
+     * seleccionada" y no se realiza la operacion solicitada
+     */
+    if (climateRecordService.checkRepeated(climateRecordId, modifiedClimateRecord.getParcel(), modifiedClimateRecord.getDate())) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EXISTING_CLIMATE_RECORD))).build();
+    }
+
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos que el
      * cliente solicito actualizar
      */
-    ClimateRecord modifiedClimateRecord = mapper.readValue(json, ClimateRecord.class);
     return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(climateRecordService.modify(userId, climateRecordId, modifiedClimateRecord))).build();
   }
 

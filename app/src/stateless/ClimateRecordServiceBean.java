@@ -271,6 +271,60 @@ public class ClimateRecordServiceBean {
   }
 
   /**
+   * Retorna el registro climatico, de una parcela, que tiene la
+   * fecha dada y un ID distinto al ID dado, si y solo si existe
+   * en la base de datos subyacente
+   * 
+   * @param id
+   * @param parcel
+   * @param date
+   * @return referencia a un objeto de tipo ClimateRecord que
+   *         representa al registro climatico, de una parcela,
+   *         que tiene una fecha igual a la fecha dada y un ID
+   *         distinto al ID dado, si existe en la base de datos
+   *         subyacente. En caso contrario, null.
+   */
+  private ClimateRecord findRepeated(int id, Parcel parcel, Calendar date) {
+    /*
+     * Esta consulta obtiene el registro climatico, de una
+     * parcela, que tiene su fecha igual a la fecha de un
+     * registro climatico del conjunto de registros climaticos
+     * en el que no esta el registro climatico del ID dado
+     */
+    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c WHERE (c.id != :givenId AND c.parcel = :givenParcel AND c.date = :givenDate)");
+    query.setParameter("givenId", id);
+    query.setParameter("givenParcel", parcel);
+    query.setParameter("givenDate", date);
+
+    ClimateRecord givenClimateRecord = null;
+
+    try {
+      givenClimateRecord = (ClimateRecord) query.getSingleResult();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return givenClimateRecord;
+  }
+
+  /**
+   * Retorna true si y solo si en la base de datos subyacente
+   * existe un registro climatico, de una parcela, con una
+   * fecha igual a la fecha dada y un ID distinto al ID dado
+   * 
+   * @param id
+   * @param parcel
+   * @param date
+   * @return true si en la base de datos subyacente existe un
+   *         registro climatico, de una parcela, con una fecha
+   *         igual a la fecha dada y un ID distinto al ID dado,
+   *         en caso contrario false
+   */
+  public boolean checkRepeated(int id, Parcel parcel, Calendar date) {
+    return (findRepeated(id, parcel, date) != null);
+  }
+
+  /**
    * Establece el agua acumulada del registro climatico
    * del dia de hoy de una parcela dada
    *
