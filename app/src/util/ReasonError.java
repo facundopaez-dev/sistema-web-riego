@@ -62,7 +62,8 @@ public enum ReasonError {
   CROP_NAME_ALREADY_USED("Nombre de cultivo ya utilizado, elija otro"),
   UNDEFINED_CROP_NAME("El nombre del cultivo debe estar definido"),
   TYPE_CROP_UNDEFINED("El tipo del cultivo debe estar definido"),
-  INVALID_CROP_NAME("El nombre de un cultivo debe empezar con una palabra formada únicamente por caracteres alfabéticos y puede tener más de una palabra formada únicamente por caracteres alfabéticos");
+  INVALID_CROP_NAME("El nombre de un cultivo debe empezar con una palabra formada únicamente por caracteres alfabéticos y puede tener más de una palabra formada únicamente por caracteres alfabéticos"),
+  EXISTING_CLIMATE_RECORD("Ya existe un registro climático con la fecha ingresada para la parcela seleccionada");
 
   private final String reason;
 
