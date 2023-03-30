@@ -271,6 +271,117 @@ app.controller(
       }
 
       $scope.modify = function () {
+        /*
+        **********************************
+        Validacion de los datos de entrada
+        **********************************
+        */
+
+        if ($scope.data.date == undefined) {
+          alert(UNDEFINED_DATE);
+          return;
+        }
+
+        if ($scope.data.minimumTemperature == undefined) {
+          alert(UNDEFINED_MINIMUM_TEMPERATURE);
+          return;
+        }
+
+        if ($scope.data.maximumTemperature == undefined) {
+          alert(UNDEFINED_MAXIMUM_TEMPERATURE);
+          return;
+        }
+
+        if ($scope.data.windSpeed == undefined) {
+          alert(UNDEFINED_WIND_SPEED);
+          return;
+        }
+
+        if ($scope.data.windSpeed < 0.0) {
+          alert(INVALID_WIND_SPEED);
+          return;
+        }
+
+        if ($scope.data.precipProbability == undefined) {
+          alert(UNDEFINED_PROBABILITY_PRECIPITATION);
+          return;
+        }
+
+        if ($scope.data.precipProbability < 0.0 || $scope.data.precipProbability > 100) {
+          alert(INVALID_PRECIPITATION_PROBABILITY);
+          return;
+        }
+
+        if ($scope.data.precip == undefined) {
+          alert(UNDEFINED_PRECIPITATION);
+          return;
+        }
+
+        if ($scope.data.precip < 0.0) {
+          alert(INVALID_PRECIPITATION);
+          return;
+        }
+
+        if ($scope.data.waterAccumulated == undefined) {
+          alert(UNDEFINED_ACCUMULATED_WATER);
+          return;
+        }
+
+        if ($scope.data.waterAccumulated < 0.0) {
+          alert(INVALID_ACCUMULATED_WATER);
+          return;
+        }
+
+        if ($scope.data.cloudCover == undefined) {
+          alert(UNDEFINED_CLOUDINESS);
+          return;
+        }
+
+        if ($scope.data.cloudCover < 0.0 || $scope.data.cloudCover > 100) {
+          alert(INVALID_CLOUDINESS);
+          return;
+        }
+
+        if ($scope.data.atmosphericPressure == undefined) {
+          alert(UNDEFINED_ATMOSPHERIC_PRESSURE);
+          return;
+        }
+
+        if ($scope.data.atmosphericPressure <= 0.0) {
+          alert(INVALID_ATMOSPHERIC_PRESSURE);
+          return;
+        }
+
+        if ($scope.data.dewPoint == undefined) {
+          alert(UNDEFINED_DEW_POINT);
+          return;
+        }
+
+        if ($scope.data.eto == undefined) {
+          alert(UNDEFINED_ETO);
+          return;
+        }
+
+        if ($scope.data.eto < 0.0) {
+          alert(INVALID_ETO);
+          return;
+        }
+
+        if ($scope.data.etc == undefined) {
+          alert(UNDEFINED_ETC);
+          return;
+        }
+
+        if ($scope.data.etc < 0.0) {
+          alert(INVALID_ETC);
+          return;
+        }
+
+        if ($scope.data.parcel == undefined) {
+          alert(UNDEFINED_PARCEL);
+          return;
+        }
+
         climateRecordService.modify($scope.data, function (error, data) {
           if (error) {
             console.log(error);

@@ -445,7 +445,131 @@ public class ClimateRecordRestServlet {
       return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
     }
 
+    /*
+     * Si el objeto correspondiente a la referencia contenida
+     * en la variable de tipo por referencia de tipo String json,
+     * esta vacio, significa que el formulario del dato correspondiente
+     * a esta clase, esta vacio. Por lo tanto, la aplicacion del
+     * lado servidor retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "Debe completar todos los campos
+     * del formulario" y no se realiza la operacion solicitada
+     */
+    if (json.isEmpty()) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EMPTY_FORM))).build();
+    }
+
     ClimateRecord modifiedClimateRecord = mapper.readValue(json, ClimateRecord.class);
+
+    /*
+     * Si la fecha NO esta definida, la aplicacion del lado
+     * servidor retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "La fecha debe estar definida"
+     * y no se realiza la operacion solicitada
+     */
+    if (modifiedClimateRecord.getDate() == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_DATE))).build();
+    }
+
+    /*
+     * Si la velocidad del viento tiene un valor menor a 0.0,
+     * la aplicacion del lado servidor retorna el mensaje
+     * HTTP 400 (Bad request) junto con el mensaje "La
+     * velocidad del viento debe ser un valor mayor o
+     * igual a 0.0" y no se realiza la operacion solicitada
+     */
+    if (modifiedClimateRecord.getWindSpeed() < 0.0) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_WIND_SPEED))).build();
+    }
+
+    /*
+     * Si la probabilidad de la precipitacion tiene un valor
+     * menor a 0.0 o mayor a 100, la aplicacion del lado
+     * servidor retorna el mensaje HTTP 400 (Bad request) junto
+     * con el mensaje "La probabilidad de la precipitacion debe
+     * ser un valor mayor o igual a 0.0" y no se realiza la
+     * operacion solicitada
+     */
+    if (modifiedClimateRecord.getPrecipProbability() < 0.0 || modifiedClimateRecord.getPrecipProbability() > 100) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_PRECIPITATION_PROBABILITY))).build();
+    }
+
+    /*
+     * Si la precipitacion tiene un valor menor a 0.0, la
+     * aplicacion del lado servidor retorna el mensaje
+     * HTTP 400 (Bad request) junto con el mensaje "La
+     * precipitacion debe ser un valor mayor o igual a
+     * 0.0" y no se realiza la operacion solicitada
+     */
+    if (modifiedClimateRecord.getPrecip() < 0.0) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_PRECIPITATION))).build();
+    }
+
+    /*
+     * Si el agua acumulada tiene un valor menor a 0.0,
+     * la aplicacion del lado servidor retorna el mensaje
+     * HTTP 400 (Bad request) junto con el mensaje "El
+     * agua acumulada debe ser un valor mayor o igual a
+     * 0.0" y no se realiza la operacion solicitada
+     */
+    if (modifiedClimateRecord.getWaterAccumulated() < 0.0) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_ACCUMULATED_WATER))).build();
+    }
+
+    /*
+     * Si la nubosidad tiene un valor menor a 0.0 o mayor
+     * a 100, la aplicacion del lado servidor retorna el
+     * mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "La nubosidad debe ser un valor entre 0.0 y 100,
+     * incluido" y no se realiza la operacion solicitada
+     */
+    if (modifiedClimateRecord.getCloudCover() < 0.0 || modifiedClimateRecord.getCloudCover() > 100) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_CLOUDINESS))).build();
+    }
+
+    /*
+     * Si la presion atmosferica tiene un valor menor o igual
+     * a 0.0, la aplicacion del lado servidor retorna el mensaje
+     * HTTP 400 (Bad request) junto con el mensaje "La presion
+     * atmosferica debe ser un valor mayor a 0.0"
+     */
+    if (modifiedClimateRecord.getAtmosphericPressure() <= 0.0) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_ATMOSPHERIC_PRESSURE))).build();
+    }
+
+    /*
+     * Si la evapotranspiracion del cultivo de referencia (ETo)
+     * tiene un valor menor a 0.0, la aplicacion del lado
+     * servidor retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "La evapotranspiracion del cultivo
+     * de referencia (ETo) debe ser un valor mayor o igual
+     * a 0.0" y no se realiza la operacion solicitada
+     */
+    if (modifiedClimateRecord.getEto() < 0.0) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_ETO))).build();
+    }
+
+    /*
+     * Si la evapotranspiracion del cultivo (ETc) tiene un
+     * valor menor a 0.0, la aplicacion del lado servidor
+     * retorna el mensaje HTTP 400 (Bad request) junto
+     * con el mensaje "La evapotranspiracion del cultivo
+     * (ETc) debe ser un valor mayor o igual a 0.0" y no
+     * se realiza la operacion solicitada
+     */
+    if (modifiedClimateRecord.getEtc() < 0.0) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_ETC))).build();
+    }
+
+    /*
+     * Si la parcela NO esta definida, la aplicacion del
+     * lado servidor retorna el mensaje HTTP 400 (Bad
+     * request) junto con el mensaje "La parcela debe
+     * estar definida" y no se realiza la operacion
+     * solicitada
+     */
+    if (modifiedClimateRecord.getParcel() == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INDEFINITE_PARCEL))).build();
+    }
 
     /*
      * Si el registro climatico a modificar de una parcela,
