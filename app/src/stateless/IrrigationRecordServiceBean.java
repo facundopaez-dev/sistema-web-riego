@@ -155,11 +155,11 @@ public class IrrigationRecordServiceBean {
 
   /**
    * Retorna todos los registros de riego modificables de
-   * todas las parcelas de un usuario
+   * todas las parcelas de la base de datos subyacente
    * 
    * @return referencia a un objeto de tipo Collection que
    * contiene todos los registros de riego modificables de
-   * todas las parcelas del usuario con el ID dado
+   * todas las parcelas de la base de datos subyacente
    */
   public Collection<IrrigationRecord> findAllModifiable() {
     Query query = entityManager.createQuery("SELECT i FROM IrrigationRecord i WHERE (i.modifiable = 1) ORDER BY i.id");

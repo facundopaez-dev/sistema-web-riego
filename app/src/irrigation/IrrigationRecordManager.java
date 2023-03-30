@@ -18,13 +18,12 @@ public class IrrigationRecordManager {
      * Establece de manera automatica el atributo modifiable de un registro de
      * riego del pasado (es decir, uno que tiene su fecha estrictamente menor
      * que la fecha actual) en false, ya que un registro de riego del pasado
-     * NO se dene poder modificar. Esto lo hace cada 24 horas a parit de las
+     * NO se debe poder modificar. Esto lo hace cada 24 horas a partir de las
      * 00 horas.
      * 
      * La segunda anotacion @Schedule es para probar que este metodo se
-     * ejecuta correctamente, es decir, que elimina los enlaces de activacion
-     * de cuenta NO consumidos y expirados, y las cuentas registradas asociadas
-     * a los mismos.
+     * ejecuta correctamente, es decir, que establece el atributo modifiable
+     * de un registro de riego del pasado en false.
      * 
      * El archivo irrigationRecordInserts.sql de la ruta app/etc/sql tiene datos
      * para probar que este metodo se ejecuta correctamente, es decir, que hace
