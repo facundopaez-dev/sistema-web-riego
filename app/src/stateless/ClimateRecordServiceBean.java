@@ -7,9 +7,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import java.lang.NullPointerException;
 import model.ClimateRecord;
 import model.Parcel;
-import java.lang.NullPointerException;
+import util.UtilDate;
 
 @Stateless
 public class ClimateRecordServiceBean {
@@ -429,6 +430,23 @@ public class ClimateRecordServiceBean {
    */
   public boolean hasClimateRecords(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
     return !findAllByParcelIdAndPeriod(userId, parcelId, dateFrom, dateUntil).isEmpty();
+  }
+
+  /**
+   * Retorna true si y solo si la fecha de un registro climatico
+   * es estrictamente menor a la fecha actual
+   * 
+   * @param climateRecord
+   * @return true si la fecha de un registro climatico es anterior
+   * a la fecha actual, en caso contrario false
+   */
+  public boolean isFromPast(ClimateRecord climateRecord) {
+    /*
+     * El metodo getInstance de la clase Calendar retorna
+     * la referencia a un objeto de tipo Calendar que
+     * contiene la fecha actual
+     */
+    return (UtilDate.compareTo(climateRecord.getDate(), Calendar.getInstance()) < 0);
   }
 
 }

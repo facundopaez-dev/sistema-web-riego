@@ -63,7 +63,8 @@ public enum ReasonError {
   UNDEFINED_CROP_NAME("El nombre del cultivo debe estar definido"),
   TYPE_CROP_UNDEFINED("El tipo del cultivo debe estar definido"),
   INVALID_CROP_NAME("El nombre de un cultivo debe empezar con una palabra formada únicamente por caracteres alfabéticos y puede tener más de una palabra formada únicamente por caracteres alfabéticos"),
-  EXISTING_CLIMATE_RECORD("Ya existe un registro climático con la fecha ingresada para la parcela seleccionada");
+  EXISTING_CLIMATE_RECORD("Ya existe un registro climático con la fecha ingresada para la parcela seleccionada"),
+  CREATION_PAST_CLIMATE_RECORD_NOT_ALLOWED("No está permitida la creación de un registro climático del pasado (es decir, uno que tiene una fecha anterior a la fecha actual)");
 
   private final String reason;
 
