@@ -107,7 +107,152 @@ app.controller(
         });
       }
 
+      const EMPTY_FORM = "Debe completar todos los campos del formulario";
+      const UNDEFINED_DATE = "La fecha debe estar definida";
+      const UNDEFINED_MINIMUM_TEMPERATURE = "La temepratura mínima debe estar definida";
+      const UNDEFINED_MAXIMUM_TEMPERATURE = "La temepratura máxima debe estar definida";
+      const UNDEFINED_WIND_SPEED = "La velocidad del viento debe estar definida";
+      const UNDEFINED_PROBABILITY_PRECIPITATION = "La probabilidad de la precipitación debe estar definida";
+      const UNDEFINED_PRECIPITATION = "La precipitación debe estar definida";
+      const UNDEFINED_ACCUMULATED_WATER = "El agua acumulada debe estar definida";
+      const UNDEFINED_CLOUDINESS = "La nubosidad debe estar definida";
+      const UNDEFINED_ATMOSPHERIC_PRESSURE = "La presión atmosférica debe estar definida";
+      const UNDEFINED_DEW_POINT = "El punto de rocío debe estar definido";
+      const UNDEFINED_ETO = "La evapotranspiración del cultivo de referencia (ETo) debe estar definida";
+      const UNDEFINED_ETC = "La evapotranspiración del cultivo (ETc) debe estar definida";
+      const UNDEFINED_PARCEL = "La parcela debe estar definida";
+      const INVALID_WIND_SPEED = "La velocidad del viento debe ser un valor mayor o igual a 0.0";
+      const INVALID_PRECIPITATION_PROBABILITY = "La probabilidad de la precipitación debe ser un valor entre 0.0 y 100, incluido";
+      const INVALID_PRECIPITATION = "La precipitación debe ser un valor mayor o igual 0.0";
+      const INVALID_ACCUMULATED_WATER = "El agua acumulada debe ser un valor mayor o igual a 0.0";
+      const INVALID_CLOUDINESS = "La nubosidad debe ser un valor entre 0.0 y 100, incluido";
+      const INVALID_ATMOSPHERIC_PRESSURE = "La presión atmosférica debe ser un valor mayor a 0.0";
+      const INVALID_ETO = "La evapotranspiración del cultivo de referencia (ETo) debe ser un valor mayor o igual a 0.0";
+      const INVALID_ETC = "La evapotranspiración del cultivo (ETc) debe ser un valor mayor o igual a 0.0";
+
       $scope.create = function () {
+        /*
+        Si la propeidad data de $scope tiene el valor undefined,
+        significa que el formulario correspondiente a esta funcion
+        esta totalmente vacio. Por lo tanto, la aplicacion muestra
+        el mensaje dado y no realiza la operacion solicitada.
+        */
+        if ($scope.data == undefined) {
+          alert(EMPTY_FORM);
+          return;
+        }
+
+        /*
+        **********************************
+        Validacion de los datos de entrada
+        **********************************
+        */
+
+        if ($scope.data.date == undefined) {
+          alert(UNDEFINED_DATE);
+          return;
+        }
+
+        if ($scope.data.minimumTemperature == undefined) {
+          alert(UNDEFINED_MINIMUM_TEMPERATURE);
+          return;
+        }
+
+        if ($scope.data.maximumTemperature == undefined) {
+          alert(UNDEFINED_MAXIMUM_TEMPERATURE);
+          return;
+        }
+
+        if ($scope.data.windSpeed == undefined) {
+          alert(UNDEFINED_WIND_SPEED);
+          return;
+        }
+
+        if ($scope.data.windSpeed < 0.0) {
+          alert(INVALID_WIND_SPEED);
+          return;
+        }
+
+        if ($scope.data.precipProbability == undefined) {
+          alert(UNDEFINED_PROBABILITY_PRECIPITATION);
+          return;
+        }
+
+        if ($scope.data.precipProbability < 0.0 || $scope.data.precipProbability > 100) {
+          alert(INVALID_PRECIPITATION_PROBABILITY);
+          return;
+        }
+
+        if ($scope.data.precip == undefined) {
+          alert(UNDEFINED_PRECIPITATION);
+          return;
+        }
+
+        if ($scope.data.precip < 0.0) {
+          alert(INVALID_PRECIPITATION);
+          return;
+        }
+
+        if ($scope.data.waterAccumulated == undefined) {
+          alert(UNDEFINED_ACCUMULATED_WATER);
+          return;
+        }
+
+        if ($scope.data.waterAccumulated < 0.0) {
+          alert(INVALID_ACCUMULATED_WATER);
+          return;
+        }
+
+        if ($scope.data.cloudCover == undefined) {
+          alert(UNDEFINED_CLOUDINESS);
+          return;
+        }
+
+        if ($scope.data.cloudCover < 0.0 || $scope.data.cloudCover > 100) {
+          alert(INVALID_CLOUDINESS);
+          return;
+        }
+
+        if ($scope.data.atmosphericPressure == undefined) {
+          alert(UNDEFINED_ATMOSPHERIC_PRESSURE);
+          return;
+        }
+
+        if ($scope.data.atmosphericPressure <= 0.0) {
+          alert(INVALID_ATMOSPHERIC_PRESSURE);
+          return;
+        }
+
+        if ($scope.data.dewPoint == undefined) {
+          alert(UNDEFINED_DEW_POINT);
+          return;
+        }
+
+        if ($scope.data.eto == undefined) {
+          alert(UNDEFINED_ETO);
+          return;
+        }
+
+        if ($scope.data.eto < 0.0) {
+          alert(INVALID_ETO);
+          return;
+        }
+
+        if ($scope.data.etc == undefined) {
+          alert(UNDEFINED_ETC);
+          return;
+        }
+
+        if ($scope.data.etc < 0.0) {
+          alert(INVALID_ETC);
+          return;
+        }
+
+        if ($scope.data.parcel == undefined) {
+          alert(UNDEFINED_PARCEL);
+          return;
+        }
+
         climateRecordService.create($scope.data, function (error, data) {
           if (error) {
             console.log(error);
