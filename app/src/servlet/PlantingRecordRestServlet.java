@@ -416,16 +416,112 @@ public class PlantingRecordRestServlet {
       return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
     }
 
+    /*
+     * Si el objeto correspondiente a la referencia contenida
+     * en la variable de tipo por referencia de tipo String json,
+     * esta vacio, significa que el formulario del dato correspondiente
+     * a esta clase, esta vacio. Por lo tanto, la aplicacion del
+     * lado servidor retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "Debe completar todos los campos
+     * del formulario" y no se realiza la operacion solicitada
+     */
+    if (json.isEmpty()) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EMPTY_FORM))).build();
+    }
+
     PlantingRecord modifiedPlantingRecord = mapper.readValue(json, PlantingRecord.class);
+    Calendar currentSeedDate = plantingRecordService.find(plantingRecordId).getSeedDate();
 
     /*
-     * Si la fecha de siembra NO esta definida, la aplicacion
-     * del lado servidor retorna el mensaje HTTP 400 (Bad request)
-     * junto con el mensaje "La fecha de siembra debe estar
-     * definida" y no se realiza la operacion solicitada
+     * Si la fecha de siembra del registro de plantacion a modificar
+     * esta definida y es distinta a la fecha de siembra actual de
+     * dicho registro, se realizan las siguientes operaciones:
+     * 
+     * - se comprueba si la fecha de siembra modificada es menor
+     * o igual a la fecha de cosecha del ultimo registro de
+     * plantacion finalizado de la parcela elegida
+     * 
+     * - se comprueba si la fecha de siembra modificada es menor
+     * o mayor a la fecha actual
+     */
+    if ((modifiedPlantingRecord.getSeedDate() != null) && (UtilDate.compareTo(modifiedPlantingRecord.getSeedDate(), currentSeedDate) != 0)) {
+      /*
+       * Si la parcela correspondiente al registro de plantacion
+       * a modificar, tiene un ultimo registro de plantacion finalizado,
+       * se comprueba si hay superposicion entre la fecha de siembra
+       * del registro de plantacion a modificar y la fecha de cosecha
+       * del ultimo registro de plantacion finalizado de la parcela
+       * elegida
+       */
+      if (plantingRecordService.hasLastFinished(modifiedPlantingRecord.getParcel())) {
+        PlantingRecord lastFinishedPlantingRecord = plantingRecordService.findLastFinished(modifiedPlantingRecord.getParcel());
+
+        /*
+         * Si la fecha de siembra del registro de plantacion a
+         * modificar es menor o igual a la fecha de cosecha del
+         * ultimo registro de plantacion finalizado de la parcela
+         * elegida, la aplicacion retorna el mensaje HTTP 400
+         * (Bad request) junto con el mensaje "No esta permitido
+         * modificar un registro de plantacion con una fecha de
+         * siembra menor o igual a la fecha de cosecha del
+         * ultimo registro de plantacion finalizado de la
+         * parcela elegida" y no se realiza la operacion
+         * solicitada
+         */
+        if (UtilDate.compareTo(modifiedPlantingRecord.getSeedDate(), lastFinishedPlantingRecord.getHarvestDate()) <= 0) {
+          return Response.status(Response.Status.BAD_REQUEST)
+              .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.OVERLAP_BETWEEN_SEED_DATE_AND_HARVEST_DATE_WITH_LAST_FINISHED_PLANTING_RECORD)))
+              .build();
+        }
+
+      } // End if
+
+      Calendar currentDate = Calendar.getInstance();
+
+      /*
+       * Si la fecha de siembra del registro de plantacion a modificar
+       * es menor (anterior) a la fecha actual, la aplicacion del lado
+       * servidor retorna el mensaje HTTP 400 (Bad request) junto con
+       * el mensaje "No esta permitido modificar un registro de plantacion
+       * con una fecha de siembra menor a la fecha actual (es decir,
+       * anterior a la fecha actual)" y no se realiza la operacion
+       * solicitada
+       */
+      if (UtilDate.compareTo(modifiedPlantingRecord.getSeedDate(), currentDate) < 0) {
+        return Response.status(Response.Status.BAD_REQUEST)
+            .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_WITH_PAST_SEED_DATE_NOT_ALLOWED)))
+            .build();
+      }
+
+      /*
+       * Si la fecha de siembra del registro de plantacion a
+       * modificar es mayor (posterior) a la fecha actual, la
+       * aplicacion del lado servidor retorna el mensaje HTTP
+       * 400 (Bad request) junto con el mensaje "No esta permitido
+       * modificar un registro de plantacion con una fecha de
+       * siembra mayor a la fecha actual (es decir, posterior
+       * a la fecha actual)" y no se realiza la operacion
+       * solicitada
+       */
+      if (UtilDate.compareTo(modifiedPlantingRecord.getSeedDate(), currentDate) > 0) {
+        return Response.status(Response.Status.BAD_REQUEST)
+            .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_WITH_FUTURE_SEED_DATE_NOT_ALLOWED)))
+            .build();
+      }
+
+    } // End if
+
+    /*
+     * Si la fecha de siembra del registro de plantacion a
+     * modificar NO esta definida, se le asigna la fecha
+     * de siembra que tiene actualmente en la base de
+     * datos subyacente. En otras palabras, si la fecha
+     * de siembra NO esta definida en la modificacion
+     * de un registro de plantacion, dicho registro
+     * tiene la misma fecha de siembra.
      */
     if (modifiedPlantingRecord.getSeedDate() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INDEFINITE_SEED_DATE))).build();
+      modifiedPlantingRecord.setSeedDate(currentSeedDate);
     }
 
     /*
@@ -448,49 +544,6 @@ public class PlantingRecordRestServlet {
      */
     if (modifiedPlantingRecord.getCrop() == null) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INDEFINITE_CROP))).build();
-    }
-
-    /*
-     * Si existe el registro de plantacion anterior al
-     * registro de plantacion a modificar, y si la fecha de
-     * cosecha del registro de plantacion anterior es mayor
-     * o igual a la fecha de siembra del registro de
-     * plantacion a modificar, la aplicacion del lado
-     * servidor retorna el mensaje HTTP 400 (Bad request)
-     * junto con el mensaje "La fecha de siembra no debe ser
-     * anterior o igual a la fecha de cosecha del registro de
-     * plantacion inmediatamente anterior" y no se realiza la
-     * operacion solicitada
-     */
-    if (plantingRecordService.checkPrevious(modifiedPlantingRecord.getId(), modifiedPlantingRecord.getParcel())) {
-      PlantingRecord previousPlantingRecord = plantingRecordService.find(modifiedPlantingRecord.getId() - 1, modifiedPlantingRecord.getParcel());
-
-      if (plantingRecordService.checkDateOverlap(previousPlantingRecord.getHarvestDate(), modifiedPlantingRecord.getSeedDate())) {
-        return Response
-          .status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.DATE_OVERLAP_WITH_PREVIOUS_PLANTING_RECORD))).build();
-      }
-
-    }
-
-    /*
-     * Si existe el registro de plantacion siguiente al registro
-     * de plantacion a modificar, y si la fecha de cosecha de
-     * este es mayor o igual a la fecha de siembra del registro
-     * de plantacion siguiente, la aplicacion del lado servidor
-     * retorna el mensaje HTTP 400 (Bad request) junto con el
-     * mensaje "La fecha de cosecha no debe ser posterior o
-     * igual a la fecha de siembra del registro de plantacion
-     * inmediatamente siguiente" y no se realiza la operacion
-     * solicitada
-     */
-    if (plantingRecordService.checkNext(modifiedPlantingRecord.getId(), modifiedPlantingRecord.getParcel())) {
-      PlantingRecord nextPlantingRecord = plantingRecordService.find(modifiedPlantingRecord.getId() + 1, modifiedPlantingRecord.getParcel());
-
-      if (plantingRecordService.checkDateOverlap(modifiedPlantingRecord.getHarvestDate(), nextPlantingRecord.getSeedDate())) {
-        return Response
-          .status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.DATE_OVERLAP_WITH_NEXT_PLANTING_RECORD))).build();
-      }
-
     }
 
     /*

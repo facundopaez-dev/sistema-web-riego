@@ -791,3 +791,47 @@ app.factory('RedirectManager', ['AccessManager', '$location', function (accessMa
 		}
 	}
 }]);
+
+/*
+UtilDate es la factory creada para todas las operaciones
+con fechas.
+*/
+app.factory('UtilDate', function () {
+	return {
+		/**
+		 * 
+		 * @param {*} dateOne 
+		 * @param {*} dateTwo 
+		 * @returns -1 si la fecha uno es estrictamente menor a la
+		 * fecha dos, 0 si la fecha uno y la fecha dos son iguales
+		 * y 1 si la fecha uno es estrictamente mayor a la fecha dos
+		 */
+		compareTo: function (dateOne, dateTwo) {
+			if (dateOne.getFullYear() < dateTwo.getFullYear()) {
+				return -1;
+			}
+
+			if (dateOne.getFullYear() > dateTwo.getFullYear()) {
+				return 1;
+			}
+
+			if (dateOne.getMonth() < dateTwo.getMonth()) {
+				return -1;
+			}
+
+			if (dateOne.getMonth() > dateTwo.getMonth()) {
+				return 1;
+			}
+
+			if (dateOne.getDate() < dateTwo.getDate()) {
+				return -1;
+			}
+
+			if (dateOne.getDate() > dateTwo.getDate()) {
+				return 1;
+			}
+
+			return 0;
+		}
+	}
+});

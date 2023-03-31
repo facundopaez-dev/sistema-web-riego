@@ -71,7 +71,10 @@ public enum ReasonError {
   INVALID_ETO("La evapotranspiración del cultivo de referencia (ETo) debe ser un valor mayor o igual a 0.0"),
   INVALID_ETC("La evapotranspiración del cultivo (ETc) debe ser un valor mayor o igual a 0.0"),
   MODIFICATION_CLIMATE_RECORD_WITH_PAST_DATE_NOT_ALLOWED("No está permitido modificar un registro climático con una fecha del pasado (es decir, una fecha anterior a la fecha actual)"),
-  MODIFICATION_PAST_CLIMATE_RECORD_NOT_ALLOWED("No está permitida la modificación de un registro climático del pasado (es decir, uno que tiene una fecha anterior a la fecha actual)");
+  MODIFICATION_PAST_CLIMATE_RECORD_NOT_ALLOWED("No está permitida la modificación de un registro climático del pasado (es decir, uno que tiene una fecha anterior a la fecha actual)"),
+  OVERLAP_BETWEEN_SEED_DATE_AND_HARVEST_DATE_WITH_LAST_FINISHED_PLANTING_RECORD("No está permitido modificar un registro de plantación con una fecha de siembra menor o igual a la fecha de cosecha del último registro de plantación finalizado de la parcela elegida"),
+  MODIFICATION_WITH_PAST_SEED_DATE_NOT_ALLOWED("No está permitido modificar un registro de plantación con una fecha de siembra menor a la fecha actual (es decir, anterior a la fecha actual)"),
+  MODIFICATION_WITH_FUTURE_SEED_DATE_NOT_ALLOWED("No está permitido modificar un registro de plantación con una fecha de siembra mayor a la fecha actual (es decir, posterior a la fecha actual)");
 
   private final String reason;
 

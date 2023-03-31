@@ -427,6 +427,18 @@ public class PlantingRecordServiceBean {
   }
 
   /**
+   * Retorna true si y solo si una parcela tiene un ultimo
+   * registro de plantacion finalizado
+   * 
+   * @param givenParcel
+   * @return true si una parcela tiene un ultimo registro de
+   * plantacion finalizado, en caso contrario false
+   */
+  public boolean hasLastFinished(Parcel givenParcel) {
+    return (findLastFinished(givenParcel) != null);
+  }
+
+  /**
    * Retorna true si y solo si una parcela tiene un registro de
    * plantacion en desarrollo. Esto significa que retorna true
    * si y solo si una parcela tiene un cultivo en desarrollo.
@@ -437,36 +449,6 @@ public class PlantingRecordServiceBean {
    */
   public boolean checkOneInDevelopment(Parcel givenParcel) {
     return (findInDevelopment(givenParcel) != null);
-  }
-
-  /**
-   * Retorna true si y solo si una parcela tiene un registro de
-   * plantacion inmediatamente anterior al registro de plantacion
-   * correspondiente al ID de referencia
-   * 
-   * @param referencePlantingRecordId
-   * @param givenParcel
-   * @return true si una parcela tiene un registro de plantacion
-   * inmediatamente anterior al registro de plantacion correspondiente
-   * al ID dado, false en caso contrario
-   */
-  public boolean checkPrevious(int referencePlantingRecordId, Parcel givenParcel) {
-    return (find(referencePlantingRecordId - 1, givenParcel) != null);
-  }
-
-  /**
-   * Retorna true si y solo si una parcela tiene un registro de
-   * plantacion inmediatamente a continuacion del registro de
-   * plantacion correspondiente al ID de referencia
-   * 
-   * @param referencePlantingRecordId
-   * @param givenParcel
-   * @return true si una parcela tiene un registro de plantacion
-   * inmediatamente a continuacion del registro de plantacion
-   * correspondiente al ID dado, false en caso contrario
-   */
-  public boolean checkNext(int referencePlantingRecordId, Parcel givenParcel) {
-    return (find(referencePlantingRecordId + 1, givenParcel) != null);
   }
 
   /**
