@@ -432,27 +432,13 @@ public class PlantingRecordRestServlet {
     PlantingRecord modifiedPlantingRecord = mapper.readValue(json, PlantingRecord.class);
 
     /*
-     * Si la fecha de siembra o la fecha de cosecha NO esta
-     * definida, o ambas NO esta definidas, la aplicacion del
-     * lado servidor retorna el mensaje HTTP 400 (Bad request)
-     * junto con el mensaje "Las fechas deben estar definidas"
-     * y no se realiza la operacion solicitada
+     * Si la fecha de siembra NO esta definida, la aplicacion
+     * del lado servidor retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "La fecha de siembra debe estar
+     * definida" y no se realiza la operacion solicitada
      */
-    if (modifiedPlantingRecord.getSeedDate() == null || modifiedPlantingRecord.getHarvestDate() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INDEFINITE_DATES))).build();
-    }
-
-    /*
-     * Si la fecha de siembra es mayor o igual a la fecha de
-     * cosecha del registro de plantacion a modificar, la
-     * aplicacion del lado servidor retorna el mensaje
-     * HTTP 400 (Bad request) junto con el mensaje "La fecha
-     * de siembra no debe ser mayor o igual a la fecha de
-     * cosecha" y no se realiza la operacion solicitada
-     */
-    if (plantingRecordService.checkDateOverlap(modifiedPlantingRecord.getSeedDate(), modifiedPlantingRecord.getHarvestDate())) {
-      return Response
-        .status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.OVERLAP_BETWEEN_SEED_DATE_AND_HARVEST_DATE))).build();
+    if (modifiedPlantingRecord.getSeedDate() == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INDEFINITE_SEED_DATE))).build();
     }
 
     /*
@@ -519,6 +505,13 @@ public class PlantingRecordRestServlet {
       }
 
     }
+
+    /*
+     * Se calcula la fecha de cosecha del registro de plantacion
+     * modificado en base a la nueva fecha de siembra y al
+     * nuevo cultivo
+     */
+    modifiedPlantingRecord.setHarvestDate(cropService.calculateHarvestDate(modifiedPlantingRecord.getSeedDate(), modifiedPlantingRecord.getCrop()));
 
     /*
      * Se establece el estado del registro de plantacion a

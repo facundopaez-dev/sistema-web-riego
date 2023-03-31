@@ -151,40 +151,10 @@ app.controller(
         Comprueba que los campos de fecha no esten vacios
         e impide que se ingresen los campos vacios
          */
-        if (isNull($scope.data.seedDate) || isNull($scope.data.harvestDate)) {
-          alert("Las fechas deben estar definidas");
+        if (isNull($scope.data.seedDate)) {
+          alert("Las fecha de siembra debe estar definida");
           return;
         }
-
-        /*
-        Si la fecha de siembra y la fecha de cosecha estan cruzadas
-        o superpuestas no se realiza la modificacion
-         */
-        if ((firstDateAfterSecondDate($scope.data.seedDate, $scope.data.harvestDate)) == true) {
-          alert("La fecha de cosecha tiene que estar después de la fecha de siembra");
-          return;
-        }
-
-        /*
-        Comprobar que la diferencia de dias entre la fecha de siembra y
-        la fecha de cosecha no sea mayor que la etapa de vida del cultivo
-        dado
-         */
-        // plantingRecordService.checkStageCropLife($scope.data.crop, $scope.data.seedDate, $scope.data.harvestDate, function(error, data) {
-        //   if(error) {
-        //     alert(error.statusText);
-        //     return;
-        //   }
-        //
-        //   let result = data;
-        //   let totalDaysLife = $scope.data.crop.etInicial + $scope.data.crop.etDesarrollo + $scope.data.crop.etMedia + $scope.data.crop.etFinal;
-        //
-        //   if (result != null) {
-        //     alert("La diferencia en días entre ambas fechas es mayor a la cantidad de días de la etapa de vida (" + totalDaysLife + ") del cultivo seleccionado");
-        //     return;
-        //   }
-        //
-        // });
 
         plantingRecordService.modify($scope.data, function (error, data) {
           if (error) {
@@ -224,35 +194,6 @@ app.controller(
           $scope.parcels = parcels;
         })
       }
-
-      /*
-      Comprueba si la primera fecha esta despues de
-      la segunda fecha, es decir, si estan cruzadas o
-      superpuestas
-       */
-      function firstDateAfterSecondDate(firstDate, secondDate) {
-        /*
-        Si la primera fecha es mayor o igual que la segunda fecha
-        retorna verdadero, en caso contrario retorna falso
-         */
-        if (Date.parse(firstDate) >= Date.parse(secondDate)) {
-          return true;
-        }
-
-        return false;
-      }
-
-      // function firstDateBeforeSecondDate(firstDate, secondDate) {
-      //   /*
-      //   Si la primera fecha es menor o igual que la segunda fecha
-      //   retorna verdadero, en caso contrario retorna falso
-      //    */
-      //   if (Date.parse(secondDate) >= Date.parse(firstDate)) {
-      //     return true;
-      //   }
-      //
-      //   return false;
-      // }
 
       function isNull(givenValue) {
         if (givenValue == null) {
