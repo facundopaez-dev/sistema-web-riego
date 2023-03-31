@@ -264,7 +264,57 @@ public class PlantingRecordRestServlet {
       return givenResponse;
     }
 
+    /*
+     * Si el objeto correspondiente a la referencia contenida
+     * en la variable de tipo por referencia de tipo String json,
+     * esta vacio, significa que el formulario del dato correspondiente
+     * a esta clase, esta vacio. Por lo tanto, la aplicacion del
+     * lado servidor retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "Debe completar todos los campos
+     * del formulario" y no se realiza la operacion solicitada
+     */
+    if (json.isEmpty()) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EMPTY_FORM))).build();
+    }
+
     PlantingRecord newPlantingRecord = mapper.readValue(json, PlantingRecord.class);
+
+    /*
+     * Si la parcela del registro de plantacion a crear NO
+     * esta definida, la aplicacion del lado servidor retorna
+     * el mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "La parcela debe estar definida" y no se realiza la
+     * operacion solicitada
+     */
+    if (newPlantingRecord.getParcel() == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INDEFINITE_PARCEL))).build();
+    }
+
+    /*
+     * Si el cultivo del registro de plantacion a crear NO
+     * esta definido, la aplicacion del lado servidor retorna
+     * el mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "El cultivo debe estar definido" y no se realiza la
+     * operacion solicitada
+     */
+    if (newPlantingRecord.getCrop() == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INDEFINITE_CROP))).build();
+    }
+
+    /*
+     * Si la parcela para la que se quiere crear un registro
+     * de plantacion, tiene un registro de plantacion en
+     * desarrollo, la aplicacion del lado servidor retorna el
+     * mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "No esta permitido crear un registro de plantacion
+     * para una parcela que tiene un registro de plantacion
+     * en desarrollo" y no se realiza la operacion solicitada
+     */
+    if (plantingRecordService.checkOneInDevelopment(newPlantingRecord.getParcel())) {
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.CREATION_NOT_ALLOWED_IN_DEVELOPMENT)))
+          .build();
+    }
 
     /*
      * Se establece la fecha actual como la fecha de siembra
@@ -296,69 +346,6 @@ public class PlantingRecordRestServlet {
      * en base a la fecha de cosecha de su cultivo
      */
     newPlantingRecord.setStatus(statusService.calculateStatus(newPlantingRecord.getHarvestDate()));
-
-    /*
-     * Si la parcela del registro de plantacion a crear NO
-     * esta definida, la aplicacion del lado servidor retorna
-     * el mensaje HTTP 400 (Bad request) junto con el mensaje
-     * "La parcela debe estar definida" y no se realiza la
-     * operacion solicitada
-     */
-    if (newPlantingRecord.getParcel() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INDEFINITE_PARCEL))).build();
-    }
-
-    /*
-     * Si el cultivo del registro de plantacion a crear NO
-     * esta definido, la aplicacion del lado servidor retorna
-     * el mensaje HTTP 400 (Bad request) junto con el mensaje
-     * "El cultivo debe estar definido" y no se realiza la
-     * operacion solicitada
-     */
-    if (newPlantingRecord.getCrop() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INDEFINITE_CROP))).build();
-    }
-
-    /*
-     * Si la parcela para la que se quiere crear un registro
-     * de plantacion, tiene registros de plantacion, se comprueba
-     * si la misma tiene un registro de plantacion en desarrollo
-     * y si la fecha de cosecha de su ultimo registro de plantacion
-     * finalizado es mayor o igual a la fecha de siembra del
-     * registro de plantacion que se quiere crear
-     */
-    if (plantingRecordService.hasPlantingRecords(newPlantingRecord.getParcel())) {
-      /*
-       * Si hay un registro de plantacion en desarrollo para
-       * la parcela del registro de plantacion que se quiere
-       * crear, la aplicacion del lado servidor retorna el
-       * mensaje HTTP 400 (Bad request) junto con el mensaje
-       * "No esta permitido crear un registro de plantacion
-       * para una parcela que tiene un registro de plantacion
-       * en desarrollo" y no se realiza la operacion solicitada
-       */
-      if (plantingRecordService.checkOneInDevelopment(newPlantingRecord.getParcel())) {
-        return Response.status(Response.Status.BAD_REQUEST)
-          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.CREATION_NOT_ALLOWED_IN_DEVELOPMENT))).build();
-      }
-
-      PlantingRecord lastFinishedPlantingRecord = plantingRecordService.findLastFinished(newPlantingRecord.getParcel());
-
-      /*
-       * Si la fecha de cosecha del ultimo registro de plantacion
-       * finalizado es mayor o igual a la fecha de siembra del
-       * registro de plantacion que se quiere crear, la aplicacion
-       * del lado servidor retorna el mensaje HTTP 400 (Bad request)
-       * junto con el mensaje "No esta permitido crear un registro
-       * de plantacion con una fecha de siembra anterior o igual a
-       * la fecha de cosecha del ultimo registro de plantacion
-       * finalizado de una parcela".
-       */
-      if (plantingRecordService.checkDateOverlap(lastFinishedPlantingRecord.getHarvestDate(), newPlantingRecord.getSeedDate())) {
-        return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.DATE_OVERLAP_ON_CREATION))).build();
-      }
-
-    } // End if
 
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP

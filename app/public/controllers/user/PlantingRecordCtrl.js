@@ -109,18 +109,35 @@ app.controller(
         });
       }
 
+      const EMPTY_FORM = "Debe completar todos los campos del formulario";
+      const UNDEFINED_PARCEL = "La parcela debe estar definida";
+      const UNDEFINED_CROP = "El cultivo debe estar definido";
+
       $scope.create = function () {
         /*
-        Comprueba que los campos no esten vacios e impide
-        que se ingresen los campos vacios
-         */
-        if (isNull($scope.data.parcel)) {
-          alert("La parcela debe estar definida");
+        Si la propeidad data de $scope tiene el valor undefined,
+        significa que el formulario correspondiente a esta funcion
+        esta totalmente vacio. Por lo tanto, la aplicacion muestra
+        el mensaje dado y no realiza la operacion solicitada.
+        */
+        if ($scope.data == undefined) {
+          alert(EMPTY_FORM);
           return;
         }
 
-        if (isNull($scope.data.crop)) {
-          alert("El cultivo debe estar definido");
+        /*
+        **********************************
+        Validacion de los datos de entrada
+        **********************************
+         */
+
+        if ($scope.data.parcel == undefined) {
+          alert(UNDEFINED_PARCEL);
+          return;
+        }
+
+        if ($scope.data.crop == undefined) {
+          alert(UNDEFINED_CROP);
           return;
         }
 
