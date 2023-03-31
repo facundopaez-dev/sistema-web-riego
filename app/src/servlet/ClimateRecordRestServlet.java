@@ -376,6 +376,20 @@ public class ClimateRecordRestServlet {
     }
 
     /*
+     * Se establece en true la variable modifiable de un
+     * registro climatico nuevo porque un registro un
+     * registro climatico con una fecha mayor o igual a
+     * la fecha actual es modificable.
+     * 
+     * La oracion "con una fecha mayor o igual a la
+     * fecha actual" se debe a la instruccion if que
+     * comprueba si la fecha de un nuevo registro
+     * climatico es del pasado. Dicha instruccion esta
+     * en este metodo REST.
+     */
+    newClimateRecord.setModifiable(true);
+
+    /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos que el
@@ -468,6 +482,31 @@ public class ClimateRecordRestServlet {
      */
     if (modifiedClimateRecord.getDate() == null) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_DATE))).build();
+    }
+
+    /*
+     * Si el registro climatico a modificar es del pasado (es decir,
+     * es anterior a la fecha actual), la aplicacion del lado servidor
+     * retorna el mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "No esta permitida la modifcacion de un regitro climatico del
+     * pasado (es decir, que tiene una fecha anterior a la fecha
+     * actual)" y no se realiza la operacion solicitada
+     */
+    if (climateRecordService.isFromPast(climateRecordService.find(climateRecordId))) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_PAST_CLIMATE_RECORD_NOT_ALLOWED))).build();
+    }
+
+    /*
+     * Si la fecha modificada del registro climatico a modificar
+     * es del pasado (es decir, es anterior a la fecha actual),
+     * la aplicacion del lado servidor retorna el mensaje HTTP
+     * 400 (Bad request) junto con el mensaje "No esta permitido
+     * modificar un registro climatico con una fecha del pasado
+     * (es decir, una fecha anterior a la fecha actual)" y no se
+     * realiza la operacion solicitada
+     */
+    if (climateRecordService.isFromPast(modifiedClimateRecord)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_CLIMATE_RECORD_WITH_PAST_DATE_NOT_ALLOWED))).build();
     }
 
     /*

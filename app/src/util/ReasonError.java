@@ -73,7 +73,9 @@ public enum ReasonError {
   INVALID_CLOUDINESS("La nubosidad debe ser un valor entre 0.0 y 100, incluido"),
   INVALID_ATMOSPHERIC_PRESSURE("La presión atmosférica debe ser un valor mayor a 0.0"),
   INVALID_ETO("La evapotranspiración del cultivo de referencia (ETo) debe ser un valor mayor o igual a 0.0"),
-  INVALID_ETC("La evapotranspiración del cultivo (ETc) debe ser un valor mayor o igual a 0.0");
+  INVALID_ETC("La evapotranspiración del cultivo (ETc) debe ser un valor mayor o igual a 0.0"),
+  MODIFICATION_CLIMATE_RECORD_WITH_PAST_DATE_NOT_ALLOWED("No está permitido modificar un registro climático con una fecha del pasado (es decir, una fecha anterior a la fecha actual)"),
+  MODIFICATION_PAST_CLIMATE_RECORD_NOT_ALLOWED("No está permitida la modificación de un registro climático del pasado (es decir, uno que tiene una fecha anterior a la fecha actual)");
 
   private final String reason;
 

@@ -20,22 +20,28 @@ import stateless.SolarRadiationServiceBean;
 public class ClimateRecordManager {
 
   // inject a reference to the ParcelServiceBean
-  @EJB ParcelServiceBean parcelService;
+  @EJB
+  ParcelServiceBean parcelService;
 
   // inject a reference to the ClimateRecordServiceBean
-  @EJB ClimateRecordServiceBean climateRecordServiceBean;
+  @EJB
+  ClimateRecordServiceBean climateRecordService;
 
   // inject a reference to the SolarRadiationServiceBean
-  @EJB SolarRadiationServiceBean solarService;
+  @EJB
+  SolarRadiationServiceBean solarService;
 
   // inject a reference to the MaximumInsolationServiceBean
-  @EJB MaximumInsolationServiceBean insolationService;
+  @EJB
+  MaximumInsolationServiceBean insolationService;
 
   // inject a reference to the PlantingRecordServiceBean
-  @EJB PlantingRecordServiceBean plantingRecordService;
+  @EJB
+  PlantingRecordServiceBean plantingRecordService;
 
   // inject a reference to the CropServiceBean
-  @EJB CropServiceBean cropService;
+  @EJB
+  CropServiceBean cropService;
 
   /**
    * Obtiene y persiste de manera automatica los datos
@@ -108,7 +114,7 @@ public class ClimateRecordManager {
        * climatico con la fecha actual para la parcela actual,
        * se persiste uno para dicha parcela
        */
-      if (!climateRecordServiceBean.checkExistence(currentDate, currentParcel)) {
+      if (!climateRecordService.checkExistence(currentDate, currentParcel)) {
         latitude = currentParcel.getLatitude();
         longitude = currentParcel.getLongitude();
 
@@ -131,7 +137,8 @@ public class ClimateRecordManager {
          */
         eto = Eto.getEto(climateRecord.getMinimumTemperature(), climateRecord.getMaximumTemperature(),
             climateRecord.getAtmosphericPressure(), climateRecord.getWindSpeed(),
-            climateRecord.getDewPoint(), extraterrestrialSolarRadiation, maximumInsolation, climateRecord.getCloudCover());
+            climateRecord.getDewPoint(), extraterrestrialSolarRadiation, maximumInsolation,
+            climateRecord.getCloudCover());
 
         climateRecord.setEto(eto);
 
@@ -173,10 +180,45 @@ public class ClimateRecordManager {
          * actual para una parcela en la base de datos
          * subyacente
          */
-        climateRecordServiceBean.create(climateRecord);
+        climateRecordService.create(climateRecord);
       } // End if
 
     } // End for
+
+  }
+
+  /*
+   * Establece de manera automatica el atributo modifiable de un registro
+   * climatico del pasado (es decir, uno que tiene su fecha estrictamente
+   * menor que la fecha actual) en false, ya que un registro climatico del
+   * pasado NO se debe poder modificar. Esto lo hace cada 24 horas a partir
+   * de las 00 horas.
+   * 
+   * La segunda anotacion @Schedule es para probar que este metodo se ejecuta
+   * correctamente, es decir, que establece el atributo modifiable de un registro
+   * climatico del pasado en false.
+   * 
+   * El archivo climateRecordInserts.sql de la ruta app/etc/sql tiene datos
+   * para probar que este metodo se ejecuta correctamente, es decir, que hace
+   * lo que se espera que haga.
+   */
+  // @Schedule(second = "*", minute = "*", hour = "0/23", persistent = false)
+  // @Schedule(second = "*/10", minute = "*", hour = "*", persistent = false)
+  private void unsetModifiable() {
+    Collection<ClimateRecord> modifiableClimateRecords = climateRecordService.findAllModifiable();
+
+    for (ClimateRecord currentClimateRecord : modifiableClimateRecords) {
+      /*
+       * Si un registro climatico modificable es del pasado (es decir, tiene
+       * su fecha estrictamente menor que la fecha actual), se establece su
+       * atributo modifiable en false, ya que un registro climatico del pasado
+       * NO se debe poder modificar
+       */
+      if (climateRecordService.isFromPast(currentClimateRecord)) {
+        climateRecordService.unsetModifiable(currentClimateRecord.getId());
+      }
+
+    }
 
   }
 

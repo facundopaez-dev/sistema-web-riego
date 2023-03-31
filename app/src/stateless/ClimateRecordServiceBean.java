@@ -164,6 +164,19 @@ public class ClimateRecordServiceBean {
   }
 
   /**
+   * Retorna todos los registros climaticos modificables de
+   * todas las parcelas de la base de datos subyacente
+   * 
+   * @return referencia a un objeto de tipo Collection que
+   * contiene todos los registros climaticos modificables de
+   * todas las parcelas de la base de datos subyacente
+   */
+  public Collection<ClimateRecord> findAllModifiable() {
+    Query query = entityManager.createQuery("SELECT c FROM ClimateRecord c WHERE c.modifiable = 1 ORDER BY c.id");
+    return (Collection) query.getResultList();
+  }
+
+  /**
    * Modifica un registro climatico perteneciente a una parcela
    * de un usuario
    *
@@ -447,6 +460,24 @@ public class ClimateRecordServiceBean {
      * contiene la fecha actual
      */
     return (UtilDate.compareTo(climateRecord.getDate(), Calendar.getInstance()) < 0);
+  }
+
+  /**
+   * Establece el atributo modifiable de un registro
+   * climatico en false. Esto se debe hacer para un registro
+   * climatico del pasado (es decir, uno que tiene una fecha
+   * anterior a la fecha actual), ya que un registro climatico
+   * del pasado NO se debe poder modificar.
+   * 
+   * Este metodo es para el metodo automatico unsetModifiable
+   * de la clase ClimateRecordManager.
+   * 
+   * @param id
+   */
+  public void unsetModifiable(int id) {
+    Query query = entityManager.createQuery("UPDATE ClimateRecord c SET c.modifiable = 0 WHERE c.id = :givenId");
+    query.setParameter("givenId", id);
+    query.executeUpdate();
   }
 
 }
