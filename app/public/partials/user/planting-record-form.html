@@ -104,7 +104,7 @@
         </div>
       </div>
 
-      <div class="form-group">
+      <div class="form-group" ng-hide="action == 'new'">
         <label for="seedDate" class="col-md-2 control-label">Fecha de siembra</label>
         <div class="col-md-3">
           <input type="date" class="form-control" id="seedDate" ng-model="data.seedDate" value={{data.seedDate}}

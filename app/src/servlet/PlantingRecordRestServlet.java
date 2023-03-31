@@ -267,16 +267,21 @@ public class PlantingRecordRestServlet {
     PlantingRecord newPlantingRecord = mapper.readValue(json, PlantingRecord.class);
 
     /*
-     * Si la fecha de siembra del registro de plantacion a
-     * crear NO esta definida, la aplicacion del lado
-     * servidor retorna el mensaje HTTP 400 (Bad request)
-     * junto con el mensaje "La fecha de siembra debe estar
-     * definida" y no se realiza la operacion solicitada
+     * Se establece la fecha actual como la fecha de siembra
+     * del nuevo registro de plantacion. El motivo de este
+     * cambio es que no tiene sentido permitir la creacion
+     * de un registro de plantacion del pasado ni del
+     * futuro, ya que la aplicacion no tiene los datos
+     * metereologicos del pasado ni del futuro de la
+     * ubicacion geografica de una parcela.
+     * 
+     * Los datos metereologicos son necesarios para calcular
+     * la evapotranspiracion del cultivo de referencia (ETo)
+     * y la evapotranspiracion del cultivo (ETc), la cual, es
+     * necesaria para determinar la cantidad de agua de riego
+     * que necesita un cultivo plantado en una parcela.
      */
-    if (newPlantingRecord.getSeedDate() == null) {
-      return Response.status(Response.Status.BAD_REQUEST)
-        .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INDEFINITE_SEED_DATE))).build();
-    }
+    newPlantingRecord.setSeedDate(Calendar.getInstance());
 
     /*
      * Se calcula la fecha de cosecha del cultivo del nuevo
@@ -285,19 +290,6 @@ public class PlantingRecordRestServlet {
      */
     Calendar harvestDate = cropService.calculateHarvestDate(newPlantingRecord.getSeedDate(), newPlantingRecord.getCrop());
     newPlantingRecord.setHarvestDate(harvestDate);
-
-    /*
-     * Si la fecha de siembra del registro de plantacion que se
-     * quiere crear es mayor estricta (posterior) a la fecha actual,
-     * la aplicacion del lado servidor retorna el mensaje HTTP 400
-     * (Bad request) junto con el mensaje "No esta permitido crear
-     * un registro de plantacion con una fecha de siembra estrictamente
-     * mayor (posterior) que la fecha actual"
-     */
-    if (plantingRecordService.isFromFuture(newPlantingRecord)) {
-      return Response.status(Response.Status.BAD_REQUEST)
-        .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.CREATION_FUTURE_PLANTING_RECORD_NOT_ALLOWED))).build();
-    }
 
     /*
      * Se establece el estado del nuevo registro de plantacion

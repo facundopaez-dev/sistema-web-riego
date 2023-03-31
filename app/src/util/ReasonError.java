@@ -22,7 +22,6 @@ public enum ReasonError {
   DATE_OVERLAP_WITH_PREVIOUS_PLANTING_RECORD("La fecha de siembra no debe ser anterior o igual a la fecha de cosecha del registro de plantación inmediatamente anterior"),
   DATE_OVERLAP_WITH_NEXT_PLANTING_RECORD("La fecha de cosecha no debe ser posterior o igual a la fecha de siembra del registro de plantación inmediatamente siguiente"),
   INDEFINITE_DATES("Las fechas deben estar definidas"),
-  CREATION_FUTURE_PLANTING_RECORD_NOT_ALLOWED("No está permitido crear un registro de plantación con una fecha de siembra estrictamente mayor (posterior) que la fecha actual"),
   UNDEFINED_CROP_TYPE_NAME("El nombre del tipo de cultivo debe estar definido"),
   TYPE_CROP_ALREADY_EXISTING("El tipo de cultivo ingresado ya existe"),
   INVALID_CROP_TYPE_NAME("Nombre incorrecto: el nombre para un tipo de cultivo sólo puede contener letras, y un espacio en blanco entre palabra y palabra si está formado por más de una palabra"),

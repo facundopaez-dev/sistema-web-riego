@@ -114,11 +114,6 @@ app.controller(
         Comprueba que los campos no esten vacios e impide
         que se ingresen los campos vacios
          */
-        if (isNull($scope.data.seedDate)) {
-          alert("La fecha de siembra debe estar definida");
-          return;
-        }
-
         if (isNull($scope.data.parcel)) {
           alert("La parcela debe estar definida");
           return;
