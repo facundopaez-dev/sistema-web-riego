@@ -387,6 +387,25 @@ public class IrrigationRecordRestServlet {
     }
 
     /*
+     * ******************************************
+     * Control sobre la temporalidad de los datos
+     * ******************************************
+     */
+
+    /*
+     * Si se intenta modificar un registro de riego del pasado
+     * (es decir, uno que tiene su fecha estrictamente menor que
+     * la fecha actual), la aplicacion del lado servidor retorna
+     * el mensaje HTTP 400 (Bad request) junto con el mensaje "No
+     * esta permitida la modificacion de un registro de riego del
+     * pasado" y no se realiza la operacion solicitada
+     */
+    if (irrigationRecordService.isFromPast(userId, irrigationRecordId)) {
+      return Response.status(Response.Status.BAD_REQUEST).
+        entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_PAST_IRRIGATION_RECORD_NOT_ALLOWED))).build();
+    }
+
+    /*
      * Si el objeto de tipo String referenciado por la referencia
      * contenida en la variable de tipo por referencia json de tipo
      * String, esta vacio, significa que el formulario correspondiente
@@ -431,25 +450,6 @@ public class IrrigationRecordRestServlet {
      */
     if (modifiedIrrigationRecord.getIrrigationDone() < 0) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NEGATIVE_REALIZED_IRRIGATION))).build();
-    }
-
-    /*
-     * ******************************************
-     * Control sobre la temporalidad de los datos
-     * ******************************************
-     */
-
-    /*
-     * Si se intenta modificar un registro de riego del pasado
-     * (es decir, uno que tiene su fecha estrictamente menor que
-     * la fecha actual), la aplicacion del lado servidor retorna
-     * el mensaje HTTP 400 (Bad request) junto con el mensaje "No
-     * esta permitida la modificacion de un registro de riego del
-     * pasado" y no se realiza la operacion solicitada
-     */
-    if (irrigationRecordService.isFromPast(userId, irrigationRecordId)) {
-      return Response.status(Response.Status.BAD_REQUEST).
-        entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_PAST_IRRIGATION_RECORD_NOT_ALLOWED))).build();
     }
 
     /*
