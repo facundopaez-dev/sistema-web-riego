@@ -174,14 +174,14 @@ app.controller(
       var currentSeedDate = new Date();
 
       $scope.modify = function () {
-        var currentDate = new Date();
-
         /*
         Si la fecha de siembra esta definida y es distinta a la fecha
         de siembra que tiene actualmente el registro de plantacion a
         modificar, se comprueba si es menor o mayor a la fecha actual
         */
         if (($scope.data.seedDate != undefined) && (utilDate.compareTo(currentSeedDate, $scope.data.seedDate) != 0)) {
+          var currentDate = new Date();
+
           /*
           Si la fecha de siembra elegida es menor a la fecha actual,
           se muestra el mensaje dado y no se realiza la operacion
