@@ -21,6 +21,7 @@ public class PlantingRecordServiceBean {
   @PersistenceContext(unitName = "swcar")
   protected EntityManager entityManager;
   private final String NON_EXISTENT_CROP = "Cultivo inexistente";
+  private final String FINISHED_STATUS = "Finalizado";
 
   public void setEntityManager(EntityManager localEntityManager) {
     entityManager = localEntityManager;
@@ -1639,8 +1640,8 @@ public class PlantingRecordServiceBean {
   }
 
   /**
-   * Retorna true si y solo si un registro de plantacion es
-   * modificable.
+   * Retorna true si y solo si un registro de plantacion tiene
+   * el estado finalizado.
    * 
    * Hay que tener en cuenta que este metodo debe ser invocado
    * luego de invocar al metodo checkExistence de esta clase,
@@ -1653,8 +1654,8 @@ public class PlantingRecordServiceBean {
    * @return true si un registro de plantacion es
    * modificable, en caso contrario false
    */
-  public boolean isModifiable(int id) {
-    return find(id).getModifiable();
+  public boolean isFinished(int id) {
+    return find(id).getStatus().getName().equals(FINISHED_STATUS);
   }
 
 }

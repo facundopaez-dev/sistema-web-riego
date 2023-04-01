@@ -425,9 +425,8 @@ public class PlantingRecordRestServlet {
     }
 
     /*
-     * Si el registro de plantacion correspondiente al ID
-     * dado, NO es modificable (debido a que tiene el estado
-     * "Finalizado"), la aplicacion del lado servidor retorna
+     * Si el registro de plantacion correspondiente al ID dado,
+     * esta finalizado, la aplicacion del lado servidor retorna
      * el mensaje HTTP 400 (Bad request) junto con el mensaje
      * "No esta permitida la modificacion de un registro de
      * plantacion finalizado" y no se realiza la operacion
@@ -438,7 +437,7 @@ public class PlantingRecordRestServlet {
      * false al atributo modifiable de un registro de
      * plantacion finalizado.
      */
-    if (!plantingRecordService.isModifiable(plantingRecordId)) {
+    if (plantingRecordService.isFinished(plantingRecordId)) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_NON_MODIFIABLE_PLANTING_RECORD_NOT_ALLOWED))).build();
     }
 
