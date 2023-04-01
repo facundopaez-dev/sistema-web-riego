@@ -1,9 +1,9 @@
 app.controller(
   "ClimateRecordCtrl",
   ["$scope", "$location", "$routeParams", "ClimateRecordSrv", "ParcelSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
-    "ExpirationManager", "RedirectManager",
+    "ExpirationManager", "RedirectManager", "UtilDate",
     function ($scope, $location, $params, climateRecordService, parcelService, accessManager, errorResponseManager, authHeaderManager, logoutManager, expirationManager,
-      redirectManager) {
+      redirectManager, utilDate) {
 
       console.log("ClimateRecordCtrl loaded with action: " + $params.action)
 
@@ -103,6 +103,7 @@ app.controller(
 
           if ($scope.data.date != null) {
             $scope.data.date = new Date($scope.data.date);
+            currentDateClimateRecord = $scope.data.date;
           }
         });
       }
@@ -129,6 +130,7 @@ app.controller(
       const INVALID_ATMOSPHERIC_PRESSURE = "La presión atmosférica debe ser un valor mayor a 0.0";
       const INVALID_ETO = "La evapotranspiración del cultivo de referencia (ETo) debe ser un valor mayor o igual a 0.0";
       const INVALID_ETC = "La evapotranspiración del cultivo (ETc) debe ser un valor mayor o igual a 0.0";
+      const MODIFICATION_PAST_CLIMATE_RECORD_NOT_ALLOWED = "No está permitida la modificación de un registro climático del pasado (es decir, uno que tiene una fecha anterior a la fecha actual)";
 
       $scope.create = function () {
         /*
@@ -270,7 +272,26 @@ app.controller(
         });
       }
 
+      /*
+      A esta variable se le asigna la fecha original de un registro
+      climatico cuando se busca un registro climatico mediante la
+      funcion find para modificacion
+      */
+      var currentDateClimateRecord = new Date();
+
       $scope.modify = function () {
+        var currentDate = new Date();
+
+        /*
+        Si la fecha de un registro climatico es estrictamente menor
+        (es decir, anterior) a la fecha actual, se muestra el mensaje
+        dado y no se realiza la operacion solicitada
+        */
+        if (utilDate.compareTo(currentDateClimateRecord, currentDate) < 0) {
+          alert(MODIFICATION_PAST_CLIMATE_RECORD_NOT_ALLOWED);
+          return;
+        }
+
         /*
         **********************************
         Validacion de los datos de entrada
