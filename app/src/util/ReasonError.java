@@ -47,7 +47,7 @@ public enum ReasonError {
   PASSWORD_RESET_LINK_EXPIRED("Enlace de restablecimiento de contraseña expirado"),
   INACTIVE_USER_TO_RECOVER_PASSWORD("Para recuperar su contraseña primero debe activar su cuenta mediante el correo electrónico de confirmación de registro"),
   NEGATIVE_REALIZED_IRRIGATION("El riego realizado debe ser mayor o igual a cero"),
-  MODIFICATION_PAST_IRRIGATION_RECORD_NOT_ALLOWED("No está permitida la modificación de un registro de riego del pasado"),
+  MODIFICATION_PAST_IRRIGATION_RECORD_NOT_ALLOWED("No está permitida la modificación de un registro de riego del pasado (es decir, uno que tiene una fecha anterior a la fecha actual)"),
   PARCEL_NAME_UNDEFINED("El nombre de la parcela debe estar definido"),
   INVALID_NUMBER_OF_HECTARES("La cantidad de hectáreas debe ser mayor a 0.0"),
   INVALID_PARCEL_NAME("El nombre de una parcela debe empezar con una palabra formada únicamente por caracteres alfabéticos y puede tener más de una palabra formada únicamente por caracteres alfanuméricos"),

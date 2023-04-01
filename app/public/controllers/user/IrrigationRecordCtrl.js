@@ -1,9 +1,9 @@
 app.controller(
   "IrrigationRecordCtrl",
   ["$scope", "$location", "$routeParams", "IrrigationRecordSrv", "CropSrv", "ParcelSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager",
-    "LogoutManager", "ExpirationManager", "RedirectManager",
+    "LogoutManager", "ExpirationManager", "RedirectManager", "UtilDate",
     function ($scope, $location, $params, irrigationRecordService, cropService, parcelService, accessManager, errorResponseManager, authHeaderManager,
-      logoutManager, expirationManager, redirectManager) {
+      logoutManager, expirationManager, redirectManager, utilDate) {
 
       console.log("IrrigationRecordCtrl loaded with action: " + $params.action)
 
@@ -94,6 +94,7 @@ app.controller(
       const EMPTY_FORM = "Debe completar todos los campos del formulario";
       const NEGATIVE_REALIZED_IRRIGATION = "El riego realizado debe ser mayor o igual a cero";
       const INDEFINITE_PARCEL = "La parcela debe estar definida";
+      const MODIFICATION_PAST_IRRIGATION_RECORD_NOT_ALLOWED = "No está permitida la modificación de un registro de riego del pasado (es decir, uno que tiene una fecha anterior a la fecha actual)";
 
       function find(id) {
         irrigationRecordService.find(id, function (error, data) {
@@ -164,6 +165,18 @@ app.controller(
       }
 
       $scope.modify = function () {
+        var currentDate = new Date();
+
+        /*
+        Si la fecha de un registro de riego es estrictamente menor
+        a la fecha actual, se muestra el mensaje dado y no se realiza
+        la operacion solicitada
+        */
+        if (utilDate.compareTo($scope.data.date, currentDate) < 0) {
+          alert(MODIFICATION_PAST_IRRIGATION_RECORD_NOT_ALLOWED);
+          return;
+        }
+
         /*
         El motivo por el cual NO se verifica si el formulario
         tiene sus campos modificables vacios ni si la parcela
