@@ -1584,7 +1584,7 @@ public class PlantingRecordServiceBean {
      * se retorna false como indicador de que no esta en el estado "En
      * desarrollo"
      */
-    if (plantingRecord.getStatus().getName().equals("Finalizado")) {
+    if (plantingRecord.getStatus().getName().equals(FINISHED_STATUS)) {
       return false;
     }
 
