@@ -348,6 +348,14 @@ public class PlantingRecordRestServlet {
     newPlantingRecord.setStatus(statusService.calculateStatus(newPlantingRecord.getHarvestDate()));
 
     /*
+     * Un registro de plantacion nuevo es un registro de
+     * plantacion modificable, ya que tiene el estado
+     * "En desarrollo" debido a que, por ser nuevo, su
+     * fecha de cosecha es mayor o igual a la fecha actual
+     */
+    newPlantingRecord.setModifiable(true);
+
+    /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido y no se cumplen las condiciones de
      * los controles para la creacion de un registro de plantacion, la
@@ -414,6 +422,24 @@ public class PlantingRecordRestServlet {
      */
     if (!plantingRecordService.checkUserOwnership(userId, plantingRecordId)) {
       return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
+    }
+
+    /*
+     * Si el registro de plantacion correspondiente al ID
+     * dado, NO es modificable (debido a que tiene el estado
+     * "Finalizado"), la aplicacion del lado servidor retorna
+     * el mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "No esta permitida la modificacion de un registro de
+     * plantacion finalizado" y no se realiza la operacion
+     * solicitada.
+     * 
+     * El metodo automatico unsetModifiable de la clase
+     * PlantingRecordManager se ocupa de asignar el valor
+     * false al atributo modifiable de un registro de
+     * plantacion finalizado.
+     */
+    if (!plantingRecordService.isModifiable(plantingRecordId)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_NON_MODIFIABLE_PLANTING_RECORD_NOT_ALLOWED))).build();
     }
 
     /*

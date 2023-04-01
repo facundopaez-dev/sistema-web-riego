@@ -30,6 +30,30 @@ public class PlantingRecord {
   @Temporal(TemporalType.DATE)
   private Calendar harvestDate;
 
+  /*
+   * Un registro de plantacion finalizado es un registro de plantacion
+   * que NO se debe poder modificar.
+   * 
+   * Un registro de plantacion finalizado tiene su atributo modifiable
+   * en false, mientras que un registro de plantacion en desarrollo
+   * lo tiene en true.
+   * 
+   * Esta variable es para mostrar u ocultar el boton de modificacion
+   * de registro de plantacion en la interfaz grafica del usuario. Si
+   * un registro de plantacion tiene su atributo modifiable en false,
+   * se oculta el boton de modificacion. En cambio, si lo tiene en
+   * true, se muestra el boton de modificacion.
+   * 
+   * La manera en la que esta variable adquiere el valor booleano
+   * false es mediante el metodo unsetModifiable de la clase
+   * PlantingRecordManager. Este metodo establece el atributo
+   * modifiable de un registro de plantacion finalizado en false, ya
+   * que un registro de plantacion finalizado NO se debe poder
+   * modificar.
+   */
+  @Column(name = "MODIFIABLE", nullable = false)
+  private boolean modifiable;
+
   @ManyToOne
   @JoinColumn(name = "FK_PARCEL", nullable = false)
   private Parcel parcel;
@@ -70,6 +94,14 @@ public class PlantingRecord {
     this.harvestDate = harvestDate;
   }
 
+  public boolean getModifiable() {
+    return modifiable;
+  }
+
+  public void setModifiable(boolean modifiable) {
+    this.modifiable = modifiable;
+  }
+
   public Parcel getParcel() {
     return parcel;
   }
@@ -97,14 +129,15 @@ public class PlantingRecord {
   @Override
   public String toString() {
     return String.format(
-        "ID: %d\nFecha de siembra: %s\nFecha de cosecha: %s\nParcela: %s (ID = %d)\nCultivo: %s\nEstado: %s\n",
+        "ID: %d\nFecha de siembra: %s\nFecha de cosecha: %s\nParcela: %s (ID = %d)\nCultivo: %s\nEstado: %s\nModificable: %b\n",
         id,
         UtilDate.formatDate(seedDate),
         UtilDate.formatDate(harvestDate),
         parcel.getName(),
         parcel.getId(),
         crop.getName(),
-        status.getName());
+        status.getName(),
+        modifiable);
   }
 
 }

@@ -267,6 +267,21 @@ public class PlantingRecordServiceBean {
   }
 
   /**
+   * Retorna todos los registros de plantacion finalizados
+   * de todas las parcelas registradas en la base de datos
+   * subyacente
+   * 
+   * @return referencia a un objeto de tipo Collection que
+   * contiene todos los registros de plantacion finalizados
+   * de todas las parcelas registradas en la base de datos
+   * subyacente
+   */
+  public Collection<PlantingRecord> findAllFinished() {
+    Query query = getEntityManager().createQuery("SELECT p FROM PlantingRecord p WHERE p.status.name = 'Finalizado' ORDER BY p.id");
+    return (Collection) query.getResultList();
+  }
+
+  /**
    * Retorna todos los registros de plantacion en desarrollo
    * de todas las parcelas registradas en la base de datos
    * subyacente.
@@ -1618,6 +1633,42 @@ public class PlantingRecordServiceBean {
     query.setParameter("givenStatus", plantingRecordStatus);
     query.setParameter("givenId", plantingRecordId);
     query.executeUpdate();
+  }
+
+  /**
+   * Establece el atributo modifiable de un registro de
+   * plantacion en false. Esto se debe hacer para un registro
+   * de plantacion finalizado, ya que un registro de
+   * plantacion finalizado NO se debe poder modificar.
+   * 
+   * Este metodo es para el metodo automatico unsetModifiable
+   * de la clase PlantingRecordManager.
+   * 
+   * @param id
+   */
+  public void unsetModifiable(int id) {
+    Query query = entityManager.createQuery("UPDATE PlantingRecord p SET p.modifiable = 0 WHERE p.id = :givenId");
+    query.setParameter("givenId", id);
+    query.executeUpdate();
+  }
+
+  /**
+   * Retorna true si y solo si un registro de plantacion es
+   * modificable.
+   * 
+   * Hay que tener en cuenta que este metodo debe ser invocado
+   * luego de invocar al metodo checkExistence de esta clase,
+   * ya que si no se hace esto puede ocurrir la excepcion
+   * NoResultException, la cual, ocurre cuando se invoca el
+   * metodo getSingleResult de la clase Query para buscar
+   * un dato inexistente en la base de datos subyacente.
+   * 
+   * @param id
+   * @return true si un registro de plantacion es
+   * modificable, en caso contrario false
+   */
+  public boolean isModifiable(int id) {
+    return find(id).getModifiable();
   }
 
 }

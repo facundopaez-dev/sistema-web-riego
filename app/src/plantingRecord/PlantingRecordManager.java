@@ -58,4 +58,35 @@ public class PlantingRecordManager {
 
     }
 
+    /*
+     * Establece de manera automatica el atributo modifiable de un registro
+     * de plantacion finalizado en false, ya que un registro de plantacion
+     * finalizado NO se debe poder modificar. Esto lo hace cada 24 horas a
+     * partir de la hora 01, una hora despues de la ejecucion automatica del
+     * metodo modifyStatus de esta clase.
+     * 
+     * La segunda anotacion @Schedule es para probar que este metodo se ejecuta
+     * correctamente, es decir, que establece el atributo modifiable de un registro
+     * de plantacion finalizado en false.
+     * 
+     * El archivo plantingRecordInserts.sql de la ruta app/etc/sql tiene datos
+     * para probar que este metodo se ejecuta correctamente, es decir, que hace
+     * lo que se espera que haga.
+     */
+    @Schedule(second = "*", minute = "*", hour = "1/23", persistent = false)
+    // @Schedule(second = "*/10", minute = "*", hour = "*", persistent = false)
+    public void unsetModifiable() {
+        Collection<PlantingRecord> finishedPlantingRecords = plantingRecordService.findAllFinished();
+
+        /*
+         * Establece en false el atributo modifiable de un registro de
+         * plantacion finalizado, ya que un registro de plantacion
+         * finalizado NO se debe poder modificar
+         */
+        for (PlantingRecord currentPlantingRecord : finishedPlantingRecords) {
+            plantingRecordService.unsetModifiable(currentPlantingRecord.getId());
+        }
+
+    }
+
 }
