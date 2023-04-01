@@ -331,10 +331,6 @@ public class CropServiceBean {
     Calendar currentDate = Calendar.getInstance();
 
     /*
-     * TODO: Ver si se pueden refactorizar los return
-     */
-
-    /*
      * Si la fecha de siembra y la fecha actual son del mismo
      * año se calcula la diferencia de dias entre ambas fechas
      * sin tener en cuenta el año debido a que pertenecen al
