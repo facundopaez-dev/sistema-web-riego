@@ -12,6 +12,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import model.IrrigationRecord;
 import model.Parcel;
+import util.UtilDate;
 
 @Stateless
 public class IrrigationRecordServiceBean {
@@ -248,7 +249,7 @@ public class IrrigationRecordServiceBean {
   /**
    * Retorna true si y solo si un registro de riego perteneciente a
    * una parcela de un usuario es del pasado, es decir, si su fecha
-   * es estrictamente menor que la fecha actual.
+   * es estrictamente menor a la fecha actual.
    * 
    * Hay que tener en cuenta que este metodo debe ser invocado luego
    * de haber invocado al metodo checkExistence de esta clase, ya
@@ -290,26 +291,14 @@ public class IrrigationRecordServiceBean {
     Calendar dateIrrigationRecord = find(userId, irrigationRecordId).getDate();
 
     /*
+     * Si la fecha de un registro de riego es estrictamente menor a
+     * la fecha actual, se retorna true como indicativo de que este
+     * registro es del pasado.
+     * 
      * El metodo getInstance de la clase Calendar retorna la referencia
-     * a un objeto de tipo Calendar que contiene la fecha actual
+     * a un objeto de tipo Calendar que contiene la fecha actual.
      */
-    Calendar currentDate = Calendar.getInstance();
-
-    /*
-     * Si el año, el mes o el dia de la fecha de un registro de
-     * riego es estrictamente menor al año, el mes o el dia de
-     * la fecha actual, se retorna true como indicacion de que
-     * un registro de riego es del pasado
-     */
-    if (dateIrrigationRecord.get(Calendar.YEAR) < currentDate.get(Calendar.YEAR)) {
-      return true;
-    }
-
-    if (dateIrrigationRecord.get(Calendar.MONTH) < currentDate.get(Calendar.MONTH)) {
-      return true;
-    }
-
-    if (dateIrrigationRecord.get(Calendar.DAY_OF_YEAR) < currentDate.get(Calendar.DAY_OF_YEAR)) {
+    if (UtilDate.compareTo(dateIrrigationRecord, Calendar.getInstance()) < 0) {
       return true;
     }
 
@@ -318,7 +307,7 @@ public class IrrigationRecordServiceBean {
 
   /**
    * Retorna true si y solo si un registro de riego es del pasado,
-   * es decir, si su fecha es estrictamente menor que la fecha
+   * es decir, si su fecha es estrictamente menor a la fecha
    * actual.
    * 
    * Este metodo es para el metodo automatico unsetModifiable
@@ -332,26 +321,14 @@ public class IrrigationRecordServiceBean {
     Calendar dateIrrigationRecord = find(id).getDate();
 
     /*
+     * Si la fecha de un registro de riego es estrictamente menor a
+     * la fecha actual, se retorna true como indicativo de que este
+     * registro es del pasado.
+     * 
      * El metodo getInstance de la clase Calendar retorna la referencia
-     * a un objeto de tipo Calendar que contiene la fecha actual
+     * a un objeto de tipo Calendar que contiene la fecha actual.
      */
-    Calendar currentDate = Calendar.getInstance();
-
-    /*
-     * Si el año, el mes o el dia de la fecha de un registro de
-     * riego es estrictamente menor al año, el mes o el dia de
-     * la fecha actual, se retorna true como indicacion de que
-     * un registro de riego es del pasado
-     */
-    if (dateIrrigationRecord.get(Calendar.YEAR) < currentDate.get(Calendar.YEAR)) {
-      return true;
-    }
-
-    if (dateIrrigationRecord.get(Calendar.MONTH) < currentDate.get(Calendar.MONTH)) {
-      return true;
-    }
-
-    if (dateIrrigationRecord.get(Calendar.DAY_OF_YEAR) < currentDate.get(Calendar.DAY_OF_YEAR)) {
+    if (UtilDate.compareTo(dateIrrigationRecord, Calendar.getInstance()) < 0) {
       return true;
     }
 
