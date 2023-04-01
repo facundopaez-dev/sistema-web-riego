@@ -1587,38 +1587,24 @@ public class PlantingRecordServiceBean {
       return false;
     }
 
-    Calendar currentDate = Calendar.getInstance();
-
     /*
-     * Si el año o el mes de la fecha de cosecha de un registro de
-     * plantacion presuntamente en desarrollo es estrictamente
-     * mayor al año o el mes de la fecha actual, se retorna true
+     * Si la fecha de cosecha de un registro de plantacion presuntamente
+     * en desarrollo es mayor o igual a la fecha actual, se retorna true
      * como indicativo de que este registro esta en desarrollo.
      * 
-     * Si el año y el mes de la fecha de cosecha de un registro
-     * de plantacion presuntamente en desarrollo son menores o
-     * iguales al año y al mes de la fecha actual, se compara
-     * el numero de dia en el año de la fecha de cosecha de
-     * dicho registro con el numero de dia en el año de la
-     * fecha actual. Si el numero de dia en el año de la
-     * fecha de cosecha es mayor o igual al numero de dia
-     * en el año de la fecha actual, se retorna true como
-     * indicativo de que el registro de plantacion
-     * correspondiente a la fecha de cosecha, esta en
-     * desarrollo.
+     * El metodo getInstance de la clase Calendar retorna la referencia
+     * a un objeto de tipo Calendar que contiene la fecha actual.
      */
-    if (plantingRecord.getHarvestDate().get(Calendar.YEAR) > currentDate.get(Calendar.YEAR)) {
+    if (UtilDate.compareTo(plantingRecord.getHarvestDate(), Calendar.getInstance()) >= 0) {
       return true;
     }
 
-    if (plantingRecord.getHarvestDate().get(Calendar.MONTH) > currentDate.get(Calendar.MONTH)) {
-      return true;
-    }
-
-    if (plantingRecord.getHarvestDate().get(Calendar.DAY_OF_YEAR) >= currentDate.get(Calendar.DAY_OF_YEAR)) {
-      return true;
-    }
-
+    /*
+     * Si la fecha de cosecha de un registro de plantacion presuntamente
+     * en desarrollo es estrictamente menor a la fecha actual, se retorna
+     * false como indicativo de que este registro de plantacion NO esta
+     * en desarrollo, o en otras palabras, que esta finalizado
+     */
     return false;
   }
 
