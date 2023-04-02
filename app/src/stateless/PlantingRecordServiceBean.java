@@ -1272,26 +1272,8 @@ public class PlantingRecordServiceBean {
     /*
      * Calcula la diferencia de dias que hay entre la fecha
      * de cosecha del ultimo registro de plantacion finalizado
-     * de una parcela y la fecha hasta. Este registro de
-     * plantacion esta dentro de un periodo definido por
-     * dos fechas. El resultado de esta diferencia es la
-     * cantidad de dias en los que una parcela no tuvo
-     * ningun cultivo plantado desde el dia de la fecha de
-     * cosecha (excluido) de su ultimo registro de plantacion
-     * hasta el dia de la fecha hasta (incluido). Este
-     * registro de plantacion pertenece a un periodo definido
-     * por dos fechas.
-     * 
-     * Se excluye el dia de la fecha de cosecha de la cantidad
-     * de dias en los que una parcela no tuvo ningun cultivo
-     * plantado porque la fecha de cosecha no cuenta como
-     * un dia en el que una parcela no tuvo ningun cultivo
-     * plantado.
-     * 
-     * Se incluye el dia de la fecha hasta en la cantidad de
-     * dias en los que una parcela no tuvo ningun cultivo
-     * plantado porque la fecha hasta cuenta como un dia en
-     * el que una parcela no tuvo ningun cultivo plantado.
+     * de una parcela y la fecha hasta, el cual, esta dentro
+     * de un periodo definido por dos fechas
      */
     daysWithoutCrops = daysWithoutCrops + calculateDifferenceHarvestDateAndDateUntil(plantingRecords.get(plantingRecords.size() - 1).getHarvestDate(), dateUntil);
 
