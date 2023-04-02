@@ -1401,87 +1401,35 @@ public class PlantingRecordServiceBean {
   /**
    * @param harvestDate
    * @param dateUntil
-   * @return cantidad de dias que hay entre la fecha de cosecha y
-   * la fecha hasta, excluyendo el dia de la fecha de cosecha (ya
-   * que no cuenta como un dia en el que una parcela no tuvo ningun
-   * cultivo plantado), incluyendo el dia de la fecha hasta (ya que
-   * cuenta como un dia en el que una parcela no tuvo ningun cultivo
-   * plantado) y contemplando los años bisiestos y no bisiestos que
-   * hay entre ambas fechas
+   * @return entero que representa la cantidad de dias de diferencia
+   * que hay entre una fecha de cosecha y una fecha hasta contemplando
+   * los años bisiestos y no bisiestos que hay entre ambas fechas.
+   * En el caso en el que la fecha hasta sea estrictamente menor a
+   * la fecha de cosecha, retorna 0.
    */
   private int calculateDifferenceHarvestDateAndDateUntil(Calendar harvestDate, Calendar dateUntil) {
     /*
-     * Si la fecha de cosecha y la fecha hasta tienen el mismo
-     * año, se retorna la diferencia de dias que hay entre ellas
-     * haciendo la resta entre el numero de dia en el año de
-     * la fecha de cosecha y el numero de dia en el año de la
-     * fecha hasta
-     */
-    if (UtilDate.sameYear(harvestDate, dateUntil)) {
-      return UtilDate.calculateDifferenceDaysWithinSameYear(harvestDate, dateUntil);
-    }
-
-    /*
-     * Si la fecha hasta tiene un año menos que la fecha de
-     * cosecha, se retorna 0, ya que en este caso no hay
-     * ningun dia entre la fecha de cosecha y la fecha hasta
-     * que cuente como un dia en el que una parcela no tuvo
-     * ningun cultivo plantado. Si la fecha hasta tiene un
-     * año menos que la fecha de cosecha, significa que es
-     * menor a la fecha de cosecha.
+     * Este control es para el caso en el que la fecha desde (*)
+     * es estrictamente menor a la fecha de siembra de un
+     * registro de plantacion finalizado de un conjunto de
+     * registros de plantacion finalizados de una parcela, y la
+     * fecha hasta es mayor o igual a la fecha de siembra y es
+     * estrictamente menor a la fecha de cosecha de dicho
+     * registro. En este caso, no hay ningun dia entre la fecha
+     * de cosecha y la fecha hasta que cuente como un dia en el
+     * que una parcela no tuvo ningun cultivo plantado. Por lo
+     * tanto, en este caso se retorna 0 como la cantidad de dias
+     * en los que una parcela no tuvo ningun cultivo plantado
+     * entre una fecha de cosecha y una fecha hasta.
      * 
-     * Con este control se cubre el caso en el que la fecha
-     * desde es estrictamente menor a la fecha de siembra
-     * y la fecha de cosecha es mayor o igual a la fecha
-     * de siembra y tiene un año menos que la fecha de
-     * cosecha. En este caso, no hay ningun dia entre la
-     * fecha de cosecha y la fecha hasta que cuente como
-     * un dia en el que una parcela no tuvo ningun cultivo
-     * plantado. Por lo tanto, se retorna 0 como la cantidad
-     * de dias en los que una parcela no tuvo ningun cultivo
-     * plantado entre una fecha de cosecha y una fecha hasta.
+     * (*) Un informe estadistico de una parcela se genera a
+     * partir de una fecha desde y una fecha hasta.
      */
     if (UtilDate.compareTo(dateUntil, harvestDate) < 0) {
       return 0;
     }
 
-    int daysDifference = 0;
-
-    /*
-     * Calcula la cantidad de dias que hay entre el dia de la
-     * fecha de cosecha y el ultimo dia del año de la fecha de
-     * cosecha, contemplando si el año de dicha fecha es bisiesto
-     * o no.
-     * 
-     * Ambos calculos excluyen al dia de la fecha de cosecha del
-     * resultado, ya que este dia no cuenta como un dia en el que
-     * una parcela no tuvo ningun cultivo plantado.
-     */
-    if (UtilDate.isLeapYear(harvestDate.get(Calendar.YEAR))) {
-      daysDifference = 366 - harvestDate.get(Calendar.DAY_OF_YEAR);
-    } else {
-      daysDifference = 365 - harvestDate.get(Calendar.DAY_OF_YEAR);
-    }
-
-    /*
-     * A la diferencia de dias que hay entre la fecha de cosecha y
-     * la fecha hasta se le suma el numero de dia en el año de
-     * la fecha hasta, ya que este dia cuenta como un dia en el
-     * que una parcela no tuvo ningun cultivo plantado
-     */
-    daysDifference = daysDifference + dateUntil.get(Calendar.DAY_OF_YEAR);
-
-    /*
-     * Calcula la cantidad de dias que hay entre el año de la fecha
-     * de cosecha y el año de la fecha hasta, excluyendo la cantidad
-     * total de dias de ambos y contemplando los años bisiestos y no
-     * bisiestos que hay entre ambos. La cantidad total de dias del
-     * año de la fecha de cosecha y del año de la fecha hasta se
-     * excluye porque estos años se tuvieron en cuenta en los calculos
-     * previos.
-     */
-    daysDifference = daysDifference + UtilDate.calculateDifferenceDaysThroughYears(harvestDate.get(Calendar.YEAR), dateUntil.get(Calendar.YEAR));
-    return daysDifference;
+    return UtilDate.calculateDifferenceBetweenDates(harvestDate, dateUntil);
   }
 
   /**
