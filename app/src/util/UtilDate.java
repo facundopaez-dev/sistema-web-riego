@@ -153,16 +153,16 @@ public class UtilDate {
   }
 
   /**
-   * Calcula la cantidad de dias que hay entre una fecha y otra
-   * fecha. Hay que tener en cuenta que para que este metodo
-   * funcione correctamente, la fecha uno NO debe ser
-   * estrictamente mayor a la fecha dos.
+   * Calcula la cantidad de dias que hay entre dos fechas
+   * dadas.
    * 
-   * Pienso que lo mejor es hacer que este metodo compruebe
-   * si la fecha uno es estrictamente mayor a la fecha dos,
-   * y en caso de que lo sea, este metodo debe lanzar una
-   * excepcion que describa el problema ocurrido. Por falta
-   * de tiempo no implemento esto.
+   * Hay que tener en cuenta que para que este metodo funcione
+   * correctamente, la fecha uno NO debe ser estrictamente
+   * mayor a la fecha dos. Pienso que lo mejor es hacer que
+   * este metodo compruebe si la fecha uno es estrictamente
+   * mayor a la fecha dos, y en caso de que lo sea, este metodo
+   * debe lanzar una excepcion que describa el problema ocurrido.
+   * Por falta de tiempo no implemento esto.
    * 
    * Por lo tanto, se debe comprobar si la fecha uno es
    * estrictamente mayor a la fecha dos antes de invocar
@@ -173,8 +173,9 @@ public class UtilDate {
    * @param dateOne
    * @param dateTwo
    * @return entero que representa la cantidad de dias de
-   *         diferencia que hay entre una fecha dos y una
-   *         fecha uno
+   *         diferencia que hay entre dos fechas dadas
+   *         contemplando los años bisiestos y no bisiestos
+   *         que hay entre ellas
    */
   public static int calculateDifferenceBetweenDates(Calendar dateOne, Calendar dateTwo) {
     /*
@@ -200,18 +201,28 @@ public class UtilDate {
     }
 
     /*
-     * Si la fecha dos tiene un año mas que la fecha uno,
-     * la cantidad de dias que hay entre las dos fechas se
-     * calcula de la siguiente manera:
+     * Si entre el año de la fecha dos y el año de la fecha uno
+     * hay una unidad de diferencia, la cantidad de dias que hay
+     * entre las dos fechas se calcula de la siguiente manera:
      * 
-     * dias de diferencia = numero de dias en el año - numero
-     * de dia en el año de la fecha uno
+     * dias de diferencia = numero de dias en el año de la fecha
+     * uno - numero de dia en el año de la fecha uno
      * 
      * dias de diferencia = dias de diferencia + numero de dia
      * en el año de la fecha dos
      */
     daysDifference = daysYear - dateOne.get(Calendar.DAY_OF_YEAR);
     daysDifference = daysDifference + dateTwo.get(Calendar.DAY_OF_YEAR);
+
+    /*
+     * Si hay mas de una unidad de diferencia entre el año de
+     * la fecha dos y el año de la fecha uno, a la diferencia
+     * de dias que hay entre la fecha dos y la fecha uno se
+     * suma la cantidad de dias de los años que hay entre las
+     * dos fechas, excluyendo el año de ambas, ya que a estos
+     * se los tiene en cuenta en los calculos anteriores
+     */
+    daysDifference = daysDifference + calculateDifferenceDaysThroughYears(dateOne.get(Calendar.YEAR), dateTwo.get(Calendar.YEAR));
     return daysDifference;
   }
 
