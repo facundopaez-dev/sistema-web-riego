@@ -1265,24 +1265,7 @@ public class PlantingRecordServiceBean {
      * Calcula la diferencia de dias que hay entre la fecha
      * desde y la fecha de siembra del primer registro de
      * plantacion finalizado de una parcela, el cual, esta
-     * dentro de un periodo definido por dos fechas. El
-     * resultado de esta diferencia es la cantidad de dias
-     * en los que una parcela no tuvo ningun cultivo plantado
-     * desde el dia de la fecha desde (incluido) hasta el
-     * dia de la fecha de siembra (excluido) de su primer
-     * registro de plantacion, el cual, pertenece a un
-     * periodo definido por dos fechas.
-     * 
-     * Se incluye el dia de la fecha desde en la cantidad de
-     * dias en los que una parcela no tuvo ningun cultivo
-     * plantado porque la fecha desde cuenta como un dia en
-     * el que una parcela no tuvo ningun cultivo plantado.
-     * 
-     * Se excluye el dia de la fecha de siembra de la cantidad
-     * de dias en los que una parcela no tuvo ningun cultivo
-     * plantado porque la fecha de siembra no cuenta como
-     * un dia en el que una parcela no tuvo ningun cultivo
-     * plantado.
+     * dentro de un periodo definido por dos fechas
      */
     daysWithoutCrops = calculateDifferenceDateFromAndSeedDate(dateFrom, plantingRecords.get(0).getSeedDate());
 
@@ -1407,64 +1390,12 @@ public class PlantingRecordServiceBean {
   /**
    * @param dateFrom
    * @param seedDate
-   * @return cantidad de dias que hay entre la fecha desde y la
-   * fecha de siembra, incluyendo el dia de la fecha desde (ya
-   * que cuenta como un dia en el que una parcela no tuvo ningun
-   * cultivo plantado), excluyendo el dia de la fecha de siembra
-   * (ya que no cuenta como un dia en el que una parcela no tuvo
-   * ningun cultivo plantado) y contemplando los años bisiestos y
-   * no bisiestos que hay entre ambas fechas
+   * @return entero que representa la cantidad de dias de diferencia
+   * que hay entre una desde y una fecha de siembra contemplando los
+   * años bisiestos y no bisiestos que hay entre ambas fechas
    */
   private int calculateDifferenceDateFromAndSeedDate(Calendar dateFrom, Calendar seedDate) {
-    /*
-     * Si la fecha desde y la fecha de siembra tienen el mismo
-     * año, se retorna la diferencia de dias que hay entre ellas
-     * haciendo la resta entre el numero de dia en el año de
-     * la fecha de siembra y el numero de dia en el año de la
-     * fecha desde
-     */
-    if (UtilDate.sameYear(dateFrom, seedDate)) {
-      return UtilDate.calculateDifferenceDaysWithinSameYear(dateFrom, seedDate);
-    }
-
-    int daysDifference = 0;
-
-    /*
-     * Calcula la cantidad de dias que hay entre el dia de la
-     * fecha desde y el ultimo dia del año de la fecha desde,
-     * contemplando si el año de dicha fecha es bisiesto o no.
-     * 
-     * El "+ 1" en ambos calculos es para incluir el dia de la
-     * fecha desde en el resultado, ya que este dia no cuenta
-     * como un dia en el que una parcela no tuvo ningun cultivo
-     * plantado.
-     */
-    if (UtilDate.isLeapYear(dateFrom.get(Calendar.YEAR))) {
-      daysDifference = 366 - dateFrom.get(Calendar.DAY_OF_YEAR) + 1;
-    } else {
-      daysDifference = 365 - dateFrom.get(Calendar.DAY_OF_YEAR) + 1;
-    }
-
-    /*
-     * A la diferencia de dias que hay entre la fecha desde y la
-     * fecha de siembra se le suma el numero de dia en el año de
-     * la fecha de siembra menos uno, ya que el dia de la fecha
-     * de siembra no cuenta como un dia en el que una parcela no
-     * tuvo ningun cultivo plantado
-     */
-    daysDifference = daysDifference + seedDate.get(Calendar.DAY_OF_YEAR) - 1;
-
-    /*
-     * Calcula la cantidad de dias que hay entre el año de la fecha
-     * desde y el año de la fecha de siembra, excluyendo la cantidad
-     * total de dias de ambos y contemplando los años bisiestos y no
-     * bisiestos que hay entre ambos. La cantidad total de dias del
-     * año de la fecha desde y del año de la fecha de siembra se
-     * excluye porque estos años se tuvieron en cuenta en los calculos
-     * previos.
-     */
-    daysDifference = daysDifference + UtilDate.calculateDifferenceDaysThroughYears(dateFrom.get(Calendar.YEAR), seedDate.get(Calendar.YEAR));
-    return daysDifference;
+    return UtilDate.calculateDifferenceBetweenDates(dateFrom, seedDate);
   }
 
   /**
