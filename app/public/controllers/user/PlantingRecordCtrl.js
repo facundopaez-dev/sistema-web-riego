@@ -232,10 +232,32 @@ app.controller(
         })
       }
 
+      function findAllCrops() {
+        cropService.findAll(function (error, crops) {
+          if (error) {
+            console.log("Ocurrio un error: " + error);
+            return;
+          }
+
+          $scope.crops = crops;
+        })
+      }
+
       function findAllActiveParcels() {
         parcelService.findAllActive(function (error, parcels) {
           if (error) {
             alert("Ocurrio un error: " + error);
+            return;
+          }
+
+          $scope.parcels = parcels;
+        })
+      }
+
+      function findAllParcels() {
+        parcelService.findAll(function (error, parcels) {
+          if (error) {
+            console.log("Ocurrio un error: " + error);
             return;
           }
 
@@ -262,13 +284,29 @@ app.controller(
 
       $scope.action = $params.action;
 
-      if ($scope.action == 'new' || $scope.action == 'edit' || $scope.action == 'view') {
+      if ($scope.action == 'new' || $scope.action == 'edit') {
         findAllActiveParcels();
         findAllActiveCrops();
       }
 
       if ($scope.action == 'edit' || $scope.action == 'view') {
         find($params.id);
+      }
+
+      /*
+      En la visualizacion de un dato correspondiente a este
+      controller se debe poder visualizar la parcela y el
+      cultivo al que pertenece un dato, independientemente
+      de si la parcela y el cultivo estan activos o inactivos.
+      Para esto se deben recuperar todas las parcelas del usuario
+      y todos los cultivos registrados en la base de datos
+      subyacente de la aplicacion, tanto las parcelas activas
+      como las inactivas, y los cultivos activos como los
+      inactivos.
+      */
+      if ($scope.action == 'view') {
+        findAllParcels();
+        findAllCrops();
       }
 
     }]);
