@@ -24,6 +24,7 @@ import model.Parcel;
 import stateless.ParcelServiceBean;
 import stateless.SecretKeyServiceBean;
 import stateless.UserServiceBean;
+import stateless.PlantingRecordServiceBean;
 import util.ErrorResponse;
 import util.ReasonError;
 import util.RequestManager;
@@ -37,6 +38,7 @@ public class ParcelRestServlet {
   @EJB ParcelServiceBean parcelService;
   @EJB SecretKeyServiceBean secretKeyService;
   @EJB UserServiceBean userService;
+  @EJB PlantingRecordServiceBean plantingRecordService;
 
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
@@ -415,6 +417,20 @@ public class ParcelRestServlet {
      */
     if (!parcelService.checkUserOwnership(userId, parcelId)) {
       return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
+    }
+
+    /*
+     * Si la parcela que se quiere eliminar (logicamente)
+     * tiene un registro de plantacion en desarrollo, la
+     * aplicacion del lado servidor retorna el mensaje HTTP
+     * 400 (Bad request) junto con el mensaje "No esta permitido
+     * eliminar (logicamente) una parcela que tiene un registro
+     * de plantacion en desarrollo" y no se realiza la
+     * operacion solicitada
+     */
+    if (plantingRecordService.checkOneInDevelopment(parcelService.find(parcelId))) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(
+          new ErrorResponse(ReasonError.DELETION_PARCEL_WITH_PLANTING_RECORD_IN_DEVELOPMENT_NOT_ALLOWED))).build();
     }
 
     /*
