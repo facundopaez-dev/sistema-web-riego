@@ -393,129 +393,188 @@ public class CropServiceBean {
   }
 
   /**
-   * Calcula el kc (coeficiente del cultivo) de un cultivo
-   * dado verificando si la cantidad de dias de vida del mismo
-   * esta dentro de una de sus tres etapas de vida
-   *
-   * Si la cantidad de dias de vida del cultivo dado no
-   * estan dentro de ninguna de sus tres etapas de vida, este
-   * metodo retorna como resultado un kc = 0.0
-   *
-   * La cantidad de dias de vida que ha vivido un cultivo
-   * se calcula como la diferencia entre la fecha actual
-   * y su fecha de siembra
-   *
-   * @param  crop
-   * @param  daysLife [dias de vida del cultivo dado]
-   * @return coeficiente del cultivo (kc) dado en funcion
-   * de la etapa de vida en la que se encuentre, en caso
-   * de que no este dentro de ninguna de sus tres etapas
-   * de vida, este metodo retorna un kc = 0.0
+   * Retorna el kc (coeficiente del cultivo) de un cultivo en
+   * funcion de la etapa de su ciclo de vida en la que se
+   * encuentre. Para ello utiliza las cuatro etapas del
+   * ciclo de vida de un cultivo y la cantidad de dias de
+   * vida que tiene desde su fecha de siembra hasta la fecha
+   * actual, incluidas.
+   * 
+   * Si la cantidad de dias de vida de un cultivo es menor o
+   * mayor a su ciclo de vida, este metodo retorna 0.0 como
+   * kc. En este caso lo mejor es hacer que el metodo lance
+   * una excepcion, pero por falta de tiempo no implemento
+   * esto.
+   * 
+   * @param givenCrop
+   * @param elapsedDaysLifeCrop
+   * @return kc (coeficiente de cultivo) de un cultivo en
+   * funcion de la etapa de su ciclo de vida en la que se
+   * encuentre, si la cantidad de dias de vida del cultivo
+   * no es mayor ni menor a su ciclo de vida. En caso
+   * contrario, 0.0.
    */
-  private double calculateKc(Crop crop, int daysLife) {
-    double zeroKc = 0.0;
-
+  private double calculateKc(Crop givenCrop, int elapsedDaysLifeCrop) {
     /*
-     * Numero del dia en el cual comienza la etapa inicial
-     * sumada a la etapa de desarrollo del cultivo dado
+     * Si la cantidad de dias de vida transcurridos de un cultivo
+     * desde su fecha de siembra hasta la fecha actual, esta dentro
+     * de los limites de la etapa inicial del ciclo de vida de un
+     * cultivo, se retorna el kc (coficiente de cultivo) inicial 
      */
-    int initialDayInitialStage = 1;
-
-    /*
-     * Numero del dia en el cual comienza la segunda etapa
-     * (la etapa media) de vida del cultivo dado
-     */
-    int initialDayMiddleStage = crop.getInitialStage() + crop.getDevelopmentStage() + 1;
-
-    /*
-     * Numero del dia en el cual comienza la tercera etapa
-     * (etapa final) de vida del cultivo dado
-     */
-    int initialDayFinalStage = crop.getInitialStage() + crop.getDevelopmentStage() + crop.getMiddleStage() + 1;
-
-    /*
-     * El limite superior o ultimo dia de la etapa inicial
-     * de un cultivo es igual a la suma de los dias de su
-     * etapa incial mas los dias de su etapa de desarrollo
-     *
-     * Entre los integrantes del equipo de desarrollo se ha establecido
-     * que las etapas inicial y desarrollo son una sola, y es por esto
-     * que se suman los dias que duran ambas y que se toma la etapa
-     * inicial como la suma de los dias que dura la etapa inicial mas
-     * los dias que dura la etapa de desarrollo, quedando la etapa
-     * incial como la etapa incial mas la etapa de desarrollo
-     */
-    int upperLimitFirstStage = crop.getInitialStage() + crop.getDevelopmentStage();
-
-    /*
-     * El limite superior o ultimo dia de la etapa media
-     * de un cultivo es igual a la suma de los dias de su
-     * etapa inicial mas los dias de su etapa de desarrollo
-     * mas los dias de su etapa media
-     */
-    int upperLimitSecondStage = crop.getInitialStage() + crop.getDevelopmentStage() + crop.getMiddleStage();
-
-    /*
-     * El limite superior o ultimo dia de la etapa final
-     * de un cultivo es igual a la suma de los dias de su
-     * etapa incial mas los dias de su etapa de desarrollo
-     * mas los dias de su etapas media mas los dias de su
-     * etapa final
-     */
-    int upperLimitThirdStage = crop.getInitialStage() + crop.getDevelopmentStage() + crop.getMiddleStage() + crop.getFinalStage();
-
-    /*
-     * Si la cantidad de dias de vida del cultivo dado esta entre
-     * entre el dia del comienzo de la etapa inicial y el maximo
-     * de dias (o limite superior) que dura la misma (recordar que la etapa inicial
-     * es la suma de la cantidad de dias que dura la etapa incial
-     * mas la suma de la cantidad de dias que dura la etapa de
-     * desarrollo), este metodo retorna el coeficiente incial (kc)
-     * del cultivo dado
-     *
-     * Dicho en otras palabras, si la cantidad de dias de vida
-     * del cultivo dado esta entre uno y el maximo de la cantidad
-     * de dias resultante de la suma de los dias de la etapa inicial
-     * y de la etapa de desarrollo, este metodo retorna el coeficiente
-     * inicial (kc) del cultivo dado
-     *
-     * Entre los integrantes del equipo de desarrollo se ha establecido
-     * que las etapas inicial y desarrollo son una sola, y es por esto
-     * que se suman los dias que duran ambas, y por ende la etapa inicial
-     * es la etapa inicial mas la etapa de desarrollo
-     */
-    if ((initialDayInitialStage <= daysLife) && (daysLife <= upperLimitFirstStage)) {
-      return crop.getInitialKc();
+    if ((getLowerLimitInitialStage() <= elapsedDaysLifeCrop) && (elapsedDaysLifeCrop <= getUpperLimitInitialStage(givenCrop))) {
+      return givenCrop.getInitialKc();
     }
 
     /*
-     * Si la cantidad de dias de vida del cultivo dado esta entre el dia
-     * del comienzo de la etapa media y el maximo de dias (o limite superior) que dura la
-     * misma (el cual resulta de sumar los dias que duran las
-     * etapas inicial, desarrollo y media), este metodo retorna el
-     * coeficiente medio (kc) del cultivo dado
+     * Si la cantidad de dias de vida transcurridos de un cultivo
+     * desde su fecha de siembra hasta la fecha actual, esta dentro
+     * de los limites de la etapa de desarrollo del ciclo de vida
+     * de un cultivo, se retorna el kc (coficiente de cultivo) medio
      */
-    if ((initialDayMiddleStage <= daysLife) && (daysLife <= upperLimitSecondStage)) {
-      return crop.getMiddleKc();
+    if ((getLowerLimitDevelopmentStage(givenCrop) <= elapsedDaysLifeCrop) && (elapsedDaysLifeCrop <= getUpperLimitDevelopmentStage(givenCrop))) {
+      return givenCrop.getMiddleKc();
     }
 
     /*
-     * Si la cantidad de dias de vida del cultivo dado esta entre el dia
-     * del comienzo de la etapa final y el maximo de dias (o limite superior) que dura la
-     * misma (el cual resulta de sumar los dias que duran las etapas
-     * incial, desarrollo, media y final), este metodo retorna el
-     * coeficiente final (kc) del cultivo dado
+     * Si la cantidad de dias de vida transcurridos de un cultivo
+     * desde su fecha de siembra hasta la fecha actual, esta dentro
+     * de los limites de la etapa media del ciclo de vida de un
+     * cultivo, se retorna el kc (coficiente de cultivo) medio
      */
-    if ((initialDayFinalStage <= daysLife) && (daysLife <= upperLimitThirdStage)) {
-      return crop.getFinalKc();
+    if ((getLowerLimitMiddleStage(givenCrop) <= elapsedDaysLifeCrop) && (elapsedDaysLifeCrop <= getUpperLimitMiddleStage(givenCrop))) {
+      return givenCrop.getMiddleKc();
     }
 
     /*
-     * Si la cantidad de dias de vida del cultivo dado no esta
-     * dentro de ninguna de las tres etapas del mismo, este
-     * metodo retorna un coeficiente del cultivo (kc) igual a 0.0
+     * Si la cantidad de dias de vida transcurridos de un cultivo
+     * desde su fecha de siembra hasta la fecha actual, esta dentro
+     * de los limites de la etapa final del ciclo de vida de un
+     * cultivo, se retorna el kc (coficiente de cultivo) final
      */
-    return zeroKc;
+    if ((getLowerLimitFinalStage(givenCrop) <= elapsedDaysLifeCrop) && (elapsedDaysLifeCrop <= getUpperLimitFinalStage(givenCrop))) {
+      return givenCrop.getFinalKc();
+    }
+
+    return 0.0;
+  }
+
+  /**
+   * La figura 25 de la pagina 100 del libro "Evapotranspiracion
+   * del cultivo" de la FAO muestra las cuatro etapas del ciclo
+   * de vida de un cultivo. Primero esta la etapa inicial, segundo
+   * la etapa de desarrolo, tercero la etapa media (mitad de
+   * temporada) y cuarto la etapa final.
+   * 
+   * Este es el motivo por el cual el limite inferior de la
+   * etapa inicial es uno (un dia) y su limite superior es la
+   * cantidad de dias que dura esta etapa.
+   * 
+   * @return entero que representa el primer dia de la etapa
+   * inicial del ciclo de vida de un cultivo
+   */
+  private int getLowerLimitInitialStage() {
+    return 1;
+  }
+
+  /**
+   * @param givenCrop
+   * @return entero que representa el ultimo dia de la
+   * etapa inicial del ciclo de vida de un cultivo
+   */
+  private int getUpperLimitInitialStage(Crop givenCrop) {
+    return givenCrop.getInitialStage();
+  }
+
+  /**
+   * La figura 25 de la pagina 100 del libro "Evapotranspiracion
+   * del cultivo" de la FAO muestra las cuatro etapas del ciclo
+   * de vida de un cultivo. Primero esta la etapa inicial, segundo
+   * la etapa de desarrolo, tercero la etapa media (mitad de
+   * temporada) y cuarto la etapa final.
+   * 
+   * Este es el motivo por el cual el limite inferior de la
+   * etapa de desarrollo es el limite superior de la etapa
+   * inicial mas uno, y su limite superior es la suma entre la
+   * cantidad de dias que dura la etapa inicial y la cantidad
+   * de dias que dura la etapa de desarrollo.
+   * 
+   * @param givenCrop
+   * @return entero que representa el primer dia de la etapa
+   * de desarrollo del ciclo de vida de un cultivo
+   */
+  private int getLowerLimitDevelopmentStage(Crop givenCrop) {
+    return getUpperLimitInitialStage(givenCrop) + 1;
+  }
+
+  /**
+   * @param givenCrop
+   * @return entero que representa el ultimo dia de la etapa
+   * de desarrollo del ciclo de vida de un cultivo
+   */
+  private int getUpperLimitDevelopmentStage(Crop givenCrop) {
+    return (givenCrop.getInitialStage() + givenCrop.getDevelopmentStage());
+  }
+
+  /**
+   * La figura 25 de la pagina 100 del libro "Evapotranspiracion
+   * del cultivo" de la FAO muestra las cuatro etapas del ciclo
+   * de vida de un cultivo. Primero esta la etapa inicial, segundo
+   * la etapa de desarrolo, tercero la etapa media (mitad de
+   * temporada) y cuarto la etapa final.
+   * 
+   * Este es el motivo por el cual el limite inferior de la
+   * etapa media es el limite superior de la etapa de desarrollo
+   * mas uno, y su limite superior es la suma entre la cantidad
+   * de dias que dura la etapa inicial, la cantidad de dias que
+   * dura la etapa de desarrollo y la cantidad de dias que dura
+   * la etapa media.
+   * 
+   * @param givenCrop
+   * @return entero que representa el primer dia de la etapa
+   * media del ciclo de vida de un cultivo
+   */
+  private int getLowerLimitMiddleStage(Crop givenCrop) {
+    return getUpperLimitDevelopmentStage(givenCrop) + 1;
+  }
+
+  /**
+   * @param givenCrop
+   * @return entero que representa el ultimo dia de la etapa
+   * media del ciclo de vida de un cultivo
+   */
+  private int getUpperLimitMiddleStage(Crop givenCrop) {
+    return (givenCrop.getInitialStage() + givenCrop.getDevelopmentStage() + givenCrop.getMiddleStage());
+  }
+
+  /**
+   * La figura 25 de la pagina 100 del libro "Evapotranspiracion
+   * del cultivo" de la FAO muestra las cuatro etapas del ciclo
+   * de vida de un cultivo. Primero esta la etapa inicial, segundo
+   * la etapa de desarrolo, tercero la etapa media (mitad de
+   * temporada) y cuarto la etapa final.
+   * 
+   * Este es el motivo por el cual el limite inferior de la
+   * etapa final es el limite superior de la etapa media mas uno,
+   * y su limite superior es la suma entre la cantidad de dias que
+   * dura la etapa inicial, la cantidad de dias que dura la etapa
+   * de desarrollo, la cantidad de dias que dura la etapa media y
+   * la cantidad de dias que dura la etapa final.
+   * 
+   * @param givenCrop
+   * @return entero que representa el primer dia de la etapa
+   * final del ciclo de vida de un cultivo
+   */
+  private int getLowerLimitFinalStage(Crop givenCrop) {
+    return getUpperLimitMiddleStage(givenCrop) + 1;
+  }
+
+  /**
+   * @param givenCrop
+   * @return entero que representa el ultimo dia de la etapa
+   * final del ciclo de vida de un cultivo
+   */
+  private int getUpperLimitFinalStage(Crop givenCrop) {
+    return (givenCrop.getInitialStage() + givenCrop.getDevelopmentStage() + givenCrop.getMiddleStage() + givenCrop.getFinalStage());
   }
 
   /**
