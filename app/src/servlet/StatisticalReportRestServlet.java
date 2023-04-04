@@ -321,7 +321,7 @@ public class StatisticalReportRestServlet {
     if ((newStatisticalReport.getDateUntil() != null)
         && ((UtilDate.calculateDifferenceBetweenDates(newStatisticalReport.getDateFrom(),
             newStatisticalReport.getDateUntil()) + 1) < cropService.findShortestLifeCycle())) {
-      String message = "La fecha hasta debe ser igual a " +
+      String message = "La fecha hasta debe ser como mínimo igual a " +
           cropService.findShortestLifeCycle()
           + " días contando a partir de la fecha desde (incluida), en este caso la fecha hasta debe ser "
           + UtilDate.formatDate(statisticalReportService.calculateDateUntil(newStatisticalReport.getDateFrom(),
