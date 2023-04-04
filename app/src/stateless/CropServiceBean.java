@@ -228,167 +228,64 @@ public class CropServiceBean {
   }
 
   /**
-   * *** NOTA ***
-   * Este metodo es unicamente para la clase de prueba
-   * unitaria KcTest, con lo cual no sera utilizado
-   * en la version final del sistema, sino que es
-   * unicamente para usarlo en una prueba untiaria
-   * con el fin de verificar su correcto funcionamiento
-   * *** FIN DE NOTA ***
-   *
-   * Devuelve el kc (coeficiente del cultivo) de un
-   * cultivo dado en funcion de la etapa de vida
-   * en la que se encuentre la cantidad de dias
-   * que ha vivido desde su fecha de siembra
-   * hasta la fecha actual
+   * Este metodo es unicamente para la clase de pruebas
+   * unitarias GetKcTest, la cual, es para probar que
+   * el metodo getKc funciona correctamente
    * 
    * @param crop
-   * @param seedDate [fecha de siembra del cultivo dado]
+   * @param seedDate [fecha de siembra de un cultivo dado]
    * @param currentDate
-   * @return kc (coeficiente del cultivo) de un cultivo
-   * dado correspondiente a la etapa de vida en la
-   * que se encuentre
+   * @return numero de punto flotante que representa el kc
+   * (coeficiente de cultivo) de un cultivo en funcion de
+   * la etapa en la que se encuentra un cultivo en su ciclo
+   * de vida
    */
   public double getKc(Crop crop, Calendar seedDate, Calendar currentDate) {
-    int daysLife = 0;
-
     /*
-     * Si la fecha de siembra y la fecha actual son del mismo
-     * año se calcula la diferencia de dias entre ambas fechas
-     * sin tener en cuenta el año debido a que pertenecen al
-     * mismo año y dicha diferencia es la cantidad de dias
-     * de vida que ha vivido el cultivo desde su fecha
-     * de siembra hasta la fecha actual
+     * A la diferencia de dias entre la fecha de siembra de
+     * un cultivo y la fecha actual, se le suma un uno para
+     * incluir a la fecha de siembra en el resultado, ya que
+     * esta cuenta como un dia de vida en la cantidad de dias
+     * de vida transcurridos de un cultivo
      */
-    if (seedDate.get(Calendar.YEAR) == currentDate.get(Calendar.YEAR)) {
-      daysLife = currentDate.get(Calendar.DAY_OF_YEAR) - seedDate.get(Calendar.DAY_OF_YEAR);
-      return calculateKc(crop, daysLife);
-    }
-
-    /*
-     * Si entre la fecha de siembra y la fecha actual hay un año
-     * de diferencia (lo que significa que no son del mismo año
-     * pero el año de la fecha actual esta a continuacion
-     * del año de la fecha de siembra) se calcula la diferencia
-     * de dias entre ambas de la siguiente forma:
-     *
-     * Cantidad de dias de vida = Numero del dia del año de la fecha
-     * actual + (365 - numero del dia del año de la fecha de siembra + 1)
-     */
-    if (Math.abs(seedDate.get(Calendar.YEAR) - currentDate.get(Calendar.YEAR)) == 1) {
-      daysLife = currentDate.get(Calendar.DAY_OF_YEAR) + (365 - seedDate.get(Calendar.DAY_OF_YEAR) + 1);
-      return calculateKc(crop, daysLife);
-    }
-
-    /*
-     * NOTE: Este calculo esta mal pero no tan mal, y esto se lo puede
-     * ver en la clase de prueba unitaria llamada KcTest cuando al
-     * tomate se le pone una fecha de siembra con el año 1995 y una
-     * fecha actual con el año 2020 dando la diferencia en dias entre
-     * ambas fechas distinta a la diferencia en dias entre ambas
-     * fechas en una calculadora online de dias
-     *
-     * Para ver lo que dice el parrafo anterior, ejecutar la prueba
-     * mencionada
-     *
-     * Si entre la fecha de siembra y la fecha actual hay mas de un año
-     * de diferencia (lo que significa que no son del mismo año y que
-     * entre ambas fechas hay mas de un año de distancia) se calcula
-     * la diferencia de dias entre ambas fechas de la siguiente forma:
-     *
-     * Cantidad de dias de vida = (Año de la fecha actual - año de la
-     * fecha de siembra) * 365 - (365 - Numero del dia en el año de la
-     * fecha de siembra + 1) - (365 - Numero del dia en el año de la fecha actual)
-     *
-     * Se multiplica daysLife por 365 para evitar posibles errores, y ademas
-     * si la diferencia entre ambas fechas es de mas de un año no tiene sentido
-     * calcular la cantidad de dias de vida del cultivo dado porque hasta donde
-     * se sabe ninguno cultivo mas de un año
-     */
-    if (Math.abs(seedDate.get(Calendar.YEAR) - currentDate.get(Calendar.YEAR)) > 1) {
-      daysLife = ((Math.abs(seedDate.get(Calendar.YEAR) - currentDate.get(Calendar.YEAR))) * 365) - (365 - seedDate.get(Calendar.DAY_OF_YEAR) + 1) - (365 - currentDate.get(Calendar.DAY_OF_YEAR));
-      return calculateKc(crop, (daysLife * 365));
-    }
-
+    int daysLife = UtilDate.calculateDifferenceBetweenDates(seedDate, currentDate) + 1;
     return calculateKc(crop, daysLife);
   }
 
   /**
-   * Devuelve el kc (coeficiente del cultivo) de un
-   * cultivo dado en funcion de la etapa de vida
-   * en la que se encuentre la cantidad de dias
-   * que ha vivido desde su fecha de siembra
-   * hasta la fecha actual
+   * Retorna el kc (coficiente de cultivo) de un cultivo dado.
+   * Para esto se determina la cantidad de dias de vida de un
+   * cultivo desde su fecha de siembra (incluida) hasta la
+   * fecha actual. En base a la cantidad de dias de vida de
+   * un cultivo se determina la etapa en la que se encuentra
+   * un cultivo en su ciclo de vida, y en base a la etapa se
+   * retorna el kc de un cultivo.
+   * 
+   * La fecha de siembra esta incluida en la cantidad de dias
+   * de vida de un cultivo porque cuenta como un dia de vida
+   * para un cultivo sembrado.
    *
-   * @param  crop
-   * @param  seedDate [fecha de siembra del cultivo dado]
-   * @return kc (coeficiente del cultivo) de un cultivo
-   * dado correspondiente a la etapa de vida en la
-   * que se encuentre
+   * @param crop
+   * @param seedDate [fecha de siembra de un cultivo dado]
+   * @param currentDate
+   * @return numero de punto flotante que representa el kc
+   * (coeficiente de cultivo) de un cultivo en funcion de
+   * la etapa en la que se encuentra un cultivo en su ciclo
+   * de vida
    */
   public double getKc(Crop crop, Calendar seedDate) {
-    int daysLife = 0;
-    Calendar currentDate = Calendar.getInstance();
-
     /*
-     * Si la fecha de siembra y la fecha actual son del mismo
-     * año se calcula la diferencia de dias entre ambas fechas
-     * sin tener en cuenta el año debido a que pertenecen al
-     * mismo año y dicha diferencia es la cantidad de dias
-     * de vida que ha vivido el cultivo desde su fecha
-     * de siembra hasta la fecha actual
+     * A la diferencia de dias entre la fecha de siembra de
+     * un cultivo y la fecha actual, se le suma un uno para
+     * incluir a la fecha de siembra en el resultado, ya que
+     * esta cuenta como un dia de vida en la cantidad de dias
+     * de vida transcurridos de un cultivo.
+     * 
+     * El metodo getInstance de la clase Calendar retorna la
+     * referencia a un objeto de tipo Calendar que contiene la
+     * fecha actual.
      */
-    if (seedDate.get(Calendar.YEAR) == currentDate.get(Calendar.YEAR)) {
-      daysLife = currentDate.get(Calendar.DAY_OF_YEAR) - seedDate.get(Calendar.DAY_OF_YEAR);
-      return calculateKc(crop, daysLife);
-    }
-
-    /*
-     * Si entre la fecha de siembra y la fecha actual hay un año
-     * de diferencia (lo que significa que no son del mismo año
-     * pero el año de la fecha actual esta a continuacion
-     * del año de la fecha de siembra) se calcula la diferencia
-     * de dias entre ambas fechas de la siguiente forma:
-     *
-     * Cantidad de dias de vida = Numero del dia del año de la fecha
-     * actual + (365 - Numero del dia del año de la fecha de siembra + 1)
-     */
-    if (Math.abs(seedDate.get(Calendar.YEAR) - currentDate.get(Calendar.YEAR)) == 1) {
-      daysLife = currentDate.get(Calendar.DAY_OF_YEAR) + (365 - seedDate.get(Calendar.DAY_OF_YEAR) + 1);
-      return calculateKc(crop, daysLife);
-    }
-
-
-    /*
-     * NOTE: Este calculo esta mal pero no tan mal, y esto se lo puede
-     * ver en la clase de prueba unitaria llamada KcTest cuando al
-     * tomate se le pone una fecha de siembra con el año 1995 y una
-     * fecha actual con el año 2020 dando la diferencia en dias entre
-     * ambas fechas distinta a la diferencia en dias entre ambas
-     * fechas en una calculadora online de dias
-     *
-     * Para ver lo que dice el parrafo anterior, ejecutar la prueba
-     * mencionada
-     *
-     * Si entre la fecha de siembra y la fecha actual hay mas de un año
-     * de diferencia (lo que significa que no son del mismo año y que
-     * entre ambas fechas hay mas de un año de distancia) se calcula
-     * la diferencia de dias entre ambas fechas de la siguiente forma:
-     *
-     * Cantidad de dias de vida = (Año de la fecha actual - año de la
-     * fecha de siembra) * 365 - (365 - Numero del dia en el año de la
-     * fecha de siembra + 1) - (365 - Numero del dia en el año de la fecha actual)
-     *
-     * Se multiplica daysLife por 365 para evitar posibles errores, y ademas
-     * si la diferencia entre ambas fechas es de mas de un año no tiene sentido
-     * calcular la cantidad de dias de vida del cultivo dado porque hasta donde
-     * se sabe ninguno cultivo mas de un año
-     */
-    if (Math.abs(seedDate.get(Calendar.YEAR) - currentDate.get(Calendar.YEAR)) > 1) {
-      daysLife = ((Math.abs(seedDate.get(Calendar.YEAR) - currentDate.get(Calendar.YEAR))) * 365) - (365 - seedDate.get(Calendar.DAY_OF_YEAR) + 1) - (365 - currentDate.get(Calendar.DAY_OF_YEAR));
-      return calculateKc(crop, (daysLife * 365));
-    }
-
+    int daysLife = UtilDate.calculateDifferenceBetweenDates(seedDate, Calendar.getInstance()) + 1;
     return calculateKc(crop, daysLife);
   }
 
