@@ -322,10 +322,10 @@ public class PlantingRecordRestServlet {
      * cambio es que no tiene sentido permitir la creacion
      * de un registro de plantacion del pasado ni del
      * futuro, ya que la aplicacion no tiene los datos
-     * metereologicos del pasado ni del futuro de la
+     * meteorologicos del pasado ni del futuro de la
      * ubicacion geografica de una parcela.
      * 
-     * Los datos metereologicos son necesarios para calcular
+     * Los datos meteorologicos son necesarios para calcular
      * la evapotranspiracion del cultivo de referencia (ETo)
      * y la evapotranspiracion del cultivo (ETc), la cual, es
      * necesaria para determinar la cantidad de agua de riego
@@ -628,7 +628,7 @@ public class PlantingRecordRestServlet {
      * El atributo precip del modelo de datos ClimateRecord representa
      * la precipitacion del dia en milimetros. La unidad en la que se
      * mide este dato corresponde a la API Visual Crossing Weather y
-     * al grupo de unidades en el que se le solicita datos metereologicos.
+     * al grupo de unidades en el que se le solicita datos meteorologicos.
      */
     tomorrowPrecipitation = tomorrowClimateLog.getPrecip();
 

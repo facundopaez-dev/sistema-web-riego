@@ -20,10 +20,10 @@ import javax.net.ssl.HttpsURLConnection;
 
 /*
  * ClimateCliente es la clase que se utiliza para obtener datos
- * metereologicos. Esto se hace mediante una peticion a la API
+ * meteorologicos. Esto se hace mediante una peticion a la API
  * Visual Crossing Weather.
  * 
- * Los datos metereologicos se obtienen en base a una ubicacion
+ * Los datos meteorologicos se obtienen en base a una ubicacion
  * geografica dada por latitud y longitud, y a una fecha dada.
  * Estos datos son necesarios para calcular la evapotranspiracion
  * del cultivo de referencia (*) [ETo], la cual, nos indica la cantidad
@@ -39,7 +39,7 @@ public class ClimateClient {
 
   /*
    * URL incompleto del servicio web a utilizar para
-   * obtener los datos metereologicos en base a una fecha
+   * obtener los datos meteorologicos en base a una fecha
    * y una coordenada geografica
    */
   private static final String INCOMPLETE_WEATHER_URL = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/";
@@ -66,13 +66,13 @@ public class ClimateClient {
   private static Gson gson = new Gson();
 
   /**
-   * Retorna los datos metereologicos para una ubicacion
+   * Retorna los datos meteorologicos para una ubicacion
    * geografica en una fecha dada.
    * 
    * @param givenParcel
    * @param datetimeEpoch [tiempo UNIX]
    * @return referencia a un objeto de tipo ClimateRecord que
-   *         contiene los datos metereologicos obtenidos en base a una
+   *         contiene los datos meteorologicos obtenidos en base a una
    *         coordenada geografica y una fecha en tiempo UNIX
    */
   public static ClimateRecord getForecast(Parcel givenParcel, long datetimeEpoch) {
@@ -80,13 +80,13 @@ public class ClimateClient {
     newClimateRecord.setParcel(givenParcel);
 
     /*
-     * Obtiene los datos metereologicos para una parcela
+     * Obtiene los datos meteorologicos para una parcela
      * mediante su latitud y longitud, en una fecha dada
      */
     Forecast newForecast = requestWeatherData(givenParcel.getLatitude(), givenParcel.getLongitude(), datetimeEpoch);
 
     /*
-     * Asigna los datos metereologicos contenidos en el objeto
+     * Asigna los datos meteorologicos contenidos en el objeto
      * referenciado por la referencia de givenForecast al objeto
      * referenciado por la referencia de givenClimateRecord
      */
@@ -95,14 +95,14 @@ public class ClimateClient {
   }
 
   /**
-   * Obtiene los datos metereologicos para una ubicacion geografica
+   * Obtiene los datos meteorologicos para una ubicacion geografica
    * en una fecha dada
    * 
    * @param latitude      [grados decimales]
    * @param longitude     [grados decimales]
    * @param datetimeEpoch [tiempo UNIX]
    * @return referencia a un objeto de tipo Forecast que
-   *         contiene los datos metereologicos obtenidos para una
+   *         contiene los datos meteorologicos obtenidos para una
    *         latitud y una longitud, en una fecha en tiempo UNIX
    */
   private static Forecast requestWeatherData(double latitude, double longitude, long datetimeEpoch) {
@@ -163,7 +163,7 @@ public class ClimateClient {
 
     /*
      * Contendra el resultado de la llamada a la API
-     * metereologica utilizada (en este caso Visual
+     * meteorologica utilizada (en este caso Visual
      * Crossing Weather) en formato JSON
      */
     String resultApiCall = null;
@@ -203,7 +203,7 @@ public class ClimateClient {
     }
 
     /*
-     * Convierte el conjunto de datos metereologicos obtenido
+     * Convierte el conjunto de datos meteorologicos obtenido
      * para una ubicacion geografica en una fecha dada, de
      * formato JSON a formato POJO
      */
@@ -214,7 +214,7 @@ public class ClimateClient {
    * Retorna el URL completo con la latitud, la longitud, la fecha en
    * tiempo UNIX, la clave proporcionada por la API Visual Crossing
    * Weather, el grupo de unidades de medida metric y el parametro de
-   * consulta include para obtener los siguientes datos metereologicos
+   * consulta include para obtener los siguientes datos meteorologicos
    * de un dia, incluido su fecha: el tiempo desde la epoca (1 de enero
    * de 1970), la temperatura maxima, la temperatura minima, el punto de
    * rocio, la humedad, la precipitacion, la probabilidad de precipitacion,
@@ -225,7 +225,7 @@ public class ClimateClient {
    * @param longitude     [grados decimales]
    * @param datetimeEpoch [tiempo UNIX]
    * @return referencia a un objeto de tipo String que contiene el URL necesario
-   *         para realizar una solicitud a la API metereologica Visual Crossing
+   *         para realizar una solicitud a la API meteorologica Visual Crossing
    *         Weather
    */
   private static String getCompleteWeatherUrl(double latitude, double longitude, long datetimeEpoch) {
@@ -233,7 +233,7 @@ public class ClimateClient {
   }
 
   /**
-   * Asigna los datos metereologicos contenidos en el objeto
+   * Asigna los datos meteorologicos contenidos en el objeto
    * referenciado por la referencia de givenForecast al objeto
    * referenciado por la referencia de givenClimateRecord
    * 
@@ -242,7 +242,7 @@ public class ClimateClient {
    */
   private static void setClimateRecord(ClimateRecord givenClimateRecord, Forecast givenForecast) {
     /*
-     * Obtencion de los datos metereologicos solicitados
+     * Obtencion de los datos meteorologicos solicitados
      * en un dia (una fecha) para una ubicacion geografica
      */
     Day givenDay = givenForecast.getDays().get(0);
@@ -260,7 +260,7 @@ public class ClimateClient {
     givenClimateRecord.setAtmosphericPressure(givenDay.getPressure());
 
     /*
-     * Los datos metereologicos obtenidos de una llamada a la API
+     * Los datos meteorologicos obtenidos de una llamada a la API
      * Visual Crossing Weather utilizan el grupo de unidades metric,
      * segun la cadena de consulta de la constante QUERY_STRING.
      * 
@@ -277,7 +277,7 @@ public class ClimateClient {
      * necesario que se convierta, en alguna parte pertinente
      * del codigo fuente, la velocidad del viento de kilometros
      * por hora a metros por segundo antes de usar este dato
-     * metereologico en el metodo que calcula la ETo, el cual,
+     * meteorologico en el metodo que calcula la ETo, el cual,
      * se llama getEto y pertenece a la clase Eto.
      */
     givenClimateRecord.setWindSpeed(givenDay.getWindspeed());
@@ -290,8 +290,8 @@ public class ClimateClient {
      * rain, snow, freezing rain e ice.
      * 
      * Visual Crossing Weather utiliza el valor null dentro del conjunto
-     * de datos metereologicos para indicar la ausencia de datos, como
-     * informacion metereologica faltante o datos desconocidos. No se
+     * de datos meteorologicos para indicar la ausencia de datos, como
+     * informacion meteorologica faltante o datos desconocidos. No se
      * utiliza el valor null para indicar un valor cero. Por ejemplo,
      * un valor de precipitacion desconocido se marcara como vacio o
      * null. Una cantidad cero de precipitacion se indicara con el
@@ -320,14 +320,14 @@ public class ClimateClient {
        * en un ejemplo en el que haya 10 centimetros de nieve, hay en total
        * 10 milimetros de agua. Esta la conversion de nieve a agua liquida.
        * 
-       * Si el grupo de unidades utilizado para solicitar datos metereologicos
+       * Si el grupo de unidades utilizado para solicitar datos meteorologicos
        * de Visual Crossing Weather es metric, precip es la cantidad de precipitacion
        * en milimetros, segun la documentacion de dicha API del siguiente enlace:
        * 
        * https://www.visualcrossing.com/resources/documentation/weather-api/unit-groups-and-measurement-units/
        * 
        * Por lo tanto, si se usa el grupo de unidades metric para solicitar
-       * datos metereologicos a la API Visual Crossing Weather y el tipo de
+       * datos meteorologicos a la API Visual Crossing Weather y el tipo de
        * precipitacion en una llamada a dicha API es nieve, no es necesario
        * realizar la conversion de nieve a agua liquida.
        */
@@ -338,7 +338,7 @@ public class ClimateClient {
 
     /*
      * Si el tipo de precipitacion tiene el valor null en el conjunto
-     * de datos metereologicos devuelto por una llamada a la API Visual
+     * de datos meteorologicos devuelto por una llamada a la API Visual
      * Crossing Weather (VSC), las variables de instancia precip y
      * precipProbability de una instancia de tipo ClimateRecord se
      * inicializan en 0.0, debido a que son variables de instancia.
@@ -350,7 +350,7 @@ public class ClimateClient {
    * @param givenPrecipTypes
    * @return referencia a un objeto de tipo Collection que
    * contiene los tipos de precipitacion del conjunto de
-   * datos metereologicos devuelto por una llamada a
+   * datos meteorologicos devuelto por una llamada a
    * Visual Crossing Weather
    */
   private static Collection<TypePrecipitation> setPrecipTypes(ClimateRecord givenClimateRecord, Collection<String> givenPrecipTypes) {

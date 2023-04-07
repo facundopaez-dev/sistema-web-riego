@@ -639,7 +639,7 @@ public class ClimateRecordRestServlet {
    * @param latitude
    * @param longitude
    * @param time
-   * @return conjunto de datos metereologicos obtenidos en un dia
+   * @return conjunto de datos meteorologicos obtenidos en un dia
    *         para una ubicacion geografica
    * @throws IOException
    */

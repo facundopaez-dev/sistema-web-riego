@@ -1,16 +1,16 @@
 /*
  * ClimateRecord representa un registro que contiene los
- * datos metereologicos obtenidos para a una fecha en
+ * datos meteorologicos obtenidos para a una fecha en
  * una ubicacion geografica.
  *
  * - Unidades de medida
- * Las unidades de medida de los datos metereologicos
+ * Las unidades de medida de los datos meteorologicos
  * dependen de las unidades de medida en la que se
  * los pide en la llamada a la API del clima Visual
  * Crossing Weather.
  *
  * En nuestro caso, en la llamada a la API especificamos
- * que deseamos que los datos metereologicos utilicen
+ * que deseamos que los datos meteorologicos utilicen
  * el grupo de unidades metric, el cual, establece lo
  * siguiente:
  *
@@ -59,7 +59,7 @@ public class ClimateRecord {
   private int id;
 
   /*
-   * Fecha en la que solicitan los datos metereologicos
+   * Fecha en la que solicitan los datos meteorologicos
    * para una ubicacion geografica dada por su latitud
    * y longitud
    */
@@ -70,7 +70,7 @@ public class ClimateRecord {
   /*
    * Precipitacion del dia [milimetros/dia] (si se usa el
    * grupo de unidades metric para la obtencion de
-   * los datos metereologicos de la API Visual Crossing
+   * los datos meteorologicos de la API Visual Crossing
    * Weather), segun la documentacion de Visual Crossing
    * Weather.
    * 
@@ -80,7 +80,7 @@ public class ClimateRecord {
    * En la cadena de consulta para la llamada a la API
    * del clima en la clase ClimateClient, esta establecido
    * que el grupo de unidades en la cual deben ser devueltos
-   * los datos metereologicos es metric, el cual, especifica
+   * los datos meteorologicos es metric, el cual, especifica
    * que la precipitacion esta medida en milimetros, segun
    * la documentacion de Visual Crossing Weather en el
    * siguiente enlace:
@@ -109,13 +109,13 @@ public class ClimateRecord {
    * data-documentation/
    * 
    * Hay que tener en cuenta que una invocacion a Visual Crossing
-   * Weather puede devolver un conjunto de datos metereologicos en
+   * Weather puede devolver un conjunto de datos meteorologicos en
    * el que preciptype tenga el valor null.
    * 
    * Segun la documentacion del enlace de este comentario, Visual
    * Crossing Weather utiliza el valor null dentro del conjunto de
-   * datos metereologicos para indicar la ausencia de datos, como
-   * informacion metereologica faltante o datos desconocidos. No se
+   * datos meteorologicos para indicar la ausencia de datos, como
+   * informacion meteorologica faltante o datos desconocidos. No se
    * utiliza el valor null para indicar un valor cero. Por ejemplo,
    * un valor de precipitacion desconocido se marcara como vacio o
    * null. Una cantidad cero de precipitacion se indicara con el
@@ -168,7 +168,7 @@ public class ClimateRecord {
 
   /*
    * Cantidad de agua acumulada [milimetros/dia] en el dia de
-   * la fecha para la cual se obtienen los datos metereologicos,
+   * la fecha para la cual se obtienen los datos meteorologicos,
    * la cual, es el agua de dicho dia a favor para el dia de
    * mañana.
    *
@@ -188,7 +188,7 @@ public class ClimateRecord {
    * Evapotranspiracion del cultivo de referencia (ETo)
    *
    * Este valor se calcula mediante el uso de los datos
-   * metereologicos en la formula de la ETo, y esta
+   * meteorologicos en la formula de la ETo, y esta
    * medido en milimetros por dia [mm/dia].
    *
    * El cultivo de referencia es el pasto, segun la pagina

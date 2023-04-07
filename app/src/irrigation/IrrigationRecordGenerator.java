@@ -127,7 +127,7 @@ public class IrrigationRecordGenerator {
          * El atributo precip del modelo de datos ClimateRecord representa
          * la precipitacion del dia en milimetros. La unidad en la que se
          * mide este dato corresponde a la API Visual Crossing Weather y
-         * al grupo de unidades en el que se le solicita datos metereologicos.
+         * al grupo de unidades en el que se le solicita datos meteorologicos.
          */
         yesterdayPrecip = yesterdayClimateLog.getPrecip();
         waterAccumulatedYesterday = yesterdayClimateLog.getWaterAccumulated();
@@ -144,7 +144,7 @@ public class IrrigationRecordGenerator {
         currentIrrigationRecord.setSuggestedIrrigation(currentSuggestedIrrigation);
 
         /*
-         * Se recuperan los datos metereologicos del dia de mañana
+         * Se recuperan los datos meteorologicos del dia de mañana
          * y de ellos se usa la precipitacion del dia de mañana para
          * establecerla como precipitacion de dicho dia en el registro
          * de riego del dia de hoy.

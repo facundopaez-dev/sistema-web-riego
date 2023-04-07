@@ -45,7 +45,7 @@ public class ClimateRecordManager {
 
   /**
    * Obtiene y persiste de manera automatica los datos
-   * metereologicos de la fecha actual para todas las
+   * meteorologicos de la fecha actual para todas las
    * parcelas activas de la base de datos subyacente.
    * 
    * Esto lo realiza cada dos horas a partir de las 00:00
@@ -54,7 +54,7 @@ public class ClimateRecordManager {
    * estar disponible al momento en el que este metodo
    * se ejecuta.
    * 
-   * Los datos metereologicos son necesarios para determinar
+   * Los datos meteorologicos son necesarios para determinar
    * la evapotranspiracion del cultivo de referencia (ETo),
    * la cual, es necesaria para determinar la evapotranspiracion
    * del cultivo bajo condiciones estandar (ETc) del cultivo
@@ -70,7 +70,7 @@ public class ClimateRecordManager {
    * 
    * La segunda anotacion es para probar que el metodo hace
    * lo que se espera que haga: obtener y persistir los
-   * datos metereologicos de la fecha actual para cada
+   * datos meteorologicos de la fecha actual para cada
    * una de las parcelas activas de la base de datos
    * subyacente
    * 
@@ -104,9 +104,9 @@ public class ClimateRecordManager {
     double longitude = 0.0;
 
     /*
-     * Obtiene y persiste los datos metereologicos de la fecha
+     * Obtiene y persiste los datos meteorologicos de la fecha
      * actual para todas las parcelas activas que NO tienen los
-     * datos metereologicos de dicha fecha
+     * datos meteorologicos de dicha fecha
      */
     for (Parcel currentParcel : activeParcels) {
       /*
@@ -120,7 +120,7 @@ public class ClimateRecordManager {
 
         /*
          * Retorna un registro climatico que contiene los datos
-         * del conjunto de datos metereologicos obtenido de la
+         * del conjunto de datos meteorologicos obtenido de la
          * API Visual Crossing Weather mediante la fecha actual
          * en formato UNIX y las coordenadas geograficas de la
          * parcela actual
@@ -131,7 +131,7 @@ public class ClimateRecordManager {
         maximumInsolation = insolationService.getInsolation(currentDate.get(Calendar.MONTH), latitude);
 
         /*
-         * Con los datos metereologicos obtenidos se calcula la
+         * Con los datos meteorologicos obtenidos se calcula la
          * evapotranspiracion del cultivo de referencia (ETo)
          * [mm/dia]
          */
@@ -176,7 +176,7 @@ public class ClimateRecordManager {
         climateRecord.setEtc(etc);
 
         /*
-         * Persiste los datos metereologicos de la fecha
+         * Persiste los datos meteorologicos de la fecha
          * actual para una parcela en la base de datos
          * subyacente
          */

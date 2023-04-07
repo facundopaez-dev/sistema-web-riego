@@ -506,7 +506,7 @@ public class IrrigationRecordRestServlet {
      * El atributo precip del modelo de datos ClimateRecord representa
      * la precipitacion del dia en milimetros. La unidad en la que se
      * mide este dato corresponde a la API Visual Crossing Weather y
-     * al grupo de unidades en el que se le solicita datos metereologicos.
+     * al grupo de unidades en el que se le solicita datos meteorologicos.
      */
     yesterdayPrecip = yesterdayClimateLog.getPrecip();
     waterAccumulatedYesterday = yesterdayClimateLog.getWaterAccumulated();

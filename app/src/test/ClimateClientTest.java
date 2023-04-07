@@ -27,7 +27,7 @@ public class ClimateClientTest {
   public void testOneClimateClient() {
     System.out.println("***************************** Prueba uno del cliente climatico *****************************");
     System.out.println("Pronostico");
-    System.out.println("- En esta prueba se obtienen los datos metereologicos para la ubicacion geografica dada por");
+    System.out.println("- En esta prueba se obtienen los datos meteorologicos para la ubicacion geografica dada por");
     System.out.println("la coordenada geografica (-45.86413, -67.49656) [Comodoro Rivadavia] en la fecha 12-31-2023.");
     System.out.println();
 
@@ -60,7 +60,7 @@ public class ClimateClientTest {
   public void testTwoClimateClient() {
     System.out.println("***************************** Prueba dos del cliente climatico *****************************");
     System.out.println("Observacion historica");
-    System.out.println("- En esta prueba se obtienen los datos metereologicos para la ubicacion geografica dada por");
+    System.out.println("- En esta prueba se obtienen los datos meteorologicos para la ubicacion geografica dada por");
     System.out.println("la coordenada geografica (-38.71959, -62.27243) [Bahia Blanca] en la fecha 2023-01-01.");
     System.out.println();
 
@@ -93,7 +93,7 @@ public class ClimateClientTest {
   public void testThreeClimateClient() {
     System.out.println("***************************** Prueba tres del cliente climatico *****************************");
     System.out.println("Pronostico de condiciones actuales");
-    System.out.println("- En esta prueba se obtienen los datos metereologicos para la ubicacion geografica dada por");
+    System.out.println("- En esta prueba se obtienen los datos meteorologicos para la ubicacion geografica dada por");
     System.out.println("la coordenada geografica (-42.7692, -65.03851) [Puerto Madryn] en la fecha actual.");
     System.out.println();
 
@@ -116,7 +116,7 @@ public class ClimateClientTest {
      * La fecha dada en milisegundos se divide por 1000 para
      * convetirla a segundos, ya que el metodo getForecast de
      * la clase ClimateClient opera con segundos desde la epoca
-     * (1 de enero de 1970) para obtener los datos metereologicos
+     * (1 de enero de 1970) para obtener los datos meteorologicos
      * de una ubicacion geografica en una fecha dada.
      */
     ClimateRecord givenClimateRecord = ClimateClient.getForecast(newParcel, (currentDate.getTimeInMillis() / 1000));

@@ -69,13 +69,13 @@ public class ClimateRecordServiceBeanTest {
 
   @Test
   public void test() {
-    System.out.println("Esta prueba unitaria es para probar que, cuando se obtiene un conjunto de datos metereologicos de una llamada a la");
+    System.out.println("Esta prueba unitaria es para probar que, cuando se obtiene un conjunto de datos meteorologicos de una llamada a la");
     System.out.println("API Visual Crossing Weather, que contiene tipos de precipitacion y se persiste un registro climatico con este conjunto,");
     System.out.println("se persisten tambien los tipos de precipitacion.");
     System.out.println();
     System.out.println("Para demostrar en esta prueba que se persisten los tipos de precipitacion cuando se persiste un registro climatico,");
     System.out.println("se realiza una llamada a Visual Crossing Weather con una coordenada geografica de Nueva York y la fecha 14-1-2023.");
-    System.out.println("Esta llamada devuelve un conjunto de datos metereologicos en los que hay dos tipos de precipitacion: rain y snow.");
+    System.out.println("Esta llamada devuelve un conjunto de datos meteorologicos en los que hay dos tipos de precipitacion: rain y snow.");
     System.out.println();
 
     /*
@@ -105,13 +105,13 @@ public class ClimateRecordServiceBeanTest {
     Calendar date = Calendar.getInstance();
     date.setTimeInMillis(datetimeEpoch * 1000);
 
-    System.out.println("* Fecha para la que se obtiene un conjunto de datos metereologicos: " +  UtilDate.formatDate(date));
+    System.out.println("* Fecha para la que se obtiene un conjunto de datos meteorologicos: " +  UtilDate.formatDate(date));
     System.out.println();
 
     /*
      * NOTA: Hay que tener en cuenta que en la clase ClimateClient
      * debe estar asignada la clave de la API Visual Crossing
-     * Weather en el URL de solicitud de datos metereologicos para
+     * Weather en el URL de solicitud de datos meteorologicos para
      * obtener dichos datos de dicha API
      */
     ClimateRecord givenClimateRecord = ClimateClient.getForecast(givenParcel, datetimeEpoch);
@@ -137,7 +137,7 @@ public class ClimateRecordServiceBeanTest {
     TypePrecipitation typePrecipitationRain = (TypePrecipitation) givenClimateRecord.getPrecipTypes().toArray()[0];
     TypePrecipitation typePrecipitationSnow = (TypePrecipitation) givenClimateRecord.getPrecipTypes().toArray()[1];
 
-    System.out.println("* Tipos de precipitacion del conjunto de datos metereologicos obtenido para la ubicacion geografica y fecha dadas");
+    System.out.println("* Tipos de precipitacion del conjunto de datos meteorologicos obtenido para la ubicacion geografica y fecha dadas");
     System.out.println(typePrecipitationRain);
     System.out.println(typePrecipitationSnow);
 
