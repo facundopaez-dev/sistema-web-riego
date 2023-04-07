@@ -2,7 +2,7 @@ package servlet;
 
 import climate.ClimateClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import et.Eto;
+import et.PenmanMonteithEto;
 import irrigation.WaterMath;
 import java.io.IOException;
 import java.lang.Math;
@@ -659,7 +659,7 @@ public class PlantingRecordRestServlet {
        * Evapotranspiracion del cultivo de referencia (ETo) con las
        * condiciones climaticas del registro climatico del dia de ayer
        */
-      yesterdayEto = Eto.getEto(yesterdayClimateLog.getMinimumTemperature(), yesterdayClimateLog.getMaximumTemperature(), yesterdayClimateLog.getAtmosphericPressure(), yesterdayClimateLog.getWindSpeed(),
+      yesterdayEto = PenmanMonteithEto.calculateEto(yesterdayClimateLog.getMinimumTemperature(), yesterdayClimateLog.getMaximumTemperature(), yesterdayClimateLog.getAtmosphericPressure(), yesterdayClimateLog.getWindSpeed(),
         yesterdayClimateLog.getDewPoint(), extraterrestrialSolarRadiation, maximumInsolation, yesterdayClimateLog.getCloudCover());
 
       /*

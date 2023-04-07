@@ -25,7 +25,7 @@ public class Etc {
    */
   public static double getEtc(double cropCoefficient, double minTemperature, double maxTemperature, double pressure, double windSpeed, double dewPoint,
     double extraterrestrialSolarRadiation, double maximumInsolation, double cloudCover) {
-    return (cropCoefficient * Eto.getEto(minTemperature, maxTemperature, pressure, windSpeed, dewPoint, extraterrestrialSolarRadiation, maximumInsolation, cloudCover));
+    return (cropCoefficient * PenmanMonteithEto.calculateEto(minTemperature, maxTemperature, pressure, windSpeed, dewPoint, extraterrestrialSolarRadiation, maximumInsolation, cloudCover));
   }
 
 }

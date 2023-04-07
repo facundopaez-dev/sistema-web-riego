@@ -1,6 +1,6 @@
 package climate;
 
-import et.Eto;
+import et.PenmanMonteithEto;
 import java.util.Calendar;
 import java.util.Collection;
 import javax.ejb.EJB;
@@ -135,7 +135,7 @@ public class ClimateRecordManager {
          * evapotranspiracion del cultivo de referencia (ETo)
          * [mm/dia]
          */
-        eto = Eto.getEto(climateRecord.getMinimumTemperature(), climateRecord.getMaximumTemperature(),
+        eto = PenmanMonteithEto.calculateEto(climateRecord.getMinimumTemperature(), climateRecord.getMaximumTemperature(),
             climateRecord.getAtmosphericPressure(), climateRecord.getWindSpeed(),
             climateRecord.getDewPoint(), extraterrestrialSolarRadiation, maximumInsolation,
             climateRecord.getCloudCover());
