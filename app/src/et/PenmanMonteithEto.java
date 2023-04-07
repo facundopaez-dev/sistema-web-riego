@@ -30,8 +30,6 @@ public class PenmanMonteithEto {
    * @param extraterrestrialSolarRadiation [MJ/metro cuadrado * dia]
    * @param maximumInsolation              [horas]
    * @param actualDurationSunstroke        [horas]
-   * @param meanSaturationVaporPressure    [kPa]
-   * @param realVaporPressure              [kPa]
    * @return punto flotante que representa la evapotranspiracion
    *         del cultivo de referencia (ETo) [mm/dia]
    */
