@@ -6,7 +6,7 @@ public class PenmanMonteithEto {
 
   /**
    * Calcula la evapotranspiracion del cultivo de referencia (ETo)
-   * mediante la formula de la ETo de la FAO Penman-Monteith. La Eto
+   * mediante la formula de la ETo de la FAO Penman-Monteith. La ETo
    * es necesaria para calcular la necesidad de agua de riego de un
    * cultivo.
    * 
@@ -15,9 +15,9 @@ public class PenmanMonteithEto {
    * FAO. El cultivo de referencia es el pasto bien regado, segun
    * la pagina 6 del libro mencionado.
    * 
-   * La necesidad de agua de riego de un cultivo se calcula mediante
-   * la formula de la evapotranspiracion del cultivo bajo condiciones
-   * estandar (ETc): ETc = ETo * Kc (coeficiente de cultivo).
+   * La necesidad hidrica de un cultivo se calcula mediante la formula
+   * de la evapotranspiracion del cultivo bajo condiciones estandar
+   * (ETc): ETc = ETo * Kc (coeficiente de cultivo).
    * 
    * Hay que tener en cuenta que las unidades de las variables
    * meteorologicas dependen del servicio meteorologico utilizado.
@@ -27,7 +27,7 @@ public class PenmanMonteithEto {
    * @param pressure                       [mbar (hPa)]
    * @param windSpeed                      [km/h]
    * @param dewPoint                       [°C]
-   * @param extraterrestrialSolarRadiation [MJ/metro cuadrado * dia]
+   * @param extraterrestrialSolarRadiation [MJ/m2/dia]
    * @param maximumInsolation              [horas]
    * @param actualDurationSunstroke        [horas]
    * @return punto flotante que representa la evapotranspiracion
@@ -63,7 +63,7 @@ public class PenmanMonteithEto {
     // Deficit de presion de vapor [kPa]
     double vaporPressureDeficit = es - ea;
 
-    // Radiacion neta (Rn) [MJ/metro cuadrado * dia]
+    // Radiacion neta (Rn) [MJ/m2/dia]
     double rn = netRadiation(extraterrestrialSolarRadiation, ea, minTemperature, maxTemperature, maximumInsolation,
         actualDurationSunstroke);
 
