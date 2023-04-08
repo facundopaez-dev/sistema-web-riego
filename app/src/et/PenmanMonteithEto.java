@@ -52,7 +52,7 @@ public class PenmanMonteithEto {
     /*
      * Velocidad del viento a dos metros de altura (u2) [metros/segundo]
      */
-    double u2 = windSpeedTwoMetersHigh(windSpeed);
+    double u2 = windSpeedTwoMetersHigh(convertWindSpeedToMetersPerSecond(windSpeed));
 
     // Presion media de vapor de saturacion (es) [kPa]
     double es = averageSaturationVaporPressure(minTemperature, maxTemperature);
@@ -177,6 +177,18 @@ public class PenmanMonteithEto {
    */
   public static double windSpeedTwoMetersHigh(double uz) {
     return (uz * conversionFactorToTwoMetersHigh());
+  }
+
+  /**
+   * Convierte la velocidad del viento de kilometros por
+   * hora a metros por segundo
+   * 
+   * @param windSpeed [km/hora]
+   * @return punto flotante que representa la velocidad
+   *         del viento en metros por segundo
+   */
+  private static double convertWindSpeedToMetersPerSecond(double windSpeed) {
+    return (windSpeed / 3.6);
   }
 
   /**
