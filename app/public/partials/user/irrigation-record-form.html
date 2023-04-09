@@ -129,15 +129,6 @@
 			</div>
 
 			<div class="form-group" ng-hide="action == 'new'">
-				<label for="tomorrowPrecipitation" class="col-md-2 control-label">Precipitación del día de mañana
-					[mm/día]</label>
-				<div class="col-md-3">
-					<input type="number" class="form-control" id="tomorrowPrecipitation"
-						ng-model="data.tomorrowPrecipitation" ng-disabled="action == 'edit' || action == 'view'">
-				</div>
-			</div>
-
-			<div class="form-group" ng-hide="action == 'new'">
 				<label for="systemGenerated" class="col-md-2 control-label">Generado por el sistema</label>
 				<div class="col-md-3">
 					<input type="checkbox" value="False" id="systemGenerated" ng-model="data.systemGenerated"

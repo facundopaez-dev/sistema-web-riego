@@ -155,7 +155,6 @@ public class IrrigationRecordGenerator {
          * de hoy, la precipitacion del dia de mañana.
          */
         tomorrowClimateLog = ClimateClient.getForecast(currentParcel, (tomorrowDate.getTimeInMillis() / 1000));
-        currentIrrigationRecord.setTomorrowPrecipitation(WaterMath.truncateToThreeDecimals(tomorrowClimateLog.getPrecip()));
 
         /*
          * Si este bloque de codigo fuente se ejecuta es porque

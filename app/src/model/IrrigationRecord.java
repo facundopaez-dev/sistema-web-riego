@@ -43,17 +43,6 @@ public class IrrigationRecord {
   private double irrigationDone;
 
   /*
-   * Precipitacion del dia de mañana [mm/dia]
-   * 
-   * Esta variable es para informar al usuario la precipitacion
-   * del dia de mañana. No se utiliza su valor para calcular la
-   * cantidad de agua de riego para un cultivo, y es establecida
-   * por la aplicacion cuando calcula dicha cantidad.
-   */
-  @Column(name = "TOMORROW_PRECIPITATION", nullable = false)
-  private double tomorrowPrecipitation;
-
-  /*
    * Esta variable representa si un registro de riego es generado
    * por el sistema o por el usuario.
    * 
@@ -169,24 +158,6 @@ public class IrrigationRecord {
   }
 
   /**
-   * Returns value of tomorrowPrecipitation
-   * 
-   * @return
-   */
-  public double getTomorrowPrecipitation() {
-    return tomorrowPrecipitation;
-  }
-
-  /**
-   * Sets new value of tomorrowPrecipitation
-   * 
-   * @param
-   */
-  public void setTomorrowPrecipitation(double tomorrowPrecipitation) {
-    this.tomorrowPrecipitation = tomorrowPrecipitation;
-  }
-
-  /**
    * Returns value of systemGenerated
    * 
    * @return
@@ -261,12 +232,11 @@ public class IrrigationRecord {
   @Override
   public String toString() {
     return String.format(
-        "ID: %d\nFecha de riego: %s\nRiego sugerido: %f [mm/día]\nRiego realizado: %f [mm/día]\nPrecipitación del día de mañana: %f [mm/día]\nGenerado por el sistema: %b\nModificable: %b\nID de parcela: %d\nCultivo: %s\n",
+        "ID: %d\nFecha de riego: %s\nRiego sugerido: %f [mm/día]\nRiego realizado: %f [mm/día]\nGenerado por el sistema: %b\nModificable: %b\nID de parcela: %d\nCultivo: %s\n",
         id,
         UtilDate.formatDate(date),
         suggestedIrrigation,
         irrigationDone,
-        tomorrowPrecipitation,
         systemGenerated,
         modifiable,
         parcel.getId(),
