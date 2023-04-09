@@ -65,7 +65,7 @@ public enum ReasonError {
   INVALID_WIND_SPEED("La velocidad del viento debe ser un valor mayor o igual a 0.0"),
   INVALID_PRECIPITATION_PROBABILITY("La probabilidad de la precipitación debe ser un valor entre 0.0 y 100, incluido"),
   INVALID_PRECIPITATION("La precipitación debe ser un valor mayor o igual 0.0"),
-  INVALID_ACCUMULATED_WATER("El agua acumulada debe ser un valor mayor o igual a 0.0"),
+  INVALID_EXCESS_WATER("El agua excedente debe ser un valor mayor o igual a 0.0"),
   INVALID_CLOUDINESS("La nubosidad debe ser un valor entre 0.0 y 100, incluido"),
   INVALID_ATMOSPHERIC_PRESSURE("La presión atmosférica debe ser un valor mayor a 0.0"),
   INVALID_ETO("La evapotranspiración del cultivo de referencia (ETo) debe ser un valor mayor o igual a 0.0"),

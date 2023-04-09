@@ -283,14 +283,14 @@ public class ClimateRecordRestServlet {
     }
 
     /*
-     * Si el agua acumulada tiene un valor menor a 0.0,
+     * Si el agua excedente tiene un valor menor a 0.0,
      * la aplicacion del lado servidor retorna el mensaje
      * HTTP 400 (Bad request) junto con el mensaje "El
-     * agua acumulada debe ser un valor mayor o igual a
+     * agua excedente debe ser un valor mayor o igual a
      * 0.0" y no se realiza la operacion solicitada
      */
-    if (newClimateRecord.getWaterAccumulated() < 0.0) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_ACCUMULATED_WATER))).build();
+    if (newClimateRecord.getExcessWater() < 0.0) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_EXCESS_WATER))).build();
     }
 
     /*
@@ -544,14 +544,14 @@ public class ClimateRecordRestServlet {
     }
 
     /*
-     * Si el agua acumulada tiene un valor menor a 0.0,
+     * Si el agua excedente tiene un valor menor a 0.0,
      * la aplicacion del lado servidor retorna el mensaje
      * HTTP 400 (Bad request) junto con el mensaje "El
-     * agua acumulada debe ser un valor mayor o igual a
+     * agua excedente debe ser un valor mayor o igual a
      * 0.0" y no se realiza la operacion solicitada
      */
-    if (modifiedClimateRecord.getWaterAccumulated() < 0.0) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_ACCUMULATED_WATER))).build();
+    if (modifiedClimateRecord.getExcessWater() < 0.0) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_EXCESS_WATER))).build();
     }
 
     /*

@@ -115,7 +115,7 @@ app.controller(
       const UNDEFINED_WIND_SPEED = "La velocidad del viento debe estar definida";
       const UNDEFINED_PROBABILITY_PRECIPITATION = "La probabilidad de la precipitación debe estar definida";
       const UNDEFINED_PRECIPITATION = "La precipitación debe estar definida";
-      const UNDEFINED_ACCUMULATED_WATER = "El agua acumulada debe estar definida";
+      const UNDEFINED_EXCESS_WATER = "El agua excedente debe estar definida";
       const UNDEFINED_CLOUDINESS = "La nubosidad debe estar definida";
       const UNDEFINED_ATMOSPHERIC_PRESSURE = "La presión atmosférica debe estar definida";
       const UNDEFINED_DEW_POINT = "El punto de rocío debe estar definido";
@@ -125,7 +125,7 @@ app.controller(
       const INVALID_WIND_SPEED = "La velocidad del viento debe ser un valor mayor o igual a 0.0";
       const INVALID_PRECIPITATION_PROBABILITY = "La probabilidad de la precipitación debe ser un valor entre 0.0 y 100, incluido";
       const INVALID_PRECIPITATION = "La precipitación debe ser un valor mayor o igual 0.0";
-      const INVALID_ACCUMULATED_WATER = "El agua acumulada debe ser un valor mayor o igual a 0.0";
+      const INVALID_EXCESS_WATER = "El agua excedente debe ser un valor mayor o igual a 0.0";
       const INVALID_CLOUDINESS = "La nubosidad debe ser un valor entre 0.0 y 100, incluido";
       const INVALID_ATMOSPHERIC_PRESSURE = "La presión atmosférica debe ser un valor mayor a 0.0";
       const INVALID_ETO = "La evapotranspiración del cultivo de referencia (ETo) debe ser un valor mayor o igual a 0.0";
@@ -195,13 +195,13 @@ app.controller(
           return;
         }
 
-        if ($scope.data.waterAccumulated == undefined) {
-          alert(UNDEFINED_ACCUMULATED_WATER);
+        if ($scope.data.excessWater == undefined) {
+          alert(UNDEFINED_EXCESS_WATER);
           return;
         }
 
-        if ($scope.data.waterAccumulated < 0.0) {
-          alert(INVALID_ACCUMULATED_WATER);
+        if ($scope.data.excessWater < 0.0) {
+          alert(INVALID_EXCESS_WATER);
           return;
         }
 
@@ -343,13 +343,13 @@ app.controller(
           return;
         }
 
-        if ($scope.data.waterAccumulated == undefined) {
-          alert(UNDEFINED_ACCUMULATED_WATER);
+        if ($scope.data.excessWater == undefined) {
+          alert(UNDEFINED_EXCESS_WATER);
           return;
         }
 
-        if ($scope.data.waterAccumulated < 0.0) {
-          alert(INVALID_ACCUMULATED_WATER);
+        if ($scope.data.excessWater < 0.0) {
+          alert(INVALID_EXCESS_WATER);
           return;
         }
 

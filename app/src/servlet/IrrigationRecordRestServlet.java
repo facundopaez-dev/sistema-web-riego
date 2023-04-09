@@ -509,7 +509,7 @@ public class IrrigationRecordRestServlet {
      * al grupo de unidades en el que se le solicita datos meteorologicos.
      */
     yesterdayPrecip = yesterdayClimateLog.getPrecip();
-    waterAccumulatedYesterday = yesterdayClimateLog.getWaterAccumulated();
+    waterAccumulatedYesterday = yesterdayClimateLog.getExcessWater();
 
     totalIrrigationWaterToday = irrigationRecordService.getTotalWaterIrrigationToday(givenParcel);
 

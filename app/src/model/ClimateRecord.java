@@ -167,22 +167,19 @@ public class ClimateRecord {
   private double maximumTemperature;
 
   /*
-   * Cantidad de agua acumulada [milimetros/dia] en el dia de
-   * la fecha para la cual se obtienen los datos meteorologicos,
-   * la cual, es el agua de dicho dia a favor para el dia de
-   * mañana.
+   * Cantidad de agua excedente [mm/dia] en el dia de la fecha
+   * para la cual se obtienen los datos meteorologicos, la cual,
+   * es el agua de dicho dia a favor para el dia de mañana.
    *
    * Este valor se calcula haciendo la diferencia entre la ETc
-   * del dia de ayer o la ETo del dia de ayer (en caso de que
-   * en el dia de ayer no haya habido un cultivo sembrado en
-   * la parcela dada, por ende, la ETc es cero), la cantidad
-   * de agua de lluvia del dia de ayer, la cantidad de agua
-   * acumulada del dia de ayer y la cantidad de agua utilizada
-   * en los riegos realizados en el dia de hoy por parte del
-   * usuario.
+   * o la ETo del dia de ayer (en caso de que la ETc no este
+   * definida, lo cual, ocurre cuando no hay un cultivo sembrado
+   * y en desarrollo en una parcela), la cantidad de agua de
+   * lluvia, la cantidad de agua de riego y la cantidad de agua
+   * excedente del dia de ayer.
    */
-  @Column(name = "WATER_ACCUMULATED", nullable = false)
-  private double waterAccumulated;
+  @Column(name = "EXCESS_WATER", nullable = false)
+  private double excessWater;
 
   /*
    * Evapotranspiracion del cultivo de referencia (ETo)
@@ -440,21 +437,21 @@ public class ClimateRecord {
   }
 
   /**
-   * Returns value of waterAccumulated
+   * Returns value of excessWater
    * 
    * @return
    */
-  public double getWaterAccumulated() {
-    return waterAccumulated;
+  public double getExcessWater() {
+    return excessWater;
   }
 
   /**
-   * Sets new value of waterAccumulated
+   * Sets new value of excessWater
    * 
    * @param
    */
-  public void setWaterAccumulated(double waterAccumulated) {
-    this.waterAccumulated = waterAccumulated;
+  public void setExcessWater(double excessWater) {
+    this.excessWater = excessWater;
   }
 
   /**
@@ -532,7 +529,7 @@ public class ClimateRecord {
   @Override
   public String toString() {
     return String.format(
-        "ID: %d\nLatitud: %f (grados decimales) Longitud: %f (grados decimales)\nFecha: %s\nPrecipitación del día: %f milímetros/día\nProbabilidad de precipitación: %f [porcentaje 0 - 100]\nPunto de rocío: %f °C\nPresión atmosférica: %f hectopascales (milibares)\nVelocidad del viento: %f kilómetros/por hora\nNubosidad: %f [porcentaje 0 - 100]\nTemperatura mínima: %f °C\nTemperatura máxima: %f °C\nCantidad de agua acumulada: %f milímetros/día\nTipos de precipitacion: %s\nModificable: %b\n",
+        "ID: %d\nLatitud: %f (grados decimales) Longitud: %f (grados decimales)\nFecha: %s\nPrecipitación del día: %f milímetros/día\nProbabilidad de precipitación: %f [porcentaje 0 - 100]\nPunto de rocío: %f °C\nPresión atmosférica: %f hectopascales (milibares)\nVelocidad del viento: %f kilómetros/por hora\nNubosidad: %f [porcentaje 0 - 100]\nTemperatura mínima: %f °C\nTemperatura máxima: %f °C\nAgua excedente: %f milímetros/día\nTipos de precipitacion: %s\nModificable: %b\n",
         id,
         parcel.getLatitude(),
         parcel.getLongitude(),
@@ -545,7 +542,7 @@ public class ClimateRecord {
         cloudCover,
         minimumTemperature,
         maximumTemperature,
-        waterAccumulated,
+        excessWater,
         precipTypes,
         modifiable);
   }

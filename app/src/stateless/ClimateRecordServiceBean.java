@@ -200,7 +200,7 @@ public class ClimateRecordServiceBean {
       chosenClimateRecord.setCloudCover(modifiedClimateRecord.getCloudCover());
       chosenClimateRecord.setMinimumTemperature(modifiedClimateRecord.getMinimumTemperature());
       chosenClimateRecord.setMaximumTemperature(modifiedClimateRecord.getMaximumTemperature());
-      chosenClimateRecord.setWaterAccumulated(modifiedClimateRecord.getWaterAccumulated());
+      chosenClimateRecord.setExcessWater(modifiedClimateRecord.getExcessWater());
       chosenClimateRecord.setEto(modifiedClimateRecord.getEto());
       chosenClimateRecord.setEtc(modifiedClimateRecord.getEtc());
       chosenClimateRecord.setParcel(modifiedClimateRecord.getParcel());
@@ -339,18 +339,18 @@ public class ClimateRecordServiceBean {
   }
 
   /**
-   * Establece el agua acumulada del registro climatico
-   * del dia de hoy de una parcela dada
-   *
+   * Establece el agua excedente del registro climatico
+   * correspondiente a una fecha y una parcela
+   * 
    * @param givenDate
    * @param givenParcel
-   * @param waterAccumulated [milimetros]
+   * @param excessWater [mm/dia]
    */
-  public void updateWaterAccumulatedToday(Calendar givenDate, Parcel givenParcel, double waterAccumulated) {
-    Query query = entityManager.createQuery("UPDATE ClimateRecord c SET c.waterAccumulated = :waterAccumulated WHERE (c.date = :givenDate AND c.parcel = :givenParcel)");
+  public void updateWaterAccumulatedToday(Calendar givenDate, Parcel givenParcel, double excessWater) {
+    Query query = entityManager.createQuery("UPDATE ClimateRecord c SET c.excessWater = :excessWater WHERE (c.date = :givenDate AND c.parcel = :givenParcel)");
     query.setParameter("givenDate", givenDate);
     query.setParameter("givenParcel", givenParcel);
-    query.setParameter("waterAccumulated", waterAccumulated);
+    query.setParameter("excessWater", excessWater);
     query.executeUpdate();
   }
 

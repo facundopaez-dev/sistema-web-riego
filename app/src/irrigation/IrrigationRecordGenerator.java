@@ -130,7 +130,7 @@ public class IrrigationRecordGenerator {
          * al grupo de unidades en el que se le solicita datos meteorologicos.
          */
         yesterdayPrecip = yesterdayClimateLog.getPrecip();
-        waterAccumulatedYesterday = yesterdayClimateLog.getWaterAccumulated();
+        waterAccumulatedYesterday = yesterdayClimateLog.getExcessWater();
 
         /*
          * Lo que esta dentro de la sentencia de seleccion se ejecuta
