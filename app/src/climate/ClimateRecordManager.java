@@ -14,6 +14,7 @@ import model.ClimateRecord;
 import model.PlantingRecord;
 import model.Parcel;
 import et.HargreavesEto;
+import et.Etc;
 
 @Stateless
 public class ClimateRecordManager {
@@ -149,14 +150,17 @@ public class ClimateRecordManager {
 
           /*
            * La formula de la evapotranspiracion del cultivo bajo
-           * condiciones estandar (ETc) [mm/dia] es la siguiente:
+           * condiciones estandar (ETc) es la siguiente:
            * 
-           * ETc = kc * ETo
+           * ETc = ETo * Kc
            * 
-           * Esta formula esta en la pagina 6 del libro "Evapotranspiracion
-           * del Cultivo, 56" de la FAO.
+           * ETo: Evapotranspiracion del cultivo de referencia
+           * Kc: Coeficiente de cultivo
+           * 
+           * Esta formula se encuentra en la pagina 6 del libro
+           * "Evapotranspiracion del Cultivo" de la FAO.
            */
-          etc = cropService.getKc(plantingRecord.getCrop(), plantingRecord.getSeedDate()) * eto;
+          etc = Etc.calculateEtc(eto, cropService.getKc(plantingRecord.getCrop(), plantingRecord.getSeedDate()));
         } else {
           etc = 0.0;
         }
