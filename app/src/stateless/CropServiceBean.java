@@ -267,7 +267,6 @@ public class CropServiceBean {
    *
    * @param crop
    * @param seedDate [fecha de siembra de un cultivo dado]
-   * @param currentDate
    * @return numero de punto flotante que representa el kc
    * (coeficiente de cultivo) de un cultivo en funcion de
    * la etapa en la que se encuentra un cultivo en su ciclo
