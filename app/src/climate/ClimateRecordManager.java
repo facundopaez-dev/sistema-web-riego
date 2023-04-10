@@ -1,20 +1,19 @@
 package climate;
 
-import et.PenmanMonteithEto;
 import java.util.Calendar;
 import java.util.Collection;
 import javax.ejb.EJB;
 import javax.ejb.Schedule;
 import javax.ejb.Stateless;
-import model.ClimateRecord;
-import model.PlantingRecord;
-import model.Parcel;
 import stateless.ClimateRecordServiceBean;
 import stateless.CropServiceBean;
 import stateless.PlantingRecordServiceBean;
-import stateless.MaximumInsolationServiceBean;
 import stateless.ParcelServiceBean;
 import stateless.SolarRadiationServiceBean;
+import model.ClimateRecord;
+import model.PlantingRecord;
+import model.Parcel;
+import et.HargreavesEto;
 
 @Stateless
 public class ClimateRecordManager {
@@ -30,10 +29,6 @@ public class ClimateRecordManager {
   // inject a reference to the SolarRadiationServiceBean
   @EJB
   SolarRadiationServiceBean solarService;
-
-  // inject a reference to the MaximumInsolationServiceBean
-  @EJB
-  MaximumInsolationServiceBean insolationService;
 
   // inject a reference to the PlantingRecordServiceBean
   @EJB
@@ -127,19 +122,12 @@ public class ClimateRecordManager {
          */
         climateRecord = ClimateClient.getForecast(currentParcel, unixTime);
 
-        extraterrestrialSolarRadiation = solarService.getRadiation(currentDate.get(Calendar.MONTH), latitude);
-        maximumInsolation = insolationService.getInsolation(currentDate.get(Calendar.MONTH), latitude);
-
         /*
-         * Con los datos meteorologicos obtenidos se calcula la
-         * evapotranspiracion del cultivo de referencia (ETo)
-         * [mm/dia]
+         * Calculo de la evapotranspiracion del cultivo de
+         * referencia (ETo) [mm/dia] en la fecha actual
          */
-        eto = PenmanMonteithEto.calculateEto(climateRecord.getMinimumTemperature(), climateRecord.getMaximumTemperature(),
-            climateRecord.getAtmosphericPressure(), climateRecord.getWindSpeed(),
-            climateRecord.getDewPoint(), extraterrestrialSolarRadiation, maximumInsolation,
-            climateRecord.getCloudCover());
-
+        extraterrestrialSolarRadiation = solarService.getRadiation(currentDate.get(Calendar.MONTH), latitude);
+        eto = HargreavesEto.calculateEto(climateRecord.getMaximumTemperature(), climateRecord.getMinimumTemperature(), extraterrestrialSolarRadiation);
         climateRecord.setEto(eto);
 
         /*
