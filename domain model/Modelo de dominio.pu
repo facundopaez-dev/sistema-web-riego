@@ -90,7 +90,6 @@ class RegistroRiego {
 -fecha
 -riegoSugerido
 -riegoRealizado
--precipitacionMañana
 -generadoSistema
 -modificable
 }
