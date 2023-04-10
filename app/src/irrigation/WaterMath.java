@@ -1,112 +1,70 @@
-/*
- * Esta clase tiene implementada las formulas matematicas
- * necesarias para calcular el riego sugerido del dia de
- * hoy y la cantidad de agua acumulada del dia de hoy,
- * ambos valores en milimetros
- */
-
 package irrigation;
 
 import java.lang.Math;
 
 public class WaterMath {
 
+  /*
+   * El metodo constructor tiene el modificador de acceso 'private'
+   * para que ningun programador trate de instanciar esta clase
+   * desde afuera, ya que todos los metodos publicos de la misma
+   * son estaticos, con lo cual, no se requiere una instancia de
+   * esta clase para invocar a sus metodos publicos
+   */
   private WaterMath() {
 
   }
 
   /**
-   * Calcula el riego sugerido [milimetros] para el dia de hoy en funcion
-   * de la ETc, la ETo, la cantidad de agua de lluvia y la cantidad
-   * de agua acumulada, siendo todos estos valores del dia de ayer
-   *
-   * En pocas palabras, calcula el riego sugerido en milimetros para el
-   * dia de hoy en funcion de lo que ha sucedido en el dia de ayer
-   *
-   * @param  hectares                  [hectareas de la parcela sobre la cual estan plantados los cultivos del usuario cliente]
-   * @param  yesterdayEtc              [ETc del dia de ayer] [milimetros]
-   * @param  yesterdayEto              [ETo del dia de ayer] [milimetros]
-   * @param  yesterdayRainWater        [cantidad de agua de lluvia del dia de ayer] [milimetros]
-   * @param  waterAccumulatedYesterday [cantidad de agua acumulada del dia de ayer] [milimetros]
-   * @return el riego sugerido [milimetros] para el dia de hoy
+   * Calcula la necesidad de agua de riego [mm/dia] de un
+   * cultivo en la fecha actual en base a la ETc (evapotranspiracion
+   * del cultivo bajo condiciones estandar) de la fecha
+   * actual, la precipitacion de la fecha actual, la cantidad
+   * total de agua de riego de la fecha actual y el
+   * agua excedente de ayer
+   * 
+   * @param etcCurrentDate                  [mm/dia]
+   * @param precipitationCurrentDate        [mm/dia]
+   * @param totalIrrigationWaterCurrentDate [mm/dia]
+   * @param excessWaterYesterday            [mm/dia]
+   * @return punto flotante que representa la necesidad de
+   *         agua de riego [mm/dia] de un cultivo en la fecha
+   *         actual
    */
-  public static double getSuggestedIrrigation(double hectares, double yesterdayEtc, double yesterdayEto, double yesterdayRainWater, double waterAccumulatedYesterday,
-  double totalIrrigationWaterToday) {
-    // public static double getSuggestedIrrigation(double yesterdayEtc, double yesterdayEto, double yesterdayRainWater, double waterAccumulatedYesterday, double totalIrrigationWaterToday) {
-
+  public static double calculateIrrigationWaterNeed(double etcCurrentDate, double precipitationCurrentDate,
+      double totalIrrigationWaterCurrentDate, double excessWaterYesterday) {
     /*
-     * Evapotranspiracion del dia de ayer
+     * Si la suma entre la precipitacion de la fecha actual,
+     * la cantidad total de agua de riego de la fecha actual
+     * y el agua excedente de ayer es mayor o igual a la ETc
+     * de la fecha actual, la necesidad de agua de riego de
+     * un cultivo en la fecha actual es 0, ya que si se da
+     * esta condicion, la ETc (milimetros de agua por dia)
+     * de la fecha actual es cubierta
      */
-    double yesterdayEvapotranspiration = 0.0;
-
-    /*
-     * Variable que representa el riego sugerido
-     * para el dia de hoy, el cual esta en milimetros
-     */
-    double suggestedIrrigationToday = 0.0;
-
-    /*
-     * La ETc es cero cuando no hay un cultivo sembrado
-     * en la parcela dada, en cambio es mayor a cero
-     * cuando hay un cultivo sembrado en la parcela dada
-     *
-     * Si la ETc del dia de ayer fue cero (porque no hubo
-     * cultivo plantado en el dia de ayer en la parcela
-     * dada) se utiliza la ETo del dia de ayer para
-     * calcular el riego sugerido para el dia de hoy
-     *
-     * Si la ETc del dia de ayer no fue cero (porque hubo
-     * un cultivo plantado en el dia de ayer en la parcela
-     * dada), entonces se la utiliza para calcular el riego
-     * sugerido para el dia de hoy
-     */
-    if (yesterdayEtc == 0.0) {
-      yesterdayEvapotranspiration = yesterdayEto;
-    } else {
-      yesterdayEvapotranspiration = yesterdayEtc;
+    if ((precipitationCurrentDate + totalIrrigationWaterCurrentDate + excessWaterYesterday) >= etcCurrentDate) {
+      return 0.0;
     }
 
     /*
-     * Si la evapotranspiracion del dia de ayer es mayor que la suma entre
-     * la cantidad de agua de lluvia del dia de ayer, la cantidad de agua
-     * acumulada del dia de ayer y la cantidad total de agua utilizada para
-     * el riego en el dia de hoy, entonces el riego sugerido para el dia de hoy
-     * el riego sugerido para el dia de hoy es igual a la evapotranspiracion del
-     * dia de ayer menos la suma entre la cantidad de agua de lluvia del dia de
-     * ayer, la cantidad de agua acumulada del dia de ayer y la cantidad total
-     * de agua utilizada para el riego en el dia de hoy
-     *
-     * Si la cantidad de agua de lluvia del dia de ayer mas la cantidad
-     * de agua acumulada del dia de ayer mas la cantidad total de agua utilizada
-     * para el riego en el dia de hoy es mayor o igual que la evapotranspiracion
-     * del dia de ayer, entonces el riego sugerido para el dia de hoy es cero porque
-     * la cantidad de agua que expresa la evapotranspiracion del dia de ayer ya esta
-     * suplida por la suma de las cantidades de agua mencionadas
+     * Si la ETc de la fecha actual es mayor a la suma
+     * entre la precipitacion de la fecha actual, la
+     * cantidad total de agua de riego de hoy y el
+     * agua excedente de ayer, la necesidad de agua de
+     * riego de un cultivo en la fecha actual es la
+     * diferencia entre la ETc de la fecha actual y la
+     * suma entre la precipitacion de la fecha actual,
+     * la cantidad total de agua de riego de la fecha
+     * actual y el agua excedente de ayer.
+     * 
+     * Si se da esta condicion, la ETc (milimetros de
+     * agua por dia) de la fecha actual no es cubierta,
+     * por lo tanto, hay una cantidad de agua que debe
+     * ser cubierta mediante agua de riego. Dicha cantidad
+     * se calcula haciendo la diferencia descrita en el
+     * parrafo anterior.
      */
-    // if (yesterdayEvapotranspiration > (yesterdayRainWater + waterAccumulatedYesterday + totalIrrigationWaterToday)) {
-    //   suggestedIrrigationToday = yesterdayEvapotranspiration - (yesterdayRainWater + waterAccumulatedYesterday + totalIrrigationWaterToday);
-    // }
-    //
-    // suggestedIrrigationToday = hectares * suggestedIrrigationToday;
-
-    /*
-     * Necesidad total de riego del cultivo dado
-     *
-     * Este valor es igual a la multiplicacion
-     * entre la cantidad de hectareas de la parcela
-     * dada y la necesidad de riego del cultivo dado, la
-     * cual es igual a la evapotranspiracion del dia
-     * de ayer menos la suma entre la cantidad de agua
-     * de lluvia del dia de ayer y la cantidad de agua
-     * acumulada del dia de ayer
-     */
-    double totalNeedIrrigation = hectares * (yesterdayEvapotranspiration - (yesterdayRainWater + waterAccumulatedYesterday));
-
-    if (totalNeedIrrigation > (yesterdayRainWater + waterAccumulatedYesterday + totalIrrigationWaterToday)) {
-      suggestedIrrigationToday = totalNeedIrrigation - (yesterdayRainWater + waterAccumulatedYesterday + totalIrrigationWaterToday);
-    }
-
-    return truncateToThreeDecimals(suggestedIrrigationToday);
+    return limitToTwoDecimalPlaces(etcCurrentDate - (precipitationCurrentDate + totalIrrigationWaterCurrentDate + excessWaterYesterday));
   }
 
   /**
@@ -173,23 +131,14 @@ public class WaterMath {
   }
 
   /**
-   * @param  givenNumber numero con varias cifras despues del punto decimal
-   * @return numero con una parte entera y tres cifras decimales
+   * Limita la cantidad de decimales de un numero de punto
+   * flotante a dos decimales
+   * 
+   * @param number
+   * @return punto flotante con dos decimales
    */
-  public static double truncateToThreeDecimals(double givenNumber) {
-    /*
-     * Multiplica el numero decimal por 1000 y toma
-     * la parte entera del resultado de la multiplicacion,
-     * lo cual se logra mediante el casteo explicito
-     */
-    int wholeNumber = ((int) (givenNumber * 1000));
-
-    /*
-     * El numero entero resultante de la operacion anterior
-     * es dividido por 1000.0 (double) para tener un numero
-     * con una parte entera y tres cifras decimales
-     */
-    return (wholeNumber / 1000.0);
+  private static double limitToTwoDecimalPlaces(double number) {
+    return (double) Math.round(number * 100d) / 100d;
   }
 
 }

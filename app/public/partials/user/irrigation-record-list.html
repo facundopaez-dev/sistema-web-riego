@@ -114,20 +114,20 @@
 		<thead>
 			<tr>
 				<th>ID</th>
-				<th>Fecha y hora</th>
-				<th>Riego sugerido [mm/día]</th>
+				<th>Fecha</th>
+				<th>Necesidad agua riego [mm/día]</th>
 				<th>Riego realizado [mm/día]</th>
 				<th>Parcela</th>
 				<th>Cultivo</th>
-				<th>Generado por el sistema</th>
+				<th>Gen. por el sistema</th>
 				<th class="text-right"></th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr ng-repeat="i in data">
 				<td>{{i.id}}</td>
-				<td>{{i.date | date:'dd-MM-yyyy HH:mm:ss'}}</td>
-				<td>{{i.suggestedIrrigation}}</td>
+				<td>{{i.date | date:'dd/MM/yyyy'}}</td>
+				<td>{{i.irrigationWaterNeed}}</td>
 				<td>{{i.irrigationDone}}</td>
 				<td>{{i.parcel.name}}</td>
 				<td>{{i.crop.name}}</td>

@@ -511,10 +511,11 @@ public class IrrigationRecordRestServlet {
     yesterdayPrecip = yesterdayClimateLog.getPrecip();
     waterAccumulatedYesterday = yesterdayClimateLog.getExcessWater();
 
-    totalIrrigationWaterToday = irrigationRecordService.getTotalWaterIrrigationToday(givenParcel);
+    totalIrrigationWaterToday = irrigationRecordService.calculateTotalIrrigationWaterCurrentDate(givenParcel);
 
-    waterAccumulatedToday = WaterMath.getWaterAccumulatedToday(yesterdayEtc, yesterdayEto, yesterdayPrecip,
-        waterAccumulatedYesterday, totalIrrigationWaterToday);
+    waterAccumulatedToday = 0.0;
+    // waterAccumulatedToday = WaterMath.getWaterAccumulatedToday(yesterdayEtc, yesterdayEto, yesterdayPrecip,
+    //     waterAccumulatedYesterday, totalIrrigationWaterToday);
     climateRecordServiceBean.updateWaterAccumulatedToday(currentDate, givenParcel, waterAccumulatedToday);
   }
 

@@ -1,19 +1,11 @@
 package servlet;
 
-import climate.ClimateClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import et.PenmanMonteithEto;
-import irrigation.WaterMath;
 import java.io.IOException;
-import java.lang.Math;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -26,21 +18,24 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import stateless.ClimateRecordServiceBean;
+import stateless.CropServiceBean;
+import stateless.IrrigationRecordServiceBean;
+import stateless.MaximumInsolationServiceBean;
+import stateless.PlantingRecordServiceBean;
+import stateless.PlantingRecordStatusServiceBean;
+import stateless.SecretKeyServiceBean;
+import stateless.SolarRadiationServiceBean;
+import climate.ClimateClient;
+import et.HargreavesEto;
+import et.Etc;
+import irrigation.WaterMath;
 import model.ClimateRecord;
 import model.Crop;
 import model.IrrigationRecord;
 import model.Parcel;
 import model.PlantingRecord;
 import model.PlantingRecordStatus;
-import stateless.ClimateRecordServiceBean;
-import stateless.CropServiceBean;
-import stateless.IrrigationRecordServiceBean;
-import stateless.MaximumInsolationServiceBean;
-import stateless.ParcelServiceBean;
-import stateless.PlantingRecordServiceBean;
-import stateless.PlantingRecordStatusServiceBean;
-import stateless.SecretKeyServiceBean;
-import stateless.SolarRadiationServiceBean;
 import util.ErrorResponse;
 import util.ReasonError;
 import util.RequestManager;
@@ -55,7 +50,7 @@ public class PlantingRecordRestServlet {
   @EJB PlantingRecordServiceBean plantingRecordService;
 
   // inject a reference to the ClimateRecordServiceBean
-  @EJB ClimateRecordServiceBean climateRecordServiceBean;
+  @EJB ClimateRecordServiceBean climateRecordService;
 
   // inject a reference to the CropServiceBean
   @EJB CropServiceBean cropService;
@@ -65,9 +60,6 @@ public class PlantingRecordRestServlet {
 
   // inject a reference to the PlantingRecordStatusServiceBean
   @EJB PlantingRecordStatusServiceBean statusService;
-
-  // inject a reference to the ParcelServiceBean slsb
-  @EJB ParcelServiceBean serviceParcel;
 
   // inject a reference to the SolarRadiationServiceBean
   @EJB SolarRadiationServiceBean solarService;
@@ -594,90 +586,190 @@ public class PlantingRecordRestServlet {
   }
 
   @GET
-  @Path("/suggestedIrrigation/{id}")
+  @Path("/irrigationWaterNeed/{id}")
   @Produces(MediaType.APPLICATION_JSON)
-  public String getSuggestedIrrigation(@PathParam("id") int id) throws IOException {
-    PlantingRecord givenPlantingRecord = plantingRecordService.find(id);
-    Parcel parcel = givenPlantingRecord.getParcel();
-    double suggestedIrrigationToday = 0.0;
-
-    ClimateRecord yesterdayClimateLog = null;
-    double yesterdayEto = 0.0;
-    double yesterdayEtc = 0.0;
-    double extraterrestrialSolarRadiation = 0.0;
-    double maximumInsolation = 0.0;
+  public Response calculateIrrigationWaterNeed(@Context HttpHeaders request, @PathParam("id") int plantingRecordId) throws IOException {
+    Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
 
     /*
-     * Fecha actual del sistema
+     * Si el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP NO
+     * es ACCEPTED, se devuelve el estado de error de la misma.
+     * 
+     * Que el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP sea
+     * ACCEPTED, significa que la peticion es valida,
+     * debido a que el encabezado de autorizacion de la misma
+     * cumple las siguientes condiciones:
+     * - Esta presente.
+     * - No esta vacio.
+     * - Cumple con la convencion de JWT.
+     * - Contiene un JWT valido.
      */
-    Calendar currentDate = Calendar.getInstance();
-
-    /*
-     * Fecha del dia de mañana para solicitar la precipitacion
-     * del dia de mañana
-     */
-    Calendar tomorrowDate = UtilDate.getTomorrowDate();
-
-    /*
-     * Solicita el registro del clima del dia de mañana
-     */
-    ClimateRecord tomorrowClimateLog = ClimateClient.getForecast(parcel, (tomorrowDate.getTimeInMillis() / 1000));
-
-    /*
-     * Fecha del dia inmediatamente anterior a la fecha
-     * actual del sistema
-     */
-    Calendar yesterdayDate = UtilDate.getYesterdayDate();
-
-    /*
-     * Cantidad total de agua utilizada en los riegos
-     * realizados en el dia de hoy
-     */
-    double totalIrrigationWaterToday = irrigationRecordService.getTotalWaterIrrigationToday(parcel);
-
-    /*
-     * Si el registro climatico del dia de ayer no existe en
-     * la base de datos, se lo tiene que pedir y se lo tiene
-     * que persistir en la base de datos subyacente
-     */
-    if (!(climateRecordServiceBean.checkExistence(yesterdayDate, parcel))) {
-      yesterdayClimateLog = ClimateClient.getForecast(parcel, (yesterdayDate.getTimeInMillis() / 1000));
-
-      extraterrestrialSolarRadiation = solarService.getRadiation(yesterdayDate.get(Calendar.MONTH), parcel.getLatitude());
-      maximumInsolation = insolationService.getInsolation(yesterdayDate.get(Calendar.MONTH), parcel.getLatitude());
-
-      /*
-       * Evapotranspiracion del cultivo de referencia (ETo) con las
-       * condiciones climaticas del registro climatico del dia de ayer
-       */
-      yesterdayEto = PenmanMonteithEto.calculateEto(yesterdayClimateLog.getMinimumTemperature(), yesterdayClimateLog.getMaximumTemperature(), yesterdayClimateLog.getAtmosphericPressure(), yesterdayClimateLog.getWindSpeed(),
-        yesterdayClimateLog.getDewPoint(), extraterrestrialSolarRadiation, maximumInsolation, yesterdayClimateLog.getCloudCover());
-
-      /*
-       * Evapotranspiracion del cultivo bajo condiciones esntandar (ETc)
-       * del cultivo dado con la ETo del dia de ayer
-       */
-      yesterdayEtc = cropService.getKc(givenPlantingRecord.getCrop(), givenPlantingRecord.getSeedDate()) * yesterdayEto;
-
-      yesterdayClimateLog.setEto(yesterdayEto);
-      yesterdayClimateLog.setEtc(yesterdayEtc);
-      yesterdayClimateLog.setParcel(parcel);
-      climateRecordServiceBean.create(yesterdayClimateLog);
+    if (!RequestManager.isAccepted(givenResponse)) {
+      return givenResponse;
     }
 
     /*
-     * Recupera el registro climatico de la parcela
-     * de la fecha anterior a la fecha actual
+     * Si el dato solicitado no existe en la base de datos
+     * subyacente, la aplicacion del lado servidor devuelve
+     * el mensaje HTTP 404 (Not found) junto con el mensaje
+     * "Recurso no encontrado" y no se realiza la operacion
+     * solicitada
      */
-    ClimateRecord climateLog = climateRecordServiceBean.find(yesterdayDate, parcel);
-    suggestedIrrigationToday = WaterMath.getSuggestedIrrigation(parcel.getHectares(), climateLog.getEtc(), climateLog.getEto(), climateLog.getPrecip(), climateLog.getExcessWater(), totalIrrigationWaterToday);
+    if (!plantingRecordService.checkExistence(plantingRecordId)) {
+      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
+    }
+
+    /*
+     * Obtiene el JWT del valor del encabezado de autorizacion
+     * de una peticion HTTP
+     */
+    String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
+
+    /*
+     * Obtiene el ID de usuario contenido en la carga util del
+     * JWT del encabezado de autorizacion de una peticion HTTP
+     */
+    int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si al usuario que hizo esta peticion HTTP, no le pertenece
+     * el dato solicitado, la aplicacion del lado servidor
+     * devuelve el mensaje HTTP 403 (Forbidden) junto con el
+     * mensaje "Acceso no autorizado" (contenido en el enum
+     * ReasonError) y no se realiza la operacion solicitada
+     */
+    if (!plantingRecordService.checkUserOwnership(userId, plantingRecordId)) {
+      return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
+    }
+
+    /*
+     * **********************************************
+     * Calculo de la necesidad de agua de riego de un
+     * cultivo en la fecha actual
+     * **********************************************
+     */
+
+    PlantingRecord givenPlantingRecord = plantingRecordService.find(plantingRecordId);
+    Parcel givenParcel = givenPlantingRecord.getParcel();
+    ClimateRecord currentClimateRecord = null;
+
+    /*
+     * El metodo getInstance de la clase Calendar retorna
+     * la referencia a un objeto de tipo Calendar que
+     * contiene la fecha actual
+     */
+    Calendar currentDate = Calendar.getInstance();
+
+    double extraterrestrialSolarRadiation = 0.0;
+    double etoCurrentDate = 0.0;
+    double etcCurrentDate = 0.0;
+    double totalIrrigationWaterCurrentDate = 0.0;
+    double irrigationWaterNeedCurrentDate = 0.0;
+    double excessWaterYesterday = 0.0;
+
+    /*
+     * Si el registro climatico del dia inmediatamente anterior
+     * a la fecha actual de una parcela, existe, se obtiene el
+     * agua excedente de dicho dia. En caso contrario, se asume
+     * que el agua excedente del dia inmediatamente anterior a
+     * la fecha actual es 0.
+     */
+    if (climateRecordService.checkExistence(UtilDate.getTomorrowDate(), givenParcel)) {
+      excessWaterYesterday = climateRecordService.find(UtilDate.getYesterdayDate(), givenParcel).getExcessWater();
+    }
+
+    /*
+     * Si en la base de datos existe el registro climatico de
+     * la fecha actual para la parcela dada, se utiliza su ETc
+     * (evapotranspiracion del cultivo bajo condiciones estandar)
+     * para calcular la necesidad de agua de riego de un cultivo
+     * en la fecha actual.
+     * 
+     * El metodo automatico getCurrentWeatherDataset de la clase
+     * ClimateRecordManager se ocupa de obtener y persistir los datos
+     * meteorologicos de cada dia para todas las parcelas activas
+     * de la base de datos subyacente. Ademas, de esto calcula
+     * la ETo (evapotranspiracion del cultivo de referencia) y
+     * la ETc (evapotranspiracion del cultivo bajo condiciones
+     * estandar) de cada registro climatico que persiste.
+     * 
+     * El metodo getCurrentWeatherDataset calcula la ETc si la
+     * parcela para la que obtiene y persiste datos meteorologicos,
+     * tiene un cultivo sembrado y en desarrollo.
+     */
+    if (climateRecordService.checkExistence(currentDate, givenParcel)) {
+      currentClimateRecord = climateRecordService.find(currentDate, givenParcel);
+
+      /*
+       * Calculo de la necesidad de agua de riego de
+       * un cultivo en la fecha actual
+       */
+      totalIrrigationWaterCurrentDate = irrigationRecordService.calculateTotalIrrigationWaterCurrentDate(givenParcel);
+      irrigationWaterNeedCurrentDate = WaterMath.calculateIrrigationWaterNeed(currentClimateRecord.getEtc(),
+          currentClimateRecord.getPrecip(), totalIrrigationWaterCurrentDate, excessWaterYesterday);
+    }
+
+    /*
+     * Si en la base de datos subyacente NO existe el registro
+     * climatico de la fecha actual para la parcela dada, se lo
+     * solicita al servicio metereologico utilizado y se lo persiste.
+     * 
+     * Se hace esto porque lo que se busca con este metodo REST
+     * es calcular la necesidad de agua de riego de un cultivo
+     * en la fecha actual. Para esto se debe calcular la ETc
+     * (evapotranspiracion del cultivo bajo condiciones estandar)
+     * de la fecha actual, con lo cual, se la debe calcular con
+     * datos meteorologicos de la fecha actual.
+     */
+    if (!climateRecordService.checkExistence(currentDate, givenParcel)) {
+      currentClimateRecord = climateRecordService.persistCurrentClimateRecord(givenParcel);
+
+      /*
+       * Calculo de la evapotranspiracion del cultivo
+       * de referencia (ETo) de la fecha actual
+       */
+      extraterrestrialSolarRadiation = solarService.getRadiation(currentDate.get(Calendar.MONTH), givenParcel.getLatitude());
+      etoCurrentDate = HargreavesEto.calculateEto(currentClimateRecord.getMaximumTemperature(),
+          currentClimateRecord.getMinimumTemperature(), extraterrestrialSolarRadiation);
+
+      /*
+       * Calculo de la evapotranspiracion del cultivo
+       * bajo condiciones estandar (ETc) de la fecha
+       * actual
+       */
+      etcCurrentDate = Etc.calculateEtc(etoCurrentDate, cropService.getKc(givenPlantingRecord.getCrop(), givenPlantingRecord.getSeedDate()));
+
+      /*
+       * Calculo de la necesidad de agua de riego de
+       * un cultivo en la fecha actual
+       */
+      totalIrrigationWaterCurrentDate = irrigationRecordService.calculateTotalIrrigationWaterCurrentDate(givenParcel);
+      irrigationWaterNeedCurrentDate = WaterMath.calculateIrrigationWaterNeed(etcCurrentDate,
+          currentClimateRecord.getPrecip(), totalIrrigationWaterCurrentDate, excessWaterYesterday);
+
+      /*
+       * Actualiza los atributos eto y etc del registro
+       * climatico actual ya obtenido y persistido
+       */
+      currentClimateRecord.setEto(etoCurrentDate);
+      currentClimateRecord.setEtc(etcCurrentDate);
+      climateRecordService.modify(userId, currentClimateRecord.getId(), currentClimateRecord);
+    }
 
     IrrigationRecord newIrrigationRecord = new IrrigationRecord();
     newIrrigationRecord.setDate(currentDate);
-    newIrrigationRecord.setSuggestedIrrigation(suggestedIrrigationToday);
-    newIrrigationRecord.setParcel(parcel);
+    newIrrigationRecord.setIrrigationWaterNeed(irrigationWaterNeedCurrentDate);
+    newIrrigationRecord.setParcel(givenParcel);
 
-    return mapper.writeValueAsString(newIrrigationRecord);
+    /*
+     * Si el valor del encabezado de autorizacion de la peticion HTTP
+     * dada, tiene un JWT valido, la aplicacion del lado servidor
+     * devuelve el mensaje HTTP 200 (Ok) junto con los datos
+     * pertinentes
+     */
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(newIrrigationRecord)).build();
   }
 
 }

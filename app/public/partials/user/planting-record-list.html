@@ -134,7 +134,7 @@
           <div class="btn-group" role="group" aria-label="...">
             <button type="button" class="btn btn-success" aria-label="Calcular" data-toggle="modal"
               data-target="#IrrigationModal" ng-show="{{p.status.name == 'En desarrollo'}}"
-              ng-click="calculateSuggestedIrrigation(p.id)">Calcular
+              ng-click="calculateIrrigationWaterNeed(p.id)">Calcular
             </button>
             <a href="#!/home/plantingRecords/view/{{p.id}}" class="btn btn-success" role="button">
               <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
@@ -150,7 +150,7 @@
   </table>
 </div>
 
-<!-- Panel para el riego realizado y el calculo del riego sugerido -->
+<!-- Panel para la necesidad de agua de riego y el riego realizado -->
 <div class="modal fade" id="IrrigationModal" tabindex="-1" role="dialog" aria-labelledby="irrigationModalCenterTitle"
   aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
@@ -196,12 +196,12 @@
           </div>
 
           <div class="form-group">
-            <label for="suggestedIrrigation" class="col-md-3 control-label">
-              <p class="text-right">Riego sugerido para hoy [mm/día]</p>
+            <label for="irrigationWaterNeed" class="col-md-3 control-label">
+              <p class="text-right">Necesidad de agua de riego de hoy [mm/día]</p>
             </label>
             <div class="col-md-4">
-              <input type="number" class="form-control" id="suggestedIrrigation"
-                ng-model="irrigationRecord.suggestedIrrigation" ng-disabled="true">
+              <input type="number" class="form-control" id="irrigationWaterNeed"
+                ng-model="irrigationRecord.irrigationWaterNeed" ng-disabled="true">
             </div>
           </div>
 

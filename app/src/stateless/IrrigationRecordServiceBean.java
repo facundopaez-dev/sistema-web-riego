@@ -199,31 +199,29 @@ public class IrrigationRecordServiceBean {
   }
 
   /**
-   * @param  givenParcel
-   * @return la cantidad total de agua utilizada para el riego
-   * (de un cultivo dado) por el usuario cliente en la parcela
-   * dada y en la fecha actual del sistema
+   * @param givenParcel
+   * @return punto flotante que representa la cantidad total de
+   *         agua de riego utilizada para un cultivo en la fecha
+   *         actual
    */
-  public double getTotalWaterIrrigationToday(Parcel givenParcel) {
+  public double calculateTotalIrrigationWaterCurrentDate(Parcel givenParcel) {
     /*
-     * Fecha actual del sistema
-     */
-    Calendar currentDate = Calendar.getInstance();
-
-    /*
-     * Suma cada riego realizado, por parte del usuario cliente,
-     * para un cultivo dado, de la parcela dada en la fecha
-     * actual
+     * Suma el riego realizado de cada uno de los registros
+     * de riego de una parcela en la fecha actual.
+     * 
+     * El metodo getInstance de la clase Calendar retorna la
+     * referencia a un objeto de tipo Calendar que contiene
+     * la fecha actual.
      */
     Query query = entityManager.createQuery("SELECT SUM(i.irrigationDone) FROM IrrigationRecord i WHERE (i.date = :currentDate AND i.parcel = :givenParcel)");
-    query.setParameter("currentDate", currentDate);
+    query.setParameter("currentDate", Calendar.getInstance());
     query.setParameter("givenParcel", givenParcel);
 
     double result = 0.0;
 
     try {
       result = (double) query.getSingleResult();
-    } catch(NullPointerException e) {
+    } catch (NullPointerException e) {
       e.printStackTrace();
     }
 

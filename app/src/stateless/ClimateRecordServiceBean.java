@@ -1,16 +1,17 @@
 package stateless;
 
-import java.util.Calendar;
-import java.util.Collection;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.lang.NullPointerException;
+import java.util.Calendar;
+import java.util.Collection;
 import model.ClimateRecord;
 import model.Parcel;
 import util.UtilDate;
+import climate.ClimateClient;
 
 @Stateless
 public class ClimateRecordServiceBean {
@@ -478,6 +479,29 @@ public class ClimateRecordServiceBean {
     Query query = entityManager.createQuery("UPDATE ClimateRecord c SET c.modifiable = 0 WHERE c.id = :givenId");
     query.setParameter("givenId", id);
     query.executeUpdate();
+  }
+
+  /**
+   * Obtiene y persiste el registro climatico de la fecha actual.
+   * Este metodo es para el metodo calculateIrrigationWaterNeed
+   * de la clase PlantingRecordRestServlet.
+   * 
+   * @param givenParcel
+   * @return referencia a un objeto de tipo ClimateRecord que
+   * representa el registro climatico de la fecha actual
+   */
+  public ClimateRecord persistCurrentClimateRecord(Parcel givenParcel) {
+    /*
+     * El metodo getInstance de la clase Calendar retorna la
+     * referencia a un objeto de tipo Calendar que contiene
+     * la fecha actual. Se divide el tiempo en milisegundos
+     * de la fecha actual entre 1000 porque el metodo estatico
+     * getForecast de la clase ClimateClient utiliza el tiempo
+     * en formato UNIX, el cual, son los segundos trancurridos
+     * desde el 1 de enero de 1970 (epoca).
+     */
+    ClimateRecord currentClimateRecord = ClimateClient.getForecast(givenParcel, (Calendar.getInstance().getTimeInMillis() / 1000));
+    return create(currentClimateRecord);
   }
 
 }

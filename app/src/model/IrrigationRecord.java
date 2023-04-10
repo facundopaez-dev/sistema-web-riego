@@ -23,14 +23,14 @@ public class IrrigationRecord {
   private int id;
 
   @Column(name = "DATE", nullable = false)
-  @Temporal(TemporalType.TIMESTAMP)
+  @Temporal(TemporalType.DATE)
   private Calendar date;
 
   /*
-   * Riego sugerido [mm/dia]
+   * Necesidad de agua de riego [mm/dia] de un cultivo
    */
-  @Column(name = "SUGGESTED_IRRIGATION", nullable = false)
-  private double suggestedIrrigation;
+  @Column(name = "IRRIGATION_WATER_NEED", nullable = false)
+  private double irrigationWaterNeed;
 
   /*
    * Riego realizado [mm/dia]
@@ -49,11 +49,6 @@ public class IrrigationRecord {
    * Si un registro de riego tiene su atributo systemGenerated
    * en 1, significa que fue generado por el sistema. En caso
    * contrario, significa que fue generado por el usuario.
-   * 
-   * El riego sugerido y la precipitacion del dia de mañana
-   * en un registro de riego generado por el usuario tienen
-   * el valor 0, ya que estos valores son generados por la
-   * aplicacion cuando crea un registro de riego.
    */
   @Column(name = "SYSTEM_GENERATED", nullable = false)
   private boolean systemGenerated;
@@ -122,21 +117,21 @@ public class IrrigationRecord {
   }
 
   /**
-   * Returns value of suggestedIrrigation
+   * Returns value of irrigationWaterNeed
    * 
    * @return
    */
-  public double getSuggestedIrrigation() {
-    return suggestedIrrigation;
+  public double getIrrigationWaterNeed() {
+    return irrigationWaterNeed;
   }
 
   /**
-   * Sets new value of suggestedIrrigation
+   * Sets new value of irrigationWaterNeed
    * 
    * @param
    */
-  public void setSuggestedIrrigation(double suggestedIrrigation) {
-    this.suggestedIrrigation = suggestedIrrigation;
+  public void setIrrigationWaterNeed(double irrigationWaterNeed) {
+    this.irrigationWaterNeed = irrigationWaterNeed;
   }
 
   /**
@@ -232,10 +227,10 @@ public class IrrigationRecord {
   @Override
   public String toString() {
     return String.format(
-        "ID: %d\nFecha de riego: %s\nRiego sugerido: %f [mm/día]\nRiego realizado: %f [mm/día]\nGenerado por el sistema: %b\nModificable: %b\nID de parcela: %d\nCultivo: %s\n",
+        "ID: %d\nFecha: %s\nNecesidad de agua de riego: %f [mm/día]\nRiego realizado: %f [mm/día]\nGenerado por el sistema: %b\nModificable: %b\nID de parcela: %d\nCultivo: %s\n",
         id,
         UtilDate.formatDate(date),
-        suggestedIrrigation,
+        irrigationWaterNeed,
         irrigationDone,
         systemGenerated,
         modifiable,

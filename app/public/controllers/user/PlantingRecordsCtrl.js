@@ -64,8 +64,8 @@ app.controller(
 				})
 			}
 
-			$scope.calculateSuggestedIrrigation = function (id) {
-				plantingRecordSrv.calculateSuggestedIrrigation(id, function (error, irrigationRecord) {
+			$scope.calculateIrrigationWaterNeed = function (id) {
+				plantingRecordSrv.calculateIrrigationWaterNeed(id, function (error, irrigationRecord) {
 					if (error) {
 						console.log(error);
 						errorResponseManager.checkResponse(error);
@@ -73,8 +73,8 @@ app.controller(
 					}
 
 					/*
-					Si esta instruccion no esta, no se puede ver el riego
-					sugerido en el modal
+					Si esta instruccion no esta, no se puede ver la
+					necesidad de agua de riego en el modal
 					*/
 					$scope.irrigationRecord = irrigationRecord;
 				});
@@ -82,7 +82,7 @@ app.controller(
 
 			$scope.saveIrrigationRecord = function () {
 				if ($scope.irrigationRecord.irrigationDone >= 0) {
-					irrigationRecordService.save($scope.irrigationRecord, function (error, irrigationRecord) {
+					irrigationRecordService.create($scope.irrigationRecord, function (error, irrigationRecord) {
 						if (error) {
 							console.log(error);
 							errorResponseManager.checkResponse(error);

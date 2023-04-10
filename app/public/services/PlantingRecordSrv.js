@@ -41,8 +41,8 @@ app.service("PlantingRecordSrv", ["$http", function ($http) {
         });
   };
 
-  this.calculateSuggestedIrrigation = function (id, callback) {
-    $http.get("rest/plantingRecords/suggestedIrrigation/" + id).then(
+  this.calculateIrrigationWaterNeed = function (id, callback) {
+    $http.get("rest/plantingRecords/irrigationWaterNeed/" + id).then(
       function (result) {
         callback(false, result.data);
       },
