@@ -68,66 +68,43 @@ public class WaterMath {
   }
 
   /**
-   * Calcula la cantidad de agua acumulada [milimetros] del dia hoy
-   * en funcion de la ETc, la ETo (en caso de que la ETc sea cero, lo cual
-   * se debe a que no hubo un cultivo sembrado en el dia de ayer en la
-   * parcela dada), la cantidad de agua de lluvia, la cantidad de agua
-   * acumulada (siendo todos estos valores del dia de ayer) y la cantidad
-   * total de agua de riego utilizada en el dia de hoy
-   *
-   * @param  yesterdayEtc              [ETc del dia de ayer] [milimetros]
-   * @param  yesterdayEto              [ETo del dia de ayer] [milimetros]
-   * @param  yesterdayRainWater        [cantidad de agua de lluvia del dia de ayer] [milimetros]
-   * @param  waterAccumulatedYesterday [cantidad de agua acumulada del dia de ayer] [milimetros]
-   * @param  totalIrrigationWaterToday [cantidad total de agua utilizada en los riegos del dia de hoy] [milimetros]
-   * @return la cantidad de agua [milimetros] acumulada en el dia
-   * de hoy, la cual es la cantidad de agua a favor del dia de hoy
-   * para el dia de mañana
+   * Calcula el agua excedente [mm/dia] de una fecha dada
+   * en base a la ETc (evapotranspiracion del cultivo bajo
+   * condiciones estandar), la precipitacion, la cantidad
+   * total de agua de riego y el agua excedente de ayer,
+   * debiendo ser los primeros tres valores de una misma
+   * fecha.
+   * 
+   * @param etcGivenDate             [mm/dia]
+   * @param precipitationGivenDate   [mm/dia]
+   * @param totalIrrigationGivenDate [mm/dia]
+   * @param excessWaterYesterday     [mm/dia]
+   * @return punto flotante que representa el agua
+   *         excedente [mm/dia] de una fecha dada
    */
-  public static double getWaterAccumulatedToday(double yesterdayEtc, double yesterdayEto, double yesterdayRainWater,
-  double waterAccumulatedYesterday, double totalIrrigationWaterToday) {
-
-    double yesterdayEvapotranspiration = 0.0;
-    double waterAccumulatedToday = 0.0;
-
+  public static double calculateExcessWater(double etcGivenDate, double precipitationGivenDate,
+      double totalIrrigationGivenDate, double excessWaterYesterday) {
     /*
-     * La ETc es cero cuando no hay un cultivo sembrado
-     * en la parcela dada, en cambio es mayor a cero
-     * cuando hay un cultivo sembrado en la parcela dada
-     *
-     * Si la ETc del dia de ayer fue cero (porque no hubo
-     * cultivo plantado en el dia de ayer en la parcela
-     * dada) se utiliza la ETo del dia de ayer para
-     * calcular la cantidad de agua acumulada del dia
-     * de hoy, la cual es agua a favor del dia de hoy
-     * para el dia de mañana
-     *
-     * Si la ETc del dia de ayer no fue cero (porque hubo
-     * un cultivo plantado en el dia de ayer en la parcela
-     * dada), entonces se la utiliza para calcular la cantidad
-     * de agua acumulada del dia de hoy, la cual es agua a favor
-     * del dia de hoy para el dia de mañana
+     * Si la suma entre la precipitacion, la cantidad total
+     * de agua de riego y el agua excedente de ayer es mayor
+     * a la ETc (siendo esta y los dos primeros valores de una
+     * misma fecha), hay agua excedente [mm/dia] en una fecha
+     * dada. El agua excedente de una fecha dada se calcula
+     * haciendo la diferencia entre la suma de la precipitacion,
+     * la cantidad total de agua de riego y el agua excedente
+     * de ayer, y la ETc.
      */
-    if (yesterdayEtc == 0.0) {
-      yesterdayEvapotranspiration = yesterdayEto;
-    } else {
-      yesterdayEvapotranspiration = yesterdayEtc;
+    if ((precipitationGivenDate + totalIrrigationGivenDate + excessWaterYesterday) > etcGivenDate) {
+      return limitToTwoDecimalPlaces((precipitationGivenDate + totalIrrigationGivenDate + excessWaterYesterday) - etcGivenDate);
     }
 
     /*
-     * Si el agua de lluvia del dia de ayer mas la cantidad de agua
-     * acumulada del dia de ayer mas la cantidad total de agua utilizada
-     * en el riego del dia de hoy es mayor que la evapotranspiracion del
-     * dia de ayer, entonces la cantidad de agua acumulada [milimetros]
-     * del dia de hoy (la cual es agua a favor para mañana) es la
-     * diferencia entre la suma de las cantidades de agua mencionadas
-     * y la evapotranspiracion del dia de ayer
+     * Si la ETc es mayor o igual a la suma de la precipitacion,
+     * la cantidad total de agua de riego y el agua excedente de
+     * ayer, NO hay agua excedente [mm/dia] en una fecha dada.
+     * Por lo tanto, el agua excedente de una fecha dada es 0.
      */
-    if ((yesterdayRainWater + waterAccumulatedYesterday + totalIrrigationWaterToday) > yesterdayEvapotranspiration) {
-      waterAccumulatedToday = (yesterdayRainWater + waterAccumulatedYesterday + totalIrrigationWaterToday) - yesterdayEvapotranspiration;
-    }
-
-    return waterAccumulatedToday;
+    return 0.0;
   }
 
   /**
