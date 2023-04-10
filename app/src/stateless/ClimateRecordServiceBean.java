@@ -340,14 +340,14 @@ public class ClimateRecordServiceBean {
   }
 
   /**
-   * Establece el agua excedente del registro climatico
+   * Actualiza el agua excedente del registro climatico
    * correspondiente a una fecha y una parcela
    * 
    * @param givenDate
    * @param givenParcel
    * @param excessWater [mm/dia]
    */
-  public void updateWaterAccumulatedToday(Calendar givenDate, Parcel givenParcel, double excessWater) {
+  public void updateExcessWater(Calendar givenDate, Parcel givenParcel, double excessWater) {
     Query query = entityManager.createQuery("UPDATE ClimateRecord c SET c.excessWater = :excessWater WHERE (c.date = :givenDate AND c.parcel = :givenParcel)");
     query.setParameter("givenDate", givenDate);
     query.setParameter("givenParcel", givenParcel);

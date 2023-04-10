@@ -516,7 +516,7 @@ public class IrrigationRecordRestServlet {
     waterAccumulatedToday = 0.0;
     // waterAccumulatedToday = WaterMath.getWaterAccumulatedToday(yesterdayEtc, yesterdayEto, yesterdayPrecip,
     //     waterAccumulatedYesterday, totalIrrigationWaterToday);
-    climateRecordServiceBean.updateWaterAccumulatedToday(currentDate, givenParcel, waterAccumulatedToday);
+    climateRecordServiceBean.updateExcessWater(currentDate, givenParcel, waterAccumulatedToday);
   }
 
 }
