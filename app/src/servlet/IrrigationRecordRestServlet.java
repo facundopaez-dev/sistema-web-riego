@@ -316,15 +316,6 @@ public class IrrigationRecordRestServlet {
      * cliente solicito persistir
      */
     return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(irrigationRecordService.create(newIrrigationRecord))).build();
-
-    /*
-     * TODO: Esto tiene que ser activado en el despliegue
-     * final de la aplicacion cuando este listo y en
-     * funcionamiento el modulo que obtiene y almacena
-     * los registros climaticos de cada parcela para
-     * cada dia del año
-     */
-    // setWaterAccumulatedToday(newIrrigationRecord.getParcel());
   }
 
   @PUT
@@ -460,63 +451,6 @@ public class IrrigationRecordRestServlet {
      */
     return Response.status(Response.Status.OK).
       entity(mapper.writeValueAsString(irrigationRecordService.modify(userId, irrigationRecordId, modifiedIrrigationRecord))).build();
-  }
-
-  /**
-   * Establece la cantidad de agua acumulada en el registro
-   * climatico del dia de hoy haciendo uso de la cantidad
-   * de agua de lluvia del dia de ayer, de la cantidad de
-   * agua acumulada del dia de ayer (agua a favor para el
-   * dia de hoy), de la ETc del dia de ayer, de la ETo
-   * del dia de ayer (en caso de que la ETc sea igual cero
-   * debido a que ayer no haya habido un cultivo sembrado
-   * en la parcela dada) y de la cantidad total de agua
-   * utilizada en el riego del dia de hoy
-   *
-   * @param givenParcel
-   */
-  private void setWaterAccumulatedToday(Parcel givenParcel) {
-    double yesterdayEto = 0.0;
-    double yesterdayEtc = 0.0;
-    double yesterdayPrecip = 0.0;
-    double waterAccumulatedYesterday = 0.0;
-    double totalIrrigationWaterToday = 0.0;
-    double waterAccumulatedToday = 0.0;
-
-    /*
-     * Fecha actual para actualizar el atributo
-     * agua acumulada del dia de hoy del registro
-     * climatico del dia de hoy (por esto la fecha
-     * actual) de la parcela dada
-     */
-    Calendar currentDate = Calendar.getInstance();
-
-    /*
-     * Fecha inmediatamente anterior a la fecha actual
-     * para recuperar, de la base de datos, el registro
-     * climatico del dia de ayer
-     */
-    Calendar yesterdayDate = UtilDate.getYesterdayDate();
-
-    ClimateRecord yesterdayClimateLog = climateRecordServiceBean.find(yesterdayDate, givenParcel);
-    yesterdayEto = yesterdayClimateLog.getEto();
-    yesterdayEtc = yesterdayClimateLog.getEtc();
-
-    /*
-     * El atributo precip del modelo de datos ClimateRecord representa
-     * la precipitacion del dia en milimetros. La unidad en la que se
-     * mide este dato corresponde a la API Visual Crossing Weather y
-     * al grupo de unidades en el que se le solicita datos meteorologicos.
-     */
-    yesterdayPrecip = yesterdayClimateLog.getPrecip();
-    waterAccumulatedYesterday = yesterdayClimateLog.getExcessWater();
-
-    totalIrrigationWaterToday = irrigationRecordService.calculateTotalIrrigationWaterCurrentDate(givenParcel);
-
-    waterAccumulatedToday = 0.0;
-    // waterAccumulatedToday = WaterMath.getWaterAccumulatedToday(yesterdayEtc, yesterdayEto, yesterdayPrecip,
-    //     waterAccumulatedYesterday, totalIrrigationWaterToday);
-    climateRecordServiceBean.updateExcessWater(currentDate, givenParcel, waterAccumulatedToday);
   }
 
 }

@@ -178,6 +178,22 @@ public class ClimateRecordServiceBean {
   }
 
   /**
+   * Retorna todos los registros climaticos que tienen
+   * una fecha dada
+   * 
+   * @param date
+   * @return referencia a un objeto de tipo Collection que
+   * contiene todos los registros climaticos de una fecha
+   * dada
+   */
+  public Collection<ClimateRecord> findAllByDate(Calendar date) {
+    Query query = entityManager.createQuery("SELECT c FROM ClimateRecord c WHERE c.date = :givenDate ORDER BY c.id");
+    query.setParameter("givenDate", date);
+
+    return (Collection) query.getResultList();
+  }
+
+  /**
    * Modifica un registro climatico perteneciente a una parcela
    * de un usuario
    *

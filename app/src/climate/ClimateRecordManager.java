@@ -10,9 +10,12 @@ import stateless.CropServiceBean;
 import stateless.PlantingRecordServiceBean;
 import stateless.ParcelServiceBean;
 import stateless.SolarRadiationServiceBean;
+import stateless.IrrigationRecordServiceBean;
 import model.ClimateRecord;
 import model.PlantingRecord;
 import model.Parcel;
+import util.UtilDate;
+import irrigation.WaterMath;
 import et.HargreavesEto;
 import et.Etc;
 
@@ -38,6 +41,10 @@ public class ClimateRecordManager {
   // inject a reference to the CropServiceBean
   @EJB
   CropServiceBean cropService;
+
+  // inject a reference to the IrrigationRecordServiceBean
+  @EJB
+  IrrigationRecordServiceBean irrigationService;
 
   /**
    * Obtiene y persiste de manera automatica los datos
@@ -210,6 +217,78 @@ public class ClimateRecordManager {
         climateRecordService.unsetModifiable(currentClimateRecord.getId());
       }
 
+    }
+
+  }
+
+  /**
+   * Calcula de manera automatica el agua excedente de cada registro
+   * climatico de la fecha actual cada 24 horas a partir de las 23:59
+   * horas. En otras palabras, calcula el agua excedente de cada
+   * registro climatico que tiene la fecha actual al final del dia
+   * actual, ya que si se lo hace en otro momento del dia actual se
+   * puede obtener un valor desactualizado.
+   * 
+   * Esto se hace para cada uno de los registros climaticos de todas
+   * las parcelas de la base de datos subyacente.
+   * 
+   * Se calcula el agua excedente porque influye en el calculo de la
+   * necesidad de agua de riego de un cultivo en una fecha dada.
+   * 
+   * La segunda anotacion es para probar que el metodo hace lo que se
+   * espera que haga: calcular el agua excedente de cada registro
+   * climatico que tiene la fecha actual.
+   */
+  // @Schedule(second = "*", minute = "59", hour = "23/23", persistent = false)
+  // @Schedule(second = "*/5", minute = "*", hour = "*", persistent = false)
+  private void calculateExcessWater() {
+    /*
+     * El metodo getInstance de la clase Calendar retorna la
+     * referencia a un objeto de tipo Calendar que contiene
+     * la fecha actual
+     */
+    Calendar currentDate = Calendar.getInstance();
+    Calendar yesterdayDate = UtilDate.getYesterdayDate();
+
+    /*
+     * Obtiene todos los registros climaticos que tienen
+     * la fecha actual
+     */
+    Collection<ClimateRecord> climateRecords = climateRecordService.findAllByDate(currentDate);
+
+    double excessWaterCurrentDate = 0.0;
+    double totalIrrigationWaterCurrentDate = 0.0;
+    double excessWaterYesterday = 0.0;
+
+    /*
+     * Calcula el agua excedente para cada registro climatico
+     * que tiene la fecha actual. En otras palabras, calcula
+     * el agua excedente de la fecha actual.
+     */
+    for (ClimateRecord currentClimateRecord : climateRecords) {
+      totalIrrigationWaterCurrentDate = irrigationService.calculateTotalIrrigationWaterCurrentDate(currentClimateRecord.getParcel());
+
+      /*
+       * Si en la base de datos subyacente existe el registro climatico
+       * del dia inmediatamente anterior a la fecha actual de la parcela
+       * dada, se obtiene su agua excedente. Se obtiene el agua excedente
+       * del dia inmediatamente anterior a la fecha actual porque influye
+       * en el calculo del agua excedente de la fecha actual.
+       * 
+       * Si en la base de datos subyacente NO existe el registro climatico
+       * del dia inmediatamente anterior a la fecha actual, se asume que
+       * el agua excedente de dicho dia es 0.
+       */
+      if (climateRecordService.checkExistence(yesterdayDate, currentClimateRecord.getParcel())) {
+        excessWaterYesterday = climateRecordService.find(yesterdayDate, currentClimateRecord.getParcel()).getExcessWater();
+      } else {
+        excessWaterYesterday = 0.0;
+      }
+
+      excessWaterCurrentDate = WaterMath.calculateExcessWater(currentClimateRecord.getEtc(),
+          currentClimateRecord.getPrecip(), totalIrrigationWaterCurrentDate, excessWaterYesterday);
+
+      climateRecordService.updateExcessWater(currentDate, currentClimateRecord.getParcel(), excessWaterCurrentDate);
     }
 
   }
