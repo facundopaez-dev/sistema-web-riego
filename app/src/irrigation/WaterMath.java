@@ -75,15 +75,15 @@ public class WaterMath {
    * debiendo ser los primeros tres valores de una misma
    * fecha.
    * 
-   * @param etcGivenDate             [mm/dia]
-   * @param precipitationGivenDate   [mm/dia]
-   * @param totalIrrigationGivenDate [mm/dia]
-   * @param excessWaterYesterday     [mm/dia]
+   * @param etcGivenDate                  [mm/dia]
+   * @param precipitationGivenDate        [mm/dia]
+   * @param totalIrrigationWaterGivenDate [mm/dia]
+   * @param excessWaterYesterday          [mm/dia]
    * @return punto flotante que representa el agua
    *         excedente [mm/dia] de una fecha dada
    */
   public static double calculateExcessWater(double etcGivenDate, double precipitationGivenDate,
-      double totalIrrigationGivenDate, double excessWaterYesterday) {
+      double totalIrrigationWaterGivenDate, double excessWaterYesterday) {
     /*
      * Si la suma entre la precipitacion, la cantidad total
      * de agua de riego y el agua excedente de ayer es mayor
@@ -94,8 +94,8 @@ public class WaterMath {
      * la cantidad total de agua de riego y el agua excedente
      * de ayer, y la ETc.
      */
-    if ((precipitationGivenDate + totalIrrigationGivenDate + excessWaterYesterday) > etcGivenDate) {
-      return limitToTwoDecimalPlaces((precipitationGivenDate + totalIrrigationGivenDate + excessWaterYesterday) - etcGivenDate);
+    if ((precipitationGivenDate + totalIrrigationWaterGivenDate + excessWaterYesterday) > etcGivenDate) {
+      return limitToTwoDecimalPlaces((precipitationGivenDate + totalIrrigationWaterGivenDate + excessWaterYesterday) - etcGivenDate);
     }
 
     /*
