@@ -75,13 +75,7 @@ public class ClimateRecordManager {
    * lo que se espera que haga: obtener y persistir los
    * datos meteorologicos de la fecha actual para cada
    * una de las parcelas activas de la base de datos
-   * subyacente
-   * 
-   * @param second="*"
-   * @param minute="*"
-   * @param hour="0/2" cada dos horas a partir de las doce de la
-   * noche
-   * @param persistent=false
+   * subyacente.
    */
   // @Schedule(second = "*", minute = "*", hour = "0/2", persistent = false)
   // @Schedule(second = "*/5", minute = "*", hour = "*", persistent = false)
