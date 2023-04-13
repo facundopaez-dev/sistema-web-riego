@@ -75,15 +75,16 @@ public class IrrigationRecordManager {
         for (Parcel currentParcel : activeParcels) {
 
             /*
-             * Si la parcela actual (la que esta siendo utilizada actualmente
-             * por la instruccion for each) NO tiene el registro de riego de
-             * la fecha actual y tiene un registro de plantacion en desarrollo
-             * (es decir, que tiene un cultivo en desarrollo), se crea el registro
-             * de riego de la fecha actual para dicha parcela, siempre y cuando
-             * exista en la base de datos subyacente el registro climatico de
-             * la fecha actual para la misma
+             * Si la parcela actual (la que esta siendo utilizada actualmente por
+             * la instruccion for each) NO tiene el registro de riego de la fecha
+             * actual generado por el sistema, tiene un registro de plantacion en
+             * desarrollo (es decir, que tiene un cultivo en desarrollo) y tiene
+             * el registro climatico de la fecha actual, se crea y persiste el
+             * registro de riego de la fecha actual generado por el sistema para
+             * dicha parcela
              */
-            if (!(irrigationRecordService.checkExistence(currentDate, currentParcel)) && (plantingRecordService.checkOneInDevelopment(currentParcel))) {
+            if (!(irrigationRecordService.checkExistenceGeneratedBySystem(currentDate, currentParcel))
+                    && (plantingRecordService.checkOneInDevelopment(currentParcel))) {
 
                 /*
                  * Si en la base de datos subyacente existe el registro climatico de
