@@ -396,6 +396,28 @@ public class IrrigationRecordServiceBean {
     query.executeUpdate();
   }
 
+  /**
+   * Retorna true si y solo si un registro de riego fue generado
+   * por el sistema.
+   * 
+   * Este metodo es para evitar que el usuario modifique un registro
+   * de riego generado por el sistema, ya que un registro de riego
+   * de este tipo no debe poder ser modificado por el usuario.
+   * 
+   * Hay que tener en cuenta que este metodo debe ser invocado luego
+   * de haber invocado al metodo checkExistence de esta clase, ya
+   * que de lo contrario puede ocurrir la excepcion NoResultException,
+   * la cual, ocurre cuando NO existe en la base de datos subyacente
+   * el dato consultado.
+   * 
+   * @param id
+   * @return true si un registro de riego fue generado por
+   * el sistema, en caso contrario false
+   */
+  public boolean isGeneratedBySystem(int id) {
+    return find(id).getSystemGenerated();
+  }
+
   public Page<IrrigationRecord> findByPage(Integer page, Integer cantPerPage, Map<String, String> parameters) {
     // Genero el WHERE dinámicamente
     StringBuffer where = new StringBuffer(" WHERE 1=1");

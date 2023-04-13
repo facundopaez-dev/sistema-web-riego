@@ -378,6 +378,19 @@ public class IrrigationRecordRestServlet {
     }
 
     /*
+     * Si el registro de riego a modificar fue generado por el
+     * sistema, la aplicacion del lado servidor retorna el
+     * mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "No esta permitida la modificacion de un registro de
+     * riego generado por el sistema" y no se realiza la
+     * operacion solicitada
+     */
+    if (irrigationRecordService.isGeneratedBySystem(irrigationRecordId)) {
+      return Response.status(Response.Status.BAD_REQUEST)
+        .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_IRRIGATION_RECORD_GENERATED_BY_SYSTEM_NOT_ALLOWED))).build();
+    }
+
+    /*
      * ******************************************
      * Control sobre la temporalidad de los datos
      * ******************************************
