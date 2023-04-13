@@ -775,11 +775,12 @@ public class PlantingRecordRestServlet {
        */
       etcCurrentDate = Etc.calculateEtc(etoCurrentDate, cropService.getKc(givenPlantingRecord.getCrop(), givenPlantingRecord.getSeedDate()));
 
-      /*
-       * Calculo de la necesidad de agua de riego de
-       * un cultivo en la fecha actual
-       */
       totalIrrigationWaterCurrentDate = irrigationRecordService.calculateTotalIrrigationWaterCurrentDate(givenParcel);
+
+      /*
+       * Calculo de la necesidad de agua de riego [mm/dia]
+       * de un cultivo en la fecha actual
+       */
       irrigationWaterNeedCurrentDate = WaterMath.calculateIrrigationWaterNeed(etcCurrentDate,
           currentClimateRecord.getPrecip(), totalIrrigationWaterCurrentDate, excessWaterYesterday);
 
@@ -797,8 +798,7 @@ public class PlantingRecordRestServlet {
      * de plantacion en desarrollo sobre el que se solicita calcular
      * la necesidad de agua de riego del cultivo que contiene
      */
-    givenPlantingRecord.setIrrigationWaterNeed(String.valueOf(irrigationWaterNeedCurrentDate));
-    plantingRecordService.modify(userId, plantingRecordId, givenPlantingRecord);
+    plantingRecordService.updateIrrigationWaterNeed(plantingRecordId, givenParcel, String.valueOf(irrigationWaterNeedCurrentDate));
 
     IrrigationRecord newIrrigationRecord = new IrrigationRecord();
     newIrrigationRecord.setDate(currentDate);
