@@ -54,6 +54,18 @@ public class PlantingRecord {
   @Column(name = "MODIFIABLE", nullable = false)
   private boolean modifiable;
 
+  /*
+   * El valor de este atributo es asignado por el metodo automatico
+   * setIrrigationWaterNeed de la clase PlantingRecordManager.
+   * 
+   * El motivo de este atributo y del metodo setIrrigationWaterNeed
+   * es que el usuario sepa la necesidad de agua de riego [mm/dia]
+   * de un cultivo en desarrollo sin tener que presionar un boton
+   * para ello.
+   */
+  @Column(name = "IRRIGATION_WATER_NEED", nullable = false)
+  private String irrigationWaterNeed;
+
   @ManyToOne
   @JoinColumn(name = "FK_PARCEL", nullable = false)
   private Parcel parcel;
@@ -102,6 +114,14 @@ public class PlantingRecord {
     this.modifiable = modifiable;
   }
 
+  public String getIrrigationWaterNeed() {
+    return irrigationWaterNeed;
+  }
+
+  public void setIrrigationWaterNeed(String irrigationWaterNeed) {
+    this.irrigationWaterNeed = irrigationWaterNeed;
+  }
+
   public Parcel getParcel() {
     return parcel;
   }
@@ -129,10 +149,11 @@ public class PlantingRecord {
   @Override
   public String toString() {
     return String.format(
-        "ID: %d\nFecha de siembra: %s\nFecha de cosecha: %s\nParcela: %s (ID = %d)\nCultivo: %s\nEstado: %s\nModificable: %b\n",
+        "ID: %d\nFecha de siembra: %s\nFecha de cosecha: %s\nNecesidad de agua de riego [mm/dia]: %s\nParcela: %s (ID = %d)\nCultivo: %s\nEstado: %s\nModificable: %b\n",
         id,
         UtilDate.formatDate(seedDate),
         UtilDate.formatDate(harvestDate),
+        irrigationWaterNeed,
         parcel.getName(),
         parcel.getId(),
         crop.getName(),

@@ -120,6 +120,15 @@
         </div>
       </div>
 
+      <div class="form-group" ng-hide="action == 'new' || action == 'edit'">
+        <label for="plantingRecord_irrigationWaterNeed" class="col-md-2 control-label">Necesidad de agua de riego
+          [mm/día]</label>
+        <div class="col-md-3">
+          <input type="text" class="form-control" id="plantingRecord_irrigationWaterNeed" ng-model="data.irrigationWaterNeed"
+            ng-disabled="action == 'view'">
+        </div>
+      </div>
+
       <div class="form-group">
         <label for="selectParcel">Parcela</label>
         <select id="selectParcel" class="form-control col-md-6" ng-model="data.parcel"

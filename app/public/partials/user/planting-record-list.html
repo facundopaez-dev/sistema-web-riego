@@ -118,6 +118,7 @@
         <th>Fecha de siembra</th>
         <th>Fecha de cosecha</th>
         <th>Parcela</th>
+        <th>Necesidad agua riego [mm/día]</th>
         <th>Estado del cultivo</th>
         <th class="text-right"></th>
       </tr>
@@ -129,6 +130,7 @@
         <td>{{p.seedDate | date:'dd/MM/yyyy'}}</td>
         <td>{{p.harvestDate | date:'dd/MM/yyyy'}}</td>
         <td>{{p.parcel.name}}</td>
+        <td>{{p.irrigationWaterNeed}}</td>
         <td>{{p.status.name}}</td>
         <td class="text-right">
           <div class="btn-group" role="group" aria-label="...">

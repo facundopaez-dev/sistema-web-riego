@@ -78,6 +78,10 @@
   110 de la pila del producto -->
   <target name="t110" depends="init, run_t110_sql" />
 
+  <!-- Comando para cargar la base de datos subyacente con los datos necesarios para probar la tarea
+  125 de la pila del producto -->
+  <target name="t125" depends="init, run_t125_sql" />
+
   <target name="init">
     <property name="example_name" value="swcar" />
     <property name="DB_NAME" value="swcar" />

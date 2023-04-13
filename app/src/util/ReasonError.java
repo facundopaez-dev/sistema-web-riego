@@ -76,7 +76,8 @@ public enum ReasonError {
   MODIFICATION_WITH_PAST_SEED_DATE_NOT_ALLOWED("No está permitido modificar un registro de plantación con una fecha de siembra menor a la fecha actual (es decir, anterior a la fecha actual)"),
   MODIFICATION_WITH_FUTURE_SEED_DATE_NOT_ALLOWED("No está permitido modificar un registro de plantación con una fecha de siembra mayor a la fecha actual (es decir, posterior a la fecha actual)"),
   MODIFICATION_NON_MODIFIABLE_PLANTING_RECORD_NOT_ALLOWED("No está permitida la modificación de un registro de plantación finalizado"),
-  DELETION_PARCEL_WITH_PLANTING_RECORD_IN_DEVELOPMENT_NOT_ALLOWED("No está permitido eliminar (lógicamente) una parcela que tiene un registro de plantación en desarrollo");
+  DELETION_PARCEL_WITH_PLANTING_RECORD_IN_DEVELOPMENT_NOT_ALLOWED("No está permitido eliminar (lógicamente) una parcela que tiene un registro de plantación en desarrollo"),
+  MODIFICATION_IRRIGATION_WATER_NEED_NOT_ALLOWED("No está permitida la modificación de la necesidad de agua de riego");
 
   private final String reason;
 

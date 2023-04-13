@@ -73,6 +73,17 @@ public class PlantingRecordRestServlet {
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
 
+  /*
+   * El valor de esta constante se asigna al atributo
+   * irrigationWaterNeed de un registro de plantacion
+   * nuevo para representar que un registro de plantacion
+   * recien creado no tiene calculada la necesidad de
+   * agua de riego del cultivo que contiene.
+   * 
+   * La abreviatura "n/a" significa "no disponible".
+   */
+  private final String NOT_AVAILABLE = "n/a";
+
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response findAll(@Context HttpHeaders request) throws IOException {
@@ -348,6 +359,14 @@ public class PlantingRecordRestServlet {
     newPlantingRecord.setModifiable(true);
 
     /*
+     * Un registro de plantacion nuevo no tiene calculada
+     * la necesidad de agua de riego del cultivo que contiene,
+     * por lo tanto, se asigna el valor "n/a" (no disponible)
+     * a su atributo irrigationWaterNeed
+     */
+    newPlantingRecord.setIrrigationWaterNeed(NOT_AVAILABLE);
+
+    /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido y no se cumplen las condiciones de
      * los controles para la creacion de un registro de plantacion, la
@@ -447,7 +466,8 @@ public class PlantingRecordRestServlet {
     }
 
     PlantingRecord modifiedPlantingRecord = mapper.readValue(json, PlantingRecord.class);
-    Calendar currentSeedDate = plantingRecordService.find(plantingRecordId).getSeedDate();
+    PlantingRecord currentPlantingRecord = plantingRecordService.find(plantingRecordId);
+    Calendar currentSeedDate = currentPlantingRecord.getSeedDate();
 
     /*
      * Si la fecha de siembra del registro de plantacion a modificar
@@ -561,6 +581,20 @@ public class PlantingRecordRestServlet {
      */
     if (modifiedPlantingRecord.getCrop() == null) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INDEFINITE_CROP))).build();
+    }
+
+    /*
+     * Si la necesidad de agua de riego del registro de plantacion
+     * modificado (proveniente del cliente) es distinta a la
+     * necesidad de agua de riego actual de dicho registro, la
+     * aplicacion del lado servidor retorna el mensaje HTTP 400
+     * (Bad request) junto con el mensaje "No esta permitida la
+     * modificacion de la necesidad de agua de riego" y no se
+     * realiza la operacion solicitada
+     */
+    if (!modifiedPlantingRecord.getIrrigationWaterNeed().equals(currentPlantingRecord.getIrrigationWaterNeed())) {
+      return Response.status(Response.Status.BAD_REQUEST)
+        .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_IRRIGATION_WATER_NEED_NOT_ALLOWED))).build();
     }
 
     /*
@@ -757,6 +791,14 @@ public class PlantingRecordRestServlet {
       currentClimateRecord.setEtc(etcCurrentDate);
       climateRecordService.modify(userId, currentClimateRecord.getId(), currentClimateRecord);
     }
+
+    /*
+     * Se actualiza el atributo irrigationWaterNeed del registro
+     * de plantacion en desarrollo sobre el que se solicita calcular
+     * la necesidad de agua de riego del cultivo que contiene
+     */
+    givenPlantingRecord.setIrrigationWaterNeed(String.valueOf(irrigationWaterNeedCurrentDate));
+    plantingRecordService.modify(userId, plantingRecordId, givenPlantingRecord);
 
     IrrigationRecord newIrrigationRecord = new IrrigationRecord();
     newIrrigationRecord.setDate(currentDate);

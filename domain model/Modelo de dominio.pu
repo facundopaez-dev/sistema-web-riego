@@ -83,6 +83,7 @@ class RegistroPlantacion {
 -id
 -fechaSiembra
 -fechaCosecha
+-necesidadAguaRiego
 }
 
 class RegistroRiego {
