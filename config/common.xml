@@ -543,7 +543,7 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
-    <!-- Carta la tabla PLANTING_RECORDS -->
+    <!-- Carga la tabla PLANTING_RECORD -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
       userid="${DERBY_USER}"
@@ -630,7 +630,7 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
-    <!-- Carta la tabla PLANTING_RECORDS -->
+    <!-- Carga la tabla PLANTING_RECORD -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
       userid="${DERBY_USER}"
@@ -717,7 +717,7 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
-    <!-- Carta la tabla PLANTING_RECORDS -->
+    <!-- Carga la tabla PLANTING_RECORD -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
       userid="${DERBY_USER}"
@@ -804,7 +804,7 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
-    <!-- Carta la tabla PLANTING_RECORDS -->
+    <!-- Carga la tabla PLANTING_RECORD -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
       userid="${DERBY_USER}"
@@ -891,7 +891,7 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
-    <!-- Carta la tabla PLANTING_RECORDS -->
+    <!-- Carga la tabla PLANTING_RECORD -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
       userid="${DERBY_USER}"
@@ -954,7 +954,7 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
-    <!-- Carta las tablas CLIMATE_RECORD y TYPE_PRECIPITATION -->
+    <!-- Carga las tablas CLIMATE_RECORD y TYPE_PRECIPITATION -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
       userid="${DERBY_USER}"
@@ -1053,7 +1053,7 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
-    <!-- Carta las tablas PLANTING_RECORDS, CLIMATE_RECORDS y TYPE_PRECIPITATION -->
+    <!-- Carga las tablas PLANTING_RECORD, CLIMATE_RECORD y TYPE_PRECIPITATION -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
       userid="${DERBY_USER}"
@@ -1140,7 +1140,7 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
-    <!-- Carta las tablas STATISTICAL_REPORT -->
+    <!-- Carga la tabla STATISTICAL_REPORT -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
       userid="${DERBY_USER}"
@@ -1227,7 +1227,7 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
-    <!-- Carta las tablas STATISTICAL_REPORT -->
+    <!-- Carga las tabla STATISTICAL_REPORT -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
       userid="${DERBY_USER}"
@@ -1314,7 +1314,7 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
-    <!-- Carta las tablas PLANTING_RECORD -->
+    <!-- Carga la tabla PLANTING_RECORD -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
       userid="${DERBY_USER}"
