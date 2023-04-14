@@ -27,10 +27,27 @@ public class IrrigationRecord {
   private Calendar date;
 
   /*
-   * Necesidad de agua de riego [mm/dia] de un cultivo
+   * Necesidad de agua de riego [mm/dia] de un cultivo.
+   * 
+   * La necesidad de agua de riego de un registro de riego
+   * puede tener el valor "n/a" (no disponible) en los
+   * siguientes casos:
+   * - cuando una parcela no tiene un registro de plantacion
+   * en desarrollo. En este caso al no haber un registro
+   * de plantacion en desarrollo no hay un cultivo en
+   * desarollo. Por lo tanto, no es posible calcular la
+   * necesidad de agua de riego de un cultivo.
+   * - cuando una parcela tiene un registro de plantacion
+   * en desarrollo, pero no tiene el registro climatico
+   * de la fecha en la que se quiere calcular la necesidad
+   * de agua de riego del cultivo. En este caso no se
+   * tiene la evapotranspiracion del cultivo bajo
+   * condiciones estandar (ETc) [mm/dia] ni la precipitacion
+   * de dicha fecha, por lo tanto, no es posible calcular
+   * la necesidad de agua de riego de un cultivo.
    */
   @Column(name = "IRRIGATION_WATER_NEED", nullable = false)
-  private double irrigationWaterNeed;
+  private String irrigationWaterNeed;
 
   /*
    * Riego realizado [mm/dia]
@@ -121,7 +138,7 @@ public class IrrigationRecord {
    * 
    * @return
    */
-  public double getIrrigationWaterNeed() {
+  public String getIrrigationWaterNeed() {
     return irrigationWaterNeed;
   }
 
@@ -130,7 +147,7 @@ public class IrrigationRecord {
    * 
    * @param
    */
-  public void setIrrigationWaterNeed(double irrigationWaterNeed) {
+  public void setIrrigationWaterNeed(String irrigationWaterNeed) {
     this.irrigationWaterNeed = irrigationWaterNeed;
   }
 
@@ -227,7 +244,7 @@ public class IrrigationRecord {
   @Override
   public String toString() {
     return String.format(
-        "ID: %d\nFecha: %s\nNecesidad de agua de riego: %f [mm/día]\nRiego realizado: %f [mm/día]\nGenerado por el sistema: %b\nModificable: %b\nID de parcela: %d\nCultivo: %s\n",
+        "ID: %d\nFecha: %s\nNecesidad de agua de riego: %s [mm/día]\nRiego realizado: %f [mm/día]\nGenerado por el sistema: %b\nModificable: %b\nID de parcela: %d\nCultivo: %s\n",
         id,
         UtilDate.formatDate(date),
         irrigationWaterNeed,

@@ -802,7 +802,7 @@ public class PlantingRecordRestServlet {
 
     IrrigationRecord newIrrigationRecord = new IrrigationRecord();
     newIrrigationRecord.setDate(currentDate);
-    newIrrigationRecord.setIrrigationWaterNeed(irrigationWaterNeedCurrentDate);
+    newIrrigationRecord.setIrrigationWaterNeed(String.valueOf(irrigationWaterNeedCurrentDate));
     newIrrigationRecord.setParcel(givenParcel);
 
     /*

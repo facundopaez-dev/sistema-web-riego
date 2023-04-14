@@ -126,7 +126,7 @@ public class IrrigationRecordManager {
                      */
                     currentIrrigationRecord = new IrrigationRecord();
                     currentIrrigationRecord.setDate(currentDate);
-                    currentIrrigationRecord.setIrrigationWaterNeed(currentIrrigationWaterNeed);
+                    currentIrrigationRecord.setIrrigationWaterNeed(String.valueOf(currentIrrigationWaterNeed));
                     currentIrrigationRecord.setSystemGenerated(true);
                     currentIrrigationRecord.setParcel(currentParcel);
                     currentIrrigationRecord.setCrop(givenCrop);
