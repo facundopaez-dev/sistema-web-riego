@@ -487,14 +487,24 @@ public class IrrigationRecordRestServlet {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NEGATIVE_REALIZED_IRRIGATION))).build();
     }
 
+    modifiedIrrigationRecord = irrigationRecordService.modify(userId, irrigationRecordId, modifiedIrrigationRecord);
+
+    /*
+     * Luego de modificar el riego realizado de un registro de
+     * riego, se actualiza la necesidad de agua de riego [mm/dia]
+     * del registro de plantacion en desarrollo de la parcela de
+     * dicho registro de riego teniendo en cuenta la cantidad total
+     * de agua de riego
+     */
+    updateIrrigationWaterNeedDevelopingPlantingRecord(modifiedIrrigationRecord.getParcel());
+
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos que el
      * cliente solicito modificar
      */
-    return Response.status(Response.Status.OK).
-      entity(mapper.writeValueAsString(irrigationRecordService.modify(userId, irrigationRecordId, modifiedIrrigationRecord))).build();
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(modifiedIrrigationRecord)).build();
   }
 
   /**
