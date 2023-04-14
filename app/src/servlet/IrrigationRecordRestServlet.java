@@ -14,23 +14,24 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import model.ClimateRecord;
-import model.IrrigationRecord;
-import model.Parcel;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import stateless.ClimateRecordServiceBean;
 import stateless.IrrigationRecordServiceBean;
 import stateless.PlantingRecordServiceBean;
 import stateless.SecretKeyServiceBean;
+import model.ClimateRecord;
+import model.IrrigationRecord;
+import model.Parcel;
 import util.UtilDate;
 import util.ErrorResponse;
 import util.ReasonError;
 import util.RequestManager;
 import utilJwt.AuthHeaderManager;
 import utilJwt.JwtManager;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
+
 
 @Path("/irrigationRecords")
 public class IrrigationRecordRestServlet {
@@ -43,13 +44,31 @@ public class IrrigationRecordRestServlet {
   PlantingRecordServiceBean plantingRecordService;
 
   @EJB
-  ClimateRecordServiceBean climateRecordServiceBean;
+  ClimateRecordServiceBean climateRecordService;
 
   @EJB
   SecretKeyServiceBean secretKeyService;
 
   // mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
+
+  /*
+   * La necesidad de agua de riego de un registro de riego puede
+   * tener el valor "n/a" (no disponible) en los siguientes casos:
+   * - cuando la parcela a la que pertenece NO tiene un registro
+   * de plantacion en desarrollo. En este caso al no haber un
+   * registro de plantacion en desarrollo no hay un cultivo en
+   * desarollo. Por lo tanto, no es posible calcular la
+   * necesidad de agua de riego de un cultivo.
+   * - cuando la parcela a la que pertenece tiene un registro
+   * de plantacion en desarrollo, pero NO tiene el registro
+   * climatico de la fecha actual. En este caso no se tiene la
+   * evapotranspiracion del cultivo bajo condiciones estandar
+   * (ETc) [mm/dia] ni la precipitacion [mm/dia] de dicha fecha,
+   * por lo tanto, no es posible calcular la necesidad de agua
+   * de riego de un cultivo.
+   */
+  private final String NOT_AVAILABLE = "n/a";
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
@@ -309,13 +328,25 @@ public class IrrigationRecordRestServlet {
       newIrrigationRecord.setCrop(plantingRecordService.findInDevelopment(newIrrigationRecord.getParcel()).getCrop());
     }
 
+    setIrrigationWaterNeed(newIrrigationRecord);
+    newIrrigationRecord = irrigationRecordService.create(newIrrigationRecord);
+
+    /*
+     * Luego de persistir el nuevo registro de riego, se actualiza
+     * la necesidad de agua de riego [mm/dia] del registro de
+     * plantacion en desarrollo de la parcela de dicho registro
+     * de riego teniendo en cuenta la cantidad total de agua de
+     * riego
+     */
+    updateIrrigationWaterNeedDevelopingPlantingRecord(newIrrigationRecord.getParcel());
+
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos que el
      * cliente solicito persistir
      */
-    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(irrigationRecordService.create(newIrrigationRecord))).build();
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(newIrrigationRecord)).build();
   }
 
   @PUT
@@ -464,6 +495,149 @@ public class IrrigationRecordRestServlet {
      */
     return Response.status(Response.Status.OK).
       entity(mapper.writeValueAsString(irrigationRecordService.modify(userId, irrigationRecordId, modifiedIrrigationRecord))).build();
+  }
+
+  /**
+   * Establece la necesidad de agua de riego [mm/dia]
+   * de un registro de riego
+   * 
+   * @param givenIrrigationRecord
+   */
+  private void setIrrigationWaterNeed(IrrigationRecord givenIrrigationRecord) {
+    /*
+     * El metodo getInstance de la clase Calendar retorna
+     * la referencia a un objeto de tipo Calendar que
+     * contiene la fecha actual
+     */
+    Calendar currentDate = Calendar.getInstance();
+    Calendar yesterdayDate = UtilDate.getYesterdayDate();
+    ClimateRecord currentClimateRecord = null;
+    Parcel givenParcel = givenIrrigationRecord.getParcel();
+
+    /*
+     * Si la parcela a la que pertenece un registro de riego NO tiene
+     * un registro de plantacion en desarrollo, NO hay un cultivo en
+     * desarrollo para el cual calcular la necesidad de agua de riego
+     * [mm/dia] de la fecha actual, por lo tanto, la necesidad de agua
+     * de riego de un registro de riego es "n/a" (no disponible)
+     */
+    if (!plantingRecordService.checkOneInDevelopment(givenParcel)) {
+      givenIrrigationRecord.setIrrigationWaterNeed(NOT_AVAILABLE);
+      return;
+    }
+
+    /*
+     * Si la parcela a la que pertenece un registro de riego tiene un
+     * registro de plantacion en desarrollo, pero NO tiene el registro
+     * climatico de la fecha actual, NO se disponen de la evapotranspiracion
+     * del cultivo bajo condiciones estandar (ETc) [mm/dia] ni de la
+     * precipitacion [mm/dia] de la fecha actual, las cuales son
+     * datos necesarios para calcular la necesidad de agua de riego
+     * [mm/dia] de un cultivo en desarrollo en la fecha actual.
+     * 
+     * Por lo tanto, la necesidad de agua de riego de un registro
+     * de riego es "n/a" (no disponible).
+     */
+    if (!climateRecordService.checkExistence(currentDate, givenParcel)) {
+      givenIrrigationRecord.setIrrigationWaterNeed(NOT_AVAILABLE);
+      return;
+    }
+
+    currentClimateRecord = climateRecordService.find(currentDate, givenParcel);
+    double currentIrrigationWaterNeed = 0.0;
+    double excessWaterYesterday = 0.0;
+
+    /*
+     * Si en la base de datos subyacente existe el registro climatico
+     * del dia inmediatamente anterior a la fecha actual, se obtiene
+     * su agua excedente para calcular la necesidad de agua de riego
+     * [mm/dia] del cultivo que esta en desarrollo en la fecha actual.
+     * En caso contrario, se asume que el agua excedente de dicho dia
+     * es 0.
+     */
+    if (climateRecordService.checkExistence(yesterdayDate, givenParcel)) {
+      excessWaterYesterday = climateRecordService.find(currentDate, givenParcel).getExcessWater();
+    }
+
+    /*
+     * Se calcula de la necesidad de agua de riego [mm/dia] del cultivo
+     * que esta en desarrollo en la fecha actual sin tener en cuenta
+     * la cantidad total de agua de riego de la fecha actual porque
+     * lo que se busca con esto es que un registro de riego siempre
+     * contenga la necesidad de agua de riego inicial, la cual, es
+     * la que se obtiene antes realizar cualquier riego
+     */
+    currentIrrigationWaterNeed = WaterMath.calculateIrrigationWaterNeed(currentClimateRecord.getEtc(),
+        currentClimateRecord.getPrecip(), 0, excessWaterYesterday);
+
+    givenIrrigationRecord.setIrrigationWaterNeed(String.valueOf(currentIrrigationWaterNeed));
+  }
+
+  /**
+   * Actualiza la necesidad de agua de riego [mm/dia] del registro
+   * de plantacion en desarrollo de una parcela de un registro de
+   * riego.
+   * 
+   * Hay que tener en cuenta que este metodo debe ser ejecutado
+   * despues de persistir o modificar un registro de riego, ya
+   * que de lo contrario NO se tendra en cuenta la cantidad total
+   * de agua de riego de la fecha actual en el calculo de la
+   * necesidad de agua de riego [mm/dia] de un cultivo que esta
+   * en desarrollo en la fecha actual, lo cual, dara una necesidad
+   * de agua de riego incorrecta.
+   * 
+   * @param givenParcel
+   */
+  private void updateIrrigationWaterNeedDevelopingPlantingRecord(Parcel givenParcel) {
+    /*
+     * El metodo getInstance de la clase Calendar retorna
+     * la referencia a un objeto de tipo Calendar que
+     * contiene la fecha actual
+     */
+    Calendar currentDate = Calendar.getInstance();
+    Calendar yesterdayDate = UtilDate.getYesterdayDate();
+    ClimateRecord currentClimateRecord = null;
+
+    double currentIrrigationWaterNeed = 0.0;
+    double excessWaterYesterday = 0.0;
+    double totalIrrigationWaterCurrentDate = 0.0;
+
+    /*
+     * Si la parcela dada tiene un registro de plantacion en desarrollo
+     * (es decir, tiene un cultivo en desarrollo) y tiene el registro
+     * climatico de la fecha actual, se calcula la necesidad de agua
+     * de riego [mm/dia] del cultivo que esta en desarrollo en la
+     * fecha actual y se la utiliza para actualizar la necesidad de
+     * agua de riego de dicho registro de plantacion
+     */
+    if (plantingRecordService.checkOneInDevelopment(givenParcel) && (climateRecordService.checkExistence(currentDate, givenParcel))) {
+      currentClimateRecord = climateRecordService.find(currentDate, givenParcel);
+
+      /*
+       * Si en la base de datos subyacente existe el registro climatico
+       * del dia inmediatamente anterior a la fecha actual, se obtiene
+       * su agua excedente para calcular la necesidad de agua de riego
+       * [mm/dia] del cultivo que esta en desarrollo en la fecha actual.
+       * En caso contrario, se asume que el agua excedente de dicho dia
+       * es 0.
+       */
+      if (climateRecordService.checkExistence(yesterdayDate, givenParcel)) {
+        excessWaterYesterday = climateRecordService.find(currentDate, givenParcel).getExcessWater();
+      }
+
+      totalIrrigationWaterCurrentDate = irrigationRecordService.calculateTotalIrrigationWaterCurrentDate(givenParcel);
+
+      /*
+       * Calculo de la necesidad de agua de riego [mm/dia] del cultivo
+       * que esta en desarrollo en la fecha actual
+       */
+      currentIrrigationWaterNeed = WaterMath.calculateIrrigationWaterNeed(currentClimateRecord.getEtc(),
+          currentClimateRecord.getPrecip(), totalIrrigationWaterCurrentDate, excessWaterYesterday);
+
+      plantingRecordService.updateIrrigationWaterNeed(plantingRecordService.findInDevelopment(givenParcel).getId(),
+          givenParcel, String.valueOf(currentIrrigationWaterNeed));
+    }
+
   }
 
 }
