@@ -29,22 +29,20 @@ public class IrrigationRecord {
   /*
    * Necesidad de agua de riego [mm/dia] de un cultivo.
    * 
-   * La necesidad de agua de riego de un registro de riego
-   * puede tener el valor "n/a" (no disponible) en los
-   * siguientes casos:
-   * - cuando una parcela no tiene un registro de plantacion
-   * en desarrollo. En este caso al no haber un registro
-   * de plantacion en desarrollo no hay un cultivo en
+   * La necesidad de agua de riego de un registro de riego puede
+   * tener el valor "n/a" (no disponible) en los siguientes casos:
+   * - cuando la parcela a la que pertenece NO tiene un registro
+   * de plantacion en desarrollo. En este caso al no haber un
+   * registro de plantacion en desarrollo no hay un cultivo en
    * desarollo. Por lo tanto, no es posible calcular la
    * necesidad de agua de riego de un cultivo.
-   * - cuando una parcela tiene un registro de plantacion
-   * en desarrollo, pero no tiene el registro climatico
-   * de la fecha en la que se quiere calcular la necesidad
-   * de agua de riego del cultivo. En este caso no se
-   * tiene la evapotranspiracion del cultivo bajo
-   * condiciones estandar (ETc) [mm/dia] ni la precipitacion
-   * de dicha fecha, por lo tanto, no es posible calcular
-   * la necesidad de agua de riego de un cultivo.
+   * - cuando la parcela a la que pertenece tiene un registro
+   * de plantacion en desarrollo, pero NO tiene el registro
+   * climatico de la fecha actual. En este caso no se tiene la
+   * evapotranspiracion del cultivo bajo condiciones estandar
+   * (ETc) [mm/dia] ni la precipitacion [mm/dia] de dicha fecha,
+   * por lo tanto, no es posible calcular la necesidad de agua
+   * de riego de un cultivo.
    */
   @Column(name = "IRRIGATION_WATER_NEED", nullable = false)
   private String irrigationWaterNeed;
