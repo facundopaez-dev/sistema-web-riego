@@ -150,93 +150,66 @@ public class PlantingRecordManager {
         double totalIrrigationWaterCurrentDate = 0.0;
 
         /*
-         * Establece la necesidad de agua de riego de la fecha actual
-         * en cada uno de los registros de plantacion en desarrollo
+         * Establece la necesidad de agua de riego [mm/dia] de la fecha
+         * actual en cada uno de los registros de plantacion en desarrollo
          * de todas las parcelas.
          * 
-         * Esto es que establece la necesidad de agua de riego de la
-         * fecha actual de cada cultivo en desarrollo de cada una de
+         * Esto es que establece la necesidad de agua de riego [mm/dia] de
+         * la fecha actual de cada cultivo en desarrollo de cada una de
          * las parcelas.
          */
         for (PlantingRecord currentPlantingRecord : plantingRecords) {
             givenParcel = currentPlantingRecord.getParcel();
 
             /*
-             * Si en la base de datos subyacente existe el registro de riego
-             * de la fecha actual generado por el sistema para una parcela
-             * dada, se tiene la necesidad de agua de riego [mm/dia] del
-             * cultivo que esta en desarrollo en la fecha actual, por lo
-             * tanto, se asigna el valor de la necesidad de agua de riego
-             * de dicho registro al registro de plantacion actual (el que
-             * esta siendo actualmente utilizado por la instruccion for each).
-             * 
-             * El metodo automatico createCurrentIrrigationRecord de la clase
-             * IrrigationRecordManager crea y persiste el registro de riego
-             * de la fecha actual para las parcelas activas que tienen un
-             * cultivo en desarrollo.
+             * Si en la base de datos subyacente existe el registro climatico
+             * de la fecha actual para una parcela dada, se utilizan la
+             * evapotranspiracion del cultivo bajo condiciones estandar (ETc)
+             * [mm/dia] y la precipitacion [mm/dia] de dicho registro climatico,
+             * entre otros datos, para calcular la necesidad de agua de riego
+             * [mm/dia] del cultivo que esta en desarollo en la fecha actual
              */
-            if (irrigationRecordService.checkExistenceGeneratedBySystem(currentDate, givenParcel)) {
-                currentIrrigationWaterNeed = irrigationRecordService.findGeneratedBySystem(currentDate, givenParcel).getIrrigationWaterNeed();
+            if (climateRecordService.checkExistence(currentDate, givenParcel)) {
+                currentClimateRecord = climateRecordService.find(currentDate, givenParcel);
+
+                /*
+                 * Si en la base de datos subyacente existe el registro climatico
+                 * del dia inmediatamente anterior a la fecha actual, se obtiene
+                 * su agua excedente para calcular la necesidad de agua de riego
+                 * [mm/dia] del cultivo que esta en desarrollo en la fecha actual.
+                 * En caso contrario, se asume que el agua excedente de dicho dia
+                 * es 0.
+                 */
+                if (climateRecordService.checkExistence(yesterdayDate, givenParcel)) {
+                    excessWaterYesterday = climateRecordService.find(yesterdayDate, givenParcel).getExcessWater();
+                }
+
+                totalIrrigationWaterCurrentDate = irrigationRecordService.calculateTotalIrrigationWaterCurrentDate(givenParcel);
+
+                /*
+                 * Calculo de la necesidad de agua de riego [mm/dia] del cultivo
+                 * que esta en desarrollo en la fecha actual
+                 */
+                currentIrrigationWaterNeed = WaterMath.calculateIrrigationWaterNeed(currentClimateRecord.getEtc(),
+                        currentClimateRecord.getPrecip(), totalIrrigationWaterCurrentDate, excessWaterYesterday);
+
                 plantingRecordService.updateIrrigationWaterNeed(currentPlantingRecord.getId(), givenParcel, String.valueOf(currentIrrigationWaterNeed));
             }
 
-            if (!irrigationRecordService.checkExistenceGeneratedBySystem(currentDate, givenParcel)) {
-
-                /*
-                 * Si en la base de datos subyacente NO existe el registro de
-                 * riego de la fecha actual generado por el sistema para una
-                 * parcela dada y existe el registro climatico de la fecha actual
-                 * para una parcela dada, se utilizan la evapotranspiracion del
-                 * cultivo bajo condiciones estandar (ETc) [mm/dia] y la precipitacion
-                 * [mm/dia] de dicho registro climatico, entre otros datos,
-                 * para calcular la necesidad de agua de riego [mm/dia] del
-                 * cultivo que esta en desarollo en la fecha actual
-                 */
-                if (climateRecordService.checkExistence(currentDate, givenParcel)) {
-                    currentClimateRecord = climateRecordService.find(currentDate, givenParcel);
-
-                    /*
-                     * Si en la base de datos subyacente existe el registro climatico
-                     * del dia inmediatamente anterior a la fecha actual, se obtiene
-                     * su agua excedente para calcular la necesidad de agua de riego
-                     * [mm/dia] del cultivo que esta en desarrollo en la fecha actual.
-                     * En caso contrario, se asume que el agua excedente de dicho dia
-                     * es 0.
-                     */
-                    if (climateRecordService.checkExistence(yesterdayDate, givenParcel)) {
-                        excessWaterYesterday = climateRecordService.find(yesterdayDate, givenParcel).getExcessWater();
-                    }
-
-                    totalIrrigationWaterCurrentDate = irrigationRecordService.calculateTotalIrrigationWaterCurrentDate(givenParcel);
-
-                    /*
-                     * Calculo de la necesidad de agua de riego [mm/dia] del cultivo
-                     * que esta en desarrollo en la fecha actual
-                     */
-                    currentIrrigationWaterNeed = WaterMath.calculateIrrigationWaterNeed(currentClimateRecord.getEtc(),
-                            currentClimateRecord.getPrecip(), totalIrrigationWaterCurrentDate, excessWaterYesterday);
-
-                    plantingRecordService.updateIrrigationWaterNeed(currentPlantingRecord.getId(), givenParcel, String.valueOf(currentIrrigationWaterNeed));
-                }
-
-                /*
-                 * Si en la base de datos subyacente NO existe el registro de
-                 * riego de la fecha actual generado por el sistema para una
-                 * parcela dada y NO existe el registro climatico de la fecha
-                 * actual para una parcela dada, NO se tienen la ETc ni la
-                 * precipitacion de la fecha actual para calcular la necesidad
-                 * de agua de riego [mm/dia] del cultivo que esta en desarrollo
-                 * en la fecha actual.
-                 * 
-                 * Por lo tanto, se asigna el valor "n/a" (no disponible) a la
-                 * necesidad de agua de riego de la fecha actual del registro
-                 * de plantacion en desarrollo actual (el que esta siendo
-                 * actualmente utilizado por la instruccion for each).
-                 */
-                if (!climateRecordService.checkExistence(currentDate, givenParcel)) {
-                    plantingRecordService.updateIrrigationWaterNeed(currentPlantingRecord.getId(), givenParcel, NOT_AVAILABLE);
-                }
-
+            /*
+             * Si en la base de datos subyacente NO existe el registro climatico de
+             * la fecha actual para una parcela dada, NO se tienen la ETc ni la
+             * precipitacion de la fecha actual para calcular la necesidad de agua
+             * de riego [mm/dia] del cultivo que esta en desarrollo en la fecha
+             * actual.
+             * 
+             * Por lo tanto, se asigna el valor "n/a" (no disponible) a la necesidad
+             * de agua de riego [mm/dia] de la fecha actual del registro de plantacion
+             * en desarrollo actual (el que esta siendo actualmente utilizado por la
+             * instruccion for each).
+             */
+            if (!climateRecordService.checkExistence(currentDate, givenParcel)) {
+                plantingRecordService.updateIrrigationWaterNeed(currentPlantingRecord.getId(), givenParcel, NOT_AVAILABLE);
             }
 
         } // End for
