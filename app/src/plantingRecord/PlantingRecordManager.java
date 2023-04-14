@@ -120,7 +120,7 @@ public class PlantingRecordManager {
     /**
      * Establece de manera automatica la necesidad de agua de riego [mm/dia]
      * (atributo irrigationWaterNeed) de un registro de plantacion en desarrollo
-     * cada dos horas a partir de las 02 horas.
+     * cada dos horas a partir de la hora 01.
      * 
      * La segunda anotacion @Schedule es para probar que este metodo se ejecuta
      * correctamente, es decir, que asigna un valor al atributo irrigationWaterNeed
@@ -130,7 +130,7 @@ public class PlantingRecordManager {
      * este metodo se ejecuta correctamente, es decir, que hace lo que se espera que
      * haga.
      */
-    @Schedule(second = "*", minute = "*", hour = "2/2", persistent = false)
+    @Schedule(second = "*", minute = "*", hour = "1/2", persistent = false)
     // @Schedule(second = "*/5", minute = "*", hour = "*", persistent = false)
     private void setIrrigationWaterNeed() {
         Collection<PlantingRecord> plantingRecords = plantingRecordService.findAllInDevelopment();
