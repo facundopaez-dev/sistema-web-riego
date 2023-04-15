@@ -130,7 +130,7 @@
 				<td>{{i.irrigationWaterNeed}}</td>
 				<td>{{i.irrigationDone}}</td>
 				<td>{{i.parcel.name}}</td>
-				<td>{{i.crop.name}}</td>
+				<td>{{i.crop.name ? i.crop.name : '-'}}</td>
 				<td>{{i.systemGenerated ? 'Sí' : 'No'}}</td>
 				<td class="text-right">
 					<div class="btn-group" role="group" aria-label="...">
