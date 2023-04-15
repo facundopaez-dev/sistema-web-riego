@@ -195,4 +195,123 @@ public class IrrigationRecordManager {
 
     }
 
+    /*
+     * Modifica de manera automatica el valor "n/a" (no disponible) del atributo
+     * de la necesidad de agua de riego [mm/dia] de los registros de riego que
+     * tienen el cultivo definido, por un numero mayor o igual a cero, el cual
+     * resulta de calcular la necesidad de agua de riego de un cultivo. Esto lo
+     * hace cada 2 horas a partir de las 00 horas.
+     * 
+     * La segunda anotacion @Schedule es para probar que este metodo se ejecuta
+     * correctamente, es decir, que modifica el atributo irrigationWaterNeed de
+     * un registro de riego que tiene el cultivo definido y el valor "n/a" en
+     * dicho atributo, por un numero mayor o igual a cero.
+     * 
+     * Este metodo es para evitar que un registro de riego creado por el usuario
+     * para una parcela antes de la existencia del registro climatico actual (de
+     * la fecha actual) de una parcela, se quede con el valor "n/a" (no disponible)
+     * en el atributo de la necesidad de agua de riego [mm/dia] luego de la existencia
+     * de dicho registro climatico.
+     * 
+     * El metodo automatico getCurrentWeatherDataset de la clase ClimateRecordManager
+     * obtiene y persiste los datos meteorologicos de la fecha actual para cada
+     * una de las parcelas activas de la base de datos subyacente. 
+     */
+    @Schedule(second = "*", minute = "*", hour = "0/2", persistent = false)
+    // @Schedule(second = "*/5", minute = "*", hour = "*", persistent = false)
+    private void setIrrigationWaterNeed() {
+        /*
+         * Obtiene todos los registros de riego que tienen el cultivo
+         * definido y el valor "n/a" (no disponible) en el atributo de
+         * la necesidad de agua de riego.
+         * 
+         * Si un registro de riego NO tiene el cultivo definido, no
+         * es posible calcular la necesidad de agua de riego de un
+         * cultivo, y, por ende, usarla para modificar el valor "n/a"
+         * de la necesidad de agua de riego de un registro de riego.
+         * 
+         * Un registro de riego tiene el cultivo definido cuando se
+         * lo crea para una parcela que tiene un registro de plantacion
+         * en desarrollo (es decir, tiene un cultivo en desarrollo).
+         */
+        Collection<IrrigationRecord> irrigationRecords = irrigationRecordService.findAllUndefinedWithCrop();
+
+        /*
+         * El metodo getInstance de la clase Calendar retorna
+         * la referencia a un objeto de tipo Calendar que
+         * contiene la fecha actual
+         */
+        Calendar currentDate = Calendar.getInstance();
+        Calendar yesterdayDate = UtilDate.getYesterdayDate();
+        ClimateRecord currentClimateRecord = null;
+        Parcel givenParcel = null;
+
+        double currentIrrigationWaterNeed = 0.0;
+        double excessWaterYesterday = 0.0;
+        double totalIrrigationWaterCurrentDate = 0.0;
+
+        /*
+         * Modifica el valor "n/a" (no disponible) del atributo de la necesidad
+         * de agua de riego de los registros de riego que tienen el cultivo
+         * definido, por un valor mayor o igual a cero, el cual resulta del
+         * calculo de la necesidad de agua de riego de un cultivo
+         */
+        for (IrrigationRecord currentIrrigationRecord : irrigationRecords) {
+            givenParcel = currentIrrigationRecord.getParcel();
+
+            /*
+             * Si la parcela dada tiene el registro climatico de la fecha
+             * actual, es posible calcular la necesidad de agua de riego
+             * [mm/dia] del cultivo que esta en desarrollo en la fecha
+             * actual, ya que dicho registro tiene la evapotranspiracion
+             * del cultivo bajo condiciones estandar (ETc) [mm/dia] y la
+             * precipitacion [mm/dia] de la fecha actual, las cuales son
+             * necesarias para calcular dicha necesidad. Por lo tanto,
+             * se asigna un numero mayor o igual a cero a la necesidad
+             * de agua de riego de un registro de riego que tiene el
+             * cultivo definido y el valor "n/a" (no disponible) en su
+             * atributo de la necesidad de agua de riego.
+             * 
+             * Un registro de riego tiene el cultivo definido cuando se
+             * lo crea para una parcela que tiene un registro de plantacion
+             * en desarrollo (es decir, que tiene un cultivo en desarrollo).
+             */
+            if (climateRecordService.checkExistence(currentDate, givenParcel)) {
+                currentClimateRecord = climateRecordService.find(currentDate, givenParcel);
+
+                /*
+                 * Si la parcela dada tiene el registro climatico del dia inmediatamente
+                 * anterior a la fecha actual, se obtiene el agua excedente del mismo
+                 * para calcular la necesidad de agua de riego [mm/dia] del cultivo que
+                 * esta en desarrollo en la fecha actual. En caso contrario, se asume
+                 * que el agua excedente de dicho dia es 0.
+                 */
+                if (climateRecordService.checkExistence(yesterdayDate, givenParcel)) {
+                    excessWaterYesterday = climateRecordService.find(currentDate, givenParcel).getExcessWater();
+                }
+
+                totalIrrigationWaterCurrentDate = irrigationRecordService.calculateTotalIrrigationWaterCurrentDate(givenParcel);
+
+                /*
+                 * Calculo de la necesidad de agua de riego [mm/dia] del cultivo
+                 * que esta en desarrollo en la fecha actual
+                 */
+                currentIrrigationWaterNeed = WaterMath.calculateIrrigationWaterNeed(
+                        currentClimateRecord.getEtc(),
+                        currentClimateRecord.getPrecip(),
+                        totalIrrigationWaterCurrentDate, excessWaterYesterday);
+
+                /*
+                 * Modifica el valor "n/a" (no disponible) del atributo de la
+                 * necesidad de agua de riego del registro de riego dado por
+                 * un numero mayor o igual a cero
+                 */
+                irrigationRecordService.updateIrrigationWaterNeed(currentIrrigationRecord.getId(),
+                        givenParcel, String.valueOf(currentIrrigationWaterNeed));
+            }
+
+        }
+
+    }
+
 }

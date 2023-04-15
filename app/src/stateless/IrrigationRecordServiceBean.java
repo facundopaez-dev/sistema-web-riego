@@ -197,6 +197,34 @@ public class IrrigationRecordServiceBean {
   }
 
   /**
+   * Retorna todos los registros de riego que tienen el cultivo
+   * definido y el valor "n/a" (no disponible) en el atributo de
+   * la necesidad de agua de riego.
+   * 
+   * Un registro de riego tiene el cultivo definido cuando se lo
+   * crea para una parcela que tiene un registro de plantacion en
+   * desarrollo (por ende, tiene un cultivo en desarrollo). Por lo
+   * tanto, este metodo retorna una coleccion que contiene todos
+   * los registros de riego que tienen el valor "n/a" en el atributo
+   * de la necesidad de agua de riego que corresponden a parcelas
+   * que tienen un cultivo en desarrollo en la fecha actual.
+   * 
+   * Este metodo es para el metodo automatico setIrrigationWaterNeed
+   * de la clase IrrigationRecordManager.
+   * 
+   * @return referencia a un objeto de tipo Collection que contiene
+   * los registros de riego que tienen el cultivo definido y el valor
+   * "n/a" (no disponible) en el atributo de la necesidad de agua de
+   * riego [mm/dia]
+   */
+  public Collection<IrrigationRecord> findAllUndefinedWithCrop() {
+    Query query = entityManager.createQuery("SELECT i FROM IrrigationRecord i WHERE (i.irrigationWaterNeed = :notAvailable AND i.crop != null) ORDER BY i.id");
+    query.setParameter("notAvailable", "n/a");
+
+    return (Collection) query.getResultList();
+  }
+
+  /**
    * Comprueba la existencia de un registro de riego en la base
    * de datos subyacente. Retorna true si y solo si existe el
    * registro de riego con el ID dado.
@@ -416,6 +444,22 @@ public class IrrigationRecordServiceBean {
    */
   public boolean isGeneratedBySystem(int id) {
     return find(id).getSystemGenerated();
+  }
+
+  /**
+   * Actualiza la necesidad de agua de riego del registro
+   * de riego de una parcela
+   * 
+   * @param id
+   * @param givenParcel
+   * @param irrigationWaterNeed [mm/dia]
+   */
+  public void updateIrrigationWaterNeed(int id, Parcel givenParcel, String irrigationWaterNeed) {
+    Query query = entityManager.createQuery("UPDATE IrrigationRecord i SET i.irrigationWaterNeed = :irrigationWaterNeed WHERE (i.id = :givenId AND i.parcel = :givenParcel)");
+    query.setParameter("givenId", id);
+    query.setParameter("givenParcel", givenParcel);
+    query.setParameter("irrigationWaterNeed", irrigationWaterNeed);
+    query.executeUpdate();
   }
 
   public Page<IrrigationRecord> findByPage(Integer page, Integer cantPerPage, Map<String, String> parameters) {
