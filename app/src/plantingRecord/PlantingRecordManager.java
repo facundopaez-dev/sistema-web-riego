@@ -173,12 +173,11 @@ public class PlantingRecordManager {
                 currentClimateRecord = climateRecordService.find(currentDate, givenParcel);
 
                 /*
-                 * Si en la base de datos subyacente existe el registro climatico
-                 * del dia inmediatamente anterior a la fecha actual, se obtiene
-                 * su agua excedente para calcular la necesidad de agua de riego
-                 * [mm/dia] del cultivo que esta en desarrollo en la fecha actual.
-                 * En caso contrario, se asume que el agua excedente de dicho dia
-                 * es 0.
+                 * Si la parcela dada tiene el registro climatico del dia inmediatamente
+                 * anterior a la fecha actual, se obtiene el agua excedente del mismo
+                 * para calcular la necesidad de agua de riego [mm/dia] del cultivo que
+                 * esta en desarrollo en la fecha actual. En caso contrario, se asume
+                 * que el agua excedente de dicho dia es 0.
                  */
                 if (climateRecordService.checkExistence(yesterdayDate, givenParcel)) {
                     excessWaterYesterday = climateRecordService.find(yesterdayDate, givenParcel).getExcessWater();
