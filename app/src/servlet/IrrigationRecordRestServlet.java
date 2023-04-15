@@ -58,7 +58,7 @@ public class IrrigationRecordRestServlet {
    * - cuando la parcela a la que pertenece NO tiene un registro
    * de plantacion en desarrollo. En este caso al no haber un
    * registro de plantacion en desarrollo no hay un cultivo en
-   * desarollo. Por lo tanto, no es posible calcular la
+   * desarrollo. Por lo tanto, no es posible calcular la
    * necesidad de agua de riego de un cultivo.
    * - cuando la parcela a la que pertenece tiene un registro
    * de plantacion en desarrollo, pero NO tiene el registro

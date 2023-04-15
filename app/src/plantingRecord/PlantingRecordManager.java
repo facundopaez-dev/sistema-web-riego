@@ -167,7 +167,7 @@ public class PlantingRecordManager {
              * evapotranspiracion del cultivo bajo condiciones estandar (ETc)
              * [mm/dia] y la precipitacion [mm/dia] de dicho registro climatico,
              * entre otros datos, para calcular la necesidad de agua de riego
-             * [mm/dia] del cultivo que esta en desarollo en la fecha actual
+             * [mm/dia] del cultivo que esta en desarrollo en la fecha actual
              */
             if (climateRecordService.checkExistence(currentDate, givenParcel)) {
                 currentClimateRecord = climateRecordService.find(currentDate, givenParcel);
