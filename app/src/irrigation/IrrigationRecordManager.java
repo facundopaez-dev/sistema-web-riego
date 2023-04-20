@@ -308,9 +308,9 @@ public class IrrigationRecordManager {
                  */
                 irrigationRecordService.updateIrrigationWaterNeed(currentIrrigationRecord.getId(),
                         givenParcel, String.valueOf(currentIrrigationWaterNeed));
-            }
+            } // End if
 
-        }
+        } // End for
 
     }
 

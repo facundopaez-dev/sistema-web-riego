@@ -195,7 +195,7 @@ public class ClimateRecordManager {
    * para probar que este metodo se ejecuta correctamente, es decir, que hace
    * lo que se espera que haga.
    */
-  // @Schedule(second = "*", minute = "*", hour = "0/23", persistent = false)
+  @Schedule(second = "*", minute = "*", hour = "0/23", persistent = false)
   // @Schedule(second = "*/10", minute = "*", hour = "*", persistent = false)
   private void unsetModifiable() {
     Collection<ClimateRecord> modifiableClimateRecords = climateRecordService.findAllModifiable();
@@ -233,7 +233,7 @@ public class ClimateRecordManager {
    * espera que haga: calcular el agua excedente de cada registro
    * climatico que tiene la fecha actual.
    */
-  // @Schedule(second = "*", minute = "59", hour = "23/23", persistent = false)
+  @Schedule(second = "*", minute = "59", hour = "23/23", persistent = false)
   // @Schedule(second = "*/5", minute = "*", hour = "*", persistent = false)
   private void calculateExcessWater() {
     /*
@@ -285,7 +285,7 @@ public class ClimateRecordManager {
           currentClimateRecord.getPrecip(), totalIrrigationWaterCurrentDate, excessWaterYesterday);
 
       climateRecordService.updateExcessWater(currentDate, currentClimateRecord.getParcel(), excessWaterCurrentDate);
-    }
+    } // End for
 
   }
 
