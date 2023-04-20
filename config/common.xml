@@ -1451,7 +1451,8 @@ Comandos para detener el server y la base de datos.
   </target>
 
   <!-- Carga la base de datos con los cultivos, las radiaciones solares, las
-  insolaciones maximas, los estados de un registro de plantacion y una clave secreta -->
+  insolaciones maximas, los estados de un registro de plantacion, un usuario
+  administrador y una clave secreta -->
   <target name="run_basicdata_sql">
     <!-- Borra el contenido de todas las tablas de la base de datos -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
@@ -1459,6 +1460,18 @@ Comandos para detener el server y la base de datos.
       userid="${DERBY_USER}"
       password="${DERBY_PWD}"
       src="etc/sql/removeAll.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla IRRIGATION_SYSTEM_USER -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/adminUserInserts.sql"
       onerror="continue">
       <classpath>
         <pathelement path="${DERBY_CLASSPATH}" />
