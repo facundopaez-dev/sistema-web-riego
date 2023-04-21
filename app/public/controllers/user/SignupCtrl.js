@@ -11,9 +11,9 @@ app.controller(
     const UNDEFINED_EMAIL = "La dirección de correo electrónico debe estar definida";
     const UNDEFINED_PASSWORD = "La contraseña debe estar definida";
     const UNDEFINED_CONFIRMED_PASSWORD = "La confirmación de la contraseña debe estar definida";
-    const MALFORMED_USERNAME = "El nombre debe usuario debe tener una longitud de entre 4 y 15 caracteres, comenzar con caracteres alfabéticos seguido o no de números y/o guiones bajos";
-    const MALFORMED_NAME = "El nombre debe tener una longitud de entre 3 y 30 caracteres alfabéticos, empezar con una letra mayúscula seguido de letras minúsculas, tener un espacio en blanco entre nombre y nombre si hay más de un nombre, y los nombres que vienen después del primero deben empezar con una letra mayúscula seguido de letras minúsculas";
-    const MALFORMED_LAST_NAME = "El apellido debe tener una longitud de entre 3 y 30 caracteres alfabéticos, empezar con una letra mayúscula seguido de letras minúsculas, tener un espacio en blanco entre apellido y apellido si hay más de un apellido, y los apellidos que vienen después del primero deben empezar con una letra mayúscula seguido de letras minúsculas";
+    const MALFORMED_USERNAME = "El nombre de usuario debe tener una longitud de entre 4 y 15 caracteres, comenzar con caracteres alfabéticos (sin símbolos de acentuación) seguido o no de números y/o guiones bajos";
+    const MALFORMED_NAME = "El nombre debe tener una longitud de entre 3 y 30 caracteres alfabéticos sin símbolos de acentuación, empezar con una letra mayúscula seguido de letras minúsculas, tener un espacio en blanco entre nombre y nombre si hay más de un nombre, y los nombres que vienen después del primero deben empezar con una letra mayúscula seguido de letras minúsculas";
+    const MALFORMED_LAST_NAME = "El apellido debe tener una longitud de entre 3 y 30 caracteres alfabéticos sin símbolos de acentuación, empezar con una letra mayúscula seguido de letras minúsculas, tener un espacio en blanco entre apellido y apellido si hay más de un apellido, y los apellidos que vienen después del primero deben empezar con una letra mayúscula seguido de letras minúsculas";
     const MALFORMED_EMAIL = "La dirección de correo electrónico no es válida";
     const MALFORMED_PASSWORD = "La contraseña debe tener como mínimo 8 caracteres de longitud, una letra minúscula, una letra mayúscula y un número de 0 a 9, con o sin caracteres especiales";
     const INCORRECTLY_CONFIRMED_PASSWORD = "La confirmación de la contraseña no es igual a la contraseña ingresada";
@@ -118,9 +118,9 @@ app.controller(
       el siguiente mensaje y no ejecuta la instruccion que realiza
       la peticion HTTP para registrar a un usuario:
       
-      "El nombre debe usuario debe tener una longitud de entre 4 y
-      15 caracteres, comenzar con caracteres alfabeticos seguido o
-      no de numeros y/o guiones bajos".
+      "El nombre de usuario debe tener una longitud de entre 4 y
+      15 caracteres, comenzar con caracteres alfabeticos (sin simbolos
+      de acentuacion) seguido o no de numeros y/o guiones bajos".
       */
       if (!usernameRegexp.exec($scope.data.username)) {
         alert(MALFORMED_USERNAME);
@@ -138,10 +138,11 @@ app.controller(
       realiza la peticion HTTP para registrar a un usuario.
       
       "El nombre debe tener una longitud de entre 3 y 30 caracteres
-      alfabeticos, empezar con una letra mayuscula seguido de letras
-      minusculas, tener un espacio en blanco entre nombre y nombre si
-      hay mas de un nombre, y los nombres que vienen despues del primero
-      deben empezar con una letra mayuscula seguido de letras minusculas".
+      alfabeticos sin simbolos de acentuacion, empezar con una letra
+      mayuscula seguido de letras minusculas, tener un espacio en blanco
+      entre nombre y nombre si hay mas de un nombre, y los nombres que
+      vienen despues del primero deben empezar con una letra mayuscula
+      seguido de letras minusculas".
       */
       if (!nameRegexp.exec($scope.data.name)) {
         alert(MALFORMED_NAME);
@@ -159,11 +160,10 @@ app.controller(
       la peticion HTTP para registrar a un usuario.
 
       "El apellido debe tener una longitud de entre 3 y 30 caracteres
-      alfabeticos, empezar con una letra mayuscula seguido de letras
-      minusculas, tener un espacio en blanco entre apellido y apellido
-      si hay mas de un apellido, y los apellidos que vienen despues del
-      primero deben empezar con una letra mayuscula seguido de letras
-      minusculas".
+      alfabeticos sin simbolos de acentuacion, empezar con una letra mayuscula
+      seguido de letras minusculas, tener un espacio en blanco entre apellido y
+      apellido si hay mas de un apellido, y los apellidos que vienen despues del
+      primero deben empezar con una letra mayuscula seguido de letras minusculas".
       */
       if (!lastNameRegexp.exec($scope.data.lastName)) {
         alert(MALFORMED_LAST_NAME);
