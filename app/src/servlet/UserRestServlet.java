@@ -644,8 +644,8 @@ public class UserRestServlet {
      * enlace de restablecimiento de contraseña, el cual, tiene el JWT
      * creado.
      */
-    PasswordResetLink givenPasswordRestLink = passwordResetLinkService.create(userService.findByEmail(dataEmailFormPasswordReset.getEmail()));
-    String jwtResetPassword = JwtManager.createJwt(givenPasswordRestLink.getId(), dataEmailFormPasswordReset.getEmail(), secretKeyService.find().getValue());
+    PasswordResetLink givenPasswordResetLink = passwordResetLinkService.create(userService.findByEmail(dataEmailFormPasswordReset.getEmail()));
+    String jwtResetPassword = JwtManager.createJwt(givenPasswordResetLink.getId(), dataEmailFormPasswordReset.getEmail(), secretKeyService.find().getValue());
     Email.sendPasswordResetEmail(dataEmailFormPasswordReset.getEmail(), jwtResetPassword);
 
     /*
