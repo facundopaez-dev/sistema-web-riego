@@ -16,7 +16,7 @@ public enum ReasonError {
   INDEFINITE_SEED_DATE("La fecha de siembra debe estar definida"),
   INDEFINITE_PARCEL("La parcela debe estar definida"),
   INDEFINITE_CROP("El cultivo debe estar definido"),
-  CREATION_NOT_ALLOWED_IN_DEVELOPMENT("No está permitido crear un registro de plantación para una parcela que tiene un registro de plantación en desarrrollo"),
+  CREATION_NOT_ALLOWED_IN_DEVELOPMENT("No está permitido crear un registro de plantación para una parcela que tiene un registro de plantación en desarrollo"),
   DATE_OVERLAP_WITH_PREVIOUS_PLANTING_RECORD("La fecha de siembra no debe ser anterior o igual a la fecha de cosecha del registro de plantación inmediatamente anterior"),
   DATE_OVERLAP_WITH_NEXT_PLANTING_RECORD("La fecha de cosecha no debe ser posterior o igual a la fecha de siembra del registro de plantación inmediatamente siguiente"),
   UNDEFINED_CROP_TYPE_NAME("El nombre del tipo de cultivo debe estar definido"),
