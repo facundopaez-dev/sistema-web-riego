@@ -804,6 +804,7 @@ public class PlantingRecordRestServlet {
     newIrrigationRecord.setDate(currentDate);
     newIrrigationRecord.setIrrigationWaterNeed(String.valueOf(irrigationWaterNeedCurrentDate));
     newIrrigationRecord.setParcel(givenParcel);
+    newIrrigationRecord.setCrop(givenPlantingRecord.getCrop());
 
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP

@@ -198,6 +198,16 @@
           </div>
 
           <div class="form-group">
+            <label for="cropName" class="col-md-3 control-label">
+              <p class="text-right">Cultivo</p>
+            </label>
+            <div class="col-md-5">
+              <input type="text" class="form-control" id="cropName" ng-model="irrigationRecord.crop.name"
+                ng-disabled="true">
+            </div>
+          </div>
+
+          <div class="form-group">
             <label for="irrigationWaterNeed" class="col-md-3 control-label">
               <p class="text-right">Necesidad de agua de riego de hoy [mm/día]</p>
             </label>
