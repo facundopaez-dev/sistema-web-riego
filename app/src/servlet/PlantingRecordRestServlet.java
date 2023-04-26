@@ -73,17 +73,6 @@ public class PlantingRecordRestServlet {
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
 
-  /*
-   * El valor de esta constante se asigna al atributo
-   * irrigationWaterNeed de un registro de plantacion
-   * nuevo para representar que un registro de plantacion
-   * recien creado no tiene calculada la necesidad de
-   * agua de riego del cultivo que contiene.
-   * 
-   * La abreviatura "n/a" significa "no disponible".
-   */
-  private final String NOT_AVAILABLE = "n/a";
-
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response findAll(@Context HttpHeaders request) throws IOException {
@@ -359,12 +348,24 @@ public class PlantingRecordRestServlet {
     newPlantingRecord.setModifiable(true);
 
     /*
-     * Un registro de plantacion nuevo no tiene calculada
-     * la necesidad de agua de riego del cultivo que contiene,
-     * por lo tanto, se asigna el valor "n/a" (no disponible)
-     * a su atributo irrigationWaterNeed
+     * Obtiene el JWT del valor del encabezado de autorizacion
+     * de una peticion HTTP
      */
-    newPlantingRecord.setIrrigationWaterNeed(NOT_AVAILABLE);
+    String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
+
+    /*
+     * Obtiene el ID de usuario contenido en la carga util del
+     * JWT del encabezado de autorizacion de una peticion HTTP
+     */
+    int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * **********************************************
+     * Calculo de la necesidad de agua de riego de un
+     * cultivo en desarrollo en la fecha actual
+     * **********************************************
+     */
+    newPlantingRecord.setIrrigationWaterNeed(String.valueOf(calculateIrrigationWaterNeed(userId, newPlantingRecord)));
 
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
@@ -678,14 +679,55 @@ public class PlantingRecordRestServlet {
       return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
     }
 
+    PlantingRecord givenPlantingRecord = plantingRecordService.find(plantingRecordId);
+    Parcel givenParcel = givenPlantingRecord.getParcel();
+
     /*
      * **********************************************
      * Calculo de la necesidad de agua de riego de un
-     * cultivo en la fecha actual
+     * cultivo en desarrollo en la fecha actual
      * **********************************************
      */
+    double irrigationWaterNeedCurrentDate = calculateIrrigationWaterNeed(userId, givenPlantingRecord);
 
-    PlantingRecord givenPlantingRecord = plantingRecordService.find(plantingRecordId);
+    /*
+     * Se actualiza el atributo irrigationWaterNeed del registro
+     * de plantacion en desarrollo sobre el que se solicita calcular
+     * la necesidad de agua de riego del cultivo que contiene
+     */
+    plantingRecordService.updateIrrigationWaterNeed(plantingRecordId, givenParcel, String.valueOf(irrigationWaterNeedCurrentDate));
+
+    IrrigationRecord newIrrigationRecord = new IrrigationRecord();
+
+    /*
+     * El metodo getInstance de la clase Calendar retorna la
+     * referencia a un objeto de tipo Calendar que contiene la
+     * fecha actual
+     */
+    newIrrigationRecord.setDate(Calendar.getInstance());
+    newIrrigationRecord.setIrrigationWaterNeed(String.valueOf(irrigationWaterNeedCurrentDate));
+    newIrrigationRecord.setParcel(givenParcel);
+    newIrrigationRecord.setCrop(givenPlantingRecord.getCrop());
+
+    /*
+     * Si el valor del encabezado de autorizacion de la peticion HTTP
+     * dada, tiene un JWT valido, la aplicacion del lado servidor
+     * devuelve el mensaje HTTP 200 (Ok) junto con los datos
+     * pertinentes
+     */
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(newIrrigationRecord)).build();
+  }
+
+  /**
+   * Calcula la necesidad de agua de riego de un cultivo en
+   * desarrollo en la fecha actual
+   * 
+   * @param userId
+   * @param givenPlantingRecord
+   * @return punto flotante que representa la necesidad de agua
+   * de riego de un cultivo en desarrollo en la fecha actual
+   */
+  private double calculateIrrigationWaterNeed(int userId, PlantingRecord givenPlantingRecord) {
     Parcel givenParcel = givenPlantingRecord.getParcel();
     ClimateRecord currentClimateRecord = null;
 
@@ -748,14 +790,15 @@ public class PlantingRecordRestServlet {
     /*
      * Si en la base de datos subyacente NO existe el registro
      * climatico de la fecha actual para la parcela dada, se lo
-     * solicita al servicio metereologico utilizado y se lo persiste.
+     * solicita al servicio metereologico utilizado y se lo
+     * persiste.
      * 
-     * Se hace esto porque lo que se busca con este metodo REST
-     * es calcular la necesidad de agua de riego de un cultivo
-     * en la fecha actual. Para esto se debe calcular la ETc
-     * (evapotranspiracion del cultivo bajo condiciones estandar)
-     * de la fecha actual, con lo cual, se la debe calcular con
-     * datos meteorologicos de la fecha actual.
+     * Se hace esto porque lo que se busca con este metodo es
+     * calcular la necesidad de agua de riego de un cultivo en
+     * desarrollo en la fecha actual. Para esto se debe calcular
+     * la ETc (evapotranspiracion del cultivo bajo condiciones
+     * estandar) de la fecha actual, con lo cual, se la debe
+     * calcular con datos meteorologicos de la fecha actual.
      */
     if (!climateRecordService.checkExistence(currentDate, givenParcel)) {
       currentClimateRecord = climateRecordService.persistCurrentClimateRecord(givenParcel);
@@ -793,26 +836,7 @@ public class PlantingRecordRestServlet {
       climateRecordService.modify(userId, currentClimateRecord.getId(), currentClimateRecord);
     }
 
-    /*
-     * Se actualiza el atributo irrigationWaterNeed del registro
-     * de plantacion en desarrollo sobre el que se solicita calcular
-     * la necesidad de agua de riego del cultivo que contiene
-     */
-    plantingRecordService.updateIrrigationWaterNeed(plantingRecordId, givenParcel, String.valueOf(irrigationWaterNeedCurrentDate));
-
-    IrrigationRecord newIrrigationRecord = new IrrigationRecord();
-    newIrrigationRecord.setDate(currentDate);
-    newIrrigationRecord.setIrrigationWaterNeed(String.valueOf(irrigationWaterNeedCurrentDate));
-    newIrrigationRecord.setParcel(givenParcel);
-    newIrrigationRecord.setCrop(givenPlantingRecord.getCrop());
-
-    /*
-     * Si el valor del encabezado de autorizacion de la peticion HTTP
-     * dada, tiene un JWT valido, la aplicacion del lado servidor
-     * devuelve el mensaje HTTP 200 (Ok) junto con los datos
-     * pertinentes
-     */
-    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(newIrrigationRecord)).build();
+    return irrigationWaterNeedCurrentDate;
   }
 
 }
