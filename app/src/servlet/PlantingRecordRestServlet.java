@@ -574,6 +574,22 @@ public class PlantingRecordRestServlet {
     }
 
     /*
+     * Si la parcela del registro de plantacion a modificar
+     * es diferente a la parcela actual de dicho registro y
+     * ya tiene un registro de plantacion en desarrollo, la
+     * aplicacion retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "La parcela seleccionada ya tiene
+     * un registro de plantacion en desarrollo" y no se realiza
+     * la operacion solicitada
+     */
+    if (!(modifiedPlantingRecord.getParcel().equals(currentPlantingRecord.getParcel()))
+        && (plantingRecordService.checkOneInDevelopment(modifiedPlantingRecord.getParcel()))) {
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_WITH_PARCEL_HAS_PLANTING_RECORD_IN_DEVELOPMENT_NOT_ALLOWED)))
+          .build();
+    }
+
+    /*
      * Si el cultivo del registro de plantacion a modificar NO
      * esta definido, la aplicacion del lado servidor retorna
      * el mensaje HTTP 400 (Bad request) junto con el mensaje
