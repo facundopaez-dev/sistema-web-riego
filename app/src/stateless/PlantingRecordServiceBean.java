@@ -60,6 +60,7 @@ public class PlantingRecordServiceBean {
     if (chosenPlantingRecord != null) {
       chosenPlantingRecord.setSeedDate(modifiedPlantingRecord.getSeedDate());
       chosenPlantingRecord.setHarvestDate(modifiedPlantingRecord.getHarvestDate());
+      chosenPlantingRecord.setIrrigationWaterNeed(modifiedPlantingRecord.getIrrigationWaterNeed());
       chosenPlantingRecord.setParcel(modifiedPlantingRecord.getParcel());
       chosenPlantingRecord.setCrop(modifiedPlantingRecord.getCrop());
       return chosenPlantingRecord;

@@ -622,6 +622,15 @@ public class PlantingRecordRestServlet {
     modifiedPlantingRecord.setHarvestDate(cropService.calculateHarvestDate(modifiedPlantingRecord.getSeedDate(), modifiedPlantingRecord.getCrop()));
 
     /*
+     * Se calcula la necesidad de agua de riego del registro de
+     * plantacion (modificado) en base a la parcela y al cultivo
+     * modificados. Esto es que se calcula la necesidad de agua
+     * de riego del cultivo modificado perteneciente a la parcela
+     * modificada.
+     */
+    modifiedPlantingRecord.setIrrigationWaterNeed(String.valueOf(calculateIrrigationWaterNeed(userId, modifiedPlantingRecord)));
+
+    /*
      * Se establece el estado del registro de plantacion a
      * modificar en base a la fecha de cosecha de su cultivo
      */
@@ -795,12 +804,38 @@ public class PlantingRecordRestServlet {
       currentClimateRecord = climateRecordService.find(currentDate, givenParcel);
 
       /*
+       * Calculo de la evapotranspiracion del cultivo bajo
+       * condiciones estandar (ETc) de la fecha actual.
+       * 
+       * Es necesario calcular la ETc del cultivo de un registro
+       * de plantacion en desarrollo, ya que dicho cultivo puede
+       * ser modificado por otro cultivo, con lo cual cambia la
+       * ETc, y al cambiar la ETc cambia la necesidad de agua de
+       * riego de un cultivo, y, por ende, cambia el valor del
+       * atributo de la necesidad de agua de riego de un registro
+       * de plantacion en desarrollo.
+       */
+      etcCurrentDate = Etc.calculateEtc(currentClimateRecord.getEto(),
+          cropService.getKc(givenPlantingRecord.getCrop(), givenPlantingRecord.getSeedDate()));
+      currentClimateRecord.setEtc(etcCurrentDate);
+
+      totalIrrigationWaterCurrentDate = irrigationRecordService.calculateTotalIrrigationWaterCurrentDate(givenParcel);
+
+      /*
        * Calculo de la necesidad de agua de riego de
        * un cultivo en la fecha actual
        */
-      totalIrrigationWaterCurrentDate = irrigationRecordService.calculateTotalIrrigationWaterCurrentDate(givenParcel);
       irrigationWaterNeedCurrentDate = WaterMath.calculateIrrigationWaterNeed(currentClimateRecord.getEtc(),
           currentClimateRecord.getPrecip(), totalIrrigationWaterCurrentDate, excessWaterYesterday);
+
+      /*
+       * Actualiza la ETc del registro climatico de la fecha
+       * actual, ya que si el cultivo de un registro de plantacion
+       * en desarrollo es modificado por otro cultivo, cambia
+       * la ETc, y, por ende, se debe actualizar la ETc del
+       * registro climatico actual
+       */
+      climateRecordService.modify(userId, currentClimateRecord.getId(), currentClimateRecord);
     }
 
     /*
