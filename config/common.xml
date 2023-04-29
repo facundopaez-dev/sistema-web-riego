@@ -382,12 +382,26 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
-    <!-- Carga la tabla MAXIMUM_INSOLATION -->
+    <!-- Carga la tabla MAXIMUM_INSOLATION con los valores de la insolacion maxima diaria
+    del hemisferio norte -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
       userid="${DERBY_USER}"
       password="${DERBY_PWD}"
-      src="etc/sql/maximumInsolationInserts.sql"
+      src="etc/sql/northernMaximumInsolationInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla MAXIMUM_INSOLATION con los valores de la insolacion maxima diaria
+    del hemisferio sur -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/southernMaximumInsolationInserts.sql"
       onerror="continue">
       <classpath>
         <pathelement path="${DERBY_CLASSPATH}" />
@@ -1578,12 +1592,26 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
-    <!-- Carga la tabla MAXIMUM_INSOLATION -->
+    <!-- Carga la tabla MAXIMUM_INSOLATION con los valores de la insolacion maxima diaria
+    del hemisferio norte -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
       userid="${DERBY_USER}"
       password="${DERBY_PWD}"
-      src="etc/sql/maximumInsolationInserts.sql"
+      src="etc/sql/northernMaximumInsolationInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla MAXIMUM_INSOLATION con los valores de la insolacion maxima diaria
+    del hemisferio sur -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/southernMaximumInsolationInserts.sql"
       onerror="continue">
       <classpath>
         <pathelement path="${DERBY_CLASSPATH}" />
