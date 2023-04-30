@@ -1,7 +1,5 @@
 package model;
 
-import java.util.Objects;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -159,18 +157,6 @@ public class Parcel {
    */
   public void setUser(User user) {
     this.user = user;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    Parcel other = (Parcel) obj;
-    return Objects.equals(name, other.name);
   }
 
   @Override
