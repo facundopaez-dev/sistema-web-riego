@@ -442,43 +442,6 @@ public class PlantingRecordServiceBean {
   }
 
   /**
-   * Retorna el ultimo registro de plantacion finalizado de
-   * una parcela, si existe.
-   * 
-   * @param givenParcel
-   * @return referencia a un objeto de tipo PlantingRecord que
-   * representa el ultimo registro de plantacion en el estado
-   * "Finalizado" de una parcela, si existe dicho registro.
-   * En caso contrario, retorna null.
-   */
-  public PlantingRecord findLastFinished(Parcel givenParcel) {
-    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r WHERE r.id = (SELECT MAX(r.id) FROM PlantingRecord r JOIN r.parcel p JOIN r.status s WHERE (s.name = 'Finalizado' AND p = :parcel))");
-    query.setParameter("parcel", givenParcel);
-
-    PlantingRecord plantingRecord = null;
-
-    try {
-      plantingRecord = (PlantingRecord) query.getSingleResult();
-    } catch(NoResultException e) {
-      e.printStackTrace();
-    }
-
-    return plantingRecord;
-  }
-
-  /**
-   * Retorna true si y solo si una parcela tiene un ultimo
-   * registro de plantacion finalizado
-   * 
-   * @param givenParcel
-   * @return true si una parcela tiene un ultimo registro de
-   * plantacion finalizado, en caso contrario false
-   */
-  public boolean hasLastFinished(Parcel givenParcel) {
-    return (findLastFinished(givenParcel) != null);
-  }
-
-  /**
    * Retorna true si y solo si una parcela tiene un registro de
    * plantacion en desarrollo. Esto significa que retorna true
    * si y solo si una parcela tiene un cultivo en desarrollo.

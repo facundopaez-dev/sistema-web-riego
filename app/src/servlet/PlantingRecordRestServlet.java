@@ -478,47 +478,20 @@ public class PlantingRecordRestServlet {
     /*
      * Si la fecha de siembra del registro de plantacion a modificar
      * esta definida y es distinta a la fecha de siembra actual de
-     * dicho registro, se realizan las siguientes operaciones:
-     * 
-     * - se comprueba si la fecha de siembra modificada es menor
-     * o igual a la fecha de cosecha del ultimo registro de
-     * plantacion finalizado de la parcela elegida
-     * 
-     * - se comprueba si la fecha de siembra modificada es menor
-     * o mayor a la fecha actual
+     * dicho registro, se comprueba si es menor o mayor a la fecha
+     * actual. El motivo por el cual se realiza esta comprobacion
+     * es que la aplicacion calcula la necesidad de agua de riego
+     * de un cultivo (sembrado y en desarrollo) en la fecha actual.
+     * Este calculo lo realiza en funcion de los datos meteorologicos
+     * de la fecha actual, el agua de riego de la fecha actual y el
+     * agua excedente del día inmediatamente anterior a la fecha actual.
      */
     if ((modifiedPlantingRecord.getSeedDate() != null) && (UtilDate.compareTo(modifiedPlantingRecord.getSeedDate(), currentSeedDate) != 0)) {
       /*
-       * Si la parcela correspondiente al registro de plantacion
-       * a modificar, tiene un ultimo registro de plantacion finalizado,
-       * se comprueba si hay superposicion entre la fecha de siembra
-       * del registro de plantacion a modificar y la fecha de cosecha
-       * del ultimo registro de plantacion finalizado de la parcela
-       * elegida
+       * El metodo getInstance de la clase Calendar retorna la
+       * referencia a un objeto de tipo Calendar que contiene
+       * la fecha actual
        */
-      if (plantingRecordService.hasLastFinished(modifiedPlantingRecord.getParcel())) {
-        PlantingRecord lastFinishedPlantingRecord = plantingRecordService.findLastFinished(modifiedPlantingRecord.getParcel());
-
-        /*
-         * Si la fecha de siembra del registro de plantacion a
-         * modificar es menor o igual a la fecha de cosecha del
-         * ultimo registro de plantacion finalizado de la parcela
-         * elegida, la aplicacion retorna el mensaje HTTP 400
-         * (Bad request) junto con el mensaje "No esta permitido
-         * modificar un registro de plantacion con una fecha de
-         * siembra menor o igual a la fecha de cosecha del
-         * ultimo registro de plantacion finalizado de la
-         * parcela elegida" y no se realiza la operacion
-         * solicitada
-         */
-        if (UtilDate.compareTo(modifiedPlantingRecord.getSeedDate(), lastFinishedPlantingRecord.getHarvestDate()) <= 0) {
-          return Response.status(Response.Status.BAD_REQUEST)
-              .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.OVERLAP_BETWEEN_SEED_DATE_AND_HARVEST_DATE_WITH_LAST_FINISHED_PLANTING_RECORD)))
-              .build();
-        }
-
-      } // End if
-
       Calendar currentDate = Calendar.getInstance();
 
       /*
