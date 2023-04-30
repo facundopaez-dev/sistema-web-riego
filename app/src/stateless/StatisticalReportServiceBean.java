@@ -27,9 +27,9 @@ public class StatisticalReportServiceBean {
     return entityManager;
   }
 
-  public StatisticalReport create(StatisticalReport newClimateRecord) {
-    getEntityManager().persist(newClimateRecord);
-    return newClimateRecord;
+  public StatisticalReport create(StatisticalReport newStatisticalReport) {
+    getEntityManager().persist(newStatisticalReport);
+    return newStatisticalReport;
   }
 
   /**
@@ -45,11 +45,11 @@ public class StatisticalReportServiceBean {
    * caso contrario null
    */
   public StatisticalReport remove(int userId, int statisticalReportId) {
-    StatisticalReport givenClimateRecord = find(userId, statisticalReportId);
+    StatisticalReport givenStatisticalReport = find(userId, statisticalReportId);
 
-    if (givenClimateRecord != null) {
-      getEntityManager().remove(givenClimateRecord);
-      return givenClimateRecord;
+    if (givenStatisticalReport != null) {
+      getEntityManager().remove(givenStatisticalReport);
+      return givenStatisticalReport;
     }
 
     return null;
