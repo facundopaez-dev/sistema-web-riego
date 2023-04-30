@@ -30,6 +30,17 @@ app.service("PlantingRecordSrv", ["$http", function ($http) {
       });
   };
 
+  this.delete = function (id, callback) {
+    $http.delete("rest/plantingRecords/" + id)
+      .then(
+        function (result) {
+          callback(false, result.data);
+        },
+        function (error) {
+          callback(error);
+        });
+  }
+
   this.modify = function (data, callback) {
     $http.put("rest/plantingRecords/" + data.id, data)
       .then(

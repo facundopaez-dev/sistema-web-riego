@@ -44,6 +44,29 @@ public class PlantingRecordServiceBean {
   }
 
   /**
+   * Elimina fisicamente un registro de plantacion perteneciente a
+   * una parcela de un usuario
+   * 
+   * @param userId
+   * @param plantingRecordId
+   * @return referencia a un objeto de tipo PlantingRecord en
+   * caso de eliminarse de la base de datos subyacente el registro
+   * de plantacion que tiene el ID dado y que esta asociado a una
+   * parcela de un usuario que tiene el ID de usuario dado, en
+   * caso contrario null
+   */
+  public PlantingRecord remove(int userId, int plantingRecordId) {
+    PlantingRecord givenPlantingRecord = findByUserId(userId, plantingRecordId);
+
+    if (givenPlantingRecord != null) {
+      getEntityManager().remove(givenPlantingRecord);
+      return givenPlantingRecord;
+    }
+
+    return null;
+  }
+
+  /**
    * Modifica un registro de plantacion perteneciente a una parcela
    * de un usuario
    * 

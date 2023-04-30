@@ -84,4 +84,14 @@ public class PlantingRecordStatusServiceBean {
     return findFinished();
   }
 
+  /**
+   * @param statusOne
+   * @param statusTwo
+   * @return true si el estado uno es igual al estado dos, en
+   * caso contrario false
+   */
+  public boolean equals(PlantingRecordStatus statusOne, PlantingRecordStatus statusTwo) {
+    return statusOne.getName().equals(statusTwo.getName());
+  }
+
 }

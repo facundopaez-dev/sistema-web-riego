@@ -1,7 +1,7 @@
 app.controller(
 	"PlantingRecordsCtrl",
-	["$scope", "$location", "PlantingRecordSrv", "ParcelSrv", "IrrigationRecordSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
-		function ($scope, $location, plantingRecordSrv, parcelSrv, irrigationRecordService, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
+	["$scope", "$location", "$route", "PlantingRecordSrv", "ParcelSrv", "IrrigationRecordSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
+		function ($scope, $location, $route, plantingRecordSrv, parcelSrv, irrigationRecordService, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
 
 			console.log("Cargando PlantingRecordsCtrl...")
 
@@ -62,6 +62,27 @@ app.controller(
 
 					$scope.data = data;
 				})
+			}
+
+			$scope.delete = function (id) {
+				console.log("Deleting: " + id)
+
+				var result = window.confirm("¿Desea eliminar el registro de plantación seleccionado?");
+
+				if (result === false) {
+					return;
+				}
+
+				plantingRecordSrv.delete(id, function (error) {
+					if (error) {
+						console.log(error);
+						errorResponseManager.checkResponse(error);
+						return;
+					}
+
+					$location.path("/home/plantingRecords");
+					$route.reload()
+				});
 			}
 
 			$scope.calculateIrrigationWaterNeed = function (id) {
