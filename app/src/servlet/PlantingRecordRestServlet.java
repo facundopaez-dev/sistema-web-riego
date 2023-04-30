@@ -21,6 +21,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import stateless.ClimateRecordServiceBean;
 import stateless.CropServiceBean;
+import stateless.ParcelServiceBean;
 import stateless.IrrigationRecordServiceBean;
 import stateless.MaximumInsolationServiceBean;
 import stateless.PlantingRecordServiceBean;
@@ -49,6 +50,9 @@ public class PlantingRecordRestServlet {
 
   // inject a reference to the PlantingRecordServiceBean
   @EJB PlantingRecordServiceBean plantingRecordService;
+
+  // inject a reference to the ParcelServiceBean
+  @EJB ParcelServiceBean parcelService;
 
   // inject a reference to the ClimateRecordServiceBean
   @EJB ClimateRecordServiceBean climateRecordService;
@@ -583,7 +587,7 @@ public class PlantingRecordRestServlet {
      * un registro de plantacion en desarrollo" y no se realiza
      * la operacion solicitada
      */
-    if (!(modifiedPlantingRecord.getParcel().equals(currentPlantingRecord.getParcel()))
+    if (!(parcelService.equals(modifiedPlantingRecord.getParcel(), currentPlantingRecord.getParcel()))
         && (plantingRecordService.checkOneInDevelopment(modifiedPlantingRecord.getParcel()))) {
       return Response.status(Response.Status.BAD_REQUEST)
           .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_WITH_PARCEL_HAS_PLANTING_RECORD_IN_DEVELOPMENT_NOT_ALLOWED)))

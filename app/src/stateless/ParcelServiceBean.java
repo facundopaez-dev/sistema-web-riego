@@ -96,6 +96,16 @@ public class ParcelServiceBean {
     return null;
   }
 
+  /**
+   * @param parcelOne
+   * @param parcelTwo
+   * @return true si la parcela uno tiene el mismo nombre que
+   * la parcela dos, en caso contrario false
+   */
+  public boolean equals(Parcel parcelOne, Parcel parcelTwo) {
+    return parcelOne.getName().equals(parcelTwo.getName());
+  }
+
   public Parcel find(int id) {
     return getEntityManager().find(Parcel.class, id);
   }
