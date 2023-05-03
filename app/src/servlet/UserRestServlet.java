@@ -768,7 +768,7 @@ public class UserRestServlet {
      * numero de 0 a 9, con o sin caracteres especiales" y no se realiza
      * la operacion solicitada
      */
-    if (!passwordResetFormData.getNewPassword().matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{7,}$")) {
+    if (!passwordResetFormData.getNewPassword().matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,}$")) {
       return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.MALFORMED_NEW_PASSWORD)).build();
     }
 

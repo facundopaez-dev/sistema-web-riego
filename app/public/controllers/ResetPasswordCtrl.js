@@ -13,7 +13,7 @@ app.controller(
 
       $scope.resetPassword = function () {
         // Expresion regular para validar la nueva contraseña
-        var newPasswordRegexp = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{7,}$/g;
+        var newPasswordRegexp = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,}$/g;
 
         /*
         Si la propiedad data de $scope tiene el valor undefined,
