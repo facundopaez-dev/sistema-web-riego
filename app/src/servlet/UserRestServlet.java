@@ -92,10 +92,16 @@ public class UserRestServlet {
     return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(userService.findAll())).build();
 	}
 
+  /*
+   * Este metodo es para que el usuario pueda modificar
+   * los datos de su cuenta al presionar el boton que
+   * tiene el icono de un lapiz en la pagina web de
+   * inicio
+   */
   @GET
-  @Path("/{id}")
+  @Path("/myAccountDetails")
   @Produces(MediaType.APPLICATION_JSON)
-  public Response find(@Context HttpHeaders request, @PathParam("id") int userId) throws IOException {
+  public Response findMyAccountDetails(@Context HttpHeaders request) throws IOException {
     Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
 
     /*
@@ -116,6 +122,18 @@ public class UserRestServlet {
     if (!RequestManager.isAccepted(givenResponse)) {
       return givenResponse;
     }
+
+    /*
+     * Obtiene el JWT del valor del encabezado de autorizacion
+     * de una peticion HTTP
+     */
+    String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
+
+    /*
+     * Obtiene el ID de usuario contenido en la carga util del
+     * JWT del encabezado de autorizacion de una peticion HTTP
+     */
+    int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
 
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP

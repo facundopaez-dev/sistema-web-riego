@@ -1,16 +1,15 @@
 app.controller(
-  "UserAccountCtrl",
-  ["$scope", "$location", "$routeParams", "UserSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager", "ExpirationManager",
-    "RedirectManager",
-    function ($scope, $location, $params, userService, accessManager, errorResponseManager, authHeaderManager, logoutManager, expirationManager, redirectManager) {
+  "AdminAccountDataModificationCtrl",
+  ["$scope", "$location", "UserSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager", "ExpirationManager", "RedirectManager",
+    function ($scope, $location, userService, accessManager, errorResponseManager, authHeaderManager, logoutManager, expirationManager, redirectManager) {
 
-      console.log("UserAccountCtrl loaded with action: " + $params.action);
+      console.log("AdminAccountDataModificationCtrl loaded...");
 
       /*
-      *******************************************************************
-      Este controller es para que el usuario pueda modificar los datos de
-      su cuenta
-      *******************************************************************
+      ********************************************************************
+      Este controller es para que el usuario administrador pueda modificar
+      los datos de su cuenta
+      ********************************************************************
       */
 
       /*
@@ -19,21 +18,17 @@ app.controller(
       la pagina web de inicio de sesion correspondiente
       */
       if (!accessManager.isUserLoggedIn()) {
-        $location.path("/");
+        $location.path("/admin");
         return;
       }
 
       /*
-      Si el usuario que tiene una sesion abierta tiene permiso de
-      administrador, se lo redirige a la pagina de inicio del
-      administrador. De esta manera, un administrador debe cerrar
-      la sesion que abrio a traves de la pagina web de inicio de sesion
-      del administrador, y luego abrir una sesion a traves de la pagina
-      web de inicio de sesion del usuario para poder acceder a la pagina
-      de inicio del usuario.
+      Si el usuario que tiene una sesion abierta no tiene permiso de administrador,
+      no se le da acceso a la pagina correspondiente a este controller y se lo redirige
+      a la pagina de inicio del usuario
       */
-      if (accessManager.isUserLoggedIn() && accessManager.loggedAsAdmin()) {
-        $location.path("/adminHome");
+      if (accessManager.isUserLoggedIn() && !accessManager.loggedAsAdmin()) {
+        $location.path("/home");
         return;
       }
 
@@ -101,13 +96,8 @@ app.controller(
       const MALFORMED_LAST_NAME = "El apellido debe tener una longitud de entre 3 y 30 caracteres alfabéticos sin símbolos de acentuación, empezar con una letra mayúscula seguido de letras minúsculas, tener un espacio en blanco entre apellido y apellido si hay más de un apellido, y los apellidos que vienen después del primero deben empezar con una letra mayúscula seguido de letras minúsculas";
       const MALFORMED_EMAIL = "La dirección de correo electrónico no es válida";
 
-      if (['edit'].indexOf($params.action) == -1) {
-        alert("Acción inválida: " + $params.action);
-        $location.path("/home");
-      }
-
-      function find(id) {
-        userService.find(id, function (error, data) {
+      function findMyAccountDetails() {
+        userService.findMyAccountDetails(function (error, data) {
           if (error) {
             console.log(error);
             errorResponseManager.checkResponse(error);
@@ -133,8 +123,8 @@ app.controller(
         significa que el usuario presiono el boton "Modificar"
         con todos los campos vacios del formulario, por lo tanto,
         la aplicacion muestra el mensaje dado y no ejecuta la
-        instruccion que realiza la peticion HTTP para registrar
-        a un usuario
+        instruccion que realiza la peticion HTTP correspondiente
+        a este controller
         */
         if ($scope.data == undefined) {
           alert(EMPTY_FORM);
@@ -278,12 +268,12 @@ app.controller(
           }
 
           $scope.data = data;
-          $location.path("/home")
+          $location.path("/adminHome")
         });
       }
 
       $scope.cancel = function () {
-        $location.path("/home");
+        $location.path("/adminHome");
       }
 
       $scope.logout = function () {
@@ -303,10 +293,6 @@ app.controller(
         logoutManager.logout();
       }
 
-      $scope.action = $params.action;
-
-      if ($scope.action == 'edit') {
-        find($params.id);
-      }
+      findMyAccountDetails();
 
     }]);

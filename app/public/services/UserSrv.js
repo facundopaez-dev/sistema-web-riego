@@ -28,8 +28,13 @@ app.service(
 					});
 			}
 
-			this.find = function (id, callback) {
-				$http.get("rest/users/" + id).then(
+			/*
+			Esta funcion es para que el usuario pueda modificar
+			los datos su cuenta al presionar el boton que tiene
+			el icono de un lapiz en la pagina web de inicio
+			*/
+			this.findMyAccountDetails = function (callback) {
+				$http.get("rest/users/myAccountDetails").then(
 					function (result) {
 						callback(false, result.data);
 					},

@@ -40,9 +40,9 @@ app.config(['$routeProvider', function (routeprovider) {
 			templateUrl: 'partials/user/home.html',
 			controller: 'HomeCtrl'
 		})
-		.when('/home/account/:action/:id', {
-			templateUrl: 'partials/user/user-account-form.html',
-			controller: 'UserAccountCtrl'
+		.when('/home/account/modifyAccountData', {
+			templateUrl: 'partials/user/user-account-data-modification-form.html',
+			controller: 'ModificationUserAccountDataCtrl'
 		})
 		.when('/home/account/modifyPassword', {
 			templateUrl: 'partials/user/user-password-change-form.html',
@@ -146,9 +146,9 @@ app.config(['$routeProvider', function (routeprovider) {
 			templateUrl: 'partials/admin/admin-home.html',
 			controller: 'AdminHomeCtrl'
 		})
-		.when('/adminHome/account/:action/:id', {
-			templateUrl: 'partials/admin/admin-account-form.html',
-			controller: 'AdminAccountCtrl'
+		.when('/adminHome/account/modifyAccountData', {
+			templateUrl: 'partials/admin/admin-account-data-modification-form.html',
+			controller: 'AdminAccountDataModificationCtrl'
 		})
 		.when('/adminHome/account/modifyPassword', {
 			templateUrl: 'partials/admin/admin-password-change-form.html',
