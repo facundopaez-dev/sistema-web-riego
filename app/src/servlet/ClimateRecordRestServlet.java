@@ -350,19 +350,6 @@ public class ClimateRecordRestServlet {
     }
 
     /*
-     * Si el registro climatico a crear tiene una fecha estrictamente
-     * menor a la fecha actual, la aplicacion del lado servidor
-     * retorna el mensaje HTTP 400 (Bad request) junto con el
-     * mensaje "No esta permitida la creacion de un registro
-     * climatico del pasado (es decir, uno que tiene una fecha
-     * anterior a la fecha actual)" y no se realiza la operacion
-     * solicitada
-     */
-    if (climateRecordService.isFromPast(newClimateRecord)) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.CREATION_PAST_CLIMATE_RECORD_NOT_ALLOWED))).build();
-    }
-
-    /*
      * Si el registro climatico a crear para una parcela,
      * tiene una fecha igual a la fecha de otro registro
      * climatico de la misma parcela, la aplicacion del

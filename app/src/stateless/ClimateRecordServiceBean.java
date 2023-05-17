@@ -116,7 +116,7 @@ public class ClimateRecordServiceBean {
    * el nombre dado y que pertenece al usuario con el ID dado
    */
   public Collection<ClimateRecord> findAllByParcelName(int userId, String givenParcelName) {
-    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c WHERE (c.parcel.name = :givenParcelName AND c.parcel.user.id = :userId) ORDER BY c.id");
+    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c WHERE (c.parcel.name = :givenParcelName AND c.parcel.user.id = :userId) ORDER BY c.date");
     query.setParameter("userId", userId);
     query.setParameter("givenParcelName", givenParcelName);
 
