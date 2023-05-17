@@ -363,16 +363,10 @@ public class ClimateRecordRestServlet {
     }
 
     /*
-     * Se establece en true la variable modifiable de un
-     * registro climatico nuevo porque un registro un
-     * registro climatico con una fecha mayor o igual a
-     * la fecha actual es modificable.
+     * Un registro climatico nuevo debe poder ser modificado.
      * 
-     * La oracion "con una fecha mayor o igual a la
-     * fecha actual" se debe a la instruccion if que
-     * comprueba si la fecha de un nuevo registro
-     * climatico es del pasado. Dicha instruccion esta
-     * en este metodo REST.
+     * Por lo tanto, se establece el valor true en la variable
+     * modifiable de un registro climatico nuevo.
      */
     newClimateRecord.setModifiable(true);
 
@@ -444,6 +438,19 @@ public class ClimateRecordRestServlet {
      */
     if (!climateRecordService.checkUserOwnership(userId, climateRecordId)) {
       return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
+    }
+
+    /*
+     * Si el registro climatico a modificar NO es modificable,
+     * la aplicacion del lador servidor retorna el mensaje
+     * HTTP 400 (Bad request) junto con el mensaje "No esta
+     * permitida la modificacion de un registro climatico no
+     * modificable" y no se realiza la operacion solicitada
+     */
+    if (!climateRecordService.isModifiable(climateRecordId)) {
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_NON_MODIFIABLE_CLIMATE_RECORD_NOT_ALLOWED)))
+          .build();
     }
 
     /*

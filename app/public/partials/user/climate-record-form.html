@@ -207,6 +207,14 @@
                 </div>
             </div>
 
+            <div class="form-group" ng-hide="action == 'new'">
+                <label for="climateRecord_modifiable" class="col-md-2 control-label">Modificable</label>
+                <div class="col-md-3">
+                    <input type="checkbox" value="False" id="climateRecord_modifiable" ng-model="data.modifiable"
+                        ng-disabled="action == 'view'">
+                </div>
+            </div>
+
             <div class="form-group">
                 <label for="selectParcel">Parcela</label>
                 <select class="form-control col-md-6" id="selectParcel" ng-model="data.parcel"

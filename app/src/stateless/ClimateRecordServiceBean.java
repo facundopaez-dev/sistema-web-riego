@@ -220,6 +220,7 @@ public class ClimateRecordServiceBean {
       chosenClimateRecord.setExcessWater(modifiedClimateRecord.getExcessWater());
       chosenClimateRecord.setEto(modifiedClimateRecord.getEto());
       chosenClimateRecord.setEtc(modifiedClimateRecord.getEtc());
+      chosenClimateRecord.setModifiable(modifiedClimateRecord.getModifiable());
       chosenClimateRecord.setParcel(modifiedClimateRecord.getParcel());
       return chosenClimateRecord;
     }
@@ -480,21 +481,21 @@ public class ClimateRecordServiceBean {
   }
 
   /**
-   * Establece el atributo modifiable de un registro
-   * climatico en false. Esto se debe hacer para un registro
-   * climatico del pasado (es decir, uno que tiene una fecha
-   * anterior a la fecha actual), ya que un registro climatico
-   * del pasado NO se debe poder modificar.
+   * Retorna true si y solo si un registro climatico es modificabke.
    * 
-   * Este metodo es para el metodo automatico unsetModifiable
-   * de la clase ClimateRecordManager.
+   * Hay que tener en cuenta que este metodo debe ser invocado
+   * luego de invocar al metodo checkExistence de esta clase,
+   * ya que si no se hace esto puede ocurrir la excepcion
+   * NoResultException, la cual, ocurre cuando se invoca el
+   * metodo getSingleResult de la clase Query para buscar
+   * un dato inexistente en la base de datos subyacente.
    * 
    * @param id
+   * @return true si un registro climatico es modificable,
+   * false en caso contrario
    */
-  public void unsetModifiable(int id) {
-    Query query = entityManager.createQuery("UPDATE ClimateRecord c SET c.modifiable = 0 WHERE c.id = :givenId");
-    query.setParameter("givenId", id);
-    query.executeUpdate();
+  public boolean isModifiable(int id) {
+    return find(id).getModifiable();
   }
 
   /**

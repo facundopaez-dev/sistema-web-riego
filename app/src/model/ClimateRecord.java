@@ -215,15 +215,6 @@ public class ClimateRecord {
   private double etc;
 
   /*
-   * Un registro climatico del pasado (es decir, que su fecha es
-   * estrictamente menor que la fecha actual) es un registro
-   * climatico que NO se debe poder modificar.
-   * 
-   * Un registro climatico del pasado tiene su atributo modifiable
-   * en false, mientras que un registro climatico actual o futuro
-   * (es decir, que su fecha es mayor o igual a la fecha actual)
-   * lo tiene en true.
-   * 
    * Esta variable es para mostrar u ocultar el boton de modificacion
    * de registro climatico en la interfaz grafica del usuario. Si
    * un registro climatico tiene su atributo modifiable en false,
@@ -231,10 +222,8 @@ public class ClimateRecord {
    * true, se muestra el boton de modificacion.
    * 
    * La manera en la que esta variable adquiere el valor booleano
-   * false es mediante el metodo unsetModifiable de la clase
-   * ClimateRecordManager. Este metodo establece el atributo
-   * modifiable de un registro climatico del pasado en false, ya
-   * que un registro climatico del pasado NO se debe poder modificar.
+   * false es por parte del usuario mediante la modificacion de un
+   * registro climatico.
    */
   @Column(name = "MODIFIABLE", nullable = false)
   private boolean modifiable;

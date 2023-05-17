@@ -180,41 +180,6 @@ public class ClimateRecordManager {
 
   }
 
-  /*
-   * Establece de manera automatica el atributo modifiable de un registro
-   * climatico del pasado (es decir, uno que tiene su fecha estrictamente
-   * menor que la fecha actual) en false, ya que un registro climatico del
-   * pasado NO se debe poder modificar. Esto lo hace cada 24 horas a partir
-   * de las 00 horas.
-   * 
-   * La segunda anotacion @Schedule es para probar que este metodo se ejecuta
-   * correctamente, es decir, que establece el atributo modifiable de un registro
-   * climatico del pasado en false.
-   * 
-   * El archivo climateRecordInserts.sql de la ruta app/etc/sql tiene datos
-   * para probar que este metodo se ejecuta correctamente, es decir, que hace
-   * lo que se espera que haga.
-   */
-  @Schedule(second = "*", minute = "*", hour = "0/23", persistent = false)
-  // @Schedule(second = "*/10", minute = "*", hour = "*", persistent = false)
-  private void unsetModifiable() {
-    Collection<ClimateRecord> modifiableClimateRecords = climateRecordService.findAllModifiable();
-
-    for (ClimateRecord currentClimateRecord : modifiableClimateRecords) {
-      /*
-       * Si un registro climatico modificable es del pasado (es decir, tiene
-       * su fecha estrictamente menor que la fecha actual), se establece su
-       * atributo modifiable en false, ya que un registro climatico del pasado
-       * NO se debe poder modificar
-       */
-      if (climateRecordService.isFromPast(currentClimateRecord)) {
-        climateRecordService.unsetModifiable(currentClimateRecord.getId());
-      }
-
-    }
-
-  }
-
   /**
    * Calcula de manera automatica el agua excedente de cada registro
    * climatico de la fecha actual cada 24 horas a partir de las 23:59

@@ -76,7 +76,8 @@ public enum ReasonError {
   MODIFICATION_IRRIGATION_WATER_NEED_NOT_ALLOWED("No está permitida la modificación de la necesidad de agua de riego"),
   MODIFICATION_IRRIGATION_RECORD_GENERATED_BY_SYSTEM_NOT_ALLOWED("No está permitida la modificación de un registro de riego generado por el sistema"),
   MODIFICATION_WITH_PARCEL_HAS_PLANTING_RECORD_IN_DEVELOPMENT_NOT_ALLOWED("La parcela seleccionada ya tiene un registro de plantación en desarrollo"),
-  DELETE_FINISHED_PLANTING_RECORD_NOT_ALLOWED("No está permitido eliminar un registro de plantación finalizado");
+  DELETE_FINISHED_PLANTING_RECORD_NOT_ALLOWED("No está permitido eliminar un registro de plantación finalizado"),
+  MODIFICATION_NON_MODIFIABLE_CLIMATE_RECORD_NOT_ALLOWED("No está permitida la modificación de un registro climático no modificable");
 
   private final String reason;
 
