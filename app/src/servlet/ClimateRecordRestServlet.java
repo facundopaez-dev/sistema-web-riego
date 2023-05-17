@@ -447,18 +447,6 @@ public class ClimateRecordRestServlet {
     }
 
     /*
-     * Si el registro climatico a modificar es del pasado (es decir,
-     * es anterior a la fecha actual), la aplicacion del lado servidor
-     * retorna el mensaje HTTP 400 (Bad request) junto con el mensaje
-     * "No esta permitida la modifcacion de un regitro climatico del
-     * pasado (es decir, que tiene una fecha anterior a la fecha
-     * actual)" y no se realiza la operacion solicitada
-     */
-    if (climateRecordService.isFromPast(climateRecordService.find(climateRecordId))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_PAST_CLIMATE_RECORD_NOT_ALLOWED))).build();
-    }
-
-    /*
      * Si el objeto correspondiente a la referencia contenida
      * en la variable de tipo por referencia de tipo String json,
      * esta vacio, significa que el formulario del dato correspondiente
@@ -481,19 +469,6 @@ public class ClimateRecordRestServlet {
      */
     if (modifiedClimateRecord.getDate() == null) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_DATE))).build();
-    }
-
-    /*
-     * Si la fecha modificada del registro climatico a modificar
-     * es del pasado (es decir, es anterior a la fecha actual),
-     * la aplicacion del lado servidor retorna el mensaje HTTP
-     * 400 (Bad request) junto con el mensaje "No esta permitido
-     * modificar un registro climatico con una fecha del pasado
-     * (es decir, una fecha anterior a la fecha actual)" y no se
-     * realiza la operacion solicitada
-     */
-    if (climateRecordService.isFromPast(modifiedClimateRecord)) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_CLIMATE_RECORD_WITH_PAST_DATE_NOT_ALLOWED))).build();
     }
 
     /*
