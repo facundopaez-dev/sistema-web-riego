@@ -333,7 +333,7 @@ public class PlantingRecordRestServlet {
      * de plantacion de la misma parcela" y no se realiza la
      * operacion solicitada
      */
-    if (plantingRecordService.checkDateOverlap(newPlantingRecord)) {
+    if (plantingRecordService.checkDateOverlapOnCreation(newPlantingRecord)) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.OVERLAPPING_DATES))).build();
     }
 
@@ -541,9 +541,11 @@ public class PlantingRecordRestServlet {
     PlantingRecord modifiedPlantingRecord = mapper.readValue(json, PlantingRecord.class);
     PlantingRecord currentPlantingRecord = plantingRecordService.find(plantingRecordId);
 
-    Calendar currentSeedDate = currentPlantingRecord.getSeedDate();
+    Calendar seedDate = modifiedPlantingRecord.getSeedDate();
+    Calendar harvestDate = modifiedPlantingRecord.getHarvestDate();
 
     PlantingRecordStatus givenStatus = currentPlantingRecord.getStatus();
+    PlantingRecordStatus finishedStatus = statusService.findFinishedStatus();
     PlantingRecordStatus developmentStatus = statusService.findDevelopmentStatus();
     PlantingRecordStatus waitingStatus = statusService.findWaitingStatus();
 
@@ -564,68 +566,50 @@ public class PlantingRecordRestServlet {
     }
 
     /*
-     * Si la fecha de siembra del registro de plantacion a modificar
-     * esta definida y es distinta a la fecha de siembra actual de
-     * dicho registro, se comprueba si es menor o mayor a la fecha
-     * actual. El motivo por el cual se realiza esta comprobacion
-     * es que la aplicacion calcula la necesidad de agua de riego
-     * de un cultivo (sembrado y en desarrollo) en la fecha actual.
-     * Este calculo lo realiza en funcion de los datos meteorologicos
-     * de la fecha actual, el agua de riego de la fecha actual y el
-     * agua excedente del día inmediatamente anterior a la fecha actual.
+     * Si la fecha de siembra de un registro de plantacion modificado
+     * NO esta definida, la aplicacion del lado servidor retorna
+     * el mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "La fecha de siembra debe estar definida" y no se realiza
+     * la operacion solicitada
      */
-    if ((modifiedPlantingRecord.getSeedDate() != null) && (UtilDate.compareTo(modifiedPlantingRecord.getSeedDate(), currentSeedDate) != 0)) {
-      /*
-       * El metodo getInstance de la clase Calendar retorna la
-       * referencia a un objeto de tipo Calendar que contiene
-       * la fecha actual
-       */
-      Calendar currentDate = Calendar.getInstance();
-
-      /*
-       * Si la fecha de siembra del registro de plantacion a modificar
-       * es menor (anterior) a la fecha actual, la aplicacion del lado
-       * servidor retorna el mensaje HTTP 400 (Bad request) junto con
-       * el mensaje "No esta permitido modificar un registro de plantacion
-       * con una fecha de siembra menor a la fecha actual (es decir,
-       * anterior a la fecha actual)" y no se realiza la operacion
-       * solicitada
-       */
-      if (UtilDate.compareTo(modifiedPlantingRecord.getSeedDate(), currentDate) < 0) {
-        return Response.status(Response.Status.BAD_REQUEST)
-            .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_WITH_PAST_SEED_DATE_NOT_ALLOWED)))
-            .build();
-      }
-
-      /*
-       * Si la fecha de siembra del registro de plantacion a
-       * modificar es mayor (posterior) a la fecha actual, la
-       * aplicacion del lado servidor retorna el mensaje HTTP
-       * 400 (Bad request) junto con el mensaje "No esta permitido
-       * modificar un registro de plantacion con una fecha de
-       * siembra mayor a la fecha actual (es decir, posterior
-       * a la fecha actual)" y no se realiza la operacion
-       * solicitada
-       */
-      if (UtilDate.compareTo(modifiedPlantingRecord.getSeedDate(), currentDate) > 0) {
-        return Response.status(Response.Status.BAD_REQUEST)
-            .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_WITH_FUTURE_SEED_DATE_NOT_ALLOWED)))
-            .build();
-      }
-
-    } // End if
+    if (seedDate == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_SEED_DATE))).build();
+    }
 
     /*
-     * Si la fecha de siembra del registro de plantacion a
-     * modificar NO esta definida, se le asigna la fecha
-     * de siembra que tiene actualmente en la base de
-     * datos subyacente. En otras palabras, si la fecha
-     * de siembra NO esta definida en la modificacion
-     * de un registro de plantacion, dicho registro
-     * tiene la misma fecha de siembra.
+     * Si la fecha de cosecha de un registro de plantacion modificado
+     * NO esta definida, la aplicacion del lado servidor retorna
+     * el mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "La fecha de cosecha debe estar definida" y no se realiza
+     * la operacion solicitada
      */
-    if (modifiedPlantingRecord.getSeedDate() == null) {
-      modifiedPlantingRecord.setSeedDate(currentSeedDate);
+    if (harvestDate == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_HARVEST_DATE))).build();
+    }
+
+    /*
+     * Si la fecha de siembra es mayor o igual a la fecha de
+     * cosecha, la aplicacion del lado servidor retorna el
+     * mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "La fecha de siembra no debe ser mayor ni igual a la
+     * fecha de cosecha" y no se realiza la operacion solicitada
+     */
+    if (UtilDate.compareTo(seedDate, harvestDate) >= 0) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.OVERLAPPING_SEED_DATE_AND_HARVEST_DATE))).build();
+    }
+
+    /*
+     * Si las fechas de un registro de plantacion modificado de
+     * una parcela estan superpuestas con las fechas de los demas
+     * registros de plantacion de la misma parcela, la
+     * aplicacion retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "Hay superposicion de fechas
+     * entre este registro de plantacion y los demas registros
+     * de plantacion de la misma parcela" y no se realiza la
+     * operacion solicitada
+     */
+    if (plantingRecordService.checkDateOverlapOnModification(modifiedPlantingRecord)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.OVERLAPPING_DATES))).build();
     }
 
     /*
@@ -681,27 +665,64 @@ public class PlantingRecordRestServlet {
     }
 
     /*
-     * Se calcula la fecha de cosecha del registro de plantacion
-     * modificado en base a la nueva fecha de siembra y al
-     * nuevo cultivo
-     */
-    modifiedPlantingRecord.setHarvestDate(cropService.calculateHarvestDate(modifiedPlantingRecord.getSeedDate(), modifiedPlantingRecord.getCrop()));
-
-    /*
-     * Se calcula la necesidad de agua de riego del registro de
-     * plantacion (modificado) en base a la parcela y al cultivo
-     * modificados. Esto es que se calcula la necesidad de agua
-     * de riego del cultivo modificado perteneciente a la parcela
-     * modificada.
-     */
-    modifiedPlantingRecord.setIrrigationWaterNeed(String.valueOf(calculateIrrigationWaterNeed(userId, modifiedPlantingRecord)));
-
-    /*
-     * Se establece el estado del registro de plantacion a
-     * modificar en base a la fecha de siembra y la fecha de
+     * Se establece el estado de un registro de plantacion
+     * modificado en base a la fecha de siembra y la fecha de
      * cosecha de su cultivo
      */
     modifiedPlantingRecord.setStatus(statusService.calculateStatus(modifiedPlantingRecord));
+    PlantingRecordStatus modifiedStatus = modifiedPlantingRecord.getStatus();
+
+    /*
+     * Un registro de plantacion tiene el estado "Finalizado"
+     * cuando es del pasado (es decir, tanto su fecha de siembra
+     * como su fecha de cosecha son estrictamente menores a la
+     * fecha actual).
+     * 
+     * Un registro de plantacion tiene el estado "En espera"
+     * cuando es del futuro (es decir, tanto su fecha de isembra
+     * como su fecha de cosecha son estrictamente mayor a la fecha
+     * actual).
+     * 
+     * Un registro de plantacion del pasado tiene el valor "n/a" (no
+     * disponible) en su atributo de la necesidad de agua de riego
+     * porque no se tienen los registros climaticos del pasado, con
+     * los cuales se calcula la ETc (evapotranspiracion del cultivo
+     * bajo condiciones estandar) de un cultivo y al no tener la ETc
+     * no se puede calcular la necesidad de agua de riego de un
+     * cultivo.
+     * 
+     * Un registro de plantacion del futuro tiene el valor "n/a" (no
+     * disponible) en su atributo de la necesidad de agua de riego
+     * porque no se tienen los registros climaticos del futuro, con
+     * los cuales se calcula la ETc (evapotranspiracion del cultivo
+     * bajo condiciones estandar) de un cultivo y al no tener la ETc
+     * no se puede calcular la necesidad de agua de riego de un
+     * cultivo.
+     */
+    if (statusService.equals(modifiedStatus, finishedStatus) || (statusService.equals(modifiedStatus, waitingStatus))) {
+      modifiedPlantingRecord.setIrrigationWaterNeed(NOT_AVAILABLE);
+    }
+
+    /*
+     * Si un registro de plantacion modificado tiene el estado "En
+     * desarrollo", se calcula la necesidad de agua de riego
+     * del cultivo que esta en desarrollo en la fecha actual.
+     * Esto se hace porque un registro de plantacion representa
+     * a un cultivo sembrado. Por lo tanto, si hay un registro
+     * de plantacion en desarrollo es porque hay un cultivo en
+     * desarrollo, y al existir este cultivo se debe calcular
+     * la necesidad de agua de riego del mismo.
+     */
+    if (statusService.equals(modifiedStatus, developmentStatus)) {
+      /*
+       * Se calcula la necesidad de agua de riego del registro de
+       * plantacion (modificado) en base a la parcela y al cultivo
+       * modificados. Esto es que se calcula la necesidad de agua
+       * de riego del cultivo modificado perteneciente a la parcela
+       * modificada.
+       */
+      modifiedPlantingRecord.setIrrigationWaterNeed(String.valueOf(calculateIrrigationWaterNeed(userId, modifiedPlantingRecord)));
+    }
 
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP

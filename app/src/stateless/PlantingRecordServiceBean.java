@@ -87,6 +87,7 @@ public class PlantingRecordServiceBean {
       chosenPlantingRecord.setParcel(modifiedPlantingRecord.getParcel());
       chosenPlantingRecord.setCrop(modifiedPlantingRecord.getCrop());
       chosenPlantingRecord.setModifiable(modifiedPlantingRecord.getModifiable());
+      chosenPlantingRecord.setStatus(modifiedPlantingRecord.getStatus());
       return chosenPlantingRecord;
     }
 
@@ -178,6 +179,33 @@ public class PlantingRecordServiceBean {
   public Collection<PlantingRecord> findAll(Parcel givenParcel) {
     Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (p = :givenParcel) ORDER BY r.id");
     query.setParameter("givenParcel", givenParcel);
+
+    return (Collection) query.getResultList();
+  }
+
+  /**
+   * Retorna los registros de plantacion de una parcela
+   * excepto aquel que tiene el ID dado.
+   * 
+   * Este metodo es necesario para comprobar si las fechas
+   * de un registro de plantacion modificado de una parcela
+   * estan superpuestas con las fechas de los demas registros
+   * de plantacion de la misma parcela. Para realizar correctamente
+   * esta comprobacion se debe excluir el registro de plantacion
+   * sobre el que se busca determinar si sus fechas se superponen
+   * con las fechas de los demas registros de plantacion de
+   * la misma parcela.
+   * 
+   * @param givenParcel
+   * @param plantingRecordId
+   * @return referencia a un objeto de tipo Collection que
+   * contiene los registros de plantacion de un parcela
+   * excepto aquel que tiene el ID dado
+   */
+  public Collection<PlantingRecord> findAllExceptOne(Parcel givenParcel, int plantingRecordId) {
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (r.id != :givenPlantingRecordId AND p = :givenParcel) ORDER BY r.id");
+    query.setParameter("givenParcel", givenParcel);
+    query.setParameter("givenPlantingRecordId", plantingRecordId);
 
     return (Collection) query.getResultList();
   }
@@ -1484,6 +1512,38 @@ public class PlantingRecordServiceBean {
   }
 
   /**
+   * Retorna true si y solo si las fechas de un registro de
+   * plantacion de una parcela estan superpuestas con las
+   * fechas de los demas registros de plantacion de la misma
+   * parcela
+   * 
+   * @param givenPlantingRecord
+   * @return true las fechas de un registro de plantacion de
+   * una parcela estan superpuestas con las fechas de los demas
+   * registros de plantacion de la misma parcela, en caso contrario
+   * false
+   */
+  public boolean checkDateOverlapOnCreation(PlantingRecord givenPlantingRecord) {
+    return checkDateOverlap(givenPlantingRecord, findAll(givenPlantingRecord.getParcel()));
+  }
+
+  /**
+   * Retorna true si y solo si las fechas de un registro de
+   * plantacion de una parcela estan superpuestas con las
+   * fechas de los demas registros de plantacion de la misma
+   * parcela
+   * 
+   * @param givenPlantingRecord
+   * @return true las fechas de un registro de plantacion de
+   * una parcela estan superpuestas con las fechas de los demas
+   * registros de plantacion de la misma parcela, en caso contrario
+   * false
+   */
+  public boolean checkDateOverlapOnModification(PlantingRecord givenPlantingRecord) {
+    return checkDateOverlap(givenPlantingRecord, findAllExceptOne(givenPlantingRecord.getParcel(), givenPlantingRecord.getId()));
+  }
+
+  /**
    * Comprueba si las fechas de un registro de plantacion
    * de una parcela estan superpuestas con las fechas de
    * los demas registros de plantacion de la misma parcela.
@@ -1494,18 +1554,13 @@ public class PlantingRecordServiceBean {
    * parcela.
    * 
    * @param givenPlantingRecord
+   * @param plantingRecords
    * @return true si las fechas de un registro de plantacion
    * de una parcela estan superpuestas con las fechas de los
    * demas registros de plantacion de la misma parcela, en
    * caso contrario false
    */
-  public boolean checkDateOverlap(PlantingRecord givenPlantingRecord) {
-    /*
-     * Obtiene todos los registros de plantacion de
-     * la parcela del registro de plantacion dado
-     */
-    Collection<PlantingRecord> plantingRecords = findAll(givenPlantingRecord.getParcel());
-
+  private boolean checkDateOverlap(PlantingRecord givenPlantingRecord, Collection<PlantingRecord> plantingRecords) {
     Calendar seedDate = givenPlantingRecord.getSeedDate();
     Calendar harvestDate = givenPlantingRecord.getHarvestDate();
     Calendar currentSeedDate = null;

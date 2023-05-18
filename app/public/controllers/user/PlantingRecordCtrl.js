@@ -101,7 +101,6 @@ app.controller(
 
           if ($scope.data.seedDate != null) {
             $scope.data.seedDate = new Date($scope.data.seedDate);
-            currentSeedDate = $scope.data.seedDate;
           }
 
           if ($scope.data.harvestDate != null) {
@@ -116,8 +115,6 @@ app.controller(
       const UNDEFINED_PARCEL = "La parcela debe estar definida";
       const UNDEFINED_CROP = "El cultivo debe estar definido";
       const OVERLAPPING_SEED_DATE_AND_HARVEST_DATE = "La fecha de siembra no debe ser mayor ni igual a la fecha de cosecha";
-      const MODIFICATION_WITH_PAST_SEED_DATE_NOT_ALLOWED = "No está permitido modificar un registro de plantación con una fecha de siembra menor a la fecha actual (es decir, anterior a la fecha actual)";
-      const MODIFICATION_WITH_FUTURE_SEED_DATE_NOT_ALLOWED = "No está permitido modificar un registro de plantación con una fecha de siembra mayor a la fecha actual (es decir, posterior a la fecha actual)";
 
       $scope.create = function () {
         /*
@@ -184,42 +181,26 @@ app.controller(
 
       }
 
-      /*
-      A esta variable se le asigna la fecha de siembra original
-      de un registro de plantacion cuando se busca un registro
-      de plantacion mediante la funcion find para modificacion
-      */
-      var currentSeedDate = new Date();
-
       $scope.modify = function () {
         /*
-        Si la fecha de siembra esta definida y es distinta a la fecha
-        de siembra que tiene actualmente el registro de plantacion a
-        modificar, se comprueba si es menor o mayor a la fecha actual
-        */
-        if (($scope.data.seedDate != undefined) && (utilDate.compareTo(currentSeedDate, $scope.data.seedDate) != 0)) {
-          var currentDate = new Date();
+        **********************************
+        Validacion de los datos de entrada
+        **********************************
+         */
 
-          /*
-          Si la fecha de siembra elegida es menor a la fecha actual,
-          se muestra el mensaje dado y no se realiza la operacion
-          solicitada
-          */
-          if (utilDate.compareTo($scope.data.seedDate, currentDate) < 0) {
-            alert(MODIFICATION_WITH_PAST_SEED_DATE_NOT_ALLOWED);
-            return;
-          }
+        if ($scope.data.seedDate == undefined) {
+          alert(UNDEFINED_SEED_DATE);
+          return;
+        }
 
-          /*
-          Si la fecha de siembra elegida es mayor a la fecha actual,
-          se muestra el mensaje dado y no se realiza la operacion
-          solicitada
-          */
-          if (utilDate.compareTo($scope.data.seedDate, currentDate) > 0) {
-            alert(MODIFICATION_WITH_FUTURE_SEED_DATE_NOT_ALLOWED);
-            return;
-          }
+        if ($scope.data.harvestDate == undefined) {
+          alert(UNDEFINED_HARVEST_DATE);
+          return;
+        }
 
+        if (utilDate.compareTo($scope.data.seedDate, $scope.data.harvestDate) >= 0) {
+          alert(OVERLAPPING_SEED_DATE_AND_HARVEST_DATE);
+          return;
         }
 
         plantingRecordService.modify($scope.data, function (error, data) {
@@ -230,6 +211,15 @@ app.controller(
           }
 
           $scope.data = data;
+
+          if ($scope.data.seedDate != null) {
+            $scope.data.seedDate = new Date($scope.data.seedDate);
+          }
+
+          if ($scope.data.harvestDate != null) {
+            $scope.data.harvestDate = new Date($scope.data.harvestDate);
+          }
+
           $location.path("/home/plantingRecords")
           $route.reload();
         });
