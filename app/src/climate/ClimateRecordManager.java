@@ -246,8 +246,22 @@ public class ClimateRecordManager {
         excessWaterYesterday = 0.0;
       }
 
-      excessWaterCurrentDate = WaterMath.calculateExcessWater(currentClimateRecord.getEtc(),
-          currentClimateRecord.getPrecip(), totalIrrigationWaterCurrentDate, excessWaterYesterday);
+      /*
+       * Si la parcela del registro climatico actual tiene un
+       * registro de plantacion en desarrollo (lo cual representa
+       * que tiene un cultivo en desarrollo), se calcula el agua
+       * excedente que hay en la misma en la fecha actual haciendo
+       * uso de la ETc de dicho cultivo. En caso contrario, se calcula
+       * el agua excedente que hay en la misma en la fecha actual
+       * haciendo uso de la ETo del registro climatico actual.
+       */
+      if (plantingRecordService.checkOneInDevelopment(currentClimateRecord.getParcel())) {
+        excessWaterCurrentDate = WaterMath.calculateExcessWater(currentClimateRecord.getEtc(),
+            currentClimateRecord.getPrecip(), totalIrrigationWaterCurrentDate, excessWaterYesterday);
+      } else {
+        excessWaterCurrentDate = WaterMath.calculateExcessWater(currentClimateRecord.getEto(),
+            currentClimateRecord.getPrecip(), totalIrrigationWaterCurrentDate, excessWaterYesterday);
+      }
 
       climateRecordService.updateExcessWater(currentDate, currentClimateRecord.getParcel(), excessWaterCurrentDate);
     } // End for

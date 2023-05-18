@@ -69,40 +69,63 @@ public class WaterMath {
 
   /**
    * Calcula el agua excedente [mm/dia] de una fecha dada
-   * en base a la ETc (evapotranspiracion del cultivo bajo
-   * condiciones estandar), la precipitacion, la cantidad
+   * en base a la ET, la precipitacion, la cantidad
    * total de agua de riego y el agua excedente de ayer,
    * debiendo ser los primeros tres valores de una misma
    * fecha.
    * 
-   * @param etcGivenDate                  [mm/dia]
+   * La ET puede ser la ETc [mm/dia] (evapotranspiracion del
+   * cultivo bajo condiciones estandar) si la parcela para la
+   * que se calcula el agua excedente en una fecha tiene un
+   * registro de plantacion en desarrollo (lo cual representa
+   * que tiene un cultivo en desarrollo). En caso contrario,
+   * la ET es la ETo [mm/dia] (evapotranspiracion del cultivo
+   * de referencia).
+   * 
+   * @param et                            [mm/dia]
    * @param precipitationGivenDate        [mm/dia]
    * @param totalIrrigationWaterGivenDate [mm/dia]
    * @param excessWaterYesterday          [mm/dia]
    * @return punto flotante que representa el agua
    *         excedente [mm/dia] de una fecha dada
    */
-  public static double calculateExcessWater(double etcGivenDate, double precipitationGivenDate,
+  public static double calculateExcessWater(double et, double precipitationGivenDate,
       double totalIrrigationWaterGivenDate, double excessWaterYesterday) {
     /*
      * Si la suma entre la precipitacion, la cantidad total
      * de agua de riego y el agua excedente de ayer es mayor
-     * a la ETc (siendo esta y los dos primeros valores de una
+     * a la ET (siendo esta y los dos primeros valores de una
      * misma fecha), hay agua excedente [mm/dia] en una fecha
      * dada. El agua excedente de una fecha dada se calcula
      * haciendo la diferencia entre la suma de la precipitacion,
      * la cantidad total de agua de riego y el agua excedente
-     * de ayer, y la ETc.
+     * de ayer, y la ET.
+     * 
+     * La ET puede ser la ETc [mm/dia] (evapotranspiracion del
+     * cultivo bajo condiciones estandar) si la parcela para la
+     * que se calcula el agua excedente en una fecha tiene un
+     * registro de plantacion en desarrollo (lo cual representa
+     * que tiene un cultivo en desarrollo). En caso contrario,
+     * la ET es la ETo [mm/dia] (evapotranspiracion del cultivo
+     * de referencia).
      */
-    if ((precipitationGivenDate + totalIrrigationWaterGivenDate + excessWaterYesterday) > etcGivenDate) {
-      return limitToTwoDecimalPlaces((precipitationGivenDate + totalIrrigationWaterGivenDate + excessWaterYesterday) - etcGivenDate);
+    if ((precipitationGivenDate + totalIrrigationWaterGivenDate + excessWaterYesterday) > et) {
+      return limitToTwoDecimalPlaces((precipitationGivenDate + totalIrrigationWaterGivenDate + excessWaterYesterday) - et);
     }
 
     /*
-     * Si la ETc es mayor o igual a la suma de la precipitacion,
+     * Si la ET es mayor o igual a la suma de la precipitacion,
      * la cantidad total de agua de riego y el agua excedente de
      * ayer, NO hay agua excedente [mm/dia] en una fecha dada.
      * Por lo tanto, el agua excedente de una fecha dada es 0.
+     * 
+     * La ET puede ser la ETc [mm/dia] (evapotranspiracion del
+     * cultivo bajo condiciones estandar) si la parcela para la
+     * que se calcula el agua excedente en una fecha tiene un
+     * registro de plantacion en desarrollo (lo cual representa
+     * que tiene un cultivo en desarrollo). En caso contrario,
+     * la ET es la ETo [mm/dia] (evapotranspiracion del cultivo
+     * de referencia).
      */
     return 0.0;
   }
