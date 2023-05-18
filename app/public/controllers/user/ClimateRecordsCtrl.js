@@ -1,7 +1,7 @@
 app.controller(
 	"ClimateRecordsCtrl",
-	["$scope", "$location", "ClimateRecordSrv", "ParcelSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
-		function ($scope, $location, climateRecordSrv, parcelSrv, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
+	["$scope", "$location", "$route", "ClimateRecordSrv", "ParcelSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
+		function ($scope, $location, $route, climateRecordSrv, parcelSrv, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
 
 			console.log("ClimateRecordsCtrl loaded...")
 
@@ -63,6 +63,21 @@ app.controller(
 
 					$scope.data = data;
 				})
+			}
+
+			$scope.delete = function (id) {
+				console.log("Deleting: " + id)
+
+				climateRecordSrv.delete(id, function (error) {
+					if (error) {
+						console.log(error);
+						errorResponseManager.checkResponse(error);
+						return;
+					}
+
+					$location.path("/home/climateRecords");
+					$route.reload()
+				});
 			}
 
 			$scope.logout = function () {

@@ -45,6 +45,17 @@ app.service(
                         });
             }
 
+            this.delete = function (id, callback) {
+                $http.delete("rest/climateRecords/" + id)
+                    .then(
+                        function (result) {
+                            callback(false, result.data);
+                        },
+                        function (error) {
+                            callback(error);
+                        });
+            }
+
             this.findAllByParcelName = function (parcelName, callback) {
                 $http.get("rest/climateRecords/findAllByParcelName/" + parcelName).then(
                     function (result) {

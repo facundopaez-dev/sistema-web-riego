@@ -36,16 +36,19 @@ public class ClimateRecordServiceBean {
   }
 
   /**
-   * Elimina un registro climatico fisicamente mediante su ID
+   * Elimina fisicamente un registro climatico perteneciente a
+   * una parcela de un usuario
    * 
-   * @param id
+   * @param userId
+   * @param climateRecordId
    * @return referencia a un objeto de tipo ClimateRecord en
-   * caso de eliminarse de la base de datos subyacente el
-   * registro climatico con el ID dado, en caso contrario
-   * null
+   * caso de eliminarse de la base de datos subyacente el registro
+   * climatico que tiene el ID dado y que esta asociado a una
+   * parcela de un usuario que tiene el ID de usuario dado, en
+   * caso contrario null
    */
-  public ClimateRecord remove(int id) {
-    ClimateRecord givenClimateRecord = find(id);
+  public ClimateRecord remove(int userId, int climateRecordId) {
+    ClimateRecord givenClimateRecord = findByUserId(userId, climateRecordId);
 
     if (givenClimateRecord != null) {
       getEntityManager().remove(givenClimateRecord);
@@ -86,6 +89,34 @@ public class ClimateRecordServiceBean {
     }
 
     return givenClimateRecord;
+  }
+
+  /**
+   * Retorna un registro climatico perteneciente a una de las
+   * parcelas de un usuario
+   * 
+   * @param userId
+   * @param climateRecordId
+   * @return referencia a un objeto de tipo ClimateRecord que
+   * representa el registro climatico de una parcela de un
+   * usuario en caso de encontrarse en la base de datos subyacente
+   * el registro climatico con el ID dado y asociado al usuario
+   * del ID dado, en caso contrario null
+   */
+  public ClimateRecord findByUserId(int userId, int climateRecordId) {
+    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (c.id = :climateRecordId AND p.user.id = :userId)");
+    query.setParameter("climateRecordId", climateRecordId);
+    query.setParameter("userId", userId);
+
+    ClimateRecord climateRecord = null;
+
+    try {
+      climateRecord = (ClimateRecord) query.getSingleResult();
+    } catch(NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return climateRecord;
   }
 
   /**
