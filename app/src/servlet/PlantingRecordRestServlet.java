@@ -949,7 +949,7 @@ public class PlantingRecordRestServlet {
      * que el agua excedente del dia inmediatamente anterior a
      * la fecha actual es 0.
      */
-    if (climateRecordService.checkExistence(UtilDate.getTomorrowDate(), givenParcel)) {
+    if (climateRecordService.checkExistence(UtilDate.getYesterdayDate(), givenParcel)) {
       excessWaterYesterday = climateRecordService.find(UtilDate.getYesterdayDate(), givenParcel).getExcessWater();
     }
 
