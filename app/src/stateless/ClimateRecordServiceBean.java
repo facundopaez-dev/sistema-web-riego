@@ -481,7 +481,7 @@ public class ClimateRecordServiceBean {
   }
 
   /**
-   * Retorna true si y solo si un registro climatico es modificabke.
+   * Retorna true si y solo si un registro climatico es modificable.
    * 
    * Hay que tener en cuenta que este metodo debe ser invocado
    * luego de invocar al metodo checkExistence de esta clase,
