@@ -78,6 +78,7 @@ public class ClimateClient {
   public static ClimateRecord getForecast(Parcel givenParcel, long datetimeEpoch) {
     ClimateRecord newClimateRecord = new ClimateRecord();
     newClimateRecord.setParcel(givenParcel);
+    newClimateRecord.setModifiable(true);
 
     /*
      * Obtiene los datos meteorologicos para una parcela
