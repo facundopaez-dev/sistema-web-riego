@@ -31,13 +31,6 @@ public class PlantingRecord {
   private Calendar harvestDate;
 
   /*
-   * Un registro de plantacion finalizado es un registro de plantacion
-   * que NO se debe poder modificar.
-   * 
-   * Un registro de plantacion finalizado tiene su atributo modifiable
-   * en false, mientras que un registro de plantacion en desarrollo
-   * lo tiene en true.
-   * 
    * Esta variable es para mostrar u ocultar el boton de modificacion
    * de registro de plantacion en la interfaz grafica del usuario. Si
    * un registro de plantacion tiene su atributo modifiable en false,
@@ -45,11 +38,8 @@ public class PlantingRecord {
    * true, se muestra el boton de modificacion.
    * 
    * La manera en la que esta variable adquiere el valor booleano
-   * false es mediante el metodo unsetModifiable de la clase
-   * PlantingRecordManager. Este metodo establece el atributo
-   * modifiable de un registro de plantacion finalizado en false, ya
-   * que un registro de plantacion finalizado NO se debe poder
-   * modificar.
+   * false es por parte del usuario mediante la modificacion de un
+   * registro de plantacion.
    */
   @Column(name = "MODIFIABLE", nullable = false)
   private boolean modifiable;

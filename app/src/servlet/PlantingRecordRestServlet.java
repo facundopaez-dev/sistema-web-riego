@@ -513,20 +513,16 @@ public class PlantingRecordRestServlet {
     }
 
     /*
-     * Si el registro de plantacion correspondiente al ID dado,
-     * esta finalizado, la aplicacion del lado servidor retorna
-     * el mensaje HTTP 400 (Bad request) junto con el mensaje
-     * "No esta permitida la modificacion de un registro de
-     * plantacion finalizado" y no se realiza la operacion
-     * solicitada.
-     * 
-     * El metodo automatico unsetModifiable de la clase
-     * PlantingRecordManager se ocupa de asignar el valor
-     * false al atributo modifiable de un registro de
-     * plantacion finalizado.
+     * Si el registro de plantacion a modificar NO es modificable,
+     * la aplicacion del lador servidor retorna el mensaje
+     * HTTP 400 (Bad request) junto con el mensaje "No esta
+     * permitida la modificacion de un registro de plantacion no
+     * modificable" y no se realiza la operacion solicitada
      */
-    if (plantingRecordService.isFinished(plantingRecordId)) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_NON_MODIFIABLE_PLANTING_RECORD_NOT_ALLOWED))).build();
+    if (!plantingRecordService.isModifiable(plantingRecordId)) {
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_NON_MODIFIABLE_PLANTING_RECORD_NOT_ALLOWED)))
+          .build();
     }
 
     /*
@@ -544,7 +540,28 @@ public class PlantingRecordRestServlet {
 
     PlantingRecord modifiedPlantingRecord = mapper.readValue(json, PlantingRecord.class);
     PlantingRecord currentPlantingRecord = plantingRecordService.find(plantingRecordId);
+
     Calendar currentSeedDate = currentPlantingRecord.getSeedDate();
+
+    PlantingRecordStatus givenStatus = currentPlantingRecord.getStatus();
+    PlantingRecordStatus developmentStatus = statusService.findDevelopmentStatus();
+    PlantingRecordStatus waitingStatus = statusService.findWaitingStatus();
+
+    /*
+     * Si el registro de plantacion modificado tiene el atributo
+     * modifiable en false y si el registro de plantacion correspondiente
+     * al registro de plantacion modificado tiene el estado "En
+     * desarrollo" o el estado "En espera", la aplicacion del lado
+     * servidor retorna el mensaje HTTP 400 (Bad request) junto con
+     * el mensaje "No esta permitido hacer que un registro de
+     * plantacion en desarrollo o en espera sea no modificable" y
+     * no se realiza la operacion solicitada
+     */
+    if (!modifiedPlantingRecord.getModifiable() && (statusService.equals(givenStatus, developmentStatus) || statusService.equals(givenStatus, waitingStatus))) {
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFIABILITY_PLANTING_RECORD_NOT_ALLOWED)))
+          .build();
+    }
 
     /*
      * Si la fecha de siembra del registro de plantacion a modificar
