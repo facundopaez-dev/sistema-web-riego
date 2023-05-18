@@ -78,6 +78,18 @@ public class PlantingRecordRestServlet {
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
 
+  /*
+   * El valor de esta constante se asigna a la necesidad de
+   * agua de riego [mm/dia] de un registro de plantacion
+   * para el que no se puede calcular dicha necesidad, lo cual,
+   * ocurre cuando no se tiene la evapotranspiracion del cultivo
+   * bajo condiciones estandar (ETc) [mm/dia] ni la precipitacion
+   * [mm/dia], siendo ambos valores de la fecha actual.
+   * 
+   * La abreviatura "n/a" significa "no disponible".
+   */
+  private final String NOT_AVAILABLE = "n/a";
+
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response findAll(@Context HttpHeaders request) throws IOException {
@@ -275,6 +287,55 @@ public class PlantingRecordRestServlet {
     }
 
     PlantingRecord newPlantingRecord = mapper.readValue(json, PlantingRecord.class);
+    Calendar seedDate = newPlantingRecord.getSeedDate();
+    Calendar harvestDate = newPlantingRecord.getHarvestDate();
+
+    /*
+     * Si la fecha de siembra de un nuevo registro de plantacion
+     * NO esta definida, la aplicacion del lado servidor retorna
+     * el mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "La fecha de siembra debe estar definida" y no se realiza
+     * la operacion solicitada
+     */
+    if (seedDate == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_SEED_DATE))).build();
+    }
+
+    /*
+     * Si la fecha de cosecha de un nuevo registro de plantacion
+     * NO esta definida, la aplicacion del lado servidor retorna
+     * el mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "La fecha de cosecha debe estar definida" y no se realiza
+     * la operacion solicitada
+     */
+    if (harvestDate == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_HARVEST_DATE))).build();
+    }
+
+    /*
+     * Si la fecha de siembra es mayor o igual a la fecha de
+     * cosecha, la aplicacion del lado servidor retorna el
+     * mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "La fecha de siembra no debe ser mayor ni igual a la
+     * fecha de cosecha" y no se realiza la operacion solicitada
+     */
+    if (UtilDate.compareTo(seedDate, harvestDate) >= 0) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.OVERLAPPING_SEED_DATE_AND_HARVEST_DATE))).build();
+    }
+
+    /*
+     * Si las fechas de un nuevo registro de plantacion de una
+     * parcela estan superpuestas con las fechas de los demas
+     * registros de plantacion de la misma parcela, la
+     * aplicacion retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "Hay superposicion de fechas
+     * entre este registro de plantacion y los demas registros
+     * de plantacion de la misma parcela" y no se realiza la
+     * operacion solicitada
+     */
+    if (plantingRecordService.checkDateOverlap(newPlantingRecord)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.OVERLAPPING_DATES))).build();
+    }
 
     /*
      * Si la parcela del registro de plantacion a crear NO
@@ -299,78 +360,88 @@ public class PlantingRecordRestServlet {
     }
 
     /*
-     * Si la parcela para la que se quiere crear un registro
-     * de plantacion, tiene un registro de plantacion en
-     * desarrollo, la aplicacion del lado servidor retorna el
-     * mensaje HTTP 400 (Bad request) junto con el mensaje
-     * "No esta permitido crear un registro de plantacion
-     * para una parcela que tiene un registro de plantacion
-     * en desarrollo" y no se realiza la operacion solicitada
+     * Se establece el estado del nuevo registro de plantacion
+     * en base a la fecha de siembra y la fecha de cosecha de
+     * su cultivo
      */
-    if (plantingRecordService.checkOneInDevelopment(newPlantingRecord.getParcel())) {
-      return Response.status(Response.Status.BAD_REQUEST)
-          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.CREATION_NOT_ALLOWED_IN_DEVELOPMENT)))
-          .build();
+    newPlantingRecord.setStatus(statusService.calculateStatus(newPlantingRecord));
+
+    PlantingRecordStatus givenStatus = newPlantingRecord.getStatus();
+    PlantingRecordStatus finishedStatus = statusService.findFinishedStatus();
+    PlantingRecordStatus developmentStatus = statusService.findDevelopmentStatus();
+    PlantingRecordStatus waitingStatus = statusService.findWaitingStatus();
+
+    /*
+     * Un registro de plantacion nuevo tiene el estado "Finalizado"
+     * cuando es del pasado (es decir, tanto su fecha de siembra
+     * como su fecha de cosecha son estrictamente menores a la
+     * fecha actual).
+     * 
+     * Un registro de plantacion nuevo tiene el estado "En espera"
+     * cuando es del futuro (es decir, tanto su fecha de isembra
+     * como su fecha de cosecha son estrictamente mayor a la fecha
+     * actual).
+     * 
+     * Un registro de plantacion del pasado tiene el valor "n/a" (no
+     * disponible) en su atributo de la necesidad de agua de riego
+     * porque no se tienen los registros climaticos del pasado, con
+     * los cuales se calcula la ETc (evapotranspiracion del cultivo
+     * bajo condiciones estandar) de un cultivo y al no tener la ETc
+     * no se puede calcular la necesidad de agua de riego de un
+     * cultivo.
+     * 
+     * Un registro de plantacion del futuro tiene el valor "n/a" (no
+     * disponible) en su atributo de la necesidad de agua de riego
+     * porque no se tienen los registros climaticos del futuro, con
+     * los cuales se calcula la ETc (evapotranspiracion del cultivo
+     * bajo condiciones estandar) de un cultivo y al no tener la ETc
+     * no se puede calcular la necesidad de agua de riego de un
+     * cultivo.
+     */
+    if (statusService.equals(givenStatus, finishedStatus) || (statusService.equals(givenStatus, waitingStatus))) {
+      newPlantingRecord.setIrrigationWaterNeed(NOT_AVAILABLE);
     }
 
     /*
-     * Se establece la fecha actual como la fecha de siembra
-     * del nuevo registro de plantacion. El motivo de este
-     * cambio es que no tiene sentido permitir la creacion
-     * de un registro de plantacion del pasado ni del
-     * futuro, ya que la aplicacion no tiene los datos
-     * meteorologicos del pasado ni del futuro de la
-     * ubicacion geografica de una parcela.
-     * 
-     * Los datos meteorologicos son necesarios para calcular
-     * la evapotranspiracion del cultivo de referencia (ETo)
-     * y la evapotranspiracion del cultivo (ETc), la cual, es
-     * necesaria para determinar la cantidad de agua de riego
-     * que necesita un cultivo plantado en una parcela.
+     * Si un registro de plantacion nuevo tiene el estado "En
+     * desarrollo" o el estado "En espera", se debe poder modificar,
+     * por lo tanto, se asigna el valor true a su atributo modifiable
      */
-    newPlantingRecord.setSeedDate(Calendar.getInstance());
+    if ((statusService.equals(givenStatus, developmentStatus)) || (statusService.equals(givenStatus, waitingStatus))) {
+      newPlantingRecord.setModifiable(true);
+    }
 
     /*
-     * Se calcula la fecha de cosecha del cultivo del nuevo
-     * registro de plantacion en funcion de la fecha de siembra
-     * y el ciclo de vida del cultivo
+     * Si un registro de plantacion nuevo tiene el estado "En
+     * desarrollo", se calcula la necesidad de agua de riego
+     * del cultivo que esta en desarrollo en la fecha actual.
+     * Esto se hace porque un registro de plantacion representa
+     * a un cultivo sembrado. Por lo tanto, si hay un registro
+     * de plantacion en desarrollo es porque hay un cultivo en
+     * desarrollo, y al existir este cultivo se debe calcular
+     * la necesidad de agua de riego del mismo.
      */
-    Calendar harvestDate = cropService.calculateHarvestDate(newPlantingRecord.getSeedDate(), newPlantingRecord.getCrop());
-    newPlantingRecord.setHarvestDate(harvestDate);
+    if (statusService.equals(givenStatus, developmentStatus)) {
+      /*
+       * Obtiene el JWT del valor del encabezado de autorizacion
+       * de una peticion HTTP
+       */
+      String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
 
-    /*
-     * Se establece el estado del nuevo registro de plantacion
-     * en base a la fecha de cosecha de su cultivo
-     */
-    newPlantingRecord.setStatus(statusService.calculateStatus(newPlantingRecord.getHarvestDate()));
+      /*
+       * Obtiene el ID de usuario contenido en la carga util del
+       * JWT del encabezado de autorizacion de una peticion HTTP
+       */
+      int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
 
-    /*
-     * Un registro de plantacion nuevo es un registro de
-     * plantacion modificable, ya que tiene el estado
-     * "En desarrollo" debido a que, por ser nuevo, su
-     * fecha de cosecha es mayor o igual a la fecha actual
-     */
-    newPlantingRecord.setModifiable(true);
-
-    /*
-     * Obtiene el JWT del valor del encabezado de autorizacion
-     * de una peticion HTTP
-     */
-    String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
-
-    /*
-     * Obtiene el ID de usuario contenido en la carga util del
-     * JWT del encabezado de autorizacion de una peticion HTTP
-     */
-    int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
-
-    /*
-     * **********************************************
-     * Calculo de la necesidad de agua de riego de un
-     * cultivo en desarrollo en la fecha actual
-     * **********************************************
-     */
-    newPlantingRecord.setIrrigationWaterNeed(String.valueOf(calculateIrrigationWaterNeed(userId, newPlantingRecord)));
+      /*
+       * **********************************************
+       * Calculo de la necesidad de agua de riego de un
+       * cultivo en desarrollo en la fecha actual
+       * **********************************************
+       */
+      newPlantingRecord.setIrrigationWaterNeed(String.valueOf(calculateIrrigationWaterNeed(userId, newPlantingRecord)));
+    }
 
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
@@ -610,9 +681,10 @@ public class PlantingRecordRestServlet {
 
     /*
      * Se establece el estado del registro de plantacion a
-     * modificar en base a la fecha de cosecha de su cultivo
+     * modificar en base a la fecha de siembra y la fecha de
+     * cosecha de su cultivo
      */
-    modifiedPlantingRecord.setStatus(statusService.calculateStatus(modifiedPlantingRecord.getHarvestDate()));
+    modifiedPlantingRecord.setStatus(statusService.calculateStatus(modifiedPlantingRecord));
 
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
@@ -683,7 +755,7 @@ public class PlantingRecordRestServlet {
     }
 
     PlantingRecordStatus statusGivenPlantingRecord = plantingRecordService.find(plantingRecordId).getStatus();
-    PlantingRecordStatus finishedStatus = statusService.findFinished();
+    PlantingRecordStatus finishedStatus = statusService.findFinishedStatus();
 
     /*
      * Si el estado del registro de plantacion a eliminar es el

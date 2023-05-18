@@ -79,7 +79,7 @@ public class PlantingRecordManager {
              * en el mismo.
              */
             if (!plantingRecordService.checkDevelopmentStatus(currentPlantingRecord)) {
-                plantingRecordService.setStatus(currentPlantingRecord.getId(), plantingRecordStatusService.findFinished());
+                plantingRecordService.setStatus(currentPlantingRecord.getId(), plantingRecordStatusService.findFinishedStatus());
             }
 
         }

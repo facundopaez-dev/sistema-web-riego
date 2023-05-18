@@ -111,8 +111,11 @@ app.controller(
       }
 
       const EMPTY_FORM = "Debe completar todos los campos del formulario";
+      const UNDEFINED_SEED_DATE = "La fecha de siembra debe estar definida";
+      const UNDEFINED_HARVEST_DATE = "La fecha de cosecha debe estar definida";
       const UNDEFINED_PARCEL = "La parcela debe estar definida";
       const UNDEFINED_CROP = "El cultivo debe estar definido";
+      const OVERLAPPING_SEED_DATE_AND_HARVEST_DATE = "La fecha de siembra no debe ser mayor ni igual a la fecha de cosecha";
       const MODIFICATION_WITH_PAST_SEED_DATE_NOT_ALLOWED = "No está permitido modificar un registro de plantación con una fecha de siembra menor a la fecha actual (es decir, anterior a la fecha actual)";
       const MODIFICATION_WITH_FUTURE_SEED_DATE_NOT_ALLOWED = "No está permitido modificar un registro de plantación con una fecha de siembra mayor a la fecha actual (es decir, posterior a la fecha actual)";
 
@@ -133,6 +136,21 @@ app.controller(
         Validacion de los datos de entrada
         **********************************
          */
+
+        if ($scope.data.seedDate == undefined) {
+          alert(UNDEFINED_SEED_DATE);
+          return;
+        }
+
+        if ($scope.data.harvestDate == undefined) {
+          alert(UNDEFINED_HARVEST_DATE);
+          return;
+        }
+
+        if (utilDate.compareTo($scope.data.seedDate, $scope.data.harvestDate) >= 0) {
+          alert(OVERLAPPING_SEED_DATE_AND_HARVEST_DATE);
+          return;
+        }
 
         if ($scope.data.parcel == undefined) {
           alert(UNDEFINED_PARCEL);

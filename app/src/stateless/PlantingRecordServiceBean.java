@@ -194,7 +194,7 @@ public class PlantingRecordServiceBean {
    * ID dado
    */
   public Collection<PlantingRecord> findAllByParcelName(int userId, String givenParcelName) {
-    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r WHERE (r.parcel.name = :givenParcelName AND r.parcel.user.id = :userId) ORDER BY r.id");
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r WHERE (r.parcel.name = :givenParcelName AND r.parcel.user.id = :userId) ORDER BY r.seedDate");
     query.setParameter("userId", userId);
     query.setParameter("givenParcelName", givenParcelName);
 
@@ -1480,6 +1480,77 @@ public class PlantingRecordServiceBean {
     query.setParameter("givenParcel", givenParcel);
     query.setParameter("irrigationWaterNeed", irrigationWaterNeed);
     query.executeUpdate();
+  }
+
+  /**
+   * Comprueba si las fechas de un registro de plantacion
+   * de una parcela estan superpuestas con las fechas de
+   * los demas registros de plantacion de la misma parcela.
+   * 
+   * Retorna true si y solo si las fechas de un registro de
+   * plantacion de una parcela estan superpuestas con las
+   * fechas de los demas registro de plantacion de la misma
+   * parcela.
+   * 
+   * @param givenPlantingRecord
+   * @return true si las fechas de un registro de plantacion
+   * de una parcela estan superpuestas con las fechas de los
+   * demas registros de plantacion de la misma parcela, en
+   * caso contrario false
+   */
+  public boolean checkDateOverlap(PlantingRecord givenPlantingRecord) {
+    /*
+     * Obtiene todos los registros de plantacion de
+     * la parcela del registro de plantacion dado
+     */
+    Collection<PlantingRecord> plantingRecords = findAll(givenPlantingRecord.getParcel());
+
+    Calendar seedDate = givenPlantingRecord.getSeedDate();
+    Calendar harvestDate = givenPlantingRecord.getHarvestDate();
+    Calendar currentSeedDate = null;
+    Calendar currentHarvestDate = null;
+
+    for (PlantingRecord currentPlantingRecord : plantingRecords) {
+      currentSeedDate = currentPlantingRecord.getSeedDate();
+      currentHarvestDate = currentPlantingRecord.getHarvestDate();
+
+      /*
+       * Si la fecha de siembra del registro de plantacion dado,
+       * es mayor o igual a la fecha de siembra del registro de
+       * plantacion actual y es menor o igual a la fecha de
+       * cosecha de dicho registro, hay superposicion de fechas,
+       * por lo tanto, se retorna true
+       */
+      if ((UtilDate.compareTo(seedDate, currentSeedDate) >= 0) && (UtilDate.compareTo(seedDate, currentHarvestDate) <= 0)) {
+        return true;
+      }
+
+      /*
+       * Si la fecha de cosecha del registro de plantacion dado,
+       * es mayor o igual a la fecha de siembra del registro de
+       * plantacion actual y es menor o igual a la fecha de
+       * cosecha de dicho registro, hay superposicion de fechas,
+       * por lo tanto, se retorna true
+       */
+      if ((UtilDate.compareTo(harvestDate, currentSeedDate) >= 0) && (UtilDate.compareTo(harvestDate, currentHarvestDate) <= 0)) {
+        return true;
+      }
+
+      /*
+       * Si la fecha de siembra del registro de plantacion dado
+       * es menor o igual a la fecha de siembra del registro de
+       * plantacion actual, y la fecha de cosecha del registro
+       * de plantacion dado es mayor o igual a la fecha de cosecha
+       * del registro de plantacion actual, hay superposicion de
+       * fechas, por lo tanto, se retorna true
+       */
+      if ((UtilDate.compareTo(seedDate, currentSeedDate) <= 0) && (UtilDate.compareTo(harvestDate, currentHarvestDate) >= 0)) {
+        return true;
+      }
+
+    }
+
+    return false;
   }
 
 }
