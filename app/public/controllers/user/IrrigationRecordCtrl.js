@@ -92,9 +92,10 @@ app.controller(
       }
 
       const EMPTY_FORM = "Debe completar todos los campos del formulario";
+      const UNDEFINED_DATE = "La fecha debe estar definida";
+      const IRRIGATION_RECORD_OF_THE_FUTURE_NOT_ALLOWED = "No está permitido que un registro de riego tenga una fecha estrictamente mayor (es decir, posterior) a la fecha actual";
       const NEGATIVE_REALIZED_IRRIGATION = "El riego realizado debe ser mayor o igual a cero";
       const INDEFINITE_PARCEL = "La parcela debe estar definida";
-      const MODIFICATION_PAST_IRRIGATION_RECORD_NOT_ALLOWED = "No está permitida la modificación de un registro de riego del pasado (es decir, uno que tiene una fecha anterior a la fecha actual)";
 
       function find(id) {
         irrigationRecordService.find(id, function (error, data) {
@@ -113,6 +114,8 @@ app.controller(
       }
 
       $scope.create = function () {
+        var currentDate = new Date();
+
         /*
         Si la propiedad data de $scope tiene el valor undefined,
         significa que el formulario de creacion de un registro
@@ -123,6 +126,16 @@ app.controller(
         */
         if ($scope.data == undefined) {
           alert(EMPTY_FORM);
+          return;
+        }
+
+        if ($scope.data.date == undefined) {
+          alert(UNDEFINED_DATE);
+          return;
+        }
+
+        if (utilDate.compareTo($scope.data.date, currentDate) > 0) {
+          alert(IRRIGATION_RECORD_OF_THE_FUTURE_NOT_ALLOWED);
           return;
         }
 
@@ -168,16 +181,6 @@ app.controller(
         var currentDate = new Date();
 
         /*
-        Si la fecha de un registro de riego es estrictamente menor
-        a la fecha actual, se muestra el mensaje dado y no se realiza
-        la operacion solicitada
-        */
-        if (utilDate.compareTo($scope.data.date, currentDate) < 0) {
-          alert(MODIFICATION_PAST_IRRIGATION_RECORD_NOT_ALLOWED);
-          return;
-        }
-
-        /*
         El motivo por el cual NO se verifica si el formulario
         tiene sus campos modificables vacios ni si la parcela
         esta definida (operaciones que se realizan en la creacion
@@ -188,6 +191,16 @@ app.controller(
         de $scope siempre tiene el riego realizado y la parcela
         definidos.
         */
+
+        if ($scope.data.date == undefined) {
+          alert(UNDEFINED_DATE);
+          return;
+        }
+
+        if (utilDate.compareTo($scope.data.date, currentDate) > 0) {
+          alert(IRRIGATION_RECORD_OF_THE_FUTURE_NOT_ALLOWED);
+          return;
+        }
 
         /*
         Si el riego realizado es estrictamente menor a cero,

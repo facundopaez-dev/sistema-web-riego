@@ -46,7 +46,6 @@ public enum ReasonError {
   PASSWORD_RESET_LINK_EXPIRED("Enlace de restablecimiento de contraseña expirado"),
   INACTIVE_USER_TO_RECOVER_PASSWORD("Para recuperar su contraseña primero debe activar su cuenta mediante el correo electrónico de confirmación de registro"),
   NEGATIVE_REALIZED_IRRIGATION("El riego realizado debe ser mayor o igual a cero"),
-  MODIFICATION_PAST_IRRIGATION_RECORD_NOT_ALLOWED("No está permitida la modificación de un registro de riego del pasado (es decir, uno que tiene una fecha anterior a la fecha actual)"),
   PARCEL_NAME_UNDEFINED("El nombre de la parcela debe estar definido"),
   INVALID_NUMBER_OF_HECTARES("La cantidad de hectáreas debe ser mayor a 0.0"),
   INVALID_PARCEL_NAME("El nombre de una parcela debe empezar con una palabra formada únicamente por caracteres alfabéticos y puede tener más de una palabra formada únicamente por caracteres alfanuméricos"),
@@ -81,7 +80,9 @@ public enum ReasonError {
   OVERLAPPING_SEED_DATE_AND_HARVEST_DATE("La fecha de siembra no debe ser mayor ni igual a la fecha de cosecha"),
   OVERLAPPING_DATES("Hay superposición de fechas entre este registro de plantación y los demás registros de plantación de la misma parcela"),
   MODIFICATION_NON_MODIFIABLE_PLANTING_RECORD_NOT_ALLOWED("No está permitida la modificación de un registro de plantación no modificable"),
-  MODIFIABILITY_PLANTING_RECORD_NOT_ALLOWED("No está permitido hacer que un registro de plantación en desarrollo o en espera sea no modificable");
+  MODIFIABILITY_PLANTING_RECORD_NOT_ALLOWED("No está permitido hacer que un registro de plantación en desarrollo o en espera sea no modificable"),
+  IRRIGATION_RECORD_OF_THE_FUTURE_NOT_ALLOWED("No está permitido que un registro de riego tenga una fecha estrictamente mayor (es decir, posterior) a la fecha actual"),
+  MODIFICATION_NON_MODIFIABLE_IRRIGATION_RECORD_NOT_ALLOWED("No está permitida la modificación de un registro de riego no modificable");
 
   private final String reason;
 

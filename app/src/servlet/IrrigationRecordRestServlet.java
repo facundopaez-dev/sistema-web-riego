@@ -32,7 +32,6 @@ import util.RequestManager;
 import utilJwt.AuthHeaderManager;
 import utilJwt.JwtManager;
 
-
 @Path("/irrigationRecords")
 public class IrrigationRecordRestServlet {
 
@@ -275,6 +274,43 @@ public class IrrigationRecordRestServlet {
      */
 
     /*
+     * Si la fecha de un registro de riego nuevo NO esta
+     * definida, la aplicacion del lado servidor retorna el
+     * mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "La fecha debe estar definida" y no se realiza la
+     * operacion solicitada
+     */
+    if (newIrrigationRecord.getDate() == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_DATE))).build();
+    }
+
+    /*
+     * El metodo getInstance de la clase Calendar retorna
+     * la referencia a un objeto de tipo Calendar que
+     * contiene la fecha actual
+     */
+    Calendar currentDate = Calendar.getInstance();
+
+    /*
+     * Si la fecha de un registro de riego nuevo es
+     * es estrictamente mayor a la fecha actual, la
+     * aplicacion del lado servidor retorna el mensaje
+     * HTTP 400 (Bad request) juto con el mensaje "No
+     * esta permitido que un registro de riego tenga
+     * una fecha estrictamente mayor (es decir, posterior)
+     * a la fecha actual" y no se realiza la operacion
+     * solicitada.
+     * 
+     * De esta manera, se evita la creacion de registros
+     * de riego del futuro, ya que no tiene sentido
+     * registrar la cantidad de agua que se utilizara
+     * para el riego de una parcela o un cultivo.
+     */
+    if (UtilDate.compareTo(newIrrigationRecord.getDate(), currentDate) > 0) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.IRRIGATION_RECORD_OF_THE_FUTURE_NOT_ALLOWED))).build();
+    }
+
+    /*
      * Si la parcela NO esta definida, la aplicacion del lado
      * servidor retorna el mensaje HTTP 400 (Bad request) junto
      * con el mensaje "La parcela debe estar definida" y no se
@@ -285,12 +321,6 @@ public class IrrigationRecordRestServlet {
     }
 
     /*
-     * *************************************
-     * Controles sobre la forma de los datos
-     * *************************************
-     */
-
-    /*
      * Si el riego realizado es negativo, la aplicacion del lado
      * servidor retorna el mensaje HTTP 400 (Bad request) junto
      * con el mensaje "El riego realizado debe ser mayor o igual
@@ -299,17 +329,6 @@ public class IrrigationRecordRestServlet {
     if (newIrrigationRecord.getIrrigationDone() < 0) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NEGATIVE_REALIZED_IRRIGATION))).build();
     }
-
-    /*
-     * El metodo getInstance de la clase Calendar retorna
-     * una referencia a un objeto de tipo Calendar que
-     * contiene la fecha actual.
-     * 
-     * Solo esta permitido crear un registro de riego con
-     * la fecha actual. Este es el motivo de esta
-     * instruccion.
-     */
-    newIrrigationRecord.setDate(Calendar.getInstance());
 
     /*
      * Un registro de riego que tiene su fecha igual a
@@ -329,6 +348,10 @@ public class IrrigationRecordRestServlet {
     }
 
     setIrrigationWaterNeed(newIrrigationRecord);
+
+    /*
+     * Persistencia del nuevo registro de riego
+     */
     newIrrigationRecord = irrigationRecordService.create(newIrrigationRecord);
 
     /*
@@ -336,9 +359,16 @@ public class IrrigationRecordRestServlet {
      * la necesidad de agua de riego [mm/dia] del registro de
      * plantacion en desarrollo de la parcela de dicho registro
      * de riego teniendo en cuenta la cantidad total de agua de
-     * riego
+     * de riego de la fecha actual
      */
     updateIrrigationWaterNeedDevelopingPlantingRecord(newIrrigationRecord.getParcel());
+
+    /*
+     * Luego de persistir el nuevo registro de riego, se actualiza
+     * el agua excedente [mm/dia] del registro climatico de la fecha
+     * actual de la parcela de dicho registro de riego
+     */
+    updateExcessWaterCurrentDate(newIrrigationRecord.getParcel());
 
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
@@ -422,22 +452,16 @@ public class IrrigationRecordRestServlet {
     }
 
     /*
-     * ******************************************
-     * Control sobre la temporalidad de los datos
-     * ******************************************
+     * Si el registro de riego a modificar NO es modificable,
+     * la aplicacion del lador servidor retorna el mensaje
+     * HTTP 400 (Bad request) junto con el mensaje "No esta
+     * permitida la modificacion de un registro de riego no
+     * modificable" y no se realiza la operacion solicitada
      */
-
-    /*
-     * Si se intenta modificar un registro de riego del pasado
-     * (es decir, uno que tiene su fecha estrictamente menor que
-     * la fecha actual), la aplicacion del lado servidor retorna
-     * el mensaje HTTP 400 (Bad request) junto con el mensaje "No
-     * esta permitida la modificacion de un registro de riego del
-     * pasado" y no se realiza la operacion solicitada
-     */
-    if (irrigationRecordService.isFromPast(userId, irrigationRecordId)) {
-      return Response.status(Response.Status.BAD_REQUEST).
-        entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_PAST_IRRIGATION_RECORD_NOT_ALLOWED))).build();
+    if (!irrigationRecordService.isModifiable(irrigationRecordId)) {
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_NON_MODIFIABLE_IRRIGATION_RECORD_NOT_ALLOWED)))
+          .build();
     }
 
     /*
@@ -460,6 +484,43 @@ public class IrrigationRecordRestServlet {
      * Controles sobre la definicion de los datos
      * ******************************************
      */
+
+    /*
+     * Si la fecha del registro de riego modificada NO esta
+     * definida, la aplicacion del lado servidor retorna el
+     * mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "La fecha debe estar definida" y no se realiza la
+     * operacion solicitada
+     */
+    if (modifiedIrrigationRecord.getDate() == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_DATE))).build();
+    }
+
+    /*
+     * El metodo getInstance de la clase Calendar retorna
+     * la referencia a un objeto de tipo Calendar que
+     * contiene la fecha actual
+     */
+    Calendar currentDate = Calendar.getInstance();
+
+    /*
+     * Si la fecha del registro de riego modificado es
+     * es estrictamente mayor a la fecha actual, la
+     * aplicacion del lado servidor retorna el mensaje
+     * HTTP 400 (Bad request) juto con el mensaje "No
+     * esta permitido que un registro de riego tenga
+     * una fecha estrictamente mayor (es decir, posterior)
+     * a la fecha actual" y no se realiza la operacion
+     * solicitada.
+     * 
+     * De esta manera, se evita la modificacion de registros
+     * de riego con fechas futuras, ya que no tiene sentido
+     * registrar la cantidad de agua que se utilizara
+     * para el riego de una parcela o un cultivo.
+     */
+    if (UtilDate.compareTo(modifiedIrrigationRecord.getDate(), currentDate) > 0) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.IRRIGATION_RECORD_OF_THE_FUTURE_NOT_ALLOWED))).build();
+    }
 
     /*
      * Si la parcela NO esta definida, la aplicacion del lado
@@ -494,9 +555,16 @@ public class IrrigationRecordRestServlet {
      * riego, se actualiza la necesidad de agua de riego [mm/dia]
      * del registro de plantacion en desarrollo de la parcela de
      * dicho registro de riego teniendo en cuenta la cantidad total
-     * de agua de riego
+     * de agua de riego de la fecha actual
      */
     updateIrrigationWaterNeedDevelopingPlantingRecord(modifiedIrrigationRecord.getParcel());
+
+    /*
+     * Luego de modificar el riego realizado de un registro de riego,
+     * se actualiza el agua excedente [mm/dia] del registro climatico
+     * de la fecha actual de la parcela de dicho registro de riego
+     */
+    updateExcessWaterCurrentDate(modifiedIrrigationRecord.getParcel());
 
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
@@ -646,6 +714,97 @@ public class IrrigationRecordRestServlet {
           givenParcel, String.valueOf(currentIrrigationWaterNeed));
     }
 
+  }
+
+  /**
+   * Actualiza el agua excedente del registro climatico de la
+   * fecha actual de una parcela dada contemplando el riego
+   * realizado ingresado mediante los metodos create y modify
+   * de esta clase
+   * 
+   * @param givenParcel
+   */
+  private void updateExcessWaterCurrentDate(Parcel givenParcel) {
+    /*
+     * El metodo getInstance de la clase Calendar retorna
+     * la referencia a un objeto de tipo Calendar que
+     * contiene la fecha actual.
+     */
+    climateRecordService.updateExcessWater(Calendar.getInstance(), givenParcel,
+        calculateExcessWaterCurrentDate(givenParcel));
+  }
+
+  /**
+   * @param givenParcel
+   * @return punto flotante que representa el agua excedente que
+   * hay en una parcela en la fecha actual
+   */
+  private double calculateExcessWaterCurrentDate(Parcel givenParcel) {
+    /*
+     * El metodo getInstance de la clase Calendar retorna
+     * la referencia a un objeto de tipo Calendar que
+     * contiene la fecha actual
+     */
+    Calendar currentDate = Calendar.getInstance();
+    ClimateRecord currentClimateRecord = null;
+
+    double excessWaterCurrentDate = 0.0;
+    double totalIrrigationWaterCurrentDate = 0.0;
+    double excessWaterYesterday = 0.0;
+    double etCurrentDate = 0.0;
+
+    /*
+     * Si el registro climatico de la fecha actual existe, se
+     * calcula el agua excedente que hay en una parcela en la
+     * fecha actual contemplando el riego realizado ingresado
+     * mediante los metodos create y modify de esta clase
+     */
+    if (climateRecordService.checkExistence(currentDate, givenParcel)) {
+      currentClimateRecord = climateRecordService.find(currentDate, givenParcel);
+
+      /*
+       * Si el registro climatico del dia inmediatamente anterior
+       * a la fecha actual de una parcela, existe en la base de
+       * datos subyacente, se obtiene el agua excedente de dicho
+       * dia. En caso contrario, se asume que el agua excedente
+       * del dia inmediatamente anterior a la fecha actual es 0.
+       */
+      if (climateRecordService.checkExistence(UtilDate.getYesterdayDate(), givenParcel)) {
+        excessWaterYesterday = climateRecordService.find(UtilDate.getYesterdayDate(), givenParcel).getExcessWater();
+      }
+
+      /*
+       * Cuando una parcela NO tiene un cultivo sembrado y en
+       * desarrollo, la ETc de uno o varios de sus registros
+       * climaticos tiene el valor 0.0, ya que si no hay un
+       * cultivo en desarrollo NO es posible calcular la ETc
+       * (evapotranspiracion del cultivo bajo condiciones
+       * estandar) del mismo. Por lo tanto, se debe utilizar la
+       * ETo (evapotranspiracion del cultivo de referencia) para
+       * calcular el agua excedente de un registro climatico
+       * en la fecha actual.
+       * 
+       * En caso contrario, se debe utilizar la ETc para calcular
+       * el agua excedente de un registro climatico en la fecha
+       * actual.
+       */
+      if (currentClimateRecord.getEtc() == 0.0) {
+        etCurrentDate = currentClimateRecord.getEto();
+      } else {
+        etCurrentDate = currentClimateRecord.getEtc();
+      }
+
+      totalIrrigationWaterCurrentDate = irrigationRecordService.calculateTotalIrrigationWaterCurrentDate(givenParcel);
+
+      /*
+       * Calculo del agua excedente de una parcela dada
+       * en la fecha actual
+       */
+      excessWaterCurrentDate = WaterMath.calculateExcessWater(etCurrentDate, currentClimateRecord.getPrecip(),
+          totalIrrigationWaterCurrentDate, excessWaterYesterday);
+    } // End if
+
+    return excessWaterCurrentDate;
   }
 
 }

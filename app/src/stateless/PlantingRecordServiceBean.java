@@ -126,6 +126,44 @@ public class PlantingRecordServiceBean {
   }
 
   /**
+   * @param givenParcel
+   * @param givenDate
+   * @return referencia a un objeto de tipo PlantingRecord que
+   * representa que un cultivo estuvo sembrado en una parcela
+   * dada en una fecha dada
+   */
+  public PlantingRecord find(Parcel givenParcel, Calendar givenDate) {
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r WHERE (r.parcel = :givenParcel AND r.seedDate <= :givenDate AND :givenDate <= r.harvestDate)");
+    query.setParameter("givenParcel", givenParcel);
+    query.setParameter("givenDate", givenDate);
+
+    PlantingRecord plantingRecord = null;
+
+    try {
+      plantingRecord = (PlantingRecord) query.getSingleResult();
+    } catch(NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return plantingRecord;
+  }
+
+  /**
+   * Retorna true si y solo si una parcela tiene un registro
+   * de plantacion en el que la fecha dada este entre la fecha
+   * de siembra y la fecha de cosecha del mismo.
+   * 
+   * @param givenParcel
+   * @param givenDate
+   * @return true si una parcela tiene un registro de plantacion
+   * en el que la fecha dada este entre la fecha de siembra y la
+   * fecha de cosecha del mismo, en caso contrario false
+   */
+  public boolean checkExistence(Parcel givenParcel, Calendar givenDate) {
+    return (find(givenParcel, givenDate) != null);
+  }
+
+  /**
    * Retorna un registro de plantacion perteneciente a una de las
    * parcelas de un usuario
    * 

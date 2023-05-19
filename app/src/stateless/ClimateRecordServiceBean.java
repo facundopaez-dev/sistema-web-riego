@@ -260,6 +260,38 @@ public class ClimateRecordServiceBean {
   }
 
   /**
+   * Modifica un registro climatico
+   *
+   * @param climateRecordId
+   * @param modifiedClimateRecord
+   * @return referencia a un objeto de tipo ClimateRecord si el registro climatico
+   * a modificar existe en la base de datos subyacente, en caso contrario null
+   */
+  public ClimateRecord modify(int climateRecordId, ClimateRecord modifiedClimateRecord) {
+    ClimateRecord chosenClimateRecord = find(climateRecordId);
+
+    if (chosenClimateRecord != null) {
+      chosenClimateRecord.setDate(modifiedClimateRecord.getDate());
+      chosenClimateRecord.setPrecip(modifiedClimateRecord.getPrecip());
+      chosenClimateRecord.setPrecipProbability(modifiedClimateRecord.getPrecipProbability());
+      chosenClimateRecord.setDewPoint(modifiedClimateRecord.getDewPoint());
+      chosenClimateRecord.setAtmosphericPressure(modifiedClimateRecord.getAtmosphericPressure());
+      chosenClimateRecord.setWindSpeed(modifiedClimateRecord.getWindSpeed());
+      chosenClimateRecord.setCloudCover(modifiedClimateRecord.getCloudCover());
+      chosenClimateRecord.setMinimumTemperature(modifiedClimateRecord.getMinimumTemperature());
+      chosenClimateRecord.setMaximumTemperature(modifiedClimateRecord.getMaximumTemperature());
+      chosenClimateRecord.setExcessWater(modifiedClimateRecord.getExcessWater());
+      chosenClimateRecord.setEto(modifiedClimateRecord.getEto());
+      chosenClimateRecord.setEtc(modifiedClimateRecord.getEtc());
+      chosenClimateRecord.setModifiable(modifiedClimateRecord.getModifiable());
+      chosenClimateRecord.setParcel(modifiedClimateRecord.getParcel());
+      return chosenClimateRecord;
+    }
+
+    return null;
+  }
+
+  /**
    * Comprueba si un registro climatico pertenece a un usuario
    * dado, mediante la relacion muchos a uno que hay entre los
    * modelos de datos ClimateRecord y Parcel.

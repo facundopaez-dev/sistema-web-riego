@@ -175,7 +175,7 @@ public class IrrigationRecordManager {
      * para probar que este metodo se ejecuta correctamente, es decir, que hace
      * lo que se espera que haga.
      */
-    @Schedule(second = "*", minute = "*", hour = "0/23", persistent = false)
+    // @Schedule(second = "*", minute = "*", hour = "0/23", persistent = false)
     // @Schedule(second = "*/10", minute = "*", hour = "*", persistent = false)
     private void unsetModifiable() {
         Collection<IrrigationRecord> modifiableIrrigationRecords = irrigationRecordService.findAllModifiable();

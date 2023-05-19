@@ -115,10 +115,10 @@
             <tr>
                 <th>ID</th>
                 <th>Fecha</th>
-                <th>Temp. mínima (°C)</th>
-                <th>Temp. máxima (°C)</th>
-                <th>Precipitación (mm/día)</th>
-                <th>Velocidad del viento (km/h)</th>
+                <th>Precip. (mm/día)</th>
+                <th>Agua excedente (mm/día)</th>
+                <th>ETo (mm/día)</th>
+                <th>ETc (mm/día)</th>
                 <th>Parcela</th>
             </tr>
         </thead>
@@ -126,10 +126,10 @@
             <tr ng-repeat="c in data">
                 <td>{{c.id}}</td>
                 <td>{{c.date | date:'dd/MM/yyyy'}}</td>
-                <td>{{c.minimumTemperature}}</td>
-                <td>{{c.maximumTemperature}}</td>
                 <td>{{c.precip}}</td>
-                <td>{{c.windSpeed}}</td>
+                <td>{{c.excessWater}}</td>
+                <td>{{c.eto}}</td>
+                <td>{{c.etc}}</td>
                 <td>{{c.parcel.name}}</td>
                 <td class="text-right">
                     <div class="btn-group" role="group" aria-label="...">

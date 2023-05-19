@@ -88,6 +88,16 @@ public class CropServiceBean {
     return null;
   }
 
+  /**
+   * @param cropOne
+   * @param cropTwo
+   * @return true si el cultivo uno tiene el mismo nombre que
+   * el cultivo dos, en caso contrario false
+   */
+  public boolean equals(Crop cropOne, Crop cropTwo) {
+    return cropOne.getName().equals(cropTwo.getName());
+  }
+
   public Crop find(int id) {
     return getEntityManager().find(Crop.class, id);
   }
@@ -228,27 +238,27 @@ public class CropServiceBean {
   }
 
   /**
-   * Este metodo es unicamente para la clase de pruebas
-   * unitarias GetKcTest, la cual, es para probar que
-   * el metodo getKc funciona correctamente
+   * Este metodo es para la clase de pruebas unitarias GetKcTest
+   * y el metodo calculate requestAndPersistClimateRecordsForPeriod
+   * de la clase PlantingRecordRestServlet.
    * 
    * @param crop
    * @param seedDate [fecha de siembra de un cultivo dado]
-   * @param currentDate
+   * @param dateUntil
    * @return numero de punto flotante que representa el kc
    * (coeficiente de cultivo) de un cultivo en funcion de
    * la etapa en la que se encuentra un cultivo en su ciclo
    * de vida
    */
-  public double getKc(Crop crop, Calendar seedDate, Calendar currentDate) {
+  public double getKc(Crop crop, Calendar seedDate, Calendar dateUntil) {
     /*
      * A la diferencia de dias entre la fecha de siembra de
-     * un cultivo y la fecha actual, se le suma un uno para
+     * un cultivo y una fecha hasta, se le suma un uno para
      * incluir a la fecha de siembra en el resultado, ya que
      * esta cuenta como un dia de vida en la cantidad de dias
      * de vida transcurridos de un cultivo
      */
-    int daysLife = UtilDate.calculateDifferenceBetweenDates(seedDate, currentDate) + 1;
+    int daysLife = UtilDate.calculateDifferenceBetweenDates(seedDate, dateUntil) + 1;
     return calculateKc(crop, daysLife);
   }
 

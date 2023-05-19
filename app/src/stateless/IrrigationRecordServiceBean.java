@@ -52,8 +52,10 @@ public class IrrigationRecordServiceBean {
     IrrigationRecord chosenIrrigationRecord = find(userId, irrigationRecordId);
 
     if (chosenIrrigationRecord != null) {
+      chosenIrrigationRecord.setDate(modifiedIrrigationRecord.getDate());
       chosenIrrigationRecord.setIrrigationDone(modifiedIrrigationRecord.getIrrigationDone());
       chosenIrrigationRecord.setParcel(modifiedIrrigationRecord.getParcel());
+      chosenIrrigationRecord.setModifiable(modifiedIrrigationRecord.getModifiable());
       return chosenIrrigationRecord;
     }
 
@@ -286,6 +288,34 @@ public class IrrigationRecordServiceBean {
   }
 
   /**
+   * @param givenDate
+   * @param givenParcel
+   * @return punto flotante que representa la cantidad total de
+   *         agua de riego utilizada para un cultivo en una fecha
+   *         dada
+   */
+  public double calculateTotalIrrigationWaterGivenDate(Calendar givenDate, Parcel givenParcel) {
+    /*
+     * Suma el riego realizado de cada uno de los registros
+     * de riego de una fecha dada pertenecientes a una parcela
+     * dada
+     */
+    Query query = entityManager.createQuery("SELECT SUM(i.irrigationDone) FROM IrrigationRecord i WHERE (i.date = :givenDate AND i.parcel = :givenParcel)");
+    query.setParameter("givenDate", givenDate);
+    query.setParameter("givenParcel", givenParcel);
+
+    double result = 0.0;
+
+    try {
+      result = (double) query.getSingleResult();
+    } catch (NullPointerException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
    * Comprueba la existencia de un registro de riego en la base
    * de datos subyacente. Retorna true si y solo si existe en
    * la base de datos el registro de riego con una fecha dada
@@ -460,6 +490,24 @@ public class IrrigationRecordServiceBean {
     query.setParameter("givenParcel", givenParcel);
     query.setParameter("irrigationWaterNeed", irrigationWaterNeed);
     query.executeUpdate();
+  }
+
+  /**
+   * Retorna true si y solo si un registro de riego es modificable.
+   * 
+   * Hay que tener en cuenta que este metodo debe ser invocado
+   * luego de invocar al metodo checkExistence de esta clase,
+   * ya que si no se hace esto puede ocurrir la excepcion
+   * NoResultException, la cual, ocurre cuando se invoca el
+   * metodo getSingleResult de la clase Query para buscar
+   * un dato inexistente en la base de datos subyacente.
+   * 
+   * @param id
+   * @return true si un registro de riego es modificable,
+   * false en caso contrario
+   */
+  public boolean isModifiable(int id) {
+    return find(id).getModifiable();
   }
 
   public Page<IrrigationRecord> findByPage(Integer page, Integer cantPerPage, Map<String, String> parameters) {
