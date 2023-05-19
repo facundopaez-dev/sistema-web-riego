@@ -18,29 +18,21 @@ public class UtilDate {
   }
 
   /**
-   * @return la fecha anterior a la fecha actual del sistema
+   * @return referencia a un objeto de tipo Calendar que
+   * contiene la fecha inmediatamente anterior a la fecha
+   * actual
    */
   public static Calendar getYesterdayDate() {
-    Calendar currentDate = Calendar.getInstance();
-    Calendar yesterdayDate = Calendar.getInstance();
-
     /*
-     * Si la fecha actual es el primero de Enero, entonces
-     * la fecha anterior a la fecha actual es el 31 de Diciembre
-     * del año anterior al año de la fecha actual
-     *
-     * Si la fecha actual no es el primero de Enero, entonces
-     * la fecha anterior a la fecha actual es el dia anterior
-     * a la fecha actual y ambas fechas pertenecen al mismo
-     * año
+     * El metodo getInstance de la clase Calendar retorna
+     * la referencia a un objeto de tipo Calendar que
+     * contiene la fecha actual. Para obtener el dia
+     * inmediatamente anterior al dia actual (es decir,
+     * el dia de ayer) se debe restar uno al numero de
+     * dia en el año de la fecha actual.
      */
-    if (currentDate.get(Calendar.DAY_OF_YEAR) == 1) {
-      yesterdayDate.set(Calendar.DAY_OF_YEAR, 365);
-      yesterdayDate.set(Calendar.YEAR, currentDate.get(Calendar.YEAR) - 1);
-    } else {
-      yesterdayDate.set(Calendar.DAY_OF_YEAR, currentDate.get(Calendar.DAY_OF_YEAR) - 1);
-    }
-
+    Calendar yesterdayDate = Calendar.getInstance();
+    yesterdayDate.set(Calendar.DAY_OF_YEAR, (yesterdayDate.get(Calendar.DAY_OF_YEAR) - 1));
     return yesterdayDate;
   }
 
