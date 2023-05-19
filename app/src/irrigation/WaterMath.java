@@ -82,14 +82,14 @@ public class WaterMath {
    * la ET es la ETo [mm/dia] (evapotranspiracion del cultivo
    * de referencia).
    * 
-   * @param et                            [mm/dia]
+   * @param etGivenDate                   [mm/dia]
    * @param precipitationGivenDate        [mm/dia]
    * @param totalIrrigationWaterGivenDate [mm/dia]
    * @param excessWaterYesterday          [mm/dia]
    * @return punto flotante que representa el agua
    *         excedente [mm/dia] de una fecha dada
    */
-  public static double calculateExcessWater(double et, double precipitationGivenDate,
+  public static double calculateExcessWater(double etGivenDate, double precipitationGivenDate,
       double totalIrrigationWaterGivenDate, double excessWaterYesterday) {
     /*
      * Si la suma entre la precipitacion, la cantidad total
@@ -109,8 +109,8 @@ public class WaterMath {
      * la ET es la ETo [mm/dia] (evapotranspiracion del cultivo
      * de referencia).
      */
-    if ((precipitationGivenDate + totalIrrigationWaterGivenDate + excessWaterYesterday) > et) {
-      return limitToTwoDecimalPlaces((precipitationGivenDate + totalIrrigationWaterGivenDate + excessWaterYesterday) - et);
+    if ((precipitationGivenDate + totalIrrigationWaterGivenDate + excessWaterYesterday) > etGivenDate) {
+      return limitToTwoDecimalPlaces((precipitationGivenDate + totalIrrigationWaterGivenDate + excessWaterYesterday) - etGivenDate);
     }
 
     /*
