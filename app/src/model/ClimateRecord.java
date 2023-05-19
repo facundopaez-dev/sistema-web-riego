@@ -121,7 +121,7 @@ public class ClimateRecord {
    * null. Una cantidad cero de precipitacion se indicara con el
    * valor cero.
    */
-  @OneToMany(mappedBy = "climateRecord", cascade = CascadeType.PERSIST)
+  @OneToMany(mappedBy = "climateRecord", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
   private Collection<TypePrecipitation> precipTypes;
 
   /*
