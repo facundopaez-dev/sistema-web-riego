@@ -94,6 +94,8 @@ public class IrrigationRecordManager {
                 currentIrrigationRecord.setParcel(currentParcel);
 
                 if (plantingRecordService.checkOneInDevelopment(currentParcel)) {
+                    givenCrop = plantingRecordService.findInDevelopment(currentParcel).getCrop();
+                    currentIrrigationRecord.setCrop(givenCrop);
 
                     /*
                      * Si la parcela dada tiene un registro de plantacion en desarrollo
@@ -117,7 +119,6 @@ public class IrrigationRecordManager {
                      */
                     if (climateRecordService.checkExistence(currentDate, currentParcel)) {
                         currentClimateRecord = climateRecordService.find(currentDate, currentParcel);
-                        givenCrop = plantingRecordService.findInDevelopment(currentParcel).getCrop();
 
                         /*
                          * Si la parcela dada tiene el registro climatico del dia inmediatamente
@@ -142,7 +143,6 @@ public class IrrigationRecordManager {
                                 totalIrrigationWaterCurrentDate, excessWaterYesterday);
 
                         currentIrrigationRecord.setIrrigationWaterNeed(String.valueOf(currentIrrigationWaterNeed));
-                        currentIrrigationRecord.setCrop(givenCrop);
                     } else {
                         currentIrrigationRecord.setIrrigationWaterNeed(NOT_AVAILABLE);
                     }
