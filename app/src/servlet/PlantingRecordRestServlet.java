@@ -742,7 +742,8 @@ public class PlantingRecordRestServlet {
        * climaticos de una parcela anteriores a la fecha actual
        */
       calculateExcessWaterForPeriodOnModification(currentPlantingRecord, modifiedPlantingRecord.getCrop(),
-          modifiedPlantingRecord.getParcel(), modifiedPlantingRecord.getSeedDate());
+          modifiedPlantingRecord.getParcel(), modifiedPlantingRecord.getSeedDate(),
+          modifiedPlantingRecord.getHarvestDate());
 
       /*
        * Se calcula la necesidad de agua de riego del registro de
@@ -1175,10 +1176,11 @@ public class PlantingRecordRestServlet {
    * @param modifiedSeedDate
    */
   private void calculateExcessWaterForPeriodOnModification(PlantingRecord originalPlantingRecord, Crop modifiedCrop,
-      Parcel modifiedParcel, Calendar modifiedSeedDate) {
+      Parcel modifiedParcel, Calendar modifiedSeedDate, Calendar modifiedHarvestDate) {
     Crop originalCrop = originalPlantingRecord.getCrop();
     Parcel originalParcel = originalPlantingRecord.getParcel();
     Calendar originalSeedDate = originalPlantingRecord.getSeedDate();
+    Calendar originalHarvestDate = originalPlantingRecord.getHarvestDate();
 
     /*
      * Si el cultivo fue modificado y la parcela no (esto
@@ -1216,7 +1218,7 @@ public class PlantingRecordRestServlet {
     }
 
     /*
-     * Si la fecha de siembra fue modificado, pero el cultivo y
+     * Si la fecha de siembra fue modificada, pero el cultivo y
      * la parcela no, se solicitan y persisten NUMBER_DAYS
      * registros climaticos de una parcela anteriores a la
      * fecha actual. Luego, se recalcula la ETo y la ETc de
@@ -1224,6 +1226,21 @@ public class PlantingRecordRestServlet {
      * de los mismos.
      */
     if ((UtilDate.compareTo(originalSeedDate, modifiedSeedDate) != 0)
+        && (cropService.equals(originalCrop, modifiedCrop)) && (parcelService.equals(originalParcel, modifiedParcel))) {
+      requestAndPersistClimateRecordsForPeriod(modifiedParcel);
+      recalculateEtClimateRecordsForPeriod(modifiedParcel);
+      calculateExcessWaterForPeriod(modifiedParcel);
+    }
+
+    /*
+     * Si la fecha de cosecha fue modificada, pero el cultivo y
+     * la parcela no, se solicitan y persisten NUMBER_DAYS
+     * registros climaticos de una parcela anteriores a la
+     * fecha actual. Luego, se recalcula la ETo y la ETc de
+     * los mismos. Por ultimo, se calcula el agua excedente
+     * de los mismos.
+     */
+    if ((UtilDate.compareTo(originalHarvestDate, modifiedHarvestDate) != 0)
         && (cropService.equals(originalCrop, modifiedCrop)) && (parcelService.equals(originalParcel, modifiedParcel))) {
       requestAndPersistClimateRecordsForPeriod(modifiedParcel);
       recalculateEtClimateRecordsForPeriod(modifiedParcel);
