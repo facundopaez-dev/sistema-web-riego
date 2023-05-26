@@ -328,10 +328,9 @@ public class IrrigationRecordRestServlet {
     }
 
     /*
-     * Un registro de riego que tiene su fecha igual a
-     * la fecha actual es un registro de riego modificable.
-     * Por lo tanto, se establece su atributo modifiable en
-     * true.
+     * Un registro de riego nuevo se debe poder modificar,
+     * por lo tanto, se establece su atributo modifiable en
+     * true
      */
     newIrrigationRecord.setModifiable(true);
 
