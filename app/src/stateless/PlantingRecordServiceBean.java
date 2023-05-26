@@ -1665,4 +1665,77 @@ public class PlantingRecordServiceBean {
     return find(id).getModifiable();
   }
 
+  /**
+   * @param id
+   * @return referencia a un objeto de tipo PlantingRecord que
+   * representa el registro de plantacion finalizado de una parcela
+   * en caso de encontrarse en la base de datos subyacente el
+   * registro de plantacion finalizado correspondiente al ID dado,
+   * en caso contrario null
+   */
+  public PlantingRecord findByFinishedStatus(int id) {
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.status s WHERE (r.id = :givenId AND s.name = 'Finalizado')");
+    query.setParameter("givenId", id);
+
+    PlantingRecord finishedPlantingRecord = null;
+
+    try {
+      finishedPlantingRecord = (PlantingRecord) query.getSingleResult();
+    } catch(NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return finishedPlantingRecord;
+  }
+
+  /**
+   * Comprueba la existencia de un registro de plantacion finalizado
+   * en la base de datos subyacente. Retorna true si y solo si existe
+   * el registro de plantacion finalizado con el ID dado.
+   * 
+   * @param id
+   * @return true si el registro de plantacion finalizado con el
+   * ID dado existe en la base de datos subyacente, en caso contrario
+   * false
+   */
+  public boolean checkFinishedStatus(int id) {
+    return (findByFinishedStatus(id) != null);
+  }
+
+  /**
+   * @param id
+   * @return referencia a un objeto de tipo PlantingRecord que
+   * representa el registro de plantacion en espera de una parcela
+   * en caso de encontrarse en la base de datos subyacente el
+   * registro de plantacion en espera correspondiente al ID dado,
+   * en caso contrario null
+   */
+  public PlantingRecord findByWaitingStatus(int id) {
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.status s WHERE (r.id = :givenId AND s.name = 'En espera')");
+    query.setParameter("givenId", id);
+
+    PlantingRecord waitingPlantingRecord = null;
+
+    try {
+      waitingPlantingRecord = (PlantingRecord) query.getSingleResult();
+    } catch(NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return waitingPlantingRecord;
+  }
+
+  /**
+   * Comprueba la existencia de un registro de plantacion en espera
+   * en la base de datos subyacente. Retorna true si y solo si existe
+   * el registro de plantacion en espera con el ID dado.
+   * 
+   * @param id
+   * @return true si el registro de plantacion en espera con el ID dado
+   * existe en la base de datos subyacente, en caso contrario false
+   */
+  public boolean checkWaitingStatus(int id) {
+    return (findByWaitingStatus(id) != null);
+  }
+
 }

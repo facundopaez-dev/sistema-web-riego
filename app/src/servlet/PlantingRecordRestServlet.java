@@ -908,6 +908,19 @@ public class PlantingRecordRestServlet {
       return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
     }
 
+    /*
+     * Si se intenta calcular la necesidad de agua de riego de
+     * un cultivo perteneciente a un registro de plantacion finalizado
+     * o en espera, la aplicacion del lado servidor retorna el
+     * mensaje HTTP 400 (Bad request) junto con el mensaje "No
+     * esta permitido calcular la necesidad de agua de riego de
+     * un cultivo finalizado o en espera" y no se realiza la
+     * operacion solicitada
+     */
+    if (plantingRecordService.checkFinishedStatus(plantingRecordId) || plantingRecordService.checkWaitingStatus(plantingRecordId)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_REQUEST_CALCULATION_IRRIGATION_WATER_NEED))).build();
+    }
+
     PlantingRecord givenPlantingRecord = plantingRecordService.find(plantingRecordId);
     Parcel givenParcel = givenPlantingRecord.getParcel();
 
