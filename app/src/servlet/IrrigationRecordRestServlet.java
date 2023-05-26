@@ -292,19 +292,16 @@ public class IrrigationRecordRestServlet {
     Calendar currentDate = Calendar.getInstance();
 
     /*
-     * Si la fecha de un registro de riego nuevo es
-     * es estrictamente mayor a la fecha actual, la
-     * aplicacion del lado servidor retorna el mensaje
-     * HTTP 400 (Bad request) juto con el mensaje "No
-     * esta permitido que un registro de riego tenga
-     * una fecha estrictamente mayor (es decir, posterior)
-     * a la fecha actual" y no se realiza la operacion
-     * solicitada.
+     * Si la fecha de un registro de riego nuevo es estrictamente
+     * mayor a la fecha actual, la aplicacion del lado servidor
+     * retorna el mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "No esta permitido que un registro de riego tenga una fecha
+     * estrictamente mayor (es decir, posterior) a la fecha actual"
+     * y no se realiza la operacion solicitada.
      * 
-     * De esta manera, se evita la creacion de registros
-     * de riego del futuro, ya que no tiene sentido
-     * registrar la cantidad de agua que se utilizara
-     * para el riego de una parcela o un cultivo.
+     * De esta manera, se evita la creacion de registros de riego
+     * del futuro, ya que no tiene sentido registrar la cantidad de
+     * agua que se utilizara para el riego de una parcela o un cultivo.
      */
     if (UtilDate.compareTo(newIrrigationRecord.getDate(), currentDate) > 0) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.IRRIGATION_RECORD_OF_THE_FUTURE_NOT_ALLOWED))).build();
