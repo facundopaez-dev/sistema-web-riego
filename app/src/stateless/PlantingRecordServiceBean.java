@@ -396,6 +396,28 @@ public class PlantingRecordServiceBean {
   }
 
   /**
+   * Retorna una coleccion que contiene el registro de plantacion
+   * en espera mas antiguo de los registros de plantacion en espera
+   * de cada una de las parcelas registradas en la base de datos
+   * subyacente.
+   * 
+   * Este metodo es para el metodo automatico modifyToInDevelopmentStatus
+   * de la clase PlantingRecordManager. El metodo modifyToInDevelopmentStatus
+   * se ocupa de comprobar si un registro de plantacion presuntamente
+   * en espera, esta en espera y en base a esto establece el
+   * estado en desarrollo en el mismo.
+   * 
+   * @return referencia a un objeto de tipo Collection que
+   * contiene el registro de plantacion en espera mas antiguo
+   * de los registros de plantacion en espera de cada una de
+   * las parcelas registradas en la base de datos subyacente
+   */
+  public Collection<PlantingRecord> findAllInWaiting() {
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r WHERE r.seedDate IN (SELECT MIN(t.seedDate) FROM PlantingRecord t WHERE t.status.name = 'En espera' GROUP BY t.parcel)");
+    return (Collection) query.getResultList();
+  }
+
+  /**
    * Retorna todos los registros de plantacion finalizados
    * de una parcela de un usuario que estan en un periodo
    * definido por dos fechas
@@ -1480,6 +1502,52 @@ public class PlantingRecordServiceBean {
      * en desarrollo es estrictamente menor a la fecha actual, se retorna
      * false como indicativo de que este registro de plantacion NO esta
      * en desarrollo, o en otras palabras, que esta finalizado
+     */
+    return false;
+  }
+
+  /**
+   * Retorna true si y solo si la fecha de siembra de un
+   * registro de plantacion presuntamente en espera es
+   * estrictamente mayor (es decir, posterior) a la fecha
+   * actual. Un registro de plantacion presuntamente en espera
+   * que tiene su fecha de siembra menor o igual a la
+   * fecha actual y su fecha de cosecha mayor o igual a la
+   * fecha actual, es un registro de plantacion en desarrollo.
+   * En cambio, un registro de plantacion que tiene su fecha de
+   * siembra estrictamente mayor (es decir, posterior) a la
+   * fecha actual es un registro de plantacion en espera.
+   * 
+   * Este metodo es para el metodo automatico modifyToInDevelopmentStatus
+   * de la clase PlantingRecordManager. El metodo modifyToInDevelopmentStatus
+   * se ocupa de modificar el estado de un registro de plantacion
+   * presuntamente en espera por el estado "En desarrollo" dependiendo
+   * del resultado devuelto por el metodo checkWaitingStatus.
+   * 
+   * @param plantingRecord
+   * @return true si la fecha de siembra de un registro de plantacion
+   * presuntamente en espera es estrictamente mayor (es decir, posterior)
+   * a la fecha actual, en caso contrario false
+   */
+  public boolean checkWaitingStatus(PlantingRecord plantingRecord) {
+    /*
+     * Si la fecha de siembra de un registro de plantacion presuntamente
+     * en espera es estrictamente mayor (es decir, posterior) a la fecha
+     * actual, se retorna true como indicativo de que este registro esta
+     * en espera.
+     * 
+     * El metodo getInstance de la clase Calendar retorna la referencia
+     * a un objeto de tipo Calendar que contiene la fecha actual.
+     */
+    if (UtilDate.compareTo(plantingRecord.getSeedDate(), Calendar.getInstance()) > 0) {
+      return true;
+    }
+
+    /*
+     * Si la fecha de siembra de un registro de plantacion presuntamente
+     * en espera es menor o igual a la fecha actual, se retorna false como
+     * indicativo de que dicho registro NO esta en espera, o en otras palabras,
+     * que esta finalizado o en desarrollo
      */
     return false;
   }

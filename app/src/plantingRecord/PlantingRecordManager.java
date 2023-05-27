@@ -100,6 +100,49 @@ public class PlantingRecordManager {
 
     }
 
+    /*
+     * Establece de manera automatica el estado en desarrollo en el registro
+     * de plantacion presuntamente en espera mas antiguo de los registros de
+     * plantacion en espera de cada una de las parcelas registradas en la base
+     * de datos subyacente. Esto lo hace cada 24 horas a parit de las 01 horas,
+     * una hora despues de la ejecucion del metodo modifyToFinishedStatus de
+     * esta clase.
+     * 
+     * La segunda anotacion @Schedule es para probar que este metodo se
+     * ejecuta correctamente, es decir, que establece el estado en desarrollo
+     * en un registro de plantacion presuntamente en espera.
+     */
+    @Schedule(second = "*", minute = "*", hour = "1/23", persistent = false)
+    // @Schedule(second = "*/10", minute = "*", hour = "*", persistent = false)
+    public void modifyToInDevelopmentStatus() {
+        /*
+         * Obtiene una coleccion que contiene el registro de
+         * plantacion en espera mas antiguo de los registros
+         * de plantacion en espera de cada una de las parcelas
+         * registradas en la base de datos subyacente
+         */
+        Collection<PlantingRecord> plantingRecords = plantingRecordService.findAllInWaiting();
+
+        for (PlantingRecord currentPlantingRecord : plantingRecords) {
+            /*
+             * Si un registro de plantacion presuntamente en espera, NO
+             * esta en espera, se establece el estado en desarrollo en
+             * el mismo.
+             * 
+             * Un registro de plantacion en espera, esta en espera si su
+             * fecha de siembra es estrictamente mayor (es decir, posterior)
+             * a la fecha actual. En cambio, si su fecha de siembra es menor
+             * o igual a la fecha actual, se debe establecer el estado en
+             * desarrollo en el mismo.
+             */
+            if (!plantingRecordService.checkWaitingStatus(currentPlantingRecord)) {
+                plantingRecordService.setStatus(currentPlantingRecord.getId(), plantingRecordStatusService.findDevelopmentStatus());
+            }
+
+        }
+
+    }
+
     /**
      * Establece de manera automatica la necesidad de agua de riego [mm/dia]
      * (atributo irrigationWaterNeed) de un registro de plantacion en desarrollo
