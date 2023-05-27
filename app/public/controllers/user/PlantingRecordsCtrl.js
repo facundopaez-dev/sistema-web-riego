@@ -86,7 +86,7 @@ app.controller(
 			}
 
 			$scope.calculateIrrigationWaterNeed = function (id) {
-				plantingRecordSrv.calculateIrrigationWaterNeed(id, function (error, irrigationRecord) {
+				plantingRecordSrv.calculateIrrigationWaterNeed(id, function (error, irrigationWaterNeedData) {
 					if (error) {
 						console.log(error);
 						errorResponseManager.checkResponse(error);
@@ -97,20 +97,20 @@ app.controller(
 					Si esta instruccion no esta, no se puede ver la
 					necesidad de agua de riego en el modal
 					*/
-					$scope.irrigationRecord = irrigationRecord;
+					$scope.irrigationWaterNeedData = irrigationWaterNeedData;
 				});
 			}
 
-			$scope.saveIrrigationRecord = function () {
-				if ($scope.irrigationRecord.irrigationDone >= 0) {
-					irrigationRecordService.create($scope.irrigationRecord, function (error, irrigationRecord) {
+			$scope.saveIrrigationWaterNeedData = function () {
+				if ($scope.irrigationWaterNeedData.irrigationDone >= 0) {
+					irrigationRecordService.saveIrrigationWaterNeedData($scope.irrigationWaterNeedData, function (error, irrigationWaterNeedData) {
 						if (error) {
 							console.log(error);
 							errorResponseManager.checkResponse(error);
 							return;
 						}
 
-						$scope.irrigationRecord = irrigationRecord;
+						$scope.irrigationWaterNeedData = irrigationWaterNeedData;
 					});
 				} else {
 					alert("El riego realizado debe ser mayor o igual a cero");

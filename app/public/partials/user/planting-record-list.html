@@ -176,7 +176,7 @@
               <p class="text-right">ID de la parcela</p>
             </label>
             <div class="col-md-5">
-              <input type="number" class="form-control" id="parcelId" ng-model="irrigationRecord.parcel.id"
+              <input type="number" class="form-control" id="parcelId" ng-model="irrigationWaterNeedData.parcel.id"
                 ng-disabled="true">
             </div>
           </div>
@@ -186,7 +186,7 @@
               <p class="text-right">Nombre de la parcela</p>
             </label>
             <div class="col-md-5">
-              <input type="text" class="form-control" id="parcelName" ng-model="irrigationRecord.parcel.name"
+              <input type="text" class="form-control" id="parcelName" ng-model="irrigationWaterNeedData.parcel.name"
                 ng-disabled="true">
             </div>
           </div>
@@ -196,7 +196,7 @@
               <p class="text-right">Hectáreas de la parcela</p>
             </label>
             <div class="col-md-5">
-              <input type="number" class="form-control" id="hectares" ng-model="irrigationRecord.parcel.hectares"
+              <input type="number" class="form-control" id="hectares" ng-model="irrigationWaterNeedData.parcel.hectares"
                 ng-disabled="true">
             </div>
           </div>
@@ -206,7 +206,7 @@
               <p class="text-right">Cultivo</p>
             </label>
             <div class="col-md-5">
-              <input type="text" class="form-control" id="cropName" ng-model="irrigationRecord.crop.name"
+              <input type="text" class="form-control" id="cropName" ng-model="irrigationWaterNeedData.crop.name"
                 ng-disabled="true">
             </div>
           </div>
@@ -217,7 +217,7 @@
             </label>
             <div class="col-md-4">
               <input type="text" class="form-control" id="irrigationWaterNeed"
-                ng-model="irrigationRecord.irrigationWaterNeed" ng-disabled="true">
+                ng-model="irrigationWaterNeedData.irrigationWaterNeed" ng-disabled="true">
             </div>
           </div>
 
@@ -227,7 +227,7 @@
             </label>
             <div class="col-md-4">
               <input type="number" min="0" name="irrigationDone" class="form-control" id="irrigationDone"
-                placeholder="Riego Realizado" ng-model="irrigationRecord.irrigationDone" required />
+                placeholder="Riego Realizado" ng-model="irrigationWaterNeedData.irrigationDone" required />
             </div>
             <div ng-show="formIrrigation.irrigationDone.$error.required" class="col-md-2">
               <p style="color: red">Requerido</p>
@@ -238,7 +238,7 @@
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn btn-success" data-dismiss="modal" ng-click="saveIrrigationRecord()"
+        <button type="button" class="btn btn-success" data-dismiss="modal" ng-click="saveIrrigationWaterNeedData()"
           ng-disabled="formIrrigation.irrigationDone.$error.required">Guardar
         </button>
         <button type="button" class="btn btn-success" data-dismiss="modal" ng-click="cancel()">Cancelar</button>

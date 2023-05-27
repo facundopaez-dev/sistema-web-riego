@@ -27,27 +27,6 @@ public class IrrigationRecord {
   private Calendar date;
 
   /*
-   * Necesidad de agua de riego [mm/dia] de un cultivo.
-   * 
-   * La necesidad de agua de riego de un registro de riego puede
-   * tener el valor "n/a" (no disponible) en los siguientes casos:
-   * - cuando la parcela a la que pertenece NO tiene un registro
-   * de plantacion en desarrollo. En este caso al no haber un
-   * registro de plantacion en desarrollo no hay un cultivo en
-   * desarrollo. Por lo tanto, no es posible calcular la
-   * necesidad de agua de riego de un cultivo.
-   * - cuando la parcela a la que pertenece tiene un registro
-   * de plantacion en desarrollo, pero NO tiene el registro
-   * climatico de la fecha actual. En este caso no se tiene la
-   * evapotranspiracion del cultivo bajo condiciones estandar
-   * (ETc) [mm/dia] ni la precipitacion [mm/dia] de dicha fecha,
-   * por lo tanto, no es posible calcular la necesidad de agua
-   * de riego de un cultivo.
-   */
-  @Column(name = "IRRIGATION_WATER_NEED", nullable = false)
-  private String irrigationWaterNeed;
-
-  /*
    * Riego realizado [mm/dia]
    * 
    * Esta variable es establecida por el usuario y representa
@@ -56,17 +35,6 @@ public class IrrigationRecord {
    */
   @Column(name = "IRRIGATION_DONE", nullable = false)
   private double irrigationDone;
-
-  /*
-   * Esta variable representa si un registro de riego es generado
-   * por el sistema o por el usuario.
-   * 
-   * Si un registro de riego tiene su atributo systemGenerated
-   * en 1, significa que fue generado por el sistema. En caso
-   * contrario, significa que fue generado por el usuario.
-   */
-  @Column(name = "SYSTEM_GENERATED", nullable = false)
-  private boolean systemGenerated;
 
   /*
    * Un registro de riego del pasado (es decir, que su fecha es
@@ -132,24 +100,6 @@ public class IrrigationRecord {
   }
 
   /**
-   * Returns value of irrigationWaterNeed
-   * 
-   * @return
-   */
-  public String getIrrigationWaterNeed() {
-    return irrigationWaterNeed;
-  }
-
-  /**
-   * Sets new value of irrigationWaterNeed
-   * 
-   * @param
-   */
-  public void setIrrigationWaterNeed(String irrigationWaterNeed) {
-    this.irrigationWaterNeed = irrigationWaterNeed;
-  }
-
-  /**
    * Returns value of irrigationDone
    * 
    * @return
@@ -165,24 +115,6 @@ public class IrrigationRecord {
    */
   public void setIrrigationDone(double irrigationDone) {
     this.irrigationDone = irrigationDone;
-  }
-
-  /**
-   * Returns value of systemGenerated
-   * 
-   * @return
-   */
-  public boolean getSystemGenerated() {
-    return systemGenerated;
-  }
-
-  /**
-   * Sets new value of systemGenerated
-   * 
-   * @param
-   */
-  public void setSystemGenerated(boolean systemGenerated) {
-    this.systemGenerated = systemGenerated;
   }
 
   /**
@@ -242,12 +174,10 @@ public class IrrigationRecord {
   @Override
   public String toString() {
     return String.format(
-        "ID: %d\nFecha: %s\nNecesidad de agua de riego: %s [mm/día]\nRiego realizado: %f [mm/día]\nGenerado por el sistema: %b\nModificable: %b\nID de parcela: %d\nCultivo: %s\n",
+        "ID: %d\nFecha: %s\nRiego realizado: %f [mm/día]\nModificable: %b\nID de parcela: %d\nCultivo: %s\n",
         id,
         UtilDate.formatDate(date),
-        irrigationWaterNeed,
         irrigationDone,
-        systemGenerated,
         modifiable,
         parcel.getId(),
         crop.getName());

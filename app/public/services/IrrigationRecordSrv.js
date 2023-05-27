@@ -34,6 +34,17 @@ app.service(
             });
       }
 
+      this.saveIrrigationWaterNeedData = function (data, callback) {
+        $http.post("rest/irrigationRecords/fromIrrigationWaterNeedFormData", data)
+          .then(
+            function (result) {
+              callback(false, result.data);
+            },
+            function (error) {
+              callback(error);
+            });
+      }
+
       this.modify = function (data, callback) {
         $http.put("rest/irrigationRecords/" + data.id, data)
           .then(

@@ -90,9 +90,7 @@ class RegistroPlantacion {
 class RegistroRiego {
 -id
 -fecha
--necesidadAguaRiego
 -riegoRealizado
--generadoSistema
 -modificable
 }
 

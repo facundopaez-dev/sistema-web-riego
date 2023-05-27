@@ -38,6 +38,7 @@ import model.IrrigationRecord;
 import model.Parcel;
 import model.PlantingRecord;
 import model.PlantingRecordStatus;
+import model.IrrigationWaterNeedFormData;
 import util.ErrorResponse;
 import util.ReasonError;
 import util.RequestManager;
@@ -945,17 +946,17 @@ public class PlantingRecordRestServlet {
      */
     plantingRecordService.updateIrrigationWaterNeed(plantingRecordId, givenParcel, String.valueOf(irrigationWaterNeedCurrentDate));
 
-    IrrigationRecord newIrrigationRecord = new IrrigationRecord();
+    IrrigationWaterNeedFormData irrigationWaterNeedFormData = new IrrigationWaterNeedFormData();
 
     /*
      * El metodo getInstance de la clase Calendar retorna la
      * referencia a un objeto de tipo Calendar que contiene la
      * fecha actual
      */
-    newIrrigationRecord.setDate(Calendar.getInstance());
-    newIrrigationRecord.setIrrigationWaterNeed(String.valueOf(irrigationWaterNeedCurrentDate));
-    newIrrigationRecord.setParcel(givenParcel);
-    newIrrigationRecord.setCrop(givenPlantingRecord.getCrop());
+    irrigationWaterNeedFormData.setDate(Calendar.getInstance());
+    irrigationWaterNeedFormData.setIrrigationWaterNeed(irrigationWaterNeedCurrentDate);
+    irrigationWaterNeedFormData.setParcel(givenParcel);
+    irrigationWaterNeedFormData.setCrop(givenPlantingRecord.getCrop());
 
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
@@ -963,7 +964,7 @@ public class PlantingRecordRestServlet {
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos
      * pertinentes
      */
-    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(newIrrigationRecord)).build();
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(irrigationWaterNeedFormData)).build();
   }
 
   /**

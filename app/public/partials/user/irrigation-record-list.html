@@ -115,11 +115,9 @@
 			<tr>
 				<th>ID</th>
 				<th>Fecha</th>
-				<th>Necesidad agua riego [mm/día]</th>
 				<th>Riego realizado [mm/día]</th>
 				<th>Parcela</th>
 				<th>Cultivo</th>
-				<th>Gen. por el sistema</th>
 				<th class="text-right"></th>
 			</tr>
 		</thead>
@@ -127,11 +125,9 @@
 			<tr ng-repeat="i in data">
 				<td>{{i.id}}</td>
 				<td>{{i.date | date:'dd/MM/yyyy'}}</td>
-				<td>{{i.irrigationWaterNeed}}</td>
 				<td>{{i.irrigationDone}}</td>
 				<td>{{i.parcel.name}}</td>
 				<td>{{i.crop.name ? i.crop.name : '-'}}</td>
-				<td>{{i.systemGenerated ? 'Sí' : 'No'}}</td>
 				<td class="text-right">
 					<div class="btn-group" role="group" aria-label="...">
 						<a href="#!/home/irrigationRecords/view/{{i.id}}" class="btn btn-success" role="button">

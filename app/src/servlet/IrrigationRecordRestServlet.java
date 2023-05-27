@@ -25,6 +25,7 @@ import stateless.SecretKeyServiceBean;
 import model.ClimateRecord;
 import model.IrrigationRecord;
 import model.Parcel;
+import model.IrrigationWaterNeedFormData;
 import util.UtilDate;
 import util.ErrorResponse;
 import util.ReasonError;
@@ -50,24 +51,6 @@ public class IrrigationRecordRestServlet {
 
   // mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
-
-  /*
-   * La necesidad de agua de riego de un registro de riego puede
-   * tener el valor "n/a" (no disponible) en los siguientes casos:
-   * - cuando la parcela a la que pertenece NO tiene un registro
-   * de plantacion en desarrollo. En este caso al no haber un
-   * registro de plantacion en desarrollo no hay un cultivo en
-   * desarrollo. Por lo tanto, no es posible calcular la
-   * necesidad de agua de riego de un cultivo.
-   * - cuando la parcela a la que pertenece tiene un registro
-   * de plantacion en desarrollo, pero NO tiene el registro
-   * climatico de la fecha actual. En este caso no se tiene la
-   * evapotranspiracion del cultivo bajo condiciones estandar
-   * (ETc) [mm/dia] ni la precipitacion [mm/dia] de dicha fecha,
-   * por lo tanto, no es posible calcular la necesidad de agua
-   * de riego de un cultivo.
-   */
-  private final String NOT_AVAILABLE = "n/a";
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
@@ -328,13 +311,6 @@ public class IrrigationRecordRestServlet {
     }
 
     /*
-     * Un registro de riego nuevo se debe poder modificar,
-     * por lo tanto, se establece su atributo modifiable en
-     * true
-     */
-    newIrrigationRecord.setModifiable(true);
-
-    /*
      * Si la parcela para la cual se crea un registro de riego,
      * tiene un cultivo en desarrollo, se establece dicho cultivo
      * en el nuevo registro de riego
@@ -343,7 +319,12 @@ public class IrrigationRecordRestServlet {
       newIrrigationRecord.setCrop(plantingRecordService.findInDevelopment(newIrrigationRecord.getParcel()).getCrop());
     }
 
-    setIrrigationWaterNeed(newIrrigationRecord);
+    /*
+     * Un registro de riego nuevo se debe poder modificar,
+     * por lo tanto, se establece su atributo modifiable en
+     * true
+     */
+    newIrrigationRecord.setModifiable(true);
 
     /*
      * Persistencia del nuevo registro de riego
@@ -432,19 +413,6 @@ public class IrrigationRecordRestServlet {
      */
     if (!irrigationRecordService.checkUserOwnership(userId, irrigationRecordId)) {
       return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
-    }
-
-    /*
-     * Si el registro de riego a modificar fue generado por el
-     * sistema, la aplicacion del lado servidor retorna el
-     * mensaje HTTP 400 (Bad request) junto con el mensaje
-     * "No esta permitida la modificacion de un registro de
-     * riego generado por el sistema" y no se realiza la
-     * operacion solicitada
-     */
-    if (irrigationRecordService.isGeneratedBySystem(irrigationRecordId)) {
-      return Response.status(Response.Status.BAD_REQUEST)
-        .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_IRRIGATION_RECORD_GENERATED_BY_SYSTEM_NOT_ALLOWED))).build();
     }
 
     /*
@@ -571,79 +539,155 @@ public class IrrigationRecordRestServlet {
     return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(modifiedIrrigationRecord)).build();
   }
 
-  /**
-   * Establece la necesidad de agua de riego [mm/dia]
-   * de un registro de riego
-   * 
-   * @param givenIrrigationRecord
-   */
-  private void setIrrigationWaterNeed(IrrigationRecord givenIrrigationRecord) {
+  @POST
+  @Path("/fromIrrigationWaterNeedFormData")
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Response createFromIrrigationWaterNeedFormData(@Context HttpHeaders request, String json) throws IOException {
+    Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
+
+    /*
+     * Si el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP NO
+     * es ACCEPTED, se devuelve el estado de error de la misma.
+     * 
+     * Que el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP sea
+     * ACCEPTED, significa que la peticion es valida,
+     * debido a que el encabezado de autorizacion de la misma
+     * cumple las siguientes condiciones:
+     * - Esta presente.
+     * - No esta vacio.
+     * - Cumple con la convencion de JWT.
+     * - Contiene un JWT valido.
+     */
+    if (!RequestManager.isAccepted(givenResponse)) {
+      return givenResponse;
+    }
+
+    /*
+     * Si el objeto de tipo String referenciado por la referencia
+     * contenida en la variable de tipo por referencia json de tipo
+     * String, esta vacio, significa que el formulario correspondiente
+     * a este metodo REST esta vacio (es decir, sus campos estan vacios).
+     * Por lo tanto, la aplicacion del lado servidor retorna el mensaje
+     * HTTP 400 (Bad request) junto con el mensaje "Debe completar todos
+     * los campos del formulario" y no se realiza la operacion solicitada
+     */
+    if (json.isEmpty()) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EMPTY_FORM))).build();
+    }
+
+    IrrigationWaterNeedFormData irrigationWaterNeedFormData = mapper.readValue(json, IrrigationWaterNeedFormData.class);
+    IrrigationRecord newIrrigationRecord = new IrrigationRecord();
+    newIrrigationRecord.setDate(irrigationWaterNeedFormData.getDate());
+    newIrrigationRecord.setParcel(irrigationWaterNeedFormData.getParcel());
+    newIrrigationRecord.setCrop(irrigationWaterNeedFormData.getCrop());
+    newIrrigationRecord.setIrrigationDone(irrigationWaterNeedFormData.getIrrigationDone());
+
+    /*
+     * Un registro de riego nuevo se debe poder modificar,
+     * por lo tanto, se establece su atributo modifiable en
+     * true
+     */
+    newIrrigationRecord.setModifiable(true);
+
+    /*
+     * ******************************************
+     * Controles sobre la definicion de los datos
+     * ******************************************
+     */
+
+    /*
+     * Si la fecha de un registro de riego nuevo NO esta
+     * definida, la aplicacion del lado servidor retorna el
+     * mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "La fecha debe estar definida" y no se realiza la
+     * operacion solicitada
+     */
+    if (newIrrigationRecord.getDate() == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_DATE))).build();
+    }
+
     /*
      * El metodo getInstance de la clase Calendar retorna
      * la referencia a un objeto de tipo Calendar que
      * contiene la fecha actual
      */
     Calendar currentDate = Calendar.getInstance();
-    Calendar yesterdayDate = UtilDate.getYesterdayDate();
-    ClimateRecord currentClimateRecord = null;
-    Parcel givenParcel = givenIrrigationRecord.getParcel();
 
     /*
-     * Si la parcela a la que pertenece un registro de riego NO tiene
-     * un registro de plantacion en desarrollo, NO hay un cultivo en
-     * desarrollo para el cual calcular la necesidad de agua de riego
-     * [mm/dia] de la fecha actual, por lo tanto, la necesidad de agua
-     * de riego de un registro de riego es "n/a" (no disponible)
-     */
-    if (!plantingRecordService.checkOneInDevelopment(givenParcel)) {
-      givenIrrigationRecord.setIrrigationWaterNeed(NOT_AVAILABLE);
-      return;
-    }
-
-    /*
-     * Si la parcela a la que pertenece un registro de riego tiene un
-     * registro de plantacion en desarrollo, pero NO tiene el registro
-     * climatico de la fecha actual, NO se disponen de la evapotranspiracion
-     * del cultivo bajo condiciones estandar (ETc) [mm/dia] ni de la
-     * precipitacion [mm/dia] de la fecha actual, las cuales son
-     * datos necesarios para calcular la necesidad de agua de riego
-     * [mm/dia] de un cultivo en desarrollo en la fecha actual.
+     * Si la fecha de un registro de riego nuevo es estrictamente
+     * mayor a la fecha actual, la aplicacion del lado servidor
+     * retorna el mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "No esta permitido que un registro de riego tenga una fecha
+     * estrictamente mayor (es decir, posterior) a la fecha actual"
+     * y no se realiza la operacion solicitada.
      * 
-     * Por lo tanto, la necesidad de agua de riego de un registro
-     * de riego es "n/a" (no disponible).
+     * De esta manera, se evita la creacion de registros de riego
+     * del futuro, ya que no tiene sentido registrar la cantidad de
+     * agua que se utilizara para el riego de una parcela o un cultivo.
      */
-    if (!climateRecordService.checkExistence(currentDate, givenParcel)) {
-      givenIrrigationRecord.setIrrigationWaterNeed(NOT_AVAILABLE);
-      return;
-    }
-
-    currentClimateRecord = climateRecordService.find(currentDate, givenParcel);
-    double currentIrrigationWaterNeed = 0.0;
-    double excessWaterYesterday = 0.0;
-
-    /*
-     * Si la parcela dada tiene el registro climatico del dia inmediatamente
-     * anterior a la fecha actual, se obtiene el agua excedente del mismo
-     * para calcular la necesidad de agua de riego [mm/dia] del cultivo que
-     * esta en desarrollo en la fecha actual. En caso contrario, se asume
-     * que el agua excedente de dicho dia es 0.
-     */
-    if (climateRecordService.checkExistence(yesterdayDate, givenParcel)) {
-      excessWaterYesterday = climateRecordService.find(currentDate, givenParcel).getExcessWater();
+    if (UtilDate.compareTo(newIrrigationRecord.getDate(), currentDate) > 0) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.IRRIGATION_RECORD_OF_THE_FUTURE_NOT_ALLOWED))).build();
     }
 
     /*
-     * Se calcula de la necesidad de agua de riego [mm/dia] del cultivo
-     * que esta en desarrollo en la fecha actual sin tener en cuenta
-     * la cantidad total de agua de riego de la fecha actual porque
-     * lo que se busca con esto es que un registro de riego siempre
-     * contenga la necesidad de agua de riego inicial, la cual, es
-     * la que se obtiene antes realizar cualquier riego
+     * Si la parcela NO esta definida, la aplicacion del lado
+     * servidor retorna el mensaje HTTP 400 (Bad request) junto
+     * con el mensaje "La parcela debe estar definida" y no se
+     * realiza la operacion solicitada
      */
-    currentIrrigationWaterNeed = WaterMath.calculateIrrigationWaterNeed(currentClimateRecord.getEtc(),
-        currentClimateRecord.getPrecip(), 0, excessWaterYesterday);
+    if (newIrrigationRecord.getParcel() == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INDEFINITE_PARCEL))).build();
+    }
 
-    givenIrrigationRecord.setIrrigationWaterNeed(String.valueOf(currentIrrigationWaterNeed));
+    /*
+     * Si el riego realizado es negativo, la aplicacion del lado
+     * servidor retorna el mensaje HTTP 400 (Bad request) junto
+     * con el mensaje "El riego realizado debe ser mayor o igual
+     * a cero" y no se realiza la operacion solicitada
+     */
+    if (newIrrigationRecord.getIrrigationDone() < 0) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NEGATIVE_REALIZED_IRRIGATION))).build();
+    }
+
+    /*
+     * Si la parcela para la cual se crea un registro de riego,
+     * tiene un cultivo en desarrollo, se establece dicho cultivo
+     * en el nuevo registro de riego
+     */
+    if (plantingRecordService.checkOneInDevelopment(newIrrigationRecord.getParcel())) {
+      newIrrigationRecord.setCrop(plantingRecordService.findInDevelopment(newIrrigationRecord.getParcel()).getCrop());
+    }
+
+    /*
+     * Persistencia del nuevo registro de riego
+     */
+    newIrrigationRecord = irrigationRecordService.create(newIrrigationRecord);
+
+    /*
+     * Luego de persistir el nuevo registro de riego, se actualiza
+     * la necesidad de agua de riego [mm/dia] del registro de
+     * plantacion en desarrollo de la parcela de dicho registro
+     * de riego teniendo en cuenta la cantidad total de agua de
+     * de riego de la fecha actual
+     */
+    updateIrrigationWaterNeedDevelopingPlantingRecord(newIrrigationRecord.getParcel());
+
+    /*
+     * Luego de persistir el nuevo registro de riego, se actualiza
+     * el agua excedente [mm/dia] del registro climatico de la fecha
+     * actual de la parcela de dicho registro de riego
+     */
+    updateExcessWaterCurrentDate(newIrrigationRecord.getParcel());
+
+    /*
+     * Si el valor del encabezado de autorizacion de la peticion HTTP
+     * dada, tiene un JWT valido, la aplicacion del lado servidor
+     * devuelve el mensaje HTTP 200 (Ok) junto con los datos que el
+     * cliente solicito persistir
+     */
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(newIrrigationRecord)).build();
   }
 
   /**
