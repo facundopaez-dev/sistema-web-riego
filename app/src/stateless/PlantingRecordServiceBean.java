@@ -1451,57 +1451,53 @@ public class PlantingRecordServiceBean {
   }
 
   /**
-   * Retorna true si y solo si la fecha de cosecha de un
-   * registro de plantacion presuntamente en desarrollo es
-   * mayor o igual a la fecha actual. Un registro de
-   * plantacion que presuntamente esta en desarrollo y tiene
-   * su fecha de cosecha estrictamente menor a la fecha actual,
-   * es un registro de plantacion finalizado. En cambio,
-   * un registro de plantacion que tiene su fecha de cosecha
-   * igual o mayor a la fecha actual es un registro de
-   * plantacion en desarrollo.
+   * Retorna true si y solo si la fecha de siembra de un registro
+   * de plantacion presuntamente en desarrollo es menor o igual
+   * a la fecha actual y su fecha de cosecha es mayor o igual a
+   * la fecha actual. Un registro de plantacion presuntamente
+   * en desarrollo, esta en desarrollo si su fecha de siembra
+   * es menor o igual a la fecha actual y su fecha de cosecha
+   * es mayor o igual a la fecha actual. En caso contrario, un
+   * registro de plantacion tiene el estado finalizado o el
+   * estado en espera.
    * 
-   * Este metodo es para el metodo automatico modifyStatus
-   * de la clase PlantingRecordManager. El metodo modifyStatus
-   * se ocupa de comprobar si la fecha de cosecha de un
-   * registro de plantacion presuntamente en desarrollo
-   * es estrictamente menor a la fecha actual y en base
-   * a esto establece el estado finalizado en el registro.
+   * Este metodo es para el metodo automatico modifyToFinishedStatus
+   * de la clase PlantingRecordManager. El metodo modifyToFinishedStatus
+   * se ocupa de modificar el estado de un registro de plantacion
+   * presuntamente en desarrollo por el estado "Finalizado"
+   * dependiendo del resultado devuelto por el metodo
+   * checkDevelopmentStatus.
    * 
    * @param plantingRecord
-   * @return true si la fecha de cosecha de un registro de
-   * plantacion presuntamente en desarrollo es mayor o igual
-   * a la fecha actual, en caso contrario false.
-   * Tambien retorna false en el caso en el que el estado
-   * de un registro de plantacion sea el estado finalizado.
+   * @return true si la fecha de siembra de un registro de plantacion
+   * presuntamente en desarrollo es menor o igual a la fecha actual y
+   * su fecha de cosecha es mayor o igual a la fecha actual, en caso
+   * contrario false
    */
   public boolean checkDevelopmentStatus(PlantingRecord plantingRecord) {
     /*
-     * Si el registro de plantacion dado esta en el estado "Finalizado",
-     * se retorna false como indicador de que no esta en el estado "En
-     * desarrollo"
+     * El metodo getInstance de la clase Calendar retorna
+     * la referencia a un objeto de tipo Calendar que
+     * contiene la fecha actual
      */
-    if (plantingRecord.getStatus().getName().equals(FINISHED_STATUS)) {
-      return false;
-    }
+    Calendar currentDate = Calendar.getInstance();
 
     /*
-     * Si la fecha de cosecha de un registro de plantacion presuntamente
-     * en desarrollo es mayor o igual a la fecha actual, se retorna true
-     * como indicativo de que este registro esta en desarrollo.
-     * 
-     * El metodo getInstance de la clase Calendar retorna la referencia
-     * a un objeto de tipo Calendar que contiene la fecha actual.
+     * Si la fecha de siembra de un registro de plantacion presuntamente
+     * en desarrollo es menor o igual a la fecha actual y su fecha de
+     * cosecha es mayor o igual a la fecha actual, se retorna true como
+     * indicativo de que dicho registro esta en desarrollo
      */
-    if (UtilDate.compareTo(plantingRecord.getHarvestDate(), Calendar.getInstance()) >= 0) {
+    if ((UtilDate.compareTo(plantingRecord.getSeedDate(), currentDate) <= 0) && (UtilDate.compareTo(plantingRecord.getHarvestDate(), currentDate) >= 0)) {
       return true;
     }
 
     /*
-     * Si la fecha de cosecha de un registro de plantacion presuntamente
-     * en desarrollo es estrictamente menor a la fecha actual, se retorna
-     * false como indicativo de que este registro de plantacion NO esta
-     * en desarrollo, o en otras palabras, que esta finalizado
+     * Si la fecha actual no esta entre la fecha de siembra y la fecha de
+     * cosecha de un registro de plantacion presuntamente en desarrollo,
+     * se retorna false como indicativo de que dicho registro NO esta
+     * en desarrollo, o en otras palabras, que esta finalizado o en
+     * espera
      */
     return false;
   }

@@ -61,15 +61,13 @@ public class PlantingRecordManager {
     private final String NOT_AVAILABLE = "n/a";
 
     /*
-     * Establece de manera automatica el estado fianlizado de un registro de
-     * plantacion presuntamente en desarrollo en el caso en el que la fecha
-     * de cosecha de este sea estrictamente menor a la fecha actual. Esto lo
-     * hace cada 24 horas a parit de las 00 horas.
+     * Establece de manera automatica el estado finalizado de un registro de
+     * plantacion presuntamente en desarrollo. Esto lo hace cada 24 horas a
+     * partir de las 00 horas.
      * 
      * La segunda anotacion @Schedule es para probar que este metodo se
      * ejecuta correctamente, es decir, que establece el estado finalizado
-     * en un registro de plantacion presuntamente en desarrollo que tiene
-     * su fecha de cosecha estrictamente menor a la fecha actual.
+     * en un registro de plantacion presuntamente en desarrollo.
      * 
      * El archivo t110Inserts.sql de la ruta app/etc/sql tiene datos para
      * probar que este metodo se ejecuta correctamente, es decir, que hace
@@ -77,17 +75,18 @@ public class PlantingRecordManager {
      */
     @Schedule(second = "*", minute = "*", hour = "0/23", persistent = false)
     // @Schedule(second = "*/10", minute = "*", hour = "*", persistent = false)
-    public void modifyStatus() {
+    public void modifyToFinishedStatus() {
         Collection<PlantingRecord> plantingRecords = plantingRecordService.findAllInDevelopment();
 
         for (PlantingRecord currentPlantingRecord : plantingRecords) {
             /*
              * Si un registro de plantacion presuntamente en desarrollo,
              * NO esta en desarrollo, se establece el estado finalizado
-             * en el.
+             * en el mismo.
              * 
              * Un registro de plantacion en desarrollo, esta en desarrollo
-             * si su fecha de cosecha es mayor o igual a la fecha actual.
+             * si su fecha de siembra es menor o igual a la fecha actual y
+             * su fecha de cosecha es mayor o igual a la fecha actual.
              * En cambio, si su fecha de cosecha es estrictamente menor
              * a la fecha actual, se debe establecer el estado finalizado
              * en el mismo.
