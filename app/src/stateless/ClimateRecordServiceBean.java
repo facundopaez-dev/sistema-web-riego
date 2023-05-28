@@ -22,6 +22,21 @@ public class ClimateRecordServiceBean {
   @PersistenceContext(unitName = "swcar")
   private EntityManager entityManager;
 
+  /*
+   * El valor de esta constante se utiliza:
+   * - para obtener y persistir los registros climaticos de una parcela
+   * anteriores a la fecha actual.
+   * - para calcular el agua excedente de cada uno de los registros
+   * climaticos de una parcela anteriores a la fecha actual.
+   * - para recalcular la ETc de cada uno de los registros climaticos
+   * de una parcela anteriores a la fecha actual.
+   */
+  private final int NUMBER_DAYS = 7;
+
+  public int getNumberDays() {
+    return NUMBER_DAYS;
+  }
+
   public void setEntityManager(EntityManager localEntityManager) {
     entityManager = localEntityManager;
   }
