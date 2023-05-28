@@ -200,7 +200,7 @@ public class ClimateRecordManager {
    */
   @Schedule(second = "*", minute = "59", hour = "23/23", persistent = false)
   // @Schedule(second = "*/5", minute = "*", hour = "*", persistent = false)
-  private void calculateExcessWater() {
+  private void calculateCurrentExcessWater() {
     /*
      * El metodo getInstance de la clase Calendar retorna la
      * referencia a un objeto de tipo Calendar que contiene
