@@ -286,6 +286,22 @@ public class StatisticalReportRestServlet {
     }
 
     /*
+     * Si la fecha hasta esta definida, y es futura, es decir,
+     * posterior a la fecha actual, la aplicacion del lado servidor
+     * retorna el mensaje HTTP 400 (Bad request) junto con el
+     * mensaje "La fecha hasta no debe ser estrictamente mayor
+     * (es decir, posterior) a la fecha actual" y no se realiza
+     * la operacion solicitada.
+     * 
+     * El metodo getInstance de la clase Calendar retorna la
+     * referencia a un objeto de tipo Calendar que contiene la
+     * fecha actual.
+     */
+    if ((newStatisticalReport.getDateUntil() != null) && (UtilDate.compareTo(newStatisticalReport.getDateUntil(), Calendar.getInstance()) > 0)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.DATE_UNTIL_FUTURE_NOT_ALLOWED)).build();
+    }
+
+    /*
      * Si la fecha hasta esta definida, y la fecha desde es mayor
      * o igual a la fecha hasta, la aplicacion del lado servidor
      * retorna el mensaje HTTP 400 (Bad request) junto con el
@@ -293,7 +309,7 @@ public class StatisticalReportRestServlet {
      * fecha hasta"
      */
     if ((newStatisticalReport.getDateUntil() != null)
-        && (newStatisticalReport.getDateFrom().compareTo(newStatisticalReport.getDateUntil()) >= 0)) {
+        && (UtilDate.compareTo(newStatisticalReport.getDateFrom(), newStatisticalReport.getDateUntil()) >= 0)) {
       return Response.status(Response.Status.BAD_REQUEST)
           .entity(new ErrorResponse(ReasonError.DATE_FROM_AND_DATE_UNTIL_OVERLAPPING)).build();
     }

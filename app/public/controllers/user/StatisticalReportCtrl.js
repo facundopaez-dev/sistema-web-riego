@@ -117,6 +117,8 @@ app.controller(
         });
       }
 
+      const DATE_UNTIL_FUTURE_NOT_ALLOWED = "La fecha hasta no debe ser estrictamente mayor (es decir, posterior) a la fecha actual";
+
       $scope.create = function () {
         /*
         Si la propiedad data de $scope tiene el valor undefined,
@@ -147,6 +149,19 @@ app.controller(
         */
         if ($scope.data.parcel == undefined) {
           alert(INDEFINITE_PARCEL);
+          return;
+        }
+
+        var currentDate = new Date();
+
+        /*
+        Si la fecha hasta esta definida, y es posterior a la fecha
+        actual, la aplicacion muestra el mensaje dado y no ejecuta
+        la instruccion que realiza la peticion HTTP correspondiente
+        a esta funcion
+        */
+        if (($scope.data.dateUntil != undefined) && ($scope.data.dateUntil > currentDate)) {
+          alert(DATE_UNTIL_FUTURE_NOT_ALLOWED);
           return;
         }
 

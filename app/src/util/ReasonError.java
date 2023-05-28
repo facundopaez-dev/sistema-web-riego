@@ -82,7 +82,8 @@ public enum ReasonError {
   MODIFIABILITY_PLANTING_RECORD_NOT_ALLOWED("No está permitido hacer que un registro de plantación en desarrollo o en espera sea no modificable"),
   IRRIGATION_RECORD_OF_THE_FUTURE_NOT_ALLOWED("No está permitido que un registro de riego tenga una fecha estrictamente mayor (es decir, posterior) a la fecha actual"),
   MODIFICATION_NON_MODIFIABLE_IRRIGATION_RECORD_NOT_ALLOWED("No está permitida la modificación de un registro de riego no modificable"),
-  INVALID_REQUEST_CALCULATION_IRRIGATION_WATER_NEED("No está permitido calcular la necesidad de agua de riego de un cultivo finalizado o en espera");
+  INVALID_REQUEST_CALCULATION_IRRIGATION_WATER_NEED("No está permitido calcular la necesidad de agua de riego de un cultivo finalizado o en espera"),
+  DATE_UNTIL_FUTURE_NOT_ALLOWED("La fecha hasta no debe ser estrictamente mayor (es decir, posterior) a la fecha actual");
 
   private final String reason;
 
