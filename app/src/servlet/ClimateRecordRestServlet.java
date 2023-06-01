@@ -121,13 +121,25 @@ public class ClimateRecordRestServlet {
      */
     int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
 
+    Collection<ClimateRecord> climateRecords = climateRecordService.findAllByParcelName(userId, givenParcelName);
+
+    /*
+     * Actualiza instancias de tipo ClimateRecord desde la base de
+     * datos subyacente, sobrescribiendo los cambios realizados en
+     * ellas, si los hubiere. Este metodo es necesario para recuperar
+     * los registros climaticos actualizados con los cambios realizados
+     * por el metodo automatico calculateExcessWaterForPeriod de la clase
+     * ClimateRecordManager.
+     */
+    climateRecordService.refreshClimateRecords(climateRecords);
+
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
      * por el cliente
      */
-    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(climateRecordService.findAllByParcelName(userId, givenParcelName))).build();
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(climateRecords)).build();
   }
 
   @GET

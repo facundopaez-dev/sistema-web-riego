@@ -170,6 +170,21 @@ public class ClimateRecordServiceBean {
   }
 
   /**
+   * Actualiza el estado de instancias de tipo ClimateRecord desde
+   * la base de datos, sobrescribiendo los cambios realizados en
+   * cada una de ellas, si los hubiere
+   * 
+   * @param climateRecords
+   */
+  public void refreshClimateRecords(Collection<ClimateRecord> climateRecords) {
+
+    for (ClimateRecord currentClimateRecord : climateRecords) {
+      getEntityManager().refresh(getEntityManager().merge(currentClimateRecord));
+    }
+
+  }
+
+  /**
    * Retorna todos los registros climaticos de una parcela
    * de un usuario
    * 
@@ -432,6 +447,28 @@ public class ClimateRecordServiceBean {
    */
   public boolean checkRepeated(int id, Parcel parcel, Calendar date) {
     return (findRepeated(id, parcel, date) != null);
+  }
+
+  /**
+   * Actualiza la ETo (evapotranspiracion del cultivo de referencia)
+   * y la ETc (evapotranspiracion del cultivo bajo condiciones estandar)
+   * de un registro climatico correspondiente a una fecha y una parcela.
+   * 
+   * Este metodo es para el metodo automatico calculateExcessWaterForPeriod
+   * de la clase ClimateRecordManager.
+   * 
+   * @param givenDate
+   * @param givenParcel
+   * @param eto         [mm/dia]
+   * @param etc         [mm/dia]
+   */
+  public void updateEtoAndEtc(Calendar givenDate, Parcel givenParcel, double eto, double etc) {
+    Query query = entityManager.createQuery("UPDATE ClimateRecord c SET c.eto = :eto, c.etc = :etc WHERE (c.date = :givenDate AND c.parcel = :givenParcel)");
+    query.setParameter("eto", eto);
+    query.setParameter("etc", etc);
+    query.setParameter("givenDate", givenDate);
+    query.setParameter("givenParcel", givenParcel);
+    query.executeUpdate();
   }
 
   /**
