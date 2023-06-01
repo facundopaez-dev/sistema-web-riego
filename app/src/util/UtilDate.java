@@ -37,34 +37,6 @@ public class UtilDate {
   }
 
   /**
-   * @return la fecha siguiente a la fecha actual del sistema
-   */
-  public static Calendar getTomorrowDate() {
-    Calendar currentDate = Calendar.getInstance();
-    Calendar tomorrowDate = Calendar.getInstance();
-
-    /*
-     * Si la fecha actual es el ultimo dia de Diciembre,
-     * es decir, 31 de Diciembre, entonces la fecha siguiente
-     * a la fecha actual es el 1 de Enero del año siguiente
-     * a la fecha actual
-     *
-     * Si la fecha actual no es el ultimo dia de Diciembre,
-     * es decir, 31 de Diciembre, entonces la fecha siguiente
-     * a la fecha actual es el dia de la fecha actual mas un
-     * dia
-     */
-    if ((currentDate.get(Calendar.DAY_OF_YEAR)) == 365) {
-      tomorrowDate.set(Calendar.DAY_OF_YEAR, 1);
-      tomorrowDate.set(Calendar.YEAR, currentDate.get(Calendar.YEAR) + 1);
-    } else {
-      tomorrowDate.set(Calendar.DAY_OF_YEAR, currentDate.get(Calendar.DAY_OF_YEAR) + 1);
-    }
-
-    return tomorrowDate;
-  }
-
-  /**
    * Retorna true si y solo si un año es bisiesto
    * 
    * @param year
