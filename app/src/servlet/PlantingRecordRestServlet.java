@@ -465,7 +465,7 @@ public class PlantingRecordRestServlet {
        * **********************************************
        */
       plantingRecordService.updateIrrigationWaterNeed(newPlantingRecord.getId(), newPlantingRecord.getParcel(),
-          String.valueOf(calculateIrrigationWaterNeed(userId, newPlantingRecord)));
+          String.valueOf(calculateIrrigationWaterNeedCurrentDate(userId, newPlantingRecord)));
     }
 
     /*
@@ -755,14 +755,15 @@ public class PlantingRecordRestServlet {
           modifiedPlantingRecord.getHarvestDate());
 
       /*
+       * ********************************************************
        * Se calcula la necesidad de agua de riego del registro de
        * plantacion (modificado) en base a la parcela y al cultivo
        * modificados. Esto es que se calcula la necesidad de agua
-       * de riego del cultivo modificado perteneciente a la parcela
-       * modificada.
+       * de riego del cultivo en desarrollo en la fecha actual.
+       * ********************************************************
        */
       plantingRecordService.updateIrrigationWaterNeed(plantingRecordId, modifiedPlantingRecord.getParcel(),
-          String.valueOf(calculateIrrigationWaterNeed(userId, modifiedPlantingRecord)));
+          String.valueOf(calculateIrrigationWaterNeedCurrentDate(userId, modifiedPlantingRecord)));
     }
 
     /*
@@ -861,7 +862,7 @@ public class PlantingRecordRestServlet {
   @GET
   @Path("/irrigationWaterNeed/{id}")
   @Produces(MediaType.APPLICATION_JSON)
-  public Response calculateIrrigationWaterNeed(@Context HttpHeaders request, @PathParam("id") int plantingRecordId) throws IOException {
+  public Response getIrrigationWaterNeed(@Context HttpHeaders request, @PathParam("id") int plantingRecordId) throws IOException {
     Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
 
     /*
@@ -945,7 +946,7 @@ public class PlantingRecordRestServlet {
      * cultivo en desarrollo en la fecha actual
      * **********************************************
      */
-    double irrigationWaterNeedCurrentDate = calculateIrrigationWaterNeed(userId, givenPlantingRecord);
+    double irrigationWaterNeedCurrentDate = calculateIrrigationWaterNeedCurrentDate(userId, givenPlantingRecord);
 
     /*
      * Se actualiza el atributo irrigationWaterNeed del registro
@@ -984,7 +985,7 @@ public class PlantingRecordRestServlet {
    * @return punto flotante que representa la necesidad de agua
    * de riego de un cultivo en desarrollo en la fecha actual
    */
-  private double calculateIrrigationWaterNeed(int userId, PlantingRecord givenPlantingRecord) {
+  private double calculateIrrigationWaterNeedCurrentDate(int userId, PlantingRecord givenPlantingRecord) {
     Parcel givenParcel = givenPlantingRecord.getParcel();
     ClimateRecord currentClimateRecord = null;
 
