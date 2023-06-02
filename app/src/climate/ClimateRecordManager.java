@@ -11,6 +11,8 @@ import stateless.PlantingRecordServiceBean;
 import stateless.ParcelServiceBean;
 import stateless.SolarRadiationServiceBean;
 import stateless.IrrigationRecordServiceBean;
+import stateless.MonthServiceBean;
+import stateless.LatitudeServiceBean;
 import model.ClimateRecord;
 import model.PlantingRecord;
 import model.Parcel;
@@ -45,6 +47,14 @@ public class ClimateRecordManager {
   // inject a reference to the IrrigationRecordServiceBean
   @EJB
   IrrigationRecordServiceBean irrigationRecordService;
+
+  // inject a reference to the MonthServiceBean
+  @EJB
+  MonthServiceBean monthService;
+
+  // inject a reference to the LatitudeServiceBean
+  @EJB
+  LatitudeServiceBean latitudeService;
 
   /**
    * Obtiene y persiste de manera automatica los datos
@@ -124,11 +134,15 @@ public class ClimateRecordManager {
          */
         climateRecord = ClimateClient.getForecast(currentParcel, unixTime);
 
+        extraterrestrialSolarRadiation = solarService.getRadiation(currentParcel.getLatitude(),
+            monthService.getMonth(currentDate.get(Calendar.MONTH)), latitudeService.find(currentParcel.getLatitude()),
+            latitudeService.findPreviousLatitude(currentParcel.getLatitude()),
+            latitudeService.findNextLatitude(currentParcel.getLatitude()));
+
         /*
          * Calculo de la evapotranspiracion del cultivo de
          * referencia (ETo) [mm/dia] en la fecha actual
          */
-        extraterrestrialSolarRadiation = solarService.getRadiation(currentDate.get(Calendar.MONTH), latitude);
         eto = HargreavesEto.calculateEto(climateRecord.getMaximumTemperature(), climateRecord.getMinimumTemperature(), extraterrestrialSolarRadiation);
         climateRecord.setEto(eto);
 
@@ -193,8 +207,8 @@ public class ClimateRecordManager {
    * La segunda anotacion es para probar que el metodo hace lo que se
    * espera que haga.
    */
-  // @Schedule(second = "*", minute = "*", hour = "0/2", persistent = false)
-  @Schedule(second = "*/5", minute = "*", hour = "*", persistent = false)
+  @Schedule(second = "*", minute = "*", hour = "0/2", persistent = false)
+  // @Schedule(second = "*/5", minute = "*", hour = "*", persistent = false)
   private void calculateExcessWaterForPeriod() {
     Collection<Parcel> activeParcels = parcelService.findAllActive();
 
@@ -549,11 +563,15 @@ public class ClimateRecordManager {
       if (climateRecordService.checkExistence(givenDate, givenParcel)) {
         givenClimateRecord = climateRecordService.find(givenDate, givenParcel);
 
+        extraterrestrialSolarRadiation = solarService.getRadiation(givenParcel.getLatitude(),
+            monthService.getMonth(currentDate.get(Calendar.MONTH)), latitudeService.find(givenParcel.getLatitude()),
+            latitudeService.findPreviousLatitude(givenParcel.getLatitude()),
+            latitudeService.findNextLatitude(givenParcel.getLatitude()));
+
         /*
          * Calculo de la evapotranspiracion del cultivo
          * de referencia (ETo) en la fecha dada
          */
-        extraterrestrialSolarRadiation = solarService.getRadiation(givenDate.get(Calendar.MONTH), givenParcel.getLatitude());
         eto = HargreavesEto.calculateEto(givenClimateRecord.getMaximumTemperature(), givenClimateRecord.getMinimumTemperature(), extraterrestrialSolarRadiation);
 
         /*

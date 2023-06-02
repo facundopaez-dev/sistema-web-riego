@@ -45,11 +45,27 @@ public class MonthServiceBean {
    * El id = 11 corresponde al mes numero 11 (Noviembre)
    * El id = 12 corresponde al mes numero 12 (Diciembre)
    *
-   * @param  id
+   * @param id
    * @return mes correspondiente al identificador dado
    */
   public Month find(int id) {
     return getEntityManager().find(Month.class, id);
+  }
+
+  /**
+   * @param monthNumber
+   * @return referencia a un objeto de tipo Month que representa
+   * un mes del año
+   */
+  public Month getMonth(int monthNumber) {
+    /*
+     * Los meses en la clase Calendar van desde cero a once,
+     * mientras que en la base de datos subyacente van desde
+     * uno a doce. Por este motivo, si el valor del parametro
+     * monthNumber proviene de un objeto de tipo Calendar, se
+     * le debe sumar un uno para recuperar el mes correcto.
+     */
+    return find(monthNumber + 1);
   }
 
 }

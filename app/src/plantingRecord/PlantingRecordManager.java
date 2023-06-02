@@ -11,6 +11,8 @@ import stateless.CropServiceBean;
 import stateless.IrrigationRecordServiceBean;
 import stateless.ClimateRecordServiceBean;
 import stateless.SolarRadiationServiceBean;
+import stateless.MonthServiceBean;
+import stateless.LatitudeServiceBean;
 import model.Parcel;
 import model.PlantingRecord;
 import model.ClimateRecord;
@@ -46,6 +48,14 @@ public class PlantingRecordManager {
     // inject a reference to the SolarRadiationServiceBean
     @EJB
     SolarRadiationServiceBean solarService;
+
+    // inject a reference to the MonthServiceBean
+    @EJB
+    MonthServiceBean monthService;
+
+    // inject a reference to the LatitudeServiceBean
+    @EJB
+    LatitudeServiceBean latitudeService;
 
     /*
      * El valor de esta constante se asigna a la necesidad de
@@ -319,12 +329,16 @@ public class PlantingRecordManager {
             if (!climateRecordService.checkExistence(givenDate, givenParcel)) {
                 newClimateRecord = ClimateClient.getForecast(givenParcel, givenDate.getTimeInMillis() / 1000);
 
+                extraterrestrialSolarRadiation = solarService.getRadiation(givenParcel.getLatitude(),
+                        monthService.getMonth(currentDate.get(Calendar.MONTH)),
+                        latitudeService.find(givenParcel.getLatitude()),
+                        latitudeService.findPreviousLatitude(givenParcel.getLatitude()),
+                        latitudeService.findNextLatitude(givenParcel.getLatitude()));
+
                 /*
                  * Calculo de la evapotranspiracion del cultivo
                  * de referencia (ETo) en la fecha dada
                  */
-                extraterrestrialSolarRadiation = solarService.getRadiation(givenDate.get(Calendar.MONTH),
-                        givenParcel.getLatitude());
                 eto = HargreavesEto.calculateEto(newClimateRecord.getMaximumTemperature(),
                         newClimateRecord.getMinimumTemperature(), extraterrestrialSolarRadiation);
 
