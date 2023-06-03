@@ -19,6 +19,19 @@ public class UtilDate {
 
   /**
    * @return referencia a un objeto de tipo Calendar que
+   * contiene la fecha actual
+   */
+  public static Calendar getCurrentDate() {
+    /*
+     * El metodo getInstance de la clase Calendar
+     * retorna la referencia a un objeto de tipo
+     * Calendar que contiene la fecha actual
+     */
+    return Calendar.getInstance();
+  }
+
+  /**
+   * @return referencia a un objeto de tipo Calendar que
    * contiene la fecha inmediatamente anterior a la fecha
    * actual
    */
