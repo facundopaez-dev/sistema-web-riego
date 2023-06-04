@@ -50,6 +50,25 @@ public class UtilDate {
   }
 
   /**
+   * @param givenDate
+   * @return referencia a un objeto de tipo Calendar que
+   * contiene la fecha inmediatamente anterior a una fecha
+   * dada
+   */
+  public static Calendar getYesterdayDateFromDate(Calendar givenDate) {
+    /*
+     * El metodo getInstance de la clase Calendar retorna
+     * la referencia a un objeto de tipo Calendar que
+     * contiene la fecha actual. Para obtener el dia
+     * inmediatamente anterior a una fecha se debe restar
+     * uno al numero de dia en el año de la fecha.
+     */
+    Calendar yesterdayDateFromDate = Calendar.getInstance();
+    yesterdayDateFromDate.set(Calendar.DAY_OF_YEAR, (givenDate.get(Calendar.DAY_OF_YEAR) - 1));
+    return yesterdayDateFromDate;    
+  }
+
+  /**
    * Retorna true si y solo si un año es bisiesto
    * 
    * @param year
