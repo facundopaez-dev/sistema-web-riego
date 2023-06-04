@@ -1328,12 +1328,12 @@ public class PlantingRecordRestServlet {
   }
 
   /**
-   * Crea y persiste los registros climaticos de una
-   * parcela anteriores a la fecha actual, si no estan
-   * en la base de datos subyacente. La cantidad de
-   * registros climaticos anteriores a la fecha actual
-   * que se crearan y persistiran esta determinada por
-   * el valor de la constante NUMBER_DAYS.
+   * Crea y persiste los registros climaticos de una parcela
+   * anteriores a la fecha actual, si NO existen en la base
+   * de datos subyacente. La cantidad de registros climaticos
+   * anteriores a la fecha actual que se crearan y persistiran
+   * esta determinada por el valor de la constante NUMBER_DAYS,
+   * la cual se encuentra en la clase ClimateRecordServiceBean.
    * 
    * @param givenParcel
    */
@@ -1349,13 +1349,8 @@ public class PlantingRecordRestServlet {
      */
     int numberDays = climateRecordService.getNumberDays();
 
-    /*
-     * El metodo getInstance de la clase Calendar retorna
-     * la referencia a un objeto de tipo Calendar que
-     * contiene la fecha actual
-     */
-    Calendar currentDate = Calendar.getInstance();
-    Calendar givenDate = Calendar.getInstance();
+    Calendar currentDate = UtilDate.getCurrentDate();
+    Calendar pastDate = Calendar.getInstance();
 
     ClimateRecord newClimateRecord = null;
     PlantingRecord givenPlantingRecord = null;
@@ -1367,36 +1362,26 @@ public class PlantingRecordRestServlet {
 
     /*
      * Crea y persiste una cantidad NUMBER_DAYS de registros
-     * climaticos de una parcela con fechas anteriores a la
-     * fecha actual
+     * climaticos de una parcela anteriores a la fecha actual
      */
     for (int i = 1; i < numberDays + 1; i++) {
 
       /*
        * De esta manera se obtiene cada una de las fechas
-       * anteriores a la fecha actual
+       * anteriores a la fecha actual hasta la fecha
+       * resultante de la resta entre el numero de dia de
+       * la fecha actual y numberDays
        */
-      givenDate.set(Calendar.DAY_OF_YEAR, (currentDate.get(Calendar.DAY_OF_YEAR) - i));
+      pastDate.set(Calendar.DAY_OF_YEAR, (currentDate.get(Calendar.DAY_OF_YEAR) - i));
 
       /*
-       * Si en la base de datos subyacente NO existe el registro
-       * climatico con la fecha dada para una parcela dada, se
-       * lo solicita la API climatica y se lo persiste
+       * Si en la base de datos subyacente NO existe el registro climatico
+       * con la fecha dada perteneciente a una parcela dada, se lo solicita
+       * la API climatica y se lo persiste
        */
-      if (!climateRecordService.checkExistence(givenDate, givenParcel)) {
-        newClimateRecord = ClimateClient.getForecast(givenParcel, givenDate.getTimeInMillis() / 1000);
-
-        extraterrestrialSolarRadiation = solarService.getRadiation(givenParcel.getLatitude(),
-            monthService.getMonth(givenDate.get(Calendar.MONTH)), latitudeService.find(givenParcel.getLatitude()),
-            latitudeService.findPreviousLatitude(givenParcel.getLatitude()),
-            latitudeService.findNextLatitude(givenParcel.getLatitude()));
-
-        /*
-         * Calculo de la evapotranspiracion del cultivo
-         * de referencia (ETo) en la fecha dada
-         */
-        eto = HargreavesEto.calculateEto(newClimateRecord.getMaximumTemperature(),
-            newClimateRecord.getMinimumTemperature(), extraterrestrialSolarRadiation);
+      if (!climateRecordService.checkExistence(pastDate, givenParcel)) {
+        newClimateRecord = ClimateClient.getForecast(givenParcel, pastDate.getTimeInMillis() / 1000);
+        eto = calculateEtoForClimateRecord(newClimateRecord);
 
         /*
          * Si la parcela dada tiene un registro de plantacion en
@@ -1412,27 +1397,9 @@ public class PlantingRecordRestServlet {
          * obtiene el kc del cultivo para calcular su ETc, la
          * cual se asignara al nuevo registro climatico.
          */
-        if (plantingRecordService.checkExistence(givenParcel, givenDate)) {
-          givenPlantingRecord = plantingRecordService.find(givenParcel, givenDate);
-
-          /*
-           * Para obtener el kc (coeficiente de cultivo) que tuvo
-           * el cultivo en la fecha dada, se debe utilizar la fecha
-           * dada como fecha hasta en la invocacion del metodo
-           * getKc de la clase CropServiceBean
-           */
-          kc = cropService.getKc(givenPlantingRecord.getCrop(), givenPlantingRecord.getSeedDate(), givenDate);
-          etc = Etc.calculateEtc(eto, kc);
-        } else {
-          /*
-           * Si la parcela dada NO tiene un registro de plantacion
-           * en el que la fecha dada esta entre la fecha de siembra
-           * y la fecha de cosecha del mismo, la ETc (evapotranspiracion
-           * del cultivo bajo condiciones estandar) es 0.0, ya que
-           * la inexistencia de un registro de plantacion representa
-           * la inexistencia de un cultivo sembrado en una parcela
-           */
-          etc = 0.0;
+        if (plantingRecordService.checkExistence(givenParcel, pastDate)) {
+          givenPlantingRecord = plantingRecordService.find(givenParcel, pastDate);
+          etc = calculateEtcForClimateRecord(eto, givenPlantingRecord);
         }
 
         /*
@@ -1448,6 +1415,14 @@ public class PlantingRecordRestServlet {
          * Persistencia del nuevo registro climatico
          */
         climateRecordService.create(newClimateRecord);
+
+        /*
+         * Luego de calcular la ETc de un nuevo registro climatico,
+         * se debe restablecer el valor por defecto de esta variable
+         * para evitar el error logico de asignar la ETc de un registro
+         * climatico a otro registro climatico
+         */
+        etc = 0.0;
       } // End if
 
     } // End for
