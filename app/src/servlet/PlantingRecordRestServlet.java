@@ -750,8 +750,8 @@ public class PlantingRecordRestServlet {
        * Calcula el agua excedente para NUMBER_DAYS registros
        * climaticos de una parcela anteriores a la fecha actual
        */
-      calculateExcessWaterForPeriodOnModification(currentPlantingRecord, modifiedPlantingRecord.getCrop(),
-          modifiedPlantingRecord.getParcel(), modifiedPlantingRecord.getSeedDate(),
+      calculateExcessWaterForPeriodOnModification(currentPlantingRecord, modifiedPlantingRecord.getParcel(),
+          modifiedPlantingRecord.getSeedDate(),
           modifiedPlantingRecord.getHarvestDate());
 
       /*
@@ -1254,88 +1254,150 @@ public class PlantingRecordRestServlet {
 
   /**
    * Calcula el agua excedente de NUMBER_DAYS registros climaticos
-   * de una parcela anteriores a la fecha actual
+   * de una parcela anteriores a la fecha actual. NUMBER_DAYS es
+   * una constante de la clase ClimateRecordServiceBean.
    * 
    * @param originalPlantingRecord
-   * @param modifiedCrop
    * @param modifiedParcel
    * @param modifiedSeedDate
+   * @param modifiedHarvestDate
    */
-  private void calculateExcessWaterForPeriodOnModification(PlantingRecord originalPlantingRecord, Crop modifiedCrop,
-      Parcel modifiedParcel, Calendar modifiedSeedDate, Calendar modifiedHarvestDate) {
-    Crop originalCrop = originalPlantingRecord.getCrop();
+  private void calculateExcessWaterForPeriodOnModification(PlantingRecord originalPlantingRecord, Parcel modifiedParcel,
+      Calendar modifiedSeedDate, Calendar modifiedHarvestDate) {
     Parcel originalParcel = originalPlantingRecord.getParcel();
     Calendar originalSeedDate = originalPlantingRecord.getSeedDate();
     Calendar originalHarvestDate = originalPlantingRecord.getHarvestDate();
 
-    // 1. Si se cambia la parcela, la fecha de siembra o la fecha de cosecha se deben solicitar y persistir los registros climaticos
-    // 2. Si se cambia el cultivo no es necesario solicitar y persistir los registros climaticos
+    /*
+     * Si se modifica la parcela de un registro de plantacion en
+     * desarrollo, se solicitan y persisten NUMBER_DAYS registros
+     * climaticos de dicha parcela anteriores a la fecha actual,
+     * y, en consecuencia, se debe calcular la ETo, la ETc y el
+     * agua excedente de los mismos.
+     * 
+     * La ETo de la temperatua minima y la temperatura maxima. La
+     * ETc depende de la ETo y de un coeficiente de cultivo (kc).
+     * El agua excedente depende de la ETo de la fecha actual, la
+     * ETc de la fecha actual, la precipitacion de la fecha actual,
+     * el agua de riego de la fecha actual y el agua excedente del
+     * dia inmediatamente anterior a la fecha actual.
+     * 
+     * Por lo tanto, cuando se solicitan y persisten NUMBER_DAYS
+     * registros climaticos se debe calcular la ETo de cada uno de
+     * ellos. En consecuencia, se debe calcular la ETc y el agua
+     * excedente de cada uno de ellos.
+     * 
+     * Al modificar la parcela de un registro de plantacion en
+     * desarrollo lo que se hace es modificar la ubicacion geografica
+     * de un cultivo en desarrollo. Cada ubicacion geografica esta
+     * sometida a distintos factores climaticos. Este es el motivo
+     * por el cual cuando se modifica la parcela de un registro
+     * de plantacion en desarrollo se deben solicitar y persistir
+     * los NUMBER_DAYS registros climaticos de la parcela reemplazante
+     * anteriores a la fecha actual, y se debe calcular la ETo, la ETc
+     * y el agua excedente de los mismos.
+     * 
+     * No hay que olvidar que todo esto es para calcular la necesidad
+     * de agua de riego de un cultivo en desarrollo perteneciente a un
+     * registro de plantacion en desarrollo.
+     * 
+     * Si se modifica la parcela de un registro de plantacion en
+     * desarrollo y existen los NUMBER_DAYS registros climaticos de la
+     * parcela reemplazante anteriores a la fecha actual, no se los
+     * solicita ni persiste, sino que se calcula la ETo, la ETc y el
+     * agua excedente de los mismos, ya que puede que la temperatura
+     * minima, la temperatura maxima, los coeficientes de cultivo
+     * (KCs) de un cultivo, la precipitacion de la fecha actual, el
+     * agua de riego de la fecha actual y el agua excedente del dia
+     * inmediatamente anterior a la fecha actual, hayan sido modificados.
+     */
+    if (!modifiedParcel.equals(originalParcel)) {
+      requestAndPersistClimateRecordsForPeriod(modifiedParcel);
+      calculateEtForPeriod(modifiedParcel);
+      calculateExcessWaterForPeriod(modifiedParcel);
+      return;
+    }
 
     /*
-     * Si el cultivo fue modificado y la parcela no (esto
-     * es en la modificacion de un registro de plantacion),
-     * se recalcula la ETo (evapotranspiracion del cultivo
-     * de referencia) y la ETc (evapotranspiracion del cultivo
-     * bajo condiciones estandar) de los NUMBER_DAYS registros
-     * climaticos de una parcela anteriores a la fecha actual.
-     * Luego, se calcula el agua excedente de los mismos.
+     * Si NO se modifica la parcela de un registro de plantacion en
+     * desarrollo, pero si se modifica la fecha de siembra o la fecha
+     * de cosecha del mismo, se solicitan y persisten NUMBER_DAYS
+     * registros climaticos de dicha parcela anteriores a la fecha
+     * actual, y, en consecuencia, se debe calcular la ETo, la ETc
+     * y el agua excedente de los mismos.
+     * 
+     * Cuando se crea un registro de plantacion que tiene su fecha
+     * de cosecha estrictamente menor a la fecha actual, este es
+     * un registro de plantacion finalizado. Si la parcela
+     * correspondiente a este registro NO tiene los NUMBER_DAYS
+     * registros climaticos anteriores a la fecha actual, y si se
+     * modifica la fecha de cosecha de tal manera que sea mayor
+     * o igual a la fecha actual, el registro de plantacion
+     * adquiere el estado "En desarrollo" y se deben solicitar y
+     * persistir los NUMBER_DAYS registros climaticos de la
+     * parcela anteriores a la fecha actual, y se debe calcular
+     * la ETo, la ETc y el agua excedente de los mismos.
+     * 
+     * Cuando se crea un registro de plantacion que tiene su fecha
+     * de siembra estrictamente mayor a la fecha actual, este es
+     * un registro de plantacion en espera. Si la parcela
+     * correspondiente a este registro NO tiene los NUMBER_DAYS
+     * registros climaticos anteriores a la fecha actual, y si se
+     * modifica la fecha de siembra de tal manera que sea menor
+     * o igual a la fecha actual, el registro de plantacion
+     * adquiere el estado "En desarrollo" y se deben solicitar y
+     * persistir los NUMBER_DAYS registros climaticos de la
+     * parcela anteriores a la fecha actual, y se debe calcular
+     * la ETo, la ETc y el agua excedente de los mismos.
+     * 
+     * El motivo de esta instruccion if es cubrir estos dos casos
+     * cuando se modifica la fecha de siembra o la fecha de cosecha
+     * de un registro de plantacion de tal manera que adquiere el
+     * estado "En desarrollo" y que pertenece a una parcela que NO
+     * tiene los NUMBER_DAYS registros climaticos anteriores a la
+     * fecha actual.
+     * 
+     * No hay que olvidar que todo esto es para calcular la necesidad
+     * de agua de riego de un cultivo en desarrollo perteneciente a un
+     * registro de plantacion en desarrollo.
+     * 
+     * Si NO se modifica la parcela de un registro de plantacion en
+     * desarrollo, y se modifican la fecha de siembra o la fecha de
+     * cosecha del mismo y existen los NUMBER_DAYS registros climaticos
+     * de la parcela anteriores a la fecha actual, no se los solicita ni
+     * persiste, sino que se calcula la ETo, la ETc y el agua excedente
+     * de los mismos, ya que puede que la temperatura minima, la
+     * temperatura maxima, los coeficientes de cultivo (KCs) de un
+     * cultivo, la precipitacion de la fecha actual, el agua de riego
+     * de la fecha actual y el agua excedente del dia inmediatamente
+     * anterior a la fecha actual, hayan sido modificados.
      */
-    if (!(cropService.equals(originalCrop, modifiedCrop)) && (parcelService.equals(originalParcel, modifiedParcel))) {
+    if (UtilDate.compareTo(modifiedSeedDate, originalSeedDate) != 0 || UtilDate.compareTo(modifiedHarvestDate, originalHarvestDate) != 0) {
+      requestAndPersistClimateRecordsForPeriod(originalParcel);
       calculateEtForPeriod(originalParcel);
       calculateExcessWaterForPeriod(originalParcel);
+      return;
     }
 
     /*
-     * Si el cultivo no fue modificado y la parcela si o
-     * si el cultivo y la parcela fueron modificados, se
-     * solicitan y persisten NUMBER_DAYS registros climaticos
-     * de una parcela anteriores a la fecha actual. Luego,
-     * se recalcula la ETo y la ETc de los mismos. Por
-     * ultimo, se calcula el agua excedente de los mismos.
+     * Si NO se modifica la parcela ni la fecha de siembra ni la
+     * fecha de cosecha de un registro de plantacion en desarrollo,
+     * lo unico que se debe hacer es calcular la ETo, la ETc y el
+     * agua excedente de los NUMBER_DAYS registros climaticos
+     * de la parcela anteriores a la fecha actual. El motivo de
+     * esto es que los coeficientes de culivo (KCs) de un cultivo
+     * pueden ser modificados. La ETc depende de la ETo y de un
+     * coeficiente de cultivo (kc). El agua excedente depende de
+     * la ETo de la fecha actual, la ETc de la fecha actual, la
+     * precipitacion de la fecha actual, el agua de riego de la
+     * fecha actual y el agua excedente del dia inmediatamente
+     * anterior a la fecha actual. Por lo tanto, si se modifican
+     * los coeficientes de cultivo (KCs) de un cultivo, se debe
+     * recalcular la ETc, y, por ende, se debe recalcular el agua
+     * excedente.
      */
-    if ((cropService.equals(originalCrop, modifiedCrop) && !parcelService.equals(originalParcel, modifiedParcel))
-        || (!cropService.equals(originalCrop, modifiedCrop) && !parcelService.equals(originalParcel, modifiedParcel))) {
-      /*
-       * Solicita y persiste una cantidad NUMBER_DAYS de
-       * registros climaticos de una parcela anteriores a
-       * la fecha actual, si no existen en la base de datos
-       * subyacente
-       */
-      requestAndPersistClimateRecordsForPeriod(modifiedParcel);
-      calculateEtForPeriod(modifiedParcel);
-      calculateExcessWaterForPeriod(modifiedParcel);
-    }
-
-    /*
-     * Si la fecha de siembra fue modificada, pero el cultivo y
-     * la parcela no, se solicitan y persisten NUMBER_DAYS
-     * registros climaticos de una parcela anteriores a la
-     * fecha actual. Luego, se recalcula la ETo y la ETc de
-     * los mismos. Por ultimo, se calcula el agua excedente
-     * de los mismos.
-     */
-    if ((UtilDate.compareTo(originalSeedDate, modifiedSeedDate) != 0)
-        && (cropService.equals(originalCrop, modifiedCrop)) && (parcelService.equals(originalParcel, modifiedParcel))) {
-      requestAndPersistClimateRecordsForPeriod(modifiedParcel);
-      calculateEtForPeriod(modifiedParcel);
-      calculateExcessWaterForPeriod(modifiedParcel);
-    }
-
-    /*
-     * Si la fecha de cosecha fue modificada, pero el cultivo y
-     * la parcela no, se solicitan y persisten NUMBER_DAYS
-     * registros climaticos de una parcela anteriores a la
-     * fecha actual. Luego, se recalcula la ETo y la ETc de
-     * los mismos. Por ultimo, se calcula el agua excedente
-     * de los mismos.
-     */
-    if ((UtilDate.compareTo(originalHarvestDate, modifiedHarvestDate) != 0)
-        && (cropService.equals(originalCrop, modifiedCrop)) && (parcelService.equals(originalParcel, modifiedParcel))) {
-      requestAndPersistClimateRecordsForPeriod(modifiedParcel);
-      calculateEtForPeriod(modifiedParcel);
-      calculateExcessWaterForPeriod(modifiedParcel);
-    }
-
+    calculateEtForPeriod(originalParcel);
+    calculateExcessWaterForPeriod(originalParcel);
   }
 
   /**
