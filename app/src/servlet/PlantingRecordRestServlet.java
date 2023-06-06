@@ -1270,7 +1270,7 @@ public class PlantingRecordRestServlet {
      * Luego, se calcula el agua excedente de los mismos.
      */
     if (!(cropService.equals(originalCrop, modifiedCrop)) && (parcelService.equals(originalParcel, modifiedParcel))) {
-      recalculateEtClimateRecordsForPeriod(originalParcel);
+      calculateEtForPeriod(originalParcel);
       calculateExcessWaterForPeriod(originalParcel);
     }
 
@@ -1291,7 +1291,7 @@ public class PlantingRecordRestServlet {
        * subyacente
        */
       requestAndPersistClimateRecordsForPeriod(modifiedParcel);
-      recalculateEtClimateRecordsForPeriod(modifiedParcel);
+      calculateEtForPeriod(modifiedParcel);
       calculateExcessWaterForPeriod(modifiedParcel);
     }
 
@@ -1306,7 +1306,7 @@ public class PlantingRecordRestServlet {
     if ((UtilDate.compareTo(originalSeedDate, modifiedSeedDate) != 0)
         && (cropService.equals(originalCrop, modifiedCrop)) && (parcelService.equals(originalParcel, modifiedParcel))) {
       requestAndPersistClimateRecordsForPeriod(modifiedParcel);
-      recalculateEtClimateRecordsForPeriod(modifiedParcel);
+      calculateEtForPeriod(modifiedParcel);
       calculateExcessWaterForPeriod(modifiedParcel);
     }
 
@@ -1321,7 +1321,7 @@ public class PlantingRecordRestServlet {
     if ((UtilDate.compareTo(originalHarvestDate, modifiedHarvestDate) != 0)
         && (cropService.equals(originalCrop, modifiedCrop)) && (parcelService.equals(originalParcel, modifiedParcel))) {
       requestAndPersistClimateRecordsForPeriod(modifiedParcel);
-      recalculateEtClimateRecordsForPeriod(modifiedParcel);
+      calculateEtForPeriod(modifiedParcel);
       calculateExcessWaterForPeriod(modifiedParcel);
     }
 
@@ -1421,6 +1421,105 @@ public class PlantingRecordRestServlet {
          * se debe restablecer el valor por defecto de esta variable
          * para evitar el error logico de asignar la ETc de un registro
          * climatico a otro registro climatico
+         */
+        etc = 0.0;
+      } // End if
+
+    } // End for
+
+  }
+
+  /**
+   * Calcula la ETo (evapotranspiracion del cultivo de referencia) y
+   * la ETc (evapotranspiracion del cultivo bajo condiciones estandar)
+   * de los NUMBER_DAYS registros de plantacion de una parcela anteriores
+   * a la fecha actual.
+   * 
+   * El motivo de este metodo es que la temperatura maxima y la temperatura
+   * minima de un registro climatico, y los coeficientes de un cultivo
+   * (KCs) pueden ser modificados. En caso de ser asi, se debe calcular
+   * nuevamente la ETo (evapotranspiracion del cultivo de referencia) y
+   * la ETc (evapotranspiracion del cultivo bajo condiciones estandar)
+   * de un registro climatico.
+   * 
+   * @param givenParcel
+   */
+  private void calculateEtForPeriod(Parcel givenParcel) {
+    /*
+     * El valor de esta variable se utiliza:
+     * - para obtener y persistir los registros climaticos de una parcela
+     * anteriores a la fecha actual.
+     * - para calcular el agua excedente de cada uno de los registros
+     * climaticos de una parcela anteriores a la fecha actual.
+     * - para recalcular la ETc de cada uno de los registros climaticos
+     * de una parcela anteriores a la fecha actual.
+     */
+    int numberDays = climateRecordService.getNumberDays();
+
+    Calendar currentDate = UtilDate.getCurrentDate();
+    Calendar pastDate = Calendar.getInstance();
+    PlantingRecord givenPlantingRecord = null;
+    ClimateRecord pastClimateRecord = null;
+
+    double eto = 0.0;
+    double etc = 0.0;
+    double kc = 0.0;
+    double extraterrestrialSolarRadiation = 0.0;
+
+    /*
+     * Calcula la ETo (evapotranspiracion del cultivo de referencia) y la
+     * ETc (evapotranspiracion del cultivo bajo condiciones estandar)
+     * de NUMBER_DAYS registros climaticos de una parcela anteriores
+     * a la fecha actual
+     */
+    for (int i = 1; i < numberDays + 1; i++) {
+
+      /*
+       * De esta manera se obtiene cada una de las fechas
+       * anteriores a la fecha actual hasta la fecha
+       * resultante de la resta entre el numero de dia de
+       * la fecha actual y numberDays
+       */
+      pastDate.set(Calendar.DAY_OF_YEAR, (currentDate.get(Calendar.DAY_OF_YEAR) - i));
+
+      /*
+       * Si existe el registro climatico de una fecha pasada perteneciente
+       * a una parcela dada, se calcula su ETo y su ETc
+       */
+      if (climateRecordService.checkExistence(pastDate, givenParcel)) {
+        pastClimateRecord = climateRecordService.find(pastDate, givenParcel);
+        eto = calculateEtoForClimateRecord(pastClimateRecord);
+
+        /*
+         * Si la parcela dada tiene un registro de plantacion en
+         * el que la fecha dada esta entre la fecha de siembra y
+         * la fecha de cosecha del mismo, se obtiene el kc (coeficiente
+         * de cultivo) del cultivo de este registro para poder
+         * calcular la ETc (evapotranspiracion del cultivo bajo
+         * condiciones estandar) de dicho cultivo.
+         * 
+         * En otras palabras, lo que hace esta instruccion if es
+         * preguntar "¿la parcela dada tuvo o tiene un cultivo
+         * sembrado en la fecha dada?". En caso afirmativo se
+         * obtiene el kc del cultivo para calcular su ETc, la
+         * cual se asignara a un registro climatico.
+         */
+        if (plantingRecordService.checkExistence(givenParcel, pastDate)) {
+          givenPlantingRecord = plantingRecordService.find(givenParcel, pastDate);
+          etc = calculateEtcForClimateRecord(eto, givenPlantingRecord);
+        }
+
+        /*
+         * Actualizacion de la ETo y la ETc del registro climatico
+         * de una fecha anterior a la fecha actual
+         */
+        climateRecordService.updateEtoAndEtc(pastDate, givenParcel, eto, etc);
+
+        /*
+         * Luego de calcular la ETc de un registro climatico, se debe
+         * restablecer el valor por defecto de esta variable para evitar
+         * el error logico de asignar la ETc de un registro climatico a
+         * otro registro climatico
          */
         etc = 0.0;
       } // End if
@@ -1571,116 +1670,6 @@ public class PlantingRecordRestServlet {
        * calcular la fecha siguiente.
        */
       givenDate.set(Calendar.DAY_OF_YEAR, ((currentDate.get(Calendar.DAY_OF_YEAR) - numberDays) + i));
-    } // End for
-
-  }
-
-  /**
-   * Recalcula la ETo (evapotranspiracion del cultivo de referencia)
-   * y la ETc (evapotranspiracion del cultivo bajo condiciones estandar)
-   * de los NUMBER_DAYS registros de plantacion anteriores a la fecha
-   * actual. Es necesario hacer esto cuando se modifica un registro
-   * climatico y/o el cultivo de un registro de plantacion. Este es
-   * el motivo de este metodo.
-   * 
-   * @param givenParcel
-   */
-  private void recalculateEtClimateRecordsForPeriod(Parcel givenParcel) {
-    /*
-     * El valor de esta variable se utiliza:
-     * - para obtener y persistir los registros climaticos de una parcela
-     * anteriores a la fecha actual.
-     * - para calcular el agua excedente de cada uno de los registros
-     * climaticos de una parcela anteriores a la fecha actual.
-     * - para recalcular la ETc de cada uno de los registros climaticos
-     * de una parcela anteriores a la fecha actual.
-     */
-    int numberDays = climateRecordService.getNumberDays();
-
-    /*
-     * El metodo getInstance de la clase Calendar retorna
-     * la referencia a un objeto de tipo Calendar que
-     * contiene la fecha actual
-     */
-    Calendar currentDate = Calendar.getInstance();
-    Calendar givenDate = Calendar.getInstance();
-
-    double eto = 0.0;
-    double etc = 0.0;
-    double kc = 0.0;
-    double extraterrestrialSolarRadiation = 0.0;
-
-    PlantingRecord givenPlantingRecord = null;
-    PlantingRecordStatus givenPlantingRecordStatus = null;
-    PlantingRecordStatus developmentStatus = statusService.findDevelopmentStatus();
-    ClimateRecord givenClimateRecord = null;
-
-    /*
-     * Recalcula la ETo (evapotranspiracion del cultivo de referencia)
-     * y la ETc (evapotranspiracion del cultivo bajo condiciones estandar)
-     * de los NUMBER_DAYS registros climaticos de una parcela anteriores
-     * a la fecha actual
-     */
-    for (int i = 1; i < numberDays + 1; i++) {
-
-      /*
-       * De esta manera se obtiene cada una de las fechas
-       * anteriores a la fecha actual
-       */
-      givenDate.set(Calendar.DAY_OF_YEAR, (currentDate.get(Calendar.DAY_OF_YEAR) - i));
-
-      if (plantingRecordService.checkExistence(givenParcel, givenDate)) {
-        givenPlantingRecord = plantingRecordService.find(givenParcel, givenDate);
-        givenPlantingRecordStatus = givenPlantingRecord.getStatus();
-
-        if (statusService.equals(givenPlantingRecordStatus, developmentStatus)) {
-
-          /*
-           * Si existe el registro climatico de una fecha dada de
-           * una parcela dada, y la parcela tiene un registro de
-           * plantacion en desarrollo en el que la fecha dada
-           * esta entre la fecha de siembra y la fecha de cosecha
-           * del mismo, se recalcula la ETo y la ETc del registro
-           * climatico
-           */
-          if (climateRecordService.checkExistence(givenDate, givenParcel)) {
-            givenClimateRecord = climateRecordService.find(givenDate, givenParcel);
-
-            extraterrestrialSolarRadiation = solarService.getRadiation(givenParcel.getLatitude(),
-                monthService.getMonth(givenDate.get(Calendar.MONTH)), latitudeService.find(givenParcel.getLatitude()),
-                latitudeService.findPreviousLatitude(givenParcel.getLatitude()),
-                latitudeService.findNextLatitude(givenParcel.getLatitude()));
-
-            /*
-             * Calculo de la evapotranspiracion del cultivo
-             * de referencia (ETo) en la fecha dada
-             */
-            eto = HargreavesEto.calculateEto(givenClimateRecord.getMaximumTemperature(),
-                givenClimateRecord.getMinimumTemperature(), extraterrestrialSolarRadiation);
-
-            /*
-             * Calculo de la evapotranspiracion del cultivo
-             * bajo condiciones estandar (ETc) en la fecha
-             * dada
-             */
-            kc = cropService.getKc(givenPlantingRecord.getCrop(), givenPlantingRecord.getSeedDate(), givenDate);
-            etc = Etc.calculateEtc(eto, kc);
-
-            givenClimateRecord.setEto(eto);
-            givenClimateRecord.setEtc(etc);
-    
-            /*
-             * Se actualiza el registro climatico de una fecha
-             * dada de una parcela con los nuevos valores de la
-             * ETo y ETc
-             */
-            climateRecordService.modify(givenClimateRecord.getId(), givenClimateRecord);
-          } // End if
-
-        } // End if
-
-      } // End if
-
     } // End for
 
   }
