@@ -152,10 +152,11 @@ public class WaterMath {
     /*
      * Cuando una parcela NO tiene un cultivo sembrado y en desarrollo
      * en una fecha dada, no existe la ETc (evapotranspiracion del cultivo
-     * bajo condiciones estandar) de dicho cultivo en dicha fecha. Por lo
-     * tanto, en este caso se asume que la ETc es 0, y se utiliza la ETo
+     * bajo condiciones estandar) de dicho cultivo en dicha fecha. En
+     * consecuencia la ETc es 0. Por lo tanto, se utiliza la ETo
      * (evapotranspiracion del cultivo de referencia) de la misma fecha
-     * para calcular el agua excedente de una parcela en una fecha dada.
+     * de la inexistente ETc para calcular el agua excedente de una
+     * parcela en una fecha dada.
      * 
      * En caso contrario, se utiliza la ETc para calcular el agua excedente
      * de una parcela en una fecha dada.
