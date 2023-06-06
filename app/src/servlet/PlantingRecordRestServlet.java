@@ -1230,7 +1230,24 @@ public class PlantingRecordRestServlet {
      */
     requestAndPersistClimateRecordsForPeriod(givenParcel);
 
-    // 1. Antes de calcular el agua excedente para un periodo se debe calcular la ETo y la ETc
+    /*
+     * Calcula la ETo (evapotranspiracion del cultivo de referencia)
+     * y la ETc (evapotranspiracion del cultivo bajo condiciones estandar)
+     * de NUMBER_DAYS registros climaticos de una parcela anteriores
+     * a la fecha actual.
+     * 
+     * Este metodo debe ser invocado antes de invocar al metodo
+     * calculateExcessWaterForPeriod de esta clase, ya que para calcular
+     * correctamente el agua excedente de un registro climatico se
+     * requiere la ETo y la ETc actualizadas. Si se modifican la
+     * temperatura maxima y la temperatua minima de un registro
+     * climatico, y los coeficientes (KCs) de un cultivo, este
+     * metodo calculara y actualizara la ETo y la ETc de un registro
+     * climatico, lo que dara como resultado que el metodo
+     * calculateExcessWaterForPeriod calcule correctamente el
+     * agua excedente de un registro climatico.
+     */
+    calculateEtForPeriod(givenParcel);
 
     /*
      * Calcula el agua excedente de NUMBER_DAYS registros
