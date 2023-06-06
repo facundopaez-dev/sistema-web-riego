@@ -453,8 +453,16 @@ public class PlantingRecordRestServlet {
       int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
 
       /*
+       * **********************************************************
        * Calcula el agua excedente para NUMBER_DAYS registros
-       * climaticos de una parcela anteriores a la fecha actual
+       * climaticos de una parcela anteriores a la fecha actual.
+       * El motivo por el cual se realiza esto antes de calcular
+       * la necesidad de agua de riego de un cultivo en desarrollo
+       * en la fecha actual es que dicha necesidad depende del
+       * agua excedente del dia inmediatamente anterior a la
+       * fecha actual, entre otros datos, y el agua excedente de
+       * dicho dia depende de lo que haya ocurrido dias anteriores.
+       * **********************************************************
        */
       calculateExcessWaterForPeriodOnCreationAndCalculateIrrigationWaterNeed(newPlantingRecord.getParcel());
 
@@ -747,8 +755,16 @@ public class PlantingRecordRestServlet {
     if (statusService.equals(modifiedStatus, developmentStatus)) {
 
       /*
+       * **********************************************************
        * Calcula el agua excedente para NUMBER_DAYS registros
-       * climaticos de una parcela anteriores a la fecha actual
+       * climaticos de una parcela anteriores a la fecha actual.
+       * El motivo por el cual se realiza esto antes de calcular
+       * la necesidad de agua de riego de un cultivo en desarrollo
+       * en la fecha actual es que dicha necesidad depende del
+       * agua excedente del dia inmediatamente anterior a la
+       * fecha actual, entre otros datos, y el agua excedente de
+       * dicho dia depende de lo que haya ocurrido dias anteriores.
+       * **********************************************************
        */
       calculateExcessWaterForPeriodOnModification(currentPlantingRecord, modifiedPlantingRecord.getParcel(),
           modifiedPlantingRecord.getSeedDate(),
@@ -935,8 +951,16 @@ public class PlantingRecordRestServlet {
     Parcel givenParcel = givenPlantingRecord.getParcel();
 
     /*
+     * **********************************************************
      * Calcula el agua excedente para NUMBER_DAYS registros
-     * climaticos de una parcela anteriores a la fecha actual
+     * climaticos de una parcela anteriores a la fecha actual.
+     * El motivo por el cual se realiza esto antes de calcular
+     * la necesidad de agua de riego de un cultivo en desarrollo
+     * en la fecha actual es que dicha necesidad depende del
+     * agua excedente del dia inmediatamente anterior a la
+     * fecha actual, entre otros datos, y el agua excedente de
+     * dicho dia depende de lo que haya ocurrido dias anteriores.
+     * **********************************************************
      */
     calculateExcessWaterForPeriodOnCreationAndCalculateIrrigationWaterNeed(givenParcel);
 
