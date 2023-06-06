@@ -1012,47 +1012,45 @@ public class PlantingRecordRestServlet {
      * y el agua excedente del registro climatico de la fecha
      * actual perteneciente a una parcela dada.
      */
-    updateEtoAndEtcForClimateRecord(developingPlantingRecord, getCurrentClimateRecord(developingPlantingRecord.getParcel()));
-    updateExcessWaterForClimateRecord(developingPlantingRecord, getCurrentClimateRecord(developingPlantingRecord.getParcel()));
+    updateEtoAndEtcForCurrentClimateRecord(developingPlantingRecord);
+    updateExcessWaterForCurrentClimateRecord(developingPlantingRecord);
     return getCurrentClimateRecord(developingPlantingRecord.getParcel());
   }
 
   /**
    * Calcula y actualiza la ETo y la ETc de un registro
-   * climatico perteneciente a una parcela de una fecha
-   * dada
+   * climatico de la fecha actual perteneciente a una
+   * parcela
    * 
-   * @param givenPlantingRecord
-   * @param givenClimateRecord
+   * @param developingPlantingRecord
    */
-  private void updateEtoAndEtcForClimateRecord(PlantingRecord givenPlantingRecord, ClimateRecord givenClimateRecord) {
-    double etoGivenDate = calculateEtoForClimateRecord(givenClimateRecord);
-    double etcGivenDate = calculateEtcForClimateRecord(etoGivenDate, givenPlantingRecord);
+  private void updateEtoAndEtcForCurrentClimateRecord(PlantingRecord developingPlantingRecord) {
+    ClimateRecord currentClimateRecord = getCurrentClimateRecord(developingPlantingRecord.getParcel());
+    double currentEto = calculateEtoForClimateRecord(currentClimateRecord);
+    double currentEtc = calculateEtcForClimateRecord(currentEto, developingPlantingRecord);
 
-    climateRecordService.updateEtoAndEtc(UtilDate.getCurrentDate(), givenPlantingRecord.getParcel(), etoGivenDate, etcGivenDate);
+    climateRecordService.updateEtoAndEtc(UtilDate.getCurrentDate(), developingPlantingRecord.getParcel(), currentEto, currentEtc);
   }
 
   /**
-   * Calcula y actualiza el agua excedente de un registro
-   * climatico perteneciente a una parcela de una fecha
-   * dada.
+   * Calcula y actualiza el agua excedente de un registro climatico
+   * de la fecha actual perteneciente a una parcela.
    * 
-   * Hay que tener en cuenta que este metodo debe ser
-   * invocado luego de invocar al metodo updateEtoAndEtcForClimateRecord
-   * de esta clase, ya que se requieren la ETo y la ETc
-   * actualizadas para calcular correctamente el agua
-   * excedente de un registro climatico de una fecha
-   * dada.
+   * Hay que tener en cuenta que este metodo debe ser invocado luego
+   * de invocar al metodo updateEtoAndEtcForCurrentClimateRecord
+   * de esta clase, ya que se requieren la ETo y la ETc actualizadas
+   * para calcular correctamente el agua excedente de un registro
+   * climatico de la fecha actual.
    * 
-   * @param givenPlantingRecord
-   * @param givenClimateRecord
+   * @param developingPlantingRecord
    */
-  private void updateExcessWaterForClimateRecord(PlantingRecord givenPlantingRecord, ClimateRecord givenClimateRecord) {
-    double etoGivenDate = givenClimateRecord.getEto();
-    double etcGivenDate = givenClimateRecord.getEtc();
-    double excessWaterGivenDate = calculateExcessWaterForClimateRecord(etoGivenDate, etcGivenDate, givenClimateRecord);
+  private void updateExcessWaterForCurrentClimateRecord(PlantingRecord developingPlantingRecord) {
+    ClimateRecord currentClimateRecord = getCurrentClimateRecord(developingPlantingRecord.getParcel());
+    double currentEto = currentClimateRecord.getEto();
+    double currentEtc = currentClimateRecord.getEtc();
+    double excessWaterCurrentDate = calculateExcessWaterForClimateRecord(currentEto, currentEtc, currentClimateRecord);
 
-    climateRecordService.updateExcessWater(UtilDate.getCurrentDate(), givenPlantingRecord.getParcel(), excessWaterGivenDate);
+    climateRecordService.updateExcessWater(UtilDate.getCurrentDate(), developingPlantingRecord.getParcel(), excessWaterCurrentDate);
   }
 
   /**
@@ -1062,7 +1060,7 @@ public class PlantingRecordRestServlet {
    * actual perteneciente a una parcela dada
    */
   private ClimateRecord getCurrentClimateRecord(Parcel givenParcel) {
-    ClimateRecord climateRecordGivenDate = null;
+    ClimateRecord currentClimateRecord = null;
 
     /*
      * Si existe el registro climatico de la fecha actual perteneciente
@@ -1083,7 +1081,7 @@ public class PlantingRecordRestServlet {
      * actual.
      */
     if (climateRecordService.checkExistence(UtilDate.getCurrentDate(), givenParcel)) {
-      climateRecordGivenDate = climateRecordService.find(UtilDate.getCurrentDate(), givenParcel);
+      currentClimateRecord = climateRecordService.find(UtilDate.getCurrentDate(), givenParcel);
     }
 
     /*
@@ -1105,10 +1103,10 @@ public class PlantingRecordRestServlet {
      * estandar
      */
     if (!climateRecordService.checkExistence(UtilDate.getCurrentDate(), givenParcel)) {
-      climateRecordGivenDate = climateRecordService.persistCurrentClimateRecord(givenParcel);
+      currentClimateRecord = climateRecordService.persistCurrentClimateRecord(givenParcel);
     }
 
-    return climateRecordGivenDate;
+    return currentClimateRecord;
   }
 
   /**
