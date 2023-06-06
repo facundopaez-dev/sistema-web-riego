@@ -1529,7 +1529,7 @@ public class PlantingRecordRestServlet {
   /**
    * Calcula la ETo (evapotranspiracion del cultivo de referencia) y
    * la ETc (evapotranspiracion del cultivo bajo condiciones estandar)
-   * de los NUMBER_DAYS registros de plantacion de una parcela anteriores
+   * de los NUMBER_DAYS registros climaticos de una parcela anteriores
    * a la fecha actual.
    * 
    * El motivo de este metodo es que la temperatura maxima y la temperatura
