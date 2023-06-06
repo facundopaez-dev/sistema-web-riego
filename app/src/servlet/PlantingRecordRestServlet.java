@@ -1046,9 +1046,7 @@ public class PlantingRecordRestServlet {
    */
   private void updateExcessWaterForCurrentClimateRecord(PlantingRecord developingPlantingRecord) {
     ClimateRecord currentClimateRecord = getCurrentClimateRecord(developingPlantingRecord.getParcel());
-    double currentEto = currentClimateRecord.getEto();
-    double currentEtc = currentClimateRecord.getEtc();
-    double excessWaterCurrentDate = calculateExcessWaterForClimateRecord(currentEto, currentEtc, currentClimateRecord);
+    double excessWaterCurrentDate = calculateExcessWaterForClimateRecord(currentClimateRecord);
 
     climateRecordService.updateExcessWater(UtilDate.getCurrentDate(), developingPlantingRecord.getParcel(), excessWaterCurrentDate);
   }
@@ -1154,17 +1152,15 @@ public class PlantingRecordRestServlet {
   }
 
   /**
-   * @param etoGivenDate
-   * @param etcGivenDate
    * @param givenClimateRecord
    * @return double que representa el agua excedente que hay
    * en una parcela en una fecha dada, la cual esta determinada
    * por un registro climatico, ya que este tiene fecha
    */
-  private double calculateExcessWaterForClimateRecord(double etoGivenDate, double etcGivenDate, ClimateRecord givenClimateRecord) {
+  private double calculateExcessWaterForClimateRecord(ClimateRecord givenClimateRecord) {
     double totalIrrigationWaterGivenDate = irrigationRecordService
         .calculateTotalIrrigationWaterGivenDate(givenClimateRecord.getDate(), givenClimateRecord.getParcel());
-    return WaterMath.calculateExcessWater(etoGivenDate, etcGivenDate, givenClimateRecord.getPrecip(),
+    return WaterMath.calculateExcessWater(givenClimateRecord.getEto(), givenClimateRecord.getEtc(), givenClimateRecord.getPrecip(),
         totalIrrigationWaterGivenDate, getExcessWaterYesterdayFromDate(givenClimateRecord.getParcel(), givenClimateRecord.getDate()));
   }
 
@@ -1550,7 +1546,8 @@ public class PlantingRecordRestServlet {
    * conjunto de fechas que van desde el dia inmediatamente
    * anterior a la fecha actual hasta una cantidad de dias
    * hacia atras. Esta cantidad de dias esta determinada por
-   * el valor de la constante NUMBER_DAYS.
+   * el valor de la constante NUMBER_DAYS de la clase
+   * ClimateRecordServiceBean.
    * 
    * @param givenParcel
    */
@@ -1566,29 +1563,10 @@ public class PlantingRecordRestServlet {
      */
     int numberDays = climateRecordService.getNumberDays();
 
-    /*
-     * El metodo getInstance de la clase Calendar retorna
-     * la referencia a un objeto de tipo Calendar que
-     * contiene la fecha actual
-     */
-    Calendar currentDate = Calendar.getInstance();
-    Calendar givenDate = Calendar.getInstance();
-
-    /*
-     * Esta variable se utiliza para obtener el dia inmeditamente
-     * anterior a una fecha dada en la instruccion for de mas
-     * abajo. Esto es necesario para obtener el agua excedente
-     * de una parcela en el dia inmediatamente anterior a una
-     * fecha dada.
-     */
-    Calendar yesterdayDate = Calendar.getInstance();
-
-    ClimateRecord givenClimateRecord = null;
-
-    double excessWaterGivenDate = 0.0;
-    double excessWaterYesterday = 0.0;
-    double totalIrrigationWaterGivenDate = 0.0;
-    double givenEt = 0.0;
+    Calendar currentDate = UtilDate.getCurrentDate();
+    Calendar pastDate = Calendar.getInstance();
+    ClimateRecord pastClimateRecord = null;
+    double excessWaterPastDate = 0.0;
 
     /*
      * El agua excedente de los registros climaticos de una
@@ -1601,10 +1579,10 @@ public class PlantingRecordRestServlet {
      * fecha actual desde el registro climatico mas antiguo de
      * ellos hasta el mas actual de ellos. Estos registros
      * climaticos son obtenidos y persistidos por el metodo
-     * requestAndPersistClimateRecordsForPeriod si no existen
-     * en la base de datos subyacente.
+     * requestAndPersistClimateRecordsForPeriod de esta clase si
+     * no existen en la base de datos subyacente.
      */
-    givenDate.set(Calendar.DAY_OF_YEAR, (currentDate.get(Calendar.DAY_OF_YEAR) - numberDays));
+    pastDate.set(Calendar.DAY_OF_YEAR, (currentDate.get(Calendar.DAY_OF_YEAR) - numberDays));
 
     /*
      * Calcula el agua excedente de cada uno de los registros
@@ -1612,66 +1590,25 @@ public class PlantingRecordRestServlet {
      * desde el mas antiguo de ellos hasta el mas actual de
      * ellos. Estos registros climaticos son obtenidos y persistidos
      * por el metodo requestAndPersistClimateRecordsForPeriod
-     * si no existen en la base de datos subyacente.
+     * de esta clase si no existen en la base de datos subyacente.
      */
     for (int i = 1; i < numberDays + 1; i++) {
-      yesterdayDate.set(Calendar.DAY_OF_YEAR, (givenDate.get(Calendar.DAY_OF_YEAR) - 1));
 
       /*
-       * Si el registro climatico del dia inmediatamente anterior
-       * a una fecha dada existe, se obtiene su agua excedente
-       * para calcular el agua excedente del registro climatico
-       * de una fecha dada. En caso contrario, se asume que el
-       * agua excedente del dia inmediatamente anterior a una
-       * fecha dada es 0.0.
+       * Si existe el registro climatico de una fecha pasada
+       * perteneciente a una parcela dada, se calcula y actualiza
+       * el agua excedente del mismo
        */
-      if (climateRecordService.checkExistence(yesterdayDate, givenParcel)) {
-        excessWaterYesterday = climateRecordService.find(yesterdayDate, givenParcel).getExcessWater();
-      } else {
-        excessWaterYesterday = 0.0; 
+      if (climateRecordService.checkExistence(pastDate, givenParcel)) {
+        pastClimateRecord = climateRecordService.find(pastDate, givenParcel);
+        excessWaterPastDate = calculateExcessWaterForClimateRecord(pastClimateRecord);
+
+        /*
+         * Actualizacion del agua excedente del registro climatico
+         * de una fecha pasada, es decir, anterior a la fecha actual
+         */
+        climateRecordService.updateExcessWater(pastDate, givenParcel, excessWaterPastDate);
       }
-
-      /*
-       * Obtiene uno de los registros climaticos de una parcela dada
-       * anteriores a la fecha actual, los cuales son obtenidos y
-       * persistidos por el metodo requestAndPersistClimateRecordsForPeriod
-       * si NO existen en la base de datos subyacente
-       */
-      givenClimateRecord = climateRecordService.find(givenDate, givenParcel);
-      totalIrrigationWaterGivenDate = irrigationRecordService.calculateTotalIrrigationWaterGivenDate(givenDate, givenParcel);
-
-      /*
-       * Cuando una parcela NO tiene un cultivo sembrado y en
-       * desarrollo, la ETc de uno o varios de sus registros
-       * climaticos tiene el valor 0.0, ya que si no hay un
-       * cultivo en desarrollo NO es posible calcular la ETc
-       * (evapotranspiracion del cultivo bajo condiciones
-       * estandar) del mismo. Por lo tanto, se debe utilizar la
-       * ETo (evapotranspiracion del cultivo de referencia) para
-       * calcular el agua excedente de un registro climatico
-       * en una fecha dada.
-       * 
-       * En caso contrario, se debe utilizar la ETc para calcular
-       * el agua excedente de un registro climatico en una fecha
-       * dada.
-       */
-      if (givenClimateRecord.getEtc() == 0.0) {
-        givenEt = givenClimateRecord.getEto();
-      } else {
-        givenEt = givenClimateRecord.getEtc();
-      }
-
-      /*
-       * Calculo del agua excedente de una parcela dada
-       * en una fecha dada
-       */
-      excessWaterGivenDate = WaterMath.calculateExcessWater(givenEt, givenClimateRecord.getPrecip(), totalIrrigationWaterGivenDate, excessWaterYesterday);
-
-      /*
-       * Actualizacion del agua excedente del registro
-       * climatico de una fecha dada
-       */
-      climateRecordService.updateExcessWater(givenDate, givenParcel, excessWaterGivenDate);
 
       /*
        * El agua excedente de los registros climaticos de una
@@ -1684,7 +1621,7 @@ public class PlantingRecordRestServlet {
        * agua excedente del siguiente registro climatico se debe
        * calcular la fecha siguiente.
        */
-      givenDate.set(Calendar.DAY_OF_YEAR, ((currentDate.get(Calendar.DAY_OF_YEAR) - numberDays) + i));
+      pastDate.set(Calendar.DAY_OF_YEAR, ((currentDate.get(Calendar.DAY_OF_YEAR) - numberDays) + i));
     } // End for
 
   }
