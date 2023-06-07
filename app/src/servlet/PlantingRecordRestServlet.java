@@ -1687,6 +1687,13 @@ public class PlantingRecordRestServlet {
        */
       if (climateRecordService.checkExistence(pastDate, givenParcel)) {
         pastClimateRecord = climateRecordService.find(pastDate, givenParcel);
+
+        /*
+         * Calculo del agua excedente que hay en una parcela en
+         * una fecha dada, la cual esta determinada por un registro
+         * climatico, ya que un registro climatico de una parcela
+         * tiene fecha
+         */
         excessWaterPastDate = calculateExcessWaterForClimateRecord(pastClimateRecord);
 
         /*
