@@ -91,9 +91,9 @@ public class ClimateRecordManager {
   // @Schedule(second = "*/5", minute = "*", hour = "*", persistent = false)
   private void getCurrentWeatherDataset() {
     Collection<Parcel> activeParcels = parcelService.findAllActive();
-    Calendar currentDate = Calendar.getInstance();
-    ClimateRecord climateRecord = null;
-    PlantingRecord plantingRecord = null;
+    Calendar currentDate = UtilDate.getCurrentDate();
+    ClimateRecord currentClimateRecord = null;
+    PlantingRecord developingPlantingRecord = null;
 
     /*
      * Convierte el tiempo en milisegundos a segundos
@@ -105,49 +105,31 @@ public class ClimateRecordManager {
     long unixTime = currentDate.getTimeInMillis() / 1000;
     double eto = 0.0;
     double etc = 0.0;
-    double extraterrestrialSolarRadiation = 0.0;
-    double maximumInsolation = 0.0;
-    double latitude = 0.0;
-    double longitude = 0.0;
 
     /*
      * Obtiene y persiste los datos meteorologicos de la fecha
      * actual para todas las parcelas activas que NO tienen los
      * datos meteorologicos de dicha fecha
      */
-    for (Parcel currentParcel : activeParcels) {
+    for (Parcel givenParcel : activeParcels) {
       /*
-       * Si en la base de datos subyacente no existe un registro
-       * climatico con la fecha actual para la parcela actual,
-       * se persiste uno para dicha parcela
+       * Si en la base de datos subyacente no existe el registro
+       * climatico de la fecha actual perteneciente a una parcela
+       * dada, se solicita y persiste uno para dicha parcela
        */
-      if (!climateRecordService.checkExistence(currentDate, currentParcel)) {
-        latitude = currentParcel.getLatitude();
-        longitude = currentParcel.getLongitude();
-
+      if (!climateRecordService.checkExistence(currentDate, givenParcel)) {
         /*
-         * Retorna un registro climatico que contiene los datos
-         * del conjunto de datos meteorologicos obtenido de la
+         * Obtiene un registro climatico que contiene los datos
+         * del conjunto de datos meteorologicos devuelto por la
          * API Visual Crossing Weather mediante la fecha actual
          * en formato UNIX y las coordenadas geograficas de la
-         * parcela actual
+         * parcela dada
          */
-        climateRecord = ClimateClient.getForecast(currentParcel, unixTime);
-
-        extraterrestrialSolarRadiation = solarService.getRadiation(currentParcel.getLatitude(),
-            monthService.getMonth(currentDate.get(Calendar.MONTH)), latitudeService.find(currentParcel.getLatitude()),
-            latitudeService.findPreviousLatitude(currentParcel.getLatitude()),
-            latitudeService.findNextLatitude(currentParcel.getLatitude()));
+        currentClimateRecord = ClimateClient.getForecast(givenParcel, unixTime);
+        eto = calculateEtoForClimateRecord(currentClimateRecord);
 
         /*
-         * Calculo de la evapotranspiracion del cultivo de
-         * referencia (ETo) [mm/dia] en la fecha actual
-         */
-        eto = HargreavesEto.calculateEto(climateRecord.getMaximumTemperature(), climateRecord.getMinimumTemperature(), extraterrestrialSolarRadiation);
-        climateRecord.setEto(eto);
-
-        /*
-         * Si la parcela actual tiene un registro de plantacion en
+         * Si la parcela dada tiene un registro de plantacion en
          * desarrollo (*), se utiliza el coeficiente del cultivo
          * que tiene plantado y en desarrollo para calcular la
          * evapotranspiracion del cultivo bajo condiciones estandar
@@ -160,34 +142,27 @@ public class ClimateRecordManager {
          * en desarrollo es una parcela que tiene un cultivo
          * plantado y en desarrollo.
          */
-        if (plantingRecordService.checkOneInDevelopment(currentParcel)) {
-          plantingRecord = plantingRecordService.findInDevelopment(currentParcel);
-
-          /*
-           * La formula de la evapotranspiracion del cultivo bajo
-           * condiciones estandar (ETc) es la siguiente:
-           * 
-           * ETc = ETo * Kc
-           * 
-           * ETo: Evapotranspiracion del cultivo de referencia
-           * Kc: Coeficiente de cultivo
-           * 
-           * Esta formula se encuentra en la pagina 6 del libro
-           * "Evapotranspiracion del Cultivo" de la FAO.
-           */
-          etc = Etc.calculateEtc(eto, cropService.getKc(plantingRecord.getCrop(), plantingRecord.getSeedDate()));
-        } else {
-          etc = 0.0;
+        if (plantingRecordService.checkOneInDevelopment(givenParcel)) {
+          developingPlantingRecord = plantingRecordService.findInDevelopment(givenParcel);
+          etc = calculateEtcForClimateRecord(eto, developingPlantingRecord);
         }
 
-        climateRecord.setEtc(etc);
+        currentClimateRecord.setEto(eto);
+        currentClimateRecord.setEtc(etc);
 
         /*
-         * Persiste los datos meteorologicos de la fecha
-         * actual para una parcela en la base de datos
-         * subyacente
+         * Persistencia de los datos meteorologicos de la fecha
+         * actual para una parcela dada
          */
-        climateRecordService.create(climateRecord);
+        climateRecordService.create(currentClimateRecord);
+
+        /*
+         * Luego de calcular la ETc de un registro climatico correspondiente
+         * a una fecha y una parcela dadas, se restablece el valor por defecto
+         * de esta variable para evitar el error logico de asignar la ETc de
+         * un registro climatico a otro registro climatico
+         */
+        etc = 0.0;
       } // End if
 
     } // End for
@@ -228,17 +203,14 @@ public class ClimateRecordManager {
        * 
        * Este metodo es necesario para los casos en los que se
        * modifican los coeficientes (KCs) de un cultivo, las
-       * temperaturas maximas y minimas, y/o la fecha de un
-       * registro climatico. En base a la fecha de un registro
-       * climatico se obtiene la radiacion solar extraterrestre,
-       * la cual es necesaria para calcular la ETc de un cultivo.
+       * temperaturas maximas y minimas de un registro climatico.
        * Por lo tanto, si estos valores son modificados es necesario
        * recalcular la ETo y la ETc de los registros climaticos
-       * sobre los que se va a actualizar el agua excedente, ya que
-       * esta se calcula en base a la ETo o la ETc (si una parcela
-       * tuvo un cultivo plantado en una fecha dada). Este es el
-       * motivo por el cual este metodo se debe invocar antes de
-       * los metodos calculateExcessWaterForPeriod y calculateExcessWaterCurrentDate.
+       * sobre los que se va a actualizar el agua excedente, ya
+       * que esta se calcula en base a la ETo o la ETc (si una
+       * parcela tuvo un cultivo plantado en una fecha dada).
+       * Este es el motivo por el cual este metodo se debe
+       * invocar antes del metodo calculateExcessWaterForPeriod.
        */
       calculateEtForPeriod(currentParcel);
 
@@ -341,8 +313,9 @@ public class ClimateRecordManager {
         /*
          * Luego de calcular y actualizar la ETc de un registro climatico
          * correspondiente a una fecha y una parcela dadas, se restablece
-         * el valor por defecto de esta variable para evitar actualizaciones
-         * erroneas en la ETc de los siguientes registros climaticos 
+         * el valor por defecto de esta variable para evitar el error
+         * logico de asignar la ETc de un registro climatico a otro registro
+         * climatico
          */
         etc = 0.0;
       } // End if
