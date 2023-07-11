@@ -398,7 +398,7 @@ public class PlantingRecordManager {
         int numberDays = climateRecordService.getNumberDays();
 
         Calendar currentDate = UtilDate.getCurrentDate();
-        Calendar givenDate = Calendar.getInstance();
+        Calendar pastDate = Calendar.getInstance();
         ClimateRecord givenClimateRecord = null;
         PlantingRecord givenPlantingRecord = null;
 
@@ -408,10 +408,11 @@ public class PlantingRecordManager {
          * actual - numberDays hasta el dia inmediatamente anterior
          * a la fecha actual, es decir, desde una cantidad numberDays
          * de dias atras hasta el dia inmediatamente anterior a la
-         * fecha actual. Esto tambien se puede hacer desde la fecha
-         * actual hacia una cantidad numberDays de dias hacia atras.
+         * fecha actual. Esto tambien se puede hacer desde el dia
+         * inmediatamente anterior a la fecha actual hacia una
+         * cantidad numberDays de dias hacia atras.
          */
-        givenDate.set(Calendar.DAY_OF_YEAR, (currentDate.get(Calendar.DAY_OF_YEAR) - numberDays));
+        pastDate.set(Calendar.DAY_OF_YEAR, (currentDate.get(Calendar.DAY_OF_YEAR) - numberDays));
 
         double eto = 0.0;
         double etc = 0.0;
@@ -432,8 +433,8 @@ public class PlantingRecordManager {
              * si en una fecha dada una parcela tuvo o tiene un registro
              * de plantacion.
              */
-            if (climateRecordService.checkExistence(givenDate, givenParcel)) {
-                givenClimateRecord = climateRecordService.find(givenDate, givenParcel);
+            if (climateRecordService.checkExistence(pastDate, givenParcel)) {
+                givenClimateRecord = climateRecordService.find(pastDate, givenParcel);
                 eto = calculateEtoForClimateRecord(givenClimateRecord);
 
                 /*
@@ -441,8 +442,8 @@ public class PlantingRecordManager {
                  * dada, se calcula la ETc (evapotranspiracion del cultivo bajo
                  * condiciones estandar) del cultivo de dicho registro
                  */
-                if (plantingRecordService.checkExistence(givenParcel, givenDate)) {
-                    givenPlantingRecord = plantingRecordService.find(givenParcel, givenDate);
+                if (plantingRecordService.checkExistence(givenParcel, pastDate)) {
+                    givenPlantingRecord = plantingRecordService.find(givenParcel, pastDate);
                     etc = calculateEtcForClimateRecord(eto, givenPlantingRecord);
                 }
 
@@ -452,7 +453,7 @@ public class PlantingRecordManager {
                  * condiciones estandar) del registro climatico correspondiente
                  * a una fecha y una parcela dadas
                  */
-                climateRecordService.updateEtoAndEtc(givenDate, givenParcel, eto, etc);
+                climateRecordService.updateEtoAndEtc(pastDate, givenParcel, eto, etc);
 
                 /*
                  * Luego de calcular y actualizar la ETc de un registro climatico
@@ -471,7 +472,7 @@ public class PlantingRecordManager {
              * para calcular la ETo y la ETc del siguiente registro climatico
              * se calcula la fecha siguiente.
              */
-            givenDate.set(Calendar.DAY_OF_YEAR, ((currentDate.get(Calendar.DAY_OF_YEAR) - numberDays) + i));
+            pastDate.set(Calendar.DAY_OF_YEAR, ((currentDate.get(Calendar.DAY_OF_YEAR) - numberDays) + i));
         } // End for
 
     }
