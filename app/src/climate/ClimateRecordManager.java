@@ -144,7 +144,7 @@ public class ClimateRecordManager {
          */
         if (plantingRecordService.checkOneInDevelopment(givenParcel)) {
           developingPlantingRecord = plantingRecordService.findInDevelopment(givenParcel);
-          etc = calculateEtcForClimateRecord(eto, developingPlantingRecord);
+          etc = calculateEtcForCurrentClimateRecord(eto, developingPlantingRecord);
         }
 
         currentClimateRecord.setEto(eto);
@@ -299,7 +299,7 @@ public class ClimateRecordManager {
          */
         if (plantingRecordService.checkExistence(givenParcel, givenDate)) {
           givenPlantingRecord = plantingRecordService.find(givenParcel, givenDate);
-          etc = calculateEtcForClimateRecord(eto, givenPlantingRecord);
+          etc = calculateEtcForClimateRecord(eto, givenPlantingRecord, givenDate);
         }
 
         /*
@@ -466,6 +466,21 @@ public class ClimateRecordManager {
   }
 
   /**
+   * @param givenEto
+   * @param givenPlantingRecord
+   * @return double que representa la ETc (evapotranspiracion
+   * del cultivo bajo condiciones estandar) de un cultivo
+   * calculada con la ETo de la fecha actual, por lo tanto,
+   * calcula la ETc de un cultivo en desarrollo en la fecha
+   * actual, debido a que un registro de plantacion en
+   * desarrollo representa la existencia de un cultivo plantado
+   * en una parcela y en desarrollo en la fecha actual
+   */
+  private double calculateEtcForCurrentClimateRecord(double givenEto, PlantingRecord givenPlantingRecord) {
+    return Etc.calculateEtc(givenEto, cropService.getKc(givenPlantingRecord.getCrop(), givenPlantingRecord.getSeedDate()));
+  }
+
+  /**
    * Hay que tener en cuenta que este metodo calcula la ETc
    * de un cultivo para una fecha dada, ya que la ETo es de
    * una fecha dada. Si la ETo es de la fecha X, la ETc
@@ -473,12 +488,15 @@ public class ClimateRecordManager {
    * 
    * @param givenEto
    * @param givenPlantingRecord
+   * @param dateUntil
    * @return double que representa la ETc (evapotranspiracion
    * del cultivo bajo condiciones estandar) de un cultivo
-   * calculada con una ETo de una fecha dada
+   * calculada con la ETo de una fecha dada, por lo tanto,
+   * calcula la ETc de un cultivo que estuvo en desarollo
+   * en una fecha dada
    */
-  private double calculateEtcForClimateRecord(double givenEto, PlantingRecord givenPlantingRecord) {
-      return Etc.calculateEtc(givenEto, cropService.getKc(givenPlantingRecord.getCrop(), givenPlantingRecord.getSeedDate()));
+  private double calculateEtcForClimateRecord(double givenEto, PlantingRecord givenPlantingRecord, Calendar dateUntil) {
+    return Etc.calculateEtc(givenEto, cropService.getKc(givenPlantingRecord.getCrop(), givenPlantingRecord.getSeedDate(), dateUntil));
   }
 
   /**
