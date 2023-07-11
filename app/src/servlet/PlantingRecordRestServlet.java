@@ -875,6 +875,24 @@ public class PlantingRecordRestServlet {
     return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(plantingRecordService.remove(userId, plantingRecordId))).build();
   }
 
+  /**
+   * Calcula la necesidad de agua de riego de un cultivo plantado
+   * en una parcela y en desarrollo en la fecha actual. Un registro
+   * de plantacion en desarrollo representa la existencia de un
+   * cultivo plantado en una parcela, el cual esta en desarrollo en
+   * la fecha actual.
+   * 
+   * @param request
+   * @param plantingRecordId
+   * @return referencia un objeto de tipo Response que contiene la
+   * fecha actual, la necesidad de agua de riego calculada para un
+   * cultivo en desarrollo en la fecha actual, la parcela en la que
+   * esta plantado el cultivo para el que se calcula la necesidad de
+   * agua de riego y el cultivo que esta en desarrollo en la fecha
+   * actual. En caso contrario, referencia a un objeto de tipo Response
+   * que contiene un mensaje de error si hay un error.
+   * @throws IOException
+   */
   @GET
   @Path("/irrigationWaterNeed/{id}")
   @Produces(MediaType.APPLICATION_JSON)
@@ -947,6 +965,16 @@ public class PlantingRecordRestServlet {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_REQUEST_CALCULATION_IRRIGATION_WATER_NEED))).build();
     }
 
+    /*
+     * Si el flujo de ejecucion de este metodo llega a estas lineas
+     * de codigo es debido a que el registro de plantacion sobre el
+     * que se quiere calcular la necesidad de agua de riego es un
+     * registro de plantacion que tiene el estado "En desarrollo".
+     * Un registro de plantacion en desarrollo representa la existencia
+     * de un cultivo sembrado en una parcela y en desarrollo en la
+     * fecha actual. Por lo tanto, este metodo calcula la necesidad
+     * de agua de riego de un cultivo en desarrollo en la fecha actual.
+     */
     PlantingRecord givenPlantingRecord = plantingRecordService.find(plantingRecordId);
     Parcel givenParcel = givenPlantingRecord.getParcel();
 
@@ -1051,7 +1079,7 @@ public class PlantingRecordRestServlet {
   private void updateEtoAndEtcForCurrentClimateRecord(PlantingRecord developingPlantingRecord) {
     ClimateRecord currentClimateRecord = getCurrentClimateRecord(developingPlantingRecord.getParcel());
     double currentEto = calculateEtoForClimateRecord(currentClimateRecord);
-    double currentEtc = calculateEtcForClimateRecord(currentEto, developingPlantingRecord);
+    double currentEtc = calculateEtcForCurrentClimateRecord(currentEto, developingPlantingRecord);
 
     climateRecordService.updateEtoAndEtc(UtilDate.getCurrentDate(), developingPlantingRecord.getParcel(), currentEto, currentEtc);
   }
@@ -1160,6 +1188,21 @@ public class PlantingRecordRestServlet {
   }
 
   /**
+   * @param givenEto
+   * @param givenPlantingRecord
+   * @return double que representa la ETc (evapotranspiracion
+   * del cultivo bajo condiciones estandar) de un cultivo
+   * calculada con la ETo de la fecha actual, por lo tanto,
+   * calcula la ETc de un cultivo en desarrollo en la fecha
+   * actual, debido a que un registro de plantacion en
+   * desarrollo representa la existencia de un cultivo plantado
+   * en una parcela y en desarrollo en la fecha actual
+   */
+  private double calculateEtcForCurrentClimateRecord(double givenEto, PlantingRecord givenPlantingRecord) {
+    return Etc.calculateEtc(givenEto, cropService.getKc(givenPlantingRecord.getCrop(), givenPlantingRecord.getSeedDate()));
+  }
+
+  /**
    * Hay que tener en cuenta que este metodo calcula la ETc
    * de un cultivo para una fecha dada, ya que la ETo es de
    * una fecha dada. Si la ETo es de la fecha X, la ETc
@@ -1167,12 +1210,15 @@ public class PlantingRecordRestServlet {
    * 
    * @param givenEto
    * @param givenPlantingRecord
+   * @param dateUntil
    * @return double que representa la ETc (evapotranspiracion
    * del cultivo bajo condiciones estandar) de un cultivo
-   * calculada con una ETo de una fecha dada
+   * calculada con la ETo de una fecha dada, por lo tanto,
+   * calcula la ETc de un cultivo que estuvo en desarollo
+   * en una fecha dada
    */
-  private double calculateEtcForClimateRecord(double givenEto, PlantingRecord givenPlantingRecord) {
-    return Etc.calculateEtc(givenEto, cropService.getKc(givenPlantingRecord.getCrop(), givenPlantingRecord.getSeedDate()));
+  private double calculateEtcForClimateRecord(double givenEto, PlantingRecord givenPlantingRecord, Calendar dateUntil) {
+    return Etc.calculateEtc(givenEto, cropService.getKc(givenPlantingRecord.getCrop(), givenPlantingRecord.getSeedDate(), dateUntil));
   }
 
   /**
@@ -1496,7 +1542,7 @@ public class PlantingRecordRestServlet {
          */
         if (plantingRecordService.checkExistence(givenParcel, pastDate)) {
           givenPlantingRecord = plantingRecordService.find(givenParcel, pastDate);
-          etc = calculateEtcForClimateRecord(eto, givenPlantingRecord);
+          etc = calculateEtcForClimateRecord(eto, givenPlantingRecord, pastDate);
         }
 
         /*
@@ -1603,7 +1649,7 @@ public class PlantingRecordRestServlet {
          */
         if (plantingRecordService.checkExistence(givenParcel, pastDate)) {
           givenPlantingRecord = plantingRecordService.find(givenParcel, pastDate);
-          etc = calculateEtcForClimateRecord(eto, givenPlantingRecord);
+          etc = calculateEtcForClimateRecord(eto, givenPlantingRecord, pastDate);
         }
 
         /*
