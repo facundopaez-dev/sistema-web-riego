@@ -238,8 +238,17 @@ public class CropServiceBean {
   }
 
   /**
+   * Calcula el kc (coeficiente de cultivo) de un cultivo en
+   * funcion de su fecha de siembra y una fecha hasta dada.
+   * Para esto se determina la cantidad de dias de vida de un
+   * cultivo desde su fecha de siembra (incluida) hasta una
+   * fecha hasta dada. En base a la cantidad de dias de vida de
+   * un cultivo se determina la etapa en la que se encuentra
+   * un cultivo en su ciclo de vida, y en base a la etapa se
+   * retorna el kc de un cultivo.
+   * 
    * Este metodo es para la clase de pruebas unitarias GetKcTest
-   * y el metodo calculate requestAndPersistClimateRecordsForPeriod
+   * y los metodos calculateEtForPeriod y requestAndPersistClimateRecordsForPeriod
    * de la clase PlantingRecordRestServlet.
    * 
    * @param crop
@@ -247,8 +256,9 @@ public class CropServiceBean {
    * @param dateUntil
    * @return numero de punto flotante que representa el kc
    * (coeficiente de cultivo) de un cultivo en funcion de
-   * la etapa en la que se encuentra un cultivo en su ciclo
-   * de vida
+   * la etapa de su ciclo de vida en la que se encuentra
+   * teniendo en cuenta su fecha de siembra y una fecha hasta
+   * dada
    */
   public double getKc(Crop crop, Calendar seedDate, Calendar dateUntil) {
     /*
@@ -263,7 +273,8 @@ public class CropServiceBean {
   }
 
   /**
-   * Retorna el kc (coficiente de cultivo) de un cultivo dado.
+   * Calcula el kc (coficiente de cultivo) de un cultivo en
+   * funcion de su fecha de siembra y la fecha actual.
    * Para esto se determina la cantidad de dias de vida de un
    * cultivo desde su fecha de siembra (incluida) hasta la
    * fecha actual. En base a la cantidad de dias de vida de
@@ -279,8 +290,9 @@ public class CropServiceBean {
    * @param seedDate [fecha de siembra de un cultivo dado]
    * @return numero de punto flotante que representa el kc
    * (coeficiente de cultivo) de un cultivo en funcion de
-   * la etapa en la que se encuentra un cultivo en su ciclo
-   * de vida
+   * la etapa de su ciclo de vida en la que se encuentra
+   * teniendo en cuenta su fecha de siembra y la fecha
+   * actual
    */
   public double getKc(Crop crop, Calendar seedDate) {
     /*
