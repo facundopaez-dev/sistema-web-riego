@@ -345,7 +345,7 @@ public class PlantingRecordManager {
                  */
                 if (plantingRecordService.checkExistence(givenParcel, pastDate)) {
                     givenPlantingRecord = plantingRecordService.find(givenParcel, pastDate);
-                    etc = calculateEtcForClimateRecord(eto, givenPlantingRecord);
+                    etc = calculateEtcForClimateRecord(eto, givenPlantingRecord, pastDate);
                 }
 
                 /*
@@ -444,7 +444,7 @@ public class PlantingRecordManager {
                  */
                 if (plantingRecordService.checkExistence(givenParcel, pastDate)) {
                     givenPlantingRecord = plantingRecordService.find(givenParcel, pastDate);
-                    etc = calculateEtcForClimateRecord(eto, givenPlantingRecord);
+                    etc = calculateEtcForClimateRecord(eto, givenPlantingRecord, pastDate);
                 }
 
                 /*
@@ -608,12 +608,15 @@ public class PlantingRecordManager {
      * 
      * @param givenEto
      * @param givenPlantingRecord
+     * @param dateUntil
      * @return double que representa la ETc (evapotranspiracion
      * del cultivo bajo condiciones estandar) de un cultivo
-     * calculada con una ETo de una fecha dada
+     * calculada con la ETo de una fecha dada, por lo tanto,
+     * calcula la ETc de un cultivo que estuvo en desarollo
+     * en una fecha dada
      */
-    private double calculateEtcForClimateRecord(double givenEto, PlantingRecord givenPlantingRecord) {
-        return Etc.calculateEtc(givenEto, cropService.getKc(givenPlantingRecord.getCrop(), givenPlantingRecord.getSeedDate()));
+    private double calculateEtcForClimateRecord(double givenEto, PlantingRecord givenPlantingRecord, Calendar dateUntil) {
+        return Etc.calculateEtc(givenEto, cropService.getKc(givenPlantingRecord.getCrop(), givenPlantingRecord.getSeedDate(), dateUntil));
     }
 
     /**
