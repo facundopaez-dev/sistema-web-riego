@@ -1,0 +1,1 @@
+Estas dependencias deben ser colocadas en el directorio _glassfish5/glassfish/lib/_ de [GlassFish 5.0.1 Full Platform](https://javaee.github.io/glassfish/download) para que la aplicación funcione correctamente.
