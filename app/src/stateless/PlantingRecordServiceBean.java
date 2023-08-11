@@ -1475,12 +1475,7 @@ public class PlantingRecordServiceBean {
    * contrario false
    */
   public boolean checkDevelopmentStatus(PlantingRecord plantingRecord) {
-    /*
-     * El metodo getInstance de la clase Calendar retorna
-     * la referencia a un objeto de tipo Calendar que
-     * contiene la fecha actual
-     */
-    Calendar currentDate = Calendar.getInstance();
+    Calendar currentDate = UtilDate.getCurrentDate();
 
     /*
      * Si la fecha de siembra de un registro de plantacion presuntamente

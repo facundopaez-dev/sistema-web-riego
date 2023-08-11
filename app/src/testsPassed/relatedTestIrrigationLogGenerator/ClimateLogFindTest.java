@@ -3,17 +3,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.AfterClass;
 import org.junit.Ignore;
-
 import stateless.ClimateLogServiceBean;
 import stateless.ParcelServiceBean;
-
 import java.util.Calendar;
-
 import model.Parcel;
 import model.ClimateLog;
-
 import util.FormatDate;
-
+import util.UtilDate;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -67,7 +63,7 @@ public class ClimateLogFindTest {
     /*
      * Supongamos que la fecha actual es 20/10/19
      */
-    Calendar currentDate = Calendar.getInstance();
+    Calendar currentDate = UtilDate.getCurrentDate();
     currentDate.set(Calendar.DAY_OF_MONTH, 1);
     currentDate.set(Calendar.MONTH, 0);
     currentDate.set(Calendar.YEAR, 2020);

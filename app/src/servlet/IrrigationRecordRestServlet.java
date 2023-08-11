@@ -268,13 +268,6 @@ public class IrrigationRecordRestServlet {
     }
 
     /*
-     * El metodo getInstance de la clase Calendar retorna
-     * la referencia a un objeto de tipo Calendar que
-     * contiene la fecha actual
-     */
-    Calendar currentDate = Calendar.getInstance();
-
-    /*
      * Si la fecha de un registro de riego nuevo es estrictamente
      * mayor a la fecha actual, la aplicacion del lado servidor
      * retorna el mensaje HTTP 400 (Bad request) junto con el mensaje
@@ -286,7 +279,7 @@ public class IrrigationRecordRestServlet {
      * del futuro, ya que no tiene sentido registrar la cantidad de
      * agua que se utilizara para el riego de una parcela o un cultivo.
      */
-    if (UtilDate.compareTo(newIrrigationRecord.getDate(), currentDate) > 0) {
+    if (UtilDate.compareTo(newIrrigationRecord.getDate(), UtilDate.getCurrentDate()) > 0) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.IRRIGATION_RECORD_OF_THE_FUTURE_NOT_ALLOWED))).build();
     }
 
@@ -461,13 +454,6 @@ public class IrrigationRecordRestServlet {
     }
 
     /*
-     * El metodo getInstance de la clase Calendar retorna
-     * la referencia a un objeto de tipo Calendar que
-     * contiene la fecha actual
-     */
-    Calendar currentDate = Calendar.getInstance();
-
-    /*
      * Si la fecha del registro de riego modificado es
      * es estrictamente mayor a la fecha actual, la
      * aplicacion del lado servidor retorna el mensaje
@@ -482,7 +468,7 @@ public class IrrigationRecordRestServlet {
      * registrar la cantidad de agua que se utilizara
      * para el riego de una parcela o un cultivo.
      */
-    if (UtilDate.compareTo(modifiedIrrigationRecord.getDate(), currentDate) > 0) {
+    if (UtilDate.compareTo(modifiedIrrigationRecord.getDate(), UtilDate.getCurrentDate()) > 0) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.IRRIGATION_RECORD_OF_THE_FUTURE_NOT_ALLOWED))).build();
     }
 
@@ -609,13 +595,6 @@ public class IrrigationRecordRestServlet {
     }
 
     /*
-     * El metodo getInstance de la clase Calendar retorna
-     * la referencia a un objeto de tipo Calendar que
-     * contiene la fecha actual
-     */
-    Calendar currentDate = Calendar.getInstance();
-
-    /*
      * Si la fecha de un registro de riego nuevo es estrictamente
      * mayor a la fecha actual, la aplicacion del lado servidor
      * retorna el mensaje HTTP 400 (Bad request) junto con el mensaje
@@ -627,7 +606,7 @@ public class IrrigationRecordRestServlet {
      * del futuro, ya que no tiene sentido registrar la cantidad de
      * agua que se utilizara para el riego de una parcela o un cultivo.
      */
-    if (UtilDate.compareTo(newIrrigationRecord.getDate(), currentDate) > 0) {
+    if (UtilDate.compareTo(newIrrigationRecord.getDate(), UtilDate.getCurrentDate()) > 0) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.IRRIGATION_RECORD_OF_THE_FUTURE_NOT_ALLOWED))).build();
     }
 
@@ -706,12 +685,7 @@ public class IrrigationRecordRestServlet {
    * @param givenParcel
    */
   private void updateIrrigationWaterNeedDevelopingPlantingRecord(Parcel givenParcel) {
-    /*
-     * El metodo getInstance de la clase Calendar retorna
-     * la referencia a un objeto de tipo Calendar que
-     * contiene la fecha actual
-     */
-    Calendar currentDate = Calendar.getInstance();
+    Calendar currentDate = UtilDate.getCurrentDate();
     Calendar yesterdayDate = UtilDate.getYesterdayDate();
     ClimateRecord currentClimateRecord = null;
 
@@ -780,12 +754,7 @@ public class IrrigationRecordRestServlet {
    * hay en una parcela en la fecha actual
    */
   private double calculateExcessWaterCurrentDate(Parcel givenParcel) {
-    /*
-     * El metodo getInstance de la clase Calendar retorna
-     * la referencia a un objeto de tipo Calendar que
-     * contiene la fecha actual
-     */
-    Calendar currentDate = Calendar.getInstance();
+    Calendar currentDate = UtilDate.getCurrentDate();
     ClimateRecord currentClimateRecord = null;
 
     double excessWaterCurrentDate = 0.0;

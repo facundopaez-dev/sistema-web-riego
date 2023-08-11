@@ -11,6 +11,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import util.UtilDate;
 
 public class ClimateClientTest {
 
@@ -103,12 +104,7 @@ public class ClimateClientTest {
     newParcel.setLongitude(-65.03851);
     newParcel.setHectares(2);
 
-    /*
-     * El objeto de tipo Calendar referenciado por la referencia
-     * de esta variable de tipo por referencia, contiene la fecha
-     * actual
-     */
-    Calendar currentDate = Calendar.getInstance();
+    Calendar currentDate = UtilDate.getCurrentDate();
 
     /*
      * Seccion de prueba.

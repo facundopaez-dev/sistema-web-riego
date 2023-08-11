@@ -3,18 +3,14 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.AfterClass;
 import org.junit.Ignore;
-
 import stateless.ClimateLogServiceBean;
 import stateless.ParcelServiceBean;
-
+import util.UtilDate;
 import java.util.Calendar;
 import java.util.Collection;
-
 import climate.ClimateLogService;
-
 import model.Parcel;
 import model.ClimateLog;
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -66,10 +62,7 @@ public class ClimateLogCreateTest {
     double latitude = 0.0;
     double longitude = 0.0;
 
-    /*
-     * Fecha actual
-     */
-    Calendar currentDate = Calendar.getInstance();
+    Calendar currentDate = UtilDate.getCurrentDate();
 
     /*
      * Convierte el tiempo en milisegundos

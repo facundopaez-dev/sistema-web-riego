@@ -11,6 +11,7 @@ import org.junit.Test;
 import stateless.IrrigationRecordServiceBean;
 import stateless.ParcelServiceBean;
 import util.FormatDate;
+import util.UtilDate;
 
 public class IrrigationRecordExistTest {
   private static IrrigationRecordServiceBean irrigationRecordService;
@@ -58,7 +59,7 @@ public class IrrigationRecordExistTest {
     System.out.println();
 
     Parcel choosenparcel = parcelService.find(1);
-    Calendar currentDate = Calendar.getInstance();
+    Calendar currentDate = UtilDate.getCurrentDate();
     currentDate.set(Calendar.DAY_OF_YEAR, currentDate.get(Calendar.DAY_OF_YEAR) - 1);
 
     System.out.println("*** Fecha actual ***");
