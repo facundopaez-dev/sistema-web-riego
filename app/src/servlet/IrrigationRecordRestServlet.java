@@ -760,7 +760,6 @@ public class IrrigationRecordRestServlet {
     double excessWaterCurrentDate = 0.0;
     double totalIrrigationWaterCurrentDate = 0.0;
     double excessWaterYesterday = 0.0;
-    double etCurrentDate = 0.0;
 
     /*
      * Si el registro climatico de la fecha actual existe, se
@@ -782,34 +781,13 @@ public class IrrigationRecordRestServlet {
         excessWaterYesterday = climateRecordService.find(UtilDate.getYesterdayDate(), givenParcel).getExcessWater();
       }
 
-      /*
-       * Cuando una parcela NO tiene un cultivo sembrado y en
-       * desarrollo, la ETc de uno o varios de sus registros
-       * climaticos tiene el valor 0.0, ya que si no hay un
-       * cultivo en desarrollo NO es posible calcular la ETc
-       * (evapotranspiracion del cultivo bajo condiciones
-       * estandar) del mismo. Por lo tanto, se debe utilizar la
-       * ETo (evapotranspiracion del cultivo de referencia) para
-       * calcular el agua excedente de un registro climatico
-       * en la fecha actual.
-       * 
-       * En caso contrario, se debe utilizar la ETc para calcular
-       * el agua excedente de un registro climatico en la fecha
-       * actual.
-       */
-      if (currentClimateRecord.getEtc() == 0.0) {
-        etCurrentDate = currentClimateRecord.getEto();
-      } else {
-        etCurrentDate = currentClimateRecord.getEtc();
-      }
-
       totalIrrigationWaterCurrentDate = irrigationRecordService.calculateTotalIrrigationWaterCurrentDate(givenParcel);
 
       /*
        * Calculo del agua excedente de una parcela dada
        * en la fecha actual
        */
-      excessWaterCurrentDate = WaterMath.calculateExcessWater(etCurrentDate, currentClimateRecord.getPrecip(),
+      excessWaterCurrentDate = WaterMath.calculateExcessWater(currentClimateRecord.getEto(), currentClimateRecord.getEtc(), currentClimateRecord.getPrecip(),
           totalIrrigationWaterCurrentDate, excessWaterYesterday);
     } // End if
 
