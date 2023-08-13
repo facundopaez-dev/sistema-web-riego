@@ -271,4 +271,16 @@ public class UtilDate {
     return 0;
   }
 
+  /**
+   * @param offset
+   * @return referencia a un objeto de tipo Calendar que contiene
+   * una fecha pasada calculada a partir de la resta entre un
+   * numero enteror mayor a cero (desplazamiento) y la fecha actual
+   */
+  public static Calendar getPastDateFromOffset(int offset) {
+    Calendar currentDate = getCurrentDate();
+    currentDate.set(Calendar.DAY_OF_YEAR, (currentDate.get(Calendar.DAY_OF_YEAR) - offset));
+    return currentDate;
+  }
+
 }

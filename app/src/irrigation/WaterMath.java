@@ -16,55 +16,76 @@ public class WaterMath {
   }
 
   /**
-   * Calcula la necesidad de agua de riego [mm/dia] de un
-   * cultivo en la fecha actual en base a la ETc (evapotranspiracion
-   * del cultivo bajo condiciones estandar) de la fecha
-   * actual, la precipitacion de la fecha actual, la cantidad
-   * total de agua de riego de la fecha actual y el
-   * agua excedente de ayer
+   * Calcula la necesidad de agua de riego [mm/dia] de un cultivo
+   * en la fecha actual mediante la suma de las ETc de NUMBER_DAYS
+   * dias anteriores a la fecha actual, la suma del agua de lluvia
+   * de NUMBER_DAYS dias anteriores a la fecha actual, la suma del
+   * agua de riego de NUMBER_DAYS dias anteriores a la fecha actual
+   * y la cantidad total de agua de riego de la fecha actual.
    * 
-   * @param etcCurrentDate                  [mm/dia]
-   * @param precipitationCurrentDate        [mm/dia]
-   * @param totalIrrigationWaterCurrentDate [mm/dia]
-   * @param excessWaterYesterday            [mm/dia]
-   * @return punto flotante que representa la necesidad de
-   *         agua de riego [mm/dia] de un cultivo en la fecha
-   *         actual
+   * La constante NUMBER_DAYS pertenece a la clase ClimateRecordServiceBean.
+   * 
+   * @param etcSummedPastDays
+   * @param summedRainwaterPastDays
+   * @param summedIrrigationWaterPastDays
+   * @param totalIrrigationWaterCurrentDate
+   * @return double que representa la necesidad de agua de riego
+   * de un cultivo en la fecha actual
    */
-  public static double calculateIrrigationWaterNeed(double etcCurrentDate, double precipitationCurrentDate,
-      double totalIrrigationWaterCurrentDate, double excessWaterYesterday) {
+  public static double calculateIrrigationWaterNeed(double etcSummedPastDays, double summedRainwaterPastDays,
+      double summedIrrigationWaterPastDays, double totalIrrigationWaterCurrentDate) {
     /*
-     * Si la suma entre la precipitacion de la fecha actual,
-     * la cantidad total de agua de riego de la fecha actual
-     * y el agua excedente de ayer es mayor o igual a la ETc
-     * de la fecha actual, la necesidad de agua de riego de
-     * un cultivo en la fecha actual es 0, ya que si se da
-     * esta condicion, la ETc (milimetros de agua por dia)
-     * de la fecha actual es cubierta
+     * Si la suma del agua de lluvia de NUMBER_DAYS dias anteriores
+     * a la fecha actual es mayor o igual a la suma de las ETc de
+     * NUMBER_DAYS dias anteriores a la fecha actual, la necesidad
+     * de agua de riego de un cultivo en la fecha actual es 0
      */
-    if ((precipitationCurrentDate + totalIrrigationWaterCurrentDate + excessWaterYesterday) >= etcCurrentDate) {
+    if (summedRainwaterPastDays >= etcSummedPastDays) {
       return 0.0;
     }
 
     /*
-     * Si la ETc de la fecha actual es mayor a la suma
-     * entre la precipitacion de la fecha actual, la
-     * cantidad total de agua de riego de hoy y el
-     * agua excedente de ayer, la necesidad de agua de
-     * riego de un cultivo en la fecha actual es la
-     * diferencia entre la ETc de la fecha actual y la
-     * suma entre la precipitacion de la fecha actual,
-     * la cantidad total de agua de riego de la fecha
-     * actual y el agua excedente de ayer.
-     * 
-     * Si se da esta condicion, la ETc (milimetros de
-     * agua por dia) de la fecha actual no es cubierta,
-     * por lo tanto, hay una cantidad de agua que debe
-     * ser cubierta mediante agua de riego. Dicha cantidad
-     * se calcula haciendo la diferencia descrita en el
-     * parrafo anterior.
+     * Si la suma del agua de riego de NUMBER_DAYS dias anteriores
+     * a la fecha actual es mayor o igual a la suma de las ETc de
+     * NUMBER_DAYS dias anteriores a la fecha actual, la necesidad
+     * de agua de riego de un cultivo en la fecha actual es 0
      */
-    return limitToTwoDecimalPlaces(etcCurrentDate - (precipitationCurrentDate + totalIrrigationWaterCurrentDate + excessWaterYesterday));
+    if (summedIrrigationWaterPastDays >= etcSummedPastDays) {
+      return 0.0;
+    }
+
+    /*
+     * Si la cantidad total de agua de riego de la fecha actual es
+     * mayor o igual a la suma de las ETc de NUMBER_DAYS dias anteriores
+     * a la fecha actual, la necesidad de agua de riego de un cultivo
+     * en la fecha actual es 0
+     */
+    if (totalIrrigationWaterCurrentDate >= etcSummedPastDays) {
+      return 0.0;
+    }
+
+    /*
+     * Si la suma entre la suma del agua de lluvia de NUMBER_DAYS
+     * dias anteriores a la fecha actual, la suma del agua de riego
+     * de NUMBER_DAYS dias anteriores a la fecha actual y la cantidad
+     * total de agua de riego de la fecha actual es mayor o igual a la
+     * suma de las ETc de NUMBER_DAYS dias anteriores a la fecha actual,
+     * la necesidad de agua de riego de un cultivo en la fecha actual es 0
+     */
+    if ((summedRainwaterPastDays + summedIrrigationWaterPastDays + totalIrrigationWaterCurrentDate) >= etcSummedPastDays) {
+      return 0.0;
+    }
+
+    /*
+     * Si ninguna de las condiciones anteriores se cumple, la necesidad
+     * de agua de riego de un cultivo en la fecha actual es mayor a 0 y
+     * se calcula como la diferencia entre la suma de las ETc de NUMBER_DAYS
+     * dias anteriores a la fecha actual y la suma entre la suma del agua
+     * de lluvia de NUMBER_DAYS dias anteriores a la fecha actual, la
+     * suma del agua de riego de NUMBER_DAYS dias anteriores a la fecha
+     * actual y la cantidad total de agua de riego de la fecha actual
+     */
+    return limitToTwoDecimalPlaces(etcSummedPastDays - (summedRainwaterPastDays + summedIrrigationWaterPastDays + totalIrrigationWaterCurrentDate));
   }
 
   /**

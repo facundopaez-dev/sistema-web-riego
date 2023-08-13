@@ -43,6 +43,17 @@ public class PlantingRecordServiceBean {
     return newPlantingRecord;
   }
 
+  public PlantingRecord remove(int plantingRecordId) {
+    PlantingRecord givenPlantingRecord = find(plantingRecordId);
+
+    if (givenPlantingRecord != null) {
+      getEntityManager().remove(givenPlantingRecord);
+      return givenPlantingRecord;
+    }
+
+    return null;
+  }
+
   /**
    * Elimina fisicamente un registro de plantacion perteneciente a
    * una parcela de un usuario

@@ -36,6 +36,17 @@ public class IrrigationRecordServiceBean {
     return newIrrigationRecord;
   }
 
+  public IrrigationRecord remove(int irrigationRecordId) {
+    IrrigationRecord givenIrrigationRecord = find(irrigationRecordId);
+
+    if (givenIrrigationRecord != null) {
+      getEntityManager().remove(givenIrrigationRecord);
+      return givenIrrigationRecord;
+    }
+
+    return null;
+  }
+
   /**
    * Modifica un registro de riego perteneciente a una parcela
    * de un usuario
@@ -276,15 +287,27 @@ public class IrrigationRecordServiceBean {
     query.setParameter("currentDate", Calendar.getInstance());
     query.setParameter("givenParcel", givenParcel);
 
-    double result = 0.0;
+    double totalIrrigationWaterCurrentDate = 0.0;
 
     try {
-      result = (double) query.getSingleResult();
+      /*
+       * Si se realiza la consulta JPQL de este metodo en SQL
+       * con una parcela que no tiene ningun registro de riego
+       * asociado en un periodo definido por dos fechas, se
+       * observara que el valor devuelto es NULL. Por lo tanto,
+       * es necesario contemplar este caso en el codigo fuente
+       * de este metodo.
+       * 
+       * En caso de que se solicite la suma del agua de riego de
+       * la fecha actual de una parcela que no tiene ningun registro
+       * de riego con la fecha actual, se retorna el valor 0.0
+       */
+      totalIrrigationWaterCurrentDate = (double) query.getSingleResult();
     } catch (NullPointerException e) {
       e.printStackTrace();
     }
 
-    return result;
+    return totalIrrigationWaterCurrentDate;
   }
 
   /**
@@ -486,6 +509,73 @@ public class IrrigationRecordServiceBean {
    */
   public boolean isModifiable(int id) {
     return find(id).getModifiable();
+  }
+
+  /**
+   * @param givenUserId
+   * @param givenParcelId
+   * @param numberDays
+   * @return double que representa la suma del agua de riego
+   * de un cultivo sembrado en una parcela en NUMBER_DAYS dias
+   * anteriores a la fecha actual, siendo la parcela perteneciente
+   * a un usuario dado
+   */
+  public double sumIrrigationWaterPastDays(int givenUserId, int givenParcelId, int numberDays) {
+    Calendar periodUpperDate = UtilDate.getYesterdayDate();
+
+    /*
+     * El valor de la variable numberDays es igual (y debe serlo) al
+     * valor de la constante NUMBER_DAYS, la cual pertenece a la clase
+     * ClimateRecordServiceBean. El valor de esta constante se utiliza
+     * para obtener el limite inferior de un periodo de fechas anteriores
+     * a la fecha actual, siendo el limite superior de este periodo la
+     * fecha inmediatamente anterior a la fecha actual.
+     */
+    Calendar lowerDatePeriod = UtilDate.getPastDateFromOffset(numberDays);
+
+    /*
+     * Con esta condicion, la consulta selecciona todos los
+     * registros de riego de una parcela que estan comprendidos
+     * en un periodo definido por dos fechas
+     */
+    String conditionWhere = "(i.parcel.user.id = :userId AND i.parcel.id = :parcelId AND :lowerDatePeriod <= i.date AND i.date <= :periodUpperDate)";
+
+    /*
+     * Suma el agua de riego de NUMBER_DAYS registros de riego
+     * anteriores a la fecha actual pertenecientes a una parcela de
+     * un usuario, los cuales estan comprendidos en un periodo
+     * definido por dos fechas, obteniendo el agua de riego total
+     * de un cultivo en dicho periodo
+     */
+    Query query = entityManager.createQuery("SELECT SUM(i.irrigationDone) FROM IrrigationRecord i WHERE " + conditionWhere);
+    query.setParameter("userId", givenUserId);
+    query.setParameter("parcelId", givenParcelId);
+    query.setParameter("lowerDatePeriod", lowerDatePeriod);
+    query.setParameter("periodUpperDate", periodUpperDate);
+
+    double summedIrrigationWaterPastDays = 0.0;
+
+    try {
+      /*
+       * Si se realiza la consulta JPQL de este metodo en SQL
+       * con una parcela que no tiene ningun registro de riego
+       * asociado en un periodo definido por dos fechas, se
+       * observara que el valor devuelto es NULL. Por lo tanto,
+       * es necesario contemplar este caso en el codigo fuente
+       * de este metodo.
+       * 
+       * En caso de que se solicite la suma del agua de riego de un
+       * cultivo plantado sobre una parcela en NUMBER_DAYS dias
+       * anteriores a la fecha actual y la parcela no tiene ningun
+       * registro de riego con las fechas de dichos dias, se retorna
+       * el valor 0.0.
+       */
+      summedIrrigationWaterPastDays = (double) query.getSingleResult();
+    } catch (NullPointerException e) {
+      e.printStackTrace();
+    }
+
+    return summedIrrigationWaterPastDays;
   }
 
   public Page<IrrigationRecord> findByPage(Integer page, Integer cantPerPage, Map<String, String> parameters) {

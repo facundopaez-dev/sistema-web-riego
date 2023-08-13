@@ -28,10 +28,10 @@ public class ClimateRecordServiceBean {
    * anteriores a la fecha actual.
    * - para calcular el agua excedente de cada uno de los registros
    * climaticos de una parcela anteriores a la fecha actual.
-   * - para recalcular la ETc de cada uno de los registros climaticos
-   * de una parcela anteriores a la fecha actual.
+   * - para calcular la ETo y la ETc de cada uno de los registros
+   * climaticos de una parcela anteriores a la fecha actual.
    */
-  private final int NUMBER_DAYS = 7;
+  private final int NUMBER_DAYS = 3;
 
   public int getNumberDays() {
     return NUMBER_DAYS;
@@ -64,6 +64,17 @@ public class ClimateRecordServiceBean {
    */
   public ClimateRecord remove(int userId, int climateRecordId) {
     ClimateRecord givenClimateRecord = findByUserId(userId, climateRecordId);
+
+    if (givenClimateRecord != null) {
+      getEntityManager().remove(givenClimateRecord);
+      return givenClimateRecord;
+    }
+
+    return null;
+  }
+
+  public ClimateRecord remove(int climateRecordId) {
+    ClimateRecord givenClimateRecord = find(climateRecordId);
 
     if (givenClimateRecord != null) {
       getEntityManager().remove(givenClimateRecord);
@@ -634,6 +645,138 @@ public class ClimateRecordServiceBean {
      */
     ClimateRecord currentClimateRecord = ClimateClient.getForecast(givenParcel, (Calendar.getInstance().getTimeInMillis() / 1000));
     return create(currentClimateRecord);
+  }
+
+  /**
+   * @param givenUserId
+   * @param givenParcelId
+   * @return double que representa la suma del agua de lluvia
+   * que cayo sobre una parcela en NUMBER_DAYS dias anteriores
+   * a la fecha actual, siendo la parcela perteneciente a un
+   * usuario dado
+   */
+  public double sumRainwaterPastDays(int givenUserId, int givenParcelId) {
+    Calendar periodUpperDate = UtilDate.getYesterdayDate();
+
+    /*
+     * La constante NUMBER_DAYS pertenece a esta clase y se la utiliza
+     * para obtener el limite inferior de un periodo de fechas anteriores
+     * a la fecha actual, siendo el limite superior de este periodo la
+     * fecha inmediatamente anterior a la fecha actual
+     */
+    Calendar lowerDatePeriod = UtilDate.getPastDateFromOffset(NUMBER_DAYS);
+
+    /*
+     * Con esta condicion, la consulta selecciona todos los
+     * registros climaticos de una parcela que estan
+     * comprendidos en un periodo definido por dos fechas
+     */
+    String conditionWhere = "(c.parcel.user.id = :userId AND c.parcel.id = :parcelId AND :lowerDatePeriod <= c.date AND c.date <= :periodUpperDate)";
+
+    /*
+     * Suma la cantidad de agua de lluvia de NUMBER_DAYS registros
+     * climaticos anteriores a la fecha actual pertenecientes a una
+     * parcela de un usuario, los cuales estan comprendidos en un
+     * periodo definido por dos fechas, obteniendo la cantidad total
+     * de agua de lluvia que cayo sobre una parcela en dicho periodo
+     */
+    Query query = entityManager.createQuery("SELECT SUM(c.precip) FROM ClimateRecord c WHERE " + conditionWhere);
+    query.setParameter("userId", givenUserId);
+    query.setParameter("parcelId", givenParcelId);
+    query.setParameter("lowerDatePeriod", lowerDatePeriod);
+    query.setParameter("periodUpperDate", periodUpperDate);
+
+    double summedRainwaterPastDays = 0.0;
+
+    try {
+      /*
+       * Si se realiza la consulta JPQL de este metodo en SQL
+       * con una parcela que no tiene ningun registro climatico
+       * asociado en un periodo definido por dos fechas, se
+       * observara que el valor devuelto es NULL. Por lo tanto,
+       * es necesario contemplar este caso en el codigo fuente
+       * de este metodo.
+       * 
+       * En caso de que se solicite la suma del agua de lluvia
+       * que cayo sobre una parcela en NUMBER_DAYS dias anteriores
+       * a la fecha actual y la parcela no tiene ningun registro
+       * climatico con las fechas de dichos dias, se retorna el
+       * valor 0.0.
+       */
+      summedRainwaterPastDays = (double) query.getSingleResult();
+    } catch (NullPointerException e) {
+      e.printStackTrace();
+    }
+
+    return summedRainwaterPastDays;
+  }
+
+  /**
+   * Suma la ETc de NUMBER_DAYS registros climaticos anteriores
+   * a la fecha actual pertenecientes a una parcela. La ETc es
+   * de un cultivo sembrado en una parcela, la cual pertenece a
+   * un usuario.
+   * 
+   * @param givenUserId
+   * @param givenParcelId
+   * @return double que representa la suma de la ETc de
+   * NUMBER_DAYS registros climaticos anteriores a la fecha
+   * actual pertenecientes a una parcela dada, la cual
+   * pertenece a un usuario dado
+   */
+  public double sumEtcPastDays(int givenUserId, int givenParcelId) {
+    Calendar periodUpperDate = UtilDate.getYesterdayDate();
+
+    /*
+     * La constante NUMBER_DAYS pertenece a esta clase y se la utiliza
+     * para obtener el limite inferior de un periodo de fechas anteriores
+     * a la fecha actual, siendo el limite superior de este periodo la
+     * fecha inmediatamente anterior a la fecha actual
+     */
+    Calendar lowerDatePeriod = UtilDate.getPastDateFromOffset(NUMBER_DAYS);
+
+    /*
+     * Con esta condicion, la consulta selecciona todos los
+     * registros climaticos de una parcela que estan
+     * comprendidos en un periodo definido por dos fechas
+     */
+    String conditionWhere = "(c.parcel.user.id = :userId AND c.parcel.id = :parcelId AND :lowerDatePeriod <= c.date AND c.date <= :periodUpperDate)";
+
+    /*
+     * Suma la ETc de NUMBER_DAYS registros climaticos anteriores a
+     * la fecha actual pertenecientes a una parcela de un usuario, los
+     * cuales estan comprendidos en un periodo definido por dos fechas,
+     * obteniendo la ETc total de un cultivo en dicho periodo
+     */
+    Query query = entityManager.createQuery("SELECT SUM(c.etc) FROM ClimateRecord c WHERE " + conditionWhere);
+    query.setParameter("userId", givenUserId);
+    query.setParameter("parcelId", givenParcelId);
+    query.setParameter("lowerDatePeriod", lowerDatePeriod);
+    query.setParameter("periodUpperDate", periodUpperDate);
+
+    double etcSummedPastDays = 0.0;
+
+    try {
+      /*
+       * Si se realiza la consulta JPQL de este metodo en SQL
+       * con una parcela que NO tiene ningun registro climatico
+       * asociado en un periodo definido por dos fechas, se
+       * observara que el valor devuelto es NULL. Por lo tanto,
+       * es necesario contemplar este caso en el codigo fuente
+       * de este metodo.
+       * 
+       * En caso de que se solicite la suma de la ETc de un cultivo
+       * plantado sobre una parcela en NUMBER_DAYS dias anteriores
+       * a la fecha actual y la parcela no tiene ningun registro
+       * climatico con las fechas de dichos dias, se retorna el
+       * valor 0.0.
+       */
+      etcSummedPastDays = (double) query.getSingleResult();
+    } catch (NullPointerException e) {
+      e.printStackTrace();
+    }
+
+    return etcSummedPastDays;
   }
 
 }
