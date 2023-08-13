@@ -1137,7 +1137,7 @@ public class PlantingRecordRestServlet {
    * 
    * @param developingPlantingRecord
    */
-  public void calculateEtsPastClimateRecords(PlantingRecord developingPlantingRecord) {
+  private void calculateEtsPastClimateRecords(PlantingRecord developingPlantingRecord) {
     /*
      * Variable utilizada para calcular la ETo (evapotranspiracion
      * del cultivo de referencia) y la ETc (evapotranspiracion del
