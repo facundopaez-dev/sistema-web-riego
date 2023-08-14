@@ -70,7 +70,7 @@ public class PlantingRecordManager {
      * probar que este metodo se ejecuta correctamente, es decir, que hace
      * lo que se espera que haga.
      */
-    @Schedule(second = "*", minute = "*", hour = "0/23", persistent = false)
+    // @Schedule(second = "*", minute = "*", hour = "0/23", persistent = false)
     // @Schedule(second = "*/10", minute = "*", hour = "*", persistent = false)
     public void modifyToFinishedStatus() {
         Collection<PlantingRecord> plantingRecords = plantingRecordService.findAllInDevelopment();
@@ -108,7 +108,7 @@ public class PlantingRecordManager {
      * ejecuta correctamente, es decir, que establece el estado en desarrollo
      * en un registro de plantacion presuntamente en espera.
      */
-    @Schedule(second = "*", minute = "*", hour = "1/23", persistent = false)
+    // @Schedule(second = "*", minute = "*", hour = "1/23", persistent = false)
     // @Schedule(second = "*/10", minute = "*", hour = "*", persistent = false)
     public void modifyToInDevelopmentStatus() {
         /*
@@ -152,7 +152,7 @@ public class PlantingRecordManager {
      * este metodo se ejecuta correctamente, es decir, que hace lo que se espera que
      * haga.
      */
-    @Schedule(second = "*", minute = "*", hour = "1/2", persistent = false)
+    // @Schedule(second = "*", minute = "*", hour = "1/2", persistent = false)
     // @Schedule(second = "*/5", minute = "*", hour = "*", persistent = false)
     private void setIrrigationWaterNeed() {
         Collection<PlantingRecord> developingPlantingRecords = plantingRecordService.findAllInDevelopment();

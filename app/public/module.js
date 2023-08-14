@@ -116,6 +116,19 @@ app.config(['$routeProvider', function (routeprovider) {
 			controller: 'PlantingRecordCtrl'
 		})
 
+		.when('/home/pastDaysReferences', {
+			templateUrl: 'partials/user/past-days-reference-list.html',
+			controller: 'PastDaysReferencesCtrl'
+		})
+		.when('/home/pastDaysReferences/:action', {
+			templateUrl: 'partials/user/past-days-reference-form.html',
+			controller: 'PastDaysReferenceCtrl'
+		})
+		.when('/home/pastDaysReferences/:action/:id', {
+			templateUrl: 'partials/user/past-days-reference-form.html',
+			controller: 'PastDaysReferenceCtrl'
+		})
+
 		.when('/home/statisticalReports', {
 			templateUrl: 'partials/user/statistical-report-list.html',
 			controller: 'StatisticalReportsCtrl'

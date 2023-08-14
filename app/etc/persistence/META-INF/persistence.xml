@@ -10,6 +10,7 @@
     <class>model.Latitude</class>
     <class>model.MaximumInsolation</class>
     <class>model.Month</class>
+    <class>model.PastDaysReference</class>
     <class>model.Parcel</class>
     <class>model.PasswordResetLink</class>
     <class>model.Session</class>
