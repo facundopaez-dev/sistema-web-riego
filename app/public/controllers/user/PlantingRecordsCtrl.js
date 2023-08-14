@@ -179,10 +179,6 @@ app.controller(
 				})
 			}
 
-			$scope.cancel = function () {
-				$location.path("/home/plantingRecords");
-			}
-
 			/*
 			Trae el listado de todos los registros de plantacion de
 			todas las parcelas del usuario cuando este presiona el
