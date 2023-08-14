@@ -366,13 +366,6 @@ public class IrrigationRecordRestServlet {
     updateIrrigationWaterNeedDevelopingPlantingRecord(userId, newIrrigationRecord.getParcel());
 
     /*
-     * Luego de persistir el nuevo registro de riego, se actualiza
-     * el agua excedente [mm/dia] del registro climatico de la fecha
-     * actual de la parcela de dicho registro de riego
-     */
-    // updateExcessWaterCurrentDate(newIrrigationRecord.getParcel());
-
-    /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos que el
@@ -545,13 +538,6 @@ public class IrrigationRecordRestServlet {
     updateIrrigationWaterNeedDevelopingPlantingRecord(userId, modifiedIrrigationRecord.getParcel());
 
     /*
-     * Luego de modificar el riego realizado de un registro de riego,
-     * se actualiza el agua excedente [mm/dia] del registro climatico
-     * de la fecha actual de la parcela de dicho registro de riego
-     */
-    // updateExcessWaterCurrentDate(modifiedIrrigationRecord.getParcel());
-
-    /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos que el
@@ -685,13 +671,6 @@ public class IrrigationRecordRestServlet {
     updateIrrigationWaterNeedDevelopingPlantingRecord(userId, newIrrigationRecord.getParcel());
 
     /*
-     * Luego de persistir el nuevo registro de riego, se actualiza
-     * el agua excedente [mm/dia] del registro climatico de la fecha
-     * actual de la parcela de dicho registro de riego
-     */
-    // updateExcessWaterCurrentDate(newIrrigationRecord.getParcel());
-
-    /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos que el
@@ -771,70 +750,6 @@ public class IrrigationRecordRestServlet {
       plantingRecordService.updateIrrigationWaterNeed(developingPlantingRecord.getId(), givenParcel, String.valueOf(irrigationWaterNeedCurrentDate));
     } // End if
 
-  }
-
-  /**
-   * Actualiza el agua excedente del registro climatico de la
-   * fecha actual de una parcela dada contemplando el riego
-   * realizado ingresado mediante los metodos create y modify
-   * de esta clase
-   * 
-   * @param givenParcel
-   */
-  private void updateExcessWaterCurrentDate(Parcel givenParcel) {
-    /*
-     * El metodo getInstance de la clase Calendar retorna
-     * la referencia a un objeto de tipo Calendar que
-     * contiene la fecha actual.
-     */
-    climateRecordService.updateExcessWater(Calendar.getInstance(), givenParcel,
-        calculateExcessWaterCurrentDate(givenParcel));
-  }
-
-  /**
-   * @param givenParcel
-   * @return punto flotante que representa el agua excedente que
-   * hay en una parcela en la fecha actual
-   */
-  private double calculateExcessWaterCurrentDate(Parcel givenParcel) {
-    Calendar currentDate = UtilDate.getCurrentDate();
-    ClimateRecord currentClimateRecord = null;
-
-    double excessWaterCurrentDate = 0.0;
-    double totalIrrigationWaterCurrentDate = 0.0;
-    double excessWaterYesterday = 0.0;
-
-    /*
-     * Si el registro climatico de la fecha actual existe, se
-     * calcula el agua excedente que hay en una parcela en la
-     * fecha actual contemplando el riego realizado ingresado
-     * mediante los metodos create y modify de esta clase
-     */
-    if (climateRecordService.checkExistence(currentDate, givenParcel)) {
-      currentClimateRecord = climateRecordService.find(currentDate, givenParcel);
-
-      /*
-       * Si el registro climatico del dia inmediatamente anterior
-       * a la fecha actual de una parcela, existe en la base de
-       * datos subyacente, se obtiene el agua excedente de dicho
-       * dia. En caso contrario, se asume que el agua excedente
-       * del dia inmediatamente anterior a la fecha actual es 0.
-       */
-      if (climateRecordService.checkExistence(UtilDate.getYesterdayDate(), givenParcel)) {
-        excessWaterYesterday = climateRecordService.find(UtilDate.getYesterdayDate(), givenParcel).getExcessWater();
-      }
-
-      totalIrrigationWaterCurrentDate = irrigationRecordService.calculateTotalIrrigationWaterCurrentDate(givenParcel);
-
-      /*
-       * Calculo del agua excedente de una parcela dada
-       * en la fecha actual
-       */
-      excessWaterCurrentDate = WaterMath.calculateExcessWater(currentClimateRecord.getEto(), currentClimateRecord.getEtc(), currentClimateRecord.getPrecip(),
-          totalIrrigationWaterCurrentDate, excessWaterYesterday);
-    } // End if
-
-    return excessWaterCurrentDate;
   }
 
   /**

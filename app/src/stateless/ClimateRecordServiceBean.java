@@ -26,8 +26,6 @@ public class ClimateRecordServiceBean {
    * El valor de esta constante se utiliza:
    * - para obtener y persistir los registros climaticos de una parcela
    * anteriores a la fecha actual.
-   * - para calcular el agua excedente de cada uno de los registros
-   * climaticos de una parcela anteriores a la fecha actual.
    * - para calcular la ETo y la ETc de cada uno de los registros
    * climaticos de una parcela anteriores a la fecha actual.
    */
@@ -289,7 +287,6 @@ public class ClimateRecordServiceBean {
       chosenClimateRecord.setCloudCover(modifiedClimateRecord.getCloudCover());
       chosenClimateRecord.setMinimumTemperature(modifiedClimateRecord.getMinimumTemperature());
       chosenClimateRecord.setMaximumTemperature(modifiedClimateRecord.getMaximumTemperature());
-      chosenClimateRecord.setExcessWater(modifiedClimateRecord.getExcessWater());
       chosenClimateRecord.setEto(modifiedClimateRecord.getEto());
       chosenClimateRecord.setEtc(modifiedClimateRecord.getEtc());
       chosenClimateRecord.setModifiable(modifiedClimateRecord.getModifiable());
@@ -321,7 +318,6 @@ public class ClimateRecordServiceBean {
       chosenClimateRecord.setCloudCover(modifiedClimateRecord.getCloudCover());
       chosenClimateRecord.setMinimumTemperature(modifiedClimateRecord.getMinimumTemperature());
       chosenClimateRecord.setMaximumTemperature(modifiedClimateRecord.getMaximumTemperature());
-      chosenClimateRecord.setExcessWater(modifiedClimateRecord.getExcessWater());
       chosenClimateRecord.setEto(modifiedClimateRecord.getEto());
       chosenClimateRecord.setEtc(modifiedClimateRecord.getEtc());
       chosenClimateRecord.setModifiable(modifiedClimateRecord.getModifiable());
@@ -465,9 +461,6 @@ public class ClimateRecordServiceBean {
    * y la ETc (evapotranspiracion del cultivo bajo condiciones estandar)
    * de un registro climatico correspondiente a una fecha y una parcela.
    * 
-   * Este metodo es para el metodo automatico calculateExcessWaterForPeriod
-   * de la clase ClimateRecordManager.
-   * 
    * @param givenDate
    * @param givenParcel
    * @param eto         [mm/dia]
@@ -479,22 +472,6 @@ public class ClimateRecordServiceBean {
     query.setParameter("etc", etc);
     query.setParameter("givenDate", givenDate);
     query.setParameter("givenParcel", givenParcel);
-    query.executeUpdate();
-  }
-
-  /**
-   * Actualiza el agua excedente del registro climatico
-   * correspondiente a una fecha y una parcela
-   * 
-   * @param givenDate
-   * @param givenParcel
-   * @param excessWater [mm/dia]
-   */
-  public void updateExcessWater(Calendar givenDate, Parcel givenParcel, double excessWater) {
-    Query query = entityManager.createQuery("UPDATE ClimateRecord c SET c.excessWater = :excessWater WHERE (c.date = :givenDate AND c.parcel = :givenParcel)");
-    query.setParameter("givenDate", givenDate);
-    query.setParameter("givenParcel", givenParcel);
-    query.setParameter("excessWater", excessWater);
     query.executeUpdate();
   }
 

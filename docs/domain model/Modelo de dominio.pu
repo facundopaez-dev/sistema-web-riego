@@ -69,7 +69,6 @@ class RegistroClimatico {
 -nubosidad
 -temperaturaMinima
 -temperaturaMaxima
--aguaExcedente
 -eto
 -etc
 -modificable

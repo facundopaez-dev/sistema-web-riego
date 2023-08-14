@@ -126,10 +126,7 @@ public class ClimateRecordRestServlet {
     /*
      * Actualiza instancias de tipo ClimateRecord desde la base de
      * datos subyacente, sobrescribiendo los cambios realizados en
-     * ellas, si los hubiere. Este metodo es necesario para recuperar
-     * los registros climaticos actualizados con los cambios realizados
-     * por el metodo automatico calculateExcessWaterForPeriod de la clase
-     * ClimateRecordManager.
+     * ellas, si los hubiere
      */
     climateRecordService.refreshClimateRecords(climateRecords);
 
@@ -293,17 +290,6 @@ public class ClimateRecordRestServlet {
      */
     if (newClimateRecord.getPrecip() < 0.0) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_PRECIPITATION))).build();
-    }
-
-    /*
-     * Si el agua excedente tiene un valor menor a 0.0,
-     * la aplicacion del lado servidor retorna el mensaje
-     * HTTP 400 (Bad request) junto con el mensaje "El
-     * agua excedente debe ser un valor mayor o igual a
-     * 0.0" y no se realiza la operacion solicitada
-     */
-    if (newClimateRecord.getExcessWater() < 0.0) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_EXCESS_WATER))).build();
     }
 
     /*
@@ -523,17 +509,6 @@ public class ClimateRecordRestServlet {
      */
     if (modifiedClimateRecord.getPrecip() < 0.0) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_PRECIPITATION))).build();
-    }
-
-    /*
-     * Si el agua excedente tiene un valor menor a 0.0,
-     * la aplicacion del lado servidor retorna el mensaje
-     * HTTP 400 (Bad request) junto con el mensaje "El
-     * agua excedente debe ser un valor mayor o igual a
-     * 0.0" y no se realiza la operacion solicitada
-     */
-    if (modifiedClimateRecord.getExcessWater() < 0.0) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_EXCESS_WATER))).build();
     }
 
     /*

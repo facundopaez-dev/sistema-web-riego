@@ -167,21 +167,6 @@ public class ClimateRecord {
   private double maximumTemperature;
 
   /*
-   * Cantidad de agua excedente [mm/dia] en el dia de la fecha
-   * para la cual se obtienen los datos meteorologicos, la cual,
-   * es el agua de dicho dia a favor para el dia de mañana.
-   *
-   * Este valor se calcula haciendo la diferencia entre la ETc
-   * o la ETo del dia de ayer (en caso de que la ETc no este
-   * definida, lo cual, ocurre cuando no hay un cultivo sembrado
-   * y en desarrollo en una parcela), la cantidad de agua de
-   * lluvia, la cantidad de agua de riego y la cantidad de agua
-   * excedente del dia de ayer.
-   */
-  @Column(name = "EXCESS_WATER", nullable = false)
-  private double excessWater;
-
-  /*
    * Evapotranspiracion del cultivo de referencia (ETo)
    *
    * Este valor se calcula mediante el uso de los datos
@@ -426,24 +411,6 @@ public class ClimateRecord {
   }
 
   /**
-   * Returns value of excessWater
-   * 
-   * @return
-   */
-  public double getExcessWater() {
-    return excessWater;
-  }
-
-  /**
-   * Sets new value of excessWater
-   * 
-   * @param
-   */
-  public void setExcessWater(double excessWater) {
-    this.excessWater = excessWater;
-  }
-
-  /**
    * Returns value of eto
    * 
    * @return
@@ -518,7 +485,7 @@ public class ClimateRecord {
   @Override
   public String toString() {
     return String.format(
-        "ID: %d\nLatitud: %f (grados decimales) Longitud: %f (grados decimales)\nFecha: %s\nPrecipitación del día: %f milímetros/día\nProbabilidad de precipitación: %f [porcentaje 0 - 100]\nPunto de rocío: %f °C\nPresión atmosférica: %f hectopascales (milibares)\nVelocidad del viento: %f kilómetros/por hora\nNubosidad: %f [porcentaje 0 - 100]\nTemperatura mínima: %f °C\nTemperatura máxima: %f °C\nAgua excedente: %f milímetros/día\nTipos de precipitacion: %s\nModificable: %b\n",
+        "ID: %d\nLatitud: %f (grados decimales) Longitud: %f (grados decimales)\nFecha: %s\nPrecipitación del día: %f milímetros/día\nProbabilidad de precipitación: %f [porcentaje 0 - 100]\nPunto de rocío: %f °C\nPresión atmosférica: %f hectopascales (milibares)\nVelocidad del viento: %f kilómetros/por hora\nNubosidad: %f [porcentaje 0 - 100]\nTemperatura mínima: %f °C\nTemperatura máxima: %f °C\nTipos de precipitacion: %s\nModificable: %b\n",
         id,
         parcel.getLatitude(),
         parcel.getLongitude(),
@@ -531,7 +498,6 @@ public class ClimateRecord {
         cloudCover,
         minimumTemperature,
         maximumTemperature,
-        excessWater,
         precipTypes,
         modifiable);
   }
