@@ -10,7 +10,6 @@ import stateless.CropServiceBean;
 import stateless.PlantingRecordServiceBean;
 import stateless.ParcelServiceBean;
 import stateless.SolarRadiationServiceBean;
-import stateless.IrrigationRecordServiceBean;
 import stateless.MonthServiceBean;
 import stateless.LatitudeServiceBean;
 import model.ClimateRecord;
@@ -43,10 +42,6 @@ public class ClimateRecordManager {
   // inject a reference to the CropServiceBean
   @EJB
   CropServiceBean cropService;
-
-  // inject a reference to the IrrigationRecordServiceBean
-  @EJB
-  IrrigationRecordServiceBean irrigationRecordService;
 
   // inject a reference to the MonthServiceBean
   @EJB
