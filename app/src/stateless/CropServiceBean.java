@@ -301,12 +301,8 @@ public class CropServiceBean {
      * incluir a la fecha de siembra en el resultado, ya que
      * esta cuenta como un dia de vida en la cantidad de dias
      * de vida transcurridos de un cultivo.
-     * 
-     * El metodo getInstance de la clase Calendar retorna la
-     * referencia a un objeto de tipo Calendar que contiene la
-     * fecha actual.
      */
-    int daysLife = UtilDate.calculateDifferenceBetweenDates(seedDate, Calendar.getInstance()) + 1;
+    int daysLife = UtilDate.calculateDifferenceBetweenDates(seedDate, UtilDate.getCurrentDate()) + 1;
     return calculateKc(crop, daysLife);
   }
 

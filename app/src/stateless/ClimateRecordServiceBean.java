@@ -575,12 +575,7 @@ public class ClimateRecordServiceBean {
    * a la fecha actual, en caso contrario false
    */
   public boolean isFromPast(ClimateRecord climateRecord) {
-    /*
-     * El metodo getInstance de la clase Calendar retorna
-     * la referencia a un objeto de tipo Calendar que
-     * contiene la fecha actual
-     */
-    return (UtilDate.compareTo(climateRecord.getDate(), Calendar.getInstance()) < 0);
+    return (UtilDate.compareTo(climateRecord.getDate(), UtilDate.getCurrentDate()) < 0);
   }
 
   /**
@@ -612,15 +607,13 @@ public class ClimateRecordServiceBean {
    */
   public ClimateRecord persistCurrentClimateRecord(Parcel givenParcel) {
     /*
-     * El metodo getInstance de la clase Calendar retorna la
-     * referencia a un objeto de tipo Calendar que contiene
-     * la fecha actual. Se divide el tiempo en milisegundos
-     * de la fecha actual entre 1000 porque el metodo estatico
-     * getForecast de la clase ClimateClient utiliza el tiempo
-     * en formato UNIX, el cual, son los segundos trancurridos
-     * desde el 1 de enero de 1970 (epoca).
+     * Se divide el tiempo en milisegundos de la fecha actual
+     * entre 1000 porque el metodo estatico getForecast de la
+     * clase ClimateClient utiliza el tiempo en formato UNIX,
+     * el cual, son los segundos trancurridos desde el 1 de
+     * enero de 1970 (epoca).
      */
-    ClimateRecord currentClimateRecord = ClimateClient.getForecast(givenParcel, (Calendar.getInstance().getTimeInMillis() / 1000));
+    ClimateRecord currentClimateRecord = ClimateClient.getForecast(givenParcel, (UtilDate.getCurrentDate().getTimeInMillis() / 1000));
     return create(currentClimateRecord);
   }
 

@@ -652,9 +652,9 @@ public class PlantingRecordServiceBean {
   /**
    * Retorna true si y solo si la fecha de siembra de un registro
    * de plantacion es estrictamente mayor (posterior) que la fecha actual,
-   * la cual, esta contenida en la referencia al objeto de tipo
-   * Calendar devuelta por el metodo getInstance() de la clase clase
-   * Calendar (ver documentacion de esta clase para mas informacion).
+   * la cual esta contenida en la referencia al objeto de tipo
+   * Calendar devuelta por el metodo getCurrentDate() de la clase
+   * UtilDate de la aplicacion.
    * 
    * @param givenPlantingRecord
    * @return true si la fecha de siembra del objeto de tipo PlantingRecord
@@ -663,7 +663,7 @@ public class PlantingRecordServiceBean {
    * estricta (posterior) a la fecha actual, false en caso contrario
    */
   public boolean isFromFuture(PlantingRecord givenPlantingRecord) {
-    return givenPlantingRecord.getSeedDate().after(Calendar.getInstance());
+    return givenPlantingRecord.getSeedDate().after(UtilDate.getCurrentDate());
   }
 
   /**
@@ -1537,11 +1537,8 @@ public class PlantingRecordServiceBean {
      * en espera es estrictamente mayor (es decir, posterior) a la fecha
      * actual, se retorna true como indicativo de que este registro esta
      * en espera.
-     * 
-     * El metodo getInstance de la clase Calendar retorna la referencia
-     * a un objeto de tipo Calendar que contiene la fecha actual.
      */
-    if (UtilDate.compareTo(plantingRecord.getSeedDate(), Calendar.getInstance()) > 0) {
+    if (UtilDate.compareTo(plantingRecord.getSeedDate(), UtilDate.getCurrentDate()) > 0) {
       return true;
     }
 

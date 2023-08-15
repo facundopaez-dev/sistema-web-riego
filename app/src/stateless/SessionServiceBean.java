@@ -8,6 +8,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import model.Session;
 import model.User;
+import util.UtilDate;
 
 @Stateless
 public class SessionServiceBean {
@@ -117,14 +118,12 @@ public class SessionServiceBean {
     /*
      * Si la fecha de expiracion de la ultima sesion registrada del
      * usuario, esta antes de la fecha actual del sistema, se
-     * retorna false. El metodo getInstance de la clase Calendar
-     * retorna una referencia a un objeto de tipo Calendar que tiene
-     * la fecha actual.
+     * retorna false.
      * 
      * Una sesion que tiene su fecha de expiracion antes de la fecha
      * actual, es una sesion inactiva.
      */
-    if (lastSession.getExpirationDate().before(Calendar.getInstance())) {
+    if (lastSession.getExpirationDate().before(UtilDate.getCurrentDate())) {
       return false;
     }
 

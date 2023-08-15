@@ -8,6 +8,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import model.PasswordResetLink;
 import model.User;
+import util.UtilDate;
 
 @Stateless
 public class PasswordResetLinkServiceBean {
@@ -53,15 +54,12 @@ public class PasswordResetLinkServiceBean {
    */
   private PasswordResetLink getInstance(User user) {
     /*
-     * El metodo getInstance de la clase Calendar retorna una
-     * referencia a un objeto de tipo Calendar que contiene la
-     * fecha y la hora actuales. Por lo tanto, el objeto de tipo
-     * Calendar referenciado por la referencia contenida en la
-     * variable de tipo por referencia dateIssue de tipo Calendar,
-     * contiene la fecha y la hora en las que se crea un enlace de
-     * restablecimiento de contraseña.
+     * El objeto de tipo Calendar referenciado por la referencia
+     * contenida en la variable de tipo por referencia dateIssue
+     * de tipo Calendar, contiene la fecha y la hora en las que
+     * se crea un enlace de restablecimiento de contraseña
      */
-    Calendar dateIssue = Calendar.getInstance();
+    Calendar dateIssue = UtilDate.getCurrentDate();
 
     /*
      * La fecha y la hora de expiracion de un enlace de restablecimiento
@@ -186,13 +184,10 @@ public class PasswordResetLinkServiceBean {
      * es estrictamente menor (esta antes) que la fecha actual, dicho enlace
      * expiro, por lo tanto, se retorna true.
      * 
-     * El metodo getInstance de la clase Calendar retorna la referencia
-     * a un objeto de tipo Calendar que tiene la fecha actual.
-     * 
      * La documentacion del metodo before de la clase Calendar dice que
      * este metodo es equivalente a: compareTo(when) < 0.
      */
-    if (givenPasswordResetLink.getExpirationDate().before(Calendar.getInstance())) {
+    if (givenPasswordResetLink.getExpirationDate().before(UtilDate.getCurrentDate())) {
       return true;
     }
 

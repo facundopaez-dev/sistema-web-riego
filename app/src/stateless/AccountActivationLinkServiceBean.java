@@ -9,6 +9,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import model.AccountActivationLink;
 import model.User;
+import util.UtilDate;
 
 @Stateless
 public class AccountActivationLinkServiceBean {
@@ -277,13 +278,10 @@ public class AccountActivationLinkServiceBean {
      * dada, es estrictamente menor (esta antes) de la fecha actual,
      * dicho enlace expiro, por lo tanto, se retorna true.
      * 
-     * El metodo getInstance de la clase Calendar retorna la referencia
-     * a un objeto de tipo Calendar que tiene la fecha actual.
-     * 
      * La documentacion del metodo before de la clase Calendar dice que
      * este metodo es equivalente a: compareTo(when) < 0.
      */
-    if (latestAccountActivationLink.getExpirationDate().before(Calendar.getInstance())) {
+    if (latestAccountActivationLink.getExpirationDate().before(UtilDate.getCurrentDate())) {
       return true;
     }
 
@@ -306,13 +304,10 @@ public class AccountActivationLinkServiceBean {
      * es estrictamente menor (esta antes) que la fecha actual, dicho
      * enlace expiro, por lo tanto, se retorna true.
      * 
-     * El metodo getInstance de la clase Calendar retorna la referencia
-     * a un objeto de tipo Calendar que tiene la fecha actual.
-     * 
      * La documentacion del metodo before de la clase Calendar dice que
      * este metodo es equivalente a: compareTo(when) < 0.
      */
-    if (givenAccountActivationLink.getExpirationDate().before(Calendar.getInstance())) {
+    if (givenAccountActivationLink.getExpirationDate().before(UtilDate.getCurrentDate())) {
       return true;
     }
 

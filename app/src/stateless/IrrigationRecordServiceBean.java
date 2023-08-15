@@ -277,14 +277,10 @@ public class IrrigationRecordServiceBean {
   public double calculateTotalIrrigationWaterCurrentDate(Parcel givenParcel) {
     /*
      * Suma el riego realizado de cada uno de los registros
-     * de riego de una parcela en la fecha actual.
-     * 
-     * El metodo getInstance de la clase Calendar retorna la
-     * referencia a un objeto de tipo Calendar que contiene
-     * la fecha actual.
+     * de riego de una parcela en la fecha actual
      */
     Query query = entityManager.createQuery("SELECT SUM(i.irrigationDone) FROM IrrigationRecord i WHERE (i.date = :currentDate AND i.parcel = :givenParcel)");
-    query.setParameter("currentDate", Calendar.getInstance());
+    query.setParameter("currentDate", UtilDate.getCurrentDate());
     query.setParameter("givenParcel", givenParcel);
 
     double totalIrrigationWaterCurrentDate = 0.0;
@@ -418,12 +414,9 @@ public class IrrigationRecordServiceBean {
     /*
      * Si la fecha de un registro de riego es estrictamente menor a
      * la fecha actual, se retorna true como indicativo de que este
-     * registro es del pasado.
-     * 
-     * El metodo getInstance de la clase Calendar retorna la referencia
-     * a un objeto de tipo Calendar que contiene la fecha actual.
+     * registro es del pasado
      */
-    if (UtilDate.compareTo(dateIrrigationRecord, Calendar.getInstance()) < 0) {
+    if (UtilDate.compareTo(dateIrrigationRecord, UtilDate.getCurrentDate()) < 0) {
       return true;
     }
 
@@ -448,12 +441,9 @@ public class IrrigationRecordServiceBean {
     /*
      * Si la fecha de un registro de riego es estrictamente menor a
      * la fecha actual, se retorna true como indicativo de que este
-     * registro es del pasado.
-     * 
-     * El metodo getInstance de la clase Calendar retorna la referencia
-     * a un objeto de tipo Calendar que contiene la fecha actual.
+     * registro es del pasado
      */
-    if (UtilDate.compareTo(dateIrrigationRecord, Calendar.getInstance()) < 0) {
+    if (UtilDate.compareTo(dateIrrigationRecord, UtilDate.getCurrentDate()) < 0) {
       return true;
     }
 
