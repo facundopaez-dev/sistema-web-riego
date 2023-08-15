@@ -625,23 +625,33 @@ public class ClimateRecordServiceBean {
   }
 
   /**
+   * Suma el agua de lluvia de valuePastDaysReference registros
+   * climaticos anteriores a la fecha actual pertenecientes a
+   * una parcela.
+   * 
+   * El valor de valuePastDaysReference depende de cada usuario y
+   * solo puede ser entre un limite minimo y un limite maximo,
+   * los cuales estan definidos en la clase PastDaysReferenceServiceBean.
+   * 
    * @param givenUserId
    * @param givenParcelId
+   * @param valuePastDaysReference
    * @return double que representa la suma del agua de lluvia
-   * que cayo sobre una parcela en NUMBER_DAYS dias anteriores
-   * a la fecha actual, siendo la parcela perteneciente a un
-   * usuario dado
+   * que cayo sobre una parcela en valuePastDaysReference dias
+   * anteriores a la fecha actual, siendo la parcela perteneciente
+   * a un usuario dado
    */
-  public double sumRainwaterPastDays(int givenUserId, int givenParcelId) {
+  public double sumRainwaterPastDays(int givenUserId, int givenParcelId, int valuePastDaysReference) {
     Calendar periodUpperDate = UtilDate.getYesterdayDate();
 
     /*
-     * La constante NUMBER_DAYS pertenece a esta clase y se la utiliza
-     * para obtener el limite inferior de un periodo de fechas anteriores
-     * a la fecha actual, siendo el limite superior de este periodo la
-     * fecha inmediatamente anterior a la fecha actual
+     * La constante valuePastDaysReference pertenece a esta clase
+     * y se la utiliza para obtener el limite inferior de un periodo
+     * de fechas anteriores a la fecha actual, siendo el limite
+     * superior de este periodo la fecha inmediatamente anterior
+     * a la fecha actual
      */
-    Calendar lowerDatePeriod = UtilDate.getPastDateFromOffset(NUMBER_DAYS);
+    Calendar lowerDatePeriod = UtilDate.getPastDateFromOffset(valuePastDaysReference);
 
     /*
      * Con esta condicion, la consulta selecciona todos los
@@ -651,9 +661,9 @@ public class ClimateRecordServiceBean {
     String conditionWhere = "(c.parcel.user.id = :userId AND c.parcel.id = :parcelId AND :lowerDatePeriod <= c.date AND c.date <= :periodUpperDate)";
 
     /*
-     * Suma la cantidad de agua de lluvia de NUMBER_DAYS registros
-     * climaticos anteriores a la fecha actual pertenecientes a una
-     * parcela de un usuario, los cuales estan comprendidos en un
+     * Suma la cantidad de agua de lluvia de valuePastDaysReference
+     * registros climaticos anteriores a la fecha actual pertenecientes
+     * a una parcela de un usuario, los cuales estan comprendidos en un
      * periodo definido por dos fechas, obteniendo la cantidad total
      * de agua de lluvia que cayo sobre una parcela en dicho periodo
      */
@@ -675,10 +685,10 @@ public class ClimateRecordServiceBean {
        * de este metodo.
        * 
        * En caso de que se solicite la suma del agua de lluvia
-       * que cayo sobre una parcela en NUMBER_DAYS dias anteriores
-       * a la fecha actual y la parcela no tiene ningun registro
-       * climatico con las fechas de dichos dias, se retorna el
-       * valor 0.0.
+       * que cayo sobre una parcela en valuePastDaysReference
+       * dias anteriores a la fecha actual y la parcela no tiene
+       * ningun registro climatico con las fechas de dichos dias,
+       * se retorna el valor 0.0.
        */
       summedRainwaterPastDays = (double) query.getSingleResult();
     } catch (NullPointerException e) {
@@ -689,28 +699,32 @@ public class ClimateRecordServiceBean {
   }
 
   /**
-   * Suma la ETc de NUMBER_DAYS registros climaticos anteriores
-   * a la fecha actual pertenecientes a una parcela. La ETc es
-   * de un cultivo sembrado en una parcela, la cual pertenece a
-   * un usuario.
+   * Suma la ETc de valuePastDaysReference registros climaticos
+   * anteriores a la fecha actual pertenecientes a una parcela.
+   * La ETc es de un cultivo sembrado en una parcela, la cual
+   * pertenece a un usuario.
+   * 
+   * El valor de valuePastDaysReference depende de cada usuario y
+   * solo puede ser entre un limite minimo y un limite maximo,
+   * los cuales estan definidos en la clase PastDaysReferenceServiceBean.
    * 
    * @param givenUserId
    * @param givenParcelId
-   * @return double que representa la suma de la ETc de
-   * NUMBER_DAYS registros climaticos anteriores a la fecha
-   * actual pertenecientes a una parcela dada, la cual
-   * pertenece a un usuario dado
+   * @param valuePastDaysReference
+   * @return double que representa la suma de la ETc de valuePastDaysReference
+   * registros climaticos anteriores a la fecha actual pertenecientes a una
+   * parcela dada, la cual pertenece a un usuario dado
    */
-  public double sumEtcPastDays(int givenUserId, int givenParcelId) {
+  public double sumEtcPastDays(int givenUserId, int givenParcelId, int valuePastDaysReference) {
     Calendar periodUpperDate = UtilDate.getYesterdayDate();
 
     /*
-     * La constante NUMBER_DAYS pertenece a esta clase y se la utiliza
-     * para obtener el limite inferior de un periodo de fechas anteriores
-     * a la fecha actual, siendo el limite superior de este periodo la
-     * fecha inmediatamente anterior a la fecha actual
+     * La constante valuePastDaysReference pertenece a esta clase
+     * y se la utiliza para obtener el limite inferior de un periodo
+     * de fechas anteriores a la fecha actual, siendo el limite superior
+     * de este periodo la fecha inmediatamente anterior a la fecha actual
      */
-    Calendar lowerDatePeriod = UtilDate.getPastDateFromOffset(NUMBER_DAYS);
+    Calendar lowerDatePeriod = UtilDate.getPastDateFromOffset(valuePastDaysReference);
 
     /*
      * Con esta condicion, la consulta selecciona todos los
@@ -720,10 +734,11 @@ public class ClimateRecordServiceBean {
     String conditionWhere = "(c.parcel.user.id = :userId AND c.parcel.id = :parcelId AND :lowerDatePeriod <= c.date AND c.date <= :periodUpperDate)";
 
     /*
-     * Suma la ETc de NUMBER_DAYS registros climaticos anteriores a
-     * la fecha actual pertenecientes a una parcela de un usuario, los
-     * cuales estan comprendidos en un periodo definido por dos fechas,
-     * obteniendo la ETc total de un cultivo en dicho periodo
+     * Suma la ETc de valuePastDaysReference registros climaticos
+     * anteriores a la fecha actual pertenecientes a una parcela de
+     * un usuario, los cuales estan comprendidos en un periodo
+     * definido por dos fechas, obteniendo la ETc total de un
+     * cultivo en dicho periodo
      */
     Query query = entityManager.createQuery("SELECT SUM(c.etc) FROM ClimateRecord c WHERE " + conditionWhere);
     query.setParameter("userId", givenUserId);
@@ -743,10 +758,10 @@ public class ClimateRecordServiceBean {
        * de este metodo.
        * 
        * En caso de que se solicite la suma de la ETc de un cultivo
-       * plantado sobre una parcela en NUMBER_DAYS dias anteriores
-       * a la fecha actual y la parcela no tiene ningun registro
-       * climatico con las fechas de dichos dias, se retorna el
-       * valor 0.0.
+       * plantado sobre una parcela en valuePastDaysReference dias
+       * anteriores a la fecha actual y la parcela no tiene ningun
+       * registro climatico con las fechas de dichos dias, se retorna
+       * el valor 0.0.
        */
       etcSummedPastDays = (double) query.getSingleResult();
     } catch (NullPointerException e) {

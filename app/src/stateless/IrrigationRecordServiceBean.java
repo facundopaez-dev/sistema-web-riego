@@ -514,24 +514,22 @@ public class IrrigationRecordServiceBean {
   /**
    * @param givenUserId
    * @param givenParcelId
-   * @param numberDays
-   * @return double que representa la suma del agua de riego
-   * de un cultivo sembrado en una parcela en NUMBER_DAYS dias
-   * anteriores a la fecha actual, siendo la parcela perteneciente
+   * @param valuePastDaysReference
+   * @return double que representa la suma del agua de riego de
+   * un cultivo sembrado en una parcela en valuePastDaysReference
+   * dias anteriores a la fecha actual, siendo la parcela perteneciente
    * a un usuario dado
    */
-  public double sumIrrigationWaterPastDays(int givenUserId, int givenParcelId, int numberDays) {
+  public double sumIrrigationWaterPastDays(int givenUserId, int givenParcelId, int valuePastDaysReference) {
     Calendar periodUpperDate = UtilDate.getYesterdayDate();
 
     /*
-     * El valor de la variable numberDays es igual (y debe serlo) al
-     * valor de la constante NUMBER_DAYS, la cual pertenece a la clase
-     * ClimateRecordServiceBean. El valor de esta constante se utiliza
-     * para obtener el limite inferior de un periodo de fechas anteriores
-     * a la fecha actual, siendo el limite superior de este periodo la
-     * fecha inmediatamente anterior a la fecha actual.
+     * El valor de la variable valuePastDaysReference se utiliza
+     * para obtener el limite inferior de un periodo de fechas
+     * anteriores a la fecha actual, siendo el limite superior de este
+     * periodo la fecha inmediatamente anterior a la fecha actual.
      */
-    Calendar lowerDatePeriod = UtilDate.getPastDateFromOffset(numberDays);
+    Calendar lowerDatePeriod = UtilDate.getPastDateFromOffset(valuePastDaysReference);
 
     /*
      * Con esta condicion, la consulta selecciona todos los
@@ -541,11 +539,11 @@ public class IrrigationRecordServiceBean {
     String conditionWhere = "(i.parcel.user.id = :userId AND i.parcel.id = :parcelId AND :lowerDatePeriod <= i.date AND i.date <= :periodUpperDate)";
 
     /*
-     * Suma el agua de riego de NUMBER_DAYS registros de riego
-     * anteriores a la fecha actual pertenecientes a una parcela de
-     * un usuario, los cuales estan comprendidos en un periodo
-     * definido por dos fechas, obteniendo el agua de riego total
-     * de un cultivo en dicho periodo
+     * Suma el agua de riego de valuePastDaysReference registros
+     * de riego anteriores a la fecha actual pertenecientes a una
+     * parcela de un usuario, los cuales estan comprendidos en un
+     * periodo definido por dos fechas, obteniendo el agua de riego
+     * total de un cultivo en dicho periodo
      */
     Query query = entityManager.createQuery("SELECT SUM(i.irrigationDone) FROM IrrigationRecord i WHERE " + conditionWhere);
     query.setParameter("userId", givenUserId);
@@ -565,8 +563,8 @@ public class IrrigationRecordServiceBean {
        * de este metodo.
        * 
        * En caso de que se solicite la suma del agua de riego de un
-       * cultivo plantado sobre una parcela en NUMBER_DAYS dias
-       * anteriores a la fecha actual y la parcela no tiene ningun
+       * cultivo plantado sobre una parcela en valuePastDaysReference
+       * dias anteriores a la fecha actual y la parcela no tiene ningun
        * registro de riego con las fechas de dichos dias, se retorna
        * el valor 0.0.
        */

@@ -74,11 +74,11 @@ public class PastDaysReferenceServiceBean {
      * @param userId
      * @param pastDaysReferenceId
      * @return entero que representa el valor que tiene el
-     * PastDaysReferencia correspondiente al ID dado y asociado
-     * a un usuario dado
+     * PastDaysReferencia correspondiente al ID de usuario
+     * dado
      */
-    public int getValue(int userId, int pastDaysReferenceId) {
-        return find(userId, pastDaysReferenceId).getValue();
+    public int getValue(int userId) {
+        return findByUserId(userId).getValue();
     }
 
     /**

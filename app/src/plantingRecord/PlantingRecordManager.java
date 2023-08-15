@@ -13,6 +13,7 @@ import stateless.ClimateRecordServiceBean;
 import stateless.SolarRadiationServiceBean;
 import stateless.MonthServiceBean;
 import stateless.LatitudeServiceBean;
+import stateless.PastDaysReferenceServiceBean;
 import model.Parcel;
 import model.PlantingRecord;
 import model.ClimateRecord;
@@ -56,6 +57,10 @@ public class PlantingRecordManager {
     // inject a reference to the LatitudeServiceBean
     @EJB
     LatitudeServiceBean latitudeService;
+
+    // inject a reference to the PastDaysReferenceServiceBean
+    @EJB
+    PastDaysReferenceServiceBean pastDaysReferenceService;
 
     /*
      * Establece de manera automatica el estado finalizado de un registro de
@@ -177,21 +182,21 @@ public class PlantingRecordManager {
             givenParcel = developingPlantingRecord.getParcel();
 
             /*
-             * Persiste NUMBER_DAYS registros climaticos anteriores a la
-             * fecha actual pertenecientes a una parcela dada que tiene
+             * Persiste valuePastDaysReference registros climaticos anteriores
+             * a la fecha actual pertenecientes a una parcela dada que tiene
              * un cultivo sembrado y en desarrollo en la fecha actual. Estos
              * registros climaticos son obtenidos del servicio meteorologico
              * utilizado por la aplicacion.
              */
-            requestPastClimateRecords(developingPlantingRecord);
+            requestPastClimateRecords(givenParcel.getUser().getId(), developingPlantingRecord);
 
             /*
-             * Calcula la ETo y la ETc de NUMBER_DAYS registros climaticos
-             * anteriores a la fecha actual pertenecientes a una parcela
-             * dada que tiene un cultivo sembrado y en desarrollo en la
-             * fecha actual
+             * Calcula la ETo y la ETc de valuePastDaysReference registros
+             * climaticos anteriores a la fecha actual pertenecientes a una
+             * parcela dada que tiene un cultivo sembrado y en desarrollo en
+             * la fecha actual
              */
-            calculateEtsPastClimateRecords(developingPlantingRecord);
+            calculateEtsPastClimateRecords(givenParcel.getUser().getId(), developingPlantingRecord);
 
             /*
              * Calculo de la necesidad de agua de riego en la fecha actual
@@ -210,22 +215,30 @@ public class PlantingRecordManager {
     }
 
     /**
-     * Persiste NUMBER_DAYS registros climaticos anteriores a la
-     * fecha actual pertenecientes a una parcela que tiene un
-     * cultivo sembrado y en desarrollo en la fecha actual.
-     * Estos registros climaticos son obtenidos del servicio
-     * meteorologico utilizado por la aplicacion.
+     * Persiste una cantidad valuePastDaysReference de registros
+     * climaticos anteriores a la fecha actual pertenecientes a
+     * una parcela que tiene un cultivo sembrado y en desarrollo
+     * en la fecha actual. Estos registros climaticos son obtenidos
+     * del servicio meteorologico utilizado por la aplicacion.
      * 
+     * La cantidad valuePastDaysReference depende de cada usuario y
+     * los valores que puede tomar estan entre un limite minimo y un
+     * limite maximo, los cuales estan definidos en la clase
+     * PastDaysReferenceServiceBean.
+     * 
+     * @param userId
      * @param developingPlantingRecord
      */
-    private void requestPastClimateRecords(PlantingRecord developingPlantingRecord) {
+    private void requestPastClimateRecords(int userId, PlantingRecord developingPlantingRecord) {
         /*
-         * Variable utilizada para obtener una cantidad determinada
-         * de registros climaticos anteriores a la fecha actual
-         * pertenecientes a una parcela que tiene un cultivo
-         * sembrado y en desarrollo en la fecha actual
+         * Esta variable representa la cantidad de registros climaticos
+         * del pasado (es decir, anteriores a la fecha actual) que la
+         * aplicacion recuperara del servicio meteorologico utilizado
+         * y de los cuales calculara su ETo y ETc con el fin de calcular
+         * la necesidad de agua de riego en la fecha actual de un cultivo
+         * sembrado y en desarrollo
          */
-        int numberDays = climateRecordService.getNumberDays();
+        int valuePastDaysReference = pastDaysReferenceService.getValue(userId);
 
         /*
          * Parcela que tiene un cultivo plantado y en desarrollo en
@@ -239,19 +252,19 @@ public class PlantingRecordManager {
          * que tiene un cultivo sembrado y en desarrollo en la
          * fecha actual
          */
-        Calendar givenPastDate = UtilDate.getPastDateFromOffset(numberDays);
+        Calendar givenPastDate = UtilDate.getPastDateFromOffset(valuePastDaysReference);
         ClimateRecord newClimateRecord;
 
         /*
-         * Crea y persiste NUMBER_DAYS registros climaticos
-         * anteriores a la fecha actual pertenecientes a una
-         * parcela que tiene un cultivo plantado y en desarrollo
-         * en la fecha actual. Estos registros climaticos van
-         * desde la fecha resultante de la resta entre el numero
-         * de dia en el año de la fecha actual y numberDays, hasta
-         * la fecha inmediatamente anterior a la fecha actual.
+         * Crea y persiste valuePastDaysReference registros climaticos
+         * anteriores a la fecha actual pertenecientes a una parcela que
+         * tiene un cultivo plantado y en desarrollo en la fecha actual.
+         * Estos registros climaticos van desde la fecha resultante de
+         * la resta entre el numero de dia en el año de la fecha actual
+         * y valuePastDaysReference, hasta la fecha inmediatamente
+         * anterior a la fecha actual.
          */
-        for (int i = 0; i < numberDays; i++) {
+        for (int i = 0; i < valuePastDaysReference; i++) {
 
             /*
              * Si una parcela dada NO tiene un registro climatico
@@ -274,23 +287,29 @@ public class PlantingRecordManager {
     }
 
     /**
-     * Calcula y actualiza la ETo y la ETc de registros
-     * climaticos anteriores a la fecha actual pertenecientes
-     * a una parcela que tiene un cultivo sembrado y en
-     * desarrollo en la fecha actual
+     * Calcula y actualiza la ETo y la ETc de valuePastDaysReference
+     * registros climaticos anteriores a la fecha actual pertenecientes
+     * a una parcela que tiene un cultivo sembrado y en desarrollo en
+     * la fecha actual.
      * 
+     * La cantidad valuePastDaysReference depende de cada usuario y
+     * los valores que puede tomar estan entre un limite minimo y un
+     * limite maximo, los cuales estan definidos en la clase
+     * PastDaysReferenceServiceBean.
+     * 
+     * @param userId
      * @param developingPlantingRecord
      */
-    private void calculateEtsPastClimateRecords(PlantingRecord developingPlantingRecord) {
+    private void calculateEtsPastClimateRecords(int userId, PlantingRecord developingPlantingRecord) {
         /*
-         * Variable utilizada para calcular la ETo (evapotranspiracion
-         * del cultivo de referencia) y la ETc (evapotranspiracion del
-         * cultivo bajo condiciones estandar) de registros climaticos
-         * anteriores a la fecha actual pertenecientes a una parcela
-         * que tiene un cultivo sembrado y en desarrollo en la fecha
-         * actual
+         * Esta variable representa la cantidad de registros climaticos
+         * del pasado (es decir, anteriores a la fecha actual) que la
+         * aplicacion recuperara del servicio meteorologico utilizado
+         * y de los cuales calculara su ETo y ETc con el fin de calcular
+         * la necesidad de agua de riego en la fecha actual de un cultivo
+         * sembrado y en desarrollo
          */
-        int numberDays = climateRecordService.getNumberDays();
+        int valuePastDaysReference = pastDaysReferenceService.getValue(userId);
 
         /*
          * Parcela que tiene un cultivo plantado y en desarrollo en
@@ -304,22 +323,22 @@ public class PlantingRecordManager {
          * pertenecientes a una parcela que tiene un cultivo
          * sembrado y en desarrollo en la fecha actual
          */
-        Calendar givenPastDate = UtilDate.getPastDateFromOffset(numberDays);
+        Calendar givenPastDate = UtilDate.getPastDateFromOffset(valuePastDaysReference);
         ClimateRecord givenClimateRecord;
 
         double eto = 0.0;
         double etc = 0.0;
 
         /*
-         * Calcula la ETo y la ETc de NUMBER_DAYS registros climaticos
-         * anteriores a la fecha actual pertenecientes a una
-         * parcela que tiene un cultivo plantado y en desarrollo
-         * en la fecha actual. Estos registros climaticos van
-         * desde la fecha resultante de la resta entre el numero
-         * de dia en el año de la fecha actual y numberDays, hasta
-         * la fecha inmediatamente anterior a la fecha actual.
+         * Calcula la ETo y la ETc de valuePastDaysReference registros
+         * climaticos anteriores a la fecha actual pertenecientes a una
+         * parcela que tiene un cultivo plantado y en desarrollo en la fecha
+         * actual. Estos registros climaticos van desde la fecha resultante
+         * de la resta entre el numero de dia en el año de la fecha actual
+         * y valuePastDaysReference, hasta la fecha inmediatamente anterior
+         * a la fecha actual.
          */
-        for (int i = 0; i < numberDays; i++) {
+        for (int i = 0; i < valuePastDaysReference; i++) {
 
             /*
              * Si una parcela dada tiene un registro climatico de una
@@ -346,25 +365,31 @@ public class PlantingRecordManager {
     }
 
     /**
-     * Calcula la necesidad de agua de riego de un cultivo en
-     * desarrollo en la fecha actual en funcion de la suma de
-     * la ETc de NUMBER_DAYS dias anteriores a la fecha actual,
-     * la suma del agua de lluvia de NUMBER_DAYS dias anteriores
-     * a la fecha actual, la suma del agua de riego de NUMBER_DAYS
-     * dias anteriores a la fecha actual y la cantidad total del
-     * agua de riego de la fecha actual
+     * Calcula la necesidad de agua de riego de un cultivo en desarrollo
+     * en la fecha actual en funcion de la suma de la ETc de valuePastDaysReference
+     * dias anteriores a la fecha actual, la suma del agua de lluvia de
+     * valuePastDaysReference dias anteriores a la fecha actual, la suma
+     * del agua de riego de valuePastDaysReference dias anteriores a la
+     * fecha actual y la cantidad total del agua de riego de la fecha actual.
      * 
-     * @param developingPlantingRecord
+     * La cantidad valuePastDaysReference depende de cada usuario y
+     * los valores que puede tomar estan entre un limite minimo y un
+     * limite maximo, los cuales estan definidos en la clase
+     * PastDaysReferenceServiceBean.
+     * 
+     * @param userId
+     * @param givenParcel
      * @return double que representa la necesidad de agua de
      *         riego en la fecha actual de un cultivo en desarrollo
      */
     private double calculateIrrigationWaterNeedCurrentDate(int userId, Parcel givenParcel) {
-        double etcSummedPastDays = climateRecordService.sumEtcPastDays(userId, givenParcel.getId());
-        double summedRainwaterPastDays = climateRecordService.sumRainwaterPastDays(userId, givenParcel.getId());
-        double summedIrrigationWaterPastDays = irrigationRecordService.sumIrrigationWaterPastDays(userId, givenParcel.getId(), climateRecordService.getNumberDays());
+        double etcSummedPastDays = climateRecordService.sumEtcPastDays(userId, givenParcel.getId(), pastDaysReferenceService.getValue(userId));
+        double summedRainwaterPastDays = climateRecordService.sumRainwaterPastDays(userId, givenParcel.getId(), pastDaysReferenceService.getValue(userId));
+        double summedIrrigationWaterPastDays = irrigationRecordService.sumIrrigationWaterPastDays(userId, givenParcel.getId(), pastDaysReferenceService.getValue(userId));
         double totalIrrigationWaterCurrentDate = irrigationRecordService.calculateTotalIrrigationWaterCurrentDate(givenParcel);
 
-        return WaterMath.calculateIrrigationWaterNeed(etcSummedPastDays, summedRainwaterPastDays, summedIrrigationWaterPastDays, totalIrrigationWaterCurrentDate);
+        return WaterMath.calculateIrrigationWaterNeed(etcSummedPastDays, summedRainwaterPastDays,
+                summedIrrigationWaterPastDays, totalIrrigationWaterCurrentDate);
     }
 
     /**
