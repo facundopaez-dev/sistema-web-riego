@@ -40,6 +40,25 @@ public class CropServiceBean {
   }
 
   /**
+   * Elimina fisicamente un cultivo de la base de datos subyacente
+   * 
+   * @param id
+   * @return referencia a un objeto de tipo Crop en caso de
+   * eliminar fisicamente un cultivo de la base de datos
+   * subyacente, en caso contrario null
+   */
+  public Crop physicallyRemove(int id) {
+    Crop givenCrop = find(id);
+
+    if (givenCrop != null) {
+      getEntityManager().remove(givenCrop);
+      return givenCrop;
+    }
+
+    return null;
+  }
+
+  /**
    * Elimina de forma logica de la base de datos subyacente el cultivo
    * que tiene el identificador dado
    *

@@ -542,6 +542,55 @@ public class PlantingRecordServiceBean {
   }
 
   /**
+   * Busca un registro de plantacion, correspondiente a una parcela
+   * dada de un usuario dado, en el que una fecha dada este en el
+   * periodo definido por su fecha de siembra y su fecha de cosecha
+   * 
+   * @param givenUserId
+   * @param givenParcel
+   * @param givenDate
+   * @return referencia a un objeto de tipo PlantingRecord si
+   * se encuentra el registro de plantacion de una parcela dada
+   * correspondiente a un usuario dado, en el que la fecha dada
+   * este en el periodo definido por su fecha de siembra y su
+   * fecha de cosecha
+   */
+  public PlantingRecord findByDate(int givenUserId, Parcel givenParcel, Calendar givenDate) {
+    /*
+     * Selecciona el registro de plantacion de una parcela correspondiente
+     * a un usuario, en el que una fecha dada este en el periodo definido
+     * por su fecha de siembra y su fecha de cosecha
+     */
+    Query query = getEntityManager().createQuery("SELECT p FROM PlantingRecord p WHERE (p.parcel.user.id = :userId AND p.parcel = :parcel AND :date >= p.seedDate AND :date <= p.harvestDate)");
+    query.setParameter("userId", givenUserId);
+    query.setParameter("parcel", givenParcel);
+    query.setParameter("date", givenDate);
+
+    PlantingRecord plantingRecord = null;
+
+    try {
+      plantingRecord = (PlantingRecord) query.getSingleResult();
+    } catch(NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return plantingRecord;
+  }
+
+  /**
+   * @param givenUserId
+   * @param givenParcel
+   * @param givenDate
+   * @return true si existe un registro de plantacion de una parcela
+   * dada correspondiente a un usuario dado, en el que la fecha
+   * dada este en el periodo definido por su fecha de siembra y su
+   * fecha de cosecha. En caso contrario, false.
+   */
+  public boolean checkByDate(int givenUserId, Parcel givenParcel, Calendar givenDate) {
+    return (findByDate(givenUserId, givenParcel, givenDate) != null);
+  }
+
+  /**
    * Retorna true si y solo si una parcela tiene un registro de
    * plantacion en desarrollo. Esto significa que retorna true
    * si y solo si una parcela tiene un cultivo en desarrollo.
