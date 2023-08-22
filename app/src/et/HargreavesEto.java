@@ -12,7 +12,7 @@ public class HargreavesEto {
      * 64 del libro "Evapotranspiracion del cultivo" de la FAO, y es
      * la siguiente:
      * 
-     * ETo = 0,0023 * (Tmedia + 17,8) * (Tmax - Tmin)^0,5 + Ra
+     * ETo = 0,0023 * (Tmedia + 17,8) * (Tmax - Tmin)^0,5 * Ra
      * 
      * donde:
      * - Tmedia es temperatura media
