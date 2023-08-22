@@ -38,9 +38,14 @@ public class JwtManager {
 
   /*
    * Esta constante se utiliza para calcular la fecha de expiracion
-   * de un JWT y su valor representa 15 minutos en milisegundos
+   * de un JWT y su valor representa 60 minutos en milisegundos.
+   * El tiempo de expiracion de un JWT se utiliza para expirar una
+   * sesion abierta. Es decir, si el JWT del usuario que inicio
+   * sesion en la aplicacion, expira, la sesion del usuario tambien
+   * expira, con lo cual debe iniciar una nueva sesion para utilizar
+   * la aplicacion.
    */
-  private static final int OFFSET = 900000;
+  private static final int OFFSET = 3600000;
 
   /*
    * Estas constantes se utilizan para recuperar los datos de
