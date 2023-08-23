@@ -83,7 +83,8 @@ public enum ReasonError {
   MODIFICATION_NON_MODIFIABLE_IRRIGATION_RECORD_NOT_ALLOWED("No está permitida la modificación de un registro de riego no modificable"),
   INVALID_REQUEST_CALCULATION_IRRIGATION_WATER_NEED("No está permitido calcular la necesidad de agua de riego de un cultivo finalizado o en espera"),
   DATE_UNTIL_FUTURE_NOT_ALLOWED("La fecha hasta no debe ser estrictamente mayor (es decir, posterior) a la fecha actual"),
-  INVALID_PAST_DAYS_REFERENCE("La cantidad de días pasados utilizados como referencia para el cálculo de la necesidad de agua de riego de un cultivo solo puede ser un número entre 1 y 7");
+  INVALID_PAST_DAYS_REFERENCE("La cantidad de días pasados utilizados como referencia para el cálculo de la necesidad de agua de riego de un cultivo solo puede ser un número entre 1 y 7"),
+  THERE_IS_NO_CROP_IN_DEVELOPMENT("No está permitido crear un registro de riego para una parcela que no tiene un cultivo en desarrollo");
 
   private final String reason;
 

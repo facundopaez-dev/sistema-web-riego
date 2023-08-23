@@ -671,6 +671,30 @@ public class IrrigationRecordRestServlet {
     }
 
     /*
+     * Este metodo REST es para crear un registro de riego para una
+     * parcela que tiene un cultivo en desarrollo. Por lo tanto, si
+     * la parcela para la cual se crea un registro de riego, NO tiene
+     * un cultivo en desarrollo (lo cual se representa mediante la
+     * inexistencia de un registro de plantacion en desarrollo), la
+     * aplicacion del lado servidor retorna el mensaje HTTP 400 (Bad
+     * request) junto con el mensaje "No esta permitido crear un
+     * registro de riego para una parcela que no tiene un cultivo en
+     * desarrollo" y no se realiza la operacion solicitada
+     */
+    if (!plantingRecordService.checkOneInDevelopment(newIrrigationRecord.getParcel())) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.THERE_IS_NO_CROP_IN_DEVELOPMENT))).build();
+    }
+
+    /*
+     * Hay que tener en cuenta que esta instruccion sera ejecutada
+     * sin problema alguno siempre y cuando antes se compruebe si la
+     * parcela para la que se crea un registro de riego mediante
+     * este metodo REST, tiene un cultivo en desarrollo, lo cual
+     * se representa mediante un registro de plantacion en desarrollo
+     */
+    newIrrigationRecord.setCrop(plantingRecordService.findInDevelopment(newIrrigationRecord.getParcel()).getCrop());
+
+    /*
      * Si la parcela para la cual se crea un registro de riego,
      * tiene un cultivo en desarrollo, se establece dicho cultivo
      * en el nuevo registro de riego
