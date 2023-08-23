@@ -341,12 +341,15 @@ public class IrrigationRecordRestServlet {
     }
 
     /*
-     * Si la parcela para la cual se crea un registro de riego,
-     * tiene un cultivo en desarrollo, se establece dicho cultivo
-     * en el nuevo registro de riego
+     * Comprueba si la fecha de un registro de riego esta en el
+     * periodo definido por la fecha de siembra y la fecha de cosecha
+     * de uno de los registros de plantacion correspondiente a la
+     * parcela del registro de riego. En caso afirmativo, se recupera
+     * el registro de plantacion correspondiente y se obtiene su
+     * cultivo para asignarlo al registro de riego.
      */
-    if (plantingRecordService.checkOneInDevelopment(newIrrigationRecord.getParcel())) {
-      newIrrigationRecord.setCrop(plantingRecordService.findInDevelopment(newIrrigationRecord.getParcel()).getCrop());
+    if (plantingRecordService.checkByDate(userId, newIrrigationRecord.getParcel(), newIrrigationRecord.getDate())) {
+      newIrrigationRecord.setCrop(plantingRecordService.findByDate(userId, newIrrigationRecord.getParcel(), newIrrigationRecord.getDate()).getCrop());
     }
 
     /*
@@ -526,6 +529,21 @@ public class IrrigationRecordRestServlet {
      */
     if (modifiedIrrigationRecord.getIrrigationDone() < 0) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NEGATIVE_REALIZED_IRRIGATION))).build();
+    }
+
+    /*
+     * Comprueba si la fecha de un registro de riego esta en el
+     * periodo definido por la fecha de siembra y la fecha de cosecha
+     * de uno de los registros de plantacion correspondiente a la
+     * parcela del registro de riego. En caso afirmativo, se recupera
+     * el registro de plantacion correspondiente y se obtiene su
+     * cultivo para asignarlo al registro de riego. En caso negativo,
+     * el registro de riego no debe tener un cultivo asignado.
+     */
+    if (plantingRecordService.checkByDate(userId, modifiedIrrigationRecord.getParcel(), modifiedIrrigationRecord.getDate())) {
+      modifiedIrrigationRecord.setCrop(plantingRecordService.findByDate(userId, modifiedIrrigationRecord.getParcel(), modifiedIrrigationRecord.getDate()).getCrop());
+    } else {
+      modifiedIrrigationRecord.setCrop(null);
     }
 
     /*

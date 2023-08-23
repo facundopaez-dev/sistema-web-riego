@@ -66,6 +66,7 @@ public class IrrigationRecordServiceBean {
       chosenIrrigationRecord.setDate(modifiedIrrigationRecord.getDate());
       chosenIrrigationRecord.setIrrigationDone(modifiedIrrigationRecord.getIrrigationDone());
       chosenIrrigationRecord.setParcel(modifiedIrrigationRecord.getParcel());
+      chosenIrrigationRecord.setCrop(modifiedIrrigationRecord.getCrop());
       chosenIrrigationRecord.setModifiable(modifiedIrrigationRecord.getModifiable());
       return chosenIrrigationRecord;
     }
