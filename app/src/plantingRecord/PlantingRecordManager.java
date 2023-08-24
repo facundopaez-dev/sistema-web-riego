@@ -325,6 +325,7 @@ public class PlantingRecordManager {
          */
         Calendar givenPastDate = UtilDate.getPastDateFromOffset(valuePastDaysReference);
         ClimateRecord givenClimateRecord;
+        PlantingRecord givenPlantingRecord;
 
         double eto = 0.0;
         double etc = 0.0;
@@ -349,9 +350,35 @@ public class PlantingRecordManager {
                 givenClimateRecord = climateRecordService.find(givenPastDate, givenParcel);
 
                 eto = calculateEtoForClimateRecord(givenClimateRecord);
-                etc = calculateEtcForClimateRecord(eto, developingPlantingRecord, givenPastDate);
+
+                /*
+                 * Si la parcela dada tiene un registro de plantacion en
+                 * el que la fecha pasada dada esta entre la fecha de siembra
+                 * y la fecha de cosecha del mismo, se obtiene el kc
+                 * (coeficiente de cultivo) del cultivo de este registro para
+                 * poder calcular la ETc (evapotranspiracion del cultivo bajo
+                 * condiciones estandar) de dicho cultivo.
+                 * 
+                 * En otras palabras, lo que hace esta instruccion if es
+                 * preguntar "¿la parcela dada tuvo o tiene un cultivo
+                 * sembrado en la fecha dada?". En caso afirmativo se
+                 * obtiene el kc del cultivo para calcular su ETc, la
+                 * cual se asignara al correspondiente registro climatico.
+                 */
+                if (plantingRecordService.checkExistence(givenParcel, givenPastDate)) {
+                    givenPlantingRecord = plantingRecordService.find(givenParcel, givenPastDate);
+                    etc = calculateEtcForClimateRecord(eto, givenPlantingRecord, givenPastDate);
+                }
 
                 climateRecordService.updateEtoAndEtc(givenPastDate, givenParcel, eto, etc);
+
+                /*
+                 * Luego de calcular la ETc de un registro climatico, se debe
+                 * restablecer el valor por defecto de esta variable para evitar
+                 * el error logico de asignar la ETc de un registro climatico a
+                 * otro registro climatico
+                 */
+                etc = 0.0;
             }
 
             /*
@@ -360,7 +387,7 @@ public class PlantingRecordManager {
              * correspondiente a una fecha pasada
              */
             givenPastDate.set(Calendar.DAY_OF_YEAR, givenPastDate.get(Calendar.DAY_OF_YEAR) + 1);
-        }
+        } // End for
 
     }
 
