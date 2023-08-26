@@ -14,7 +14,7 @@ Un informe estadístico de una parcela será generado mediante el uso de registr
 El sistema tendrá inicio de sesión y registro de usuario, y podrá ser utilizado como administrador. El administrador podrá crear, modificar y eliminar (lógicamente) cultivos, y crear y modificar tipos de cultivos.
 
 ### Características funcionales del sistema
-- Cálculo de la cantidad de agua de riego de un cultivo [mm/día].
+- Cálculo de la cantidad o necesidad de agua de riego [mm/día] de un cultivo en la fecha actual.
 - Creación, modificación y eliminación (lógica) de parcelas.
 - Creación, modificación y eliminación de registros de plantación.
 - Creación y modificación de registros de riego.
