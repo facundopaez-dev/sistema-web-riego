@@ -48,6 +48,10 @@ app.config(['$routeProvider', function (routeprovider) {
 			templateUrl: 'partials/user/user-password-change-form.html',
 			controller: 'UserPasswordChangeCtrl'
 		})
+		.when('/home/account/options', {
+			templateUrl: 'partials/user/user-option-form.html',
+			controller: 'OptionCtrl'
+		})
 
 		.when('/home/crops', {
 			templateUrl: 'partials/user/user-crop-list.html',

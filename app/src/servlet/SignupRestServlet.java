@@ -14,7 +14,7 @@ import model.PastDaysReference;
 import model.SignupFormData;
 import stateless.UserServiceBean;
 import stateless.AccountActivationLinkServiceBean;
-import stateless.PastDaysReferenceServiceBean;
+import stateless.OptionServiceBean;
 import util.Email;
 
 @Path("/signup")
@@ -28,7 +28,7 @@ public class SignupRestServlet {
   AccountActivationLinkServiceBean accountActivationLinkService;
 
   @EJB
-  PastDaysReferenceServiceBean pastDaysReferenceService;
+  OptionServiceBean optionService;
 
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
@@ -278,20 +278,6 @@ public class SignupRestServlet {
     newUser = userService.create(newUser);
 
     /*
-     * Persistencia de un PastDaysReference con un valor igual
-     * a un limite inferior para el nuevo usuario. El valor de
-     * un PastDaysReference le indica a la aplicacion la cantidad
-     * de registros climaticos del pasado (anteriores a la fecha
-     * actual) que debe usar para calcular la necesidad de agua
-     * de riego de un cultivo.
-     */
-    PastDaysReference newPastDaysReference = new PastDaysReference();
-    newPastDaysReference.setValue(pastDaysReferenceService.getLowerLimitPastDays());
-    newPastDaysReference.setUser(newUser);
-
-    pastDaysReferenceService.create(newPastDaysReference);
-
-    /*
      * Se persiste en la base de datos subyacente un enlace de
      * activacion de cuenta para el usuario registrado
      */
@@ -316,7 +302,14 @@ public class SignupRestServlet {
    * Asigna los valores ingresados por el usuario en el formulario
    * de registro, a un objeto de tipo User referenciado por la
    * referencia contenida en la variable de tipo por referencia
-   * newUser de tipo User
+   * newUser de tipo User. Tambien asigna una opcion a dicho
+   * objeto, la cual contiene un valor para la cantidad de dias
+   * anteriores a la fecha actual tomados como referencia para
+   * calcular la necesidad de agua de riego de un cultivo en la
+   * fecha actual, y un valor para la bandera de utilizar el ultimo
+   * riego registrado en los ultimos 30 dias anteriores a la fecha
+   * actual para calcular la necesidad de agua de riego en la fecha
+   * actual.
    * 
    * @param newUser
    * @param newUserData
@@ -327,6 +320,7 @@ public class SignupRestServlet {
     newUser.setLastName(newUserData.getLastName());
     newUser.setEmail(newUserData.getEmail());
     newUser.setPassword(userService.getPasswordHash(newUserData.getPassword()));
+    newUser.setOption(optionService.create());
   }
 
 }
