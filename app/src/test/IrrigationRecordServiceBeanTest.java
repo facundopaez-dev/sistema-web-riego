@@ -7,6 +7,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import model.IrrigationRecord;
+import model.Option;
 import model.Parcel;
 import model.User;
 import org.junit.AfterClass;
@@ -16,6 +17,7 @@ import org.junit.Test;
 import stateless.ParcelServiceBean;
 import stateless.IrrigationRecordServiceBean;
 import stateless.UserServiceBean;
+import stateless.OptionServiceBean;
 import util.UtilDate;
 
 public class IrrigationRecordServiceBeanTest {
@@ -25,9 +27,24 @@ public class IrrigationRecordServiceBeanTest {
   private static ParcelServiceBean parcelService;
   private static IrrigationRecordServiceBean irrigationRecordService;
   private static UserServiceBean userService;
+  private static OptionServiceBean optionService;
   private static Collection<Parcel> parcels;
   private static Collection<IrrigationRecord> irrigationRecords;
   private static Collection<User> users;
+  private static Collection<Option> options;
+
+  private static final int JANUARY = 0;
+  private static final int FEBRUARY = 1;
+  private static final int MARCH = 2;
+  private static final int APRIL = 3;
+  private static final int MAY = 4;
+  private static final int JUNE = 5;
+  private static final int JULY = 6;
+  private static final int AUGUST = 7;
+  private static final int SEPTEMBER = 8;
+  private static final int OCTOBER = 9;
+  private static final int NOVEMBER = 10;
+  private static final int DECEMBER = 11;
 
   @BeforeClass
   public static void preTest() {
@@ -43,9 +60,13 @@ public class IrrigationRecordServiceBeanTest {
     irrigationRecordService = new IrrigationRecordServiceBean();
     irrigationRecordService.setEntityManager(entityManager);
 
+    optionService = new OptionServiceBean();
+    optionService.setEntityManager(entityManager);
+
     parcels = new ArrayList<>();
     irrigationRecords = new ArrayList<>();
     users = new ArrayList<>();
+    options = new ArrayList<>();
   }
 
   @Test
@@ -92,7 +113,7 @@ public class IrrigationRecordServiceBeanTest {
     parcels.add(givenParcel);
 
     /*
-     * Creacion de fechas para los registros climaticos
+     * Creacion de fechas para los registros de riego de prueba
      */
     Calendar firstDate = UtilDate.getCurrentDate();
     firstDate.set(Calendar.DAY_OF_YEAR, (firstDate.get(Calendar.DAY_OF_YEAR) - 1));
@@ -159,6 +180,154 @@ public class IrrigationRecordServiceBeanTest {
     System.out.println();
   }
 
+  @Test
+  public void testFindLastBetweenDates() {
+    Calendar minorDate = Calendar.getInstance();
+    minorDate.set(Calendar.YEAR, 2023);
+    minorDate.set(Calendar.MONTH, JANUARY);
+    minorDate.set(Calendar.DAY_OF_MONTH, 1);
+
+    Calendar majorDate = Calendar.getInstance();
+    majorDate.set(Calendar.YEAR, 2023);
+    majorDate.set(Calendar.MONTH, JANUARY);
+    majorDate.set(Calendar.DAY_OF_MONTH, 30);
+
+    System.out.println("********************************** Prueba del metodo findLastBetweenDates **********************************");
+    System.out.println("El metodo findLastBetweenDates de la clase IrrigationRecordServiceBean recupera el ultimo registro de riego");
+    System.out.println("de una parcela en un periodo definido por dos fechas dadas.");
+    System.out.println();
+    System.out.println("Para demostrar el correcto funcionamiento de este metodo se utilizaran tres registros de riego y las fechas");
+    System.out.print(UtilDate.formatDate(minorDate) + " y " + UtilDate.formatDate(majorDate) + " para definir el periodo dentro del");
+    System.out.println("cual recuperar el ultimo registro de riego de una");
+    System.out.println("parcela dada.");
+    System.out.println();
+
+    /*
+     * Persistencia de una opcion para un usuario
+     */
+    entityManager.getTransaction().begin();
+    Option newOption = optionService.create();
+    entityManager.getTransaction().commit();
+
+    options.add(newOption);
+
+    /*
+     * Persistencia de un usuario de prueba
+     */
+    User givenUser = new User();
+    givenUser.setUsername("matt95");
+    givenUser.setName("Matt");
+    givenUser.setLastName("Miller");
+    givenUser.setEmail("matt@email.com");
+    givenUser.setPassword("Matt");
+    givenUser.setOption(newOption);
+
+    entityManager.getTransaction().begin();
+    givenUser = userService.create(givenUser);
+    entityManager.getTransaction().commit();
+
+    users.add(givenUser);
+
+    /*
+     * Persistencia de una parcela de prueba
+     */
+    Parcel givenParcel = new Parcel();
+    givenParcel.setName("Erie");
+    givenParcel.setHectares(2);
+    givenParcel.setLatitude(1);
+    givenParcel.setLongitude(1);
+    givenParcel.setUser(givenUser);
+
+    entityManager.getTransaction().begin();
+    givenParcel = parcelService.create(givenParcel);
+    entityManager.getTransaction().commit();
+
+    parcels.add(givenParcel);
+
+    /*
+     * Creacion de fechas para los registros de riego de prueba
+     */
+    Calendar firstDate = UtilDate.getCurrentDate();
+    firstDate.set(Calendar.YEAR, 2023);
+    firstDate.set(Calendar.MONTH, JANUARY);
+    firstDate.set(Calendar.DAY_OF_MONTH, 1);
+
+    Calendar secondDate = UtilDate.getCurrentDate();
+    secondDate.set(Calendar.YEAR, 2023);
+    secondDate.set(Calendar.MONTH, JANUARY);
+    secondDate.set(Calendar.DAY_OF_MONTH, 2);
+
+    Calendar thirdDate = UtilDate.getCurrentDate();
+    thirdDate.set(Calendar.YEAR, 2023);
+    thirdDate.set(Calendar.MONTH, JANUARY);
+    thirdDate.set(Calendar.DAY_OF_MONTH, 3);
+
+    /*
+     * Persistencia de registros de riego de prueba
+     */
+    IrrigationRecord firstIrrigationRecord = new IrrigationRecord();
+    firstIrrigationRecord.setDate(firstDate);
+    firstIrrigationRecord.setIrrigationDone(2);
+    firstIrrigationRecord.setParcel(givenParcel);
+
+    IrrigationRecord secondIrrigationRecord = new IrrigationRecord();
+    secondIrrigationRecord.setDate(secondDate);
+    secondIrrigationRecord.setIrrigationDone(2);
+    secondIrrigationRecord.setParcel(givenParcel);
+
+    IrrigationRecord thirdIrrigationRecord = new IrrigationRecord();
+    thirdIrrigationRecord.setDate(thirdDate);
+    thirdIrrigationRecord.setIrrigationDone(2);
+    thirdIrrigationRecord.setParcel(givenParcel);
+
+    entityManager.getTransaction().begin();
+    firstIrrigationRecord = irrigationRecordService.create(firstIrrigationRecord);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    secondIrrigationRecord = irrigationRecordService.create(secondIrrigationRecord);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    thirdIrrigationRecord = irrigationRecordService.create(thirdIrrigationRecord);
+    entityManager.getTransaction().commit();
+
+    irrigationRecords.add(firstIrrigationRecord);
+    irrigationRecords.add(secondIrrigationRecord);
+    irrigationRecords.add(thirdIrrigationRecord);
+
+    System.out.println("* Registros de riego de prueba *");
+    System.out.println("ID: " + firstIrrigationRecord.getId());
+    System.out.println("Fecha: " + UtilDate.formatDate(firstIrrigationRecord.getDate()));
+    System.out.println("Riego realizado: " + firstIrrigationRecord.getIrrigationDone());
+    System.out.println();
+
+    System.out.println("ID: " + secondIrrigationRecord.getId());
+    System.out.println("Fecha: " + UtilDate.formatDate(secondIrrigationRecord.getDate()));
+    System.out.println("Riego realizado: " + secondIrrigationRecord.getIrrigationDone());
+    System.out.println();
+
+    System.out.println("ID: " + thirdIrrigationRecord.getId());
+    System.out.println("Fecha: " + UtilDate.formatDate(thirdIrrigationRecord.getDate()));
+    System.out.println("Riego realizado: " + thirdIrrigationRecord.getIrrigationDone());
+    System.out.println();
+
+    /*
+     * Seccion de prueba
+     */
+    System.out.println("* Seccion de prueba *");
+    IrrigationRecord expectedIrrigationRecord = thirdIrrigationRecord;
+    IrrigationRecord lastIrrigationRecord = irrigationRecordService.findLastBetweenDates(givenUser.getId(), givenParcel.getId(), minorDate, majorDate);
+
+    System.out.println("* ID del ultimo registro de riego esperado: " + expectedIrrigationRecord.getId());
+    System.out.println("* ID del ultimo registro de riego devuelto por el metodo findLastBetweenDates: " + lastIrrigationRecord.getId());
+    System.out.println();
+
+    assertTrue(expectedIrrigationRecord.getId() == lastIrrigationRecord.getId());
+
+    System.out.println("- Prueba pasada satisfcatoriamente");
+  }
+
   @AfterClass
   public static void postTest() {
     entityManager.getTransaction().begin();
@@ -175,6 +344,10 @@ public class IrrigationRecordServiceBeanTest {
 
     for (Parcel currentParcel : parcels) {
       parcelService.remove(currentParcel.getId());
+    }
+
+    for (Option currentOption : options) {
+      optionService.remove(currentOption.getId());
     }
 
     for (User currentUser : users) {

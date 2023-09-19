@@ -22,6 +22,16 @@ public class OptionServiceBean {
     private final int LOWER_LIMIT_PAST_DAYS = 1;
     private final int UPPER_LIMIT_PAST_DAYS = 7;
 
+    /*
+     * Esta constante es utilizada para calcular la necesidad de
+     * agua de riego de un cultivo en la fecha actual a partir
+     * del ultimo riego registrado en los ultimos treinta dias
+     * anteriores a la fecha actual, si el usuario activa la
+     * opcion correspondiente a este calculo de la necesidad de
+     * agua de riego.
+     */
+    private final int THIRTY_DAYS = 30;
+
     public void setEntityManager(EntityManager localEntityManager) {
         entityManager = localEntityManager;
     }
@@ -69,6 +79,25 @@ public class OptionServiceBean {
     }
 
     /**
+     * Elimina fisicamente una opcion de la base de datos subyacente
+     * 
+     * @param id
+     * @return referencia a un objeto de tipo Option en caso de eliminarse
+     *         de la base de datos subyacente la opcion correspondiente al ID
+     *         dado, en caso contrario null
+     */
+    public Option remove(int id) {
+        Option givenOption = find(id);
+
+        if (givenOption != null) {
+            getEntityManager().remove(givenOption);
+            return givenOption;
+        }
+
+        return null;
+    }
+
+    /**
      * @param givenOption
      * @return true si el valor de pastDaysReference de un objeto de
      * tipo Option esta entre los valores determinados por las constantes
@@ -88,6 +117,20 @@ public class OptionServiceBean {
         }
 
         return true;
+    }
+
+    /**
+     * El valor de la constante THIRTY_DAYS es para calcular la
+     * necesidad de agua de riego de un cultivo en la fecha actual
+     * a partir del ultimo riego registrado en los ultimos treinta
+     * dias anteriores a la fecha actual. Esto se realiza si el
+     * usuario activa la opcion correspondiente a este calculo
+     * de la necesidad de agua de riego.
+     * 
+     * @return int que tiene el valor 30
+     */
+    public int getValueThirtyDays() {
+        return THIRTY_DAYS;
     }
 
 }

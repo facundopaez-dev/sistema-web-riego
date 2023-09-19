@@ -239,6 +239,61 @@ public class IrrigationRecordServiceBean {
   }
 
   /**
+   * @param givenUserId
+   * @param givenParcelId
+   * @param givenMinorDate
+   * @param givenMajorDate
+   * @return referencia a un objeto de tipo IrrigationRecord que
+   * representa el ultimo registro de riego creado para una parcela
+   * de un usuario dado entre dos fechas dadas, si existe dicho
+   * registro en la base de datos subyacente. En caso contrario,
+   * null.
+   */
+  public IrrigationRecord findLastBetweenDates(int givenUserId, int givenParcelId, Calendar givenMinorDate, Calendar givenMajorDate) {
+    /*
+     * Selecciona el ID mas grande del conjunto de registros de
+     * riego pertenecientes a una parcela de un usuario dado
+     * que estan entre dos fechas dadas
+     */
+    String subQuery = "(SELECT MAX(i.id) FROM IrrigationRecord i WHERE (i.parcel.user.id = :userId AND i.parcel.id = :parcelId AND "
+        + "i.date >= :minorDate AND i.date <= :majorDate))";
+
+    /*
+     * Selecciona el ultimo registro de riego de una parcela de
+     * un usuario dado en un periodo definido por dos fechas
+     * dadas
+     */
+    Query query = entityManager.createQuery("SELECT i FROM IrrigationRecord i WHERE i.id = " + subQuery);
+    query.setParameter("userId", givenUserId);
+    query.setParameter("parcelId", givenParcelId);
+    query.setParameter("minorDate", givenMinorDate);
+    query.setParameter("majorDate", givenMajorDate);
+
+    IrrigationRecord givenIrrigationRecord = null;
+
+    try {
+      givenIrrigationRecord = (IrrigationRecord) query.getSingleResult();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return givenIrrigationRecord;
+  }
+
+  /**
+   * @param givenUserId
+   * @param givenParcelId
+   * @param givenMinorDate
+   * @param givenMajorDate
+   * @return true si existe el ultimo registro de riego de una
+   * parcela de un usuario dado en un periodo definido por dos
+   * fechas. En caso contrario, false.
+   */
+  public boolean checkExistenceLastBetweenDates(int givenUserId, int givenParcelId, Calendar givenMinorDate, Calendar givenMajorDate) {
+    return (findLastBetweenDates(givenUserId, givenParcelId, givenMinorDate, givenMajorDate) != null);
+  }
+
+  /**
    * Comprueba la existencia de un registro de riego en la base
    * de datos subyacente. Retorna true si y solo si existe el
    * registro de riego con el ID dado.
