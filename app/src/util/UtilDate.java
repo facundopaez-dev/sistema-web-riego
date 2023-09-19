@@ -278,9 +278,9 @@ public class UtilDate {
    * numero enteror mayor a cero (desplazamiento) y la fecha actual
    */
   public static Calendar getPastDateFromOffset(int offset) {
-    Calendar currentDate = getCurrentDate();
-    currentDate.set(Calendar.DAY_OF_YEAR, (currentDate.get(Calendar.DAY_OF_YEAR) - offset));
-    return currentDate;
+    Calendar pastDate = getCurrentDate();
+    pastDate.set(Calendar.DAY_OF_YEAR, (pastDate.get(Calendar.DAY_OF_YEAR) - offset));
+    return pastDate;
   }
 
 }
