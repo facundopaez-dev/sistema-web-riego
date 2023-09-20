@@ -613,14 +613,260 @@ public class WaterMathTest {
     System.out.println();
   }
 
+  /*
+   * ****************************************************************
+   * A partir de aca comienzan las pruebas unitarias del metodo
+   * calculateIrrigationWaterNeed de la clase WaterMath sobrecargado
+   * con la cantidad total de agua de riego de una fecha dada, una
+   * coleccion de registros climaticos y una coleccion de registros
+   * de riego, siendo todos ellos previos a una fecha dada y
+   * pertenecientes a una misma parcela
+   * ****************************************************************
+   */
+
+  @Test
+  public void testThirteenCalculateIrrigationWater() {
+    System.out.println("************************************** Prueba trece del metodo sobrecargado calculateIrrigationWater ***************************************");
+    printDescriptionTestOverloadedCalculateIrrigationWaterNeed();
+
+    System.out.println("# Descripcion de la prueba unitaria");
+
+    /*
+     * Establece la ETc, la lluvia y la fecha de
+     * 6 registros climaticos para esta prueba
+     * unitaria
+     */
+    setClimateRecordsValuesThirteen();
+
+    System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
+    System.out.println();
+    printClimateRecordsTestOverloadedCalculateIrrigationWaterNeed(presumedCurrentDate, climateRecords);
+
+    double totalIrrigationWaterGivenDate = 0.0;
+
+    System.out.println("La cantidad total de agua de riego en la fecha actual es: " + totalIrrigationWaterGivenDate + " [mm/dia].");
+    System.out.println();
+    System.out.println("Al ser la cantidad total de agua de riego de la fecha actual mayor o igual al deficit acumulado de agua de dias previos a la");
+    System.out.println("fecha actual, el valor devuelto por el metodo sobrecargado calculateIrrigationWater de la clase WaterMath debe ser 0 [mm/dia].");
+    System.out.println("Por lo tanto, la necesidad de agua de riego de un cultivo en la fecha actual es 0 [mm/dia].");
+    System.out.println();
+
+    /*
+     * Seccion de prueba
+     */
+    System.out.println("# Ejecucion de la prueba unitaria");
+
+    double expectedResult = 0.0;
+    double result = WaterMath.calculateIrrigationWaterNeed(totalIrrigationWaterGivenDate, climateRecords, irrigationRecords);
+
+    System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
+    System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed sobrecargado (nec. agua riego [mm/dia] de un cultivo en");
+    System.out.println("fecha actual): " + result);
+    System.out.println();
+
+    assertEquals(expectedResult, result, 0.001);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+    System.out.println();
+  }
+
+  @Test
+  public void testFourteenCalculateIrrigationWater() {
+    System.out.println("************************************** Prueba catorce del metodo sobrecargado calculateIrrigationWater ***************************************");
+    printDescriptionTestOverloadedCalculateIrrigationWaterNeed();
+
+    System.out.println("# Descripcion de la prueba unitaria");
+
+    /*
+     * Establece la ETc, la lluvia y la fecha de
+     * 6 registros climaticos para esta prueba
+     * unitaria
+     */
+    setClimateRecordsValuesFourteen();
+
+    System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
+    System.out.println();
+    printClimateRecordsTestOverloadedCalculateIrrigationWaterNeed(presumedCurrentDate, climateRecords);
+
+    double totalIrrigationWaterGivenDate = 5.0;
+
+    System.out.println("La cantidad total de agua de riego en la fecha actual es: " + totalIrrigationWaterGivenDate + " [mm/dia].");
+    System.out.println();
+    System.out.println("Al ser la cantidad total de agua de riego de la fecha actual mayor o igual al deficit acumulado de agua de dias previos a la");
+    System.out.println("fecha actual, el valor devuelto por el metodo sobrecargado calculateIrrigationWater de la clase WaterMath debe ser 0 [mm/dia].");
+    System.out.println("Por lo tanto, la necesidad de agua de riego de un cultivo en la fecha actual es 0 [mm/dia].");
+    System.out.println();
+
+    /*
+     * Seccion de prueba
+     */
+    System.out.println("# Ejecucion de la prueba unitaria");
+
+    double expectedResult = 0.0;
+    double result = WaterMath.calculateIrrigationWaterNeed(totalIrrigationWaterGivenDate, climateRecords, irrigationRecords);
+
+    System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
+    System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed sobrecargado (nec. agua riego [mm/dia] de un cultivo en");
+    System.out.println("fecha actual): " + result);
+    System.out.println();
+
+    assertEquals(expectedResult, result, 0.001);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+    System.out.println();
+  }
+
+  @Test
+  public void testFifteenCalculateIrrigationWater() {
+    System.out.println("************************************** Prueba quince del metodo sobrecargado calculateIrrigationWater ***************************************");
+    printDescriptionTestOverloadedCalculateIrrigationWaterNeed();
+
+    System.out.println("# Descripcion de la prueba unitaria");
+
+    /*
+     * Establece la ETc, la lluvia y la fecha de
+     * 6 registros climaticos para esta prueba
+     * unitaria
+     */
+    setClimateRecordsValuesFifteen();
+
+    System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
+    System.out.println();
+    printClimateRecordsTestOverloadedCalculateIrrigationWaterNeed(presumedCurrentDate, climateRecords);
+
+    double totalIrrigationWaterGivenDate = 14.0;
+
+    System.out.println("La cantidad total de agua de riego en la fecha actual es: " + totalIrrigationWaterGivenDate + " [mm/dia].");
+    System.out.println();
+    System.out.println("Al ser la cantidad total de agua de riego de la fecha actual mayor o igual al deficit acumulado de agua de dias previos a la");
+    System.out.println("fecha actual, el valor devuelto por el metodo sobrecargado calculateIrrigationWater de la clase WaterMath debe ser 0 [mm/dia].");
+    System.out.println("Por lo tanto, la necesidad de agua de riego de un cultivo en la fecha actual es 0 [mm/dia].");
+    System.out.println();
+
+    /*
+     * Seccion de prueba
+     */
+    System.out.println("# Ejecucion de la prueba unitaria");
+
+    double expectedResult = 0.0;
+    double result = WaterMath.calculateIrrigationWaterNeed(totalIrrigationWaterGivenDate, climateRecords, irrigationRecords);
+
+    System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
+    System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed sobrecargado (nec. agua riego [mm/dia] de un cultivo en");
+    System.out.println("fecha actual): " + result);
+    System.out.println();
+
+    assertEquals(expectedResult, result, 0.001);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+    System.out.println();
+  }
+
+  @Test
+  public void testSixteenCalculateIrrigationWater() {
+    System.out.println("************************************** Prueba dieciseis del metodo sobrecargado calculateIrrigationWater ***************************************");
+    printDescriptionTestOverloadedCalculateIrrigationWaterNeed();
+
+    System.out.println("# Descripcion de la prueba unitaria");
+
+    /*
+     * Establece la ETc, la lluvia y la fecha de
+     * 6 registros climaticos para esta prueba
+     * unitaria
+     */
+    setClimateRecordsValuesSixteen();
+
+    System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
+    System.out.println();
+    printClimateRecordsTestOverloadedCalculateIrrigationWaterNeed(presumedCurrentDate, climateRecords);
+
+    double totalIrrigationWaterGivenDate = 21.0;
+
+    System.out.println("La cantidad total de agua de riego en la fecha actual es: " + totalIrrigationWaterGivenDate + " [mm/dia].");
+    System.out.println();
+    System.out.println("Al ser la cantidad total de agua de riego de la fecha actual mayor o igual al deficit acumulado de agua de dias previos a la");
+    System.out.println("fecha actual, el valor devuelto por el metodo sobrecargado calculateIrrigationWater de la clase WaterMath debe ser 0 [mm/dia].");
+    System.out.println("Por lo tanto, la necesidad de agua de riego de un cultivo en la fecha actual es 0 [mm/dia].");
+    System.out.println();
+
+    /*
+     * Seccion de prueba
+     */
+    System.out.println("# Ejecucion de la prueba unitaria");
+
+    double expectedResult = 0.0;
+    double result = WaterMath.calculateIrrigationWaterNeed(totalIrrigationWaterGivenDate, climateRecords, irrigationRecords);
+
+    System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
+    System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed sobrecargado (nec. agua riego [mm/dia] de un cultivo en");
+    System.out.println("fecha actual): " + result);
+    System.out.println();
+
+    assertEquals(expectedResult, result, 0.001);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+    System.out.println();
+  }
+
+  @Test
+  public void testSeventeenCalculateIrrigationWater() {
+    System.out.println("************************************** Prueba diecisiete del metodo sobrecargado calculateIrrigationWater ***************************************");
+    printDescriptionTestOverloadedCalculateIrrigationWaterNeed();
+
+    System.out.println("# Descripcion de la prueba unitaria");
+
+    /*
+     * Establece la ETc, la lluvia y la fecha de
+     * 6 registros climaticos para esta prueba
+     * unitaria
+     */
+    setClimateRecordsValuesSeventeen();
+
+    System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
+    System.out.println();
+    printClimateRecordsTestOverloadedCalculateIrrigationWaterNeed(presumedCurrentDate, climateRecords);
+
+    double totalIrrigationWaterGivenDate = 7.0;
+
+    System.out.println("La cantidad total de agua de riego en la fecha actual es: " + totalIrrigationWaterGivenDate + " [mm/dia].");
+    System.out.println();
+    System.out.println("Al ser la cantidad total de agua de riego de la fecha actual estrictamente menor al deficit acumulado de agua de dias previos a la");
+    System.out.println("fecha actual, el valor devuelto por el metodo sobrecargado calculateIrrigationWater de la clase WaterMath debe ser el resultado de");
+    System.out.println("la diferencia entre el deficit acumulado de agua de dias previos a la fecha actual y la cantidad de agua de riego de la fecha actual.");
+    System.out.println();
+
+    /*
+     * Seccion de prueba
+     */
+    System.out.println("# Ejecucion de la prueba unitaria");
+
+    double expectedResult = 7.0;
+    double result = WaterMath.calculateIrrigationWaterNeed(totalIrrigationWaterGivenDate, climateRecords, irrigationRecords);
+
+    System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
+    System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed sobrecargado (nec. agua riego [mm/dia] de un cultivo en");
+    System.out.println("fecha actual): " + result);
+    System.out.println();
+
+    assertEquals(expectedResult, result, 0.001);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+    System.out.println();
+  }
+
   /**
-   * Imprime una tabla con el dia, la ETc, la lluvia, el deficit
-   * (diferencia entre el H2O y la ETc) y el deficit acumulado
+   * Imprime por pantalla una tabla que contiene el dia, la
+   * ETc por dia, la lluvia por dia, el deficit de agua por
+   * dia y el deficit acumulado de agua creada a partir de
+   * un conjunto de registros climaticos previos a una
+   * fecha dada
    * 
    * @param presumedCurrentDate
    * @param givenClimateRecords
+   * @return double que representa el deficit acumulado de
+   * agua de dias previos a una fecha dada [mm/dia]
    */
-  private void printClimateRecords(Calendar presumedCurrentDate, Collection<ClimateRecord> givenClimateRecords) {
+  private double printTable(Calendar presumedCurrentDate, Collection<ClimateRecord> givenClimateRecords) {
     int day = 1;
     double differencePerDay = 0.0;
     double accumulatedDeficit = 0.0;
@@ -661,8 +907,43 @@ public class WaterMathTest {
     System.out.println("Deficit acumulado [mm/dia]");
     System.out.println();
 
+    return accumulatedDeficit;
+  }
+
+  /**
+   * Imprime una tabla con el dia, la ETc por dia, la lluvia por
+   * dia, el deficit (diferencia entre el H2O y la ETc) de agua
+   * por dia y el deficit acumulado de agua para el metodo
+   * calculateIrrigationWaterNeed de la clase WaterMath que
+   * tiene como parametros una coleccion de registros climaticos
+   * y una coleccion de registros de riego, siendo todo ellos
+   * previos a una fecha dada y pertenecientes a una misma parcela
+   * 
+   * @param presumedCurrentDate
+   * @param givenClimateRecords
+   */
+  private void printClimateRecords(Calendar presumedCurrentDate, Collection<ClimateRecord> givenClimateRecords) {
     System.out.println("Necesidad de agua de riego [mm/dia] de un cultivo en la fecha actual (hoy) " + UtilDate.formatDate(presumedCurrentDate)
-        + ": " + Math.abs(accumulatedDeficit));
+        + ": " + Math.abs(printTable(presumedCurrentDate, givenClimateRecords)));
+    System.out.println();
+  }
+
+  /**
+   * Imprime una tabla con el dia, la ETc por dia, la lluvia por dia,
+   * el deficit (diferencia entre el H2O y la ETc) de agua por dia y
+   * el deficit acumulado de agua para el metodo calculateIrrigationWaterNeed
+   * de la clase WaterMath sobrecargado con la cantidad total de
+   * agua de riego de una fecha dada, una coleccion de registros
+   * climaticos y una coleccion de registros de riego, siendo todos
+   * ellos previos a una fecha dada y pertenecientes a una misma
+   * parcela
+   * 
+   * @param presumedCurrentDate
+   * @param givenClimateRecords
+   */
+  private void printClimateRecordsTestOverloadedCalculateIrrigationWaterNeed(Calendar presumedCurrentDate, Collection<ClimateRecord> givenClimateRecords) {
+    System.out.println("Deficit acumulado de agua [mm/dia] de dias previos a la fecha actual (hoy) " + UtilDate.formatDate(presumedCurrentDate)
+        + ": " + Math.abs(printTable(presumedCurrentDate, givenClimateRecords)));
     System.out.println();
   }
 
@@ -686,6 +967,52 @@ public class WaterMathTest {
     System.out.println("fecha actual. En cambios, si se seleccionan los registros climaticos y los registros de riego de una parcela dada previos a");
     System.out.println("la fecha actual + X dias, donde X > 0, la necesidad de agua de riego de un cultivo calculada con estos registros corresponde");
     System.out.println("a la fecha actual + X dias.");
+    System.out.println();
+  }
+
+  /**
+   * Imprime la descripcion del metodo a probar, el cual en este
+   * caso es el metodo calculateIrrigationWaterNeed de la clase
+   * WaterMath sobrecargado con la cantidad total de agua de riego
+   * de una fecha dada, una coleccion de registros climaticos y una
+   * coleccion de registros de riego, siendo todos ellos previos
+   * a una fecha dada y pertenecientes a una misma parcela
+   */
+  private void printDescriptionTestOverloadedCalculateIrrigationWaterNeed() {
+    System.out.println("El metodo calculateIrrigationWater sobrecargado con la cantidad total de agua de riego de una fecha dada, una coleccion de registros");
+    System.out.println("climaticos y una coleccion de registros de riego, siendo todos ellos previos a una fecha dada y pertenecientes a una misma parcela,");
+    System.out.println("se utiliza para calcular la necesidad de agua de riego [mm/dia] de un cultivo en una fecha dada utilizando los parametros con los que");
+    System.out.println("esta sobrecargado. La fecha dada puede ser la fecha actual (es decir, hoy) o una fecha posterior a la fecha actual. Pero tambien puede");
+    System.out.println("ser una fecha del pasado (es decir, anterior a la fecha actual), pero esto no tiene sentido si lo que se busca es determinar la necesidad");
+    System.out.println("de agua de riego de un cultivo en la fecha actual o en una fecha posterior a la fecha actual.");
+    System.out.println();
+    System.out.println("El metodo calculateIrrigationWater utiliza la cantidad total de agua de riego de una fecha dada y el deficit acumulado de agua de");
+    System.out.println("dias previos a una fecha dada para calcular la necesidad de agua de riego de un cultivo en una fecha dada. El deficit acumulado de");
+    System.out.println("agua de dias previos a una fecha dada representa la cantidad de agua evaporada en dias previos a una fecha dada que no fue cubierta");
+    System.out.println("(satisfecha) y que se debe reponer mediante el riego en una fecha dada, y se calcula a partir de una coleccion de registros climaticos");
+    System.out.println("y una coleccion de registros de riego, siendo todos ellos previos a una fecha dada y pertenecientes a una misma parcela.");
+    System.out.println();
+    System.out.println("- Si la cantidad total de agua de riego de una fecha dada es mayor o igual al deficit acumulado de agua de dias previos a una fecha");
+    System.out.println("dada, el metodo calculateIrrigationWater retorna 0. Por lo tanto, la necesidad de agua de riego de un cultivo en una fecha dada es 0.");
+    System.out.println("Esto se debe a que si la cantidad total de agua de riego de una fecha dada cubre mayoritariamente o exactamente el deficit acumulado");
+    System.out.println("de agua de dias previos a una fecha dada, NO hay una cantidad de agua evaporada en dias previos a una fecha dada que cubrir (satisfacer)");
+    System.out.println("mediante el riego en una fecha dada, por lo tanto, la necesidad de agua de riego de un cultivo en una fecha dada es 0.");
+    System.out.println();
+    System.out.println("- Si la cantidad total de agua de riego de una fecha dada es estricatamente menor al deficit acumulado de agua de dias previos a");
+    System.out.println("una fecha dada, el metodo calculateIrrigationWater retorna la diferencia entre el deficit acumulado de agua de dias previos a una fecha");
+    System.out.println("y la cantidad total de agua de riego de una fecha dada. Por lo tanto, la necesidad de agua de riego de un cultivo en una fecha dada es");
+    System.out.println("el resultado de dicha diferencia. Esta diferencia se debe a que si la cantidad total de agua de riego de una fecha dada NO cubre");
+    System.out.println("mayoritariamente o exactamente el deficit acumulado de agua de dias previos a una fecha dada, hay una cantidad de agua evaporada en dias");
+    System.out.println("previos a fecha dada que cubrir (satisfacer) mediante el riego en una fecha dada. Esta cantidad se calcula mediante la diferencia entre");
+    System.out.println("el deficit acumulado de agua de dias previos a una fecha dada y la cantidad total de agua de riego de una fecha dada, y el resultado de");
+    System.out.println("esta diferencia es mayor a 0.");
+    System.out.println();
+    System.out.println("La fecha para la que se calcula la necesidad de agua de riego de un cultivo esta determinada por los registros climaticos y los registros");
+    System.out.println("de riego que se seleccionan como previos a una fecha dada, siendo todos ellos pertenecientes a una misma parcela. Por ejemplo, si se");
+    System.out.println("seleccionan los registros climaticos y los registros de riego de una parcela dada previos a la fecha actual (es decir, hoy), la necesidad");
+    System.out.println("de agua de riego de un cultivo calculada con estos registros corresponde a la fecha actual. En cambio, si se seleccionan los registros");
+    System.out.println("climaticos y los registros de riego de una parcela dada previos a la fecha actual + X dias, donde X > 0, la necesidad de agua de riego");
+    System.out.println("de un cultivo calculada con estos registros corresponde a la fecha actual + X dias.");
     System.out.println();
   }
 
@@ -1095,6 +1422,156 @@ public class WaterMathTest {
 
     climateRecordSix.setEtc(5);
     climateRecordSix.setPrecip(10);
+    climateRecordSix.setDate(daySix);
+  }
+
+  /**
+   * Establece la ETc, la lluvia y la fecha de 6 registros
+   * climaticos para la pruebta unitaria trece
+   */
+  private void setClimateRecordsValuesThirteen() {
+    climateRecordOne.setEtc(15);
+    climateRecordOne.setPrecip(15);
+    climateRecordOne.setDate(dayOne);
+
+    climateRecordTwo.setEtc(12);
+    climateRecordTwo.setPrecip(12);
+    climateRecordTwo.setDate(dayTwo);
+
+    climateRecordThree.setEtc(6);
+    climateRecordThree.setPrecip(2);
+    climateRecordThree.setDate(dayThree);
+
+    climateRecordFour.setEtc(2);
+    climateRecordFour.setPrecip(0);
+    climateRecordFour.setDate(dayFour);
+
+    climateRecordFive.setEtc(4);
+    climateRecordFive.setPrecip(1);
+    climateRecordFive.setDate(dayFive);
+
+    climateRecordSix.setEtc(5);
+    climateRecordSix.setPrecip(20);
+    climateRecordSix.setDate(daySix);
+  }
+
+  /**
+   * Establece la ETc, la lluvia y la fecha de 6 registros
+   * climaticos para la pruebta unitaria catorce
+   */
+  private void setClimateRecordsValuesFourteen() {
+    climateRecordOne.setEtc(15);
+    climateRecordOne.setPrecip(15);
+    climateRecordOne.setDate(dayOne);
+
+    climateRecordTwo.setEtc(12);
+    climateRecordTwo.setPrecip(12);
+    climateRecordTwo.setDate(dayTwo);
+
+    climateRecordThree.setEtc(6);
+    climateRecordThree.setPrecip(2);
+    climateRecordThree.setDate(dayThree);
+
+    climateRecordFour.setEtc(2);
+    climateRecordFour.setPrecip(0);
+    climateRecordFour.setDate(dayFour);
+
+    climateRecordFive.setEtc(4);
+    climateRecordFive.setPrecip(1);
+    climateRecordFive.setDate(dayFive);
+
+    climateRecordSix.setEtc(5);
+    climateRecordSix.setPrecip(20);
+    climateRecordSix.setDate(daySix);
+  }
+
+  /**
+   * Establece la ETc, la lluvia y la fecha de 6 registros
+   * climaticos para la pruebta unitaria quince
+   */
+  private void setClimateRecordsValuesFifteen() {
+    climateRecordOne.setEtc(10);
+    climateRecordOne.setPrecip(5);
+    climateRecordOne.setDate(dayOne);
+
+    climateRecordTwo.setEtc(5);
+    climateRecordTwo.setPrecip(2);
+    climateRecordTwo.setDate(dayTwo);
+
+    climateRecordThree.setEtc(2);
+    climateRecordThree.setPrecip(1);
+    climateRecordThree.setDate(dayThree);
+
+    climateRecordFour.setEtc(3);
+    climateRecordFour.setPrecip(1);
+    climateRecordFour.setDate(dayFour);
+
+    climateRecordFive.setEtc(1);
+    climateRecordFive.setPrecip(0);
+    climateRecordFive.setDate(dayFive);
+
+    climateRecordSix.setEtc(4);
+    climateRecordSix.setPrecip(2);
+    climateRecordSix.setDate(daySix);
+  }
+
+  /**
+   * Establece la ETc, la lluvia y la fecha de 6 registros
+   * climaticos para la pruebta unitaria dieciseis
+   */
+  private void setClimateRecordsValuesSixteen() {
+    climateRecordOne.setEtc(10);
+    climateRecordOne.setPrecip(5);
+    climateRecordOne.setDate(dayOne);
+
+    climateRecordTwo.setEtc(5);
+    climateRecordTwo.setPrecip(2);
+    climateRecordTwo.setDate(dayTwo);
+
+    climateRecordThree.setEtc(2);
+    climateRecordThree.setPrecip(1);
+    climateRecordThree.setDate(dayThree);
+
+    climateRecordFour.setEtc(3);
+    climateRecordFour.setPrecip(1);
+    climateRecordFour.setDate(dayFour);
+
+    climateRecordFive.setEtc(1);
+    climateRecordFive.setPrecip(0);
+    climateRecordFive.setDate(dayFive);
+
+    climateRecordSix.setEtc(4);
+    climateRecordSix.setPrecip(2);
+    climateRecordSix.setDate(daySix);
+  }
+
+  /**
+   * Establece la ETc, la lluvia y la fecha de 6 registros
+   * climaticos para la pruebta unitaria diecisiete
+   */
+  private void setClimateRecordsValuesSeventeen() {
+    climateRecordOne.setEtc(10);
+    climateRecordOne.setPrecip(5);
+    climateRecordOne.setDate(dayOne);
+
+    climateRecordTwo.setEtc(5);
+    climateRecordTwo.setPrecip(2);
+    climateRecordTwo.setDate(dayTwo);
+
+    climateRecordThree.setEtc(2);
+    climateRecordThree.setPrecip(1);
+    climateRecordThree.setDate(dayThree);
+
+    climateRecordFour.setEtc(3);
+    climateRecordFour.setPrecip(1);
+    climateRecordFour.setDate(dayFour);
+
+    climateRecordFive.setEtc(1);
+    climateRecordFive.setPrecip(0);
+    climateRecordFive.setDate(dayFive);
+
+    climateRecordSix.setEtc(4);
+    climateRecordSix.setPrecip(2);
     climateRecordSix.setDate(daySix);
   }
 

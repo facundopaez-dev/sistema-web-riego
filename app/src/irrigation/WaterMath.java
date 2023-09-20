@@ -101,6 +101,107 @@ public class WaterMath {
   }
 
   /**
+   * Calcula la necesidad de agua de riego de un cultivo en una
+   * fecha [mm/dia] dada utilizando la cantidad total de agua de
+   * riego de una fecha dada, una coleccion de registros climaticos
+   * y una coleccion de registros de riego, siendo todos ellos
+   * previos a una fecha dada y pertenecientes a una misma parcela.
+   * 
+   * La fecha dada puede ser la fecha actual (es decir, hoy),
+   * una fecha futura (es decir, posterior a la fecha actual)
+   * o una fecha pasada (es decir, anterior a la fecha actual).
+   * No tiene sentido que la fecha dada sea del pasado si lo
+   * que se busca es determinar la necesidad de agua de riego
+   * de un cultivo en la fecha actual o en una fecha posterior
+   * a la fecha actual.
+   * 
+   * La fecha para la que se calcula la necesidad de agua de riego
+   * de un cultivo esta determinada por los registros climaticos y
+   * los registros de riego que se seleccionan como previos a una
+   * fecha dada, siendo ambos conjuntos de registros pertenecientes
+   * a una parcela dada.
+   * 
+   * Por ejemplo, si se seleccionan los registros climaticos y los
+   * registros de riego de una parcela dada previos a la fecha
+   * actual (es decir, hoy), la necesidad de agua de riego de un
+   * cultivo calculada con estos registros corresponde a la fecha
+   * actual. En cambios, si se seleccionan los registros climaticos
+   * y los registros de riego de una parcela dada previos a la
+   * fecha actual + X dias, donde X > 0, la necesidad de agua de
+   * riego de un cultivo calculada con estos registros corresponde
+   * a la fecha actual + X dias.
+   * 
+   * @param totalIrrigationWaterGivenDate
+   * @param previousClimateRecords
+   * @param previousIrrigationRecords
+   * @return double que representa la necesidad de agua de
+   * riego de un cultivo en una fecha dada [mm/dia]
+   */
+  public static double calculateIrrigationWaterNeed(double totalIrrigationWaterGivenDate, Collection<ClimateRecord> previousClimateRecords,
+      Collection<IrrigationRecord> previousIrrigationRecords) {
+    /*
+     * El deficit (falta) acumulado de agua [mm/dia] de dias
+     * previos a una fecha dada es la cantidad acumulada de
+     * agua evaporada en dias previos a una fecha dada que
+     * no fue cubierta (satisfecha).
+     * 
+     * Si el deficit acumulado de agua de dias previos a una
+     * fecha dada es igual a 0, significa que la cantidad de
+     * agua evaporada en dias previos a una fecha dada fue cubierta
+     * (satisfecha), por lo tanto, NO hay una cantidad de agua
+     * evaporada que se deba reponer (satisfacer) mediante el
+     * riego en una fecha dada.
+     * 
+     * En cambio, si el deficit acumulado de agua de dias previos
+     * a una fecha dada es menor a 0, significa que la cantidad
+     * de agua evaporada en dias previos a una fecha dada NO fue
+     * cubierta (satisfecha), por lo tanto, hay una cantidad
+     * evaporada que se debe reponer mediante el riego en una
+     * fecha dada.
+     * 
+     * Hay que tener en cuenta que el metodo calculateIrrigationWaterNeed
+     * sobrecargado con la coleccion de registros climaticos y
+     * la coleccion de registros de riego retorna un double
+     * igual a cero o un double mayor a cero. El motivo por el
+     * cual retorna un double mayor a cero en lugar de un double
+     * menor a cero es que calcula el valor absoluto del deficit
+     * acumulado de agua de dias previos a una fecha dada. En
+     * consecuencia, cuando el deficit acumulado de agua de
+     * dias previos a una fecha dada es menor a cero (negativo)
+     * el metodo sobrecargado calculateIrrigationWaterNeed retorna
+     * un deficit acumulado de dias previos a una fecha dada
+     * positivo (mayor a cero).
+     * 
+     * Por lo tanto, un deficit acumulado de agua de dias previos
+     * a una fecha dada positivo representa que la cantidad de agua
+     * evaporada en dias previos a una fecha dada NO fue cubierta
+     * (satisfecha), con lo cual hay una cantidad de agua evaporada
+     * que se debe reponer mediante el riego en una fecha dada.
+     */
+    double accumulatedDeficit = calculateIrrigationWaterNeed(previousClimateRecords, previousIrrigationRecords);
+
+    /*
+     * Si la cantidad total de agua de riego de una fecha dada
+     * [mm/dia] es mayor o igual al deficit (falta) acumulado
+     * de agua [mm/dia] de dias previos a una fecha dada, la
+     * necesidad de agua de riego de un cultivo en una fecha
+     * dada es 0 [mm/dia]
+     */
+    if (totalIrrigationWaterGivenDate >= accumulatedDeficit) {
+      return 0.0;
+    }
+
+    /*
+     * Si el deficit (falta) acumulado de agua [mm/dia] de dias
+     * previos a una fecha dada es estrictamente mayor a la cantidad
+     * total de agua de riego de una fecha dada [mm/dia], la necesidad
+     * de agua de riego de un cultivo en una fecha dada [mm/dia] se
+     * calcula como la diferencia entre estas dos variables
+     */
+    return limitToTwoDecimalPlaces(accumulatedDeficit - totalIrrigationWaterGivenDate);
+  }
+
+  /**
    * Este metodo calcula la necesidad de agua de riego de un cultivo
    * en una fecha dada, la cual puede ser la fecha actual (es decir,
    * hoy) o una fecha posterior a la fecha actual. Esta fecha tambien
