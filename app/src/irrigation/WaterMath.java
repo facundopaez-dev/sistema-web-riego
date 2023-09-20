@@ -13,7 +13,7 @@ public class WaterMath {
    * El metodo constructor tiene el modificador de acceso 'private'
    * para que ningun programador trate de instanciar esta clase
    * desde afuera, ya que todos los metodos publicos de la misma
-   * son estaticos, con lo cual, no se requiere una instancia de
+   * son estaticos, con lo cual no se requiere una instancia de
    * esta clase para invocar a sus metodos publicos
    */
   private WaterMath() {
@@ -229,11 +229,11 @@ public class WaterMath {
    * @param previousClimateRecords
    * @param previousIrrigationRecords
    * @return double que representa la necesidad de agua de riego
-   * de un cultivo en una fecha dada tomando como referencia los
-   * registros climaticos previos a la fecha dada y los registros
-   * de riego previos a la fecha dada, perteneciendo ambos grupos
-   * de registros a una parcela que tiene un cultivo sembrado y en
-   * desarrollo en la fecha dada
+   * de un cultivo en una fecha dada [mm/dia] calculada con una
+   * coleccion de registros climaticos y una coleccion de registros
+   * de riego, siendo todos ellos previos a una fecha dada y pertenecientes
+   * a una misma parcela que tiene un cultivo sembrado y en desarrollo
+   * en una fecha dada
    */
   public static double calculateIrrigationWaterNeed(Collection<ClimateRecord> previousClimateRecords, Collection<IrrigationRecord> previousIrrigationRecords) {
     double accumulatedDeficit = 0.0;

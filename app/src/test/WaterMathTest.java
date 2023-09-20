@@ -964,7 +964,7 @@ public class WaterMathTest {
     System.out.println("los registros de riego que se seleccionan como previos a una fecha dada, siendo ambos grupos de registros pertenecientes a");
     System.out.println("una parcela dada. Por ejemplo, si se seleccionan los registros climaticos y los registros de riego de una parcela dada previos");
     System.out.println("a la fecha actual (es decir, hoy), la necesidad de agua de riego de un cultivo calculada con estos registros corresponde a la");
-    System.out.println("fecha actual. En cambios, si se seleccionan los registros climaticos y los registros de riego de una parcela dada previos a");
+    System.out.println("fecha actual. En cambio, si se seleccionan los registros climaticos y los registros de riego de una parcela dada previos a");
     System.out.println("la fecha actual + X dias, donde X > 0, la necesidad de agua de riego de un cultivo calculada con estos registros corresponde");
     System.out.println("a la fecha actual + X dias.");
     System.out.println();
