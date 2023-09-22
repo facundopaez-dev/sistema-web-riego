@@ -281,6 +281,31 @@ public class IrrigationRecordServiceBean {
   }
 
   /**
+   * Retorna todos los registros de riego de una parcela de
+   * un usuario que estan en un periodo definido por dos fechas,
+   * si una parcela tiene registros de riego en un periodo dado.
+   * 
+   * @param userId
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo Collection que
+   * contiene todos los registros de riego de una parcela de un
+   * usuario que estan en un periodo definido por dos fechas.
+   * En caso contrario, referencia a un objeto de tipo Collection
+   * vacio (0 elementos).
+   */
+  public Collection<IrrigationRecord> findAllByParcelIdAndPeriod(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    Query query = getEntityManager().createQuery("SELECT i FROM IrrigationRecord i JOIN i.parcel p WHERE (p.id = :parcelId AND p.user.id = :userId AND :dateFrom <= i.date AND i.date <= :dateUntil) ORDER BY i.date");
+    query.setParameter("userId", userId);
+    query.setParameter("parcelId", parcelId);
+    query.setParameter("dateFrom", dateFrom);
+    query.setParameter("dateUntil", dateUntil);
+
+    return (Collection) query.getResultList();
+  }
+
+  /**
    * @param givenUserId
    * @param givenParcelId
    * @param givenMinorDate
