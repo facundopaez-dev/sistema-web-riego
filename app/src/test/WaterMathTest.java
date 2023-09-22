@@ -1,22 +1,43 @@
 import static org.junit.Assert.*;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import java.util.Calendar;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.lang.Math;
 import model.ClimateRecord;
 import model.IrrigationRecord;
+import model.Parcel;
+import model.User;
+import model.Option;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import irrigation.WaterMath;
 import util.UtilDate;
+import stateless.UserServiceBean;
+import stateless.OptionServiceBean;
+import stateless.ParcelServiceBean;
+import stateless.ClimateRecordServiceBean;
 
 public class WaterMathTest {
 
+  private static EntityManager entityManager;
+  private static EntityManagerFactory entityManagerFactory;
+  private static UserServiceBean userService;
+  private static OptionServiceBean optionService;
+  private static ParcelServiceBean parcelService;
+  private static ClimateRecordServiceBean climateRecordService;
+
   private static Collection<IrrigationRecord> irrigationRecords;
   private static Collection<ClimateRecord> climateRecords;
+  private static Collection<ClimateRecord> climateRecordsToBeDeleted;
+  private static Collection<Parcel> parcels;
+  private static Collection<User> users;
+  private static Collection<Option> options;
 
   private static Calendar presumedCurrentDate;
   private static Calendar dayOne;
@@ -48,8 +69,27 @@ public class WaterMathTest {
 
   @BeforeClass
   public static void preTest() {
+    entityManagerFactory = Persistence.createEntityManagerFactory("swcar");
+    entityManager = entityManagerFactory.createEntityManager();
+
+    userService = new UserServiceBean();
+    userService.setEntityManager(entityManager);
+
+    optionService = new OptionServiceBean();
+    optionService.setEntityManager(entityManager);
+
+    parcelService = new ParcelServiceBean();
+    parcelService.setEntityManager(entityManager);
+
+    climateRecordService = new ClimateRecordServiceBean();
+    climateRecordService.setEntityManager(entityManager);
+
     irrigationRecords = new ArrayList<>();
     climateRecords = new ArrayList<>();
+    climateRecordsToBeDeleted = new ArrayList<>();
+    parcels = new ArrayList<>();
+    users = new ArrayList<>();
+    options = new ArrayList<>();
 
     climateRecordOne = new ClimateRecord();
     climateRecordTwo = new ClimateRecord();
@@ -852,6 +892,1969 @@ public class WaterMathTest {
 
     System.out.println("- Prueba pasada satisfactoriamente");
     System.out.println();
+  }
+
+  /*
+   * ****************************************************************
+   * A partir de aca comienzan las pruebas unitarias del metodo
+   * calculateIrrigationWaterNeed de la clase WaterMath sobrecargado
+   * con la cantidad total de agua de riego de una fecha dada, una
+   * coleccion de registros climaticos y una coleccion de registros
+   * de riego, siendo todos ellos previos a una fecha dada y
+   * pertenecientes a una misma parcela, haciendo uso del metodo
+   * findAllByParcelIdAndPeriod de la clase ClimateRecordServiceBean
+   * junto con los datos de las pruebas unitarias 1 a 11. El motivo
+   * de esto es que este metodo calculateIrrigationWaterNeed hasta
+   * ahora NO fue probado con el metodo findAllByParcelIdAndPeriod
+   * de la clase ClimateRecordServiceBean.
+   * ****************************************************************
+   */
+
+  @Test
+  public void testEighteenCalculateIrrigationWater() {
+    System.out.println("************************************** Prueba dieciocho del metodo sobrecargado calculateIrrigationWater ***************************************");
+    printDescriptionTestOverloadedCalculateIrrigationWaterNeed();
+
+    System.out.println("# Descripcion de la prueba unitaria");
+    System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println();
+
+    /*
+     * Fechas a partir de las cuales se recuperaran los
+     * registros climaticos y los registros de riego de
+     * una parcela de prueba de la base de datos subyacente
+     */
+    Calendar dateFrom = Calendar.getInstance();
+    dateFrom.set(Calendar.YEAR, 2023);
+    dateFrom.set(Calendar.MONTH, JANUARY);
+    dateFrom.set(Calendar.DAY_OF_MONTH, 1);
+
+    Calendar dateUntil = Calendar.getInstance();
+    dateUntil.set(Calendar.YEAR, 2023);
+    dateUntil.set(Calendar.MONTH, JANUARY);
+    dateUntil.set(Calendar.DAY_OF_MONTH, 6);
+
+    /*
+     * Persistencia de una opcion para el usuario de prueba
+     */
+    entityManager.getTransaction().begin();
+    Option userOption = optionService.create();
+    entityManager.getTransaction().commit();
+
+    options.add(userOption);
+
+    /*
+     * Persistencia de un usuario de prueba
+     */
+    User givenUser = new User();
+    givenUser.setUsername("giovanni");
+    givenUser.setName("Giovanni");
+    givenUser.setLastName("Auditore");
+    givenUser.setEmail("giovanni@eservice.com");
+    givenUser.setPassword("Giovanni");
+    givenUser.setOption(userOption);
+
+    entityManager.getTransaction().begin();
+    givenUser = userService.create(givenUser);
+    entityManager.getTransaction().commit();
+
+    users.add(givenUser);
+
+    /*
+     * Persistencia de una parcela de prueba
+     */
+    Parcel givenParcel = new Parcel();
+    givenParcel.setName("Erie");
+    givenParcel.setHectares(2);
+    givenParcel.setLatitude(1);
+    givenParcel.setLongitude(1);
+    givenParcel.setUser(givenUser);
+
+    entityManager.getTransaction().begin();
+    givenParcel = parcelService.create(givenParcel);
+    entityManager.getTransaction().commit();
+
+    parcels.add(givenParcel);
+
+    /*
+     * Persistencia de registros climaticos de prueba
+     */
+    ClimateRecord climateRecordOne = new ClimateRecord();
+    climateRecordOne.setEtc(10);
+    climateRecordOne.setPrecip(5);
+    climateRecordOne.setDate(dayOne);
+    climateRecordOne.setParcel(givenParcel);
+
+    ClimateRecord climateRecordTwo = new ClimateRecord();
+    climateRecordTwo.setEtc(5);
+    climateRecordTwo.setPrecip(2);
+    climateRecordTwo.setDate(dayTwo);
+    climateRecordTwo.setParcel(givenParcel);
+
+    ClimateRecord climateRecordThree = new ClimateRecord();
+    climateRecordThree.setEtc(2);
+    climateRecordThree.setPrecip(1);
+    climateRecordThree.setDate(dayThree);
+    climateRecordThree.setParcel(givenParcel);
+
+    ClimateRecord climateRecordFour = new ClimateRecord();
+    climateRecordFour.setEtc(3);
+    climateRecordFour.setPrecip(1);
+    climateRecordFour.setDate(dayFour);
+    climateRecordFour.setParcel(givenParcel);
+
+    ClimateRecord climateRecordFive = new ClimateRecord();
+    climateRecordFive.setEtc(1);
+    climateRecordFive.setPrecip(0);
+    climateRecordFive.setDate(dayFive);
+    climateRecordFive.setParcel(givenParcel);
+
+    ClimateRecord climateRecordSix = new ClimateRecord();
+    climateRecordSix.setEtc(4);
+    climateRecordSix.setPrecip(2);
+    climateRecordSix.setDate(daySix);
+    climateRecordSix.setParcel(givenParcel);
+
+    entityManager.getTransaction().begin();
+    climateRecordOne = climateRecordService.create(climateRecordOne);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordTwo = climateRecordService.create(climateRecordTwo);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordThree = climateRecordService.create(climateRecordThree);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordFour = climateRecordService.create(climateRecordFour);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordFive = climateRecordService.create(climateRecordFive);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordSix = climateRecordService.create(climateRecordSix);
+    entityManager.getTransaction().commit();
+
+    climateRecordsToBeDeleted.add(climateRecordOne);
+    climateRecordsToBeDeleted.add(climateRecordTwo);
+    climateRecordsToBeDeleted.add(climateRecordThree);
+    climateRecordsToBeDeleted.add(climateRecordFour);
+    climateRecordsToBeDeleted.add(climateRecordFive);
+    climateRecordsToBeDeleted.add(climateRecordSix);
+
+    /*
+     * Recupera los registros climaticos recientemente
+     * persistidos
+     */
+    Collection<ClimateRecord> recoveredClimateRecords = climateRecordService.findAllByParcelIdAndPeriod(givenUser.getId(), givenParcel.getId(), dateFrom, dateUntil);
+
+    System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
+    System.out.println();
+    printClimateRecords(presumedCurrentDate, recoveredClimateRecords);
+
+    /*
+     * Seccion de prueba
+     */
+    System.out.println("# Ejecucion de la prueba unitaria");
+
+    double expectedResult = 14.0;
+
+    /*
+     * El primer parametro de este metodo calculateIrrigationWaterNeed
+     * es la cantidad total de agua de riego de una fecha dada. En este
+     * caso, se le pasa el valor 0 como argumento porque suponemos que
+     * la cantidad total de agua de riego de la supuesta fecha actual
+     * es 0 para facilitar la tarea de probarlo.
+     */
+    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, irrigationRecords);
+
+    System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
+    System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
+    System.out.println("(nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + result);
+    System.out.println();
+
+    assertEquals(expectedResult, result, 0.001);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+    System.out.println();
+  }
+
+  @Test
+  public void testNineteenCalculateIrrigationWater() {
+    System.out.println("************************************** Prueba diecinueve del metodo sobrecargado calculateIrrigationWater ***************************************");
+    printDescriptionTestOverloadedCalculateIrrigationWaterNeed();
+
+    System.out.println("# Descripcion de la prueba unitaria");
+    System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println();
+
+    /*
+     * Fechas a partir de las cuales se recuperaran los
+     * registros climaticos y los registros de riego de
+     * una parcela de prueba de la base de datos subyacente
+     */
+    Calendar dateFrom = Calendar.getInstance();
+    dateFrom.set(Calendar.YEAR, 2023);
+    dateFrom.set(Calendar.MONTH, JANUARY);
+    dateFrom.set(Calendar.DAY_OF_MONTH, 1);
+
+    Calendar dateUntil = Calendar.getInstance();
+    dateUntil.set(Calendar.YEAR, 2023);
+    dateUntil.set(Calendar.MONTH, JANUARY);
+    dateUntil.set(Calendar.DAY_OF_MONTH, 6);
+
+    /*
+     * Persistencia de una opcion para el usuario de prueba
+     */
+    entityManager.getTransaction().begin();
+    Option userOption = optionService.create();
+    entityManager.getTransaction().commit();
+
+    options.add(userOption);
+
+    /*
+     * Persistencia de un usuario de prueba
+     */
+    User givenUser = new User();
+    givenUser.setUsername("alyx");
+    givenUser.setName("Alyx");
+    givenUser.setLastName("Vance");
+    givenUser.setEmail("alyx@eservice.com");
+    givenUser.setPassword("Alyx");
+    givenUser.setOption(userOption);
+
+    entityManager.getTransaction().begin();
+    givenUser = userService.create(givenUser);
+    entityManager.getTransaction().commit();
+
+    users.add(givenUser);
+
+    /*
+     * Persistencia de una parcela de prueba
+     */
+    Parcel givenParcel = new Parcel();
+    givenParcel.setName("Erie");
+    givenParcel.setHectares(2);
+    givenParcel.setLatitude(1);
+    givenParcel.setLongitude(1);
+    givenParcel.setUser(givenUser);
+
+    entityManager.getTransaction().begin();
+    givenParcel = parcelService.create(givenParcel);
+    entityManager.getTransaction().commit();
+
+    parcels.add(givenParcel);
+
+    /*
+     * Persistencia de registros climaticos de prueba
+     */
+    ClimateRecord climateRecordOne = new ClimateRecord();
+    climateRecordOne.setEtc(10);
+    climateRecordOne.setPrecip(5);
+    climateRecordOne.setDate(dayOne);
+    climateRecordOne.setParcel(givenParcel);
+
+    ClimateRecord climateRecordTwo = new ClimateRecord();
+    climateRecordTwo.setEtc(5);
+    climateRecordTwo.setPrecip(5);
+    climateRecordTwo.setDate(dayTwo);
+    climateRecordTwo.setParcel(givenParcel);
+
+    ClimateRecord climateRecordThree = new ClimateRecord();
+    climateRecordThree.setEtc(2);
+    climateRecordThree.setPrecip(1);
+    climateRecordThree.setDate(dayThree);
+    climateRecordThree.setParcel(givenParcel);
+
+    ClimateRecord climateRecordFour = new ClimateRecord();
+    climateRecordFour.setEtc(3);
+    climateRecordFour.setPrecip(3);
+    climateRecordFour.setDate(dayFour);
+    climateRecordFour.setParcel(givenParcel);
+
+    ClimateRecord climateRecordFive = new ClimateRecord();
+    climateRecordFive.setEtc(4);
+    climateRecordFive.setPrecip(1);
+    climateRecordFive.setDate(dayFive);
+    climateRecordFive.setParcel(givenParcel);
+
+    ClimateRecord climateRecordSix = new ClimateRecord();
+    climateRecordSix.setEtc(2);
+    climateRecordSix.setPrecip(2);
+    climateRecordSix.setDate(daySix);
+    climateRecordSix.setParcel(givenParcel);
+
+    entityManager.getTransaction().begin();
+    climateRecordOne = climateRecordService.create(climateRecordOne);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordTwo = climateRecordService.create(climateRecordTwo);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordThree = climateRecordService.create(climateRecordThree);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordFour = climateRecordService.create(climateRecordFour);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordFive = climateRecordService.create(climateRecordFive);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordSix = climateRecordService.create(climateRecordSix);
+    entityManager.getTransaction().commit();
+
+    climateRecordsToBeDeleted.add(climateRecordOne);
+    climateRecordsToBeDeleted.add(climateRecordTwo);
+    climateRecordsToBeDeleted.add(climateRecordThree);
+    climateRecordsToBeDeleted.add(climateRecordFour);
+    climateRecordsToBeDeleted.add(climateRecordFive);
+    climateRecordsToBeDeleted.add(climateRecordSix);
+
+    /*
+     * Recupera los registros climaticos recientemente
+     * persistidos
+     */
+    Collection<ClimateRecord> recoveredClimateRecords = climateRecordService.findAllByParcelIdAndPeriod(givenUser.getId(), givenParcel.getId(), dateFrom, dateUntil);
+
+    System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
+    System.out.println();
+    printClimateRecords(presumedCurrentDate, recoveredClimateRecords);
+
+    /*
+     * Seccion de prueba
+     */
+    System.out.println("# Ejecucion de la prueba unitaria");
+
+    double expectedResult = 9.0;
+
+    /*
+     * El primer parametro de este metodo calculateIrrigationWaterNeed
+     * es la cantidad total de agua de riego de una fecha dada. En este
+     * caso, se le pasa el valor 0 como argumento porque suponemos que
+     * la cantidad total de agua de riego de la supuesta fecha actual
+     * es 0 para facilitar la tarea de probarlo.
+     */
+    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, irrigationRecords);
+
+    System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
+    System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
+    System.out.println("(nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + result);
+    System.out.println();
+
+    assertEquals(expectedResult, result, 0.001);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+    System.out.println();
+  }
+
+  @Test
+  public void testTwentyCalculateIrrigationWater() {
+    System.out.println("************************************** Prueba veinte del metodo sobrecargado calculateIrrigationWater ***************************************");
+    printDescriptionTestOverloadedCalculateIrrigationWaterNeed();
+
+    System.out.println("# Descripcion de la prueba unitaria");
+    System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println();
+
+    /*
+     * Fechas a partir de las cuales se recuperaran los
+     * registros climaticos y los registros de riego de
+     * una parcela de prueba de la base de datos subyacente
+     */
+    Calendar dateFrom = Calendar.getInstance();
+    dateFrom.set(Calendar.YEAR, 2023);
+    dateFrom.set(Calendar.MONTH, JANUARY);
+    dateFrom.set(Calendar.DAY_OF_MONTH, 1);
+
+    Calendar dateUntil = Calendar.getInstance();
+    dateUntil.set(Calendar.YEAR, 2023);
+    dateUntil.set(Calendar.MONTH, JANUARY);
+    dateUntil.set(Calendar.DAY_OF_MONTH, 6);
+
+    /*
+     * Persistencia de una opcion para el usuario de prueba
+     */
+    entityManager.getTransaction().begin();
+    Option userOption = optionService.create();
+    entityManager.getTransaction().commit();
+
+    options.add(userOption);
+
+    /*
+     * Persistencia de un usuario de prueba
+     */
+    User givenUser = new User();
+    givenUser.setUsername("eli");
+    givenUser.setName("Eli");
+    givenUser.setLastName("Vance");
+    givenUser.setEmail("eli@eservice.com");
+    givenUser.setPassword("Eli");
+    givenUser.setOption(userOption);
+
+    entityManager.getTransaction().begin();
+    givenUser = userService.create(givenUser);
+    entityManager.getTransaction().commit();
+
+    users.add(givenUser);
+
+    /*
+     * Persistencia de una parcela de prueba
+     */
+    Parcel givenParcel = new Parcel();
+    givenParcel.setName("Erie");
+    givenParcel.setHectares(2);
+    givenParcel.setLatitude(1);
+    givenParcel.setLongitude(1);
+    givenParcel.setUser(givenUser);
+
+    entityManager.getTransaction().begin();
+    givenParcel = parcelService.create(givenParcel);
+    entityManager.getTransaction().commit();
+
+    parcels.add(givenParcel);
+
+    /*
+     * Persistencia de registros climaticos de prueba
+     */
+    ClimateRecord climateRecordOne = new ClimateRecord();
+    climateRecordOne.setEtc(10);
+    climateRecordOne.setPrecip(5);
+    climateRecordOne.setDate(dayOne);
+    climateRecordOne.setParcel(givenParcel);
+
+    ClimateRecord climateRecordTwo = new ClimateRecord();
+    climateRecordTwo.setEtc(5);
+    climateRecordTwo.setPrecip(5);
+    climateRecordTwo.setDate(dayTwo);
+    climateRecordTwo.setParcel(givenParcel);
+
+    ClimateRecord climateRecordThree = new ClimateRecord();
+    climateRecordThree.setEtc(2);
+    climateRecordThree.setPrecip(1);
+    climateRecordThree.setDate(dayThree);
+    climateRecordThree.setParcel(givenParcel);
+
+    ClimateRecord climateRecordFour = new ClimateRecord();
+    climateRecordFour.setEtc(3);
+    climateRecordFour.setPrecip(3);
+    climateRecordFour.setDate(dayFour);
+    climateRecordFour.setParcel(givenParcel);
+
+    ClimateRecord climateRecordFive = new ClimateRecord();
+    climateRecordFive.setEtc(4);
+    climateRecordFive.setPrecip(5);
+    climateRecordFive.setDate(dayFive);
+    climateRecordFive.setParcel(givenParcel);
+
+    ClimateRecord climateRecordSix = new ClimateRecord();
+    climateRecordSix.setEtc(2);
+    climateRecordSix.setPrecip(2);
+    climateRecordSix.setDate(daySix);
+    climateRecordSix.setParcel(givenParcel);
+
+    entityManager.getTransaction().begin();
+    climateRecordOne = climateRecordService.create(climateRecordOne);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordTwo = climateRecordService.create(climateRecordTwo);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordThree = climateRecordService.create(climateRecordThree);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordFour = climateRecordService.create(climateRecordFour);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordFive = climateRecordService.create(climateRecordFive);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordSix = climateRecordService.create(climateRecordSix);
+    entityManager.getTransaction().commit();
+
+    climateRecordsToBeDeleted.add(climateRecordOne);
+    climateRecordsToBeDeleted.add(climateRecordTwo);
+    climateRecordsToBeDeleted.add(climateRecordThree);
+    climateRecordsToBeDeleted.add(climateRecordFour);
+    climateRecordsToBeDeleted.add(climateRecordFive);
+    climateRecordsToBeDeleted.add(climateRecordSix);
+
+    /*
+     * Recupera los registros climaticos recientemente
+     * persistidos
+     */
+    Collection<ClimateRecord> recoveredClimateRecords = climateRecordService.findAllByParcelIdAndPeriod(givenUser.getId(), givenParcel.getId(), dateFrom, dateUntil);
+
+    System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
+    System.out.println();
+    printClimateRecords(presumedCurrentDate, recoveredClimateRecords);
+
+    /*
+     * Seccion de prueba
+     */
+    System.out.println("# Ejecucion de la prueba unitaria");
+
+    double expectedResult = 5.0;
+
+    /*
+     * El primer parametro de este metodo calculateIrrigationWaterNeed
+     * es la cantidad total de agua de riego de una fecha dada. En este
+     * caso, se le pasa el valor 0 como argumento porque suponemos que
+     * la cantidad total de agua de riego de la supuesta fecha actual
+     * es 0 para facilitar la tarea de probarlo.
+     */
+    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, irrigationRecords);
+
+    System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
+    System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
+    System.out.println("(nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + result);
+    System.out.println();
+
+    assertEquals(expectedResult, result, 0.001);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+    System.out.println();
+  }
+
+  @Test
+  public void testTwentyOneCalculateIrrigationWater() {
+    System.out.println("************************************** Prueba veintiuno del metodo sobrecargado calculateIrrigationWater ***************************************");
+    printDescriptionTestOverloadedCalculateIrrigationWaterNeed();
+
+    System.out.println("# Descripcion de la prueba unitaria");
+    System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println();
+
+    /*
+     * Fechas a partir de las cuales se recuperaran los
+     * registros climaticos y los registros de riego de
+     * una parcela de prueba de la base de datos subyacente
+     */
+    Calendar dateFrom = Calendar.getInstance();
+    dateFrom.set(Calendar.YEAR, 2023);
+    dateFrom.set(Calendar.MONTH, JANUARY);
+    dateFrom.set(Calendar.DAY_OF_MONTH, 1);
+
+    Calendar dateUntil = Calendar.getInstance();
+    dateUntil.set(Calendar.YEAR, 2023);
+    dateUntil.set(Calendar.MONTH, JANUARY);
+    dateUntil.set(Calendar.DAY_OF_MONTH, 6);
+
+    /*
+     * Persistencia de una opcion para el usuario de prueba
+     */
+    entityManager.getTransaction().begin();
+    Option userOption = optionService.create();
+    entityManager.getTransaction().commit();
+
+    options.add(userOption);
+
+    /*
+     * Persistencia de un usuario de prueba
+     */
+    User givenUser = new User();
+    givenUser.setUsername("vorti");
+    givenUser.setName("Vorti");
+    givenUser.setLastName("Vance");
+    givenUser.setEmail("vorti@eservice.com");
+    givenUser.setPassword("Vorti");
+    givenUser.setOption(userOption);
+
+    entityManager.getTransaction().begin();
+    givenUser = userService.create(givenUser);
+    entityManager.getTransaction().commit();
+
+    users.add(givenUser);
+
+    /*
+     * Persistencia de una parcela de prueba
+     */
+    Parcel givenParcel = new Parcel();
+    givenParcel.setName("Erie");
+    givenParcel.setHectares(2);
+    givenParcel.setLatitude(1);
+    givenParcel.setLongitude(1);
+    givenParcel.setUser(givenUser);
+
+    entityManager.getTransaction().begin();
+    givenParcel = parcelService.create(givenParcel);
+    entityManager.getTransaction().commit();
+
+    parcels.add(givenParcel);
+
+    /*
+     * Persistencia de registros climaticos de prueba
+     */
+    ClimateRecord climateRecordOne = new ClimateRecord();
+    climateRecordOne.setEtc(10);
+    climateRecordOne.setPrecip(15);
+    climateRecordOne.setDate(dayOne);
+    climateRecordOne.setParcel(givenParcel);
+
+    ClimateRecord climateRecordTwo = new ClimateRecord();
+    climateRecordTwo.setEtc(5);
+    climateRecordTwo.setPrecip(6);
+    climateRecordTwo.setDate(dayTwo);
+    climateRecordTwo.setParcel(givenParcel);
+
+    ClimateRecord climateRecordThree = new ClimateRecord();
+    climateRecordThree.setEtc(2);
+    climateRecordThree.setPrecip(3);
+    climateRecordThree.setDate(dayThree);
+    climateRecordThree.setParcel(givenParcel);
+
+    ClimateRecord climateRecordFour = new ClimateRecord();
+    climateRecordFour.setEtc(3);
+    climateRecordFour.setPrecip(4);
+    climateRecordFour.setDate(dayFour);
+    climateRecordFour.setParcel(givenParcel);
+
+    ClimateRecord climateRecordFive = new ClimateRecord();
+    climateRecordFive.setEtc(1);
+    climateRecordFive.setPrecip(2);
+    climateRecordFive.setDate(dayFive);
+    climateRecordFive.setParcel(givenParcel);
+
+    ClimateRecord climateRecordSix = new ClimateRecord();
+    climateRecordSix.setEtc(2.5);
+    climateRecordSix.setPrecip(5);
+    climateRecordSix.setDate(daySix);
+    climateRecordSix.setParcel(givenParcel);
+
+    entityManager.getTransaction().begin();
+    climateRecordOne = climateRecordService.create(climateRecordOne);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordTwo = climateRecordService.create(climateRecordTwo);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordThree = climateRecordService.create(climateRecordThree);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordFour = climateRecordService.create(climateRecordFour);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordFive = climateRecordService.create(climateRecordFive);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordSix = climateRecordService.create(climateRecordSix);
+    entityManager.getTransaction().commit();
+
+    climateRecordsToBeDeleted.add(climateRecordOne);
+    climateRecordsToBeDeleted.add(climateRecordTwo);
+    climateRecordsToBeDeleted.add(climateRecordThree);
+    climateRecordsToBeDeleted.add(climateRecordFour);
+    climateRecordsToBeDeleted.add(climateRecordFive);
+    climateRecordsToBeDeleted.add(climateRecordSix);
+
+    /*
+     * Recupera los registros climaticos recientemente
+     * persistidos
+     */
+    Collection<ClimateRecord> recoveredClimateRecords = climateRecordService.findAllByParcelIdAndPeriod(givenUser.getId(), givenParcel.getId(), dateFrom, dateUntil);
+
+    System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
+    System.out.println();
+    printClimateRecords(presumedCurrentDate, recoveredClimateRecords);
+
+    /*
+     * Seccion de prueba
+     */
+    System.out.println("# Ejecucion de la prueba unitaria");
+
+    double expectedResult = 0.0;
+
+    /*
+     * El primer parametro de este metodo calculateIrrigationWaterNeed
+     * es la cantidad total de agua de riego de una fecha dada. En este
+     * caso, se le pasa el valor 0 como argumento porque suponemos que
+     * la cantidad total de agua de riego de la supuesta fecha actual
+     * es 0 para facilitar la tarea de probarlo.
+     */
+    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, irrigationRecords);
+
+    System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
+    System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
+    System.out.println("(nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + result);
+    System.out.println();
+
+    assertEquals(expectedResult, result, 0.001);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+    System.out.println();
+  }
+
+  @Test
+  public void testTwentyTwoCalculateIrrigationWater() {
+    System.out.println("************************************** Prueba veintidos del metodo sobrecargado calculateIrrigationWater ***************************************");
+    printDescriptionTestOverloadedCalculateIrrigationWaterNeed();
+
+    System.out.println("# Descripcion de la prueba unitaria");
+    System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println();
+
+    /*
+     * Fechas a partir de las cuales se recuperaran los
+     * registros climaticos y los registros de riego de
+     * una parcela de prueba de la base de datos subyacente
+     */
+    Calendar dateFrom = Calendar.getInstance();
+    dateFrom.set(Calendar.YEAR, 2023);
+    dateFrom.set(Calendar.MONTH, JANUARY);
+    dateFrom.set(Calendar.DAY_OF_MONTH, 1);
+
+    Calendar dateUntil = Calendar.getInstance();
+    dateUntil.set(Calendar.YEAR, 2023);
+    dateUntil.set(Calendar.MONTH, JANUARY);
+    dateUntil.set(Calendar.DAY_OF_MONTH, 6);
+
+    /*
+     * Persistencia de una opcion para el usuario de prueba
+     */
+    entityManager.getTransaction().begin();
+    Option userOption = optionService.create();
+    entityManager.getTransaction().commit();
+
+    options.add(userOption);
+
+    /*
+     * Persistencia de un usuario de prueba
+     */
+    User givenUser = new User();
+    givenUser.setUsername("barney");
+    givenUser.setName("Barney");
+    givenUser.setLastName("Vance");
+    givenUser.setEmail("barney@eservice.com");
+    givenUser.setPassword("Barney");
+    givenUser.setOption(userOption);
+
+    entityManager.getTransaction().begin();
+    givenUser = userService.create(givenUser);
+    entityManager.getTransaction().commit();
+
+    users.add(givenUser);
+
+    /*
+     * Persistencia de una parcela de prueba
+     */
+    Parcel givenParcel = new Parcel();
+    givenParcel.setName("Erie");
+    givenParcel.setHectares(2);
+    givenParcel.setLatitude(1);
+    givenParcel.setLongitude(1);
+    givenParcel.setUser(givenUser);
+
+    entityManager.getTransaction().begin();
+    givenParcel = parcelService.create(givenParcel);
+    entityManager.getTransaction().commit();
+
+    parcels.add(givenParcel);
+
+    /*
+     * Persistencia de registros climaticos de prueba
+     */
+    ClimateRecord climateRecordOne = new ClimateRecord();
+    climateRecordOne.setEtc(10);
+    climateRecordOne.setPrecip(10);
+    climateRecordOne.setDate(dayOne);
+    climateRecordOne.setParcel(givenParcel);
+
+    ClimateRecord climateRecordTwo = new ClimateRecord();
+    climateRecordTwo.setEtc(5);
+    climateRecordTwo.setPrecip(5);
+    climateRecordTwo.setDate(dayTwo);
+    climateRecordTwo.setParcel(givenParcel);
+
+    ClimateRecord climateRecordThree = new ClimateRecord();
+    climateRecordThree.setEtc(2);
+    climateRecordThree.setPrecip(2);
+    climateRecordThree.setDate(dayThree);
+    climateRecordThree.setParcel(givenParcel);
+
+    ClimateRecord climateRecordFour = new ClimateRecord();
+    climateRecordFour.setEtc(3);
+    climateRecordFour.setPrecip(3);
+    climateRecordFour.setDate(dayFour);
+    climateRecordFour.setParcel(givenParcel);
+
+    ClimateRecord climateRecordFive = new ClimateRecord();
+    climateRecordFive.setEtc(1);
+    climateRecordFive.setPrecip(1);
+    climateRecordFive.setDate(dayFive);
+    climateRecordFive.setParcel(givenParcel);
+
+    ClimateRecord climateRecordSix = new ClimateRecord();
+    climateRecordSix.setEtc(2.5);
+    climateRecordSix.setPrecip(2.5);
+    climateRecordSix.setDate(daySix);
+    climateRecordSix.setParcel(givenParcel);
+
+    entityManager.getTransaction().begin();
+    climateRecordOne = climateRecordService.create(climateRecordOne);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordTwo = climateRecordService.create(climateRecordTwo);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordThree = climateRecordService.create(climateRecordThree);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordFour = climateRecordService.create(climateRecordFour);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordFive = climateRecordService.create(climateRecordFive);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordSix = climateRecordService.create(climateRecordSix);
+    entityManager.getTransaction().commit();
+
+    climateRecordsToBeDeleted.add(climateRecordOne);
+    climateRecordsToBeDeleted.add(climateRecordTwo);
+    climateRecordsToBeDeleted.add(climateRecordThree);
+    climateRecordsToBeDeleted.add(climateRecordFour);
+    climateRecordsToBeDeleted.add(climateRecordFive);
+    climateRecordsToBeDeleted.add(climateRecordSix);
+
+    /*
+     * Recupera los registros climaticos recientemente
+     * persistidos
+     */
+    Collection<ClimateRecord> recoveredClimateRecords = climateRecordService.findAllByParcelIdAndPeriod(givenUser.getId(), givenParcel.getId(), dateFrom, dateUntil);
+
+    System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
+    System.out.println();
+    printClimateRecords(presumedCurrentDate, recoveredClimateRecords);
+
+    /*
+     * Seccion de prueba
+     */
+    System.out.println("# Ejecucion de la prueba unitaria");
+
+    double expectedResult = 0.0;
+
+    /*
+     * El primer parametro de este metodo calculateIrrigationWaterNeed
+     * es la cantidad total de agua de riego de una fecha dada. En este
+     * caso, se le pasa el valor 0 como argumento porque suponemos que
+     * la cantidad total de agua de riego de la supuesta fecha actual
+     * es 0 para facilitar la tarea de probarlo.
+     */
+    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, irrigationRecords);
+
+    System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
+    System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
+    System.out.println("(nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + result);
+    System.out.println();
+
+    assertEquals(expectedResult, result, 0.001);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+    System.out.println();
+  }
+
+  @Test
+  public void testTwentyThreeCalculateIrrigationWater() {
+    System.out.println("************************************** Prueba ventitres del metodo sobrecargado calculateIrrigationWater ***************************************");
+    printDescriptionTestOverloadedCalculateIrrigationWaterNeed();
+
+    System.out.println("# Descripcion de la prueba unitaria");
+    System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println();
+
+    /*
+     * Fechas a partir de las cuales se recuperaran los
+     * registros climaticos y los registros de riego de
+     * una parcela de prueba de la base de datos subyacente
+     */
+    Calendar dateFrom = Calendar.getInstance();
+    dateFrom.set(Calendar.YEAR, 2023);
+    dateFrom.set(Calendar.MONTH, JANUARY);
+    dateFrom.set(Calendar.DAY_OF_MONTH, 1);
+
+    Calendar dateUntil = Calendar.getInstance();
+    dateUntil.set(Calendar.YEAR, 2023);
+    dateUntil.set(Calendar.MONTH, JANUARY);
+    dateUntil.set(Calendar.DAY_OF_MONTH, 6);
+
+    /*
+     * Persistencia de una opcion para el usuario de prueba
+     */
+    entityManager.getTransaction().begin();
+    Option userOption = optionService.create();
+    entityManager.getTransaction().commit();
+
+    options.add(userOption);
+
+    /*
+     * Persistencia de un usuario de prueba
+     */
+    User givenUser = new User();
+    givenUser.setUsername("william");
+    givenUser.setName("William");
+    givenUser.setLastName("Vance");
+    givenUser.setEmail("william@eservice.com");
+    givenUser.setPassword("William");
+    givenUser.setOption(userOption);
+
+    entityManager.getTransaction().begin();
+    givenUser = userService.create(givenUser);
+    entityManager.getTransaction().commit();
+
+    users.add(givenUser);
+
+    /*
+     * Persistencia de una parcela de prueba
+     */
+    Parcel givenParcel = new Parcel();
+    givenParcel.setName("Erie");
+    givenParcel.setHectares(2);
+    givenParcel.setLatitude(1);
+    givenParcel.setLongitude(1);
+    givenParcel.setUser(givenUser);
+
+    entityManager.getTransaction().begin();
+    givenParcel = parcelService.create(givenParcel);
+    entityManager.getTransaction().commit();
+
+    parcels.add(givenParcel);
+
+    /*
+     * Persistencia de registros climaticos de prueba
+     */
+    ClimateRecord climateRecordOne = new ClimateRecord();
+    climateRecordOne.setEtc(10);
+    climateRecordOne.setPrecip(10);
+    climateRecordOne.setDate(dayOne);
+    climateRecordOne.setParcel(givenParcel);
+
+    ClimateRecord climateRecordTwo = new ClimateRecord();
+    climateRecordTwo.setEtc(5);
+    climateRecordTwo.setPrecip(10);
+    climateRecordTwo.setDate(dayTwo);
+    climateRecordTwo.setParcel(givenParcel);
+
+    ClimateRecord climateRecordThree = new ClimateRecord();
+    climateRecordThree.setEtc(2);
+    climateRecordThree.setPrecip(10);
+    climateRecordThree.setDate(dayThree);
+    climateRecordThree.setParcel(givenParcel);
+
+    ClimateRecord climateRecordFour = new ClimateRecord();
+    climateRecordFour.setEtc(3);
+    climateRecordFour.setPrecip(0);
+    climateRecordFour.setDate(dayFour);
+    climateRecordFour.setParcel(givenParcel);
+
+    ClimateRecord climateRecordFive = new ClimateRecord();
+    climateRecordFive.setEtc(4);
+    climateRecordFive.setPrecip(1);
+    climateRecordFive.setDate(dayFive);
+    climateRecordFive.setParcel(givenParcel);
+
+    ClimateRecord climateRecordSix = new ClimateRecord();
+    climateRecordSix.setEtc(2);
+    climateRecordSix.setPrecip(4);
+    climateRecordSix.setDate(daySix);
+    climateRecordSix.setParcel(givenParcel);
+
+    entityManager.getTransaction().begin();
+    climateRecordOne = climateRecordService.create(climateRecordOne);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordTwo = climateRecordService.create(climateRecordTwo);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordThree = climateRecordService.create(climateRecordThree);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordFour = climateRecordService.create(climateRecordFour);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordFive = climateRecordService.create(climateRecordFive);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordSix = climateRecordService.create(climateRecordSix);
+    entityManager.getTransaction().commit();
+
+    climateRecordsToBeDeleted.add(climateRecordOne);
+    climateRecordsToBeDeleted.add(climateRecordTwo);
+    climateRecordsToBeDeleted.add(climateRecordThree);
+    climateRecordsToBeDeleted.add(climateRecordFour);
+    climateRecordsToBeDeleted.add(climateRecordFive);
+    climateRecordsToBeDeleted.add(climateRecordSix);
+
+    /*
+     * Recupera los registros climaticos recientemente
+     * persistidos
+     */
+    Collection<ClimateRecord> recoveredClimateRecords = climateRecordService.findAllByParcelIdAndPeriod(givenUser.getId(), givenParcel.getId(), dateFrom, dateUntil);
+
+    System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
+    System.out.println();
+    printClimateRecords(presumedCurrentDate, recoveredClimateRecords);
+
+    /*
+     * Seccion de prueba
+     */
+    System.out.println("# Ejecucion de la prueba unitaria");
+
+    double expectedResult = 4.0;
+
+    /*
+     * El primer parametro de este metodo calculateIrrigationWaterNeed
+     * es la cantidad total de agua de riego de una fecha dada. En este
+     * caso, se le pasa el valor 0 como argumento porque suponemos que
+     * la cantidad total de agua de riego de la supuesta fecha actual
+     * es 0 para facilitar la tarea de probarlo.
+     */
+    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, irrigationRecords);
+
+    System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
+    System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
+    System.out.println("(nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + result);
+    System.out.println();
+
+    assertEquals(expectedResult, result, 0.001);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+    System.out.println();
+  }
+
+  @Test
+  public void testTwentyFourCalculateIrrigationWater() {
+    System.out.println("************************************** Prueba veinticuatro del metodo sobrecargado calculateIrrigationWater ***************************************");
+    printDescriptionTestOverloadedCalculateIrrigationWaterNeed();
+
+    System.out.println("# Descripcion de la prueba unitaria");
+    System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println();
+
+    /*
+     * Fechas a partir de las cuales se recuperaran los
+     * registros climaticos y los registros de riego de
+     * una parcela de prueba de la base de datos subyacente
+     */
+    Calendar dateFrom = Calendar.getInstance();
+    dateFrom.set(Calendar.YEAR, 2023);
+    dateFrom.set(Calendar.MONTH, JANUARY);
+    dateFrom.set(Calendar.DAY_OF_MONTH, 1);
+
+    Calendar dateUntil = Calendar.getInstance();
+    dateUntil.set(Calendar.YEAR, 2023);
+    dateUntil.set(Calendar.MONTH, JANUARY);
+    dateUntil.set(Calendar.DAY_OF_MONTH, 6);
+
+    /*
+     * Persistencia de una opcion para el usuario de prueba
+     */
+    entityManager.getTransaction().begin();
+    Option userOption = optionService.create();
+    entityManager.getTransaction().commit();
+
+    options.add(userOption);
+
+    /*
+     * Persistencia de un usuario de prueba
+     */
+    User givenUser = new User();
+    givenUser.setUsername("tom");
+    givenUser.setName("Tom");
+    givenUser.setLastName("Vance");
+    givenUser.setEmail("tom@eservice.com");
+    givenUser.setPassword("Tom");
+    givenUser.setOption(userOption);
+
+    entityManager.getTransaction().begin();
+    givenUser = userService.create(givenUser);
+    entityManager.getTransaction().commit();
+
+    users.add(givenUser);
+
+    /*
+     * Persistencia de una parcela de prueba
+     */
+    Parcel givenParcel = new Parcel();
+    givenParcel.setName("Erie");
+    givenParcel.setHectares(2);
+    givenParcel.setLatitude(1);
+    givenParcel.setLongitude(1);
+    givenParcel.setUser(givenUser);
+
+    entityManager.getTransaction().begin();
+    givenParcel = parcelService.create(givenParcel);
+    entityManager.getTransaction().commit();
+
+    parcels.add(givenParcel);
+
+    /*
+     * Persistencia de registros climaticos de prueba
+     */
+    ClimateRecord climateRecordOne = new ClimateRecord();
+    climateRecordOne.setEtc(15);
+    climateRecordOne.setPrecip(10);
+    climateRecordOne.setDate(dayOne);
+    climateRecordOne.setParcel(givenParcel);
+
+    ClimateRecord climateRecordTwo = new ClimateRecord();
+    climateRecordTwo.setEtc(12);
+    climateRecordTwo.setPrecip(13);
+    climateRecordTwo.setDate(dayTwo);
+    climateRecordTwo.setParcel(givenParcel);
+
+    ClimateRecord climateRecordThree = new ClimateRecord();
+    climateRecordThree.setEtc(6);
+    climateRecordThree.setPrecip(6);
+    climateRecordThree.setDate(dayThree);
+    climateRecordThree.setParcel(givenParcel);
+
+    ClimateRecord climateRecordFour = new ClimateRecord();
+    climateRecordFour.setEtc(2);
+    climateRecordFour.setPrecip(1);
+    climateRecordFour.setDate(dayFour);
+    climateRecordFour.setParcel(givenParcel);
+
+    ClimateRecord climateRecordFive = new ClimateRecord();
+    climateRecordFive.setEtc(4);
+    climateRecordFive.setPrecip(2);
+    climateRecordFive.setDate(dayFive);
+    climateRecordFive.setParcel(givenParcel);
+
+    ClimateRecord climateRecordSix = new ClimateRecord();
+    climateRecordSix.setEtc(7);
+    climateRecordSix.setPrecip(7);
+    climateRecordSix.setDate(daySix);
+    climateRecordSix.setParcel(givenParcel);
+
+    entityManager.getTransaction().begin();
+    climateRecordOne = climateRecordService.create(climateRecordOne);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordTwo = climateRecordService.create(climateRecordTwo);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordThree = climateRecordService.create(climateRecordThree);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordFour = climateRecordService.create(climateRecordFour);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordFive = climateRecordService.create(climateRecordFive);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordSix = climateRecordService.create(climateRecordSix);
+    entityManager.getTransaction().commit();
+
+    climateRecordsToBeDeleted.add(climateRecordOne);
+    climateRecordsToBeDeleted.add(climateRecordTwo);
+    climateRecordsToBeDeleted.add(climateRecordThree);
+    climateRecordsToBeDeleted.add(climateRecordFour);
+    climateRecordsToBeDeleted.add(climateRecordFive);
+    climateRecordsToBeDeleted.add(climateRecordSix);
+
+    /*
+     * Recupera los registros climaticos recientemente
+     * persistidos
+     */
+    Collection<ClimateRecord> recoveredClimateRecords = climateRecordService.findAllByParcelIdAndPeriod(givenUser.getId(), givenParcel.getId(), dateFrom, dateUntil);
+
+    System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
+    System.out.println();
+    printClimateRecords(presumedCurrentDate, recoveredClimateRecords);
+
+    /*
+     * Seccion de prueba
+     */
+    System.out.println("# Ejecucion de la prueba unitaria");
+
+    double expectedResult = 7.0;
+
+    /*
+     * El primer parametro de este metodo calculateIrrigationWaterNeed
+     * es la cantidad total de agua de riego de una fecha dada. En este
+     * caso, se le pasa el valor 0 como argumento porque suponemos que
+     * la cantidad total de agua de riego de la supuesta fecha actual
+     * es 0 para facilitar la tarea de probarlo.
+     */
+    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, irrigationRecords);
+
+    System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
+    System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
+    System.out.println("(nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + result);
+    System.out.println();
+
+    assertEquals(expectedResult, result, 0.001);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+    System.out.println();
+  }
+
+  @Test
+  public void testTwentyFiveCalculateIrrigationWater() {
+    System.out.println("************************************** Prueba veinticinco del metodo sobrecargado calculateIrrigationWater ***************************************");
+    printDescriptionTestOverloadedCalculateIrrigationWaterNeed();
+
+    System.out.println("# Descripcion de la prueba unitaria");
+    System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println();
+
+    /*
+     * Fechas a partir de las cuales se recuperaran los
+     * registros climaticos y los registros de riego de
+     * una parcela de prueba de la base de datos subyacente
+     */
+    Calendar dateFrom = Calendar.getInstance();
+    dateFrom.set(Calendar.YEAR, 2023);
+    dateFrom.set(Calendar.MONTH, JANUARY);
+    dateFrom.set(Calendar.DAY_OF_MONTH, 1);
+
+    Calendar dateUntil = Calendar.getInstance();
+    dateUntil.set(Calendar.YEAR, 2023);
+    dateUntil.set(Calendar.MONTH, JANUARY);
+    dateUntil.set(Calendar.DAY_OF_MONTH, 6);
+
+    /*
+     * Persistencia de una opcion para el usuario de prueba
+     */
+    entityManager.getTransaction().begin();
+    Option userOption = optionService.create();
+    entityManager.getTransaction().commit();
+
+    options.add(userOption);
+
+    /*
+     * Persistencia de un usuario de prueba
+     */
+    User givenUser = new User();
+    givenUser.setUsername("jerry");
+    givenUser.setName("Jerry");
+    givenUser.setLastName("Vance");
+    givenUser.setEmail("jerry@eservice.com");
+    givenUser.setPassword("Jerry");
+    givenUser.setOption(userOption);
+
+    entityManager.getTransaction().begin();
+    givenUser = userService.create(givenUser);
+    entityManager.getTransaction().commit();
+
+    users.add(givenUser);
+
+    /*
+     * Persistencia de una parcela de prueba
+     */
+    Parcel givenParcel = new Parcel();
+    givenParcel.setName("Erie");
+    givenParcel.setHectares(2);
+    givenParcel.setLatitude(1);
+    givenParcel.setLongitude(1);
+    givenParcel.setUser(givenUser);
+
+    entityManager.getTransaction().begin();
+    givenParcel = parcelService.create(givenParcel);
+    entityManager.getTransaction().commit();
+
+    parcels.add(givenParcel);
+
+    /*
+     * Persistencia de registros climaticos de prueba
+     */
+    ClimateRecord climateRecordOne = new ClimateRecord();
+    climateRecordOne.setEtc(15);
+    climateRecordOne.setPrecip(15);
+    climateRecordOne.setDate(dayOne);
+    climateRecordOne.setParcel(givenParcel);
+
+    ClimateRecord climateRecordTwo = new ClimateRecord();
+    climateRecordTwo.setEtc(12);
+    climateRecordTwo.setPrecip(16);
+    climateRecordTwo.setDate(dayTwo);
+    climateRecordTwo.setParcel(givenParcel);
+
+    ClimateRecord climateRecordThree = new ClimateRecord();
+    climateRecordThree.setEtc(6);
+    climateRecordThree.setPrecip(8);
+    climateRecordThree.setDate(dayThree);
+    climateRecordThree.setParcel(givenParcel);
+
+    ClimateRecord climateRecordFour = new ClimateRecord();
+    climateRecordFour.setEtc(2);
+    climateRecordFour.setPrecip(0);
+    climateRecordFour.setDate(dayFour);
+    climateRecordFour.setParcel(givenParcel);
+
+    ClimateRecord climateRecordFive = new ClimateRecord();
+    climateRecordFive.setEtc(4);
+    climateRecordFive.setPrecip(1);
+    climateRecordFive.setDate(dayFive);
+    climateRecordFive.setParcel(givenParcel);
+
+    ClimateRecord climateRecordSix = new ClimateRecord();
+    climateRecordSix.setEtc(5);
+    climateRecordSix.setPrecip(6);
+    climateRecordSix.setDate(daySix);
+    climateRecordSix.setParcel(givenParcel);
+
+    entityManager.getTransaction().begin();
+    climateRecordOne = climateRecordService.create(climateRecordOne);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordTwo = climateRecordService.create(climateRecordTwo);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordThree = climateRecordService.create(climateRecordThree);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordFour = climateRecordService.create(climateRecordFour);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordFive = climateRecordService.create(climateRecordFive);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordSix = climateRecordService.create(climateRecordSix);
+    entityManager.getTransaction().commit();
+
+    climateRecordsToBeDeleted.add(climateRecordOne);
+    climateRecordsToBeDeleted.add(climateRecordTwo);
+    climateRecordsToBeDeleted.add(climateRecordThree);
+    climateRecordsToBeDeleted.add(climateRecordFour);
+    climateRecordsToBeDeleted.add(climateRecordFive);
+    climateRecordsToBeDeleted.add(climateRecordSix);
+
+    /*
+     * Recupera los registros climaticos recientemente
+     * persistidos
+     */
+    Collection<ClimateRecord> recoveredClimateRecords = climateRecordService.findAllByParcelIdAndPeriod(givenUser.getId(), givenParcel.getId(), dateFrom, dateUntil);
+
+    System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
+    System.out.println();
+    printClimateRecords(presumedCurrentDate, recoveredClimateRecords);
+
+    /*
+     * Seccion de prueba
+     */
+    System.out.println("# Ejecucion de la prueba unitaria");
+
+    double expectedResult = 4.0;
+
+    /*
+     * El primer parametro de este metodo calculateIrrigationWaterNeed
+     * es la cantidad total de agua de riego de una fecha dada. En este
+     * caso, se le pasa el valor 0 como argumento porque suponemos que
+     * la cantidad total de agua de riego de la supuesta fecha actual
+     * es 0 para facilitar la tarea de probarlo.
+     */
+    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, irrigationRecords);
+
+    System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
+    System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
+    System.out.println("(nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + result);
+    System.out.println();
+
+    assertEquals(expectedResult, result, 0.001);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+    System.out.println();
+  }
+
+  @Test
+  public void testTwentySixCalculateIrrigationWater() {
+    System.out.println("************************************** Prueba veintiseis del metodo sobrecargado calculateIrrigationWater ***************************************");
+    printDescriptionTestOverloadedCalculateIrrigationWaterNeed();
+
+    System.out.println("# Descripcion de la prueba unitaria");
+    System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println();
+
+    /*
+     * Fechas a partir de las cuales se recuperaran los
+     * registros climaticos y los registros de riego de
+     * una parcela de prueba de la base de datos subyacente
+     */
+    Calendar dateFrom = Calendar.getInstance();
+    dateFrom.set(Calendar.YEAR, 2023);
+    dateFrom.set(Calendar.MONTH, JANUARY);
+    dateFrom.set(Calendar.DAY_OF_MONTH, 1);
+
+    Calendar dateUntil = Calendar.getInstance();
+    dateUntil.set(Calendar.YEAR, 2023);
+    dateUntil.set(Calendar.MONTH, JANUARY);
+    dateUntil.set(Calendar.DAY_OF_MONTH, 6);
+
+    /*
+     * Persistencia de una opcion para el usuario de prueba
+     */
+    entityManager.getTransaction().begin();
+    Option userOption = optionService.create();
+    entityManager.getTransaction().commit();
+
+    options.add(userOption);
+
+    /*
+     * Persistencia de un usuario de prueba
+     */
+    User givenUser = new User();
+    givenUser.setUsername("leon");
+    givenUser.setName("Leon");
+    givenUser.setLastName("Vance");
+    givenUser.setEmail("leon@eservice.com");
+    givenUser.setPassword("Leon");
+    givenUser.setOption(userOption);
+
+    entityManager.getTransaction().begin();
+    givenUser = userService.create(givenUser);
+    entityManager.getTransaction().commit();
+
+    users.add(givenUser);
+
+    /*
+     * Persistencia de una parcela de prueba
+     */
+    Parcel givenParcel = new Parcel();
+    givenParcel.setName("Erie");
+    givenParcel.setHectares(2);
+    givenParcel.setLatitude(1);
+    givenParcel.setLongitude(1);
+    givenParcel.setUser(givenUser);
+
+    entityManager.getTransaction().begin();
+    givenParcel = parcelService.create(givenParcel);
+    entityManager.getTransaction().commit();
+
+    parcels.add(givenParcel);
+
+    /*
+     * Persistencia de registros climaticos de prueba
+     */
+    ClimateRecord climateRecordOne = new ClimateRecord();
+    climateRecordOne.setEtc(15);
+    climateRecordOne.setPrecip(15);
+    climateRecordOne.setDate(dayOne);
+    climateRecordOne.setParcel(givenParcel);
+
+    ClimateRecord climateRecordTwo = new ClimateRecord();
+    climateRecordTwo.setEtc(12);
+    climateRecordTwo.setPrecip(12);
+    climateRecordTwo.setDate(dayTwo);
+    climateRecordTwo.setParcel(givenParcel);
+
+    ClimateRecord climateRecordThree = new ClimateRecord();
+    climateRecordThree.setEtc(6);
+    climateRecordThree.setPrecip(2);
+    climateRecordThree.setDate(dayThree);
+    climateRecordThree.setParcel(givenParcel);
+
+    ClimateRecord climateRecordFour = new ClimateRecord();
+    climateRecordFour.setEtc(2);
+    climateRecordFour.setPrecip(0);
+    climateRecordFour.setDate(dayFour);
+    climateRecordFour.setParcel(givenParcel);
+
+    ClimateRecord climateRecordFive = new ClimateRecord();
+    climateRecordFive.setEtc(4);
+    climateRecordFive.setPrecip(1);
+    climateRecordFive.setDate(dayFive);
+    climateRecordFive.setParcel(givenParcel);
+
+    ClimateRecord climateRecordSix = new ClimateRecord();
+    climateRecordSix.setEtc(5);
+    climateRecordSix.setPrecip(14);
+    climateRecordSix.setDate(daySix);
+    climateRecordSix.setParcel(givenParcel);
+
+    entityManager.getTransaction().begin();
+    climateRecordOne = climateRecordService.create(climateRecordOne);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordTwo = climateRecordService.create(climateRecordTwo);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordThree = climateRecordService.create(climateRecordThree);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordFour = climateRecordService.create(climateRecordFour);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordFive = climateRecordService.create(climateRecordFive);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordSix = climateRecordService.create(climateRecordSix);
+    entityManager.getTransaction().commit();
+
+    climateRecordsToBeDeleted.add(climateRecordOne);
+    climateRecordsToBeDeleted.add(climateRecordTwo);
+    climateRecordsToBeDeleted.add(climateRecordThree);
+    climateRecordsToBeDeleted.add(climateRecordFour);
+    climateRecordsToBeDeleted.add(climateRecordFive);
+    climateRecordsToBeDeleted.add(climateRecordSix);
+
+    /*
+     * Recupera los registros climaticos recientemente
+     * persistidos
+     */
+    Collection<ClimateRecord> recoveredClimateRecords = climateRecordService.findAllByParcelIdAndPeriod(givenUser.getId(), givenParcel.getId(), dateFrom, dateUntil);
+
+    System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
+    System.out.println();
+    printClimateRecords(presumedCurrentDate, recoveredClimateRecords);
+
+    /*
+     * Seccion de prueba
+     */
+    System.out.println("# Ejecucion de la prueba unitaria");
+
+    double expectedResult = 0.0;
+
+    /*
+     * El primer parametro de este metodo calculateIrrigationWaterNeed
+     * es la cantidad total de agua de riego de una fecha dada. En este
+     * caso, se le pasa el valor 0 como argumento porque suponemos que
+     * la cantidad total de agua de riego de la supuesta fecha actual
+     * es 0 para facilitar la tarea de probarlo.
+     */
+    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, irrigationRecords);
+
+    System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
+    System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
+    System.out.println("(nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + result);
+    System.out.println();
+
+    assertEquals(expectedResult, result, 0.001);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+    System.out.println();
+  }
+
+  @Test
+  public void testTwentySevenCalculateIrrigationWater() {
+    System.out.println("************************************** Prueba veintisiete del metodo sobrecargado calculateIrrigationWater ***************************************");
+    printDescriptionTestOverloadedCalculateIrrigationWaterNeed();
+
+    System.out.println("# Descripcion de la prueba unitaria");
+    System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println();
+
+    /*
+     * Fechas a partir de las cuales se recuperaran los
+     * registros climaticos y los registros de riego de
+     * una parcela de prueba de la base de datos subyacente
+     */
+    Calendar dateFrom = Calendar.getInstance();
+    dateFrom.set(Calendar.YEAR, 2023);
+    dateFrom.set(Calendar.MONTH, JANUARY);
+    dateFrom.set(Calendar.DAY_OF_MONTH, 1);
+
+    Calendar dateUntil = Calendar.getInstance();
+    dateUntil.set(Calendar.YEAR, 2023);
+    dateUntil.set(Calendar.MONTH, JANUARY);
+    dateUntil.set(Calendar.DAY_OF_MONTH, 6);
+
+    /*
+     * Persistencia de una opcion para el usuario de prueba
+     */
+    entityManager.getTransaction().begin();
+    Option userOption = optionService.create();
+    entityManager.getTransaction().commit();
+
+    options.add(userOption);
+
+    /*
+     * Persistencia de un usuario de prueba
+     */
+    User givenUser = new User();
+    givenUser.setUsername("claire");
+    givenUser.setName("Claire");
+    givenUser.setLastName("Redfield");
+    givenUser.setEmail("claire@eservice.com");
+    givenUser.setPassword("Claire");
+    givenUser.setOption(userOption);
+
+    entityManager.getTransaction().begin();
+    givenUser = userService.create(givenUser);
+    entityManager.getTransaction().commit();
+
+    users.add(givenUser);
+
+    /*
+     * Persistencia de una parcela de prueba
+     */
+    Parcel givenParcel = new Parcel();
+    givenParcel.setName("Erie");
+    givenParcel.setHectares(2);
+    givenParcel.setLatitude(1);
+    givenParcel.setLongitude(1);
+    givenParcel.setUser(givenUser);
+
+    entityManager.getTransaction().begin();
+    givenParcel = parcelService.create(givenParcel);
+    entityManager.getTransaction().commit();
+
+    parcels.add(givenParcel);
+
+    /*
+     * Persistencia de registros climaticos de prueba
+     */
+    ClimateRecord climateRecordOne = new ClimateRecord();
+    climateRecordOne.setEtc(15);
+    climateRecordOne.setPrecip(15);
+    climateRecordOne.setDate(dayOne);
+    climateRecordOne.setParcel(givenParcel);
+
+    ClimateRecord climateRecordTwo = new ClimateRecord();
+    climateRecordTwo.setEtc(12);
+    climateRecordTwo.setPrecip(12);
+    climateRecordTwo.setDate(dayTwo);
+    climateRecordTwo.setParcel(givenParcel);
+
+    ClimateRecord climateRecordThree = new ClimateRecord();
+    climateRecordThree.setEtc(6);
+    climateRecordThree.setPrecip(2);
+    climateRecordThree.setDate(dayThree);
+    climateRecordThree.setParcel(givenParcel);
+
+    ClimateRecord climateRecordFour = new ClimateRecord();
+    climateRecordFour.setEtc(2);
+    climateRecordFour.setPrecip(0);
+    climateRecordFour.setDate(dayFour);
+    climateRecordFour.setParcel(givenParcel);
+
+    ClimateRecord climateRecordFive = new ClimateRecord();
+    climateRecordFive.setEtc(4);
+    climateRecordFive.setPrecip(1);
+    climateRecordFive.setDate(dayFive);
+    climateRecordFive.setParcel(givenParcel);
+
+    ClimateRecord climateRecordSix = new ClimateRecord();
+    climateRecordSix.setEtc(5);
+    climateRecordSix.setPrecip(20);
+    climateRecordSix.setDate(daySix);
+    climateRecordSix.setParcel(givenParcel);
+
+    entityManager.getTransaction().begin();
+    climateRecordOne = climateRecordService.create(climateRecordOne);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordTwo = climateRecordService.create(climateRecordTwo);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordThree = climateRecordService.create(climateRecordThree);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordFour = climateRecordService.create(climateRecordFour);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordFive = climateRecordService.create(climateRecordFive);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordSix = climateRecordService.create(climateRecordSix);
+    entityManager.getTransaction().commit();
+
+    climateRecordsToBeDeleted.add(climateRecordOne);
+    climateRecordsToBeDeleted.add(climateRecordTwo);
+    climateRecordsToBeDeleted.add(climateRecordThree);
+    climateRecordsToBeDeleted.add(climateRecordFour);
+    climateRecordsToBeDeleted.add(climateRecordFive);
+    climateRecordsToBeDeleted.add(climateRecordSix);
+
+    /*
+     * Recupera los registros climaticos recientemente
+     * persistidos
+     */
+    Collection<ClimateRecord> recoveredClimateRecords = climateRecordService.findAllByParcelIdAndPeriod(givenUser.getId(), givenParcel.getId(), dateFrom, dateUntil);
+
+    System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
+    System.out.println();
+    printClimateRecords(presumedCurrentDate, recoveredClimateRecords);
+
+    /*
+     * Seccion de prueba
+     */
+    System.out.println("# Ejecucion de la prueba unitaria");
+
+    double expectedResult = 0.0;
+
+    /*
+     * El primer parametro de este metodo calculateIrrigationWaterNeed
+     * es la cantidad total de agua de riego de una fecha dada. En este
+     * caso, se le pasa el valor 0 como argumento porque suponemos que
+     * la cantidad total de agua de riego de la supuesta fecha actual
+     * es 0 para facilitar la tarea de probarlo.
+     */
+    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, irrigationRecords);
+
+    System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
+    System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
+    System.out.println("(nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + result);
+    System.out.println();
+
+    assertEquals(expectedResult, result, 0.001);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+    System.out.println();
+  }
+
+  @Test
+  public void testTwentyEightCalculateIrrigationWater() {
+    System.out.println("************************************** Prueba veintiocho del metodo sobrecargado calculateIrrigationWater ***************************************");
+    printDescriptionTestOverloadedCalculateIrrigationWaterNeed();
+
+    System.out.println("# Descripcion de la prueba unitaria");
+    System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println();
+
+    /*
+     * Fechas a partir de las cuales se recuperaran los
+     * registros climaticos y los registros de riego de
+     * una parcela de prueba de la base de datos subyacente
+     */
+    Calendar dateFrom = Calendar.getInstance();
+    dateFrom.set(Calendar.YEAR, 2023);
+    dateFrom.set(Calendar.MONTH, JANUARY);
+    dateFrom.set(Calendar.DAY_OF_MONTH, 1);
+
+    Calendar dateUntil = Calendar.getInstance();
+    dateUntil.set(Calendar.YEAR, 2023);
+    dateUntil.set(Calendar.MONTH, JANUARY);
+    dateUntil.set(Calendar.DAY_OF_MONTH, 6);
+
+    /*
+     * Persistencia de una opcion para el usuario de prueba
+     */
+    entityManager.getTransaction().begin();
+    Option userOption = optionService.create();
+    entityManager.getTransaction().commit();
+
+    options.add(userOption);
+
+    /*
+     * Persistencia de un usuario de prueba
+     */
+    User givenUser = new User();
+    givenUser.setUsername("chris");
+    givenUser.setName("Chris");
+    givenUser.setLastName("Redfield");
+    givenUser.setEmail("chris@eservice.com");
+    givenUser.setPassword("Chris");
+    givenUser.setOption(userOption);
+
+    entityManager.getTransaction().begin();
+    givenUser = userService.create(givenUser);
+    entityManager.getTransaction().commit();
+
+    users.add(givenUser);
+
+    /*
+     * Persistencia de una parcela de prueba
+     */
+    Parcel givenParcel = new Parcel();
+    givenParcel.setName("Erie");
+    givenParcel.setHectares(2);
+    givenParcel.setLatitude(1);
+    givenParcel.setLongitude(1);
+    givenParcel.setUser(givenUser);
+
+    entityManager.getTransaction().begin();
+    givenParcel = parcelService.create(givenParcel);
+    entityManager.getTransaction().commit();
+
+    parcels.add(givenParcel);
+
+    /*
+     * Persistencia de registros climaticos de prueba
+     */
+    ClimateRecord climateRecordOne = new ClimateRecord();
+    climateRecordOne.setEtc(15);
+    climateRecordOne.setPrecip(10);
+    climateRecordOne.setDate(dayOne);
+    climateRecordOne.setParcel(givenParcel);
+
+    ClimateRecord climateRecordTwo = new ClimateRecord();
+    climateRecordTwo.setEtc(5);
+    climateRecordTwo.setPrecip(10);
+    climateRecordTwo.setDate(dayTwo);
+    climateRecordTwo.setParcel(givenParcel);
+
+    ClimateRecord climateRecordThree = new ClimateRecord();
+    climateRecordThree.setEtc(8);
+    climateRecordThree.setPrecip(4);
+    climateRecordThree.setDate(dayThree);
+    climateRecordThree.setParcel(givenParcel);
+
+    ClimateRecord climateRecordFour = new ClimateRecord();
+    climateRecordFour.setEtc(2);
+    climateRecordFour.setPrecip(6);
+    climateRecordFour.setDate(dayFour);
+    climateRecordFour.setParcel(givenParcel);
+
+    ClimateRecord climateRecordFive = new ClimateRecord();
+    climateRecordFive.setEtc(8);
+    climateRecordFive.setPrecip(2);
+    climateRecordFive.setDate(dayFive);
+    climateRecordFive.setParcel(givenParcel);
+
+    ClimateRecord climateRecordSix = new ClimateRecord();
+    climateRecordSix.setEtc(5);
+    climateRecordSix.setPrecip(10);
+    climateRecordSix.setDate(daySix);
+    climateRecordSix.setParcel(givenParcel);
+
+    entityManager.getTransaction().begin();
+    climateRecordOne = climateRecordService.create(climateRecordOne);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordTwo = climateRecordService.create(climateRecordTwo);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordThree = climateRecordService.create(climateRecordThree);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordFour = climateRecordService.create(climateRecordFour);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordFive = climateRecordService.create(climateRecordFive);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    climateRecordSix = climateRecordService.create(climateRecordSix);
+    entityManager.getTransaction().commit();
+
+    climateRecordsToBeDeleted.add(climateRecordOne);
+    climateRecordsToBeDeleted.add(climateRecordTwo);
+    climateRecordsToBeDeleted.add(climateRecordThree);
+    climateRecordsToBeDeleted.add(climateRecordFour);
+    climateRecordsToBeDeleted.add(climateRecordFive);
+    climateRecordsToBeDeleted.add(climateRecordSix);
+
+    /*
+     * Recupera los registros climaticos recientemente
+     * persistidos
+     */
+    Collection<ClimateRecord> recoveredClimateRecords = climateRecordService.findAllByParcelIdAndPeriod(givenUser.getId(), givenParcel.getId(), dateFrom, dateUntil);
+
+    System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
+    System.out.println();
+    printClimateRecords(presumedCurrentDate, recoveredClimateRecords);
+
+    /*
+     * Seccion de prueba
+     */
+    System.out.println("# Ejecucion de la prueba unitaria");
+
+    double expectedResult = 1.0;
+
+    /*
+     * El primer parametro de este metodo calculateIrrigationWaterNeed
+     * es la cantidad total de agua de riego de una fecha dada. En este
+     * caso, se le pasa el valor 0 como argumento porque suponemos que
+     * la cantidad total de agua de riego de la supuesta fecha actual
+     * es 0 para facilitar la tarea de probarlo.
+     */
+    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, irrigationRecords);
+
+    System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
+    System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
+    System.out.println("(nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + result);
+    System.out.println();
+
+    assertEquals(expectedResult, result, 0.001);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+    System.out.println();
+  }
+
+  @AfterClass
+  public static void postTest() {
+    entityManager.getTransaction().begin();
+
+    /*
+     * Se eliminan de la base de datos subyacente los datos persistidos
+     * durante la ejecucion de las pruebas unitarias para que la misma
+     * quede en su estado original, es decir, para dejarla en el estado
+     * en el que estaba antes de que se persistieran dichos datos
+     */
+    for (ClimateRecord currenClimateRecord : climateRecordsToBeDeleted) {
+      climateRecordService.remove(currenClimateRecord.getId());
+    }
+
+    for (Parcel currentParcel : parcels) {
+      parcelService.remove(currentParcel.getId());
+    }
+
+    for (User currentUser : users) {
+      userService.remove(currentUser.getId());
+    }
+
+    for (Option currentOption : options) {
+      optionService.remove(currentOption.getId());
+    }
+
+    entityManager.getTransaction().commit();
+
+    // Cierra las conexiones
+    entityManager.close();
+    entityManagerFactory.close();
   }
 
   /**
