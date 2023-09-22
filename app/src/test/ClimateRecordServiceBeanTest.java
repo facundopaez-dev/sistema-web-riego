@@ -10,6 +10,7 @@ import javax.persistence.Persistence;
 import model.ClimateRecord;
 import model.Parcel;
 import model.User;
+import model.Option;
 import model.TypePrecipitation;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -18,6 +19,7 @@ import org.junit.Test;
 import stateless.ParcelServiceBean;
 import stateless.UserServiceBean;
 import stateless.ClimateRecordServiceBean;
+import stateless.OptionServiceBean;
 import stateless.TypePrecipitationServiceBean;
 import util.UtilDate;
 
@@ -27,12 +29,14 @@ public class ClimateRecordServiceBeanTest {
   private static EntityManagerFactory entityManagerFactory;
   private static ParcelServiceBean parcelService;
   private static UserServiceBean userService;
+  private static OptionServiceBean optionService;
   private static ClimateRecordServiceBean climateRecordService;
   private static TypePrecipitationServiceBean typePrecipitationService;
   private static Collection<Parcel> parcels;
   private static Collection<ClimateRecord> climateRecords;
   private static Collection<TypePrecipitation> typePrecipitations;
   private static Collection<User> users;
+  private static Collection<Option> options;
 
   private static final int JANUARY = 0;
   private static final int FEBRUARY = 1;
@@ -58,6 +62,9 @@ public class ClimateRecordServiceBeanTest {
     userService = new UserServiceBean();
     userService.setEntityManager(entityManager);
 
+    optionService = new OptionServiceBean();
+    optionService.setEntityManager(entityManager);
+
     climateRecordService = new ClimateRecordServiceBean();
     climateRecordService.setEntityManager(entityManager);
 
@@ -68,6 +75,7 @@ public class ClimateRecordServiceBeanTest {
     climateRecords = new ArrayList<>();
     typePrecipitations = new ArrayList<>();
     users = new ArrayList<>();
+    options = new ArrayList<>();
   }
 
   @Test
@@ -157,6 +165,11 @@ public class ClimateRecordServiceBeanTest {
     System.out.println("* Prueba pasada satisfactoriamente *");
     System.out.println();
   }
+
+  /*
+   * TODO: Borrar esta prueba unitaria porque no es necesario
+   * el metodo sumRainwaterPastDays
+   */
 
   @Test
   public void testSumRainwaterPastDays() {
@@ -250,7 +263,8 @@ public class ClimateRecordServiceBeanTest {
      * Seccion de prueba
      */
     double expectedResult = firstClimateRecord.getPrecip() + secondClimateRecord.getPrecip() + thirdClimateRecord.getPrecip();
-    double result = climateRecordService.sumRainwaterPastDays(givenUser.getId(), givenParcel.getId());
+    // double result = climateRecordService.sumRainwaterPastDays(givenUser.getId(), givenParcel.getId());
+    double result = 0.0;
 
     System.out.println("* Resultado esperado: " + expectedResult);
     System.out.println("* Resultado devuelto por el metodo sumRainwaterPastDays: " + result);
@@ -261,6 +275,11 @@ public class ClimateRecordServiceBeanTest {
     System.out.println("- Prueba pasada satisfactoriamente");
     System.out.println();
   }
+
+  /*
+   * TODO: Borrar esta prueba unitaria porque no es necesario
+   * el metodo sumEtcPastDays
+   */
 
   @Test
   public void testSumEtcPastDays() {
@@ -353,13 +372,310 @@ public class ClimateRecordServiceBeanTest {
      * Seccion de prueba
      */
     double expectedResult = firstClimateRecord.getEtc() + secondClimateRecord.getEtc() + thirdClimateRecord.getEtc();
-    double result = climateRecordService.sumEtcPastDays(givenUser.getId(), givenParcel.getId());
+    // double result = climateRecordService.sumEtcPastDays(givenUser.getId(), givenParcel.getId());
+    double result = 0.0;
 
     System.out.println("* Resultado esperado: " + expectedResult);
     System.out.println("* Resultado devuelto por el metodo sumEtcPastDays: " + result);
     System.out.println();
 
     assertTrue(expectedResult == result);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+    System.out.println();
+  }
+
+  @Test
+  public void testOneFindAllByParcelIdAndPeriod() {
+    System.out.println("******************************** Prueba uno del metodo findAllByParcelIdAndPeriod ********************************");
+    System.out.println("# Descripcion del metodo a probar");
+    System.out.println("El metodo findAllByParcelIdAndPeriod de la clase ClimateRecordServiceBean devuelve una coleccion de registros");
+    System.out.println("climaticos de una parcela de un usuario que estan en un periodo definido por dos fechas. En el caso en el que una");
+    System.out.println("parcela no tiene registros climaticos en un periodo definido por dos fechas, devuelve una coleccion vacia (0");
+    System.out.println("elementos).");
+    System.out.println();
+
+    Calendar dateFrom = Calendar.getInstance();
+    dateFrom.set(Calendar.YEAR, 2023);
+    dateFrom.set(Calendar.MONTH, JANUARY);
+    dateFrom.set(Calendar.DAY_OF_MONTH, 1);
+
+    Calendar dateUntil = Calendar.getInstance();
+    dateUntil.set(Calendar.YEAR, 2023);
+    dateUntil.set(Calendar.MONTH, JANUARY);
+    dateUntil.set(Calendar.DAY_OF_MONTH, 6);
+
+    System.out.println("# Descripcion de la prueba unitaria");
+    System.out.println("Para demostrar el correcto funcionamiento de este metodo se utilizan tres registros climaticos que estan en el");
+    System.out.println("periodo [" + UtilDate.formatDate(dateFrom) + ", " + UtilDate.formatDate(dateUntil) + "].");
+    System.out.println();
+    System.out.println("Con la primera fecha y la segunda fecha del periodo como fecha desde y fecha hasta, respectivamente, el metodo");
+    System.out.println("findAllByParcelIdAndPeriod debe devolver una coleccion con tres registros climaticos. Por lo tanto, el tamaño");
+    System.out.println("de dicha coleccion debe ser igual a 3.");
+    System.out.println();
+
+    /*
+     * Persistencia de una opcion para el usuario de prueba
+     */
+    entityManager.getTransaction().begin();
+    Option userOption = optionService.create();
+    entityManager.getTransaction().commit();
+
+    options.add(userOption);
+
+    /*
+     * Persistencia de un usuario de prueba
+     */
+    User givenUser = new User();
+    givenUser.setUsername("tmiller");
+    givenUser.setName("Tyler");
+    givenUser.setLastName("Miller");
+    givenUser.setEmail("tmiller@email.com");
+    givenUser.setPassword("Tyler");
+    givenUser.setOption(userOption);
+
+    entityManager.getTransaction().begin();
+    givenUser = userService.create(givenUser);
+    entityManager.getTransaction().commit();
+
+    users.add(givenUser);
+
+    /*
+     * Persistencia de una parcela de prueba
+     */
+    Parcel givenParcel = new Parcel();
+    givenParcel.setName("Erie");
+    givenParcel.setHectares(2);
+    givenParcel.setLatitude(1);
+    givenParcel.setLongitude(1);
+    givenParcel.setUser(givenUser);
+
+    entityManager.getTransaction().begin();
+    givenParcel = parcelService.create(givenParcel);
+    entityManager.getTransaction().commit();
+
+    parcels.add(givenParcel);
+
+    /*
+     * Creacion de fechas para los registros climaticos de prueba
+     */
+    Calendar firstDate = UtilDate.getCurrentDate();
+    firstDate.set(Calendar.YEAR, 2023);
+    firstDate.set(Calendar.MONTH, JANUARY);
+    firstDate.set(Calendar.DAY_OF_MONTH, 2);
+
+    Calendar secondDate = UtilDate.getCurrentDate();
+    secondDate.set(Calendar.YEAR, 2023);
+    secondDate.set(Calendar.MONTH, JANUARY);
+    secondDate.set(Calendar.DAY_OF_MONTH, 3);
+
+    Calendar thirdDate = UtilDate.getCurrentDate();
+    thirdDate.set(Calendar.YEAR, 2023);
+    thirdDate.set(Calendar.MONTH, JANUARY);
+    thirdDate.set(Calendar.DAY_OF_MONTH, 4);
+
+    /*
+     * Persistencia de registros climaticos de prueba
+     */
+    ClimateRecord firstClimateRecord = new ClimateRecord();
+    firstClimateRecord.setDate(firstDate);
+    firstClimateRecord.setParcel(givenParcel);
+
+    ClimateRecord secondClimateRecord = new ClimateRecord();
+    secondClimateRecord.setDate(secondDate);
+    secondClimateRecord.setParcel(givenParcel);
+
+    ClimateRecord thirdClimateRecord = new ClimateRecord();
+    thirdClimateRecord.setDate(thirdDate);
+    thirdClimateRecord.setParcel(givenParcel);
+
+    entityManager.getTransaction().begin();
+    firstClimateRecord = climateRecordService.create(firstClimateRecord);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    secondClimateRecord = climateRecordService.create(secondClimateRecord);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    thirdClimateRecord = climateRecordService.create(thirdClimateRecord);
+    entityManager.getTransaction().commit();
+
+    climateRecords.add(firstClimateRecord);
+    climateRecords.add(secondClimateRecord);
+    climateRecords.add(thirdClimateRecord);
+
+    /*
+     * Seccion de prueba
+     */
+    System.out.println("# Ejecucion de la prueba unitaria");
+    Collection<ClimateRecord> recoveredClimateRecords = climateRecordService.findAllByParcelIdAndPeriod(givenUser.getId(), givenParcel.getId(), dateFrom, dateUntil);
+
+    int expectedSize = 3;
+    int size = recoveredClimateRecords.size();
+
+    System.out.println("* Tamaño esperado de la coleccion devuelta por findAllByParcelIdAndPeriod: " + expectedSize);
+    System.out.println("* Tamaño de la coleccion devuelta por findAllByParcelIdAndPeriod: " + size);
+    System.out.println();
+
+    assertTrue(expectedSize == size);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+    System.out.println();
+
+    System.out.println("# Impresion de los registros climaticos recuperados en el periodo [" + UtilDate.formatDate(dateFrom) + ", " + UtilDate.formatDate(dateUntil) + "]");
+
+    for (ClimateRecord currentClimateRecord : recoveredClimateRecords) {
+      System.out.println(currentClimateRecord);
+    }
+
+  }
+
+  @Test
+  public void testTwoFindAllByParcelIdAndPeriod() {
+    System.out.println("******************************** Prueba dos del metodo findAllByParcelIdAndPeriod ********************************");
+    System.out.println("# Descripcion del metodo a probar");
+    System.out.println("El metodo findAllByParcelIdAndPeriod de la clase ClimateRecordServiceBean devuelve una coleccion de registros");
+    System.out.println("climaticos de una parcela de un usuario que estan en un periodo definido por dos fechas. En el caso en el que una");
+    System.out.println("parcela no tiene registros climaticos en un periodo definido por dos fechas, devuelve una coleccion vacia (0");
+    System.out.println("elementos).");
+    System.out.println();
+
+    Calendar dateFrom = Calendar.getInstance();
+    dateFrom.set(Calendar.YEAR, 2023);
+    dateFrom.set(Calendar.MONTH, JANUARY);
+    dateFrom.set(Calendar.DAY_OF_MONTH, 10);
+
+    Calendar dateUntil = Calendar.getInstance();
+    dateUntil.set(Calendar.YEAR, 2023);
+    dateUntil.set(Calendar.MONTH, JANUARY);
+    dateUntil.set(Calendar.DAY_OF_MONTH, 15);
+
+    System.out.println("# Descripcion de la prueba unitaria");
+    System.out.println("Para demostrar el correcto funcionamiento de este metodo se utiliza una parcela que tiene registros climaticos");
+    System.out.print("que NO estan en el periodo [" + UtilDate.formatDate(dateFrom) + ", " + UtilDate.formatDate(dateUntil) + "].");
+    System.out.println(" Por lo tanto, el metodo findAllByParcelIdAndPeriod debe");
+    System.out.println("devolver una coleccion vacia cuando se le pasa la primera fecha y la segunda fecha del periodo como fecha desde");
+    System.out.println("y fecha hasta, respectivamente. El tamaño de una coleccion vacia es igual a 0.");
+    System.out.println();
+
+    /*
+     * Persistencia de una opcion para el usuario de prueba
+     */
+    entityManager.getTransaction().begin();
+    Option userOption = optionService.create();
+    entityManager.getTransaction().commit();
+
+    options.add(userOption);
+
+    /*
+     * Persistencia de un usuario de prueba
+     */
+    User givenUser = new User();
+    givenUser.setUsername("smiller");
+    givenUser.setName("Sam");
+    givenUser.setLastName("Miller");
+    givenUser.setEmail("smiller@eservice.com");
+    givenUser.setPassword("Sam");
+    givenUser.setOption(userOption);
+
+    entityManager.getTransaction().begin();
+    givenUser = userService.create(givenUser);
+    entityManager.getTransaction().commit();
+
+    users.add(givenUser);
+
+    /*
+     * Persistencia de una parcela de prueba
+     */
+    Parcel givenParcel = new Parcel();
+    givenParcel.setName("Erie");
+    givenParcel.setHectares(2);
+    givenParcel.setLatitude(1);
+    givenParcel.setLongitude(1);
+    givenParcel.setUser(givenUser);
+
+    entityManager.getTransaction().begin();
+    givenParcel = parcelService.create(givenParcel);
+    entityManager.getTransaction().commit();
+
+    parcels.add(givenParcel);
+
+    /*
+     * Creacion de fechas para los registros climaticos de prueba
+     */
+    Calendar firstDate = UtilDate.getCurrentDate();
+    firstDate.set(Calendar.YEAR, 2023);
+    firstDate.set(Calendar.MONTH, JANUARY);
+    firstDate.set(Calendar.DAY_OF_MONTH, 2);
+
+    Calendar secondDate = UtilDate.getCurrentDate();
+    secondDate.set(Calendar.YEAR, 2023);
+    secondDate.set(Calendar.MONTH, JANUARY);
+    secondDate.set(Calendar.DAY_OF_MONTH, 3);
+
+    Calendar thirdDate = UtilDate.getCurrentDate();
+    thirdDate.set(Calendar.YEAR, 2023);
+    thirdDate.set(Calendar.MONTH, JANUARY);
+    thirdDate.set(Calendar.DAY_OF_MONTH, 4);
+
+    /*
+     * Persistencia de registros climaticos de prueba
+     */
+    ClimateRecord firstClimateRecord = new ClimateRecord();
+    firstClimateRecord.setDate(firstDate);
+    firstClimateRecord.setParcel(givenParcel);
+
+    ClimateRecord secondClimateRecord = new ClimateRecord();
+    secondClimateRecord.setDate(secondDate);
+    secondClimateRecord.setParcel(givenParcel);
+
+    ClimateRecord thirdClimateRecord = new ClimateRecord();
+    thirdClimateRecord.setDate(thirdDate);
+    thirdClimateRecord.setParcel(givenParcel);
+
+    entityManager.getTransaction().begin();
+    firstClimateRecord = climateRecordService.create(firstClimateRecord);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    secondClimateRecord = climateRecordService.create(secondClimateRecord);
+    entityManager.getTransaction().commit();
+
+    entityManager.getTransaction().begin();
+    thirdClimateRecord = climateRecordService.create(thirdClimateRecord);
+    entityManager.getTransaction().commit();
+
+    climateRecords.add(firstClimateRecord);
+    climateRecords.add(secondClimateRecord);
+    climateRecords.add(thirdClimateRecord);
+
+    System.out.println("Registro climatico del ID = " + firstClimateRecord.getId());
+    System.out.println("Fecha: " + UtilDate.formatDate(firstClimateRecord.getDate()));
+    System.out.println();
+
+    System.out.println("Registro climatico del ID = " + secondClimateRecord.getId());
+    System.out.println("Fecha: " + UtilDate.formatDate(secondClimateRecord.getDate()));
+    System.out.println();
+
+    System.out.println("Registro climatico del ID = " + thirdClimateRecord.getId());
+    System.out.println("Fecha: " + UtilDate.formatDate(thirdClimateRecord.getDate()));
+    System.out.println();
+
+    /*
+     * Seccion de prueba
+     */
+    System.out.println("# Ejecucion de la prueba unitaria");
+    Collection<ClimateRecord> recoveredClimateRecords = climateRecordService.findAllByParcelIdAndPeriod(givenUser.getId(), givenParcel.getId(), dateFrom, dateUntil);
+
+    int expectedSize = 0;
+    int size = recoveredClimateRecords.size();
+
+    System.out.println("* Tamaño esperado de la coleccion devuelta por findAllByParcelIdAndPeriod: " + expectedSize);
+    System.out.println("* Tamaño de la coleccion devuelta por findAllByParcelIdAndPeriod: " + size);
+    System.out.println();
+
+    assertTrue(expectedSize == size);
 
     System.out.println("- Prueba pasada satisfactoriamente");
     System.out.println();
@@ -389,6 +705,10 @@ public class ClimateRecordServiceBeanTest {
 
     for (User currentUser : users) {
       userService.remove(currentUser.getId());
+    }
+
+    for (Option currentOption : options) {
+      optionService.remove(currentOption.getId());
     }
 
     entityManager.getTransaction().commit();

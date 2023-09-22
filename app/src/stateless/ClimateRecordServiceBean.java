@@ -212,20 +212,18 @@ public class ClimateRecordServiceBean {
   }
 
   /**
-   * Retorna todos los registros climaticos de una parcela
-   * de un usuario que estan en un periodo definido por dos
-   * fechas
    * 
    * @param userId
    * @param parcelId
    * @param dateFrom
    * @param dateUntil
-   * @return referencia a un objeto de tipo Collection que
-   * contiene los registros climaticos de una parcela de un
-   * usuario que estan en un periodo definido por dos fechas
+   * @return referencia a un objeto de tipo Collection que contiene
+   * los registros climaticos de una parcela de un usuario que
+   * estan en un periodo definido por dos fechas. En caso contrario,
+   * referencia a un objeto de tipo Collection vacio (0 elementos).
    */
   public Collection<ClimateRecord> findAllByParcelIdAndPeriod(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
-    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (p.id = :givenParcelId AND p.user.id = :givenUserId AND :givenDateFrom <= c.date AND c.date <= :givenDateUntil) ORDER BY c.id");
+    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (p.id = :givenParcelId AND p.user.id = :givenUserId AND :givenDateFrom <= c.date AND c.date <= :givenDateUntil) ORDER BY c.date");
     query.setParameter("givenUserId", userId);
     query.setParameter("givenParcelId", parcelId);
     query.setParameter("givenDateFrom", dateFrom);
