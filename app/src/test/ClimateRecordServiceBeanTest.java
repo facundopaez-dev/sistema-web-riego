@@ -80,7 +80,7 @@ public class ClimateRecordServiceBeanTest {
 
   @Test
   public void test() {
-    System.out.println("Esta prueba unitaria es para probar que, cuando se obtiene un conjunto de datos meteorologicos de una llamada a la");
+    System.out.println("Esta prueba unitaria es para probar que, cuando se obtiene un conjunto de datos meteorologicos, de una llamada a la");
     System.out.println("API Visual Crossing Weather, que contiene tipos de precipitacion y se persiste un registro climatico con este conjunto,");
     System.out.println("se persisten tambien los tipos de precipitacion.");
     System.out.println();
@@ -555,8 +555,8 @@ public class ClimateRecordServiceBeanTest {
     System.out.println("Para demostrar el correcto funcionamiento de este metodo se utiliza una parcela que tiene registros climaticos");
     System.out.print("que NO estan en el periodo [" + UtilDate.formatDate(dateFrom) + ", " + UtilDate.formatDate(dateUntil) + "].");
     System.out.println(" Por lo tanto, el metodo findAllByParcelIdAndPeriod debe");
-    System.out.println("devolver una coleccion vacia cuando se le pasa la primera fecha y la segunda fecha del periodo como fecha desde");
-    System.out.println("y fecha hasta, respectivamente. El tamaño de una coleccion vacia es igual a 0.");
+    System.out.println("devolver una coleccion vacia cuando se le pasa como argumento la primera fecha y la segunda fecha del periodo");
+    System.out.println("como fecha desde y fecha hasta, respectivamente. El tamaño de una coleccion vacia es igual a 0.");
     System.out.println();
 
     /*
