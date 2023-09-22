@@ -194,14 +194,16 @@ public class ClimateRecordServiceBean {
   }
 
   /**
-   * Retorna todos los registros climaticos de una parcela
-   * de un usuario
+   * Retorna todos los registros climaticos de una parcela de
+   * un usuario, si una parcela tiene registros climaticos.
    * 
    * @param userId
    * @param parcelId
-   * @return referencia a un objeto de tipo Collection que
-   * contiene los registros climaticos de una parcela de un
-   * usuario
+   * @return referencia a un objeto de tipo Collection que contiene
+   * todos los registros climaticos de una parcela de un usuario. En
+   * el caso en el que una parcela de un usuario no tiene ningun
+   * registro climatico, referencia a un objeto de tipo Collection
+   * vacio (0 elementos).
    */
   public Collection<ClimateRecord> findAllByParcelId(int userId, int parcelId) {
     Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (p.id = :givenParcelId AND p.user.id = :givenUserId) ORDER BY c.id");
@@ -212,13 +214,16 @@ public class ClimateRecordServiceBean {
   }
 
   /**
+   * Retorna todos los registros climaticos de una parcela de
+   * un usuario que estan en un periodo definido por dos fechas,
+   * si una parcela tiene registros climaticos en un periodo dado.
    * 
    * @param userId
    * @param parcelId
    * @param dateFrom
    * @param dateUntil
    * @return referencia a un objeto de tipo Collection que contiene
-   * los registros climaticos de una parcela de un usuario que
+   * todos los registros climaticos de una parcela de un usuario que
    * estan en un periodo definido por dos fechas. En caso contrario,
    * referencia a un objeto de tipo Collection vacio (0 elementos).
    */
