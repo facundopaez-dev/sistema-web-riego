@@ -5480,6 +5480,158 @@ public class WaterMathTest {
     System.out.println();
   }
 
+  @Test
+  public void testFourtyCalculateIrrigationWaterNeed() {
+    System.out.println("************************************** Prueba cuarenta del metodo sobrecargado calculateIrrigationWater ***************************************");
+    printDescriptionTestOverloadedCalculateIrrigationWaterNeed();
+
+    System.out.println("# Descripcion de la prueba unitaria");
+    System.out.println("El objetivo de esta prueba es demostrar con un ejemplo simple que el metodo calculateIrrigationWater de la clase WaterMath sobrecargado");
+    System.out.println("con la cantidad total de agua de riego de una fecha dada, calcula correctamente la necesidad de agua de riego de un cultivo en una fecha");
+    System.out.println("dada cuando se le pasa como argumento registros climaticos y registros de riego que tienen valores mayores a cero en la precipitacion");
+    System.out.println("y en el riego realizado, respectivamente.");
+    System.out.println();
+    System.out.println("Para esta prueba se utilizan 1 registro climatico y 1 registro de riego, siendo ambos del dia inmediatamente anterior a la fecha actual");
+    System.out.println(UtilDate.formatDate(presumedCurrentDate) + "." + " Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
+    System.out.println();
+
+    /*
+     * Fechas a partir de las cuales se recuperaran los
+     * registros climaticos y los registros de riego de
+     * una parcela de prueba de la base de datos subyacente
+     */
+    Calendar dateFrom = Calendar.getInstance();
+    dateFrom.set(Calendar.YEAR, 2023);
+    dateFrom.set(Calendar.MONTH, JANUARY);
+    dateFrom.set(Calendar.DAY_OF_MONTH, 1);
+
+    Calendar dateUntil = Calendar.getInstance();
+    dateUntil.set(Calendar.YEAR, 2023);
+    dateUntil.set(Calendar.MONTH, JANUARY);
+    dateUntil.set(Calendar.DAY_OF_MONTH, 6);
+
+    /*
+     * Persistencia de una opcion para el usuario de prueba
+     */
+    entityManager.getTransaction().begin();
+    Option userOption = optionService.create();
+    entityManager.getTransaction().commit();
+
+    options.add(userOption);
+
+    /*
+     * Persistencia de un usuario de prueba
+     */
+    User givenUser = new User();
+    givenUser.setUsername("kurose");
+    givenUser.setName("James");
+    givenUser.setLastName("kurose");
+    givenUser.setEmail("james@eservice.com");
+    givenUser.setPassword("James");
+    givenUser.setOption(userOption);
+
+    entityManager.getTransaction().begin();
+    givenUser = userService.create(givenUser);
+    entityManager.getTransaction().commit();
+
+    users.add(givenUser);
+
+    /*
+     * Persistencia de una parcela de prueba
+     */
+    Parcel givenParcel = new Parcel();
+    givenParcel.setName("Erie");
+    givenParcel.setHectares(2);
+    givenParcel.setLatitude(1);
+    givenParcel.setLongitude(1);
+    givenParcel.setUser(givenUser);
+
+    entityManager.getTransaction().begin();
+    givenParcel = parcelService.create(givenParcel);
+    entityManager.getTransaction().commit();
+
+    parcels.add(givenParcel);
+
+    /*
+     * Persistencia de registros climaticos de prueba
+     */
+    ClimateRecord climateRecordOne = new ClimateRecord();
+    climateRecordOne.setEtc(10);
+    climateRecordOne.setPrecip(2.5);
+    climateRecordOne.setDate(daySix);
+    climateRecordOne.setParcel(givenParcel);
+
+    entityManager.getTransaction().begin();
+    climateRecordOne = climateRecordService.create(climateRecordOne);
+    entityManager.getTransaction().commit();
+
+    climateRecordsToBeDeleted.add(climateRecordOne);
+
+    /*
+     * Persistencia de registros de riego de prueba
+     */
+    IrrigationRecord irrigationRecordOne = new IrrigationRecord();
+    irrigationRecordOne.setDate(daySix);
+    irrigationRecordOne.setParcel(givenParcel);
+    irrigationRecordOne.setIrrigationDone(2.5);
+
+    entityManager.getTransaction().begin();
+    irrigationRecordOne = irrigationRecordService.create(irrigationRecordOne);
+    entityManager.getTransaction().commit();
+
+    irrigationRecordsToBeDeleted.add(irrigationRecordOne);
+
+    /*
+     * Recupera los registros climaticos recientemente
+     * persistidos
+     */
+    Collection<ClimateRecord> recoveredClimateRecords = climateRecordService.findAllByParcelIdAndPeriod(givenUser.getId(), givenParcel.getId(), dateFrom, dateUntil);
+
+    /*
+     * Recupera los registros de riego recientemente
+     * persistidos
+     */
+    Collection<IrrigationRecord> recoveredIrrigationRecords = irrigationRecordService.findAllByParcelIdAndPeriod(givenUser.getId(), givenParcel.getId(), dateFrom, dateUntil);
+
+    System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
+    System.out.println("- Datos de la fecha " + UtilDate.formatDate(climateRecordOne.getDate()));
+    System.out.println("ETc [mm/dia]: " + climateRecordOne.getEtc());
+    System.out.println("Lluvia [mm/dia]: " + climateRecordOne.getPrecip());
+    System.out.println("Riego [mm/dia]: " + irrigationRecordOne.getIrrigationDone());
+    System.out.println("Deficit acumulado de agua [mm/dia]: " + ((climateRecordOne.getPrecip() + irrigationRecordOne.getIrrigationDone()) - climateRecordOne.getEtc()));
+    System.out.println();
+
+    System.out.println("Necesidad de agua de riego [mm/dia] de un cultivo en la fecha actual (hoy) " + UtilDate.formatDate(presumedCurrentDate)
+        + ": " + Math.abs(((climateRecordOne.getPrecip() + irrigationRecordOne.getIrrigationDone()) - climateRecordOne.getEtc())));
+    System.out.println();
+
+    /*
+     * Seccion de prueba
+     */
+    System.out.println("# Ejecucion de la prueba unitaria");
+
+    double expectedResult = 5.0;
+
+    /*
+     * El primer parametro de este metodo calculateIrrigationWaterNeed
+     * es la cantidad total de agua de riego de una fecha dada. En este
+     * caso, se le pasa el valor 0 como argumento porque suponemos que
+     * la cantidad total de agua de riego de la supuesta fecha actual
+     * es 0 para facilitar la tarea de probarlo.
+     */
+    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, recoveredIrrigationRecords);
+
+    System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
+    System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
+    System.out.println("(nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + result);
+    System.out.println();
+
+    assertEquals(expectedResult, result, 0.001);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+    System.out.println();
+  }
+
   @AfterClass
   public static void postTest() {
     entityManager.getTransaction().begin();
