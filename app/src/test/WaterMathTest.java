@@ -35,7 +35,7 @@ public class WaterMathTest {
   private static ClimateRecordServiceBean climateRecordService;
   private static IrrigationRecordServiceBean irrigationRecordService;
 
-  private static Collection<IrrigationRecord> irrigationRecords;
+  private static Collection<IrrigationRecord> zeroIrrigationRecords;
   private static Collection<ClimateRecord> climateRecords;
   private static Collection<ClimateRecord> climateRecordsToBeDeleted;
   private static Collection<IrrigationRecord> irrigationRecordsToBeDeleted;
@@ -91,7 +91,13 @@ public class WaterMathTest {
     irrigationRecordService = new IrrigationRecordServiceBean();
     irrigationRecordService.setEntityManager(entityManager);
 
-    irrigationRecords = new ArrayList<>();
+    /*
+     * Esta coleccion es unicamente para aquellas pruebas unitarias
+     * del metodo calculateIrrigationWaterNeed de la clase WaterMath
+     * en las que se busca demostrar el correcto funcionamiento del
+     * mismo sin hacer uso del agua de riego
+     */
+    zeroIrrigationRecords = new ArrayList<>();
     climateRecords = new ArrayList<>();
     climateRecordsToBeDeleted = new ArrayList<>();
     irrigationRecordsToBeDeleted = new ArrayList<>();
@@ -159,7 +165,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -179,7 +185,7 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 14.0;
-    double result = WaterMath.calculateIrrigationWaterNeed(climateRecords, irrigationRecords);
+    double result = WaterMath.calculateIrrigationWaterNeed(climateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
@@ -199,7 +205,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -219,7 +225,7 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 9.0;
-    double result = WaterMath.calculateIrrigationWaterNeed(climateRecords, irrigationRecords);
+    double result = WaterMath.calculateIrrigationWaterNeed(climateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
@@ -239,7 +245,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -259,7 +265,7 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 5.0;
-    double result = WaterMath.calculateIrrigationWaterNeed(climateRecords, irrigationRecords);
+    double result = WaterMath.calculateIrrigationWaterNeed(climateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
@@ -279,7 +285,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -299,7 +305,7 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 0.0;
-    double result = WaterMath.calculateIrrigationWaterNeed(climateRecords, irrigationRecords);
+    double result = WaterMath.calculateIrrigationWaterNeed(climateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
@@ -319,7 +325,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -339,7 +345,7 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 0.0;
-    double result = WaterMath.calculateIrrigationWaterNeed(climateRecords, irrigationRecords);
+    double result = WaterMath.calculateIrrigationWaterNeed(climateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
@@ -359,7 +365,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -379,7 +385,7 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 4.0;
-    double result = WaterMath.calculateIrrigationWaterNeed(climateRecords, irrigationRecords);
+    double result = WaterMath.calculateIrrigationWaterNeed(climateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
@@ -399,7 +405,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -419,7 +425,7 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 7.0;
-    double result = WaterMath.calculateIrrigationWaterNeed(climateRecords, irrigationRecords);
+    double result = WaterMath.calculateIrrigationWaterNeed(climateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
@@ -439,7 +445,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -459,7 +465,7 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 4.0;
-    double result = WaterMath.calculateIrrigationWaterNeed(climateRecords, irrigationRecords);
+    double result = WaterMath.calculateIrrigationWaterNeed(climateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
@@ -479,7 +485,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -499,7 +505,7 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 0.0;
-    double result = WaterMath.calculateIrrigationWaterNeed(climateRecords, irrigationRecords);
+    double result = WaterMath.calculateIrrigationWaterNeed(climateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
@@ -519,7 +525,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -539,7 +545,7 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 0.0;
-    double result = WaterMath.calculateIrrigationWaterNeed(climateRecords, irrigationRecords);
+    double result = WaterMath.calculateIrrigationWaterNeed(climateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
@@ -559,7 +565,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -579,7 +585,7 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 1.0;
-    double result = WaterMath.calculateIrrigationWaterNeed(climateRecords, irrigationRecords);
+    double result = WaterMath.calculateIrrigationWaterNeed(climateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
@@ -600,7 +606,7 @@ public class WaterMathTest {
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utiliza 1 registro climatico, el cual es inmediatamente anterior a la fecha actual "
             + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     System.out.println("Tambien se utiliza un conjunto de 2 registros de riego, los cuales pertenecen a la fecha inmediatamente anterior a la fecha");
@@ -705,7 +711,7 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 0.0;
-    double result = WaterMath.calculateIrrigationWaterNeed(totalIrrigationWaterGivenDate, climateRecords, irrigationRecords);
+    double result = WaterMath.calculateIrrigationWaterNeed(totalIrrigationWaterGivenDate, climateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed sobrecargado (nec. agua riego [mm/dia] de un cultivo en");
@@ -751,7 +757,7 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 0.0;
-    double result = WaterMath.calculateIrrigationWaterNeed(totalIrrigationWaterGivenDate, climateRecords, irrigationRecords);
+    double result = WaterMath.calculateIrrigationWaterNeed(totalIrrigationWaterGivenDate, climateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed sobrecargado (nec. agua riego [mm/dia] de un cultivo en");
@@ -797,7 +803,7 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 0.0;
-    double result = WaterMath.calculateIrrigationWaterNeed(totalIrrigationWaterGivenDate, climateRecords, irrigationRecords);
+    double result = WaterMath.calculateIrrigationWaterNeed(totalIrrigationWaterGivenDate, climateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed sobrecargado (nec. agua riego [mm/dia] de un cultivo en");
@@ -843,7 +849,7 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 0.0;
-    double result = WaterMath.calculateIrrigationWaterNeed(totalIrrigationWaterGivenDate, climateRecords, irrigationRecords);
+    double result = WaterMath.calculateIrrigationWaterNeed(totalIrrigationWaterGivenDate, climateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed sobrecargado (nec. agua riego [mm/dia] de un cultivo en");
@@ -889,7 +895,7 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 7.0;
-    double result = WaterMath.calculateIrrigationWaterNeed(totalIrrigationWaterGivenDate, climateRecords, irrigationRecords);
+    double result = WaterMath.calculateIrrigationWaterNeed(totalIrrigationWaterGivenDate, climateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed sobrecargado (nec. agua riego [mm/dia] de un cultivo en");
@@ -925,7 +931,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -1079,7 +1085,7 @@ public class WaterMathTest {
      * la cantidad total de agua de riego de la supuesta fecha actual
      * es 0 para facilitar la tarea de probarlo.
      */
-    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, irrigationRecords);
+    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
@@ -1099,7 +1105,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -1253,7 +1259,7 @@ public class WaterMathTest {
      * la cantidad total de agua de riego de la supuesta fecha actual
      * es 0 para facilitar la tarea de probarlo.
      */
-    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, irrigationRecords);
+    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
@@ -1273,7 +1279,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -1427,7 +1433,7 @@ public class WaterMathTest {
      * la cantidad total de agua de riego de la supuesta fecha actual
      * es 0 para facilitar la tarea de probarlo.
      */
-    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, irrigationRecords);
+    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
@@ -1447,7 +1453,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -1601,7 +1607,7 @@ public class WaterMathTest {
      * la cantidad total de agua de riego de la supuesta fecha actual
      * es 0 para facilitar la tarea de probarlo.
      */
-    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, irrigationRecords);
+    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
@@ -1621,7 +1627,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -1775,7 +1781,7 @@ public class WaterMathTest {
      * la cantidad total de agua de riego de la supuesta fecha actual
      * es 0 para facilitar la tarea de probarlo.
      */
-    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, irrigationRecords);
+    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
@@ -1795,7 +1801,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -1949,7 +1955,7 @@ public class WaterMathTest {
      * la cantidad total de agua de riego de la supuesta fecha actual
      * es 0 para facilitar la tarea de probarlo.
      */
-    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, irrigationRecords);
+    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
@@ -1969,7 +1975,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -2123,7 +2129,7 @@ public class WaterMathTest {
      * la cantidad total de agua de riego de la supuesta fecha actual
      * es 0 para facilitar la tarea de probarlo.
      */
-    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, irrigationRecords);
+    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
@@ -2143,7 +2149,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -2297,7 +2303,7 @@ public class WaterMathTest {
      * la cantidad total de agua de riego de la supuesta fecha actual
      * es 0 para facilitar la tarea de probarlo.
      */
-    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, irrigationRecords);
+    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
@@ -2317,7 +2323,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -2471,7 +2477,7 @@ public class WaterMathTest {
      * la cantidad total de agua de riego de la supuesta fecha actual
      * es 0 para facilitar la tarea de probarlo.
      */
-    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, irrigationRecords);
+    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
@@ -2491,7 +2497,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -2645,7 +2651,7 @@ public class WaterMathTest {
      * la cantidad total de agua de riego de la supuesta fecha actual
      * es 0 para facilitar la tarea de probarlo.
      */
-    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, irrigationRecords);
+    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
@@ -2665,7 +2671,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -2819,7 +2825,7 @@ public class WaterMathTest {
      * la cantidad total de agua de riego de la supuesta fecha actual
      * es 0 para facilitar la tarea de probarlo.
      */
-    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, irrigationRecords);
+    double result = WaterMath.calculateIrrigationWaterNeed(0, recoveredClimateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed");
@@ -2869,7 +2875,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos y 6 registros de riego, todos ellos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -3107,7 +3113,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos y 6 registros de riego, todos ellos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -3345,7 +3351,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos y 6 registros de riego, todos ellos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -3583,7 +3589,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos y 6 registros de riego, todos ellos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -3821,7 +3827,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos y 6 registros de riego, todos ellos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -4059,7 +4065,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos y 6 registros de riego, todos ellos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -4297,7 +4303,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos y 6 registros de riego, todos ellos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -4535,7 +4541,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos y 6 registros de riego, todos ellos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -4773,7 +4779,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos y 6 registros de riego, todos ellos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -5011,7 +5017,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos y 6 registros de riego, todos ellos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
@@ -5249,7 +5255,7 @@ public class WaterMathTest {
 
     System.out.println("# Descripcion de la prueba unitaria");
     System.out.println("Para esta prueba se utilizan 6 registros climaticos y 6 registros de riego, todos ellos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
-    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate));
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
     /*
