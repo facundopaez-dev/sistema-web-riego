@@ -125,7 +125,7 @@ public class WaterMath {
    * registros de riego de una parcela dada previos a la fecha
    * actual (es decir, hoy), la necesidad de agua de riego de un
    * cultivo calculada con estos registros corresponde a la fecha
-   * actual. En cambios, si se seleccionan los registros climaticos
+   * actual. En cambio, si se seleccionan los registros climaticos
    * y los registros de riego de una parcela dada previos a la
    * fecha actual + X dias, donde X > 0, la necesidad de agua de
    * riego de un cultivo calculada con estos registros corresponde
@@ -220,7 +220,7 @@ public class WaterMath {
    * registros de riego de una parcela dada previos a la fecha
    * actual (es decir, hoy), la necesidad de agua de riego de un
    * cultivo calculada con estos registros corresponde a la fecha
-   * actual. En cambios, si se seleccionan los registros climaticos
+   * actual. En cambio, si se seleccionan los registros climaticos
    * y los registros de riego de una parcela dada previos a la
    * fecha actual + X dias, donde X > 0, la necesidad de agua de
    * riego de un cultivo calculada con estos registros corresponde
