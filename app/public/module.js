@@ -396,7 +396,7 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 
 	return {
 		/**
-		 * Evalua la respuesta HTTP de error devuelta por la aplicacion del lador servidor.
+		 * Evalua la respuesta HTTP de error devuelta por la aplicacion del lado servidor.
 		 * 
 		 * Si la respuesta devuelta es el mensaje HTTP 401 (Unauthorized), redirige
 		 * al usuario a la pagina web de inicio de sesion correspondiente. Si el

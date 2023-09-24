@@ -424,7 +424,7 @@ public class IrrigationRecordRestServlet {
 
     /*
      * Si el registro de riego a modificar NO es modificable,
-     * la aplicacion del lador servidor retorna el mensaje
+     * la aplicacion del lado servidor retorna el mensaje
      * HTTP 400 (Bad request) junto con el mensaje "No esta
      * permitida la modificacion de un registro de riego no
      * modificable" y no se realiza la operacion solicitada

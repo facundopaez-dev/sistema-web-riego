@@ -572,7 +572,7 @@ public class PlantingRecordRestServlet {
 
     /*
      * Si el registro de plantacion a modificar NO es modificable,
-     * la aplicacion del lador servidor retorna el mensaje
+     * la aplicacion del lado servidor retorna el mensaje
      * HTTP 400 (Bad request) junto con el mensaje "No esta
      * permitida la modificacion de un registro de plantacion no
      * modificable" y no se realiza la operacion solicitada
