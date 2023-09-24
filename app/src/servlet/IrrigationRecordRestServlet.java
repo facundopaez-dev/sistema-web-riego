@@ -26,7 +26,6 @@ import stateless.SolarRadiationServiceBean;
 import stateless.CropServiceBean;
 import stateless.LatitudeServiceBean;
 import stateless.MonthServiceBean;
-import stateless.PastDaysReferenceServiceBean;
 import model.ClimateRecord;
 import model.IrrigationRecord;
 import model.Parcel;
@@ -69,10 +68,6 @@ public class IrrigationRecordRestServlet {
 
   @EJB
   MonthServiceBean monthService;
-
-  // inject a reference to the PastDaysReferenceServiceBean
-  @EJB
-  PastDaysReferenceServiceBean pastDaysReferenceService;
 
   // mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();

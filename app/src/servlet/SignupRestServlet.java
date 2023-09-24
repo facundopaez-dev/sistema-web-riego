@@ -10,7 +10,6 @@ import javax.ws.rs.core.Response.Status;
 import util.ErrorResponse;
 import util.ReasonError;
 import model.User;
-import model.PastDaysReference;
 import model.SignupFormData;
 import stateless.UserServiceBean;
 import stateless.AccountActivationLinkServiceBean;

@@ -6,7 +6,6 @@ import javax.ejb.Schedule;
 import javax.ejb.Stateless;
 import stateless.UserServiceBean;
 import stateless.AccountActivationLinkServiceBean;
-import stateless.PastDaysReferenceServiceBean;
 import model.AccountActivationLink;
 
 /*
@@ -25,14 +24,10 @@ public class ExpiredAccountManager {
     @EJB
     AccountActivationLinkServiceBean accountActivationLinkService;
 
-    @EJB
-    PastDaysReferenceServiceBean pastDaysReferenceService;
-
     /**
      * Elimina de manera automatica los enlaces de activacion de cuenta NO
      * consumidos y expirados, y las cuentas registradas asociadas a los mismos
-     * cada 24 horas a partir de las 00 horas. Tambien elimina el PastDaysReference
-     * asociado a una cuenta NO activada.
+     * cada 24 horas a partir de las 00 horas.
      * 
      * Si no se hace esto, un usuario que se registro, pero que no activo su
      * cuenta antes del tiempo de expiracion de su respectivo enlace de
@@ -62,12 +57,10 @@ public class ExpiredAccountManager {
              * (es decir, no fue accedido por su respectivo usuario antes
              * de su tiempo de expiracion), se lo elimina de la base de
              * datos subyacente junto con la cuenta NO activada a la que
-             * esta asociado. Tambien se elimina el PastDaysReference
-             * asociado a la cuenta NO activada.
+             * esta asociado
              */
             if (accountActivationLinkService.checkExpiration(currentAccountActivationLinkNotConsumed)) {
                 accountActivationLinkService.remove(currentAccountActivationLinkNotConsumed.getId());
-                pastDaysReferenceService.removeByUserId(currentAccountActivationLinkNotConsumed.getUser().getId());
                 userService.remove(currentAccountActivationLinkNotConsumed.getUser().getId());
             }
 

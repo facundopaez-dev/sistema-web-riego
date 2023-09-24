@@ -32,7 +32,6 @@ import stateless.MonthServiceBean;
 import stateless.UserServiceBean;
 import stateless.OptionServiceBean;
 import stateless.LatitudeServiceBean;
-import stateless.PastDaysReferenceServiceBean;
 import climate.ClimateClient;
 import et.HargreavesEto;
 import et.Etc;
@@ -88,9 +87,6 @@ public class PlantingRecordRestServlet {
 
   // inject a reference to the LatitudeServiceBean
   @EJB LatitudeServiceBean latitudeService;
-
-  // inject a reference to the PastDaysReferenceServiceBean
-  @EJB PastDaysReferenceServiceBean pastDaysReferenceService;
 
   @EJB UserServiceBean userService;
 
