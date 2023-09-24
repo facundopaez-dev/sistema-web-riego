@@ -1637,13 +1637,13 @@ public class PlantingRecordServiceBean {
    * Hay que tener en cuenta que este metodo debe ser invocado
    * luego de invocar al metodo checkExistence de esta clase,
    * ya que si no se hace esto puede ocurrir la excepcion
-   * NoResultException, la cual, ocurre cuando se invoca el
+   * NoResultException, la cual ocurre cuando se invoca el
    * metodo getSingleResult de la clase Query para buscar
    * un dato inexistente en la base de datos subyacente.
    * 
    * @param id
-   * @return true si un registro de plantacion es
-   * modificable, en caso contrario false
+   * @return true si un registro de plantacion tiene el
+   * estado finalizado, en caso contrario false
    */
   public boolean isFinished(int id) {
     return find(id).getStatus().getName().equals(FINISHED_STATUS);
