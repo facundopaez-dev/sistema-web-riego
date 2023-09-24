@@ -221,34 +221,6 @@ public class IrrigationRecordServiceBean {
   }
 
   /**
-   * Retorna todos los registros de riego que tienen el cultivo
-   * definido y el valor "n/a" (no disponible) en el atributo de
-   * la necesidad de agua de riego.
-   * 
-   * Un registro de riego tiene el cultivo definido cuando se lo
-   * crea para una parcela que tiene un registro de plantacion en
-   * desarrollo (por ende, tiene un cultivo en desarrollo). Por lo
-   * tanto, este metodo retorna una coleccion que contiene todos
-   * los registros de riego que tienen el valor "n/a" en el atributo
-   * de la necesidad de agua de riego que corresponden a parcelas
-   * que tienen un cultivo en desarrollo en la fecha actual.
-   * 
-   * Este metodo es para el metodo automatico setIrrigationWaterNeed
-   * de la clase IrrigationRecordManager.
-   * 
-   * @return referencia a un objeto de tipo Collection que contiene
-   * los registros de riego que tienen el cultivo definido y el valor
-   * "n/a" (no disponible) en el atributo de la necesidad de agua de
-   * riego [mm/dia]
-   */
-  public Collection<IrrigationRecord> findAllUndefinedWithCrop() {
-    Query query = entityManager.createQuery("SELECT i FROM IrrigationRecord i WHERE (i.irrigationWaterNeed = :notAvailable AND i.crop != null) ORDER BY i.id");
-    query.setParameter("notAvailable", "n/a");
-
-    return (Collection) query.getResultList();
-  }
-
-  /**
    * @param givenUserId
    * @param givenParcelId
    * @param givenMinorDate
@@ -501,33 +473,6 @@ public class IrrigationRecordServiceBean {
    */
   public boolean isFromPast(int userId, int irrigationRecordId) {
     Calendar dateIrrigationRecord = findByUserId(userId, irrigationRecordId).getDate();
-
-    /*
-     * Si la fecha de un registro de riego es estrictamente menor a
-     * la fecha actual, se retorna true como indicativo de que este
-     * registro es del pasado
-     */
-    if (UtilDate.compareTo(dateIrrigationRecord, UtilDate.getCurrentDate()) < 0) {
-      return true;
-    }
-
-    return false;
-  }
-
-  /**
-   * Retorna true si y solo si un registro de riego es del pasado,
-   * es decir, si su fecha es estrictamente menor a la fecha
-   * actual.
-   * 
-   * Este metodo es para el metodo automatico unsetModifiable
-   * de la clase IrrigationRecordManager.
-   * 
-   * @param id
-   * @return true si el registro de riego correspondiente al ID
-   * dado es del pasado, en caso contrario false
-   */
-  public boolean isFromPast(int id) {
-    Calendar dateIrrigationRecord = find(id).getDate();
 
     /*
      * Si la fecha de un registro de riego es estrictamente menor a

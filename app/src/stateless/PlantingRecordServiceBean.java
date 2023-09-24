@@ -1614,23 +1614,6 @@ public class PlantingRecordServiceBean {
   }
 
   /**
-   * Establece el atributo modifiable de un registro de
-   * plantacion en false. Esto se debe hacer para un registro
-   * de plantacion finalizado, ya que un registro de
-   * plantacion finalizado NO se debe poder modificar.
-   * 
-   * Este metodo es para el metodo automatico unsetModifiable
-   * de la clase PlantingRecordManager.
-   * 
-   * @param id
-   */
-  public void unsetModifiable(int id) {
-    Query query = entityManager.createQuery("UPDATE PlantingRecord p SET p.modifiable = 0 WHERE p.id = :givenId");
-    query.setParameter("givenId", id);
-    query.executeUpdate();
-  }
-
-  /**
    * Retorna true si y solo si un registro de plantacion tiene
    * el estado finalizado.
    * 
