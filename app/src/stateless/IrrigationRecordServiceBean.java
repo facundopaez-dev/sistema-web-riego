@@ -90,7 +90,6 @@ public class IrrigationRecordServiceBean {
       chosenIrrigationRecord.setIrrigationDone(modifiedIrrigationRecord.getIrrigationDone());
       chosenIrrigationRecord.setParcel(modifiedIrrigationRecord.getParcel());
       chosenIrrigationRecord.setCrop(modifiedIrrigationRecord.getCrop());
-      chosenIrrigationRecord.setModifiable(modifiedIrrigationRecord.getModifiable());
       return chosenIrrigationRecord;
     }
 
@@ -218,19 +217,6 @@ public class IrrigationRecordServiceBean {
     query.setParameter("userId", userId);
     query.setParameter("givenParcelName", givenParcelName);
 
-    return (Collection) query.getResultList();
-  }
-
-  /**
-   * Retorna todos los registros de riego modificables de
-   * todas las parcelas de la base de datos subyacente
-   * 
-   * @return referencia a un objeto de tipo Collection que
-   * contiene todos los registros de riego modificables de
-   * todas las parcelas de la base de datos subyacente
-   */
-  public Collection<IrrigationRecord> findAllModifiable() {
-    Query query = entityManager.createQuery("SELECT i FROM IrrigationRecord i WHERE (i.modifiable = 1) ORDER BY i.id");
     return (Collection) query.getResultList();
   }
 
@@ -556,23 +542,6 @@ public class IrrigationRecordServiceBean {
   }
 
   /**
-   * Establece el atributo modifiable de un registro de
-   * riego en false. Esto se debe hacer para un registro
-   * de riego del pasado, ya que un registro de riego
-   * del pasado NO se debe poder modificar.
-   * 
-   * Este metodo es para el metodo automatico unsetModifiable
-   * de la clase IrrigationRecordManager.
-   * 
-   * @param id
-   */
-  public void unsetModifiable(int id) {
-    Query query = entityManager.createQuery("UPDATE IrrigationRecord i SET i.modifiable = 0 WHERE i.id = :givenId");
-    query.setParameter("givenId", id);
-    query.executeUpdate();
-  }
-
-  /**
    * Actualiza la necesidad de agua de riego del registro
    * de riego de una parcela
    * 
@@ -586,24 +555,6 @@ public class IrrigationRecordServiceBean {
     query.setParameter("givenParcel", givenParcel);
     query.setParameter("irrigationWaterNeed", irrigationWaterNeed);
     query.executeUpdate();
-  }
-
-  /**
-   * Retorna true si y solo si un registro de riego es modificable.
-   * 
-   * Hay que tener en cuenta que este metodo debe ser invocado
-   * luego de invocar al metodo checkExistence de esta clase,
-   * ya que si no se hace esto puede ocurrir la excepcion
-   * NoResultException, la cual, ocurre cuando se invoca el
-   * metodo getSingleResult de la clase Query para buscar
-   * un dato inexistente en la base de datos subyacente.
-   * 
-   * @param id
-   * @return true si un registro de riego es modificable,
-   * false en caso contrario
-   */
-  public boolean isModifiable(int id) {
-    return find(id).getModifiable();
   }
 
   public Page<IrrigationRecord> findByPage(Integer page, Integer cantPerPage, Map<String, String> parameters) {

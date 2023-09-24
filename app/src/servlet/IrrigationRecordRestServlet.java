@@ -343,13 +343,6 @@ public class IrrigationRecordRestServlet {
     }
 
     /*
-     * Un registro de riego nuevo se debe poder modificar,
-     * por lo tanto, se establece su atributo modifiable en
-     * true
-     */
-    newIrrigationRecord.setModifiable(true);
-
-    /*
      * Persistencia del nuevo registro de riego
      */
     newIrrigationRecord = irrigationRecordService.create(newIrrigationRecord);
@@ -420,19 +413,6 @@ public class IrrigationRecordRestServlet {
      */
     if (!irrigationRecordService.checkUserOwnership(userId, irrigationRecordId)) {
       return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
-    }
-
-    /*
-     * Si el registro de riego a modificar NO es modificable,
-     * la aplicacion del lado servidor retorna el mensaje
-     * HTTP 400 (Bad request) junto con el mensaje "No esta
-     * permitida la modificacion de un registro de riego no
-     * modificable" y no se realiza la operacion solicitada
-     */
-    if (!irrigationRecordService.isModifiable(irrigationRecordId)) {
-      return Response.status(Response.Status.BAD_REQUEST)
-          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_NON_MODIFIABLE_IRRIGATION_RECORD_NOT_ALLOWED)))
-          .build();
     }
 
     /*
@@ -665,13 +645,6 @@ public class IrrigationRecordRestServlet {
     newIrrigationRecord.setParcel(irrigationWaterNeedFormData.getParcel());
     newIrrigationRecord.setCrop(irrigationWaterNeedFormData.getCrop());
     newIrrigationRecord.setIrrigationDone(irrigationWaterNeedFormData.getIrrigationDone());
-
-    /*
-     * Un registro de riego nuevo se debe poder modificar,
-     * por lo tanto, se establece su atributo modifiable en
-     * true
-     */
-    newIrrigationRecord.setModifiable(true);
 
     /*
      * ******************************************

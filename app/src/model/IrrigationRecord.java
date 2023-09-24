@@ -36,30 +36,6 @@ public class IrrigationRecord {
   @Column(name = "IRRIGATION_DONE", nullable = false)
   private double irrigationDone;
 
-  /*
-   * Un registro de riego del pasado (es decir, que su fecha es
-   * estrictamente menor que la fecha actual) es un registro de
-   * riego que NO se debe poder modificar.
-   * 
-   * Un registro de riego del pasado tiene su atributo modifiable
-   * en false, mientras que un registro de riego actual (es decir,
-   * que su fecha es igual a la fecha actual) lo tiene en true.
-   * 
-   * Esta variable es para mostrar u ocultar el boton de modificacion
-   * de registro de riego en la interfaz grafica del usuario. Si
-   * un registro de riego tiene su atributo modifiable en false,
-   * se oculta el boton de modificacion. En cambio, si lo tiene en
-   * true, se muestra el boton de modificacion.
-   * 
-   * La manera en la que esta variable adquiere el valor booleano
-   * false es mediante el metodo unsetModifiable de la clase
-   * IrrigationRecordManager. Este metodo establece el atributo
-   * modifiable de un registro de riego del pasado en false, ya
-   * que un registro de riego del pasado NO se debe poder modificar.
-   */
-  @Column(name = "MODIFIABLE", nullable = false)
-  private boolean modifiable;
-
   @ManyToOne
   @JoinColumn(name = "FK_PARCEL", nullable = false)
   private Parcel parcel;
@@ -118,24 +94,6 @@ public class IrrigationRecord {
   }
 
   /**
-   * Returns value of modifiable
-   * 
-   * @return
-   */
-  public boolean getModifiable() {
-    return modifiable;
-  }
-
-  /**
-   * Sets new value of modifiable
-   * 
-   * @param
-   */
-  public void setModifiable(boolean modifiable) {
-    this.modifiable = modifiable;
-  }
-
-  /**
    * Returns value of parcel
    * 
    * @return
@@ -174,11 +132,10 @@ public class IrrigationRecord {
   @Override
   public String toString() {
     return String.format(
-        "ID: %d\nFecha: %s\nRiego realizado: %f [mm/día]\nModificable: %b\nID de parcela: %d\nCultivo: %s\n",
+        "ID: %d\nFecha: %s\nRiego realizado: %f [mm/día]\nID de parcela: %d\nCultivo: %s\n",
         id,
         UtilDate.formatDate(date),
         irrigationDone,
-        modifiable,
         parcel.getId(),
         crop.getName());
   }
