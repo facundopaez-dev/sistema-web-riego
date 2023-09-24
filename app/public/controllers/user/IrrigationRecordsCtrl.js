@@ -1,7 +1,7 @@
 app.controller(
 	"IrrigationRecordsCtrl",
-	["$scope", "$location", "IrrigationRecordSrv", "ParcelSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
-		function ($scope, $location, irrigationRecordService, parcelSrv, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
+	["$scope", "$location", "$route", "IrrigationRecordSrv", "ParcelSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
+		function ($scope, $location, $route, irrigationRecordService, parcelSrv, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
 
 			console.log("IrrigationRecordsCtrl loaded...")
 
@@ -63,6 +63,21 @@ app.controller(
 
 					$scope.data = data;
 				})
+			}
+
+			$scope.delete = function (id) {
+				console.log("Deleting: " + id)
+
+				irrigationRecordService.delete(id, function (error) {
+					if (error) {
+						console.log(error);
+						errorResponseManager.checkResponse(error);
+						return;
+					}
+
+					$location.path("/home/irrigationRecords");
+					$route.reload()
+				});
 			}
 
 			$scope.logout = function () {

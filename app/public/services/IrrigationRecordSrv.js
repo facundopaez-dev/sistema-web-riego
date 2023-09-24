@@ -56,6 +56,17 @@ app.service(
             });
       };
 
+      this.delete = function (id, callback) {
+        $http.delete("rest/irrigationRecords/" + id)
+          .then(
+            function (result) {
+              callback(false, result.data);
+            },
+            function (error) {
+              callback(error);
+            });
+      }
+
       this.findAllByParcelName = function (parcelName, callback) {
         $http.get("rest/irrigationRecords/findAllByParcelName/" + parcelName).then(
           function (result) {

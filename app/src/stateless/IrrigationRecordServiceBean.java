@@ -36,6 +36,29 @@ public class IrrigationRecordServiceBean {
     return newIrrigationRecord;
   }
 
+  /**
+   * Elimina fisicamente un registro de riego perteneciente a
+   * una parcela de un usuario
+   * 
+   * @param userId
+   * @param irrigationRecordId
+   * @return referencia a un objeto de tipo IrrigationRecord en
+   * caso de eliminarse de la base de datos subyacente el registro
+   * de riego que tiene el ID dado y que esta asociado a una
+   * parcela de un usuario que tiene el ID de usuario dado, en
+   * caso contrario null
+   */
+  public IrrigationRecord remove(int userId, int irrigationRecordId) {
+    IrrigationRecord givenIrrigationRecord = findByUserId(userId, irrigationRecordId);
+
+    if (givenIrrigationRecord != null) {
+      getEntityManager().remove(givenIrrigationRecord);
+      return givenIrrigationRecord;
+    }
+
+    return null;
+  }
+
   public IrrigationRecord remove(int irrigationRecordId) {
     IrrigationRecord givenIrrigationRecord = find(irrigationRecordId);
 
@@ -60,7 +83,7 @@ public class IrrigationRecordServiceBean {
    * dado, en caso contrario null
    */
   public IrrigationRecord modify(int userId, int irrigationRecordId, IrrigationRecord modifiedIrrigationRecord) {
-    IrrigationRecord chosenIrrigationRecord = find(userId, irrigationRecordId);
+    IrrigationRecord chosenIrrigationRecord = findByUserId(userId, irrigationRecordId);
 
     if (chosenIrrigationRecord != null) {
       chosenIrrigationRecord.setDate(modifiedIrrigationRecord.getDate());
@@ -76,33 +99,6 @@ public class IrrigationRecordServiceBean {
 
   public IrrigationRecord find(int id) {
     return getEntityManager().find(IrrigationRecord.class, id);
-  }
-
-  /**
-   * Retorna un registro de riego perteneciente a una parcela
-   * de un usuario
-   * 
-   * @param userId
-   * @param irrigationRecordId
-   * @return referencia a un objeto de tipo IrrigationRecord en
-   * caso de encontrarse en la base de datos subyacente el registro
-   * de riego con el ID dado y asociado al usuario con el ID dado,
-   * en caso contrario null
-   */
-  public IrrigationRecord find(int userId, int irrigationRecordId) {
-    Query query = entityManager.createQuery("SELECT i FROM IrrigationRecord i WHERE (i.id = :irrigationRecordId AND i.parcel.user.id = :userId)");
-    query.setParameter("irrigationRecordId", irrigationRecordId);
-    query.setParameter("userId", userId);
-
-    IrrigationRecord givenIrrigationRecord = null;
-
-    try {
-      givenIrrigationRecord = (IrrigationRecord) query.getSingleResult();
-    } catch (NoResultException e) {
-      e.printStackTrace();
-    }
-
-    return givenIrrigationRecord;
   }
 
   /**
@@ -160,6 +156,34 @@ public class IrrigationRecordServiceBean {
     }
 
     return irrigationRecordGenerated;
+  }
+
+  /**
+   * Retorna un registro de riego perteneciente a una de las
+   * parcelas de un usuario
+   * 
+   * @param userId
+   * @param irrigationRecordId
+   * @return referencia a un objeto de tipo IrrigationRecord que
+   * representa el registro de riego de una parcela de un
+   * usuario en caso de encontrarse en la base de datos subyacente
+   * el registro de riego con el ID dado y asociado al usuario
+   * del ID dado, en caso contrario null
+   */
+  public IrrigationRecord findByUserId(int userId, int irrigationRecordId) {
+    Query query = getEntityManager().createQuery("SELECT i FROM IrrigationRecord i WHERE (i.id = :irrigationRecordId AND i.parcel.user.id = :userId)");
+    query.setParameter("irrigationRecordId", irrigationRecordId);
+    query.setParameter("userId", userId);
+
+    IrrigationRecord irrigationRecord = null;
+
+    try {
+      irrigationRecord = (IrrigationRecord) query.getSingleResult();
+    } catch(NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return irrigationRecord;
   }
 
   /**
@@ -346,7 +370,7 @@ public class IrrigationRecordServiceBean {
    * en caso contrario false
    */
   public boolean checkUserOwnership(int userId, int irrigationRecordId) {
-    return (find(userId, irrigationRecordId) != null);
+    return (findByUserId(userId, irrigationRecordId) != null);
   }
 
   /**
@@ -490,7 +514,7 @@ public class IrrigationRecordServiceBean {
    * al usuario del ID dado es del pasado, en caso contrario false
    */
   public boolean isFromPast(int userId, int irrigationRecordId) {
-    Calendar dateIrrigationRecord = find(userId, irrigationRecordId).getDate();
+    Calendar dateIrrigationRecord = findByUserId(userId, irrigationRecordId).getDate();
 
     /*
      * Si la fecha de un registro de riego es estrictamente menor a
