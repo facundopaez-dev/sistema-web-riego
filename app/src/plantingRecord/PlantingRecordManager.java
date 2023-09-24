@@ -163,16 +163,17 @@ public class PlantingRecordManager {
 
         /*
          * Establece la necesidad de agua de riego [mm/dia] de la fecha
-         * actual en cada uno de los registros de plantacion en desarrollo
-         * de todas las parcelas.
+         * actual (es decir, hoy) en cada uno de los registros de plantacion
+         * en desarrollo de todas las parcelas.
          * 
          * Esto es que establece la necesidad de agua de riego [mm/dia] de
          * la fecha actual de cada cultivo en desarrollo de cada una de
-         * las parcelas. Esto se hace en funcion de la ETc del dia anterior
+         * las parcelas. La necesidad de agua de riego de un cultivo en la
+         * fecha actual se calcula en funcion de la ETc del dia anterior
          * o de los dias anteriores a la fecha actual, del agua de lluvia
-         * del dia anterior o de los dias anteriores a la fecha actual y del
+         * del dia anterior o de los dias anteriores a la fecha actual, del
          * agua de riego del dia anterior o de los dias anteriores a la fecha
-         * actual.
+         * actual y de la cantidad total de agua de riego de la fecha actual.
          */
         for (PlantingRecord developingPlantingRecord : developingPlantingRecords) {
             givenParcel = developingPlantingRecord.getParcel();
