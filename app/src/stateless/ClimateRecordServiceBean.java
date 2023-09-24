@@ -238,19 +238,6 @@ public class ClimateRecordServiceBean {
   }
 
   /**
-   * Retorna todos los registros climaticos modificables de
-   * todas las parcelas de la base de datos subyacente
-   * 
-   * @return referencia a un objeto de tipo Collection que
-   * contiene todos los registros climaticos modificables de
-   * todas las parcelas de la base de datos subyacente
-   */
-  public Collection<ClimateRecord> findAllModifiable() {
-    Query query = entityManager.createQuery("SELECT c FROM ClimateRecord c WHERE c.modifiable = 1 ORDER BY c.id");
-    return (Collection) query.getResultList();
-  }
-
-  /**
    * Retorna todos los registros climaticos que tienen
    * una fecha dada
    * 
@@ -292,7 +279,6 @@ public class ClimateRecordServiceBean {
       chosenClimateRecord.setMaximumTemperature(modifiedClimateRecord.getMaximumTemperature());
       chosenClimateRecord.setEto(modifiedClimateRecord.getEto());
       chosenClimateRecord.setEtc(modifiedClimateRecord.getEtc());
-      chosenClimateRecord.setModifiable(modifiedClimateRecord.getModifiable());
       chosenClimateRecord.setParcel(modifiedClimateRecord.getParcel());
       return chosenClimateRecord;
     }
@@ -323,7 +309,6 @@ public class ClimateRecordServiceBean {
       chosenClimateRecord.setMaximumTemperature(modifiedClimateRecord.getMaximumTemperature());
       chosenClimateRecord.setEto(modifiedClimateRecord.getEto());
       chosenClimateRecord.setEtc(modifiedClimateRecord.getEtc());
-      chosenClimateRecord.setModifiable(modifiedClimateRecord.getModifiable());
       chosenClimateRecord.setParcel(modifiedClimateRecord.getParcel());
       return chosenClimateRecord;
     }
@@ -579,24 +564,6 @@ public class ClimateRecordServiceBean {
    */
   public boolean isFromPast(ClimateRecord climateRecord) {
     return (UtilDate.compareTo(climateRecord.getDate(), UtilDate.getCurrentDate()) < 0);
-  }
-
-  /**
-   * Retorna true si y solo si un registro climatico es modificable.
-   * 
-   * Hay que tener en cuenta que este metodo debe ser invocado
-   * luego de invocar al metodo checkExistence de esta clase,
-   * ya que si no se hace esto puede ocurrir la excepcion
-   * NoResultException, la cual, ocurre cuando se invoca el
-   * metodo getSingleResult de la clase Query para buscar
-   * un dato inexistente en la base de datos subyacente.
-   * 
-   * @param id
-   * @return true si un registro climatico es modificable,
-   * false en caso contrario
-   */
-  public boolean isModifiable(int id) {
-    return find(id).getModifiable();
   }
 
   /**

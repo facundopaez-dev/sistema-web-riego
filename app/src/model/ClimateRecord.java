@@ -199,20 +199,6 @@ public class ClimateRecord {
   @Column(name = "ETC", nullable = false)
   private double etc;
 
-  /*
-   * Esta variable es para mostrar u ocultar el boton de modificacion
-   * de registro climatico en la interfaz grafica del usuario. Si
-   * un registro climatico tiene su atributo modifiable en false,
-   * se oculta el boton de modificacion. En cambio, si lo tiene en
-   * true, se muestra el boton de modificacion.
-   * 
-   * La manera en la que esta variable adquiere el valor booleano
-   * false es por parte del usuario mediante la modificacion de un
-   * registro climatico.
-   */
-  @Column(name = "MODIFIABLE", nullable = false)
-  private boolean modifiable;
-
   @ManyToOne
   @JoinColumn(name = "FK_PARCEL", nullable = false)
   private Parcel parcel;
@@ -447,24 +433,6 @@ public class ClimateRecord {
   }
 
   /**
-   * Returns value of modifiable
-   * 
-   * @return
-   */
-  public boolean getModifiable() {
-    return modifiable;
-  }
-
-  /**
-   * Sets new value of modifiable
-   * 
-   * @param
-   */
-  public void setModifiable(boolean modifiable) {
-    this.modifiable = modifiable;
-  }
-
-  /**
    * Returns value of parcel
    * 
    * @return
@@ -485,7 +453,7 @@ public class ClimateRecord {
   @Override
   public String toString() {
     return String.format(
-        "ID: %d\nLatitud: %f (grados decimales) Longitud: %f (grados decimales)\nFecha: %s\nPrecipitación del día: %f milímetros/día\nProbabilidad de precipitación: %f [porcentaje 0 - 100]\nPunto de rocío: %f °C\nPresión atmosférica: %f hectopascales (milibares)\nVelocidad del viento: %f kilómetros/por hora\nNubosidad: %f [porcentaje 0 - 100]\nTemperatura mínima: %f °C\nTemperatura máxima: %f °C\nTipos de precipitacion: %s\nModificable: %b\n",
+        "ID: %d\nLatitud: %f (grados decimales) Longitud: %f (grados decimales)\nFecha: %s\nPrecipitación del día: %f milímetros/día\nProbabilidad de precipitación: %f [porcentaje 0 - 100]\nPunto de rocío: %f °C\nPresión atmosférica: %f hectopascales (milibares)\nVelocidad del viento: %f kilómetros/por hora\nNubosidad: %f [porcentaje 0 - 100]\nTemperatura mínima: %f °C\nTemperatura máxima: %f °C\nTipos de precipitacion: %s\n",
         id,
         parcel.getLatitude(),
         parcel.getLongitude(),
@@ -498,8 +466,7 @@ public class ClimateRecord {
         cloudCover,
         minimumTemperature,
         maximumTemperature,
-        precipTypes,
-        modifiable);
+        precipTypes);
   }
 
 }

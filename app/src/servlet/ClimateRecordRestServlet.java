@@ -362,14 +362,6 @@ public class ClimateRecordRestServlet {
     }
 
     /*
-     * Un registro climatico nuevo debe poder ser modificado.
-     * 
-     * Por lo tanto, se establece el valor true en la variable
-     * modifiable de un registro climatico nuevo.
-     */
-    newClimateRecord.setModifiable(true);
-
-    /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos que el
@@ -437,19 +429,6 @@ public class ClimateRecordRestServlet {
      */
     if (!climateRecordService.checkUserOwnership(userId, climateRecordId)) {
       return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
-    }
-
-    /*
-     * Si el registro climatico a modificar NO es modificable,
-     * la aplicacion del lado servidor retorna el mensaje
-     * HTTP 400 (Bad request) junto con el mensaje "No esta
-     * permitida la modificacion de un registro climatico no
-     * modificable" y no se realiza la operacion solicitada
-     */
-    if (!climateRecordService.isModifiable(climateRecordId)) {
-      return Response.status(Response.Status.BAD_REQUEST)
-          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_NON_MODIFIABLE_CLIMATE_RECORD_NOT_ALLOWED)))
-          .build();
     }
 
     /*
