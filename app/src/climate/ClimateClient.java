@@ -341,7 +341,8 @@ public class ClimateClient {
      * de datos meteorologicos devuelto por una llamada a la API Visual
      * Crossing Weather (VSC), las variables de instancia precip y
      * precipProbability de una instancia de tipo ClimateRecord se
-     * inicializan en 0.0, debido a que son variables de instancia.
+     * inicializan en 0.0, debido a que son variables de instancia
+     * de tipo double, el cual es un tipo primitivo en Java.
      */
   }
 
