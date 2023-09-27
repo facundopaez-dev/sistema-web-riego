@@ -69,7 +69,7 @@ public class TypeCropServiceBean {
   }
 
   /**
-   * Retorna los tipso de cultivo que tienen un nombre que coincide
+   * Retorna los tipos de cultivo que tienen un nombre que coincide
    * con el nombre de tipo de cultivo dado
    * 
    * @param typeCropName
