@@ -63,8 +63,9 @@ public class CropServiceBean {
    * que tiene el identificador dado
    *
    * @param  id
-   * @return referencia a cultivo en caso de que haya sido eliminado,
-   * referencia a nada (null) en caso contrario
+   * @return referencia a un objeto de tipo Crop en caso de eliminarse
+   * de la base de datos subyacente el cultivo correspondiente al ID
+   * dado, en caso contrario null (referencia a nada)
    */
   public Crop remove(int id) {
     Crop givenCrop = find(id);
