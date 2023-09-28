@@ -59,6 +59,7 @@ class Cultivo {
 class TipoCultivo {
 -id
 -nombre
+-activo
 }
 
 class Region {
