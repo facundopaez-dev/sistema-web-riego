@@ -65,6 +65,7 @@ class TipoCultivo {
 class Region {
 -id
 -nombre
+-activa
 }
 
 class RegistroClimatico {
