@@ -444,19 +444,6 @@ app.controller(
         });
       }
 
-      // Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
-      $scope.findTypeCrop = function (typeCropName) {
-        return typeCropSrv.findByName(typeCropName).
-          then(function (response) {
-            var typeCrops = [];
-            for (var i = 0; i < response.data.length; i++) {
-              typeCrops.push(response.data[i]);
-            }
-
-            return typeCrops;
-          });;
-      }
-
       $scope.cancel = function () {
         $location.path("/adminHome/crops");
       }
@@ -502,8 +489,31 @@ app.controller(
         })
       }
 
+      function findAllActiveTypeCrops() {
+        typeCropSrv.findAllActive(function (error, typeCrops) {
+          if (error) {
+            console.log("Ocurrio un error: " + error);
+            return;
+          }
+
+          $scope.typeCrops = typeCrops;
+        })
+      }
+
+      function findAllTypeCrops() {
+        typeCropSrv.findAll(function (error, typeCrops) {
+          if (error) {
+            console.log("Ocurrio un error: " + error);
+            return;
+          }
+
+          $scope.typeCrops = typeCrops;
+        })
+      }
+
       if ($scope.action == 'new' || $scope.action == 'edit') {
         findAllActiveRegions();
+        findAllActiveTypeCrops();
       }
 
       if ($scope.action == 'edit' || $scope.action == 'view') {
@@ -511,13 +521,15 @@ app.controller(
       }
 
       /*
-      En la visualizacion de un cultivo se debe poder ver la region
-      a la que esta asociada, independientemente de si la misma esta
-      activa o inactiva. Para esto se deben recuperar todas las regiones,
-      tanto las activas como las inactivas.
+      En la visualizacion de un cultivo se debe poder ver el tipo de
+      cultivo y la region a los que esta asociado, independientemente
+      de si estos elementos estan activos o inactivos. Para esto se deben
+      recuperar todos los tipos de cultivos y todas las regiones, tanto
+      los activos como los inactivos.
       */
       if ($scope.action == 'view') {
         findAllRegions();
+        findAllTypeCrops();
       }
 
     }]);

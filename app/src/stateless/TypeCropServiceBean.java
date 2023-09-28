@@ -48,7 +48,28 @@ public class TypeCropServiceBean {
 
     if (chosenTypeCrop != null) {
       chosenTypeCrop.setName(modifiedTypeCrop.getName());
+      chosenTypeCrop.setActive(modifiedTypeCrop.getActive());
       return chosenTypeCrop;
+    }
+
+    return null;
+  }
+
+  /**
+   * Elimina de forma logica de la base de datos subyacente el tipo
+   * de cultivo que tiene el identificador dado
+   *
+   * @param  id
+   * @return referencia a un objeto de tipo TypeCrop en caso de eliminarse
+   * de la base de datos subyacente el tipo de cultivo correspondiente al
+   * ID dado, en caso contrario null (referencia a nada)
+   */
+  public TypeCrop remove(int id) {
+    TypeCrop givenTypeCrop = find(id);
+
+    if (givenTypeCrop != null) {
+      givenTypeCrop.setActive(false);
+      return givenTypeCrop;
     }
 
     return null;
@@ -64,34 +85,17 @@ public class TypeCropServiceBean {
     return (Collection) query.getResultList();
   }
 
-  public TypeCrop find(int id) {
-    return getEntityManager().find(TypeCrop.class, id);
+  /**
+   * @return referencia a un objeto de tipo Collection que
+   * contiene todos los tipos de cultivo activos
+   */
+  public Collection<TypeCrop> findAllActive() {
+    Query query = getEntityManager().createQuery("SELECT t FROM TypeCrop t WHERE t.active = TRUE ORDER BY t.id");
+    return (Collection) query.getResultList();
   }
 
-  /**
-   * Retorna los tipos de cultivo que tienen un nombre que coincide
-   * con el nombre de tipo de cultivo dado
-   * 
-   * @param typeCropName
-   * @return referencia a un objeto de tipo Collection que contiene
-   *         todos los tipos de cultivos que tienen un nombre que
-   *         coincide con el nombre de tipo de cultivo dado
-   */
-  public Collection<TypeCrop> searchByName(String typeCropName) {
-    StringBuffer queryStr = new StringBuffer("SELECT t FROM TypeCrop t ");
-
-    if (typeCropName != null) {
-      queryStr.append(" WHERE UPPER(t.name) LIKE :name ");
-    }
-
-    Query query = getEntityManager().createQuery(queryStr.toString());
-
-    if (typeCropName != null) {
-      query.setParameter("name", "%" + typeCropName.toUpperCase() + "%");
-    }
-
-    Collection<TypeCrop> enterprises = (Collection) query.getResultList();
-    return enterprises;
+  public TypeCrop find(int id) {
+    return getEntityManager().find(TypeCrop.class, id);
   }
 
   /**

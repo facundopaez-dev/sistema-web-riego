@@ -90,18 +90,6 @@
 				</div>
 			</div>
 
-			<!-- Esto permite hacer la busqueda mediante el ingreso de caracteres -->
-			<div class="form-group">
-				<label for="typeCrop" class="col-md-2 control-label">Tipo de cultivo</label>
-				<div class="col-md-3">
-					<input name="typeCrop" type="text" ng-model="data.typeCrop" placeholder="Ej.: Hortaliza"
-						uib-typeahead="typeCrop as typeCrop.name for typeCrop in findTypeCrop($viewValue)"
-						typeahead-loading="loadingLocations" class="form-control" typeahead-editable="false"
-						typeahead-min-lenght="3" ng-disabled="action == 'view'">
-					<i ng-show="loadingLocations" class="glyphicon glyphicon-refresh"></i>
-				</div>
-			</div>
-
 			<div class="form-group">
 				<label for="initial_stage_crop" class="col-md-2 control-label">Etapa inicial (días)</label>
 				<div class="col-md-3">
@@ -166,6 +154,14 @@
 			</div>
 
             <div class="form-group">
+                <label for="selectTypeCrop">Tipo de cultivo</label>
+                <select class="form-control col-md-6" id="selectTypeCrop" ng-model="data.typeCrop"
+                    data-ng-options="t as ('ID: ' + t.id + ' Nombre: ' + t.name ) for t in typeCrops track by t.id"
+                    ng-disabled="action == 'view'" required>
+                </select>
+            </div>
+
+			<div class="form-group">
                 <label for="selectRegion">Region</label>
                 <select class="form-control col-md-6" id="selectRegion" ng-model="data.region"
                     data-ng-options="r as ('ID: ' + r.id + ' Nombre: ' + r.name ) for r in regions track by r.id"

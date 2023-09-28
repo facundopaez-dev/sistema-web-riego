@@ -1,7 +1,7 @@
 app.controller(
 	"TypeCropsCtrl",
-	["$scope", "$location", "TypeCropSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
-		function ($scope, $location, typeCropService, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
+	["$scope", "$location", "$route", "TypeCropSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
+		function ($scope, $location, $route, typeCropService, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
 
 			console.log("TypeCropsCtrl loaded...")
 
@@ -58,6 +58,22 @@ app.controller(
 
 					$scope.data = data;
 				})
+			}
+
+			$scope.delete = function (id) {
+
+				console.log("Deleting: " + id)
+
+				typeCropService.delete(id, function (error, data) {
+					if (error) {
+						console.log(error);
+						errorResponseManager.checkResponse(error);
+						return;
+					}
+
+					$location.path("/adminHome/typeCrops");
+					$route.reload()
+				});
 			}
 
 			$scope.logout = function () {

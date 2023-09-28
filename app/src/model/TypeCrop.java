@@ -19,6 +19,9 @@ public class TypeCrop {
   @Column(name = "NAME", nullable = false, unique = true)
   private String name;
 
+  @Column(name = "ACTIVE", nullable = false)
+  private boolean active;
+
   public TypeCrop() {
 
   }
@@ -33,6 +36,14 @@ public class TypeCrop {
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  public boolean getActive() {
+    return active;
+  }
+
+  public void setActive(boolean active) {
+    this.active = active;
   }
 
   @Override

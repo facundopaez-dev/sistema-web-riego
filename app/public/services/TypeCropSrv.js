@@ -13,6 +13,16 @@ app.service(
 					});
 			}
 
+			this.findAllActive = function (callback) {
+				$http.get("rest/typeCrops/actives").then(
+					function (result) {
+						callback(false, result.data);
+					},
+					function (error) {
+						callback(error);
+					});
+			}
+
 			this.find = function (id, callback) {
 				$http.get("rest/typeCrops/" + id).then(
 					function (result) {
@@ -34,6 +44,17 @@ app.service(
 						});
 			}
 
+			this.delete = function (id, callback) {
+				$http.delete("rest/typeCrops/" + id)
+					.then(
+						function (result) {
+							callback(false, result.data);
+						},
+						function (error) {
+							callback(error);
+						});
+			}
+
 			this.modify = function (data, callback) {
 				$http.put("rest/typeCrops/" + data.id, data)
 					.then(
@@ -44,11 +65,6 @@ app.service(
 							callback(error);
 						});
 			};
-
-			// Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
-			this.findByName = function (name) {
-				return $http.get("rest/typeCrops/?typeCropName=" + name);
-			}
 
 		}
 	]);

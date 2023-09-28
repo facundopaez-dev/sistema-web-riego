@@ -33,16 +33,16 @@
 			<a class="navbar-brand" href="#!/adminHome/crops">Cultivos</a>
 		</div>
 
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
-                aria-expanded="false" aria-controls="navbar">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="#!/adminHome/regions">Regiones</a>
-        </div>
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+				aria-expanded="false" aria-controls="navbar">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" href="#!/adminHome/regions">Regiones</a>
+		</div>
 
 		<div class="navbar-header">
 			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
@@ -87,6 +87,13 @@
 				<div class="col-md-3">
 					<input type="text" class="form-control" id="typeCrop_name" placeholder="Ej.: Hortaliza"
 						ng-model="data.name" ng-disabled="action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="typeCrop_active" class="col-md-2 control-label">Activo</label>
+				<div class="col-md-3">
+					<input type="checkbox" id="typeCrop_active" ng-model="data.active" ng-disabled="action == 'view'">
 				</div>
 			</div>
 
