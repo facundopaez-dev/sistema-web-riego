@@ -102,6 +102,7 @@ public class CropServiceBean {
       givenCrop.setFinalKc(modifiedCrop.getFinalKc());
       givenCrop.setActive(modifiedCrop.getActive());
       givenCrop.setTypeCrop(modifiedCrop.getTypeCrop());
+      givenCrop.setRegion(modifiedCrop.getRegion());
       return givenCrop;
     }
 

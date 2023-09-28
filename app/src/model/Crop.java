@@ -50,6 +50,10 @@ public class Crop {
   @JoinColumn(name = "FK_TYPE_CROP", nullable = false)
   private TypeCrop typeCrop;
 
+  @ManyToOne
+  @JoinColumn(name = "FK_REGION")
+  private Region region;
+
   public Crop() {
 
   }
@@ -144,6 +148,14 @@ public class Crop {
 
   public void setTypeCrop(TypeCrop typeCrop) {
     this.typeCrop = typeCrop;
+  }
+
+  public Region getRegion() {
+    return region;
+  }
+
+  public void setRegion(Region region) {
+    this.region = region;
   }
 
   @Override

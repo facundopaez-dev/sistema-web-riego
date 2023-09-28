@@ -41,6 +41,17 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
+			<a class="navbar-brand" href="#!/adminHome/regions">Regiones</a>
+		</div>
+
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+				aria-expanded="false" aria-controls="navbar">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
 			<a class="navbar-brand" href="#!/adminHome/typeCrops">Tipos de cultivos</a>
 		</div>
 
@@ -153,6 +164,14 @@
 					<input type="checkbox" id="crop_active" ng-model="data.active" ng-disabled="action == 'view'">
 				</div>
 			</div>
+
+            <div class="form-group">
+                <label for="selectRegion">Region</label>
+                <select class="form-control col-md-6" id="selectRegion" ng-model="data.region"
+                    data-ng-options="r as ('ID: ' + r.id + ' Nombre: ' + r.name ) for r in regions track by r.id"
+                    ng-disabled="action == 'view'" required>
+                </select>
+            </div>
 
 			<div class="form-group">
 				<div class="col-md-offset-2 col-md-3">

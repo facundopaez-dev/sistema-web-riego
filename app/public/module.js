@@ -190,6 +190,19 @@ app.config(['$routeProvider', function (routeprovider) {
 			controller: 'AdminCropCtrl'
 		})
 
+		.when('/adminHome/regions', {
+			templateUrl: 'partials/admin/region-list.html',
+			controller: 'RegionsCtrl'
+		})
+		.when('/adminHome/regions/:action', {
+			templateUrl: 'partials/admin/region-form.html',
+			controller: 'RegionCtrl'
+		})
+		.when('/adminHome/regions/:action/:id', {
+			templateUrl: 'partials/admin/region-form.html',
+			controller: 'RegionCtrl'
+		})
+
 		.otherwise({
 			templateUrl: 'partials/404.html'
 		})

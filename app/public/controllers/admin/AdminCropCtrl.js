@@ -1,8 +1,8 @@
 app.controller(
   "AdminCropCtrl",
-  ["$scope", "$location", "$routeParams", "CropSrv", "TypeCropSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
+  ["$scope", "$location", "$routeParams", "CropSrv", "TypeCropSrv", "RegionSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
     "ExpirationManager", "RedirectManager",
-    function ($scope, $location, $params, cropService, typeCropSrv, accessManager, errorResponseManager, authHeaderManager, logoutManager, expirationManager,
+    function ($scope, $location, $params, cropService, typeCropSrv, regionSrv, accessManager, errorResponseManager, authHeaderManager, logoutManager, expirationManager,
       redirectManager) {
 
       console.log("AdminCropCtrl loaded with action: " + $params.action)
@@ -480,8 +480,44 @@ app.controller(
 
       $scope.action = $params.action;
 
+      function findAllActiveRegions() {
+        regionSrv.findAllActive(function (error, regions) {
+          if (error) {
+            console.log("Ocurrio un error: " + error);
+            return;
+          }
+
+          $scope.regions = regions;
+        })
+      }
+
+      function findAllRegions() {
+        regionSrv.findAll(function (error, regions) {
+          if (error) {
+            console.log("Ocurrio un error: " + error);
+            return;
+          }
+
+          $scope.regions = regions;
+        })
+      }
+
+      if ($scope.action == 'new' || $scope.action == 'edit') {
+        findAllActiveRegions();
+      }
+
       if ($scope.action == 'edit' || $scope.action == 'view') {
         find($params.id);
+      }
+
+      /*
+      En la visualizacion de un cultivo se debe poder ver la region
+      a la que esta asociada, independientemente de si la misma esta
+      activa o inactiva. Para esto se deben recuperar todas las regiones,
+      tanto las activas como las inactivas.
+      */
+      if ($scope.action == 'view') {
+        findAllRegions();
       }
 
     }]);

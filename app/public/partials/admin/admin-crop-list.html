@@ -33,6 +33,17 @@
 			<a class="navbar-brand" href="#!/adminHome/crops">Cultivos</a>
 		</div>
 
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#!/adminHome/regions">Regiones</a>
+        </div>
+
 		<div class="navbar-header">
 			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
 				aria-expanded="false" aria-controls="navbar">
@@ -73,6 +84,7 @@
 				<th>Etapa de desarrollo (días)</th>
 				<th>Etapa media (días)</th>
 				<th>Etapa final (días)</th>
+				<th>Región</th>
 				<th>Activo</th>
 			</tr>
 		</thead>
@@ -84,6 +96,7 @@
 				<td>{{c.developmentStage}}</td>
 				<td>{{c.middleStage}}</td>
 				<td>{{c.finalStage}}</td>
+				<td>{{c.region.name ? c.region.name : '-'}}</td>
 				<td>{{c.active ? 'Sí' : 'No'}}</td>
 				<td class="text-right">
 					<div class="btn-group" role="group" aria-label="...">
