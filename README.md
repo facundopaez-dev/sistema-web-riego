@@ -11,7 +11,7 @@ El sistema proveerá al usuario la creación, la modificación y la eliminación
 
 Un informe estadístico de una parcela será generado mediante el uso de registros de plantación y registros de riego comprendidos en un período definido por dos fechas elegidas por el usuario. Los datos que contendrá un informe estadístico de una parcela son: el cultivo más plantado, el cultivo menos plantado, el cultivo plantado con el mayor ciclo de vida, el cultivo plantado con el menor ciclo de vida, la cantidad de días en los que una parcela no tuvo ningún cultivo plantado y la cantidad total de agua de lluvia en milímetros por período que cayó sobre una parcela.
 
-El sistema tendrá inicio de sesión y registro de usuario, y podrá ser utilizado como administrador. El administrador podrá crear, modificar y eliminar (lógicamente) cultivos, y crear y modificar tipos de cultivos.
+El sistema tendrá inicio de sesión y registro de usuario, y podrá ser utilizado como administrador. El administrador podrá crear, modificar y eliminar (lógicamente) cultivos, crear, modificar y eliminar (lógicamente) regiones, y crear, modificar y eliminar (lógicamente) tipos de cultivos.
 
 ### Características funcionales del sistema
 - Cálculo de la cantidad o necesidad de agua de riego [mm/día] de un cultivo en la fecha actual.
@@ -19,10 +19,11 @@ El sistema tendrá inicio de sesión y registro de usuario, y podrá ser utiliza
 - Creación, modificación y eliminación de registros de plantación.
 - Creación, modificación y eliminación de registros de riego.
 - Creación, modificación y eliminación de registros climáticos.
+- Creación, modificación y eliminación (lógica) de cultivos.
+- Creación, modificación y eliminación (lógica) de regiones.
+- Creación, modificación y eliminación (lógica) de tipos de cultivos.
 - Generación y eliminación de informes estadísticos de parcelas.
 - Obtención y persistencia, en forma de registros climáticos, de los datos meteorológicos de la ubicación geográfica de una parcela.
 - Registro (sign up) e ingreso (log in) de usuario.
 - Ingreso (log in) como administrador. 
-- Creación, modificación y eliminación (lógica) de cultivos por parte del administrador.
-- Creación y modificación de tipos de cultivos por parte del administrador.
 - Modificación de los datos y de la contraseña de la cuenta.
