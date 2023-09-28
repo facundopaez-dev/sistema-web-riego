@@ -269,17 +269,16 @@ public class CropServiceBean {
    * retorna el kc de un cultivo.
    * 
    * Este metodo es para la clase de pruebas unitarias GetKcTest
-   * y los metodos calculateEtForPeriod y requestAndPersistClimateRecordsForPeriod
-   * de la clase PlantingRecordRestServlet.
+   * y el metodo calculateEtsPastClimateRecords de las clases
+   * PlantingRecordRestServlet y PlantingRecordManager.
    * 
    * @param crop
    * @param seedDate [fecha de siembra de un cultivo dado]
    * @param dateUntil
-   * @return numero de punto flotante que representa el kc
-   * (coeficiente de cultivo) de un cultivo en funcion de
-   * la etapa de su ciclo de vida en la que se encuentra
-   * teniendo en cuenta su fecha de siembra y una fecha hasta
-   * dada
+   * @return double que representa el kc (coeficiente de cultivo)
+   * de un cultivo en funcion de la etapa de su ciclo de vida en
+   * la que se encuentra tomando como referencia su fecha de siembra
+   * y una fecha hasta dada
    */
   public double getKc(Crop crop, Calendar seedDate, Calendar dateUntil) {
     /*
