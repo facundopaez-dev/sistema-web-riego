@@ -4,6 +4,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import java.util.Collection;
 import model.Month;
 
 @Stateless
@@ -44,12 +45,25 @@ public class MonthServiceBean {
    * El id = 10 corresponde al mes numero 10 (Octubre)
    * El id = 11 corresponde al mes numero 11 (Noviembre)
    * El id = 12 corresponde al mes numero 12 (Diciembre)
+   * 
+   * Esto se debe a que en el archivo monthInserts.sql de la
+   * ruta app/etc/sql los meses son cargados en orden
+   * cronologico.
    *
    * @param id
    * @return mes correspondiente al identificador dado
    */
   public Month find(int id) {
     return getEntityManager().find(Month.class, id);
+  }
+
+  /**
+   * @return referencia a un objeto de tipo Collection que
+   * contiene todos los meses
+   */
+  public Collection<Month> findAll() {
+    Query query = getEntityManager().createQuery("SELECT m FROM Month m ORDER BY m.id");
+    return (Collection) query.getResultList();
   }
 
   /**

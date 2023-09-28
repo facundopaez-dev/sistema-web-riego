@@ -153,9 +153,33 @@
 			</div>
 
 			<div class="form-group">
+				<label for="crop_lifeCycle" class="col-md-2 control-label">Ciclo de vida (días)</label>
+				<div class="col-md-3">
+					<input type="number" class="form-control" id="crop_lifeCycle" ng-model="data.lifeCycle"
+						ng-disabled="action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group">
 				<label for="region_name" class="col-md-2 control-label">Región</label>
 				<div class="col-md-3">
 					<input type="text" class="form-control" id="region_name" ng-model="data.region.name"
+						ng-disabled="action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="plantingStartMonth_name" class="col-md-2 control-label">Mes inicio de siembra</label>
+				<div class="col-md-3">
+					<input type="text" class="form-control" id="plantingStartMonth_name" ng-model="data.plantingStartMonth.name"
+						ng-disabled="action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="endPlantingtMonth_name" class="col-md-2 control-label">Mes fin de siembra</label>
+				<div class="col-md-3">
+					<input type="text" class="form-control" id="endPlantingtMonth_name" ng-model="data.endPlantingMonth.name"
 						ng-disabled="action == 'view'">
 				</div>
 			</div>

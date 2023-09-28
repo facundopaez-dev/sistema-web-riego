@@ -101,6 +101,8 @@ public class CropServiceBean {
       givenCrop.setMiddleKc(modifiedCrop.getMiddleKc());
       givenCrop.setFinalKc(modifiedCrop.getFinalKc());
       givenCrop.setActive(modifiedCrop.getActive());
+      givenCrop.setPlantingStartMonth(modifiedCrop.getPlantingStartMonth());
+      givenCrop.setEndPlantingMonth(modifiedCrop.getEndPlantingMonth());
       givenCrop.setTypeCrop(modifiedCrop.getTypeCrop());
       givenCrop.setRegion(modifiedCrop.getRegion());
       return givenCrop;

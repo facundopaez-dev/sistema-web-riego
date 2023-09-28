@@ -1,8 +1,8 @@
 app.controller(
   "AdminCropCtrl",
-  ["$scope", "$location", "$routeParams", "CropSrv", "TypeCropSrv", "RegionSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
+  ["$scope", "$location", "$routeParams", "CropSrv", "TypeCropSrv", "RegionSrv", "MonthSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
     "ExpirationManager", "RedirectManager",
-    function ($scope, $location, $params, cropService, typeCropSrv, regionSrv, accessManager, errorResponseManager, authHeaderManager, logoutManager, expirationManager,
+    function ($scope, $location, $params, cropService, typeCropSrv, regionSrv, monthSrv, accessManager, errorResponseManager, authHeaderManager, logoutManager, expirationManager,
       redirectManager) {
 
       console.log("AdminCropCtrl loaded with action: " + $params.action)
@@ -511,9 +511,21 @@ app.controller(
         })
       }
 
+      function findAllMonths() {
+        monthSrv.findAll(function (error, months) {
+          if (error) {
+            console.log("Ocurrio un error: " + error);
+            return;
+          }
+
+          $scope.months = months;
+        })
+      }
+
       if ($scope.action == 'new' || $scope.action == 'edit') {
         findAllActiveRegions();
         findAllActiveTypeCrops();
+        findAllMonths();
       }
 
       if ($scope.action == 'edit' || $scope.action == 'view') {
@@ -530,6 +542,7 @@ app.controller(
       if ($scope.action == 'view') {
         findAllRegions();
         findAllTypeCrops();
+        findAllMonths();
       }
 
     }]);

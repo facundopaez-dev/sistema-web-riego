@@ -7,8 +7,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 @Entity
+@Table(name = "CROP", uniqueConstraints = { @UniqueConstraint(columnNames = { "NAME", "FK_PLANTING_START_MONTH", "FK_END_PLANTING_MONTH", "FK_REGION" }) })
 public class Crop {
 
   @Id
@@ -45,6 +48,14 @@ public class Crop {
 
   @Column(name = "ACTIVE", nullable = false)
   private boolean active;
+
+  @ManyToOne
+  @JoinColumn(name = "FK_PLANTING_START_MONTH")
+  private Month plantingStartMonth;
+
+  @ManyToOne
+  @JoinColumn(name = "FK_END_PLANTING_MONTH")
+  private Month endPlantingMonth;
 
   @ManyToOne
   @JoinColumn(name = "FK_TYPE_CROP", nullable = false)
@@ -140,6 +151,22 @@ public class Crop {
 
   public void setActive(boolean active) {
     this.active = active;
+  }
+
+  public Month getPlantingStartMonth() {
+    return plantingStartMonth;
+  }
+
+  public void setPlantingStartMonth(Month plantingStartMonth) {
+    this.plantingStartMonth = plantingStartMonth;
+  }
+
+  public Month getEndPlantingMonth() {
+    return endPlantingMonth;
+  }
+
+  public void setEndPlantingMonth(Month endPlantingMonth) {
+    this.endPlantingMonth = endPlantingMonth;
   }
 
   public TypeCrop getTypeCrop() {
