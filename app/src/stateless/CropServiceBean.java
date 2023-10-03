@@ -11,6 +11,8 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.NoResultException;
 import model.Crop;
+import model.Month;
+import model.Region;
 import util.UtilDate;
 
 @Stateless
@@ -112,13 +114,147 @@ public class CropServiceBean {
   }
 
   /**
+   * Determina si dos cultivos son iguales comparando el nombre, el
+   * mes de inicio de siembra, el mes de fin de siembra y la region
+   * de ambos. Retorna true si y solo si dos cultivos tienen el mismo
+   * nombre, el mismo mes de inicio de siembra, el mismo mes de fin
+   * de siembra y la misma region.
+   * 
    * @param cropOne
    * @param cropTwo
-   * @return true si el cultivo uno tiene el mismo nombre que
-   * el cultivo dos, en caso contrario false
+   * @return true si dos cultivos son iguales, en caso contrario
+   * false
    */
   public boolean equals(Crop cropOne, Crop cropTwo) {
-    return cropOne.getName().equals(cropTwo.getName());
+    String nameOne = cropOne.getName();
+    Month plantingStartMonthOne = cropOne.getPlantingStartMonth();
+    Month endPlantingMonthOne = cropOne.getEndPlantingMonth();
+    Region regionOne = cropOne.getRegion();
+
+    String nameTwo = cropTwo.getName();
+    Month plantingStartMonthTwo = cropTwo.getPlantingStartMonth();
+    Month endPlantingMonthTwo = cropTwo.getEndPlantingMonth();
+    Region regionTwo = cropTwo.getRegion();
+
+    /*
+     * Uno de los extremos es comparar el nombre de dos cultivos dados
+     * en el caso en el que el mes de inicio de siembra, el mes de fin
+     * de siembra y la region de ellos sean null
+     */
+    if (nameOne.equals(nameTwo)
+        && plantingStartMonthOne == null && endPlantingMonthOne == null && regionOne == null
+        && plantingStartMonthTwo == null && endPlantingMonthTwo == null && regionTwo == null) {
+      return true;
+    }
+
+    /*
+     * Uno de los casos de comparacion es que el mes de inicio de siembra
+     * de dos cultivos dados sea distinto de null, y el mes de fin de
+     * siembra y la region de ambos sean null
+     */
+    if (plantingStartMonthOne != null && endPlantingMonthOne == null && regionOne == null
+        && plantingStartMonthTwo != null && endPlantingMonthTwo == null && regionTwo == null) {
+
+      if (nameOne.equals(nameTwo) && plantingStartMonthOne.getName().equals(plantingStartMonthTwo.getName())) {
+        return true;
+      }
+
+    } // End if
+
+    /*
+     * Uno de los casos de comparacion es que el mes de fin de siembra
+     * de dos cultivos dados sea distinto de null, y el mes de inicio
+     * de siembra y la region de ambos sean null
+     */
+    if (plantingStartMonthOne == null && endPlantingMonthOne != null && regionOne == null
+        && plantingStartMonthTwo == null && endPlantingMonthTwo != null && regionTwo == null) {
+
+      if (nameOne.equals(nameTwo) && endPlantingMonthOne.getName().equals(endPlantingMonthTwo.getName())) {
+        return true;
+      }
+
+    } // End if
+
+    /*
+     * Uno de los casos de comparacion es que la region de dos cultivos
+     * dados sea distinta de null, y el mes de inicio de siembra y el
+     * mes de fin de siembra de ambos sean null
+     */
+    if (plantingStartMonthOne == null && endPlantingMonthOne == null && regionOne != null
+        && plantingStartMonthTwo == null && endPlantingMonthTwo == null && regionTwo != null) {
+
+      if (nameOne.equals(nameTwo) && regionOne.getName().equals(regionTwo.getName())) {
+        return true;
+      }
+
+    } // End if
+
+    /*
+     * Uno de los casos de comparacion es que el mes de inicio de siembra
+     * y el mes de fin de siembra de dos cultivos dados sean distintos de
+     * null, y la region de ambos sea null
+     */
+    if (plantingStartMonthOne != null && endPlantingMonthOne != null && regionOne == null
+        && plantingStartMonthTwo != null && endPlantingMonthTwo != null && regionTwo == null) {
+
+      if (nameOne.equals(nameTwo)
+          && plantingStartMonthOne.getName().equals(plantingStartMonthTwo.getName())
+          && endPlantingMonthOne.getName().equals(endPlantingMonthTwo.getName())) {
+        return true;
+      }
+
+    } // End if
+
+    /*
+     * Uno de los casos de comparacion es que el mes de inicio de siembra
+     * y la region de dos cultivos dados sean distintos de null, y el mes
+     * de fin de siembra de ambos sea null
+     */
+    if (plantingStartMonthOne != null && endPlantingMonthOne == null && regionOne != null
+        && plantingStartMonthTwo != null && endPlantingMonthTwo == null && regionTwo != null) {
+
+      if (nameOne.equals(nameTwo)
+          && plantingStartMonthOne.getName().equals(plantingStartMonthTwo.getName())
+          && regionOne.getName().equals(regionTwo.getName())) {
+        return true;
+      }
+
+    } // End if
+
+    /*
+     * Uno de los casos de comparacion es que el mes de fin de siembra
+     * y la region de dos cultivos dados sean distintos de null, y el
+     * mes de inicio de siembra sea null
+     */
+    if (plantingStartMonthOne == null && endPlantingMonthOne != null && regionOne != null
+        && plantingStartMonthTwo == null && endPlantingMonthTwo != null && regionTwo != null) {
+
+      if (nameOne.equals(nameTwo)
+          && endPlantingMonthOne.getName().equals(endPlantingMonthTwo.getName())
+          && regionOne.getName().equals(regionTwo.getName())) {
+        return true;
+      }
+
+    } // End if
+
+    /*
+     * Uno de los extremos es comparar el nombre, el mes de inicio de
+     * siembra, el mes de fin de siembra y la region de dos cultivos
+     * dados
+     */
+    if (plantingStartMonthOne != null && endPlantingMonthOne != null && regionOne != null
+        && plantingStartMonthTwo != null && endPlantingMonthTwo != null && regionTwo != null) {
+
+      if (nameOne.equals(nameTwo)
+          && plantingStartMonthOne.getName().equals(plantingStartMonthTwo.getName())
+          && endPlantingMonthOne.getName().equals(endPlantingMonthTwo.getName())
+          && regionOne.getName().equals(regionTwo.getName())) {
+        return true;
+      }
+
+    } // End if
+
+    return false;
   }
 
   public Crop find(int id) {
@@ -151,44 +287,39 @@ public class CropServiceBean {
   }
 
   /**
-   * Retorna el cultivo que tiene el nombre dado y un ID
-   * distinto al del cultivo del ID dado, si y solo si existe
-   * en la base de datos subyacente
-   * 
-   * @param id
-   * @return referencia a un objeto de tipo Crop que representa
-   * al cultivo que tiene un ID distinto al ID dado y un nombre
-   * igual al nombre dado, si existe en la base de datos
-   * subyacente. En caso contrario, null.
-   */
-  private Crop findRepeated(int id, String name) {
-    /*
-     * Esta consulta obtiene el cultivo que tiene su nombre
-     * igual al nombre de un cultivo del conjunto de cultivos
-     * en el que NO esta el cultivo del ID dado
-     */
-    Query query = getEntityManager().createQuery("SELECT c FROM Crop c WHERE (c.id != :cropId AND UPPER(c.name) = UPPER(:cropName))");
-    query.setParameter("cropId", id);
-    query.setParameter("cropName", name);
-
-    Crop givenCrop = null;
-
-    try {
-      givenCrop = (Crop) query.getSingleResult();
-    } catch (NoResultException e) {
-      e.printStackTrace();
-    }
-
-    return givenCrop;
-  }
-
-  /**
    * @return referencia a un objeto de tipo Collection que
    * contiene todos los cultivos, tanto los eliminados
    * logicamente (inactivos) como los que no
    */
   public Collection<Crop> findAll() {
     Query query = getEntityManager().createQuery("SELECT c FROM Crop c ORDER BY c.id");
+    return (Collection) query.getResultList();
+  }
+
+  /**
+   * @return referencia a un objeto de tipo Collection que
+   * contiene todos los cultivos que tienen el mismo nombre,
+   * tanto los eliminados logicamente (inactivos) como los
+   * que no
+   */
+  public Collection<Crop> findAllByName(String name) {
+    Query query = getEntityManager().createQuery("SELECT c FROM Crop c WHERE (UPPER(c.name) = UPPER(:name)) ORDER BY c.id");
+    query.setParameter("name", name);
+
+    return (Collection) query.getResultList();
+  }
+
+  /**
+   * @return referencia a un objeto de tipo Collection que
+   * contiene todos los cultivos que tienen el mismo nombre,
+   * tanto los eliminados logicamente (inactivos) como los
+   * que no, pero que no tiene el cultivo del ID dado
+   */
+  public Collection<Crop> findAllByNameExceptId(int id, String name) {
+    Query query = getEntityManager().createQuery("SELECT c FROM Crop c WHERE (c.id != :id AND UPPER(c.name) = UPPER(:name)) ORDER BY c.id");
+    query.setParameter("id", id);
+    query.setParameter("name", name);
+
     return (Collection) query.getResultList();
   }
 
@@ -215,49 +346,76 @@ public class CropServiceBean {
   }
 
   /**
-   * Retorna true si y solo si existe un cultivo con el nombre
-   * dado en la base de datos subyacente
+   * Determina si un cultivo existe en la base de datos subyacente.
+   * Retorna true si y solo si en la base de datos subyacente
+   * existe un cultivo con el nombre, el mes de inicio de siembra,
+   * el mes de fin de siembra y la region de un cultivo dado.
    * 
-   * @param cropName
-   * @return true si existe el cultivo con el nombre dado en
-   * la base de datos subyacente, false en caso contrario.
-   * Tambien retorna false en el caso en el que el argumento
-   * tiene el valor null.
+   * Hay que tener en cuenta que para usar este metodo primero
+   * se debe realizar un control que verifique si el nombre del
+   * cultivo pasado como argumento en la invocacion de este
+   * metodo, es null. Esto se debe a que si se realiza una
+   * consulta a la base de datos comparando el nombre de un
+   * cultivo con el valor null, ocurre la excepcion SQLSyntax-
+   * ErrorException, debido a que la comparacion de un atributo
+   * con el valor null incumple la sintaxis del proveedor del
+   * motor de base de datos.
+   * 
+   * @param crop
+   * @return true si existe un cultivo en la base de datos
+   * subaycente, en caso contrario false
    */
-  public boolean checkExistence(String cropName) {
+  public boolean checkExistence(Crop crop) {
     /*
-     * Si el nombre del cultivo tiene el valor null, se retorna
-     * false, ya que realizar la busqueda de un cultivo con un
-     * nombre con este valor es similar a buscar un cultivo
-     * inexistente en la base de datos subyacente.
-     * 
-     * Con este control se evita realizar una consulta a la base
-     * de datos comparando el nombre del cultivo con el valor null.
-     * Si no se realiza este control y se realiza esta consulta a
-     * la base de datos, ocurre la excepcion SQLSyntaxErrorException,
-     * debido a que la comparacion de un atributo con el valor
-     * null incumple la sintaxis del proveedor del motor de base
-     * de datos.
+     * Obtiene todos los cultivos que tienen el mismo nombre
+     * de un cultivo dado, esten activos o inactivos (eliminados
+     * logicamente)
      */
-    if (cropName == null) {
-      return false;
+    Collection<Crop> crops = findAllByName(crop.getName());
+
+    for (Crop currentCrop : crops) {
+
+      if (equals(crop, currentCrop)) {
+        return true;
+      }
+
     }
 
-    return (findByName(cropName) != null);
+    return false;
   }
 
   /**
-   * Retorna true si y solo si en la base de datos subyacente
-   * existe un cultivo con un nombre igual al nombre dado
-   * y un ID distinto al ID dado
+   * Este metodo es para la modificacion de un cultivo. Cuando
+   * se modifica un cultivo se debe evitar que el cultivo
+   * modificado sea igual a otro cultivo. Esto es que se debe
+   * evitar que tenga un nombre, un mes de inicio de siembra,
+   * un mes de fin de siembra y una region iguales al nombre,
+   * al mes de inicio de siembra, al mes de fin de siembra y
+   * a la region de otro cultivo.
    * 
    * @param id
+   * @param crop
    * @return true si en la base de datos subyacente existe un
-   * cultivo con un nombre igual al nombre dado y un ID
-   * distinto al ID dado, en caso contrario false
+   * cultivo con el nombre, el mes de inicio de siembra, el mes
+   * de fin de siembra y la region de un cultivo dado
    */
-  public boolean checkRepeated(int id, String name) {
-    return (findRepeated(id, name) != null);
+  public boolean checkRepeated(int id, Crop crop) {
+    /*
+     * Obtiene todos los cultivos que tienen el mismo nombre
+     * de un cultivo dado, esten activos o inactivos (eliminados
+     * logicamente), excepto el cultivo del ID dado
+     */
+    Collection<Crop> crops = findAllByNameExceptId(id, crop.getName());
+
+    for (Crop currentCrop : crops) {
+
+      if (equals(crop, currentCrop)) {
+        return true;
+      }
+
+    }
+
+    return false;
   }
 
   /**

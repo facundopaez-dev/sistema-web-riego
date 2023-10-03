@@ -258,13 +258,15 @@ public class CropRestServlet {
 
     /*
      * Si en la base de datos subyacente existe un cultivo con el
-     * nombre del cultivo nuevo, la aplicacion del lado servidor
-     * retorna el mensaje HTTP 400 (Bad request) junto con el
-     * mensaje "Nombre de cultivo ya utilizado, elija otro" y
-     * no se realiza la operacion solicitada
+     * nombre, el mes de inicio de siembra, el mes de fin de siembra
+     * y la region del cultivo nuevo, la aplicacion del lado servidor
+     * retorna el mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "Ya existe un cultivo con el nombre, el mes de inicio de siembra,
+     * el mes de fin de siembra y la region elegidos" y no se realiza
+     * la operacion solicitada
      */
-    if (cropService.checkExistence(newCrop.getName())) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.CROP_NAME_ALREADY_USED))).build();
+    if (cropService.checkExistence(newCrop)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EXISTING_CROP))).build();
     }
 
     /*
@@ -522,14 +524,17 @@ public class CropRestServlet {
     }
 
     /*
-     * Si el cultivo modificado tiene un nombre igual al nombre de
-     * otro cultivo, la aplicacion del lado servidor retorna el
-     * mensaje HTTP 400 (Bad request) junto con el mensaje
-     * "Nombre de cultivo ya utilizado, elija otro" y no se
-     * realiza la operacion solicitada
+     * Si el cultivo modificado tiene un nombre, un mes de inicio
+     * de siembra, un mes de fin de siembra y una region iguales
+     * al nombre, al mes de inicio de siembra, al mes de fin de
+     * siembra y a la region de otro cultivo, la aplicacion del
+     * lado servidor retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "Ya existe un cultivo con el nombre,
+     * el mes de inicio de siembra, el mes de fin de siembra y la
+     * region elegidos" y no se realiza la operacion solicitada
      */
-    if (cropService.checkRepeated(id, modifiedCrop.getName())) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.CROP_NAME_ALREADY_USED))).build();
+    if (cropService.checkRepeated(id, modifiedCrop)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EXISTING_CROP))).build();
     }
 
     /*

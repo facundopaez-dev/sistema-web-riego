@@ -53,7 +53,7 @@ public enum ReasonError {
   DATE_FROM_UNDEFINED("La fecha desde debe estar definida"),
   DATE_FROM_AND_DATE_UNTIL_OVERLAPPING("La fecha desde no debe ser mayor o igual a la fecha hasta"),
   CLIMATE_RECORDS_AND_PLANTING_RECORDS_DO_NOT_EXIST("La parcela seleccionada no tiene registros climáticos ni registros de plantación finalizados para generar un informe estadístico"),
-  CROP_NAME_ALREADY_USED("Nombre de cultivo ya utilizado, elija otro"),
+  EXISTING_CROP("Ya existe un cultivo con el nombre, el mes de inicio de siembra, el mes de fin de siembra y la región elegidos"),
   UNDEFINED_CROP_NAME("El nombre del cultivo debe estar definido"),
   TYPE_CROP_UNDEFINED("El tipo del cultivo debe estar definido"),
   INVALID_CROP_NAME("El nombre de un cultivo debe empezar con una palabra formada únicamente por caracteres alfabéticos y puede tener más de una palabra formada únicamente por caracteres alfabéticos"),

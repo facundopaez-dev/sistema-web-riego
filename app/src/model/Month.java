@@ -24,24 +24,16 @@ public class Month {
 
   }
 
-  /* Getters and setters */
-
-  /**
-   * Returns value of id
-   * 
-   * @return id
-   */
   public int getId() {
     return id;
   }
 
-  /**
-   * Returns value of name
-   * 
-   * @return name
-   */
   public String getName() {
     return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
   }
 
 }

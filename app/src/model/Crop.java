@@ -19,7 +19,7 @@ public class Crop {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
-  @Column(name = "NAME", nullable = false, unique = true)
+  @Column(name = "NAME", nullable = false)
   private String name;
 
   @Column(name = "INITIAL_STAGE", nullable = false)
