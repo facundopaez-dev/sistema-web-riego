@@ -248,7 +248,7 @@ public class CropRestServlet {
      * por mas de una palabra, la aplicacion del lado servidor retorna
      * el mensaje HTTP 400 (Bad request) junto con el mensaje "El nombre
      * de un cultivo debe empezar con una palabra formada unicamente por
-     * caracteres alfabeticos y puede tener más de una palabra formada
+     * caracteres alfabeticos y puede tener mas de una palabra formada
      * unicamente por caracteres alfabeticos" y no se realiza la
      * operacion solicitada
      */
@@ -515,7 +515,7 @@ public class CropRestServlet {
      * por mas de una palabra, la aplicacion del lado servidor retorna
      * el mensaje HTTP 400 (Bad request) junto con el mensaje "El nombre
      * de un cultivo debe empezar con una palabra formada unicamente por
-     * caracteres alfabeticos y puede tener más de una palabra formada
+     * caracteres alfabeticos y puede tener mas de una palabra formada
      * unicamente por caracteres alfabeticos" y no se realiza la
      * operacion solicitada
      */
