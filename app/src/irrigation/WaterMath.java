@@ -282,16 +282,16 @@ public class WaterMath {
    * (dia).
    * 
    * Si este metodo es invocado para una parcela que tiene un cultivo
-   * sembrado y en desarrollo, el deficit (falta) de agua por dia [mm/dia]
-   * calculado en una fecha sera el deficit de agua por dia [mm/dia] de
-   * un cultivo en una fecha.
+   * sembrado y en desarrollo en una fecha, el deficit (falta) de agua
+   * por dia [mm/dia] calculado en una fecha sera el deficit de agua
+   * por dia [mm/dia] de un cultivo en una fecha.
    * 
    * @param climateRecord
    * @param irrigationRecords
    * @return double que representa el deficit (falta) de agua por dia
    * [mm/dia] en una parcela en una fecha o de un cultivo en una fecha
    * en caso de que se invoque este metodo con una parcela que tiene
-   * un cultivo sembrado y en desarrollo
+   * un cultivo sembrado y en desarrollo en una fecha
    */
   public static double calculateDeficitPerDay(ClimateRecord climateRecord, Collection<IrrigationRecord> irrigationRecords) {
     double deficitPerDay = 0.0;
@@ -299,10 +299,10 @@ public class WaterMath {
     /*
      * Obtiene la cantidad total de agua de riego utilizada en una
      * parcela en una fecha. Si la parcela para la que se invoca
-     * este metodo tiene un cultivo sembrado y en desarrollo, el
-     * valor devuelto por el mismo sera la cantidad total de agua
-     * de riego utilizada en un cultivo (sembrado en una parcela)
-     * en una fecha.
+     * este metodo tiene un cultivo sembrado y en desarrollo en
+     * una fecha, el valor devuelto por el mismo sera la cantidad
+     * total de agua de riego utilizada en un cultivo (sembrado en
+     * una parcela) en una fecha.
      * 
      * El motivo por el cual se habla de la parcela y se usa la
      * expresion "en una fecha" es que un registro de riego
@@ -353,23 +353,40 @@ public class WaterMath {
   }
 
   /**
-   * @param givenDate
-   * @param previousIrrigationRecords
+   * Calcula la cantidad total de agua de riego utilizada en
+   * una parcela en una fecha [mm/dia] porque un registro de
+   * riego pertenece a una parcela y tiene una fecha (dia).
+   * En caso de que este metodo se invoque para una parcela
+   * que tiene un cultivo sembrado y en desarrollo en una
+   * fecha, la cantidad total de agua de riego calculada sera
+   * la cantidad total de agua de riego utilizada en un cultivo
+   * (sembrado en una parcela, obviamente) en una fecha [mm/dia].
+   * 
+   * @param date
+   * @param irrigationRecords
    * @return double que representa la cantidad total de agua
-   * de riego utilizada en una parcela en una fecha dada
+   * de riego utilizada en una parcela en una fecha [mm/dia]
+   * o en un cultivo (sembrado en una parcela) en una fecha
+   * [mm/dia] en caso de que se invoque este metodo para una
+   * parcela que tiene un cultivo sembrado y en desarrollo
+   * en una fecha
    */
-  private static double sumTotalAmountIrrigationWaterGivenDate(Calendar givenDate, Collection<IrrigationRecord> previousIrrigationRecords) {
+  private static double sumTotalAmountIrrigationWaterGivenDate(Calendar date, Collection<IrrigationRecord> irrigationRecords) {
     double totalIrrigationWater = 0.0;
 
-    for (IrrigationRecord currentIrrigationRecord : previousIrrigationRecords) {
+    for (IrrigationRecord currentIrrigationRecord : irrigationRecords) {
 
       /*
        * Acumula el agua de riego de todos los registros de riego
        * pertenecientes a una parcela que tienen la misma fecha.
        * De esta manera, se calcula la cantidad total de agua de
-       * riego utilizada en una parcela en una fecha dada.
+       * riego utilizada en una parcela en una fecha [mm/dia] o
+       * en un cultivo (sembrado en una parcela) en una fecha
+       * [mm/dia] en caso de que se invoque este metodo para una
+       * parcela que tiene un cultivo sembrado y en desarrollo
+       * en una fecha.
        */
-      if (UtilDate.compareTo(currentIrrigationRecord.getDate(), givenDate) == 0) {
+      if (UtilDate.compareTo(currentIrrigationRecord.getDate(), date) == 0) {
         totalIrrigationWater = totalIrrigationWater + currentIrrigationRecord.getIrrigationDone();
       }
 
