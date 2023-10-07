@@ -103,34 +103,59 @@
 
 <div class="panel panel-info">
     <div class="panel-heading">
-        <strong>Opciones</strong>
+        <strong>Listado de registros de actividad hídrica de cultivo</strong>
     </div>
-    <div class="panel-body">
-        <form class="form-horizontal">
-            <div class="form-group">
-                <label for="pastDaysReference" class="col-md-2 control-label">Días anteriores a la fecha actual
-                    utilizados como referencia para el cálculo de la necesidad de agua de riego de un cultivo en la
-                    fecha actual</label>
-                <div class="col-md-3">
-                    <input type="number" class="form-control" id="pastDaysReference" ng-model="data.pastDaysReference">
-                </div>
-            </div>
 
-            <div class="form-group">
-                <label for="thirtyDaysFlag" class="col-md-2 control-label">Calcular la necesidad de agua de riego de un
-                    cultivo en la fecha actual desde el último riego registrado en los últimos 30 días anteriores a la
-                    fecha actual</label>
-                <div class="col-md-3">
-                    <input type="checkbox" value="False" id="thirtyDaysFlag" ng-model="data.thirtyDaysFlag">
-                </div>
-            </div>
+    <form class="form-inline">
+        <div class="form-group">
+            <!-- Campo de la fecha desde -->
+            <input type="date" class="form-control" id="dateFrom" ng-model="dateFrom">
 
-            <div class="form-group">
-                <div class="col-md-offset-2 col-md-3">
-                    <button type="submit" class="btn btn-success" ng-click="modify()">Modificar</button>
-                    <button class="btn btn-success" ng-click="cancel()">Cancelar</button>
-                </div>
-            </div>
-        </form>
-    </div>
+            <!-- Campo de la fecha hasta -->
+            <input type="date" class="form-control" id="dateUntil" ng-model="dateUntil">
+
+            <!-- Campo de la parcela -->
+            <input name="parcel" type="text" ng-model="parcel" placeholder="Ej.: Puerto Madryn 1"
+                uib-typeahead="parcel as parcel.name for parcel in findParcel($viewValue)"
+                typeahead-loading="loadingLocations" class="form-control" typeahead-editable="false"
+                typeahead-min-lenght="3">
+
+            <!-- Campo del cultivo -->
+            <input name="crop" type="text" ng-model="crop" placeholder="Ej.: Lechuga"
+                uib-typeahead="crop as crop.name for crop in findCrop($viewValue)" typeahead-loading="loadingLocations"
+                class="form-control" typeahead-editable="false" typeahead-min-lenght="3">
+
+        </div>
+        <button class="btn btn-default" ng-click="retrieve()">Recuperar</button>
+        <button class="btn btn-default" ng-click="clearSearchFields()">Borrar campos</button>
+    </form>
+
+    <table class="table table-condensed table-hover table-fixed-top">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Fecha</th>
+                <th>Parcela</th>
+                <th>Cultivo</th>
+                <th>H2O (precip. y/o riego) [mm/día]</th>
+                <th>H2O evaporada (ETc/ETo) [mm/día]</th>
+                <th>Déficit H2O [mm/día]</th>
+                <th>Déficit acum. H2O [mm/día]</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="a in data">
+                <td>{{a.id}}</td>
+                <td>{{a.date | date:'dd/MM/yyyy'}}</td>
+                <td>{{a.parcelName}}</td>
+                <td>{{a.cropName}}</td>
+                <td>{{a.water}}</td>
+                <td>{{a.evaporatedWater}}</td>
+                <td>{{a.deficit}}</td>
+                <td>{{a.accumulatedDeficit}}</td>
+                <td class="text-right">
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </div>

@@ -1,6 +1,7 @@
 package util;
 
 import java.util.Calendar;
+import java.util.Date;
 
 public class UtilDate {
 
@@ -281,6 +282,17 @@ public class UtilDate {
     Calendar pastDate = getCurrentDate();
     pastDate.set(Calendar.DAY_OF_YEAR, (pastDate.get(Calendar.DAY_OF_YEAR) - offset));
     return pastDate;
+  }
+
+  /**
+   * @param givenDate
+   * @return referencia a un objeto de tipo Calendar que
+   * contiene la fecha contenida en un objeto de tipo Date
+   */
+  public static Calendar toCalendar(Date givenDate){ 
+    Calendar date = Calendar.getInstance();
+    date.setTime(givenDate);
+    return date;
   }
 
 }

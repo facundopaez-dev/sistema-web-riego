@@ -85,7 +85,8 @@ public enum ReasonError {
   THERE_IS_NO_CROP_IN_DEVELOPMENT("No está permitido crear un registro de riego para una parcela que no tiene un cultivo en desarrollo"),
   UNDEFINED_REGION_NAME("El nombre de la región debe estar definido"),
   INVALID_REGION_NAME("El nombre de una región debe empezar con una palabra formada únicamente por caracteres alfabéticos y puede tener más de una palabra formada únicamente por caracteres alfabéticos. Se permite el uso del punto para abreviar nombres, y el uso de la coma, y el punto y coma como separadores."),
-  REGION_NAME_ALREADY_USED("Nombre de región ya utilizado, elija otro");
+  REGION_NAME_ALREADY_USED("Nombre de región ya utilizado, elija otro"),
+  UNDEFINED_PARCEL_NAME_AND_CROP_NAME("La parcela y el cultivo deben estar definidos");
 
   private final String reason;
 

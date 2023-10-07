@@ -262,6 +262,32 @@ public class CropServiceBean {
   }
 
   /**
+   * Retorna los cultivos que tienen un nombre que coincide con el
+   * nombre dado, esten activos o inactivos (eliminados logicamente)
+   * 
+   * @param cropName
+   * @return referencia a un objeto de tipo Collection que contiene
+   * todos los cultivos que tienen un nombre que coincide con el
+   * nombre dado, esten activos o inactivos (eliminados logicamente)
+   */
+  public Collection<Crop> findByNameTypeAhead(String cropName) {
+    StringBuffer queryStr = new StringBuffer("SELECT c FROM Crop c");
+
+    if (cropName != null) {
+      queryStr.append(" WHERE (c.user.id = :userId AND UPPER(c.name) LIKE :name)");
+    }
+
+    Query query = entityManager.createQuery(queryStr.toString());
+
+    if (cropName != null) {
+      query.setParameter("name", "%" + cropName.toUpperCase() + "%");
+    }
+
+    Collection<Crop> operators = (Collection) query.getResultList();
+    return operators;
+  }
+
+  /**
    * Retorna el cultivo que tiene el nombre dado si y solo si
    * existe en la base de datos subyacente un cultivo con el
    * nombre dado
