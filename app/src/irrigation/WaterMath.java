@@ -25,15 +25,14 @@ public class WaterMath {
    * fecha [mm/dia] dada utilizando la cantidad total de agua de
    * riego de una fecha dada, una coleccion de registros climaticos
    * y una coleccion de registros de riego, siendo todos ellos
-   * previos a una fecha dada y pertenecientes a una misma parcela.
+   * previos a una fecha y pertenecientes a una misma parcela.
    * 
-   * La fecha dada puede ser la fecha actual (es decir, hoy),
-   * una fecha futura (es decir, posterior a la fecha actual)
-   * o una fecha pasada (es decir, anterior a la fecha actual).
-   * No tiene sentido que la fecha dada sea del pasado si lo
-   * que se busca es determinar la necesidad de agua de riego
-   * de un cultivo en la fecha actual o en una fecha posterior
-   * a la fecha actual.
+   * La fecha puede ser la fecha actual (es decir, hoy), una fecha
+   * futura (es decir, posterior a la fecha actual) o una fecha
+   * pasada (es decir, anterior a la fecha actual). No tiene sentido
+   * que la fecha sea del pasado si lo que se busca es determinar
+   * la necesidad de agua de riego de un cultivo en la fecha actual
+   * (es decir, hoy) o en una fecha posterior a la fecha actual.
    * 
    * La fecha para la que se calcula la necesidad de agua de riego
    * de un cultivo esta determinada por los registros climaticos y
@@ -51,33 +50,46 @@ public class WaterMath {
    * riego de un cultivo calculada con estos registros corresponde
    * a la fecha actual + X dias.
    * 
+   * Se debe tener en cuenta que este metodo puede ser invocado
+   * para una parcela que NO tiene un cultivo sembrado. En caso
+   * de que ocurra esto, el valor devuelto por el mismo sera el
+   * deficit acumulado de agua por dia de una parcela en una
+   * fecha [mm/dia]. En caso de que se invoque este metodo para
+   * una parcela que tiene un cultivo sembrado y en desarrollo
+   * en una fecha, el valor devuelto por el mismo sera el
+   * deficit acumulado de agua por dia de un cultivo en una
+   * fecha [mm/dia], el cual representa la necesidad de agua
+   * de riego de un cultivo en una fecha.
+   * 
    * @param totalIrrigationWaterGivenDate
    * @param previousClimateRecords
    * @param previousIrrigationRecords
    * @return double que representa la necesidad de agua de
-   * riego de un cultivo en una fecha dada [mm/dia]
+   * riego de un cultivo en una fecha [mm/dia], si se invoca
+   * este metodo para una parcela que tiene un cultivo sembrado
+   * y en desarrollo. En caso contrario, double que representa
+   * el deficit acumulado de agua por dia de una parcela en una
+   * fecha [mm/dia].
    */
   public static double calculateIrrigationWaterNeed(double totalIrrigationWaterGivenDate, Collection<ClimateRecord> previousClimateRecords,
       Collection<IrrigationRecord> previousIrrigationRecords) {
     /*
-     * El deficit (falta) acumulado de agua [mm/dia] de dias
-     * previos a una fecha dada es la cantidad acumulada de
-     * agua evaporada en dias previos a una fecha dada que
-     * no fue cubierta (satisfecha).
+     * El deficit (falta) acumulado de agua por dia [mm/dia] de
+     * dias previos a una fecha es la cantidad acumulada de agua
+     * evaporada en dias previos a una fecha que no fue cubierta
+     * (satisfecha).
      * 
-     * Si el deficit acumulado de agua de dias previos a una
-     * fecha dada es igual a 0, significa que la cantidad de
-     * agua evaporada en dias previos a una fecha dada fue cubierta
-     * (satisfecha), por lo tanto, NO hay una cantidad de agua
-     * evaporada que se deba reponer (satisfacer) mediante el
-     * riego en una fecha dada.
+     * Si el deficit acumulado de agua por dia de dias previos a una
+     * fecha es igual a 0, significa que la cantidad de agua evaporada
+     * en dias previos a una fecha fue cubierta (satisfecha), por lo
+     * tanto, NO hay una cantidad de agua evaporada que se deba
+     * reponer (satisfacer) mediante el riego en una fecha.
      * 
-     * En cambio, si el deficit acumulado de agua de dias previos
-     * a una fecha dada es menor a 0, significa que la cantidad
-     * de agua evaporada en dias previos a una fecha dada NO fue
-     * cubierta (satisfecha), por lo tanto, hay una cantidad
-     * evaporada que se debe reponer mediante el riego en una
-     * fecha dada.
+     * En cambio, si el deficit acumulado de agua por dia de dias
+     * previos a una fecha es menor a 0, significa que la cantidad
+     * de agua evaporada en dias previos a una fecha NO fue cubierta
+     * (satisfecha), por lo tanto, hay una cantidad evaporada que
+     * se debe reponer mediante el riego en una fecha.
      * 
      * Hay que tener en cuenta que el metodo calculateIrrigationWaterNeed
      * sobrecargado con la coleccion de registros climaticos y
@@ -85,40 +97,39 @@ public class WaterMath {
      * igual a cero o un double mayor a cero. El motivo por el
      * cual retorna un double mayor a cero en lugar de un double
      * menor a cero es que calcula el valor absoluto del deficit
-     * acumulado de agua de dias previos a una fecha dada. En
-     * consecuencia, cuando el deficit acumulado de agua de
-     * dias previos a una fecha dada es menor a cero (negativo)
-     * el metodo sobrecargado calculateIrrigationWaterNeed retorna
-     * un deficit acumulado de dias previos a una fecha dada
+     * acumulado de agua por dia [mm/dia] de dias previos a una
+     * fecha. En consecuencia, cuando el deficit acumulado de agua
+     * por dia de dias previos a una fecha es menor a cero (negativo),
+     * el metodo sobrecargado calculateIrrigationWaterNeed retorna un
+     * deficit acumulado de agua por dia de dias previos a una fecha
      * positivo (mayor a cero).
      * 
-     * Por lo tanto, un deficit acumulado de agua de dias previos
-     * a una fecha dada positivo representa que la cantidad de agua
-     * evaporada en dias previos a una fecha dada NO fue cubierta
+     * Por lo tanto, un deficit acumulado de agua por dia de dias
+     * previos a una fecha positivo representa que la cantidad de
+     * agua evaporada en dias previos a una fecha NO fue cubierta
      * (satisfecha), con lo cual hay una cantidad de agua evaporada
-     * que se debe reponer mediante el riego en una fecha dada.
+     * que se debe reponer mediante el riego en una fecha.
      */
     double accumulatedDeficit = calculateIrrigationWaterNeed(previousClimateRecords, previousIrrigationRecords);
 
     /*
-     * Si la cantidad total de agua de riego de una fecha dada
-     * [mm/dia] es mayor o igual al deficit (falta) acumulado
-     * de agua [mm/dia] de dias previos a una fecha dada, la
-     * necesidad de agua de riego de un cultivo en una fecha
-     * dada es 0 [mm/dia]
+     * Si la cantidad total de agua de riego de una fecha [mm/dia]
+     * es mayor o igual al deficit (falta) acumulado de agua por
+     * dia [mm/dia] de dias previos a una fecha, la necesidad de
+     * agua de riego de un cultivo en una fecha es 0 [mm/dia]
      */
     if (totalIrrigationWaterGivenDate >= accumulatedDeficit) {
       return 0.0;
     }
 
     /*
-     * Si el deficit (falta) acumulado de agua [mm/dia] de dias
-     * previos a una fecha dada es estrictamente mayor a la cantidad
-     * total de agua de riego de una fecha dada [mm/dia], la necesidad
-     * de agua de riego de un cultivo en una fecha dada [mm/dia] se
+     * Si el deficit (falta) acumulado de agua por dia [mm/dia] de
+     * dias previos a una fecha es estrictamente mayor a la cantidad
+     * total de agua de riego de una fecha [mm/dia], la necesidad
+     * de agua de riego de un cultivo en una fecha [mm/dia] se
      * calcula como la diferencia entre estas dos variables
      */
-    return limitToTwoDecimalPlaces(accumulatedDeficit - totalIrrigationWaterGivenDate);
+    return accumulatedDeficit - totalIrrigationWaterGivenDate;
   }
 
   /**
@@ -146,51 +157,64 @@ public class WaterMath {
    * riego de un cultivo calculada con estos registros corresponde
    * a la fecha actual + X dias.
    * 
-   * @param previousClimateRecords
-   * @param previousIrrigationRecords
+   * Se debe tener en cuenta que este metodo puede ser invocado
+   * para una parcela que NO tiene un cultivo sembrado. En caso
+   * de que ocurra esto, el valor devuelto por el mismo sera el
+   * deficit acumulado de agua por dia de una parcela en una
+   * fecha [mm/dia]. En caso de que se invoque este metodo para
+   * una parcela que tiene un cultivo sembrado y en desarrollo
+   * en una fecha, el valor devuelto por el mismo sera el
+   * deficit acumulado de agua por dia de un cultivo en una
+   * fecha [mm/dia], el cual representa la necesidad de agua
+   * de riego de un cultivo en una fecha.
+   * 
+   * @param climateRecords
+   * @param irrigationRecords
    * @return double que representa la necesidad de agua de riego
-   * de un cultivo en una fecha dada [mm/dia] calculada con una
-   * coleccion de registros climaticos y una coleccion de registros
-   * de riego, siendo todos ellos previos a una fecha dada y pertenecientes
-   * a una misma parcela que tiene un cultivo sembrado y en desarrollo
-   * en una fecha dada
+   * de un cultivo en una fecha [mm/dia] calculada con un conjunto
+   * de registros climaticos y un conjunto de registros de riego,
+   * siendo todos ellos previos a una fecha y pertenecientes a una
+   * misma parcela, si se invoca este metodo para una parcela que
+   * tiene un cultivo sembrado y en desarrollo en una fecha. En
+   * caso contrario, double que representa el deficit acumulado
+   * de agua por dia de una parcela en una fecha [mm/dia].
    */
-  public static double calculateIrrigationWaterNeed(Collection<ClimateRecord> previousClimateRecords, Collection<IrrigationRecord> previousIrrigationRecords) {
+  public static double calculateIrrigationWaterNeed(Collection<ClimateRecord> climateRecords, Collection<IrrigationRecord> irrigationRecords) {
     double deficitPerDay = 0.0;
     double accumulatedDeficit = 0.0;
 
     /*
-     * Calcula por dia la diferencia entre la cantidad de agua provista
-     * (lluvia o riego, o lluvia mas riego) y la cantidad de agua evaporada
-     * mediante la formula (H2O - ETc) si la ETc > 0. Si la ETc = 0,
-     * calcula esta diferencia mediante la formula (H2O - ETo). La ETo,
-     * la ETc y el H2O (lluvia o riego, o lluvia mas riego) estan medidas
-     * en mm/dia. Por lo tanto, la diferencia entre la cantidad de agua
-     * provista y la cantidad de agua evaporada esta medida en mm/dia.
+     * Calcula el deficit (falta) acumulado de agua por dia [mm/dia]
+     * en una parcela en una fecha mediante el deficit de agua por
+     * dia [mm/dia] en una parcela en una fecha. El motivo por el
+     * cual se menciona la palabra "parcela" y se utiliza la expresion
+     * "en una fecha" es que el deficit de agua por dia se calcula
+     * en base a un registro climatico y una coleccion de registros
+     * de riego, y un registro climatico y un registro de riego
+     * pertenecen a una parcela y tienen una fecha (dia).
      * 
-     * Si la diferencia entre la cantidad de agua provista [mm/dia] y la
-     * cantidad de agua evaporada [mm/dia] (dada por la ETc, o la ETo si
-     * la ETc = 0):
-     * - es menor a cero significa que hay deficit (falta) de agua [mm/dia]
-     * para satisfacer la cantidad de agua evaporada.
-     * - es igual a cero significa que la cantidad de agua evaporada fue
-     * satisfecha.
-     * - es mayor a cero significa que la cantidad de agua evaporada fue
-     * cubierta (satisfecha) y que hay escurrimiento de agua. El resultado
-     * de esta diferencia es la cantidad de agua [mm/dia] que se escurre.
+     * Si el metodo calculateIrrigationWaterNeed sobrecargado con una
+     * coleccion de registros climaticos y una coleccion de registros
+     * de riego es invocado para una parcela que tiene un cultivo
+     * sembrado y en desarrollo en una fecha, el valor devuelto por
+     * el mismo sera el deficit acumulado de agua por dia de un cultivo
+     * en una fecha [mm/dia]. El ultimo comentario de este metodo
+     * explica que el deficit acumulado de agua por dia de un cultivo
+     * en una fecha [mm/dia] representa la necesidad de agua de riego
+     * del mismo en una fecha [mm/dia].
      */
-    for (ClimateRecord currentClimateRecord : previousClimateRecords) {
+    for (ClimateRecord currentClimateRecord : climateRecords) {
       /*
        * Calcula el deficit (falta) de agua por dia [mm/dia] en una
        * parcela en una fecha porque un registro climatico y un registro
        * de riego pertenecen a una parcela y tienen una fecha (dia).
        * 
        * Si se invoca este metodo para una parcela que tiene un cultivo
-       * sembrado y en desarrollo, el deficit de agua por dia [mm/dia]
-       * calculado es el deficit de agua por dia [mm/dia] de un cultivo
-       * en una fecha.
+       * sembrado y en desarrollo en una fecha, el deficit de agua por dia
+       * [mm/dia] calculado es el deficit de agua por dia [mm/dia] de un
+       * cultivo en una fecha.
        */
-      deficitPerDay = calculateDeficitPerDay(currentClimateRecord, previousIrrigationRecords);
+      deficitPerDay = calculateDeficitPerDay(currentClimateRecord, irrigationRecords);
 
       /*
        * Calcula el deficit (falta) acumulado de agua por dia [mm/dia]
@@ -206,30 +230,32 @@ public class WaterMath {
        * dia [mm/dia] de un cultivo en una fecha.
        */
       accumulatedDeficit = calculateAccumulatedDeficit(deficitPerDay, accumulatedDeficit);
-    } // End for
+    }
 
     /*
-     * El deficit (falta) acumulado [mm/dia] de agua representa la necesidad
-     * de agua de riego [mm/dia] de un cultivo en una fecha dada. El objetivo
-     * es determinar la cantidad de agua [mm/dia] que se debe utilizar en una
-     * fecha dada para regar un cultivo actualmente en desarrollo. Para
-     * determinar esta cantidad se acumula la cantidad de agua que falto para
-     * cubrir la cantidad de agua evaporada (dada por la ETc [mm/dia], o la ETo
-     * [mm/dia] si la ETc = 0) de un conjunto de dias previos a una fecha dada.
-     * Esto se hace asi porque el objetivo es regar un cultivo a reposicion en
-     * una fecha dada (*), la cual puede ser la fecha actual (hoy) o una fecha
-     * posterior a la fecha actual. Es decir, el objetivo es regar en el dia o
-     * en la fecha actual (hoy), o en un dia o fecha posterior al dia o fecha
-     * actual, lo que falto regar en los dias previos a la fecha en la que se
-     * quiere determinar la necesidad de agua de riego de un cultivo actualmente
-     * en desarrollo.
+     * El deficit (falta) acumulado de agua por dia [mm/dia] representa
+     * la necesidad de agua de riego [mm/dia] de un cultivo en una fecha.
+     * El objetivo es determinar la cantidad de agua [mm/dia] que se debe
+     * utilizar en una fecha para regar un cultivo. Para determinar esta
+     * cantidad se acumula la cantidad de agua que falto para cubrir la
+     * cantidad de agua evaporada de un conjunto de dias previos a una
+     * fecha. Esto es el deficit acumulado de agua por dia [mm/dia].
+     * El motivo por el cual se realiza este calculo es que se busca
+     * regar un cultivo a reposicion en una fecha (*), la cual puede ser
+     * la fecha actual (es decir, hoy) o una fecha posterior a la fecha
+     * actual. Es decir, el objetivo es regar en el dia o fecha actual
+     * (hoy), o en un dia o fecha posterior al dia o fecha actual, lo que
+     * falto regar en los dias previos a la fecha en la que se quiere
+     * determinar la necesidad de agua de riego de un cultivo sembrado
+     * y en desarrollo.
      * 
-     * (*) Esta fecha puede ser una fecha del pasado (es decir, anterior a la
-     * fecha actual), pero esto no tiene sentido si lo que se busca es determinar
-     * la necesidad de agua de riego de un cultivo en la fecha actual (es decir,
-     * hoy) o en una fecha posterior a la fecha actual.
+     * (*) Esta fecha puede ser una fecha del pasado (es decir, anterior
+     * a la fecha actual), pero esto no tiene sentido si lo que se busca
+     * es determinar la necesidad de agua de riego de un cultivo en la
+     * fecha actual (es decir, hoy) o en una fecha posterior a la fecha
+     * actual.
      */
-    return Math.abs(limitToTwoDecimalPlaces(accumulatedDeficit));
+    return Math.abs(accumulatedDeficit);
   }
 
   /**
@@ -296,6 +322,9 @@ public class WaterMath {
      * fue cubierta (satisfecha) y que hay escurrimiento de agua. El
      * resultado de la diferencia es la cantidad de agua [mm/dia] que
      * se escurre.
+     * 
+     * Solo para aclarar: estas tres condiciones ocurren en una parcela
+     * en una fecha.
      * 
      * (*) El motivo por el cual se usa la expresion "en una parcela
      * en una fecha" es que un registro climatico y un registro de
