@@ -129,35 +129,6 @@ public class IrrigationRecordServiceBean {
   }
 
   /**
-   * Recupera un registro de riego de una parcela generado
-   * por el sistema mediante una fecha si y solo si existe
-   * en la base de datos subyacente
-   * 
-   * @param givenDate
-   * @param givenParcel
-   * @return referencia a un objeto de tipo IrrigationRecord que
-   * representa el registro de riego que tiene una fecha dada,
-   * pertenece a una parcela y fue generado por el sistema, si
-   * existe en la base de datos subyacente. En caso contrario,
-   * null.
-   */
-  public IrrigationRecord findGeneratedBySystem(Calendar givenDate, Parcel givenParcel) {
-    Query query = entityManager.createQuery("SELECT i FROM IrrigationRecord i WHERE (i.date = :givenDate AND i.parcel = :givenParcel AND i.systemGenerated = 1)");
-    query.setParameter("givenDate", givenDate);
-    query.setParameter("givenParcel", givenParcel);
-
-    IrrigationRecord irrigationRecordGenerated = null;
-
-    try {
-      irrigationRecordGenerated = (IrrigationRecord) query.getSingleResult();
-    } catch (NoResultException e) {
-      e.printStackTrace();
-    }
-
-    return irrigationRecordGenerated;
-  }
-
-  /**
    * Retorna un registro de riego perteneciente a una de las
    * parcelas de un usuario
    * 
@@ -411,23 +382,6 @@ public class IrrigationRecordServiceBean {
    */
   public boolean checkExistence(Calendar givenDate, Parcel givenParcel) {
     return (find(givenDate, givenParcel) != null);
-  }
-
-  /**
-   * Comprueba si en la base de datos subyacente existe un
-   * registro de riego generado por el sistema. Retorna true
-   * si y solo si existe en la base de datos el registro de
-   * riego generado por el sistema con una fecha dada
-   * perteneciente a una parcela dada.
-   * 
-   * @param givenDate
-   * @param givenParcel
-   * @return true si el registro de riego generado por el sistema
-   * con una fecha dada perteneciente a una parcela dada existe en
-   * la base de datos subyacente, en caso contrario false
-   */
-  public boolean checkExistenceGeneratedBySystem(Calendar givenDate, Parcel givenParcel) {
-    return (findGeneratedBySystem(givenDate, givenParcel) != null);
   }
 
   /**
