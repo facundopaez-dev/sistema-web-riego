@@ -78,23 +78,23 @@ public class CropWaterActivityLogServiceBean {
      * Actualiza el registro de actividad hidrica de cultivo
      * correspondiente a un ID dado con un nombre de cultivo,
      * una cantidad de agua evaporada [mm/dia], una cantidad
-     * de agua [mm/dia], un deficit de agua evaporada [mm/dia]
-     * y un deficit acumulado de agua evaporada [mm/dia]
+     * de agua provista [mm/dia], un deficit de agua [mm/dia]
+     * y un deficit acumulado de agua [mm/dia]
      * 
      * @param id
      * @param cropName
      * @param evaporatedWater
-     * @param water
-     * @param deficit
-     * @param accumulatedDeficit
+     * @param waterProvided
+     * @param waterDeficit
+     * @param accumulatedWaterDeficit
      */
-    public void update(int id, String cropName, double evaporatedWater, double water, double  deficit, double accumulatedDeficit) {
-        Query query = getEntityManager().createQuery("UPDATE CropWaterActivityLog c SET c.cropName = :cropName, c.evaporatedWater = :evaporatedWater, c.water = :water, c.deficit = :deficit, c.accumulatedDeficit = :accumulatedDeficit WHERE c.id = :id");
+    public void update(int id, String cropName, double evaporatedWater, double waterProvided, double waterDeficit, double accumulatedWaterDeficit) {
+        Query query = getEntityManager().createQuery("UPDATE CropWaterActivityLog c SET c.cropName = :cropName, c.evaporatedWater = :evaporatedWater, c.waterProvided = :waterProvided, c.waterDeficit = :waterDeficit, c.accumulatedWaterDeficit = :accumulatedWaterDeficit WHERE c.id = :id");
         query.setParameter("cropName", cropName);
         query.setParameter("evaporatedWater", evaporatedWater);
-        query.setParameter("water", water);
-        query.setParameter("deficit", deficit);
-        query.setParameter("accumulatedDeficit", accumulatedDeficit);
+        query.setParameter("waterProvided", waterProvided);
+        query.setParameter("waterDeficit", waterDeficit);
+        query.setParameter("accumulatedWaterDeficit", accumulatedWaterDeficit);
         query.setParameter("id", id);
         query.executeUpdate();
     }
@@ -201,9 +201,9 @@ public class CropWaterActivityLogServiceBean {
             Collection<IrrigationRecord> irrigationRecords) {
         CropWaterActivityLog givenCropWaterActivityLog = null;
 
-        double deficitPerDay = 0.0;
-        double accumulatedDeficit = 0.0;
-        double waterPerDay = 0.0;
+        double waterDeficitPerDay = 0.0;
+        double accumulatedWaterDeficit = 0.0;
+        double waterProvidedPerDay = 0.0;
 
         for (ClimateRecord currentClimateRecord : climateRecords) {
 
@@ -224,7 +224,7 @@ public class CropWaterActivityLogServiceBean {
                  * calcula la necesidad de agua de riego de un cultivo
                  * en la fecha actual [mm/dia]
                  */
-                deficitPerDay = WaterMath.calculateDeficitPerDay(currentClimateRecord, irrigationRecords);
+                waterDeficitPerDay = WaterMath.calculateDeficitPerDay(currentClimateRecord, irrigationRecords);
 
                 /*
                  * Calcula el deficit acumulado de agua por dia [mm/dia] de
@@ -234,7 +234,7 @@ public class CropWaterActivityLogServiceBean {
                  * la necesidad de agua de riego de un cultivo en la fecha
                  * actual [mm/dia]
                  */
-                accumulatedDeficit = WaterMath.calculateAccumulatedDeficit(deficitPerDay, accumulatedDeficit);
+                accumulatedWaterDeficit = WaterMath.calculateAccumulatedDeficit(waterDeficitPerDay, accumulatedWaterDeficit);
 
                 /*
                  * Calcula el agua provista (lluvia o riego, o lluvia mas riego
@@ -244,16 +244,16 @@ public class CropWaterActivityLogServiceBean {
                  * unicamente cuando se calcula la necesidad de agua de riego
                  * de un cultivo en la fecha actual [mm/dia]
                  */
-                waterPerDay = currentClimateRecord.getPrecip() + WaterMath.sumTotalAmountIrrigationWaterGivenDate(currentClimateRecord.getDate(), irrigationRecords);
+                waterProvidedPerDay = currentClimateRecord.getPrecip() + WaterMath.sumTotalAmountIrrigationWaterGivenDate(currentClimateRecord.getDate(), irrigationRecords);
 
                 givenCropWaterActivityLog = new CropWaterActivityLog();
                 givenCropWaterActivityLog.setDate(currentClimateRecord.getDate());
                 givenCropWaterActivityLog.setParcelName(parcelName);
                 givenCropWaterActivityLog.setCropName(cropName);
                 givenCropWaterActivityLog.setEvaporatedWater(getEvaporatedWater(currentClimateRecord));
-                givenCropWaterActivityLog.setWater(waterPerDay);
-                givenCropWaterActivityLog.setDeficit(deficitPerDay);
-                givenCropWaterActivityLog.setAccumulatedDeficit(accumulatedDeficit);
+                givenCropWaterActivityLog.setWaterProvided(waterProvidedPerDay);
+                givenCropWaterActivityLog.setWaterDeficit(waterDeficitPerDay);
+                givenCropWaterActivityLog.setAccumulatedWaterDeficit(accumulatedWaterDeficit);
                 givenCropWaterActivityLog.setUserId(userId);
 
                 /*
@@ -262,12 +262,12 @@ public class CropWaterActivityLogServiceBean {
                  */
                 create(givenCropWaterActivityLog);
             } else {
-                deficitPerDay = WaterMath.calculateDeficitPerDay(currentClimateRecord, irrigationRecords);
-                accumulatedDeficit = WaterMath.calculateAccumulatedDeficit(deficitPerDay, accumulatedDeficit);
-                waterPerDay = currentClimateRecord.getPrecip() + WaterMath.sumTotalAmountIrrigationWaterGivenDate(currentClimateRecord.getDate(), irrigationRecords);
+                waterDeficitPerDay = WaterMath.calculateDeficitPerDay(currentClimateRecord, irrigationRecords);
+                accumulatedWaterDeficit = WaterMath.calculateAccumulatedDeficit(waterDeficitPerDay, accumulatedWaterDeficit);
+                waterProvidedPerDay = currentClimateRecord.getPrecip() + WaterMath.sumTotalAmountIrrigationWaterGivenDate(currentClimateRecord.getDate(), irrigationRecords);
 
                 givenCropWaterActivityLog = find(userId, currentClimateRecord.getDate(), parcelName);
-                update(givenCropWaterActivityLog.getId(), cropName, getEvaporatedWater(currentClimateRecord), waterPerDay, deficitPerDay, accumulatedDeficit);
+                update(givenCropWaterActivityLog.getId(), cropName, getEvaporatedWater(currentClimateRecord), waterProvidedPerDay, waterDeficitPerDay, accumulatedWaterDeficit);
             }
 
         }

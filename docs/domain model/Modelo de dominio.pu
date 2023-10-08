@@ -175,10 +175,10 @@ class RegistroActividadHidricaCultivo {
 -fecha
 -nombreParcela
 -nombreCultivo
--agua
+-aguaProvista
 -aguaEvaporada
--deficit
--deficitAcumulado
+-deficitAgua
+-deficitAcumuladoAgua
 -usuarioId
 }
 

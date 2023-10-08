@@ -32,10 +32,11 @@ public class CropWaterActivityLog {
 
     /*
      * El valor de esta variable es el agua de lluvia por
-     * dia [mm/dia] y/o el agua de riego por dia [mm/dia]
+     * dia [mm/dia] o el agua de riego por dia [mm/dia] o
+     * la suma de ambas [mm/dia]
      */
-    @Column(name = "WATER", nullable = false)
-    private double water;
+    @Column(name = "WATER_PROVIDED", nullable = false)
+    private double waterProvided;
 
     /*
      * El agua evaporada [mm/dia] puede estar indicada por la
@@ -47,11 +48,11 @@ public class CropWaterActivityLog {
     @Column(name = "EVAPORATED_WATER", nullable = false)
     private double evaporatedWater;
 
-    @Column(name = "DEFICIT", nullable = false)
-    private double deficit;
+    @Column(name = "WATER_DEFICIT", nullable = false)
+    private double waterDeficit;
 
-    @Column(name = "ACCUMULATED_DEFICIT", nullable = false)
-    private double accumulatedDeficit;
+    @Column(name = "ACCUMULATED_WATER_DEFICIT", nullable = false)
+    private double accumulatedWaterDeficit;
 
     @Column(name = "USER_ID", nullable = false)
     private int userId;
@@ -88,12 +89,12 @@ public class CropWaterActivityLog {
         this.cropName = cropName;
     }
 
-    public double getWater() {
-        return water;
+    public double getWaterProvided() {
+        return waterProvided;
     }
 
-    public void setWater(double water) {
-        this.water = water;
+    public void setWaterProvided(double waterProvided) {
+        this.waterProvided = waterProvided;
     }
 
     public double getEvaporatedWater() {
@@ -104,20 +105,20 @@ public class CropWaterActivityLog {
         this.evaporatedWater = evaporatedWater;
     }
 
-    public double getDeficit() {
-        return deficit;
+    public double getWaterDeficit() {
+        return waterDeficit;
     }
 
-    public void setDeficit(double deficit) {
-        this.deficit = deficit;
+    public void setWaterDeficit(double waterDeficit) {
+        this.waterDeficit = waterDeficit;
     }
 
-    public double getAccumulatedDeficit() {
-        return accumulatedDeficit;
+    public double getAccumulatedWaterDeficit() {
+        return accumulatedWaterDeficit;
     }
 
-    public void setAccumulatedDeficit(double accumulatedDeficit) {
-        this.accumulatedDeficit = accumulatedDeficit;
+    public void setAccumulatedWaterDeficit(double accumulatedWaterDeficit) {
+        this.accumulatedWaterDeficit = accumulatedWaterDeficit;
     }
 
     public int getUserId() {
