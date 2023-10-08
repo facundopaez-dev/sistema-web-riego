@@ -457,7 +457,7 @@ public class WaterMath {
    * parcela que tiene un cultivo sembrado y en desarrollo
    * en una fecha
    */
-  private static double sumTotalAmountIrrigationWaterGivenDate(Calendar date, Collection<IrrigationRecord> irrigationRecords) {
+  public static double sumTotalAmountIrrigationWaterGivenDate(Calendar date, Collection<IrrigationRecord> irrigationRecords) {
     double totalIrrigationWater = 0.0;
 
     for (IrrigationRecord currentIrrigationRecord : irrigationRecords) {

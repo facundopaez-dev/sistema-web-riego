@@ -14,6 +14,7 @@ import stateless.SolarRadiationServiceBean;
 import stateless.MonthServiceBean;
 import stateless.OptionServiceBean;
 import stateless.LatitudeServiceBean;
+import stateless.CropWaterActivityLogServiceBean;
 import model.Parcel;
 import model.PlantingRecord;
 import model.ClimateRecord;
@@ -56,6 +57,9 @@ public class PlantingRecordManager {
 
     @EJB
     OptionServiceBean optionService;
+
+    @EJB
+    CropWaterActivityLogServiceBean cropWaterActivityLogService;
 
     /*
      * Establece de manera automatica el estado finalizado de un registro de
@@ -199,7 +203,7 @@ public class PlantingRecordManager {
              * Calculo de la necesidad de agua de riego en la fecha actual
              * de un cultivo sembrado y en desarrollo en una parcela
              */
-            currentIrrigationWaterNeed = calculateIrrigationWaterNeedCurrentDate(givenUser.getId(), givenParcel, givenUser.getOption());
+            currentIrrigationWaterNeed = calculateIrrigationWaterNeedCurrentDate(givenUser.getId(), developingPlantingRecord, givenUser.getOption());
 
             /*
              * Actualizacion de la necesidad de agua de riego del
@@ -542,12 +546,12 @@ public class PlantingRecordManager {
      * en la fecha actual
      * 
      * @param userId
-     * @param givenParcel
+     * @param developingPlantingRecord
      * @param userOption
      * @return double que representa la necesidad de agua de riego
      * de un cultivo en la fecha actual [mm/dia]
      */
-    private double calculateIrrigationWaterNeedCurrentDate(int userId, Parcel givenParcel, Option userOption) {
+    private double calculateIrrigationWaterNeedCurrentDate(int userId, PlantingRecord developingPlantingRecord, Option userOption) {
         /*
          * Estas fechas se utilizan para obtener de la base de datos
          * subyacente los registros climaticos y los registros de riego
@@ -598,6 +602,8 @@ public class PlantingRecordManager {
          */
         Calendar dateFrom = null;
         Calendar dateUntil = UtilDate.getYesterdayDate();
+
+        Parcel givenParcel = developingPlantingRecord.getParcel();
 
         /*
          * Estas fechas son utilizadas para comprobar si existe el
@@ -679,6 +685,22 @@ public class PlantingRecordManager {
          */
         Collection<ClimateRecord> climateRecords = climateRecordService.findAllByParcelIdAndPeriod(userId, givenParcel.getId(), dateFrom, dateUntil);
         Collection<IrrigationRecord> irrigationRecords = irrigationRecordService.findAllByParcelIdAndPeriod(userId, givenParcel.getId(), dateFrom, dateUntil);
+
+        /*
+         * Genera los registros de actividad hidrica de cultivo del
+         * cultivo para el que se calcula su necesidad de agua de
+         * riego en la fecha actual [mm/dia]. El motivo de esto es
+         * para que el usuario pueda ver la manera en la que la
+         * aplicacion calculo dicha necesidad. El valor del deficit
+         * acumulado de agua del mas actual de estos registros es la
+         * necesidad de agua de riego del cultivo en la fecha actual.
+         * Por lo tanto, este valor debe ser igual al valor del
+         * campo "Necesidad de agua de riego de hoy [mm/dia]" de
+         * la ventana que se despliega en la pagina web de lista
+         * de registros de plantacion cuando se presiona el boton
+         * "Calcular" sobre un registro de plantacion en desarrollo.
+         */
+        cropWaterActivityLogService.generateLogs(userId, givenParcel.getName(), developingPlantingRecord.getCrop().getName(), climateRecords, irrigationRecords);
 
         return WaterMath.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, climateRecords, irrigationRecords);
     }

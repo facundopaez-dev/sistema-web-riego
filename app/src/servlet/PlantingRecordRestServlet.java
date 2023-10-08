@@ -19,6 +19,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import stateless.CropWaterActivityLogServiceBean;
 import stateless.ClimateRecordServiceBean;
 import stateless.CropServiceBean;
 import stateless.ParcelServiceBean;
@@ -92,6 +93,8 @@ public class PlantingRecordRestServlet {
   @EJB UserServiceBean userService;
 
   @EJB OptionServiceBean optionService;
+
+  @EJB CropWaterActivityLogServiceBean cropWaterActivityLogService;
 
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
@@ -1045,7 +1048,7 @@ public class PlantingRecordRestServlet {
      * actual
      * ********************************************************
      */
-    double irrigationWaterNeedCurrentDate = calculateIrrigationWaterNeedCurrentDate(user.getId(), developingPlantingRecord.getParcel(), user.getOption());
+    double irrigationWaterNeedCurrentDate = calculateIrrigationWaterNeedCurrentDate(user.getId(), developingPlantingRecord, user.getOption());
 
     /*
      * *****************************************************
@@ -1391,12 +1394,12 @@ public class PlantingRecordRestServlet {
    * en la fecha actual
    * 
    * @param userId
-   * @param givenParcel
+   * @param developingPlantingRecord
    * @param userOption
    * @return double que representa la necesidad de agua de riego
    * de un cultivo en la fecha actual [mm/dia]
    */
-  private double calculateIrrigationWaterNeedCurrentDate(int userId, Parcel givenParcel, Option userOption) {
+  private double calculateIrrigationWaterNeedCurrentDate(int userId, PlantingRecord developingPlantingRecord, Option userOption) {
     /*
      * Estas fechas se utilizan para obtener de la base de datos
      * subyacente los registros climaticos y los registros de riego
@@ -1447,6 +1450,8 @@ public class PlantingRecordRestServlet {
      */
     Calendar dateFrom = null;
     Calendar dateUntil = UtilDate.getYesterdayDate();
+
+    Parcel givenParcel = developingPlantingRecord.getParcel();
 
     /*
      * Estas fechas son utilizadas para comprobar si existe el
@@ -1528,6 +1533,22 @@ public class PlantingRecordRestServlet {
      */
     Collection<ClimateRecord> climateRecords = climateRecordService.findAllByParcelIdAndPeriod(userId, givenParcel.getId(), dateFrom, dateUntil);
     Collection<IrrigationRecord> irrigationRecords = irrigationRecordService.findAllByParcelIdAndPeriod(userId, givenParcel.getId(), dateFrom, dateUntil);
+
+    /*
+     * Genera los registros de actividad hidrica de cultivo del
+     * cultivo para el que se calcula su necesidad de agua de
+     * riego en la fecha actual [mm/dia]. El motivo de esto es
+     * para que el usuario pueda ver la manera en la que la
+     * aplicacion calculo dicha necesidad. El valor del deficit
+     * acumulado de agua del mas actual de estos registros es la
+     * necesidad de agua de riego del cultivo en la fecha actual.
+     * Por lo tanto, este valor debe ser igual al valor del
+     * campo "Necesidad de agua de riego de hoy [mm/dia]" de
+     * la ventana que se despliega en la pagina web de lista
+     * de registros de plantacion cuando se presiona el boton
+     * "Calcular" sobre un registro de plantacion en desarrollo.
+     */
+    cropWaterActivityLogService.generateLogs(userId, givenParcel.getName(), developingPlantingRecord.getCrop().getName(), climateRecords, irrigationRecords);
 
     return WaterMath.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, climateRecords, irrigationRecords);
   }
