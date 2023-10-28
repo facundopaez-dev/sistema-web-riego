@@ -854,6 +854,64 @@ app.factory('UtilDate', function () {
 			}
 
 			return 0;
+		},
+
+		/**
+		 * 
+		 * @param {*} minorDate 
+		 * @param {*} majorDate 
+		 * @returns la diferencia en dias entre dos fechas dadas
+		 */
+		calculateDifferenceBetweenDates: function (minorDate, majorDate) {
+			var minorDateTime = new Date(minorDate).getTime();
+			var majorDateTime = new Date(majorDate).getTime();
+
+			// (1000 * 60 * 60 * 24) --> milisegundos -> segundos -> minutos -> horas -> dias
+			return (majorDateTime - minorDateTime) / (1000 * 60 * 60 * 24);
+		},
+
+		/**
+		 * 
+		 * @param {*} seedDate 
+		 * @param {*} lifeCycle 
+		 * @returns la fecha de cosecha de un cultivo calculada en funcion
+		 * de su fecha de siembra y su ciclo de vida
+		 */
+		calculateSuggestedHarvestDate: function (seedDate, lifeCycle) {
+			/*
+			El ciclo de vida de un cultivo esta medido en dias y el metodo getTime
+			de la clase Date retorna un numero en milisegundos desde el 1 de enero
+			de 1970 00:00:00 UTC. Por lo tanto, para calcular la fecha de cosecha
+			de un cultivo a partir de su fecha de siembra y su ciclo de vida es
+			necesario convertir el ciclo de vida a milisegundos.
+
+			A la suma entre la fecha de siembra en milisegundos y el ciclo de vida
+			de un cultivo en milisegundos se le resta un uno porque el ciclo de vida
+			de un cultivo comienza desde su fecha de siembra y no desde el dia
+			inmediatamente siguiente a la misma.
+
+			Por ejemplo, si la fecha de siembra de un cultivo X es el 1-1-2023 y su
+			ciclo de vida es de 30 dias, la fecha de cosecha del mismo es el resultado
+			de la siguiente operacion: 1 + 30 - 1 = 30, esto es 30-1-2023. En cambio,
+			si no se restara un uno a esta operacion, la fecha de cosecha del cultivo
+			X seria 31-1-2023, lo cual es incorrecto porque el ciclo de vida de un
+			cultivo comienza desde su fecha de siembra y no desde el dia inmediatamente
+			siguiente a la misma.
+			*/
+			var harvestTime = seedDate.getTime() + (lifeCycle * 24 * 60 * 60 * 1000) - 1;
+			var harvestDate = new Date(harvestTime);
+
+			return harvestDate;
+		},
+
+		/**
+		 * 
+		 * @param {*} date 
+		 * @returns string que contiene una fecha en el formato dd-MM-YYYY
+		 */
+		formatDate: function (date) {
+			return date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear();
 		}
+
 	}
 });

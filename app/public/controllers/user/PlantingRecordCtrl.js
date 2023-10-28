@@ -109,6 +109,13 @@ app.controller(
         });
       }
 
+      const DEVELOPING_STATE = "En desarrollo";
+      const ON_HOLD = "En espera";
+
+      /*
+      Constantes de mensaje en caso de que los datos de entrada
+      no sean los correctos
+      */
       const EMPTY_FORM = "Debe completar todos los campos del formulario";
       const UNDEFINED_SEED_DATE = "La fecha de siembra debe estar definida";
       const UNDEFINED_HARVEST_DATE = "La fecha de cosecha debe estar definida";
@@ -176,6 +183,18 @@ app.controller(
             $scope.data.harvestDate = new Date($scope.data.harvestDate);
           }
 
+          /*
+          Si el cultivo elegido tiene el estado "En desarrollo" o el estado "En espera"
+          y la cantidad de dias entre la fecha de siembra y la fecha de cosecha elegidas
+          para el mismo es mayor a su ciclo de vida, la aplicacion muestra un mensaje
+          de advertencia sugiriendo cual debe ser la fecha de cosecha
+          */
+          if (($scope.data.status.name === DEVELOPING_STATE || $scope.data.status.name === ON_HOLD) &&
+            lifeCycleExceeded($scope.data.crop.lifeCycle, $scope.data.seedDate, $scope.data.harvestDate)) {
+            var suggestedHarvestDate = utilDate.calculateSuggestedHarvestDate($scope.data.seedDate, $scope.data.crop.lifeCycle);
+            alert(getLifeCycleExceededWarning($scope.data.seedDate, $scope.data.harvestDate, $scope.data.crop.lifeCycle, suggestedHarvestDate));
+          }
+
           $location.path("/home/plantingRecords");
         });
 
@@ -218,6 +237,18 @@ app.controller(
 
           if ($scope.data.harvestDate != null) {
             $scope.data.harvestDate = new Date($scope.data.harvestDate);
+          }
+
+          /*
+          Si el cultivo elegido tiene el estado "En desarrollo" o el estado "En espera"
+          y la cantidad de dias entre la fecha de siembra y la fecha de cosecha elegidas
+          para el mismo es mayor a su ciclo de vida, la aplicacion muestra un mensaje
+          de advertencia sugiriendo cual debe ser la fecha de cosecha
+          */
+          if (($scope.data.status.name === DEVELOPING_STATE || $scope.data.status.name === ON_HOLD) &&
+            lifeCycleExceeded($scope.data.crop.lifeCycle, $scope.data.seedDate, $scope.data.harvestDate)) {
+            var suggestedHarvestDate = utilDate.calculateSuggestedHarvestDate($scope.data.seedDate, $scope.data.crop.lifeCycle);
+            alert(getLifeCycleExceededWarning($scope.data.seedDate, $scope.data.harvestDate, $scope.data.crop.lifeCycle, suggestedHarvestDate));
           }
 
           $location.path("/home/plantingRecords")
@@ -271,6 +302,60 @@ app.controller(
 
           $scope.parcels = parcels;
         })
+      }
+
+      /**
+       * 
+       * @param {*} lifeCycle 
+       * @param {*} seedDate 
+       * @param {*} harvestDate 
+       * @returns true si la cantidad de dias entre una fecha de siembra y una
+       * fecha de cosecha elegidas para un cultivo elegido es estrictamente
+       * mayor al ciclo de vida del mismo. En caso contrario, false.
+       */
+      function lifeCycleExceeded(lifeCycle, seedDate, harvestDate) {
+        /*
+        Esta funcion devuelve la diferencia en dias entre dos fechas dadas.
+        A la diferencia entre la fecha de siembra y la fecha de cosecha
+        elegidas para un cultivo se suma un uno para incluir a la fecha de
+        cosecha en el resultado dicha diferencia, ya que cuenta como un dia
+        dentro del periodo elegido para un cultivo.
+        */
+        var difference = utilDate.calculateDifferenceBetweenDates(seedDate, harvestDate) + 1;
+
+        if (difference > lifeCycle) {
+          return true;
+        }
+
+        return false;
+      }
+
+      /**
+       * 
+       * @param {*} seedDate 
+       * @param {*} harvestDate 
+       * @param {*} lifeCycle 
+       * @param {*} suggestedHarvestDate 
+       * @returns string que contiene un mensaje de advertencia en el caso
+       * en el que la diferencia de dias entre la fecha de siembra y la
+       * fecha de cosecha elegidas para un cultivo sea estrictamente mayor
+       * al ciclo de vida del mismo
+       */
+      function getLifeCycleExceededWarning(seedDate, harvestDate, lifeCycle, suggestedHarvestDate) {
+        /*
+        Esta funcion devuelve la diferencia en dias entre dos fechas dadas.
+        A la diferencia entre la fecha de siembra y la fecha de cosecha
+        elegidas para un cultivo se suma un uno para incluir a la fecha de
+        cosecha en el resultado dicha diferencia, ya que cuenta como un dia
+        dentro del periodo elegido para un cultivo.
+        */
+        var difference = utilDate.calculateDifferenceBetweenDates(seedDate, harvestDate) + 1;
+        var warningMessage = "La cantidad de días (" + difference + ") que hay entre la fecha de siembra y la fecha de cosecha elegidas es mayor al ciclo de vida (" +
+          lifeCycle + " días) del cultivo elegido. Esto hará que la aplicación utilice la ETo para calcular la necesidad de agua de riego en la fecha actual cuando " +
+          "el cultivo haya alcanzado su ciclo de vida. Se sugiere modificar la fecha de cosecha a la fecha " + utilDate.formatDate(suggestedHarvestDate) + " porque " +
+          "entre la fecha de siembra elegida y la fecha de cosecha sugerida hay una cantidad de días igual al ciclo de vida (" + lifeCycle + " días) del cultivo elegido.";
+
+        return warningMessage;
       }
 
       $scope.logout = function () {
