@@ -1530,45 +1530,24 @@ public class PlantingRecordServiceBean {
   }
 
   /**
-   * Retorna true si y solo si la fecha de siembra de un
-   * registro de plantacion presuntamente en espera es
-   * estrictamente mayor (es decir, posterior) a la fecha
-   * actual. Un registro de plantacion presuntamente en espera
-   * que tiene su fecha de siembra menor o igual a la
-   * fecha actual y su fecha de cosecha mayor o igual a la
-   * fecha actual, es un registro de plantacion en desarrollo.
-   * En cambio, un registro de plantacion que tiene su fecha de
-   * siembra estrictamente mayor (es decir, posterior) a la
-   * fecha actual es un registro de plantacion en espera.
-   * 
-   * Este metodo es para el metodo automatico modifyToInDevelopmentStatus
-   * de la clase PlantingRecordManager. El metodo modifyToInDevelopmentStatus
-   * se ocupa de modificar el estado de un registro de plantacion
-   * presuntamente en espera por el estado "En desarrollo" dependiendo
-   * del resultado devuelto por el metodo checkWaitingStatus.
    * 
    * @param plantingRecord
-   * @return true si la fecha de siembra de un registro de plantacion
-   * presuntamente en espera es estrictamente mayor (es decir, posterior)
-   * a la fecha actual, en caso contrario false
+   * @return true si un registro de plantacion esta en desarrollo.
+   * En caso contrario, false, lo cual puede indicar que un registro
+   * de plantacion esta finalizado o en espera.
    */
-  public boolean checkWaitingStatus(PlantingRecord plantingRecord) {
+  public boolean isInDevelopment(PlantingRecord plantingRecord) {
+    Calendar currentDate = UtilDate.getCurrentDate();
+
     /*
-     * Si la fecha de siembra de un registro de plantacion presuntamente
-     * en espera es estrictamente mayor (es decir, posterior) a la fecha
-     * actual, se retorna true como indicativo de que este registro esta
-     * en espera.
+     * Si la fecha de siembra de un registro de plantacion es menor
+     * o igual a la fecha actual y su fecha de cosecha es mayor o igual
+     * a la fecha actual, el registro de plantacion esta en desarrollo
      */
-    if (UtilDate.compareTo(plantingRecord.getSeedDate(), UtilDate.getCurrentDate()) > 0) {
+    if ((UtilDate.compareTo(plantingRecord.getSeedDate(), currentDate) <= 0) && (UtilDate.compareTo(plantingRecord.getHarvestDate(), currentDate) >= 0)) {
       return true;
     }
 
-    /*
-     * Si la fecha de siembra de un registro de plantacion presuntamente
-     * en espera es menor o igual a la fecha actual, se retorna false como
-     * indicativo de que dicho registro NO esta en espera, o en otras palabras,
-     * que esta finalizado o en desarrollo
-     */
     return false;
   }
 

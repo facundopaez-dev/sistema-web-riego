@@ -121,9 +121,9 @@ public class PlantingRecordManager {
          * de plantacion en espera de cada una de las parcelas
          * registradas en la base de datos subyacente
          */
-        Collection<PlantingRecord> plantingRecords = plantingRecordService.findAllInWaiting();
+        Collection<PlantingRecord> pendingPlantingRecords = plantingRecordService.findAllInWaiting();
 
-        for (PlantingRecord currentPlantingRecord : plantingRecords) {
+        for (PlantingRecord currentPlantingRecord : pendingPlantingRecords) {
             /*
              * Si un registro de plantacion presuntamente en espera, NO
              * esta en espera, se establece el estado en desarrollo en
@@ -132,10 +132,11 @@ public class PlantingRecordManager {
              * Un registro de plantacion en espera, esta en espera si su
              * fecha de siembra es estrictamente mayor (es decir, posterior)
              * a la fecha actual. En cambio, si su fecha de siembra es menor
-             * o igual a la fecha actual, se debe establecer el estado en
-             * desarrollo en el mismo.
+             * o igual a la fecha actual y su fecha de cosecha es mayor o igual
+             * a la fecha actual, se debe establecer el estado en desarrollo en
+             * el mismo.
              */
-            if (!plantingRecordService.checkWaitingStatus(currentPlantingRecord)) {
+            if (plantingRecordService.isInDevelopment(currentPlantingRecord)) {
                 plantingRecordService.setStatus(currentPlantingRecord.getId(), plantingRecordStatusService.findDevelopmentStatus());
             }
 
