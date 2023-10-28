@@ -1517,14 +1517,12 @@ public class PlantingRecordServiceBean {
    * registro de plantacion esta en desarrollo o en espera.
    */
   public boolean isFinished(PlantingRecord plantingRecord) {
-    Calendar currentDate = UtilDate.getCurrentDate();
-
     /*
      * Si la fecha de cosecha de un registro de plantacion es
      * estrictamente menor (es decir, anterior) a la fecha actual,
      * el registro de plantacion esta finalizado
      */
-    if (UtilDate.compareTo(plantingRecord.getHarvestDate(), currentDate) < 0) {
+    if (UtilDate.compareTo(plantingRecord.getHarvestDate(), UtilDate.getCurrentDate()) < 0) {
       return true;
     }
 
