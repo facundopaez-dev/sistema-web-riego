@@ -1511,49 +1511,23 @@ public class PlantingRecordServiceBean {
   }
 
   /**
-   * Retorna true si y solo si la fecha de siembra de un registro
-   * de plantacion presuntamente en desarrollo es menor o igual
-   * a la fecha actual y su fecha de cosecha es mayor o igual a
-   * la fecha actual. Un registro de plantacion presuntamente
-   * en desarrollo, esta en desarrollo si su fecha de siembra
-   * es menor o igual a la fecha actual y su fecha de cosecha
-   * es mayor o igual a la fecha actual. En caso contrario, un
-   * registro de plantacion tiene el estado finalizado o el
-   * estado en espera.
-   * 
-   * Este metodo es para el metodo automatico modifyToFinishedStatus
-   * de la clase PlantingRecordManager. El metodo modifyToFinishedStatus
-   * se ocupa de modificar el estado de un registro de plantacion
-   * presuntamente en desarrollo por el estado "Finalizado"
-   * dependiendo del resultado devuelto por el metodo
-   * checkDevelopmentStatus.
-   * 
    * @param plantingRecord
-   * @return true si la fecha de siembra de un registro de plantacion
-   * presuntamente en desarrollo es menor o igual a la fecha actual y
-   * su fecha de cosecha es mayor o igual a la fecha actual, en caso
-   * contrario false
+   * @return true si un registro de plantacion esta finalizado.
+   * En caso contrario, false, lo cual puede indicar que un
+   * registro de plantacion esta en desarrollo o en espera.
    */
-  public boolean checkDevelopmentStatus(PlantingRecord plantingRecord) {
+  public boolean isFinished(PlantingRecord plantingRecord) {
     Calendar currentDate = UtilDate.getCurrentDate();
 
     /*
-     * Si la fecha de siembra de un registro de plantacion presuntamente
-     * en desarrollo es menor o igual a la fecha actual y su fecha de
-     * cosecha es mayor o igual a la fecha actual, se retorna true como
-     * indicativo de que dicho registro esta en desarrollo
+     * Si la fecha de cosecha de un registro de plantacion es
+     * estrictamente menor (es decir, anterior) a la fecha actual,
+     * el registro de plantacion esta finalizado
      */
-    if ((UtilDate.compareTo(plantingRecord.getSeedDate(), currentDate) <= 0) && (UtilDate.compareTo(plantingRecord.getHarvestDate(), currentDate) >= 0)) {
+    if (UtilDate.compareTo(plantingRecord.getHarvestDate(), currentDate) < 0) {
       return true;
     }
 
-    /*
-     * Si la fecha actual no esta entre la fecha de siembra y la fecha de
-     * cosecha de un registro de plantacion presuntamente en desarrollo,
-     * se retorna false como indicativo de que dicho registro NO esta
-     * en desarrollo, o en otras palabras, que esta finalizado o en
-     * espera
-     */
     return false;
   }
 
@@ -1611,25 +1585,6 @@ public class PlantingRecordServiceBean {
     query.setParameter("givenStatus", plantingRecordStatus);
     query.setParameter("givenId", plantingRecordId);
     query.executeUpdate();
-  }
-
-  /**
-   * Retorna true si y solo si un registro de plantacion tiene
-   * el estado finalizado.
-   * 
-   * Hay que tener en cuenta que este metodo debe ser invocado
-   * luego de invocar al metodo checkExistence de esta clase,
-   * ya que si no se hace esto puede ocurrir la excepcion
-   * NoResultException, la cual ocurre cuando se invoca el
-   * metodo getSingleResult de la clase Query para buscar
-   * un dato inexistente en la base de datos subyacente.
-   * 
-   * @param id
-   * @return true si un registro de plantacion tiene el
-   * estado finalizado, en caso contrario false
-   */
-  public boolean isFinished(int id) {
-    return find(id).getStatus().getName().equals(FINISHED_STATUS);
   }
 
   /**

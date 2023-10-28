@@ -77,9 +77,9 @@ public class PlantingRecordManager {
     // @Schedule(second = "*", minute = "*", hour = "0/23", persistent = false)
     // @Schedule(second = "*/10", minute = "*", hour = "*", persistent = false)
     public void modifyToFinishedStatus() {
-        Collection<PlantingRecord> plantingRecords = plantingRecordService.findAllInDevelopment();
+        Collection<PlantingRecord> developingPlantingRecords = plantingRecordService.findAllInDevelopment();
 
-        for (PlantingRecord currentPlantingRecord : plantingRecords) {
+        for (PlantingRecord currentPlantingRecord : developingPlantingRecords) {
             /*
              * Si un registro de plantacion presuntamente en desarrollo,
              * NO esta en desarrollo, se establece el estado finalizado
@@ -89,10 +89,10 @@ public class PlantingRecordManager {
              * si su fecha de siembra es menor o igual a la fecha actual y
              * su fecha de cosecha es mayor o igual a la fecha actual.
              * En cambio, si su fecha de cosecha es estrictamente menor
-             * a la fecha actual, se debe establecer el estado finalizado
-             * en el mismo.
+             * (es decir, anterior) a la fecha actual, se debe establecer
+             * el estado finalizado en el mismo.
              */
-            if (!plantingRecordService.checkDevelopmentStatus(currentPlantingRecord)) {
+            if (plantingRecordService.isFinished(currentPlantingRecord)) {
                 plantingRecordService.setStatus(currentPlantingRecord.getId(), plantingRecordStatusService.findFinishedStatus());
             }
 
