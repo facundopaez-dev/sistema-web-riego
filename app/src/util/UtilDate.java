@@ -76,7 +76,22 @@ public class UtilDate {
    * @return true si un año es bisiesto, en caso contrario false
    */
   public static boolean isLeapYear(int year) {
-    return ((year % 4) == 0);
+    /*
+     * Un año es bisiesto si es divisible por 4 y no es divisible
+     * por 100
+     */
+    if (year % 4 == 0 && !(year % 100 == 0)) {
+      return true;
+    }
+
+    /*
+     * Un año es bisiesto si es divisible por 4, por 100 y por 400
+     */
+    if (year % 4 == 0 && year % 100 == 0 && year % 400 == 0) {
+      return true;
+    }
+
+    return false;
   }
 
   /**
