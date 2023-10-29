@@ -164,11 +164,6 @@ app.config(['$routeProvider', function (routeprovider) {
 			controller: 'AdminPasswordChangeCtrl'
 		})
 
-		.when('/adminHome/users', {
-			templateUrl: 'partials/admin/user-list.html',
-			controller: 'UsersCtrl'
-		})
-
 		.when('/adminHome/typeCrops', {
 			templateUrl: 'partials/admin/type-crop-list.html',
 			controller: 'TypeCropsCtrl'

@@ -3,16 +3,6 @@ app.service(
 	["$http",
 		function ($http) {
 
-			this.findAll = function (callback) {
-				$http.get("rest/users").then(
-					function (result) {
-						callback(false, result.data);
-					},
-					function (error) {
-						callback(error);
-					});
-			}
-
 			/*
 			Esta funcion es para que el usuario pueda ver los
 			datos de su cuenta en la lista de la pagina de
