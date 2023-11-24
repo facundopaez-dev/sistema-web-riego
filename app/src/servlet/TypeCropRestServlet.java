@@ -155,6 +155,17 @@ public class TypeCropRestServlet {
     }
 
     /*
+     * Si el usuario que solicita esta operacion no tiene el permiso de
+     * administrador (superuser), la aplicacion del lado servidor devuelve
+     * el mensaje HTTP 403 (Forbidden) junto con el mensaje "Acceso no
+     * autorizado" (esta contenido en el enum ReasonError) y no se realiza
+     * la operacion solicitada
+     */
+    if (!JwtManager.getSuperuser(jwt, secretKeyService.find().getValue())) {
+      return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
+    }
+
+    /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
