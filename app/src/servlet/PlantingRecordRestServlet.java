@@ -33,6 +33,7 @@ import stateless.MonthServiceBean;
 import stateless.UserServiceBean;
 import stateless.OptionServiceBean;
 import stateless.LatitudeServiceBean;
+import stateless.SessionServiceBean;
 import climate.ClimateClient;
 import et.HargreavesEto;
 import et.Etc;
@@ -96,6 +97,8 @@ public class PlantingRecordRestServlet {
 
   @EJB CropWaterActivityLogServiceBean cropWaterActivityLogService;
 
+  @EJB SessionServiceBean sessionService;
+
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
 
@@ -148,6 +151,17 @@ public class PlantingRecordRestServlet {
     int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
 
     /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
+
+    /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
@@ -194,6 +208,17 @@ public class PlantingRecordRestServlet {
     int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
 
     /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
+
+    /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
@@ -228,17 +253,6 @@ public class PlantingRecordRestServlet {
     }
 
     /*
-     * Si el dato solicitado no existe en la base de datos
-     * subyacente, la aplicacion del lado servidor devuelve
-     * el mensaje HTTP 404 (Not found) junto con el mensaje
-     * "Recurso no encontrado" y no se realiza la operacion
-     * solicitada
-     */
-    if (!plantingRecordService.checkExistence(plantingRecordId)) {
-      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
-    }
-
-    /*
      * Obtiene el JWT del valor del encabezado de autorizacion
      * de una peticion HTTP
      */
@@ -249,6 +263,28 @@ public class PlantingRecordRestServlet {
      * JWT del encabezado de autorizacion de una peticion HTTP
      */
     int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
+
+    /*
+     * Si el dato solicitado no existe en la base de datos
+     * subyacente, la aplicacion del lado servidor devuelve
+     * el mensaje HTTP 404 (Not found) junto con el mensaje
+     * "Recurso no encontrado" y no se realiza la operacion
+     * solicitada
+     */
+    if (!plantingRecordService.checkExistence(plantingRecordId)) {
+      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
+    }
 
     /*
      * Si al usuario que hizo esta peticion HTTP, no le pertenece
@@ -292,6 +328,29 @@ public class PlantingRecordRestServlet {
      */
     if (!RequestManager.isAccepted(givenResponse)) {
       return givenResponse;
+    }
+
+    /*
+     * Obtiene el JWT del valor del encabezado de autorizacion
+     * de una peticion HTTP
+     */
+    String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
+
+    /*
+     * Obtiene el ID de usuario contenido en la carga util del
+     * JWT del encabezado de autorizacion de una peticion HTTP
+     */
+    int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
     }
 
     /*
@@ -453,18 +512,6 @@ public class PlantingRecordRestServlet {
      */
     if (statusService.equals(givenStatus, developmentStatus)) {
       /*
-       * Obtiene el JWT del valor del encabezado de autorizacion
-       * de una peticion HTTP
-       */
-      String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
-
-      /*
-       * Obtiene el ID de usuario contenido en la carga util del
-       * JWT del encabezado de autorizacion de una peticion HTTP
-       */
-      int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
-
-      /*
        * Ejecuta el proceso del calculo de la necesidad de agua
        * de riego de un cultivo en la fecha actual. Esto es que
        * ejecuta los metodos necesarios para calcular y actualizar
@@ -510,17 +557,6 @@ public class PlantingRecordRestServlet {
     }
 
     /*
-     * Si el dato solicitado no existe en la base de datos
-     * subyacente, la aplicacion del lado servidor devuelve
-     * el mensaje HTTP 404 (Not found) junto con el mensaje
-     * "Recurso no encontrado" y no se realiza la operacion
-     * solicitada
-     */
-    if (!plantingRecordService.checkExistence(plantingRecordId)) {
-      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
-    }
-
-    /*
      * Obtiene el JWT del valor del encabezado de autorizacion
      * de una peticion HTTP
      */
@@ -531,6 +567,28 @@ public class PlantingRecordRestServlet {
      * JWT del encabezado de autorizacion de una peticion HTTP
      */
     int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
+
+    /*
+     * Si el dato solicitado no existe en la base de datos
+     * subyacente, la aplicacion del lado servidor devuelve
+     * el mensaje HTTP 404 (Not found) junto con el mensaje
+     * "Recurso no encontrado" y no se realiza la operacion
+     * solicitada
+     */
+    if (!plantingRecordService.checkExistence(plantingRecordId)) {
+      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
+    }
 
     /*
      * Si al usuario que hizo esta peticion HTTP, no le pertenece
@@ -796,17 +854,6 @@ public class PlantingRecordRestServlet {
     }
 
     /*
-     * Si el dato solicitado no existe en la base de datos
-     * subyacente, la aplicacion del lado servidor devuelve
-     * el mensaje HTTP 404 (Not found) junto con el mensaje
-     * "Recurso no encontrado" y no se realiza la operacion
-     * solicitada
-     */
-    if (!plantingRecordService.checkExistence(plantingRecordId)) {
-      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
-    }
-
-    /*
      * Obtiene el JWT del valor del encabezado de autorizacion
      * de una peticion HTTP
      */
@@ -817,6 +864,28 @@ public class PlantingRecordRestServlet {
      * JWT del encabezado de autorizacion de una peticion HTTP
      */
     int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
+
+    /*
+     * Si el dato solicitado no existe en la base de datos
+     * subyacente, la aplicacion del lado servidor devuelve
+     * el mensaje HTTP 404 (Not found) junto con el mensaje
+     * "Recurso no encontrado" y no se realiza la operacion
+     * solicitada
+     */
+    if (!plantingRecordService.checkExistence(plantingRecordId)) {
+      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
+    }
 
     /*
      * Si al usuario que hizo esta peticion HTTP, no le pertenece
@@ -898,17 +967,6 @@ public class PlantingRecordRestServlet {
     }
 
     /*
-     * Si el dato solicitado no existe en la base de datos
-     * subyacente, la aplicacion del lado servidor devuelve
-     * el mensaje HTTP 404 (Not found) junto con el mensaje
-     * "Recurso no encontrado" y no se realiza la operacion
-     * solicitada
-     */
-    if (!plantingRecordService.checkExistence(plantingRecordId)) {
-      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
-    }
-
-    /*
      * Obtiene el JWT del valor del encabezado de autorizacion
      * de una peticion HTTP
      */
@@ -919,6 +977,28 @@ public class PlantingRecordRestServlet {
      * JWT del encabezado de autorizacion de una peticion HTTP
      */
     int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
+
+    /*
+     * Si el dato solicitado no existe en la base de datos
+     * subyacente, la aplicacion del lado servidor devuelve
+     * el mensaje HTTP 404 (Not found) junto con el mensaje
+     * "Recurso no encontrado" y no se realiza la operacion
+     * solicitada
+     */
+    if (!plantingRecordService.checkExistence(plantingRecordId)) {
+      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
+    }
 
     /*
      * Si al usuario que hizo esta peticion HTTP, no le pertenece

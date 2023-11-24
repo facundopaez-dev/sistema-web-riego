@@ -21,6 +21,7 @@ import javax.ws.rs.core.Response.Status;
 import model.TypeCrop;
 import stateless.TypeCropServiceBean;
 import stateless.SecretKeyServiceBean;
+import stateless.SessionServiceBean;
 import util.ErrorResponse;
 import util.ReasonError;
 import util.RequestManager;
@@ -33,6 +34,7 @@ public class TypeCropRestServlet {
   // inject a reference to the TypeCropServiceBean slsb
   @EJB TypeCropServiceBean typeCropService;
   @EJB SecretKeyServiceBean secretKeyService;
+  @EJB SessionServiceBean sessionService;
 
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
@@ -66,6 +68,23 @@ public class TypeCropRestServlet {
      * de una peticion HTTP
      */
     String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
+
+    /*
+     * Obtiene el ID de usuario contenido en la carga util del
+     * JWT del encabezado de autorizacion de una peticion HTTP
+     */
+    int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
 
     /*
      * Si el usuario que solicita esta operacion no tiene el permiso de
@@ -119,6 +138,23 @@ public class TypeCropRestServlet {
     String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
 
     /*
+     * Obtiene el ID de usuario contenido en la carga util del
+     * JWT del encabezado de autorizacion de una peticion HTTP
+     */
+    int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
+
+    /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
@@ -157,6 +193,23 @@ public class TypeCropRestServlet {
      * de una peticion HTTP
      */
     String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
+
+    /*
+     * Obtiene el ID de usuario contenido en la carga util del
+     * JWT del encabezado de autorizacion de una peticion HTTP
+     */
+    int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
 
     /*
      * Si el usuario que solicita esta operacion no tiene el permiso de
@@ -218,6 +271,23 @@ public class TypeCropRestServlet {
      * de una peticion HTTP
      */
     String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
+
+    /*
+     * Obtiene el ID de usuario contenido en la carga util del
+     * JWT del encabezado de autorizacion de una peticion HTTP
+     */
+    int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
 
     /*
      * Si el usuario que solicita esta operacion no tiene el permiso de
@@ -302,21 +372,27 @@ public class TypeCropRestServlet {
     }
 
     /*
-     * Si el dato solicitado no existe en la base de datos
-     * subyacente, la aplicacion del lado servidor devuelve
-     * el mensaje HTTP 404 (Not found) junto con el mensaje
-     * "Recurso no encontrado" y no se realiza la operacion
-     * solicitada
-     */
-    if (!typeCropService.checkExistence(id)) {
-      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
-    }
-
-    /*
      * Obtiene el JWT del valor del encabezado de autorizacion
      * de una peticion HTTP
      */
     String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
+
+    /*
+     * Obtiene el ID de usuario contenido en la carga util del
+     * JWT del encabezado de autorizacion de una peticion HTTP
+     */
+    int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
 
     /*
      * Si el usuario que solicita esta operacion no tiene el permiso de
@@ -327,6 +403,17 @@ public class TypeCropRestServlet {
      */
     if (!JwtManager.getSuperuser(jwt, secretKeyService.find().getValue())) {
       return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
+    }
+
+    /*
+     * Si el dato solicitado no existe en la base de datos
+     * subyacente, la aplicacion del lado servidor devuelve
+     * el mensaje HTTP 404 (Not found) junto con el mensaje
+     * "Recurso no encontrado" y no se realiza la operacion
+     * solicitada
+     */
+    if (!typeCropService.checkExistence(id)) {
+      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
     }
 
     /*
@@ -370,6 +457,23 @@ public class TypeCropRestServlet {
     String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
 
     /*
+     * Obtiene el ID de usuario contenido en la carga util del
+     * JWT del encabezado de autorizacion de una peticion HTTP
+     */
+    int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
+
+    /*
      * Si el usuario que solicita esta operacion no tiene el permiso de
      * administrador (superuser), la aplicacion del lado servidor devuelve
      * el mensaje HTTP 403 (Forbidden) junto con el mensaje "Acceso no
@@ -378,6 +482,17 @@ public class TypeCropRestServlet {
      */
     if (!JwtManager.getSuperuser(jwt, secretKeyService.find().getValue())) {
       return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
+    }
+
+    /*
+     * Si el dato solicitado no existe en la base de datos
+     * subyacente, la aplicacion del lado servidor devuelve
+     * el mensaje HTTP 404 (Not found) junto con el mensaje
+     * "Recurso no encontrado" y no se realiza la operacion
+     * solicitada
+     */
+    if (!typeCropService.checkExistence(typeCropId)) {
+      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
     }
 
     TypeCrop modifiedTypeCrop = mapper.readValue(json, TypeCrop.class);

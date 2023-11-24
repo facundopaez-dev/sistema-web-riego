@@ -17,6 +17,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import stateless.CropWaterActivityLogServiceBean;
 import stateless.SecretKeyServiceBean;
+import stateless.SessionServiceBean;
 import util.ErrorResponse;
 import util.ReasonError;
 import util.RequestManager;
@@ -28,8 +29,8 @@ import utilJwt.JwtManager;
 public class CropWaterActivityLogRestServlet {
 
     @EJB CropWaterActivityLogServiceBean cropWaterActivityLogService;
-
     @EJB SecretKeyServiceBean secretKeyService;
+    @EJB SessionServiceBean sessionService;
 
     // mapea lista de pojo a JSON
     ObjectMapper mapper = new ObjectMapper();
@@ -113,6 +114,17 @@ public class CropWaterActivityLogRestServlet {
          * JWT del encabezado de autorizacion de una peticion HTTP
          */
         int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+        /*
+         * Si el usuario que solicita esta operacion NO tiene una
+         * sesion activa, la aplicacion del lador servidor devuelve
+         * el mensaje 401 (Unauthorized) junto con el mensaje "No
+         * tiene una sesion activa" y no se realiza la operacion
+         * solicitada
+         */
+        if (!sessionService.checkActiveSession(userId)) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+        }
 
         /*
          * Siempre y cuando no se elimine el control por el nombre

@@ -17,6 +17,7 @@ import javax.ws.rs.core.Response.Status;
 import stateless.SecretKeyServiceBean;
 import stateless.UserServiceBean;
 import stateless.PasswordResetLinkServiceBean;
+import stateless.SessionServiceBean;
 import util.ErrorResponse;
 import util.ReasonError;
 import util.SuccessfullyResponse;
@@ -38,6 +39,7 @@ public class UserRestServlet {
   @EJB UserServiceBean userService;
   @EJB SecretKeyServiceBean secretKeyService;
   @EJB PasswordResetLinkServiceBean passwordResetLinkService;
+  @EJB SessionServiceBean sessionService;
 
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
@@ -84,6 +86,17 @@ public class UserRestServlet {
      * JWT del encabezado de autorizacion de una peticion HTTP
      */
     int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
 
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
@@ -137,6 +150,17 @@ public class UserRestServlet {
     int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
 
     /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
+
+    /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
@@ -181,6 +205,17 @@ public class UserRestServlet {
      * JWT del encabezado de autorizacion de una peticion HTTP
      */
     int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
 
     /*
      * Si el objeto de tipo String referenciado por la referencia
@@ -393,6 +428,29 @@ public class UserRestServlet {
     }
 
     /*
+     * Obtiene el JWT del valor del encabezado de autorizacion
+     * de una peticion HTTP
+     */
+    String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
+
+    /*
+     * Obtiene el ID de usuario contenido en la carga util del
+     * JWT del encabezado de autorizacion de una peticion HTTP
+     */
+    int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
+
+    /*
      * ******************************************
      * Controles sobre la definicion de los datos
      * ******************************************
@@ -486,18 +544,6 @@ public class UserRestServlet {
      * Autenticacion del usuario
      * *************************
      */
-
-    /*
-     * Obtiene el JWT del valor del encabezado de autorizacion
-     * de una peticion HTTP
-     */
-    String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
-
-    /*
-     * Obtiene el ID de usuario contenido en la carga util del
-     * JWT del encabezado de autorizacion de una peticion HTTP
-     */
-    int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
 
     /*
      * Se recupera el usuario completo de la base de datos

@@ -25,6 +25,7 @@ import stateless.ParcelServiceBean;
 import stateless.SecretKeyServiceBean;
 import stateless.UserServiceBean;
 import stateless.PlantingRecordServiceBean;
+import stateless.SessionServiceBean;
 import util.ErrorResponse;
 import util.ReasonError;
 import util.RequestManager;
@@ -39,6 +40,7 @@ public class ParcelRestServlet {
   @EJB SecretKeyServiceBean secretKeyService;
   @EJB UserServiceBean userService;
   @EJB PlantingRecordServiceBean plantingRecordService;
+  @EJB SessionServiceBean sessionService;
 
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
@@ -78,6 +80,17 @@ public class ParcelRestServlet {
      * JWT del encabezado de autorizacion de una peticion HTTP
      */
     int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
 
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
@@ -126,6 +139,17 @@ public class ParcelRestServlet {
     int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
 
     /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
+
+    /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
@@ -172,6 +196,17 @@ public class ParcelRestServlet {
     int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
 
     /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
+
+    /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
@@ -206,17 +241,6 @@ public class ParcelRestServlet {
     }
 
     /*
-     * Si el dato solicitado no existe en la base de datos
-     * subyacente, la aplicacion del lado servidor devuelve
-     * el mensaje HTTP 404 (Not found) junto con el mensaje
-     * "Recurso no encontrado" y no se realiza la operacion
-     * solicitada
-     */
-    if (!parcelService.checkExistence(parcelId)) {
-      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
-    }
-
-    /*
      * Obtiene el JWT del valor del encabezado de autorizacion
      * de una peticion HTTP
      */
@@ -227,6 +251,28 @@ public class ParcelRestServlet {
      * JWT del encabezado de autorizacion de una peticion HTTP
      */
     int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
+
+    /*
+     * Si el dato solicitado no existe en la base de datos
+     * subyacente, la aplicacion del lado servidor devuelve
+     * el mensaje HTTP 404 (Not found) junto con el mensaje
+     * "Recurso no encontrado" y no se realiza la operacion
+     * solicitada
+     */
+    if (!parcelService.checkExistence(parcelId)) {
+      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
+    }
 
     /*
      * Si al usuario que hizo esta peticion HTTP, no le pertenece
@@ -273,6 +319,29 @@ public class ParcelRestServlet {
     }
 
     /*
+     * Obtiene el JWT del valor del encabezado de autorizacion
+     * de una peticion HTTP
+     */
+    String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
+
+    /*
+     * Obtiene el ID de usuario contenido en la carga util del
+     * JWT del encabezado de autorizacion de una peticion HTTP
+     */
+    int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
+
+    /*
      * Si el objeto de tipo String referenciado por la
      * referencia contenida en la variable de tipo por
      * referencia json de tipo String, esta vacio,
@@ -315,18 +384,6 @@ public class ParcelRestServlet {
     if (!newParcel.getName().matches("^[A-Za-zÀ-ÿ]+(\\s[A-Za-zÀ-ÿ]*[0-9]*[A-Za-zÀ-ÿ]*)*$")) {
       return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_PARCEL_NAME)).build();
     }
-
-    /*
-     * Obtiene el JWT del valor del encabezado de autorizacion
-     * de una peticion HTTP
-     */
-    String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
-
-    /*
-     * Obtiene el ID de usuario contenido en la carga util del
-     * JWT del encabezado de autorizacion de una peticion HTTP
-     */
-    int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
 
     /*
      * Si dentro del conjunto de parcelas del usuario hay una
@@ -386,17 +443,6 @@ public class ParcelRestServlet {
     }
 
     /*
-     * Si el dato solicitado no existe en la base de datos
-     * subyacente, la aplicacion del lado servidor devuelve
-     * el mensaje HTTP 404 (Not found) junto con el mensaje
-     * "Recurso no encontrado" y no se realiza la operacion
-     * solicitada
-     */
-    if (!parcelService.checkExistence(parcelId)) {
-      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
-    }
-
-    /*
      * Obtiene el JWT del valor del encabezado de autorizacion
      * de una peticion HTTP
      */
@@ -407,6 +453,28 @@ public class ParcelRestServlet {
      * JWT del encabezado de autorizacion de una peticion HTTP
      */
     int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
+
+    /*
+     * Si el dato solicitado no existe en la base de datos
+     * subyacente, la aplicacion del lado servidor devuelve
+     * el mensaje HTTP 404 (Not found) junto con el mensaje
+     * "Recurso no encontrado" y no se realiza la operacion
+     * solicitada
+     */
+    if (!parcelService.checkExistence(parcelId)) {
+      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
+    }
 
     /*
      * Si al usuario que hizo esta peticion HTTP, no le pertenece
@@ -468,17 +536,6 @@ public class ParcelRestServlet {
     }
 
     /*
-     * Si el dato solicitado no existe en la base de datos
-     * subyacente, la aplicacion del lado servidor devuelve
-     * el mensaje HTTP 404 (Not found) junto con el mensaje
-     * "Recurso no encontrado" y no se realiza la operacion
-     * solicitada
-     */
-    if (!parcelService.checkExistence(parcelId)) {
-      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
-    }
-
-    /*
      * Obtiene el JWT del valor del encabezado de autorizacion
      * de una peticion HTTP
      */
@@ -489,6 +546,28 @@ public class ParcelRestServlet {
      * JWT del encabezado de autorizacion de una peticion HTTP
      */
     int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
+
+    /*
+     * Si el dato solicitado no existe en la base de datos
+     * subyacente, la aplicacion del lado servidor devuelve
+     * el mensaje HTTP 404 (Not found) junto con el mensaje
+     * "Recurso no encontrado" y no se realiza la operacion
+     * solicitada
+     */
+    if (!parcelService.checkExistence(parcelId)) {
+      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
+    }
 
     /*
      * Si al usuario que hizo esta peticion HTTP, no le pertenece

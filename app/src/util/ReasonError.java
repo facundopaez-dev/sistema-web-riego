@@ -8,6 +8,7 @@ package util;
 public enum ReasonError {
   USERNAME_OR_PASSWORD_INCORRECT("Nombre de usuario o contraseña incorrectos"),
   SESSION_EXPIRED("Sesión expirada"),
+  NO_ACTIVE_SESSION("No tiene una sesión activa"),
   UNAUTHORIZED_ACCESS("Acceso no autorizado"),
   RESOURCE_NOT_FOUND("Recurso no encontrado"),
   MULTIPLE_SESSIONS("No es posible tener más de una sesión abierta simultáneamente"),

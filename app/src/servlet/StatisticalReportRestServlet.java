@@ -22,6 +22,7 @@ import stateless.StatisticalReportServiceBean;
 import stateless.SecretKeyServiceBean;
 import stateless.ClimateRecordServiceBean;
 import stateless.PlantingRecordServiceBean;
+import stateless.SessionServiceBean;
 import stateless.CropServiceBean;
 import util.PersonalizedResponse;
 import util.ErrorResponse;
@@ -49,6 +50,9 @@ public class StatisticalReportRestServlet {
 
   @EJB
   CropServiceBean cropService;
+
+  @EJB
+  SessionServiceBean sessionService;
 
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
@@ -92,6 +96,17 @@ public class StatisticalReportRestServlet {
     int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
 
     /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
+
+    /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
@@ -127,18 +142,6 @@ public class StatisticalReportRestServlet {
     }
 
     /*
-     * Si el dato solicitado no existe en la base de datos
-     * subyacente, la aplicacion del lado servidor devuelve
-     * el mensaje HTTP 404 (Not found) junto con el mensaje
-     * "Recurso no encontrado" y no se realiza la operacion
-     * solicitada
-     */
-    if (!statisticalReportService.checkExistence(statisticalReportId)) {
-      return Response.status(Response.Status.NOT_FOUND)
-          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
-    }
-
-    /*
      * Obtiene el JWT del valor del encabezado de autorizacion
      * de una peticion HTTP
      */
@@ -149,6 +152,29 @@ public class StatisticalReportRestServlet {
      * JWT del encabezado de autorizacion de una peticion HTTP
      */
     int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
+
+    /*
+     * Si el dato solicitado no existe en la base de datos
+     * subyacente, la aplicacion del lado servidor devuelve
+     * el mensaje HTTP 404 (Not found) junto con el mensaje
+     * "Recurso no encontrado" y no se realiza la operacion
+     * solicitada
+     */
+    if (!statisticalReportService.checkExistence(statisticalReportId)) {
+      return Response.status(Response.Status.NOT_FOUND)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
+    }
 
     /*
      * Si al usuario que hizo esta peticion HTTP, no le pertenece
@@ -197,6 +223,29 @@ public class StatisticalReportRestServlet {
     }
 
     /*
+     * Obtiene el JWT del valor del encabezado de autorizacion
+     * de una peticion HTTP
+     */
+    String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
+
+    /*
+     * Obtiene el ID de usuario contenido en la carga util del
+     * JWT del encabezado de autorizacion de una peticion HTTP
+     */
+    int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
+
+    /*
      * Si el objeto de tipo String referenciado por la
      * referencia contenida en la variable de tipo por
      * referencia json de tipo String, esta vacio,
@@ -230,18 +279,6 @@ public class StatisticalReportRestServlet {
       return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INDEFINITE_PARCEL))
           .build();
     }
-
-    /*
-     * Obtiene el JWT del valor del encabezado de autorizacion
-     * de una peticion HTTP
-     */
-    String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
-
-    /*
-     * Obtiene el ID de usuario contenido en la carga util del
-     * JWT del encabezado de autorizacion de una peticion HTTP
-     */
-    int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
 
     /*
      * ***********************************************************
@@ -436,18 +473,6 @@ public class StatisticalReportRestServlet {
     }
 
     /*
-     * Si el dato solicitado no existe en la base de datos
-     * subyacente, la aplicacion del lado servidor devuelve
-     * el mensaje HTTP 404 (Not found) junto con el mensaje
-     * "Recurso no encontrado" y no se realiza la operacion
-     * solicitada
-     */
-    if (!statisticalReportService.checkExistence(statisticalReportId)) {
-      return Response.status(Response.Status.NOT_FOUND)
-          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
-    }
-
-    /*
      * Obtiene el JWT del valor del encabezado de autorizacion
      * de una peticion HTTP
      */
@@ -458,6 +483,29 @@ public class StatisticalReportRestServlet {
      * JWT del encabezado de autorizacion de una peticion HTTP
      */
     int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
+
+    /*
+     * Si el dato solicitado no existe en la base de datos
+     * subyacente, la aplicacion del lado servidor devuelve
+     * el mensaje HTTP 404 (Not found) junto con el mensaje
+     * "Recurso no encontrado" y no se realiza la operacion
+     * solicitada
+     */
+    if (!statisticalReportService.checkExistence(statisticalReportId)) {
+      return Response.status(Response.Status.NOT_FOUND)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
+    }
 
     /*
      * Si al usuario que hizo esta peticion HTTP, no le pertenece
@@ -517,6 +565,17 @@ public class StatisticalReportRestServlet {
      * JWT del encabezado de autorizacion de una peticion HTTP
      */
     int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
 
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP

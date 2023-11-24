@@ -25,6 +25,7 @@ import stateless.SolarRadiationServiceBean;
 import stateless.CropServiceBean;
 import stateless.LatitudeServiceBean;
 import stateless.MonthServiceBean;
+import stateless.SessionServiceBean;
 import model.IrrigationRecord;
 import model.Parcel;
 import model.PlantingRecord;
@@ -62,6 +63,9 @@ public class IrrigationRecordRestServlet {
 
   @EJB
   MonthServiceBean monthService;
+
+  @EJB
+  SessionServiceBean sessionService;
 
   // mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
@@ -101,6 +105,17 @@ public class IrrigationRecordRestServlet {
      * JWT del encabezado de autorizacion de una peticion HTTP
      */
     int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
 
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
@@ -149,6 +164,17 @@ public class IrrigationRecordRestServlet {
     int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
 
     /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
+
+    /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
@@ -183,17 +209,6 @@ public class IrrigationRecordRestServlet {
     }
 
     /*
-     * Si el dato solicitado no existe en la base de datos
-     * subyacente, la aplicacion del lado servidor devuelve
-     * el mensaje HTTP 404 (Not found) junto con el mensaje
-     * "Recurso no encontrado" y no se realiza la operacion
-     * solicitada
-     */
-    if (!irrigationRecordService.checkExistence(irrigationRecordId)) {
-      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
-    }
-
-    /*
      * Obtiene el JWT del valor del encabezado de autorizacion
      * de una peticion HTTP
      */
@@ -204,6 +219,28 @@ public class IrrigationRecordRestServlet {
      * JWT del encabezado de autorizacion de una peticion HTTP
      */
     int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
+
+    /*
+     * Si el dato solicitado no existe en la base de datos
+     * subyacente, la aplicacion del lado servidor devuelve
+     * el mensaje HTTP 404 (Not found) junto con el mensaje
+     * "Recurso no encontrado" y no se realiza la operacion
+     * solicitada
+     */
+    if (!irrigationRecordService.checkExistence(irrigationRecordId)) {
+      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
+    }
 
     /*
      * Si al usuario que hizo esta peticion HTTP, no le pertenece
@@ -260,6 +297,17 @@ public class IrrigationRecordRestServlet {
      * JWT del encabezado de autorizacion de una peticion HTTP
      */
     int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
 
     /*
      * Si el objeto de tipo String referenciado por la referencia
@@ -381,17 +429,6 @@ public class IrrigationRecordRestServlet {
     }
 
     /*
-     * Si el dato solicitado no existe en la base de datos
-     * subyacente, la aplicacion del lado servidor devuelve
-     * el mensaje HTTP 404 (Not found) junto con el mensaje
-     * "Recurso no encontrado" y no se realiza la operacion
-     * solicitada
-     */
-    if (!irrigationRecordService.checkExistence(irrigationRecordId)) {
-      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
-    }
-
-    /*
      * Obtiene el JWT del valor del encabezado de autorizacion
      * de una peticion HTTP
      */
@@ -402,6 +439,28 @@ public class IrrigationRecordRestServlet {
      * JWT del encabezado de autorizacion de una peticion HTTP
      */
     int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
+
+    /*
+     * Si el dato solicitado no existe en la base de datos
+     * subyacente, la aplicacion del lado servidor devuelve
+     * el mensaje HTTP 404 (Not found) junto con el mensaje
+     * "Recurso no encontrado" y no se realiza la operacion
+     * solicitada
+     */
+    if (!irrigationRecordService.checkExistence(irrigationRecordId)) {
+      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
+    }
 
     /*
      * Si al usuario que hizo esta peticion HTTP, no le pertenece
@@ -546,17 +605,6 @@ public class IrrigationRecordRestServlet {
     }
 
     /*
-     * Si el dato solicitado no existe en la base de datos
-     * subyacente, la aplicacion del lado servidor devuelve
-     * el mensaje HTTP 404 (Not found) junto con el mensaje
-     * "Recurso no encontrado" y no se realiza la operacion
-     * solicitada
-     */
-    if (!irrigationRecordService.checkExistence(irrigationRecordId)) {
-      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
-    }
-
-    /*
      * Obtiene el JWT del valor del encabezado de autorizacion
      * de una peticion HTTP
      */
@@ -567,6 +615,28 @@ public class IrrigationRecordRestServlet {
      * JWT del encabezado de autorizacion de una peticion HTTP
      */
     int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
+
+    /*
+     * Si el dato solicitado no existe en la base de datos
+     * subyacente, la aplicacion del lado servidor devuelve
+     * el mensaje HTTP 404 (Not found) junto con el mensaje
+     * "Recurso no encontrado" y no se realiza la operacion
+     * solicitada
+     */
+    if (!irrigationRecordService.checkExistence(irrigationRecordId)) {
+      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
+    }
 
     /*
      * Si al usuario que hizo esta peticion HTTP, no le pertenece
@@ -614,6 +684,29 @@ public class IrrigationRecordRestServlet {
     }
 
     /*
+     * Obtiene el JWT del valor del encabezado de autorizacion
+     * de una peticion HTTP
+     */
+    String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
+
+    /*
+     * Obtiene el ID de usuario contenido en la carga util del
+     * JWT del encabezado de autorizacion de una peticion HTTP
+     */
+    int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+    }
+
+    /*
      * Si el objeto de tipo String referenciado por la referencia
      * contenida en la variable de tipo por referencia json de tipo
      * String, esta vacio, significa que el formulario correspondiente
@@ -625,18 +718,6 @@ public class IrrigationRecordRestServlet {
     if (json.isEmpty()) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EMPTY_FORM))).build();
     }
-
-    /*
-     * Obtiene el JWT del valor del encabezado de autorizacion
-     * de una peticion HTTP
-     */
-    String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
-
-    /*
-     * Obtiene el ID de usuario contenido en la carga util del
-     * JWT del encabezado de autorizacion de una peticion HTTP
-     */
-    int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
 
     IrrigationWaterNeedFormData irrigationWaterNeedFormData = mapper.readValue(json, IrrigationWaterNeedFormData.class);
     IrrigationRecord newIrrigationRecord = new IrrigationRecord();

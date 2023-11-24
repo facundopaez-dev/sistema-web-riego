@@ -15,6 +15,7 @@ import javax.ws.rs.core.Response.Status;
 import stateless.OptionServiceBean;
 import stateless.UserServiceBean;
 import stateless.SecretKeyServiceBean;
+import stateless.SessionServiceBean;
 import util.ErrorResponse;
 import util.ReasonError;
 import util.RequestManager;
@@ -28,6 +29,7 @@ public class OptionRestServlet {
     @EJB OptionServiceBean optionService;
     @EJB UserServiceBean userService;
     @EJB SecretKeyServiceBean secretKeyService;
+    @EJB SessionServiceBean sessionService;
 
     // Mapea lista de pojo a JSON
     ObjectMapper mapper = new ObjectMapper();
@@ -67,6 +69,18 @@ public class OptionRestServlet {
          * JWT del encabezado de autorizacion de una peticion HTTP
          */
         int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+        /*
+         * Si el usuario que solicita esta operacion NO tiene una
+         * sesion activa, la aplicacion del lador servidor devuelve
+         * el mensaje 401 (Unauthorized) junto con el mensaje "No
+         * tiene una sesion activa" y no se realiza la operacion
+         * solicitada
+         */
+        if (!sessionService.checkActiveSession(userId)) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+        }
+
         int optionId = userService.find(userId).getOption().getId();
 
         /*
@@ -109,6 +123,23 @@ public class OptionRestServlet {
         String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
 
         /*
+         * Obtiene el ID de usuario contenido en la carga util del
+         * JWT del encabezado de autorizacion de una peticion HTTP
+         */
+        int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+
+        /*
+         * Si el usuario que solicita esta operacion NO tiene una
+         * sesion activa, la aplicacion del lador servidor devuelve
+         * el mensaje 401 (Unauthorized) junto con el mensaje "No
+         * tiene una sesion activa" y no se realiza la operacion
+         * solicitada
+         */
+        if (!sessionService.checkActiveSession(userId)) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+        }
+
+        /*
          * Si el objeto de tipo String referenciado por la
          * referencia contenida en la variable de tipo por
          * referencia json de tipo String, esta vacio,
@@ -123,13 +154,7 @@ public class OptionRestServlet {
             return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.EMPTY_FORM)).build();
         }
 
-        /*
-         * Obtiene el ID de usuario contenido en la carga util del
-         * JWT del encabezado de autorizacion de una peticion HTTP
-         */
-        int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
         int optionId = userService.find(userId).getOption().getId();
-
         Option modifiedOption = mapper.readValue(json, Option.class);
 
         /*
