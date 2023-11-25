@@ -26,6 +26,7 @@ import stateless.SecretKeyServiceBean;
 import stateless.UserServiceBean;
 import stateless.PlantingRecordServiceBean;
 import stateless.SessionServiceBean;
+import stateless.OptionServiceBean;
 import util.ErrorResponse;
 import util.ReasonError;
 import util.RequestManager;
@@ -41,6 +42,7 @@ public class ParcelRestServlet {
   @EJB UserServiceBean userService;
   @EJB PlantingRecordServiceBean plantingRecordService;
   @EJB SessionServiceBean sessionService;
+  @EJB OptionServiceBean optionService;
 
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
@@ -589,6 +591,7 @@ public class ParcelRestServlet {
      * cliente solicito persistir
      */
     newParcel.setUser(userService.find(userId));
+    newParcel.setOption(optionService.create());
     return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(parcelService.create(newParcel))).build();
   }
 

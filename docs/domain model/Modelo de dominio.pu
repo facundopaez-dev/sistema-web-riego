@@ -17,7 +17,7 @@ EnlaceActivacionCuenta "1" --> "1" Usuario
 EnlaceRestablecimientoContraseña "*" --> "1" Usuario
 Sesion "*" --> "1" Usuario
 RegistroRiego "*" --> "1" Cultivo
-Usuario "1" --> "1" Opcion
+Parcela "1" --> "1" Opcion
 Cultivo "*" --> "1" Region
 Cultivo "*" --> "2" Mes
 

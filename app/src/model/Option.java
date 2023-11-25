@@ -9,7 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "USER_OPTION")
+@Table(name = "PARCEL_OPTION")
 public class Option {
 
     @Id

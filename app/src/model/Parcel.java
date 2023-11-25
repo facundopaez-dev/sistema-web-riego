@@ -9,6 +9,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.persistence.OneToOne;
 
 @Entity
 @Table(name = "PARCEL", uniqueConstraints = { @UniqueConstraint(columnNames = { "NAME", "FK_USER" }) })
@@ -37,6 +38,10 @@ public class Parcel {
   @ManyToOne
   @JoinColumn(name = "FK_USER", nullable = false)
   private User user;
+
+  @OneToOne
+  @JoinColumn(name = "FK_OPTION", nullable = false, unique = true)
+  private Option option;
 
   public Parcel() {
 
@@ -157,6 +162,14 @@ public class Parcel {
    */
   public void setUser(User user) {
     this.user = user;
+  }
+
+  public Option getOption() {
+    return option;
+  }
+
+  public void setOption(Option option) {
+    this.option = option;
   }
 
   @Override

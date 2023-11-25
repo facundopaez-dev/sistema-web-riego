@@ -191,20 +191,20 @@ public class PlantingRecordManager {
              * registros climaticos son obtenidos del servicio meteorologico
              * utilizado por la aplicacion.
              */
-            requestPastClimateRecords(givenUser.getId(), givenUser.getOption(), developingPlantingRecord);
+            requestPastClimateRecords(givenUser.getId(), givenParcel.getOption(), developingPlantingRecord);
 
             /*
              * Calcula la ETo y la ETc de pastDaysReference registros climaticos
              * anteriores a la fecha actual pertenecientes a una parcela dada que
              * tiene un cultivo sembrado y en desarrollo en la fecha actual
              */
-            calculateEtsPastClimateRecords(givenUser.getId(), givenUser.getOption(), developingPlantingRecord);
+            calculateEtsPastClimateRecords(givenUser.getId(), givenParcel.getOption(), developingPlantingRecord);
 
             /*
              * Calculo de la necesidad de agua de riego en la fecha actual
              * de un cultivo sembrado y en desarrollo en una parcela
              */
-            currentIrrigationWaterNeed = calculateIrrigationWaterNeedCurrentDate(givenUser.getId(), developingPlantingRecord, givenUser.getOption());
+            currentIrrigationWaterNeed = calculateIrrigationWaterNeedCurrentDate(givenUser.getId(), developingPlantingRecord, givenParcel.getOption());
 
             /*
              * Actualizacion de la necesidad de agua de riego del

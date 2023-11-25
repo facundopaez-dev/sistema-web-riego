@@ -1,7 +1,7 @@
 app.controller(
     "OptionCtrl",
-    ["$scope", "$location", "OptionSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
-        function ($scope, $location, optionService, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
+    ["$scope", "$location", "$routeParams", "OptionSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
+        function ($scope, $location, $params, optionService, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
 
             console.log("OptionCtrl loaded...")
 
@@ -52,16 +52,16 @@ app.controller(
                 authHeaderManager.setJwtAuthHeader();
             }
 
-            function find() {
-                optionService.find(function (error, data) {
+            function find(id) {
+                optionService.find(id, function (error, data) {
                     if (error) {
-                        console.log("Ocurrió un error: " + error);
+                        console.log(error);
                         errorResponseManager.checkResponse(error);
                         return;
                     }
 
                     $scope.data = data;
-                })
+                });
             }
 
             $scope.modify = function () {
@@ -73,12 +73,12 @@ app.controller(
                     }
 
                     $scope.data = data;
-                    $location.path("/home")
+                    $location.path("/home/parcels")
                 });
             }
 
             $scope.cancel = function () {
-                $location.path("/home");
+                $location.path("/home/parcels");
             }
 
             $scope.logout = function () {
@@ -98,5 +98,5 @@ app.controller(
                 logoutManager.logout();
             }
 
-            find();
+            find($params.id);
         }]);

@@ -8,7 +8,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 
 @Entity
 @Table(name = "IRRIGATION_SYSTEM_USER")
@@ -39,10 +38,6 @@ public class User {
 
   @Column(name = "SUPERUSER", nullable = false)
   private boolean superuser;
-
-  @OneToOne
-  @JoinColumn(name = "FK_OPTION", nullable = false, unique = true)
-  private Option option;
 
   public User() {
 
@@ -110,14 +105,6 @@ public class User {
 
   public void setSuperuser(boolean superuser) {
     this.superuser = superuser;
-  }
-
-  public Option getOption() {
-    return option;
-  }
-
-  public void setOption(Option option) {
-    this.option = option;
   }
 
   @Override

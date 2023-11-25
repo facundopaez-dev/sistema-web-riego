@@ -91,7 +91,7 @@ app.controller(
 
       $scope.markers = new Array();
 
-      if (['new', 'edit', 'view'].indexOf($params.action) == -1) {
+      if (['new', 'edit', 'view', 'options'].indexOf($params.action) == -1) {
         alert("Acción inválida: " + $params.action);
         $location.path("/home/parcels");
       }

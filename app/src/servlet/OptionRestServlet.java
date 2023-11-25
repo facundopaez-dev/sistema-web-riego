@@ -12,8 +12,8 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.PathParam;
 import stateless.OptionServiceBean;
-import stateless.UserServiceBean;
 import stateless.SecretKeyServiceBean;
 import stateless.SessionServiceBean;
 import util.ErrorResponse;
@@ -23,11 +23,10 @@ import utilJwt.AuthHeaderManager;
 import utilJwt.JwtManager;
 import model.Option;
 
-@Path("/user/option")
+@Path("/options")
 public class OptionRestServlet {
 
     @EJB OptionServiceBean optionService;
-    @EJB UserServiceBean userService;
     @EJB SecretKeyServiceBean secretKeyService;
     @EJB SessionServiceBean sessionService;
 
@@ -35,8 +34,9 @@ public class OptionRestServlet {
     ObjectMapper mapper = new ObjectMapper();
 
     @GET
+    @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response find(@Context HttpHeaders request) throws IOException {
+    public Response find(@Context HttpHeaders request, @PathParam("id") int optionId) throws IOException {
         Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
 
         /*
@@ -116,8 +116,6 @@ public class OptionRestServlet {
             return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
         }
 
-        int optionId = userService.find(userId).getOption().getId();
-
         /*
          * Si el valor del encabezado de autorizacion de la peticion HTTP
          * dada, tiene un JWT valido, la aplicacion del lado servidor
@@ -128,8 +126,9 @@ public class OptionRestServlet {
     }
 
     @PUT
+    @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response modify(@Context HttpHeaders request, String json) throws IOException {
+    public Response modify(@Context HttpHeaders request, @PathParam("id") int optionId, String json) throws IOException {
         Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
 
         /*
@@ -224,7 +223,6 @@ public class OptionRestServlet {
             return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.EMPTY_FORM)).build();
         }
 
-        int optionId = userService.find(userId).getOption().getId();
         Option modifiedOption = mapper.readValue(json, Option.class);
 
         /*

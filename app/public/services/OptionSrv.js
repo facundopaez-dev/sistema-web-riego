@@ -3,8 +3,8 @@ app.service(
     ["$http",
         function ($http) {
 
-            this.find = function (callback) {
-                $http.get("rest/user/option").then(
+            this.find = function (id, callback) {
+                $http.get("rest/options/" + id).then(
                     function (result) {
                         callback(false, result.data);
                     },
@@ -14,7 +14,7 @@ app.service(
             }
 
             this.modify = function (data, callback) {
-                $http.put("rest/user/option", data)
+                $http.put("rest/options/" + data.id, data)
                     .then(
                         function (result) {
                             callback(false, result.data);

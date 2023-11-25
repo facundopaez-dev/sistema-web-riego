@@ -48,10 +48,6 @@ app.config(['$routeProvider', function (routeprovider) {
 			templateUrl: 'partials/user/user-password-change-form.html',
 			controller: 'UserPasswordChangeCtrl'
 		})
-		.when('/home/account/options', {
-			templateUrl: 'partials/user/user-option-form.html',
-			controller: 'OptionCtrl'
-		})
 
 		.when('/home/crops', {
 			templateUrl: 'partials/user/user-crop-list.html',
@@ -66,16 +62,19 @@ app.config(['$routeProvider', function (routeprovider) {
 			controller: 'UserCropCtrl'
 		})
 
+		.when('/home/parcels/options/:id', {
+			templateUrl: 'partials/user/parcel-option-form.html',
+			controller: 'OptionCtrl'
+		})
+
 		.when('/home/parcels', {
 			templateUrl: 'partials/user/parcel-list.html',
 			controller: 'ParcelsCtrl'
 		})
-
 		.when('/home/parcels/:action', {
 			templateUrl: 'partials/user/parcel-form.html',
 			controller: 'ParcelCtrl'
 		})
-
 		.when('/home/parcels/:action/:id', {
 			templateUrl: 'partials/user/parcel-form.html',
 			controller: 'ParcelCtrl'

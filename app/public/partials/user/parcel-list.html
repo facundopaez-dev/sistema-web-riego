@@ -124,9 +124,11 @@
 				<td>{{p.name}}</td>
 				<td>{{p.hectares}}</td>
 				<td>{{p.active ? 'Sí' : 'No'}}</td>
-				<!-- <td class="text-right">$ {{p.salary}}</td> -->
 				<td class="text-right">
 					<div class="btn-group" role="group" aria-label="...">
+						<a href="#!/home/parcels/options/{{p.option.id}}" class="btn btn-success" role="button">
+							<span aria-hidden="true">Opciones</span>
+						</a>
 						<a href="#!/home/parcels/view/{{p.id}}" class="btn btn-success" role="button">
 							<span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
 						</a>

@@ -1345,6 +1345,8 @@ public class PlantingRecordRestServlet {
    * actual [mm/dia]
    */
   private double runCalculationIrrigationWaterNeedCurrentDate(User user, PlantingRecord developingPlantingRecord) {
+    Parcel givenParcel = developingPlantingRecord.getParcel();
+
     /*
      * Persiste pastDaysReference registros climaticos anteriores
      * a la fecha actual pertenecientes a una parcela dada que tiene
@@ -1352,7 +1354,7 @@ public class PlantingRecordRestServlet {
      * registros climaticos son obtenidos del servicio meteorologico
      * utilizado por la aplicacion.
      */
-    requestPastClimateRecords(user.getId(), user.getOption(), developingPlantingRecord);
+    requestPastClimateRecords(user.getId(), givenParcel.getOption(), developingPlantingRecord);
 
     /*
      * Calcula la ETo y la ETc de pastDaysReference registros
@@ -1360,7 +1362,7 @@ public class PlantingRecordRestServlet {
      * parcela dada que tiene un cultivo sembrado y en desarrollo en
      * la fecha actual
      */
-    calculateEtsPastClimateRecords(user.getId(), user.getOption(), developingPlantingRecord);
+    calculateEtsPastClimateRecords(user.getId(), givenParcel.getOption(), developingPlantingRecord);
 
     /*
      * ********************************************************
@@ -1373,7 +1375,7 @@ public class PlantingRecordRestServlet {
      * actual
      * ********************************************************
      */
-    double irrigationWaterNeedCurrentDate = calculateIrrigationWaterNeedCurrentDate(user.getId(), developingPlantingRecord, user.getOption());
+    double irrigationWaterNeedCurrentDate = calculateIrrigationWaterNeedCurrentDate(user.getId(), developingPlantingRecord, givenParcel.getOption());
 
     /*
      * *****************************************************
