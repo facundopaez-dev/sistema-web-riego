@@ -193,4 +193,41 @@ public class SessionServiceBean {
     return null;
   }
 
+  /**
+   * Se debe tener en cuenta que este metodo debe ser invocado
+   * luego de invocar el metodo checkActiveSession de esta
+   * clase para evitar errores logicos. De lo contrario, este
+   * metodo puede comparar la fecha de emision de un JWT con
+   * una sesion inactiva, lo cual es incorrecto porque la
+   * fecha de emision de un JWT se debe comparar con la fecha
+   * de emision de una sesion activa. El motivo por el cual
+   * puede ocurrir esta comparacion con una sesion inactiva
+   * es que el metodo findLastSession recupera la ultima sesion
+   * del usuario, independientemente de si esta activa o inactiva.
+   * 
+   * @param userId
+   * @param jwtDateIssue
+   * @return si la fecha de emision de un JWT es igual a la fecha
+   * de emision de la sesion activa del usuario, retorna true. En
+   * caso contrario, retorna false.
+   */
+  public boolean checkDateIssueLastSession(int userId, Calendar jwtDateIssue) {
+    /*
+     * La ultima sesion del usuario es la unica sesion de todas
+     * las sesiones del usuario que puede estar activa
+     */
+    Session lastSession = findLastSession(userId);
+
+    /*
+     * Si la fecha de emision de la ultima sesion del usuario
+     * (la cual debe estar activa) es igual a la fecha de
+     * emision de un JWT, se retorna true
+     */
+    if (lastSession.getDateIssue().compareTo(jwtDateIssue) == 0) {
+      return true;
+    }
+
+    return false;
+  }
+
 }

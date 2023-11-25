@@ -65,10 +65,16 @@ public class OptionRestServlet {
         String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
 
         /*
+         * Valor de la clave secreta con la que la aplicacion firma
+         * un JWT
+         */
+        String secretKeyValue = secretKeyService.find().getValue();
+
+        /*
          * Obtiene el ID de usuario contenido en la carga util del
          * JWT del encabezado de autorizacion de una peticion HTTP
          */
-        int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+        int userId = JwtManager.getUserId(jwt, secretKeyValue);
 
         /*
          * Si el usuario que solicita esta operacion NO tiene una
@@ -79,6 +85,35 @@ public class OptionRestServlet {
          */
         if (!sessionService.checkActiveSession(userId)) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+        }
+
+        /*
+         * Si la fecha de emision del JWT de un usuario NO es igual
+         * a la fecha de emision de la sesion activa del usuario,
+         * la aplicacion del lado servidor retorna el mensaje HTTP
+         * 400 (Bad request) junto con el mensaje "El JWT no
+         * corresponde a una sesión abierta" y no se realiza la
+         * operacion solicitada.
+         * 
+         * Se debe tener en cuenta que el metodo checkDateIssueLastSession
+         * de la clase SessionServiceBean debe ser invocado luego
+         * de invocar el metodo checkActiveSession de la misma
+         * clase, ya que de lo contrario se puede comparar la
+         * fecha de emision de un JWT con una sesion inactiva,
+         * lo cual es incorrecto porque la fecha de emision de un
+         * JWT se debe comparar con la fecha de emision de una
+         * sesion activa. El motivo por el cual puede ocurrir esta
+         * comparacion con una sesion inactiva es que el metodo
+         * findLastSession recupera la ultima sesion del usuario,
+         * independientemente de si esta activa o inactiva.
+         * 
+         * Este control se implementa para evitar que se puedan
+         * recuperar datos mediante peticiones HTTP haciendo uso
+         * de un JWT valido, pero que es de una sesion que fue
+         * cerrada por el usuario.
+         */
+        if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
         }
 
         int optionId = userService.find(userId).getOption().getId();
@@ -123,10 +158,16 @@ public class OptionRestServlet {
         String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
 
         /*
+         * Valor de la clave secreta con la que la aplicacion firma
+         * un JWT
+         */
+        String secretKeyValue = secretKeyService.find().getValue();
+
+        /*
          * Obtiene el ID de usuario contenido en la carga util del
          * JWT del encabezado de autorizacion de una peticion HTTP
          */
-        int userId = JwtManager.getUserId(jwt, secretKeyService.find().getValue());
+        int userId = JwtManager.getUserId(jwt, secretKeyValue);
 
         /*
          * Si el usuario que solicita esta operacion NO tiene una
@@ -137,6 +178,35 @@ public class OptionRestServlet {
          */
         if (!sessionService.checkActiveSession(userId)) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+        }
+
+        /*
+         * Si la fecha de emision del JWT de un usuario NO es igual
+         * a la fecha de emision de la sesion activa del usuario,
+         * la aplicacion del lado servidor retorna el mensaje HTTP
+         * 400 (Bad request) junto con el mensaje "El JWT no
+         * corresponde a una sesión abierta" y no se realiza la
+         * operacion solicitada.
+         * 
+         * Se debe tener en cuenta que el metodo checkDateIssueLastSession
+         * de la clase SessionServiceBean debe ser invocado luego
+         * de invocar el metodo checkActiveSession de la misma
+         * clase, ya que de lo contrario se puede comparar la
+         * fecha de emision de un JWT con una sesion inactiva,
+         * lo cual es incorrecto porque la fecha de emision de un
+         * JWT se debe comparar con la fecha de emision de una
+         * sesion activa. El motivo por el cual puede ocurrir esta
+         * comparacion con una sesion inactiva es que el metodo
+         * findLastSession recupera la ultima sesion del usuario,
+         * independientemente de si esta activa o inactiva.
+         * 
+         * Este control se implementa para evitar que se puedan
+         * recuperar datos mediante peticiones HTTP haciendo uso
+         * de un JWT valido, pero que es de una sesion que fue
+         * cerrada por el usuario.
+         */
+        if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
         }
 
         /*
