@@ -90,9 +90,9 @@ public class SessionServiceBean {
    * Retorna true si y solo si el usuario con el ID dado tiene
    * una sesion activa.
    * 
-   * Se denomina "sesion activa" a la sesion abierta que no ha
-   * expirado o que sin haber expirado no ha sido cerrada por
-   * el usuario que la abrio.
+   * Se denomina "sesion activa" a aquella que NO ha expirado o
+   * que sin haber expirado NO ha sido cerrada por el usuario que
+   * la abrio.
    * 
    * Una sesion expira cuando su fecha de expiracion esta antes
    * de la fecha actual.
@@ -102,6 +102,10 @@ public class SessionServiceBean {
    * activa, false en caso contrario
    */
   public boolean checkActiveSession(int userId) {
+    /*
+     * La ultima sesion del usuario es la unica sesion de todas
+     * las sesiones del usuario que puede estar activa
+     */
     Session lastSession = findLastSession(userId);
 
     /*
