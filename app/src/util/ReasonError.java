@@ -83,7 +83,6 @@ public enum ReasonError {
   IRRIGATION_RECORD_OF_THE_FUTURE_NOT_ALLOWED("No está permitido que un registro de riego tenga una fecha estrictamente mayor (es decir, posterior) a la fecha actual"),
   INVALID_REQUEST_CALCULATION_IRRIGATION_WATER_NEED("No está permitido calcular la necesidad de agua de riego de un cultivo finalizado o en espera"),
   DATE_UNTIL_FUTURE_NOT_ALLOWED("La fecha hasta no debe ser estrictamente mayor (es decir, posterior) a la fecha actual"),
-  INVALID_PAST_DAYS_REFERENCE("La cantidad de días anteriores a la fecha actual utilizados como referencia para el cálculo de la necesidad de agua de riego de un cultivo en la fecha actual debe ser un número entre 1 y 7"),
   THERE_IS_NO_CROP_IN_DEVELOPMENT("No está permitido crear un registro de riego para una parcela que no tiene un cultivo en desarrollo"),
   UNDEFINED_REGION_NAME("El nombre de la región debe estar definido"),
   INVALID_REGION_NAME("El nombre de una región debe empezar con una palabra formada únicamente por caracteres alfabéticos y puede tener más de una palabra formada únicamente por caracteres alfabéticos. Se permite el uso del punto para abreviar nombres, y el uso de la coma, y el punto y coma como separadores."),

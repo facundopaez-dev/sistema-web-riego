@@ -18,6 +18,7 @@ import stateless.SecretKeyServiceBean;
 import stateless.SessionServiceBean;
 import util.ErrorResponse;
 import util.ReasonError;
+import util.PersonalizedResponse;
 import util.RequestManager;
 import utilJwt.AuthHeaderManager;
 import utilJwt.JwtManager;
@@ -234,11 +235,16 @@ public class OptionRestServlet {
          * junto con el mensaje "La cantidad de días anteriores a la
          * fecha actual utilizados como referencia para el cálculo de la
          * necesidad de agua de riego de un cultivo en la fecha actual
-         * debe ser un número entre 1 y 7" y no se realiza la operacion
-         * solicitada
+         * debe ser un número entre <limite inferior> y <limite superior>"
+         * y no se realiza la operacion solicitada
          */
         if (!optionService.validatePastDaysReference(modifiedOption)) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_PAST_DAYS_REFERENCE))).build();
+            String message = "La cantidad de días anteriores a la fecha actual utilizados como referencia para el cálculo de la"
+                    + "necesidad de agua de riego de un cultivo en la fecha actual debe ser un número entre "
+                    + optionService.getLowerLimitPastDays() + " y " + optionService.getUpperLimitPastDays();
+
+            PersonalizedResponse personalizedResponse = new PersonalizedResponse(message);
+            return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(personalizedResponse)).build();
         }
 
         /*

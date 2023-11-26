@@ -120,6 +120,26 @@ public class OptionServiceBean {
     }
 
     /**
+     * @return entero que representa el limite inferior del
+     * atributo "cantidad de dias previos a la fecha actual
+     * a utilizar para calcular la necesidad de agua de riego
+     * de un cultivo en la fecha actual" de una opcion
+     */
+    public int getLowerLimitPastDays() {
+        return LOWER_LIMIT_PAST_DAYS;
+    }
+
+    /**
+     * @return entero que representa el limite superior del
+     * atributo "cantidad de dias previos a la fecha actual
+     * a utilizar para calcular la necesidad de agua de riego
+     * de un cultivo en la fecha actual" de una opcion
+     */
+    public int getUpperLimitPastDays() {
+        return UPPER_LIMIT_PAST_DAYS;
+    }
+
+    /**
      * El valor de la constante THIRTY_DAYS es para calcular la
      * necesidad de agua de riego de un cultivo en la fecha actual
      * a partir del ultimo riego registrado en los ultimos treinta
