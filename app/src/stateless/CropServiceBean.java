@@ -274,10 +274,10 @@ public class CropServiceBean {
     StringBuffer queryStr = new StringBuffer("SELECT c FROM Crop c");
 
     if (cropName != null) {
-      queryStr.append(" WHERE (c.user.id = :userId AND UPPER(c.name) LIKE :name)");
+      queryStr.append(" WHERE (UPPER(c.name) LIKE :name)");
     }
 
-    Query query = entityManager.createQuery(queryStr.toString());
+    Query query = entityManager.createQuery(queryStr.toString() + " ORDER BY c.name");
 
     if (cropName != null) {
       query.setParameter("name", "%" + cropName.toUpperCase() + "%");
