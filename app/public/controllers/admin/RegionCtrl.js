@@ -81,7 +81,7 @@ app.controller(
                 authHeaderManager.setJwtAuthHeader();
             }
 
-            if (['new', 'edit', 'view'].indexOf($params.action) == -1) {
+            if (['new', 'edit'].indexOf($params.action) == -1) {
                 alert("Acción inválida: " + $params.action);
                 $location.path("/adminHome/regions");
             }
@@ -202,7 +202,7 @@ app.controller(
 
             $scope.action = $params.action;
 
-            if ($scope.action == 'edit' || $scope.action == 'view') {
+            if ($scope.action == 'edit') {
                 find($params.id);
             }
 
