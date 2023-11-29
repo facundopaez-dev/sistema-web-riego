@@ -1,26 +1,37 @@
 <nav class="navbar navbar-inverse navbar-fixed-top">
-	<div class="container">
-		<div class="navbar-header">
-			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
-				aria-expanded="false" aria-controls="navbar">
-				<span class="sr-only">Toggle navigation</span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-			</button>
-			<a class="navbar-brand" href="#!/adminHome">Cuenta</a>
-		</div>
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#!/adminHome">Cuenta</a>
+        </div>
 
-		<div class="navbar-header">
-			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
-				aria-expanded="false" aria-controls="navbar">
-				<span class="sr-only">Toggle navigation</span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-			</button>
-			<a class="navbar-brand" href="#!/adminHome/crops">Cultivos</a>
-		</div>
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#!/adminHome/crops">Cultivos</a>
+        </div>
+
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#!/adminHome/soils">Suelos</a>
+        </div>
 
         <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
@@ -33,80 +44,80 @@
             <a class="navbar-brand" href="#!/adminHome/regions">Regiones</a>
         </div>
 
-		<div class="navbar-header">
-			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
-				aria-expanded="false" aria-controls="navbar">
-				<span class="sr-only">Toggle navigation</span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-			</button>
-			<a class="navbar-brand" href="#!/adminHome/typeCrops">Tipos de cultivos</a>
-		</div>
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#!/adminHome/typeCrops">Tipos de cultivos</a>
+        </div>
 
-		<div class="navbar-header">
-			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
-				aria-expanded="false" aria-controls="navbar">
-				<span class="sr-only">Toggle navigation</span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-			</button>
-			<a class="navbar-brand" ng-click="logout()">Cerrar sesión</a>
-		</div>
-	</div>
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" ng-click="logout()">Cerrar sesión</a>
+        </div>
+    </div>
 </nav>
 
 <div class="panel panel-info">
-	<div class="panel-heading">
-		<strong>Listado de cultivos</strong>
-	</div>
-	<div class="panel-body">
-		<a href="#!/adminHome/crops/new" class="btn btn-success" role="button">Nuevo cultivo</a>
-	</div>
-	<table class="table table-condensed table-hover">
-		<thead>
-			<tr>
-				<th>ID</th>
-				<th>Nombre</th>
-				<th>Etapa inicial (días)</th>
-				<th>Etapa desarrollo (días)</th>
-				<th>Etapa media (días)</th>
-				<th>Etapa final (días)</th>
-				<th>Ciclo vida (días)</th>
-				<th>Inicio siembra</th>
-				<th>Fin siembra</th>
-				<th>Región</th>
-				<th>Activo</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr ng-repeat="c in data">
-				<td>{{c.id}}</td>
-				<td>{{c.name}}</td>
-				<td>{{c.initialStage}}</td>
-				<td>{{c.developmentStage}}</td>
-				<td>{{c.middleStage}}</td>
-				<td>{{c.finalStage}}</td>
-				<td>{{c.lifeCycle}}</td>
-				<td>{{c.plantingStartMonth.name ? c.plantingStartMonth.name : '-'}}</td>
-				<td>{{c.endPlantingMonth.name ? c.endPlantingMonth.name : '-'}}</td>
-				<td>{{c.region.name ? c.region.name : '-'}}</td>
-				<td>{{c.active ? 'Sí' : 'No'}}</td>
-				<td class="text-right">
-					<div class="btn-group" role="group" aria-label="...">
-						<a href="#!/adminHome/crops/view/{{c.id}}" class="btn btn-success" role="button">
-							<span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
-						</a>
-						<a href="#!/adminHome/crops/edit/{{c.id}}" class="btn btn-success" role="button">
-							<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-						</a>
-						<button type="button" class="btn btn-success" aria-label="Delete" ng-click="delete(c.id)">
-							<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-						</button>
-					</div>
-				</td>
-			</tr>
-		</tbody>
-	</table>
+    <div class="panel-heading">
+        <strong>Listado de cultivos</strong>
+    </div>
+    <div class="panel-body">
+        <a href="#!/adminHome/crops/new" class="btn btn-success" role="button">Nuevo cultivo</a>
+    </div>
+    <table class="table table-condensed table-hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Etapa inicial (días)</th>
+                <th>Etapa desarrollo (días)</th>
+                <th>Etapa media (días)</th>
+                <th>Etapa final (días)</th>
+                <th>Ciclo vida (días)</th>
+                <th>Inicio siembra</th>
+                <th>Fin siembra</th>
+                <th>Región</th>
+                <th>Activo</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="c in data">
+                <td>{{c.id}}</td>
+                <td>{{c.name}}</td>
+                <td>{{c.initialStage}}</td>
+                <td>{{c.developmentStage}}</td>
+                <td>{{c.middleStage}}</td>
+                <td>{{c.finalStage}}</td>
+                <td>{{c.lifeCycle}}</td>
+                <td>{{c.plantingStartMonth.name ? c.plantingStartMonth.name : '-'}}</td>
+                <td>{{c.endPlantingMonth.name ? c.endPlantingMonth.name : '-'}}</td>
+                <td>{{c.region.name ? c.region.name : '-'}}</td>
+                <td>{{c.active ? 'Sí' : 'No'}}</td>
+                <td class="text-right">
+                    <div class="btn-group" role="group" aria-label="...">
+                        <a href="#!/adminHome/crops/view/{{c.id}}" class="btn btn-success" role="button">
+                            <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                        </a>
+                        <a href="#!/adminHome/crops/edit/{{c.id}}" class="btn btn-success" role="button">
+                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                        </a>
+                        <button type="button" class="btn btn-success" aria-label="Delete" ng-click="delete(c.id)">
+                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </div>

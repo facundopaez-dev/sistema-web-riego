@@ -1,8 +1,8 @@
 app.controller(
   "ParcelCtrl",
-  ["$scope", "$location", "$routeParams", "ParcelSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager", "ExpirationManager",
+  ["$scope", "$location", "$routeParams", "ParcelSrv", "SoilSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager", "ExpirationManager",
     "RedirectManager",
-    function ($scope, $location, $params, service, accessManager, errorResponseManager, authHeaderManager, logoutManager, expirationManager, redirectManager) {
+    function ($scope, $location, $params, parcelService, soilService, accessManager, errorResponseManager, authHeaderManager, logoutManager, expirationManager, redirectManager) {
 
       console.log("ParcelCtrl loaded with action: " + $params.action);
 
@@ -103,7 +103,7 @@ app.controller(
       const UNDEFINED_GEOGRAPHIC_COORDINATE = "La coordenada geográfica de la parcela debe estar definida";
 
       function find(id) {
-        service.find(id, function (error, data) {
+        parcelService.find(id, function (error, data) {
           if (error) {
             console.log(error);
             errorResponseManager.checkResponse(error);
@@ -132,6 +132,19 @@ app.controller(
 
           // console.log($scope.data);
         });
+      }
+
+      // Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
+      $scope.findSoil = function (soilName) {
+        return soilService.findByName(soilName).
+          then(function (response) {
+            var soils = [];
+            for (var i = 0; i < response.data.length; i++) {
+              soils.push(response.data[i]);
+            }
+
+            return soils;
+          });;
       }
 
       $scope.create = function () {
@@ -214,7 +227,7 @@ app.controller(
           $scope.data.longitude = $scope.markers[0].lng;
         }
 
-        service.create($scope.data, function (error, data) {
+        parcelService.create($scope.data, function (error, data) {
           if (error) {
             console.log(error);
             errorResponseManager.checkResponse(error);
@@ -272,7 +285,7 @@ app.controller(
         $scope.data.latitude = $scope.markers[0].lat;
         $scope.data.longitude = $scope.markers[0].lng;
 
-        service.modify($scope.data, function (error, data) {
+        parcelService.modify($scope.data, function (error, data) {
           if (error) {
             console.log(error);
             errorResponseManager.checkResponse(error);

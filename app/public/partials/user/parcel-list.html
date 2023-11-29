@@ -30,6 +30,17 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
+			<a class="navbar-brand" href="#!/home/soils">Suelos</a>
+		</div>
+
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+				aria-expanded="false" aria-controls="navbar">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
 			<a class="navbar-brand" href="#!/home/parcels">Parcelas</a>
 		</div>
 
@@ -85,7 +96,7 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
-			<a class="navbar-brand" href="#!/home/statisticalReports">Infos. estadísticos</a>
+			<a class="navbar-brand" href="#!/home/statisticalReports">Infos. estads.</a>
 		</div>
 
 		<div class="navbar-header">
@@ -114,6 +125,7 @@
 				<th>ID</th>
 				<th>Nombre</th>
 				<th>Hectáreas</th>
+				<th>Suelo</th>
 				<th>Activa</th>
 				<th class="text-right"></th>
 			</tr>
@@ -123,6 +135,7 @@
 				<td>{{p.id}}</td>
 				<td>{{p.name}}</td>
 				<td>{{p.hectares}}</td>
+				<td>{{p.soil ? p.soil.name : '-'}}</td>
 				<td>{{p.active ? 'Sí' : 'No'}}</td>
 				<td class="text-right">
 					<div class="btn-group" role="group" aria-label="...">

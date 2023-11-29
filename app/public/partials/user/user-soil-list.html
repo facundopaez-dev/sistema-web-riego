@@ -111,71 +111,31 @@
 		</div>
 	</div>
 </nav>
+
 <div class="panel panel-info">
 	<div class="panel-heading">
-		<strong>Parcela</strong>
+		<strong>Listado de suelos</strong>
 	</div>
-	<div class="panel-body">
-		<form class="form-horizontal">
-			<div class="form-group" ng-hide="action == 'new'">
-				<label for="parcel_id" class="col-md-2 control-label">ID</label>
-				<div class="col-md-3">
-					<input type="number" class="form-control" id="parcel_id" ng-model="data.id"
-						ng-disabled="action == 'edit' || action == 'view'">
-				</div>
-			</div>
-
-			<div class="form-group">
-				<label for="parcel_name" class="col-md-2 control-label">Nombre</label>
-				<div class="col-md-3">
-					<input type="text" class="form-control" id="parcel_name" placeholder="Ej.: Parcela Sierra Grande 1"
-						ng-model="data.name" ng-disabled="action == 'view'" required>
-				</div>
-			</div>
-
-			<div class="form-group">
-				<label for="parcel_soil" class="col-md-2 control-label">Suelo</label>
-				<div class="col-md-3">
-					<input name="soil" type="text" ng-model="data.soil"
-						uib-typeahead="soil as soil.name for soil in findSoil($viewValue)"
-						typeahead-loading="loadingLocations" class="form-control" typeahead-editable="false"
-						typeahead-min-lenght="3" ng-disabled="action == 'view'">
-					<i ng-show="loadingLocations" class="glyphicon glyphicon-refresh"></i>
-				</div>
-			</div>
-
-			<div class="form-group">
-				<label for="parcel_hectares" class="col-md-2 control-label">Hectáreas</label>
-				<div class="col-md-3">
-					<input type="number" class="form-control" id="parcel_hectares" ng-model="data.hectares"
-						ng-disabled="action == 'view'" required>
-				</div>
-			</div>
-
-			<div class="form-group">
-				<label for="parcel_active" class="col-md-2 control-label">Activa</label>
-				<div class="col-md-3">
-					<input type="checkbox" value="False" id="parcel_active" ng-model="data.active"
-						ng-disabled="action == 'view'">
-				</div>
-			</div>
-
-			<div class="form-group">
-				<leaflet center="Madryn" event-broadcast="events" markers="markers" width="100%" height="480px">
-				</leaflet>
-			</div>
-
-			<div class="form-group">
-				<div class="col-md-offset-2 col-md-3">
-					<button type="submit" class="btn btn-success" ng-click="create()"
-						ng-show="action == 'new'">Crear</button>
-					<button type="submit" class="btn btn-success" ng-click="modify()"
-						ng-show="action == 'edit'">Modificar</button>
-					<button class="btn btn-success" ng-click="cancel()"
-						ng-show="action == 'new' || action == 'edit'">Cancelar</button>
-					<button class="btn btn-success" ng-click="cancel()" ng-show="action == 'view'">Atrás</button>
-				</div>
-			</div>
-		</form>
-	</div>
+	<table class="table table-condensed table-hover">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>Nombre</th>
+				<th>Peso específico aparente [gr%cm<sup>3</sup>]</th>
+				<th>Capacidad de campo [gr%gr]</th>
+				<th>Marchitez permanente [gr%gr]</th>
+				<th>Activo</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="s in data">
+				<td>{{s.id}}</td>
+				<td>{{s.name}}</td>
+				<td>{{s.apparentSpecificWeight}}</td>
+				<td>{{s.fieldCapacity}}</td>
+				<td>{{s.permanentWilting}}</td>
+				<td>{{s.active ? 'Sí' : 'No'}}</td>
+			</tr>
+		</tbody>
+	</table>
 </div>

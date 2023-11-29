@@ -20,6 +20,7 @@ RegistroRiego "*" --> "1" Cultivo
 Parcela "1" --> "1" Opcion
 Cultivo "*" --> "1" Region
 Cultivo "*" --> "2" Mes
+Parcela "*" --> "0..1" Suelo
 
 class Parcela {
 -id
@@ -180,6 +181,15 @@ class BalanceHidricoSuelo {
 -deficitAgua
 -deficitAcumuladoAgua
 -usuarioId
+}
+
+class Suelo {
+-id
+-nombre
+-pesoEspecificoAparente
+-capacidadCampo
+-marchitezPermanente
+-activo
 }
 
 @enduml

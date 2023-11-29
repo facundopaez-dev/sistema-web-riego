@@ -90,6 +90,7 @@ public class ParcelServiceBean {
       chosenParcel.setLongitude(modifiedParcel.getLongitude());
       chosenParcel.setLatitude(modifiedParcel.getLatitude());
       chosenParcel.setActive(modifiedParcel.getActive());
+      chosenParcel.setSoil(modifiedParcel.getSoil());
       return chosenParcel;
     }
 

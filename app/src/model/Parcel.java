@@ -43,6 +43,10 @@ public class Parcel {
   @JoinColumn(name = "FK_OPTION", nullable = false, unique = true)
   private Option option;
 
+  @ManyToOne
+  @JoinColumn(name = "FK_SOIL")
+  private Soil soil;
+
   public Parcel() {
 
   }
@@ -170,6 +174,14 @@ public class Parcel {
 
   public void setOption(Option option) {
     this.option = option;
+  }
+
+  public Soil getSoil() {
+    return soil;
+  }
+
+  public void setSoil(Soil soil) {
+    this.soil = soil;
   }
 
   @Override

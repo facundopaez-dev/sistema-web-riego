@@ -87,7 +87,13 @@ public enum ReasonError {
   UNDEFINED_REGION_NAME("El nombre de la región debe estar definido"),
   INVALID_REGION_NAME("El nombre de una región debe empezar con una palabra formada únicamente por caracteres alfabéticos y puede tener más de una palabra formada únicamente por caracteres alfabéticos. Se permite el uso del punto para abreviar nombres, y el uso de la coma, y el punto y coma como separadores."),
   REGION_NAME_ALREADY_USED("Nombre de región ya utilizado, elija otro"),
-  UNDEFINED_PARCEL_NAME_AND_CROP_NAME("La parcela y el cultivo deben estar definidos");
+  UNDEFINED_PARCEL_NAME_AND_CROP_NAME("La parcela y el cultivo deben estar definidos"),
+  UNDEFINED_SOIL_NAME("El nombre del suelo debe estar definido"),
+  INVALID_SOIL_NAME("El nombre de un suelo debe empezar con una palabra formada únicamente por caracteres alfabéticos y puede tener más de una palabra formada únicamente por caracteres alfabéticos"),
+  SOIL_NAME_ALREADY_USED("Nombre de suelo ya utilizado, elija otro"),
+  INVALID_APPARENT_SPECIFIC_WIGHT("El peso específico aparente debe ser mayor a cero"),
+  INVALID_FIELD_CAPACITY("La capacidad de campo debe ser mayor a cero"),
+  INVALID_PERMANENT_WILTING("La marchitez permanente debe ser mayor a cero");
 
   private final String reason;
 

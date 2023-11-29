@@ -30,6 +30,17 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
+			<a class="navbar-brand" href="#!/adminHome/soils">Suelos</a>
+		</div>
+
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+				aria-expanded="false" aria-controls="navbar">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
 			<a class="navbar-brand" href="#!/adminHome/regions">Regiones</a>
 		</div>
 
@@ -151,36 +162,36 @@
 			</div>
 
 			<div class="form-group">
-                <label for="selectMonth">Mes inicio de siembra</label>
-                <select class="form-control col-md-6" id="selectMonth" ng-model="data.plantingStartMonth"
-                    data-ng-options="m as (m.name ) for m in months track by m.id"
-                    ng-disabled="action == 'view'" required>
-                </select>
-            </div>
+				<label for="selectMonth">Mes inicio de siembra</label>
+				<select class="form-control col-md-6" id="selectMonth" ng-model="data.plantingStartMonth"
+					data-ng-options="m as (m.name ) for m in months track by m.id" ng-disabled="action == 'view'"
+					required>
+				</select>
+			</div>
 
 			<div class="form-group">
-                <label for="selectMonth">Mes fin de siembra</label>
-                <select class="form-control col-md-6" id="selectMonth" ng-model="data.endPlantingMonth"
-                    data-ng-options="m as (m.name ) for m in months track by m.id"
-                    ng-disabled="action == 'view'" required>
-                </select>
-            </div>
+				<label for="selectMonth">Mes fin de siembra</label>
+				<select class="form-control col-md-6" id="selectMonth" ng-model="data.endPlantingMonth"
+					data-ng-options="m as (m.name ) for m in months track by m.id" ng-disabled="action == 'view'"
+					required>
+				</select>
+			</div>
 
 			<div class="form-group">
-                <label for="selectTypeCrop">Tipo de cultivo</label>
-                <select class="form-control col-md-6" id="selectTypeCrop" ng-model="data.typeCrop"
-                    data-ng-options="t as ('ID: ' + t.id + ' Nombre: ' + t.name ) for t in typeCrops track by t.id"
-                    ng-disabled="action == 'view'" required>
-                </select>
-            </div>
+				<label for="selectTypeCrop">Tipo de cultivo</label>
+				<select class="form-control col-md-6" id="selectTypeCrop" ng-model="data.typeCrop"
+					data-ng-options="t as ('ID: ' + t.id + ' Nombre: ' + t.name ) for t in typeCrops track by t.id"
+					ng-disabled="action == 'view'" required>
+				</select>
+			</div>
 
 			<div class="form-group">
-                <label for="selectRegion">Region</label>
-                <select class="form-control col-md-6" id="selectRegion" ng-model="data.region"
-                    data-ng-options="r as ('ID: ' + r.id + ' Nombre: ' + r.name ) for r in regions track by r.id"
-                    ng-disabled="action == 'view'" required>
-                </select>
-            </div>
+				<label for="selectRegion">Region</label>
+				<select class="form-control col-md-6" id="selectRegion" ng-model="data.region"
+					data-ng-options="r as ('ID: ' + r.id + ' Nombre: ' + r.name ) for r in regions track by r.id"
+					ng-disabled="action == 'view'" required>
+				</select>
+			</div>
 
 			<div class="form-group">
 				<div class="col-md-offset-2 col-md-3">

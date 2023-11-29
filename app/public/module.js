@@ -62,6 +62,11 @@ app.config(['$routeProvider', function (routeprovider) {
 			controller: 'UserCropCtrl'
 		})
 
+		.when('/home/soils', {
+			templateUrl: 'partials/user/user-soil-list.html',
+			controller: 'UserSoilsCtrl'
+		})
+
 		.when('/home/parcels/options/:id', {
 			templateUrl: 'partials/user/parcel-option-form.html',
 			controller: 'OptionCtrl'
@@ -187,6 +192,19 @@ app.config(['$routeProvider', function (routeprovider) {
 		.when('/adminHome/crops/:action/:id', {
 			templateUrl: 'partials/admin/admin-crop-form.html',
 			controller: 'AdminCropCtrl'
+		})
+
+		.when('/adminHome/soils', {
+			templateUrl: 'partials/admin/admin-soil-list.html',
+			controller: 'AdminSoilsCtrl'
+		})
+		.when('/adminHome/soils/:action', {
+			templateUrl: 'partials/admin/admin-soil-form.html',
+			controller: 'AdminSoilCtrl'
+		})
+		.when('/adminHome/soils/:action/:id', {
+			templateUrl: 'partials/admin/admin-soil-form.html',
+			controller: 'AdminSoilCtrl'
 		})
 
 		.when('/adminHome/regions', {

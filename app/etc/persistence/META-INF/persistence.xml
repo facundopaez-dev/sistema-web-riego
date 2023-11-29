@@ -22,6 +22,7 @@
     <class>model.TypePrecipitation</class>
     <class>model.User</class>
     <class>model.SecretKey</class>
+    <class>model.Soill</class>
     <properties>
       <property name="eclipselink.target-database" value="DERBY"/>
       <property name="eclipselink.jdbc.driver" value="org.apache.derby.jdbc.ClientDriver"/>
