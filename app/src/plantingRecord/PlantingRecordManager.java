@@ -14,7 +14,7 @@ import stateless.SolarRadiationServiceBean;
 import stateless.MonthServiceBean;
 import stateless.OptionServiceBean;
 import stateless.LatitudeServiceBean;
-import stateless.CropWaterActivityLogServiceBean;
+import stateless.SoilWaterBalanceServiceBean;
 import model.Parcel;
 import model.PlantingRecord;
 import model.ClimateRecord;
@@ -59,7 +59,7 @@ public class PlantingRecordManager {
     OptionServiceBean optionService;
 
     @EJB
-    CropWaterActivityLogServiceBean cropWaterActivityLogService;
+    SoilWaterBalanceServiceBean soilWaterBalanceService;
 
     /*
      * Establece de manera automatica el estado finalizado de un registro de
@@ -688,20 +688,20 @@ public class PlantingRecordManager {
         Collection<IrrigationRecord> irrigationRecords = irrigationRecordService.findAllByParcelIdAndPeriod(userId, givenParcel.getId(), dateFrom, dateUntil);
 
         /*
-         * Genera los registros de actividad hidrica de cultivo del
-         * cultivo para el que se calcula su necesidad de agua de
-         * riego en la fecha actual [mm/dia]. El motivo de esto es
-         * para que el usuario pueda ver la manera en la que la
-         * aplicacion calculo dicha necesidad. El valor del deficit
-         * acumulado de agua del mas actual de estos registros es la
-         * necesidad de agua de riego del cultivo en la fecha actual.
-         * Por lo tanto, este valor debe ser igual al valor del
-         * campo "Necesidad de agua de riego de hoy [mm/dia]" de
-         * la ventana que se despliega en la pagina web de lista
-         * de registros de plantacion cuando se presiona el boton
-         * "Calcular" sobre un registro de plantacion en desarrollo.
+         * Genera los balances hidricos de suelo asociados al cultivo
+         * para el que se calcula su necesidad de agua de riego en la
+         * fecha actual [mm/dia]. El motivo de esto es para que el
+         * usuario pueda ver la manera en la que la aplicacion calculo
+         * dicha necesidad. El valor del deficit acumulado de agua del
+         * mas actual de estos registros es la necesidad de agua de
+         * riego del cultivo en la fecha actual. Por lo tanto, este
+         * valor debe ser igual al valor del campo "Necesidad de agua
+         * de riego de hoy [mm/dia]" de la ventana que se despliega
+         * en la pagina web de lista de registros de plantacion cuando
+         * se presiona el boton "Calcular" sobre un registro de plantacion
+         * en desarrollo.
          */
-        cropWaterActivityLogService.generateLogs(userId, givenParcel.getName(), developingPlantingRecord.getCrop().getName(), climateRecords, irrigationRecords);
+        soilWaterBalanceService.generateSoilWaterBalances(userId, givenParcel.getName(), developingPlantingRecord.getCrop().getName(), climateRecords, irrigationRecords);
 
         return WaterMath.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, climateRecords, irrigationRecords);
     }

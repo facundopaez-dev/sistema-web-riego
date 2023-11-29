@@ -132,9 +132,9 @@ app.config(['$routeProvider', function (routeprovider) {
 			controller: 'StatisticalReportCtrl'
 		})
 
-		.when('/home/cropWaterActivityLogs', {
-			templateUrl: 'partials/user/crop-water-activity-log-list.html',
-			controller: 'CropWaterActivityLogsCtrl'
+		.when('/home/soilWaterBalances', {
+			templateUrl: 'partials/user/soil-water-balance-list.html',
+			controller: 'SoilWaterBalancesCtrl'
 		})
 
 		/* Rutas del administrador */

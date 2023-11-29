@@ -15,7 +15,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
-import stateless.CropWaterActivityLogServiceBean;
+import stateless.SoilWaterBalanceServiceBean;
 import stateless.SecretKeyServiceBean;
 import stateless.SessionServiceBean;
 import util.ErrorResponse;
@@ -25,10 +25,10 @@ import util.UtilDate;
 import utilJwt.AuthHeaderManager;
 import utilJwt.JwtManager;
 
-@Path("/cropWaterActivityLogs")
-public class CropWaterActivityLogRestServlet {
+@Path("/soilWaterBalances")
+public class SoilWaterBalanceRestServlet {
 
-    @EJB CropWaterActivityLogServiceBean cropWaterActivityLogService;
+    @EJB SoilWaterBalanceServiceBean soilWaterBalanceService;
     @EJB SecretKeyServiceBean secretKeyService;
     @EJB SessionServiceBean sessionService;
 
@@ -167,13 +167,12 @@ public class CropWaterActivityLogRestServlet {
          * de parcela y el nombre del cultivo indefinidos, si la
          * fecha desde y la fecha hasta NO estan definidos, la
          * aplicacion del lado servidor retorna una coleccion de
-         * registros de actividad hidrica de cultivo asociados a
-         * un usuario que tienen un nombre de parcela y un nombre
-         * de cultivo
+         * balances hidricos de suelo asociados a un usuario que
+         * tienen un nombre de parcela y un nombre de cultivo
          */
         if (stringDateFrom == null && stringDateUntil == null) {
             return Response.status(Response.Status.OK)
-                    .entity(mapper.writeValueAsString(cropWaterActivityLogService.findAllByParcelNameAndCropName(userId, parcelName, cropName)))
+                    .entity(mapper.writeValueAsString(soilWaterBalanceService.findAllByParcelNameAndCropName(userId, parcelName, cropName)))
                     .build();
         }
 
@@ -182,15 +181,14 @@ public class CropWaterActivityLogRestServlet {
          * de parcela y el nombre del cultivo indefinidos, si la
          * fecha desde esta definida y la fecha hasta NO esta
          * definida, la aplicacion del lado servidor retorna una
-         * coleccion de registros de actividad hidrica de cultivo
-         * asociados a un usuario que tienen un nombre de parcela,
-         * un nombre de cultivo y una fecha mayor o igual a una
-         * fecha desde
+         * coleccion de balances hidricos de suelo asociados a un
+         * usuario que tienen un nombre de parcela, un nombre de
+         * cultivo y una fecha mayor o igual a una fecha desde
          */
         if (stringDateFrom != null && stringDateUntil == null) {
             dateFrom = new Date(dateFormatter.parse(stringDateFrom).getTime());
             return Response.status(Response.Status.OK)
-                    .entity(mapper.writeValueAsString(cropWaterActivityLogService.findAllByDateGreaterThanOrEqual(userId, parcelName, cropName, UtilDate.toCalendar(dateFrom))))
+                    .entity(mapper.writeValueAsString(soilWaterBalanceService.findAllByDateGreaterThanOrEqual(userId, parcelName, cropName, UtilDate.toCalendar(dateFrom))))
                     .build();
         }
 
@@ -199,26 +197,24 @@ public class CropWaterActivityLogRestServlet {
          * de parcela y el nombre del cultivo indefinidos, si la
          * fecha desde NO esta definida y la fecha hasta esta
          * definida, la aplicacion del lado servidor retorna una
-         * coleccion de registros de actividad hidrica de cultivo
-         * asociados a un usuario que tienen un nombre de parcela,
-         * un nombre de cultivo y una fecha menor o igual a una
-         * fecha hasta
+         * coleccion de balances hidricos de suelo asociados a un
+         * usuario que tienen un nombre de parcela, un nombre de
+         * cultivo y una fecha menor o igual a una fecha hasta
          */
         if (stringDateFrom == null && stringDateUntil != null) {
             dateUntil = new Date(dateFormatter.parse(stringDateUntil).getTime());
             return Response.status(Response.Status.OK)
-                    .entity(mapper.writeValueAsString(cropWaterActivityLogService.findAllByDateLessThanOrEqual(userId, parcelName, cropName, UtilDate.toCalendar(dateUntil))))
+                    .entity(mapper.writeValueAsString(soilWaterBalanceService.findAllByDateLessThanOrEqual(userId, parcelName, cropName, UtilDate.toCalendar(dateUntil))))
                     .build();
         }
 
         /*
          * Si la fecha desde, la fecha hasta, el nombre de la parcela
          * y el nombre del cultivo estan definidos, la aplicacion del
-         * lado del servidor retorna una coleccion de registros de
-         * actividad hidrica de cultivo asociados a un usuario que
-         * tienen una fecha mayor o igual a una fecha desde y menor
-         * o igual a una fecha hasta, un nombre de parcela y un nombre
-         * de cultivo
+         * lado del servidor retorna una coleccion de balances hidricos
+         * de suelo asociados a un usuario que tienen una fecha mayor o
+         * igual a una fecha desde y menor o igual a una fecha hasta, un
+         * nombre de parcela y un nombre de cultivo
          */
 
         /*
@@ -231,7 +227,7 @@ public class CropWaterActivityLogRestServlet {
         dateUntil = new Date(dateFormatter.parse(stringDateUntil).getTime());
 
         return Response.status(Response.Status.OK)
-                .entity(mapper.writeValueAsString(cropWaterActivityLogService.findByAllFilterParameters(userId,
+                .entity(mapper.writeValueAsString(soilWaterBalanceService.findByAllFilterParameters(userId,
                         parcelName, cropName, UtilDate.toCalendar(dateFrom), UtilDate.toCalendar(dateUntil))))
                 .build();
     }

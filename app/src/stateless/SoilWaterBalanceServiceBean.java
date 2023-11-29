@@ -7,13 +7,13 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.NoResultException;
-import model.CropWaterActivityLog;
+import model.SoilWaterBalance;
 import model.ClimateRecord;
 import model.IrrigationRecord;
 import irrigation.WaterMath;
 
 @Stateless
-public class CropWaterActivityLogServiceBean {
+public class SoilWaterBalanceServiceBean {
 
     @PersistenceContext(unitName = "swcar")
     private EntityManager entityManager;
@@ -27,38 +27,38 @@ public class CropWaterActivityLogServiceBean {
     }
 
     /**
-     * @param newCropWaterActivityLog
-     * @return referencia a un objeto de tipo CropWaterActivityLog
+     * @param newSoilWaterBalance
+     * @return referencia a un objeto de tipo SoilWaterBalance
      */
-    public CropWaterActivityLog create(CropWaterActivityLog newCropWaterActivityLog) {
-        getEntityManager().persist(newCropWaterActivityLog);
-        return newCropWaterActivityLog;
+    public SoilWaterBalance create(SoilWaterBalance newSoilWaterBalance) {
+        getEntityManager().persist(newSoilWaterBalance);
+        return newSoilWaterBalance;
     }
 
     /**
      * @param userId
      * @param date
      * @param parcelName
-     * @return referencia a un objeto de tipo CropWaterActivityLog si
-     * se encuentra en la base de datos subyacente el registro de
-     * actividad hidrica de cultivo correspondiente a un usuario, una
-     * fecha y un nombre de parcela. En caso contrario, null.
+     * @return referencia a un objeto de tipo SoilWaterBalance si
+     * se encuentra en la base de datos subyacente el balance hidrico
+     * de suelo correspondiente a un usuario, una fecha y un nombre de
+     * parcela. En caso contrario, null.
      */
-    public CropWaterActivityLog find(int userId, Calendar date, String parcelName) {
-        Query query = getEntityManager().createQuery("SELECT c FROM CropWaterActivityLog c WHERE (c.userId = :userId AND c.date = :date AND UPPER(c.parcelName) = UPPER(:parcelName))");
+    public SoilWaterBalance find(int userId, Calendar date, String parcelName) {
+        Query query = getEntityManager().createQuery("SELECT c FROM SoilWaterBalance c WHERE (c.userId = :userId AND c.date = :date AND UPPER(c.parcelName) = UPPER(:parcelName))");
         query.setParameter("userId", userId);
         query.setParameter("date", date);
         query.setParameter("parcelName", parcelName);
 
-        CropWaterActivityLog givenCropWaterActivityLog = null;
+        SoilWaterBalance givenSoilWaterBalance = null;
 
         try {
-            givenCropWaterActivityLog = (CropWaterActivityLog) query.getSingleResult();
+            givenSoilWaterBalance = (SoilWaterBalance) query.getSingleResult();
         } catch (NoResultException e) {
             e.printStackTrace();
         }
 
-        return givenCropWaterActivityLog;
+        return givenSoilWaterBalance;
     }
 
     /**
@@ -66,20 +66,19 @@ public class CropWaterActivityLogServiceBean {
      * @param date
      * @param parcelName
      * @return true si en la base de datos subyacente existe un
-     * registro de actividad hidrica de cultivo con el ID de
-     * usuario, la fecha y el nombre de parcela. En caso contrario,
-     * false.
+     * balance hidrico de suelo con el ID de usuario, la fecha y
+     * el nombre de parcela. En caso contrario, false.
      */
     private boolean checkExistence(int userId, Calendar date, String parcelName) {
         return (find(userId, date, parcelName) != null);
     }
 
     /**
-     * Actualiza el registro de actividad hidrica de cultivo
-     * correspondiente a un ID dado con un nombre de cultivo,
-     * una cantidad de agua evaporada [mm/dia], una cantidad
-     * de agua provista [mm/dia], un deficit de agua [mm/dia]
-     * y un deficit acumulado de agua [mm/dia]
+     * Actualiza el balance hidrico de suelo correspondiente a
+     * un ID dado con un nombre de cultivo, una cantidad de agua
+     * evaporada [mm/dia], una cantidad de agua provista [mm/dia],
+     * un deficit de agua [mm/dia] y un deficit acumulado de agua
+     * [mm/dia]
      * 
      * @param id
      * @param cropName
@@ -89,7 +88,7 @@ public class CropWaterActivityLogServiceBean {
      * @param accumulatedWaterDeficit
      */
     public void update(int id, String cropName, double evaporatedWater, double waterProvided, double waterDeficit, double accumulatedWaterDeficit) {
-        Query query = getEntityManager().createQuery("UPDATE CropWaterActivityLog c SET c.cropName = :cropName, c.evaporatedWater = :evaporatedWater, c.waterProvided = :waterProvided, c.waterDeficit = :waterDeficit, c.accumulatedWaterDeficit = :accumulatedWaterDeficit WHERE c.id = :id");
+        Query query = getEntityManager().createQuery("UPDATE SoilWaterBalance c SET c.cropName = :cropName, c.evaporatedWater = :evaporatedWater, c.waterProvided = :waterProvided, c.waterDeficit = :waterDeficit, c.accumulatedWaterDeficit = :accumulatedWaterDeficit WHERE c.id = :id");
         query.setParameter("cropName", cropName);
         query.setParameter("evaporatedWater", evaporatedWater);
         query.setParameter("waterProvided", waterProvided);
@@ -104,75 +103,73 @@ public class CropWaterActivityLogServiceBean {
      * @param parcelName
      * @param cropName
      * @return referencia a un objeto de tipo Collection que
-     * contiene todos los registros de actividad hidrica de
-     * cultivo asociados a un usuario que tienen un nombre
+     * contiene todos los balances hidricos de suelo asociados
+     * a un usuario que tienen un nombre de parcela y un nombre
+     * de cultivo
+     */
+    public Collection<SoilWaterBalance> findAllByParcelNameAndCropName(int userId, String parcelName, String cropName) {
+        Query query = getEntityManager().createQuery("SELECT c FROM SoilWaterBalance c WHERE (c.userId = :userId AND c.parcelName = :parcelName AND c.cropName = :cropName) ORDER BY c.date");
+        query.setParameter("userId", userId);
+        query.setParameter("parcelName", parcelName);
+        query.setParameter("cropName", cropName);
+
+        return (Collection) query.getResultList();
+    }
+
+    /**
+     * @param userId
+     * @param parcelName
+     * @param cropName
+     * @param dateFrom
+     * @return referencia a un objeto de tipo Collection que
+     * contiene todos los balances hidricos de suelo asociados
+     * a un usuario que tienen un nombre de parcela, un nombre
+     * de cultivo y una fecha mayor o igual a una fecha desde
+     */
+    public Collection<SoilWaterBalance> findAllByDateGreaterThanOrEqual(int userId, String parcelName, String cropName, Calendar dateFrom) {
+        Query query = getEntityManager().createQuery("SELECT c FROM SoilWaterBalance c WHERE (c.userId = :userId AND c.parcelName = :parcelName AND c.cropName = :cropName AND c.date >= :dateFrom) ORDER BY c.date");
+        query.setParameter("userId", userId);
+        query.setParameter("parcelName", parcelName);
+        query.setParameter("cropName", cropName);
+        query.setParameter("dateFrom", dateFrom);
+
+        return (Collection) query.getResultList();
+    }
+
+    /**
+     * @param userId
+     * @param parcelName
+     * @param cropName
+     * @param dateUntil
+     * @return referencia a un objeto de tipo Collection que
+     * contiene todos los balances hidricos de suelo asociados
+     * a un usuario que tienen un nombre de parcela, un nombre
+     * de cultivo y una fecha menor o igual a una fecha hasta
+     */
+    public Collection<SoilWaterBalance> findAllByDateLessThanOrEqual(int userId, String parcelName, String cropName, Calendar dateUntil) {
+        Query query = getEntityManager().createQuery("SELECT c FROM SoilWaterBalance c WHERE (c.userId = :userId AND c.parcelName = :parcelName AND c.cropName = :cropName AND c.date <= :dateUntil) ORDER BY c.date");
+        query.setParameter("userId", userId);
+        query.setParameter("parcelName", parcelName);
+        query.setParameter("cropName", cropName);
+        query.setParameter("dateUntil", dateUntil);
+
+        return (Collection) query.getResultList();
+    }
+
+    /**
+     * @param userId
+     * @param parcelName
+     * @param cropName
+     * @param dateFrom
+     * @param dateUntil
+     * @return referencia a un objeto de tipo Collection que
+     * contiene todos los balances hidricos de suelo asociados
+     * a un usuario que tienen una fecha mayor o igual a una
+     * fecha desde y menor o igual a una fecha hasta, un nombre
      * de parcela y un nombre de cultivo
      */
-    public Collection<CropWaterActivityLog> findAllByParcelNameAndCropName(int userId, String parcelName, String cropName) {
-        Query query = getEntityManager().createQuery("SELECT c FROM CropWaterActivityLog c WHERE (c.userId = :userId AND c.parcelName = :parcelName AND c.cropName = :cropName) ORDER BY c.date");
-        query.setParameter("userId", userId);
-        query.setParameter("parcelName", parcelName);
-        query.setParameter("cropName", cropName);
-
-        return (Collection) query.getResultList();
-    }
-
-    /**
-     * @param userId
-     * @param parcelName
-     * @param cropName
-     * @param dateFrom
-     * @return referencia a un objeto de tipo Collection que
-     * contiene todos los registros de actividad hidrica de
-     * cultivo asociados a un usuario que tienen un nombre de
-     * parcela, un nombre de cultivo y una fecha mayor o igual
-     * a una fecha desde
-     */
-    public Collection<CropWaterActivityLog> findAllByDateGreaterThanOrEqual(int userId, String parcelName, String cropName, Calendar dateFrom) {
-        Query query = getEntityManager().createQuery("SELECT c FROM CropWaterActivityLog c WHERE (c.userId = :userId AND c.parcelName = :parcelName AND c.cropName = :cropName AND c.date >= :dateFrom) ORDER BY c.date");
-        query.setParameter("userId", userId);
-        query.setParameter("parcelName", parcelName);
-        query.setParameter("cropName", cropName);
-        query.setParameter("dateFrom", dateFrom);
-
-        return (Collection) query.getResultList();
-    }
-
-    /**
-     * @param userId
-     * @param parcelName
-     * @param cropName
-     * @param dateUntil
-     * @return referencia a un objeto de tipo Collection que
-     * contiene todos los registros de actividad hidrica de
-     * cultivo asociados a un usuario que tienen un nombre de
-     * parcela, un nombre de cultivo y una fecha menor o igual
-     * a una fecha hasta
-     */
-    public Collection<CropWaterActivityLog> findAllByDateLessThanOrEqual(int userId, String parcelName, String cropName, Calendar dateUntil) {
-        Query query = getEntityManager().createQuery("SELECT c FROM CropWaterActivityLog c WHERE (c.userId = :userId AND c.parcelName = :parcelName AND c.cropName = :cropName AND c.date <= :dateUntil) ORDER BY c.date");
-        query.setParameter("userId", userId);
-        query.setParameter("parcelName", parcelName);
-        query.setParameter("cropName", cropName);
-        query.setParameter("dateUntil", dateUntil);
-
-        return (Collection) query.getResultList();
-    }
-
-    /**
-     * @param userId
-     * @param parcelName
-     * @param cropName
-     * @param dateFrom
-     * @param dateUntil
-     * @return referencia a un objeto de tipo Collection que
-     * contiene todos los registros de actividad hidrica de
-     * cultivo asociados a un usuario que tienen una fecha
-     * mayor o igual a una fecha desde y menor o igual a una
-     * fecha hasta, un nombre de parcela y un nombre de cultivo
-     */
-    public Collection<CropWaterActivityLog> findByAllFilterParameters(int userId, String parcelName, String cropName, Calendar dateFrom, Calendar dateUntil) {
-        Query query = getEntityManager().createQuery("SELECT c FROM CropWaterActivityLog c WHERE (c.userId = :userId AND c.date >= :dateFrom AND c.date <= :dateUntil AND c.parcelName = :parcelName AND c.cropName = :cropName) ORDER BY c.date");
+    public Collection<SoilWaterBalance> findByAllFilterParameters(int userId, String parcelName, String cropName, Calendar dateFrom, Calendar dateUntil) {
+        Query query = getEntityManager().createQuery("SELECT c FROM SoilWaterBalance c WHERE (c.userId = :userId AND c.date >= :dateFrom AND c.date <= :dateUntil AND c.parcelName = :parcelName AND c.cropName = :cropName) ORDER BY c.date");
         query.setParameter("userId", userId);
         query.setParameter("parcelName", parcelName);
         query.setParameter("cropName", cropName);
@@ -183,13 +180,13 @@ public class CropWaterActivityLogServiceBean {
     }
 
     /**
-     * Crea y persiste los registros de actividad hidrica de
-     * cultivo con determinadas fechas para una parcela que
-     * tiene un cultivo en desarrollo cuando se calcula la
-     * necesidad de agua de riego del mismo en la fecha actual.
-     * Si en la base de datos subyacente existen los registros
-     * de actividad hidrica para una parcela con determinadas
-     * fechas, los actualiza.
+     * Crea y persiste los balances hidricos de suelo con
+     * determinadas fechas para una parcela que tiene un
+     * cultivo en desarrollo cuando se calcula la necesidad
+     * de agua de riego del mismo en la fecha actual. Si en
+     * la base de datos subyacente existen los balances hidricos
+     * de suelo para una parcela con determinadas fechas,
+     * los actualiza.
      * 
      * @param userId
      * @param parcelName
@@ -197,9 +194,9 @@ public class CropWaterActivityLogServiceBean {
      * @param climateRecords
      * @param irrigationRecords
      */
-    public void generateLogs(int userId, String parcelName, String cropName, Collection<ClimateRecord> climateRecords,
+    public void generateSoilWaterBalances(int userId, String parcelName, String cropName, Collection<ClimateRecord> climateRecords,
             Collection<IrrigationRecord> irrigationRecords) {
-        CropWaterActivityLog givenCropWaterActivityLog = null;
+        SoilWaterBalance givenSoilWaterBalance = null;
 
         double waterDeficitPerDay = 0.0;
         double accumulatedWaterDeficit = 0.0;
@@ -208,21 +205,20 @@ public class CropWaterActivityLogServiceBean {
         for (ClimateRecord currentClimateRecord : climateRecords) {
 
             /*
-             * Si NO existe un registro de actividad hidrica de cultivo
-             * correspondiente a un usuario para una parcela en una fecha,
-             * se lo crea y persiste. En caso contrario, se lo obtiene y
-             * se actualiza su nombre de cultivo, su agua [mm/dia], su
-             * agua evaporada [mm/dia], su deficit de agua [mm/dia] y su
-             * deficit acumulado de agua [mm/dia]
+             * Si NO existe un balance hidrico de suelo correspondiente a
+             * un usuario para una parcela en una fecha, se lo crea y persiste.
+             * En caso contrario, se lo obtiene y se actualiza su nombre de
+             * cultivo, su agua [mm/dia], su agua evaporada [mm/dia], su
+             * deficit de agua [mm/dia] y su deficit acumulado de agua [mm/dia].
              */
             if (!checkExistence(userId, currentClimateRecord.getDate(), parcelName)) {
                 /*
                  * Calcula el deficit de agua por dia [mm/dia] de un cultivo
                  * en una fecha, debido a que un registro climatico y un
                  * registro de riego tienen una fecha, y a que el metodo
-                 * generateLogs debe ser invocado unicamente cuando se
-                 * calcula la necesidad de agua de riego de un cultivo
-                 * en la fecha actual [mm/dia]
+                 * generateSoilWaterBalances debe ser invocado unicamente
+                 * cuando se calcula la necesidad de agua de riego de un
+                 * cultivo en la fecha actual [mm/dia]
                  */
                 waterDeficitPerDay = WaterMath.calculateDeficitPerDay(currentClimateRecord, irrigationRecords);
 
@@ -230,9 +226,9 @@ public class CropWaterActivityLogServiceBean {
                  * Calcula el deficit acumulado de agua por dia [mm/dia] de
                  * un cultivo en una fecha, debido a que un registro climatico
                  * y un registro de riego tienen una fecha, y a que el metodo
-                 * generateLogs debe ser invocado unicamente cuando se calcula
-                 * la necesidad de agua de riego de un cultivo en la fecha
-                 * actual [mm/dia]
+                 * generateSoilWaterBalances debe ser invocado unicamente
+                 * cuando se calcula la necesidad de agua de riego de un
+                 * cultivo en la fecha actual [mm/dia]
                  */
                 accumulatedWaterDeficit = WaterMath.calculateAccumulatedDeficit(waterDeficitPerDay, accumulatedWaterDeficit);
 
@@ -240,34 +236,33 @@ public class CropWaterActivityLogServiceBean {
                  * Calcula el agua provista (lluvia o riego, o lluvia mas riego
                  * y viceversa) por dia [mm/dia] a un cultivo en fecha, debido
                  * a que un registro climatico y un registro de riego tienen
-                 * una fecha, y a que el metodo generateLogs debe ser invocado
-                 * unicamente cuando se calcula la necesidad de agua de riego
-                 * de un cultivo en la fecha actual [mm/dia]
+                 * una fecha, y a que el metodo generateSoilWaterBalances
+                 * debe ser invocado unicamente cuando se calcula la necesidad
+                 * de agua de riego de un cultivo en la fecha actual [mm/dia]
                  */
                 waterProvidedPerDay = currentClimateRecord.getPrecip() + WaterMath.sumTotalAmountIrrigationWaterGivenDate(currentClimateRecord.getDate(), irrigationRecords);
 
-                givenCropWaterActivityLog = new CropWaterActivityLog();
-                givenCropWaterActivityLog.setDate(currentClimateRecord.getDate());
-                givenCropWaterActivityLog.setParcelName(parcelName);
-                givenCropWaterActivityLog.setCropName(cropName);
-                givenCropWaterActivityLog.setEvaporatedWater(getEvaporatedWater(currentClimateRecord));
-                givenCropWaterActivityLog.setWaterProvided(waterProvidedPerDay);
-                givenCropWaterActivityLog.setWaterDeficit(waterDeficitPerDay);
-                givenCropWaterActivityLog.setAccumulatedWaterDeficit(accumulatedWaterDeficit);
-                givenCropWaterActivityLog.setUserId(userId);
+                givenSoilWaterBalance = new SoilWaterBalance();
+                givenSoilWaterBalance.setDate(currentClimateRecord.getDate());
+                givenSoilWaterBalance.setParcelName(parcelName);
+                givenSoilWaterBalance.setCropName(cropName);
+                givenSoilWaterBalance.setEvaporatedWater(getEvaporatedWater(currentClimateRecord));
+                givenSoilWaterBalance.setWaterProvided(waterProvidedPerDay);
+                givenSoilWaterBalance.setWaterDeficit(waterDeficitPerDay);
+                givenSoilWaterBalance.setAccumulatedWaterDeficit(accumulatedWaterDeficit);
+                givenSoilWaterBalance.setUserId(userId);
 
                 /*
-                 * Persistencia del nuevo registro de actividad hidrica
-                 * de cultivo
+                 * Persistencia del nuevo balance hidrico de suelo
                  */
-                create(givenCropWaterActivityLog);
+                create(givenSoilWaterBalance);
             } else {
                 waterDeficitPerDay = WaterMath.calculateDeficitPerDay(currentClimateRecord, irrigationRecords);
                 accumulatedWaterDeficit = WaterMath.calculateAccumulatedDeficit(waterDeficitPerDay, accumulatedWaterDeficit);
                 waterProvidedPerDay = currentClimateRecord.getPrecip() + WaterMath.sumTotalAmountIrrigationWaterGivenDate(currentClimateRecord.getDate(), irrigationRecords);
 
-                givenCropWaterActivityLog = find(userId, currentClimateRecord.getDate(), parcelName);
-                update(givenCropWaterActivityLog.getId(), cropName, getEvaporatedWater(currentClimateRecord), waterProvidedPerDay, waterDeficitPerDay, accumulatedWaterDeficit);
+                givenSoilWaterBalance = find(userId, currentClimateRecord.getDate(), parcelName);
+                update(givenSoilWaterBalance.getId(), cropName, getEvaporatedWater(currentClimateRecord), waterProvidedPerDay, waterDeficitPerDay, accumulatedWaterDeficit);
             }
 
         }

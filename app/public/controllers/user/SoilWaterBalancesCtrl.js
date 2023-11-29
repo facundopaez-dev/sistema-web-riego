@@ -1,9 +1,9 @@
 app.controller(
-    "CropWaterActivityLogsCtrl",
-    ["$scope", "$location", "CropWaterActivityLogSrv", "ParcelSrv", "CropSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
-        function ($scope, $location, cropWaterActivityLogService, parcelSrv, cropSrv, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
+    "SoilWaterBalancesCtrl",
+    ["$scope", "$location", "SoilWaterBalanceSrv", "ParcelSrv", "CropSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
+        function ($scope, $location, soilWaterBalanceSrv, parcelSrv, cropSrv, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
 
-            console.log("CropWaterActivityLogsCtrl loaded...")
+            console.log("SoilWaterBalancesCtrl loaded...")
 
             /*
             Si el usuario NO tiene una sesion abierta, se le impide el acceso a
@@ -98,18 +98,18 @@ app.controller(
             const UNDEFINED_PARCEL_NAME_AND_CROP_NAME = "La parcela y el cultivo deben estar definidos";
 
             /*
-            Trae el listado de registros de actividad hidrica de
-            cultivo que tienen el nombre de parcela, el nombre del
-            cultivo, la fecha desde y la fecha hasta elegidos
+            Trae el listado de balances hidricos de suelo que tienen
+            el nombre de parcela, el nombre del cultivo, la fecha desde
+            y la fecha hasta elegidos
             */
             $scope.retrieve = function () {
                 /*
                 Si las propiedades parcel y crop tienen tienen valor undefined,
                 significa que NO se cargo una parcela y un cultivo en los campos
-                de la parcela y del cultivo para recuperar registros de actividad
-                hidrica de cultivo. Por lo tanto, la aplicacion muestra el mensaje
-                dado y no ejecuta instruccion que realiza la peticion HTTP
-                correspondiente esta funcion.
+                de la parcela y del cultivo para recuperar balances hidricos de
+                suelo. Por lo tanto, la aplicacion muestra el mensaje dado y no
+                ejecuta instruccion que realiza la peticion HTTP correspondiente
+                esta funcion.
                 */
                 if ($scope.parcel == undefined || $scope.crop == undefined) {
                     alert(UNDEFINED_PARCEL_NAME_AND_CROP_NAME);
@@ -124,10 +124,9 @@ app.controller(
                 tienen un valor asignado), se crean variables con las fechas
                 elegidas usando el formato yyyy-MM-dd. El motivo de esto es
                 que el metodo findByFilterParameters de la clase REST
-                CropWaterActivityLogRestServlet de la aplicacion del lado
-                servidor, utiliza la fecha desde y la fecha hasta en el
-                formato yyyy-MM-dd para recuperar registros de actividad
-                hidrica de cultivo.
+                SoilWaterBalanceRestServlet de la aplicacion del lado servidor,
+                utiliza la fecha desde y la fecha hasta en el formato yyyy-MM-dd
+                para recuperar balances hidricos de suelo.
                 */
                 if ($scope.dateFrom != undefined || $scope.dateFrom != null) {
                     newDateFrom = $scope.dateFrom.getFullYear() + "-" + ($scope.dateFrom.getMonth() + 1) + "-" + $scope.dateFrom.getDate();
@@ -137,7 +136,7 @@ app.controller(
                     newDateUntil = $scope.dateUntil.getFullYear() + "-" + ($scope.dateUntil.getMonth() + 1) + "-" + $scope.dateUntil.getDate();
                 }
 
-                cropWaterActivityLogService.filter(newDateFrom, newDateUntil, $scope.parcel.name, $scope.crop.name, function (error, data) {
+                soilWaterBalanceSrv.filter(newDateFrom, newDateUntil, $scope.parcel.name, $scope.crop.name, function (error, data) {
                     if (error) {
                         console.log(error);
                         errorResponseManager.checkResponse(error);

@@ -12,8 +12,8 @@ import javax.persistence.Id;
 import java.util.Calendar;
 
 @Entity
-@Table(name = "CROP_WATER_ACTIVITY_LOG", uniqueConstraints = { @UniqueConstraint(columnNames = { "DATE", "PARCEL_NAME", "CROP_NAME", "USER_ID" }) })
-public class CropWaterActivityLog {
+@Table(name = "SOIL_WATER_BALANCE", uniqueConstraints = { @UniqueConstraint(columnNames = { "DATE", "PARCEL_NAME", "CROP_NAME", "USER_ID" }) })
+public class SoilWaterBalance {
 
     @Id
     @Column(name = "ID")

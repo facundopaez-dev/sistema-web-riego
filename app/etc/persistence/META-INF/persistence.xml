@@ -4,7 +4,7 @@
     <class>model.AccountActivationLink</class>
     <class>model.ClimateRecord</class>
     <class>model.Crop</class>
-    <class>model.CropWaterActivityLog</class>
+    <class>model.SoilWaterBalance</class>
     <class>model.PlantingRecordStatus</class>
     <class>model.PlantingRecord</class>
     <class>model.IrrigationRecord</class>

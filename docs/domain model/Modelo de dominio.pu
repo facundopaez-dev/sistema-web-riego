@@ -170,7 +170,7 @@ class ClaveSecreta {
 -valor
 }
 
-class RegistroActividadHidricaCultivo {
+class BalanceHidricoSuelo {
 -id
 -fecha
 -nombreParcela
