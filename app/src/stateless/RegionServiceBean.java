@@ -217,7 +217,7 @@ public class RegionServiceBean {
      * y un ID distinto al ID dado
      * 
      * @param id
-     * @return true si en la base de datos subyacente existe un
+     * @return true si en la base de datos subyacente existe
      * una region con un nombre igual al nombre dado y un ID
      * distinto al ID dado, en caso contrario false
      */
