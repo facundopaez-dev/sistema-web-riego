@@ -236,7 +236,7 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
-    <!-- Carga la tabla USER_OPTION -->
+    <!-- Carga la tabla PARCEL_OPTION -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
       userid="${DERBY_USER}"
@@ -458,7 +458,7 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
-    <!-- Carga la tabla USER_OPTION -->
+    <!-- Carga la tabla PARCEL_OPTION -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
       userid="${DERBY_USER}"
@@ -559,7 +559,7 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
-    <!-- Carga la tabla USER_OPTION -->
+    <!-- Carga la tabla PARCEL_OPTION -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
       userid="${DERBY_USER}"
@@ -682,7 +682,7 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
-    <!-- Carga la tabla USER_OPTION -->
+    <!-- Carga la tabla PARCEL_OPTION -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
       userid="${DERBY_USER}"
@@ -805,7 +805,7 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
-    <!-- Carga la tabla USER_OPTION -->
+    <!-- Carga la tabla PARCEL_OPTION -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
       userid="${DERBY_USER}"
@@ -928,7 +928,7 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
-    <!-- Carga la tabla USER_OPTION -->
+    <!-- Carga la tabla PARCEL_OPTION -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
       userid="${DERBY_USER}"
@@ -1051,7 +1051,7 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
-    <!-- Carga la tabla USER_OPTION -->
+    <!-- Carga la tabla PARCEL_OPTION -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
       userid="${DERBY_USER}"
@@ -1186,7 +1186,7 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
-    <!-- Carga la tabla USER_OPTION -->
+    <!-- Carga la tabla PARCEL_OPTION -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
       userid="${DERBY_USER}"
@@ -1249,7 +1249,7 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
-    <!-- Carga la tabla USER_OPTION -->
+    <!-- Carga la tabla PARCEL_OPTION -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
       userid="${DERBY_USER}"
@@ -1384,7 +1384,7 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
-    <!-- Carga la tabla USER_OPTION -->
+    <!-- Carga la tabla PARCEL_OPTION -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
       userid="${DERBY_USER}"
@@ -1507,7 +1507,7 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
-    <!-- Carga la tabla USER_OPTION -->
+    <!-- Carga la tabla PARCEL_OPTION -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
       userid="${DERBY_USER}"
@@ -1630,7 +1630,7 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
-    <!-- Carga la tabla USER_OPTION -->
+    <!-- Carga la tabla PARCEL_OPTION -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
       userid="${DERBY_USER}"
@@ -1765,7 +1765,7 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
-    <!-- Carga la tabla USER_OPTION -->
+    <!-- Carga la tabla PARCEL_OPTION -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
       userid="${DERBY_USER}"
