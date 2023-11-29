@@ -768,8 +768,8 @@ public class RegionRestServlet {
         Region modifiedRegion = mapper.readValue(json, Region.class);
 
         /*
-         * Si el nombre de la region a crear NO esta definido, la
-         * aplicacion del lado servidor retorna el mensaje HTTP
+         * Si el nombre de la region a modificar NO esta definido,
+         * la aplicacion del lado servidor retorna el mensaje HTTP
          * 400 (Bad request) junto con el mensaje "El nombre de
          * la region debe estar definido" y no se realiza la
          * operacion solicitada
