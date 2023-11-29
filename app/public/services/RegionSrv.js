@@ -33,7 +33,6 @@ app.service(
                     });
             }
 
-
             this.create = function (data, callback) {
                 $http.post("rest/regions", data)
                     .then(
