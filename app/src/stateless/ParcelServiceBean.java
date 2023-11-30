@@ -199,12 +199,13 @@ public class ParcelServiceBean {
 
   /**
    * Retorna las parcelas de un usuario que tienen un nombre que
-   * coincide con el nombre de parcela dado
+   * coincide con el nombre de parcela dado esten activas o inactivas
    * 
    * @param parcelName
    * @return referencia a un objeto de tipo Collection que contiene
    * todas las parcelas del usuario con el ID dado que tienen un
-   * nombre que coincide con el nombre de parcela dado
+   * nombre que coincide con el nombre de parcela dado esten activas
+   * o inactivas
    */
   public Collection<Parcel> findByName(int userId, String parcelName) {
     StringBuffer queryStr = new StringBuffer("SELECT p FROM Parcel p");
