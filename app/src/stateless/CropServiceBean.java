@@ -102,6 +102,7 @@ public class CropServiceBean {
       givenCrop.setInitialKc(modifiedCrop.getInitialKc());
       givenCrop.setMiddleKc(modifiedCrop.getMiddleKc());
       givenCrop.setFinalKc(modifiedCrop.getFinalKc());
+      givenCrop.setLifeCycle(modifiedCrop.getLifeCycle());
       givenCrop.setActive(modifiedCrop.getActive());
       givenCrop.setPlantingStartMonth(modifiedCrop.getPlantingStartMonth());
       givenCrop.setEndPlantingMonth(modifiedCrop.getEndPlantingMonth());
@@ -255,6 +256,15 @@ public class CropServiceBean {
     } // End if
 
     return false;
+  }
+
+  /**
+   * @param crop
+   * @return entero que representa el ciclo de vida (dias)
+   * de un cultivo
+   */
+  public int calculateLifeCycle(Crop crop) {
+    return (crop.getInitialStage() + crop.getDevelopmentStage() + crop.getMiddleStage() + crop.getFinalStage());
   }
 
   public Crop find(int id) {

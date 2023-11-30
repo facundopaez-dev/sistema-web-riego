@@ -622,6 +622,13 @@ public class CropRestServlet {
     }
 
     /*
+     * El ciclo de vida (dias) de un cultivo es la sumatoria
+     * de su etapa inicial, su etapa de desarrollo, su etapa
+     * media y su etapa final, las cuales se miden en dias
+     */
+    newCrop.setLifeCycle(cropService.calculateLifeCycle(newCrop));
+
+    /*
      * ********************************************
      * Controles sobre los coeficientes del cultivo
      * ********************************************
@@ -992,6 +999,13 @@ public class CropRestServlet {
       PersonalizedResponse personalizedResponse = new PersonalizedResponse(message);
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(personalizedResponse)).build();
     }
+
+    /*
+     * El ciclo de vida (dias) de un cultivo es la sumatoria
+     * de su etapa inicial, su etapa de desarrollo, su etapa
+     * media y su etapa final, las cuales se miden en dias
+     */
+    modifiedCrop.setLifeCycle(cropService.calculateLifeCycle(modifiedCrop));
 
     /*
      * ********************************************
