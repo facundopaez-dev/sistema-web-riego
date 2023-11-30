@@ -198,20 +198,52 @@ public class ParcelServiceBean {
   }
 
   /**
-   * Retorna las parcelas de un usuario que tienen un nombre que
-   * coincide con el nombre de parcela dado esten activas o inactivas
+   * Retorna las parcelas activas o inactivas de un usuario que
+   * tienen un nombre que coincide con el nombre de parcela dado.
+   * Este metodo es para el filtro implementado en las paginas web
+   * de lista de datos que estan asociados a parcelas activas o
+   * inactivas, como la pagina web de balances hidricos, por ejemplo.
    * 
    * @param parcelName
    * @return referencia a un objeto de tipo Collection que contiene
-   * todas las parcelas del usuario con el ID dado que tienen un
-   * nombre que coincide con el nombre de parcela dado esten activas
-   * o inactivas
+   * todas las parcelas activas o inactivas del usuario con el ID dado
+   * que tienen un nombre que coincide con el nombre de parcela dado
    */
   public Collection<Parcel> findByName(int userId, String parcelName) {
     StringBuffer queryStr = new StringBuffer("SELECT p FROM Parcel p");
 
     if (parcelName != null) {
       queryStr.append(" WHERE (p.user.id = :userId AND UPPER(p.name) LIKE :name)");
+    }
+
+    Query query = entityManager.createQuery(queryStr.toString());
+    query.setParameter("userId", userId);
+
+    if (parcelName != null) {
+      query.setParameter("name", "%" + parcelName.toUpperCase() + "%");
+    }
+
+    Collection<Parcel> operators = (Collection) query.getResultList();
+    return operators;
+  }
+
+  /**
+   * Retorna las parcelas activas de un usuario que tienen un nombre
+   * que coincide con el nombre de parcela dado. Este metodo es para
+   * el ingreso de la parcela en el formulario de creacion y modificacion
+   * de un dato asociado a una parcela, como un registro de plantacion,
+   * por ejemplo.
+   * 
+   * @param parcelName
+   * @return referencia a un objeto de tipo Collection que contiene
+   * todas las parcelas activas del usuario con el ID dado que tienen
+   * un nombre que coincide con el nombre de parcela dado
+   */
+  public Collection<Parcel> findByNameActiveParcel(int userId, String parcelName) {
+    StringBuffer queryStr = new StringBuffer("SELECT p FROM Parcel p");
+
+    if (parcelName != null) {
+      queryStr.append(" WHERE (p.user.id = :userId AND UPPER(p.name) LIKE :name AND p.active = TRUE)");
     }
 
     Query query = entityManager.createQuery(queryStr.toString());
@@ -277,21 +309,6 @@ public class ParcelServiceBean {
    */
   public Collection<Parcel> findAllActive() {
     Query query = getEntityManager().createQuery("SELECT p FROM Parcel p WHERE p.active = TRUE ORDER BY p.id");
-    return (Collection) query.getResultList();
-  }
-
-  /**
-   * Retorna las parcelas activas de un usuario
-   * 
-   * @param userId
-   * @return referencia a un objeto de tipo Collection que
-   * contiene todas las parcelas activas del usuario con
-   * el ID dado
-   */
-  public Collection<Parcel> findAllActive(int userId) {
-    Query query = getEntityManager().createQuery("SELECT p FROM Parcel p WHERE (p.user.id = :userId AND p.active = TRUE) ORDER BY p.id");
-    query.setParameter("userId", userId);
-
     return (Collection) query.getResultList();
   }
 

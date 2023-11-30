@@ -1,8 +1,9 @@
 app.controller(
   "PlantingRecordCtrl",
   ["$scope", "$location", "$route", "$routeParams", "PlantingRecordSrv", "CropSrv", "ParcelSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager",
-    "LogoutManager", "ExpirationManager", "RedirectManager", "UtilDate", function ($scope, $location, $route, $params, plantingRecordService, cropService, parcelService,
-      accessManager, errorResponseManager, authHeaderManager, logoutManager, expirationManager, redirectManager, utilDate) {
+    "LogoutManager", "ExpirationManager", "RedirectManager", "UtilDate",
+    function ($scope, $location, $route, $params, plantingRecordService, cropService, parcelService, accessManager, errorResponseManager, authHeaderManager,
+      logoutManager, expirationManager, redirectManager, utilDate) {
 
       console.log("PlantingRecordCtrl loaded with action: " + $params.action)
 
@@ -222,6 +223,16 @@ app.controller(
           return;
         }
 
+        if ($scope.data.parcel == undefined) {
+          alert(UNDEFINED_PARCEL);
+          return;
+        }
+
+        if ($scope.data.crop == undefined) {
+          alert(UNDEFINED_CROP);
+          return;
+        }
+
         plantingRecordService.modify($scope.data, function (error, data) {
           if (error) {
             console.log(error);
@@ -260,48 +271,30 @@ app.controller(
         $location.path("/home/plantingRecords");
       }
 
-      function findAllActiveCrops() {
-        cropService.findAllActive(function (error, crops) {
-          if (error) {
-            alert("Ocurrio un error: " + error);
-            return;
-          }
+      // Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
+      $scope.findByNameActiveParcel = function (parcelName) {
+        return parcelService.findByNameActiveParcel(parcelName).
+          then(function (response) {
+            var parcels = [];
+            for (var i = 0; i < response.data.length; i++) {
+              parcels.push(response.data[i]);
+            }
 
-          $scope.crops = crops;
-        })
+            return parcels;
+          });;
       }
 
-      function findAllCrops() {
-        cropService.findAll(function (error, crops) {
-          if (error) {
-            console.log("Ocurrio un error: " + error);
-            return;
-          }
+      // Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
+      $scope.findByNameActiveCrop = function (cropName) {
+        return cropService.findByNameActiveCrop(cropName).
+          then(function (response) {
+            var crops = [];
+            for (var i = 0; i < response.data.length; i++) {
+              crops.push(response.data[i]);
+            }
 
-          $scope.crops = crops;
-        })
-      }
-
-      function findAllActiveParcels() {
-        parcelService.findAllActive(function (error, parcels) {
-          if (error) {
-            alert("Ocurrio un error: " + error);
-            return;
-          }
-
-          $scope.parcels = parcels;
-        })
-      }
-
-      function findAllParcels() {
-        parcelService.findAll(function (error, parcels) {
-          if (error) {
-            console.log("Ocurrio un error: " + error);
-            return;
-          }
-
-          $scope.parcels = parcels;
-        })
+            return crops;
+          });;
       }
 
       /**
@@ -377,29 +370,8 @@ app.controller(
 
       $scope.action = $params.action;
 
-      if ($scope.action == 'new' || $scope.action == 'edit') {
-        findAllActiveParcels();
-        findAllActiveCrops();
-      }
-
       if ($scope.action == 'edit' || $scope.action == 'view') {
         find($params.id);
-      }
-
-      /*
-      En la visualizacion de un dato correspondiente a este
-      controller se debe poder visualizar la parcela y el
-      cultivo al que pertenece un dato, independientemente
-      de si la parcela y el cultivo estan activos o inactivos.
-      Para esto se deben recuperar todas las parcelas del usuario
-      y todos los cultivos registrados en la base de datos
-      subyacente de la aplicacion, tanto las parcelas activas
-      como las inactivas, y los cultivos activos como los
-      inactivos.
-      */
-      if ($scope.action == 'view') {
-        findAllParcels();
-        findAllCrops();
       }
 
     }]);

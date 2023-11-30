@@ -13,16 +13,6 @@ app.service(
 					});
 			}
 
-			this.findAllActive = function (callback) {
-				$http.get("rest/crops/actives").then(
-					function (result) {
-						callback(false, result.data);
-					},
-					function (error) {
-						callback(error);
-					});
-			}
-
 			this.find = function (id, callback) {
 				$http.get("rest/crops/" + id).then(
 					function (result) {
@@ -32,7 +22,6 @@ app.service(
 						callback(error);
 					});
 			}
-
 
 			this.create = function (data, callback) {
 				$http.post("rest/crops", data)
@@ -70,6 +59,11 @@ app.service(
 			// Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
 			this.findByName = function (name) {
 				return $http.get("rest/crops/findByName/?cropName=" + name);
+			}
+
+			// Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
+			this.findByNameActiveCrop = function (name) {
+				return $http.get("rest/crops/findByNameActiveCrop/?cropName=" + name);
 			}
 
 		}

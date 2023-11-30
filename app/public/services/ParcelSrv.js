@@ -13,16 +13,6 @@ app.service(
 					});
 			}
 
-			this.findAllActive = function (callback) {
-				$http.get("rest/parcels/actives").then(
-					function (result) {
-						callback(false, result.data);
-					},
-					function (error) {
-						callback(error);
-					});
-			}
-
 			this.searchByPage = function (search, page, cant, callback) {
 				$http.get('rest/parcels?page=' + page + '&cant=' + cant + "&search=" + JSON.stringify(search))
 					.then(function (res) {
@@ -78,6 +68,11 @@ app.service(
 			// Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
 			this.findByName = function (name) {
 				return $http.get("rest/parcels/findByName/?parcelName=" + name);
+			}
+
+			// Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
+			this.findByNameActiveParcel = function (name) {
+				return $http.get("rest/parcels/findByNameActiveParcel/?parcelName=" + name);
 			}
 
 		}

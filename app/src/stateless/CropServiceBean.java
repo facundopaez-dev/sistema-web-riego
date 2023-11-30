@@ -273,18 +273,51 @@ public class CropServiceBean {
 
   /**
    * Retorna los cultivos que tienen un nombre que coincide con el
-   * nombre dado, esten activos o inactivos (eliminados logicamente)
+   * nombre dado, esten activos o inactivos (eliminados logicamente).
+   * Este metodo es para el filtro implementado en las paginas web
+   * de lista de datos que estan asociados a cultivos activos o
+   * inactivos, como la pagina web de lista de balances hidricos,
+   * por ejemplo.
    * 
    * @param cropName
    * @return referencia a un objeto de tipo Collection que contiene
-   * todos los cultivos que tienen un nombre que coincide con el
-   * nombre dado, esten activos o inactivos (eliminados logicamente)
+   * todos los cultivos activos o inactivos (eliminados logicamente)
+   * que tienen un nombre que coincide con el nombre dado
    */
   public Collection<Crop> findByNameTypeAhead(String cropName) {
     StringBuffer queryStr = new StringBuffer("SELECT c FROM Crop c");
 
     if (cropName != null) {
       queryStr.append(" WHERE (UPPER(c.name) LIKE :name)");
+    }
+
+    Query query = entityManager.createQuery(queryStr.toString() + " ORDER BY c.name");
+
+    if (cropName != null) {
+      query.setParameter("name", "%" + cropName.toUpperCase() + "%");
+    }
+
+    Collection<Crop> operators = (Collection) query.getResultList();
+    return operators;
+  }
+
+  /**
+   * Retorna los cultivos activos que tienen un nombre que coincide
+   * con el nombre dado. Este metodo es para el ingreso del cultivo
+   * en el formulario de creacion y modificacion de un dato que
+   * esta asociado a un cultivo, como un registro de plantacion,
+   * por ejemplo.
+   * 
+   * @param cropName
+   * @return referencia a un objeto de tipo Collection que contiene
+   * todos los cultivos activos que tienen un nombre que coincide con
+   * el nombre dado
+   */
+  public Collection<Crop> findByNameActiveCrop(String cropName) {
+    StringBuffer queryStr = new StringBuffer("SELECT c FROM Crop c");
+
+    if (cropName != null) {
+      queryStr.append(" WHERE (UPPER(c.name) LIKE :name AND c.active = TRUE)");
     }
 
     Query query = entityManager.createQuery(queryStr.toString() + " ORDER BY c.name");
@@ -356,15 +389,6 @@ public class CropServiceBean {
     query.setParameter("id", id);
     query.setParameter("name", name);
 
-    return (Collection) query.getResultList();
-  }
-
-  /**
-   * @return referencia a un objeto de tipo Collection que
-   * contiene todos los cultivos activos
-   */
-  public Collection<Crop> findAllActive() {
-    Query query = getEntityManager().createQuery("SELECT c FROM Crop c WHERE c.active = TRUE ORDER BY c.id");
     return (Collection) query.getResultList();
   }
 
