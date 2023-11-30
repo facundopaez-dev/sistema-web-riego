@@ -19,7 +19,7 @@ Sesion "*" --> "1" Usuario
 RegistroRiego "*" --> "1" Cultivo
 Parcela "1" --> "1" Opcion
 Cultivo "*" --> "0..1" Region
-Cultivo "*" --> "2" Mes
+Cultivo "*" --> "0..2" Mes
 Parcela "*" --> "0..1" Suelo
 
 class Parcela {
