@@ -126,13 +126,13 @@
             <input type="date" class="form-control" id="dateUntil" ng-model="dateUntil">
 
             <!-- Campo de la parcela -->
-            <input name="parcel" type="text" ng-model="parcel" placeholder="Ej.: Puerto Madryn 1"
+            <input name="parcel" type="text" ng-model="parcel" placeholder="Parcela"
                 uib-typeahead="parcel as parcel.name for parcel in findParcel($viewValue)"
                 typeahead-loading="loadingLocations" class="form-control" typeahead-editable="false"
                 typeahead-min-lenght="3">
 
             <!-- Campo del cultivo -->
-            <input name="crop" type="text" ng-model="crop" placeholder="Ej.: Lechuga"
+            <input name="crop" type="text" ng-model="crop" placeholder="Cultivo"
                 uib-typeahead="crop as crop.name for crop in findCrop($viewValue)" typeahead-loading="loadingLocations"
                 class="form-control" typeahead-editable="false" typeahead-min-lenght="3">
 
