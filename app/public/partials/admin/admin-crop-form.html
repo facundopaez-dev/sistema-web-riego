@@ -162,7 +162,7 @@
 			</div>
 
 			<div class="form-group">
-				<label for="selectMonth">Mes inicio de siembra</label>
+				<label for="selectMonth">Mes de inicio de siembra</label>
 				<select class="form-control col-md-6" id="selectMonth" ng-model="data.plantingStartMonth"
 					data-ng-options="m as (m.name ) for m in months track by m.id" ng-disabled="action == 'view'"
 					required>
@@ -170,7 +170,7 @@
 			</div>
 
 			<div class="form-group">
-				<label for="selectMonth">Mes fin de siembra</label>
+				<label for="selectMonth">Mes de fin de siembra</label>
 				<select class="form-control col-md-6" id="selectMonth" ng-model="data.endPlantingMonth"
 					data-ng-options="m as (m.name ) for m in months track by m.id" ng-disabled="action == 'view'"
 					required>
@@ -186,7 +186,7 @@
 			</div>
 
 			<div class="form-group">
-				<label for="selectRegion">Region</label>
+				<label for="selectRegion">Región</label>
 				<select class="form-control col-md-6" id="selectRegion" ng-model="data.region"
 					data-ng-options="r as ('ID: ' + r.id + ' Nombre: ' + r.name ) for r in regions track by r.id"
 					ng-disabled="action == 'view'" required>
