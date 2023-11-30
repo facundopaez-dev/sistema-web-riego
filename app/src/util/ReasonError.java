@@ -93,7 +93,14 @@ public enum ReasonError {
   SOIL_NAME_ALREADY_USED("Nombre de suelo ya utilizado, elija otro"),
   INVALID_APPARENT_SPECIFIC_WIGHT("El peso específico aparente debe ser mayor a cero"),
   INVALID_FIELD_CAPACITY("La capacidad de campo debe ser mayor a cero"),
-  INVALID_PERMANENT_WILTING("La marchitez permanente debe ser mayor a cero");
+  INVALID_PERMANENT_WILTING("La marchitez permanente debe ser mayor a cero"),
+  INVALID_INITIAL_STAGE("La etapa inicial debe ser mayor a cero"),
+  INVALID_DEVELOPMENT_STAGE("La etapa de desarrollo debe ser mayor a cero"),
+  INVALID_MIDDLE_STAGE("La etapa media debe ser mayor a cero"),
+  INVALID_FINAL_STAGE("La etapa final debe ser mayor a cero"),
+  INVALID_INITIAL_KC("El coeficiente inicial debe ser mayor a 0.0"),
+  INVALID_MIDDLE_KC("El coeficiente medio debe ser mayor a 0.0"),
+  INVALID_FINAL_KC("El coeficiente final debe ser mayor a 0.0");
 
   private final String reason;
 

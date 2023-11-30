@@ -23,7 +23,6 @@ import stateless.CropServiceBean;
 import stateless.SecretKeyServiceBean;
 import stateless.SessionServiceBean;
 import util.ErrorResponse;
-import util.PersonalizedResponse;
 import util.ReasonError;
 import util.RequestManager;
 import utilJwt.AuthHeaderManager;
@@ -581,8 +580,6 @@ public class CropRestServlet {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.TYPE_CROP_UNDEFINED))).build();
     }
 
-    String message = null;
-
     /*
      * **********************************************
      * Controles sobre las etapas de vida del cultivo
@@ -598,27 +595,19 @@ public class CropRestServlet {
      * operacion solicitada
      */
     if (newCrop.getInitialStage() <= 0) {
-      message = "La etapa inicial debe ser mayor a cero";
-      PersonalizedResponse personalizedResponse = new PersonalizedResponse(message);
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(personalizedResponse)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_INITIAL_STAGE))).build();
     }
 
     if (newCrop.getDevelopmentStage() <= 0) {
-      message = "La etapa de desarrollo debe ser mayor a cero";
-      PersonalizedResponse personalizedResponse = new PersonalizedResponse(message);
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(personalizedResponse)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_DEVELOPMENT_STAGE))).build();
     }
 
     if (newCrop.getMiddleStage() <= 0) {
-      message = "La etapa media debe ser mayor a cero";
-      PersonalizedResponse personalizedResponse = new PersonalizedResponse(message);
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(personalizedResponse)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_MIDDLE_STAGE))).build();
     }
 
     if (newCrop.getFinalStage() <= 0) {
-      message = "La etapa final debe ser mayor a cero";
-      PersonalizedResponse personalizedResponse = new PersonalizedResponse(message);
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(personalizedResponse)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_FINAL_STAGE))).build();
     }
 
     /*
@@ -643,21 +632,15 @@ public class CropRestServlet {
      * la operacion solicitada
      */
     if (newCrop.getInitialKc() <= 0.0) {
-      message = "El coeficiente inicial del cultivo debe ser mayor a 0.0";
-      PersonalizedResponse personalizedResponse = new PersonalizedResponse(message);
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(personalizedResponse)).build();      
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_INITIAL_KC))).build();      
     }
 
     if (newCrop.getMiddleKc() <= 0.0) {
-      message = "El coeficiente medio del cultivo debe ser mayor a 0.0";
-      PersonalizedResponse personalizedResponse = new PersonalizedResponse(message);
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(personalizedResponse)).build();      
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_MIDDLE_KC))).build();      
     }
 
     if (newCrop.getFinalKc() <= 0.0) {
-      message = "El coeficiente final del cultivo debe ser mayor a 0.0";
-      PersonalizedResponse personalizedResponse = new PersonalizedResponse(message);
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(personalizedResponse)).build();      
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_FINAL_KC))).build();      
     }
 
     /*
@@ -960,8 +943,6 @@ public class CropRestServlet {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.TYPE_CROP_UNDEFINED))).build();
     }
 
-    String message = null;
-
     /*
      * **********************************************
      * Controles sobre las etapas de vida del cultivo
@@ -977,27 +958,19 @@ public class CropRestServlet {
      * operacion solicitada
      */
     if (modifiedCrop.getInitialStage() <= 0) {
-      message = "La etapa inicial debe ser mayor a cero";
-      PersonalizedResponse personalizedResponse = new PersonalizedResponse(message);
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(personalizedResponse)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_INITIAL_STAGE))).build();
     }
 
     if (modifiedCrop.getDevelopmentStage() <= 0) {
-      message = "La etapa de desarrollo debe ser mayor a cero";
-      PersonalizedResponse personalizedResponse = new PersonalizedResponse(message);
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(personalizedResponse)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_DEVELOPMENT_STAGE))).build();
     }
 
     if (modifiedCrop.getMiddleStage() <= 0) {
-      message = "La etapa media debe ser mayor a cero";
-      PersonalizedResponse personalizedResponse = new PersonalizedResponse(message);
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(personalizedResponse)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_MIDDLE_STAGE))).build();
     }
 
     if (modifiedCrop.getFinalStage() <= 0) {
-      message = "La etapa final debe ser mayor a cero";
-      PersonalizedResponse personalizedResponse = new PersonalizedResponse(message);
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(personalizedResponse)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_FINAL_STAGE))).build();
     }
 
     /*
@@ -1022,21 +995,15 @@ public class CropRestServlet {
      * la operacion solicitada
      */
     if (modifiedCrop.getInitialKc() <= 0.0) {
-      message = "El coeficiente inicial del cultivo debe ser mayor a 0.0";
-      PersonalizedResponse personalizedResponse = new PersonalizedResponse(message);
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(personalizedResponse)).build();      
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_INITIAL_KC))).build();      
     }
 
     if (modifiedCrop.getMiddleKc() <= 0.0) {
-      message = "El coeficiente medio del cultivo debe ser mayor a 0.0";
-      PersonalizedResponse personalizedResponse = new PersonalizedResponse(message);
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(personalizedResponse)).build();      
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_MIDDLE_KC))).build();      
     }
 
     if (modifiedCrop.getFinalKc() <= 0.0) {
-      message = "El coeficiente final del cultivo debe ser mayor a 0.0";
-      PersonalizedResponse personalizedResponse = new PersonalizedResponse(message);
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(personalizedResponse)).build();      
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_FINAL_KC))).build();      
     }
 
     /*
