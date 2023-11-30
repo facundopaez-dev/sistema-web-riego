@@ -18,7 +18,7 @@ EnlaceRestablecimientoContraseña "*" --> "1" Usuario
 Sesion "*" --> "1" Usuario
 RegistroRiego "*" --> "1" Cultivo
 Parcela "1" --> "1" Opcion
-Cultivo "*" --> "1" Region
+Cultivo "*" --> "0..1" Region
 Cultivo "*" --> "2" Mes
 Parcela "*" --> "0..1" Suelo
 
