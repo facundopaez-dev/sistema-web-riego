@@ -603,8 +603,9 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 			redirige a la pagina web de inicio del usuario.
 
 			Este control es para el caso en el que un usuario que NO tiene permiso de
-			administrador, intenta acceder a un recurso inexistente en la base de datos
-			subyacente del sistema.
+			administrador o que tiene permiso de administrador, pero NO tiene una sesion
+			abierta como administrador, intenta acceder a un recurso inexistente en la base
+			de datos subyacente del sistema.
 
 			Cuando ocurre este caso, la aplicacion del lado servidor retorna el mensaje
 			HTTP 404 (Not found) junto con el mensaje "Recurso no encontrado". Este
