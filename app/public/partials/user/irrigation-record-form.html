@@ -154,11 +154,11 @@
 			</div>
 
 			<div class="form-group" ng-hide="action == 'new'">
-				<label for="selectCrop">Cultivo</label>
-				<select id="selectCrop" class="form-control col-md-6" ng-model="data.crop"
-					data-ng-options="c as ('ID: ' + c.id + ' Nombre: ' + c.name  ) for c in crops track by c.id"
-					ng-disabled="action == 'edit' || action == 'view'">
-				</select>
+				<label for="irrigationRecord_crop" class="col-md-2 control-label">Cultivo</label>
+				<div class="col-md-3">
+					<input type="text" class="form-control" id="irrigationRecord_crop" ng-model="data.crop.name"
+						ng-disabled="action == 'edit' || action == 'view'">
+				</div>
 			</div>
 
 			<div class="form-group">
