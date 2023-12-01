@@ -135,8 +135,8 @@ app.controller(
       }
 
       // Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
-      $scope.findSoil = function (soilName) {
-        return soilService.findByName(soilName).
+      $scope.findActiveSoilByName = function (soilName) {
+        return soilService.findActiveSoilByName(soilName).
           then(function (response) {
             var soils = [];
             for (var i = 0; i < response.data.length; i++) {

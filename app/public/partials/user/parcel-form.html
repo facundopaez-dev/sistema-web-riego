@@ -137,7 +137,7 @@
 				<label for="parcel_soil" class="col-md-2 control-label">Suelo</label>
 				<div class="col-md-3">
 					<input name="soil" type="text" ng-model="data.soil"
-						uib-typeahead="soil as soil.name for soil in findSoil($viewValue)"
+						uib-typeahead="soil as soil.name for soil in findActiveSoilByName($viewValue)"
 						typeahead-loading="loadingLocations" class="form-control" typeahead-editable="false"
 						typeahead-min-lenght="3" ng-disabled="action == 'view'">
 					<i ng-show="loadingLocations" class="glyphicon glyphicon-refresh"></i>

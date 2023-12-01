@@ -251,8 +251,8 @@ public class SoilRestServlet {
 
     // Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
     @GET
-    @Path("/findByName")
-    public Response findByName(@Context HttpHeaders request, @QueryParam("soilName") String soilName) throws IOException {
+    @Path("/findActiveSoilByName")
+    public Response findActiveSoilByName(@Context HttpHeaders request, @QueryParam("soilName") String soilName) throws IOException {
         Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
 
         /*
@@ -338,7 +338,7 @@ public class SoilRestServlet {
          * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
          * por el cliente
          */
-        return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(soilService.findByNameActiveTypeahead(soilName))).build();
+        return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(soilService.findActiveSoilByName(soilName))).build();
     }
 
     @POST

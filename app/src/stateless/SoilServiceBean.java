@@ -119,7 +119,7 @@ public class SoilServiceBean {
      * todos los suelos activos que tienen un nombre que coincide con
      * el nombre dado
      */
-    public Collection<Soil> findByNameActiveTypeahead(String soilName) {
+    public Collection<Soil> findActiveSoilByName(String soilName) {
         StringBuffer queryStr = new StringBuffer("SELECT s FROM Soil s");
 
         if (soilName != null) {
