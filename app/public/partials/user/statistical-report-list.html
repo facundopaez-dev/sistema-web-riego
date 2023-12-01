@@ -121,7 +121,7 @@
     <div class="form-group">
       <!-- Campo de parcela -->
       <input name="parcel" type="text" ng-model="parcel" placeholder="Parcela"
-        uib-typeahead="parcel as parcel.name for parcel in findParcel($viewValue)" typeahead-loading="loadingLocations"
+        uib-typeahead="parcel as parcel.name for parcel in findParcelByName($viewValue)" typeahead-loading="loadingLocations"
         class="form-control" typeahead-editable="false" typeahead-min-lenght="3">
     </div>
     <button class="btn btn-default" ng-click="findAllByParcelName()">Filtrar</button>

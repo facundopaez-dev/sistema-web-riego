@@ -136,7 +136,7 @@ app.controller(
 			}
 
 			// Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
-			$scope.findParcel = function (parcelName) {
+			$scope.findParcelByName = function (parcelName) {
 				return parcelSrv.findByName(parcelName).
 					then(function (response) {
 						var parcels = [];

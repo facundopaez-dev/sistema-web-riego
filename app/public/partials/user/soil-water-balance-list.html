@@ -127,7 +127,7 @@
 
             <!-- Campo de la parcela -->
             <input name="parcel" type="text" ng-model="parcel" placeholder="Parcela"
-                uib-typeahead="parcel as parcel.name for parcel in findParcel($viewValue)"
+                uib-typeahead="parcel as parcel.name for parcel in findParcelByName($viewValue)"
                 typeahead-loading="loadingLocations" class="form-control" typeahead-editable="false"
                 typeahead-min-lenght="3">
 
