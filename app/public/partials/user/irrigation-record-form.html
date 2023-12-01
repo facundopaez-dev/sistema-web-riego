@@ -143,11 +143,14 @@
 			</div>
 
 			<div class="form-group">
-				<label for="selectParcel">Parcela</label>
-				<select id="selectParcel" class="form-control col-md-6" ng-model="data.parcel"
-					data-ng-options="p as ('ID: ' + p.id + ' Nombre: ' + p.name ) for p in parcels track by p.id"
-					ng-disabled="action == 'view'" required>
-				</select>
+				<label for="plantingRecord_parcel" class="col-md-2 control-label">Parcela</label>
+				<div class="col-md-3">
+					<input name="parcel" type="text" ng-model="data.parcel" placeholder="Ej.: Parcela Sierra Grande 1"
+						uib-typeahead="parcel as parcel.name for parcel in findActiveParcelByName($viewValue)"
+						typeahead-loading="loadingLocations" class="form-control" typeahead-editable="false"
+						typeahead-min-lenght="3" ng-disabled="action == 'view'">
+					<i ng-show="loadingLocations" class="glyphicon glyphicon-refresh"></i>
+				</div>
 			</div>
 
 			<div class="form-group" ng-hide="action == 'new'">

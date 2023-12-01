@@ -213,6 +213,16 @@ app.controller(
           return;
         }
 
+        /*
+        Si la parcela NO esta definida, la aplicacion muestra
+        el mensaje dado y no ejecuta la instruccion que realiza
+        la peticion HTTP correspondiente a este controller
+        */
+        if ($scope.data.parcel == undefined) {
+          alert(INDEFINITE_PARCEL);
+          return;
+        }
+
         irrigationRecordService.modify($scope.data, function (error, data) {
           if (error) {
             console.log(error);
@@ -251,26 +261,17 @@ app.controller(
         logoutManager.logout();
       }
 
-      function findAllActiveParcels() {
-        parcelService.findAllActive(function (error, parcels) {
-          if (error) {
-            console.log("Ocurrio un error: " + error);
-            return;
-          }
+      // Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
+      $scope.findActiveParcelByName = function (parcelName) {
+        return parcelService.findActiveParcelByName(parcelName).
+          then(function (response) {
+            var parcels = [];
+            for (var i = 0; i < response.data.length; i++) {
+              parcels.push(response.data[i]);
+            }
 
-          $scope.parcels = parcels;
-        })
-      }
-
-      function findAllParcels() {
-        parcelService.findAll(function (error, parcels) {
-          if (error) {
-            console.log("Ocurrio un error: " + error);
-            return;
-          }
-
-          $scope.parcels = parcels;
-        })
+            return parcels;
+          });;
       }
 
       function findAllCrops() {
@@ -286,24 +287,9 @@ app.controller(
 
       $scope.action = $params.action;
 
-      if ($scope.action == 'new' || $scope.action == 'edit') {
-        findAllActiveParcels();
-      }
-
       if ($scope.action == 'edit' || $scope.action == 'view') {
         find($params.id);
         findAllCrops();
-      }
-
-      /*
-      En la visualizacion de un registro de riego se debe poder
-      ver la parcela a la que pertenece un registro de riego
-      independientemente de si la misma esta activa o inactiva.
-      Para esto se deben recuperar todas las parcelas del usuario,
-      tanto las activas como las inactivas.
-      */
-      if ($scope.action == 'view') {
-        findAllParcels();
       }
 
     }]);
