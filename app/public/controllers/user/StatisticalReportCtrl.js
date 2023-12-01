@@ -220,45 +220,21 @@ app.controller(
 
       $scope.action = $params.action;
 
-      function findAllActiveParcels() {
-        parcelService.findAllActive(function (error, parcels) {
-          if (error) {
-            console.log("Ocurrio un error: " + error);
-            return;
-          }
+      // Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
+      $scope.findActiveParcelByName = function (parcelName) {
+        return parcelService.findActiveParcelByName(parcelName).
+          then(function (response) {
+            var parcels = [];
+            for (var i = 0; i < response.data.length; i++) {
+              parcels.push(response.data[i]);
+            }
 
-          $scope.parcels = parcels;
-        })
-      }
-
-      function findAllParcels() {
-        parcelService.findAll(function (error, parcels) {
-          if (error) {
-            console.log("Ocurrio un error: " + error);
-            return;
-          }
-
-          $scope.parcels = parcels;
-        })
-      }
-
-      if ($scope.action == 'new') {
-        findAllActiveParcels();
+            return parcels;
+          });;
       }
 
       if ($scope.action == 'view') {
         find($params.id);
-      }
-
-      /*
-      En la visualizacion de un dato correspondiente a este controller
-      se debe poder ver la parcela a la que pertenece un dato,
-      independientemente de si esta activa o inactiva. Para esto
-      se deben recuperar todas las parcelas del usuario, tanto las
-      activas como las inactivas.
-      */
-      if ($scope.action == 'view') {
-        findAllParcels();
       }
 
     }]);
