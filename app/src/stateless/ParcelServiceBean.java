@@ -239,7 +239,7 @@ public class ParcelServiceBean {
    * todas las parcelas activas del usuario con el ID dado que tienen
    * un nombre que coincide con el nombre de parcela dado
    */
-  public Collection<Parcel> findByNameActiveParcel(int userId, String parcelName) {
+  public Collection<Parcel> findActiveParcelByName(int userId, String parcelName) {
     StringBuffer queryStr = new StringBuffer("SELECT p FROM Parcel p");
 
     if (parcelName != null) {

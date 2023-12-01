@@ -272,8 +272,8 @@ app.controller(
       }
 
       // Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
-      $scope.findByNameActiveParcel = function (parcelName) {
-        return parcelService.findByNameActiveParcel(parcelName).
+      $scope.findActiveParcelByName = function (parcelName) {
+        return parcelService.findActiveParcelByName(parcelName).
           then(function (response) {
             var parcels = [];
             for (var i = 0; i < response.data.length; i++) {

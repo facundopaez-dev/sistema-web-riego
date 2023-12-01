@@ -71,8 +71,8 @@ app.service(
 			}
 
 			// Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
-			this.findByNameActiveParcel = function (name) {
-				return $http.get("rest/parcels/findByNameActiveParcel/?parcelName=" + name);
+			this.findActiveParcelByName = function (name) {
+				return $http.get("rest/parcels/findActiveParcelByName/?parcelName=" + name);
 			}
 
 		}

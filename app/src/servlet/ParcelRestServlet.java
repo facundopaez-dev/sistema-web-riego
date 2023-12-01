@@ -243,8 +243,8 @@ public class ParcelRestServlet {
    * plantacion, por ejemplo.
    */
   @GET
-  @Path("/findByNameActiveParcel")
-  public Response findByNameActiveParcel(@Context HttpHeaders request, @QueryParam("parcelName") String parcelName) throws IOException {
+  @Path("/findActiveParcelByName")
+  public Response findActiveParcelByName(@Context HttpHeaders request, @QueryParam("parcelName") String parcelName) throws IOException {
     Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
 
     /*
@@ -330,7 +330,7 @@ public class ParcelRestServlet {
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
      * por el cliente
      */
-    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(parcelService.findByNameActiveParcel(userId, parcelName))).build();
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(parcelService.findActiveParcelByName(userId, parcelName))).build();
   }
 
   @GET
