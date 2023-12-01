@@ -437,11 +437,11 @@ public class ClimateRecordRestServlet {
      * esta vacio, significa que el formulario del dato correspondiente
      * a esta clase, esta vacio. Por lo tanto, la aplicacion del
      * lado servidor retorna el mensaje HTTP 400 (Bad request)
-     * junto con el mensaje "Debe completar todos los campos
-     * del formulario" y no se realiza la operacion solicitada
+     * junto con el mensaje "Debe proporcionar todos los datos
+     * requeridos" y no se realiza la operacion solicitada
      */
     if (json.isEmpty()) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EMPTY_FORM))).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EMPTY_DATA))).build();
     }
 
     ClimateRecord newClimateRecord = mapper.readValue(json, ClimateRecord.class);
@@ -681,11 +681,11 @@ public class ClimateRecordRestServlet {
      * esta vacio, significa que el formulario del dato correspondiente
      * a esta clase, esta vacio. Por lo tanto, la aplicacion del
      * lado servidor retorna el mensaje HTTP 400 (Bad request)
-     * junto con el mensaje "Debe completar todos los campos
-     * del formulario" y no se realiza la operacion solicitada
+     * junto con el mensaje "Debe proporcionar todos los datos
+     * requeridos" y no se realiza la operacion solicitada
      */
     if (json.isEmpty()) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EMPTY_FORM))).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EMPTY_DATA))).build();
     }
 
     ClimateRecord modifiedClimateRecord = mapper.readValue(json, ClimateRecord.class);

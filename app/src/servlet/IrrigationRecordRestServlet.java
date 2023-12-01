@@ -450,16 +450,16 @@ public class IrrigationRecordRestServlet {
     }
 
     /*
-     * Si el objeto de tipo String referenciado por la referencia
-     * contenida en la variable de tipo por referencia json de tipo
-     * String, esta vacio, significa que el formulario correspondiente
-     * a este metodo REST esta vacio (es decir, sus campos estan vacios).
-     * Por lo tanto, la aplicacion del lado servidor retorna el mensaje
-     * HTTP 400 (Bad request) junto con el mensaje "Debe completar todos
-     * los campos del formulario" y no se realiza la operacion solicitada
+     * Si el objeto correspondiente a la referencia contenida
+     * en la variable de tipo por referencia de tipo String json,
+     * esta vacio, significa que el formulario del dato correspondiente
+     * a esta clase, esta vacio. Por lo tanto, la aplicacion del
+     * lado servidor retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "Debe proporcionar todos los datos
+     * requeridos" y no se realiza la operacion solicitada
      */
     if (json.isEmpty()) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EMPTY_FORM))).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EMPTY_DATA))).build();
     }
 
     IrrigationRecord newIrrigationRecord = mapper.readValue(json, IrrigationRecord.class);
@@ -649,16 +649,16 @@ public class IrrigationRecordRestServlet {
     }
 
     /*
-     * Si el objeto de tipo String referenciado por la referencia
-     * contenida en la variable de tipo por referencia json de tipo
-     * String, esta vacio, significa que el formulario correspondiente
-     * a este metodo REST esta vacio (es decir, sus campos estan vacios).
-     * Por lo tanto, la aplicacion del lado servidor retorna el mensaje
-     * HTTP 400 (Bad request) junto con el mensaje "Debe completar todos
-     * los campos del formulario" y no se realiza la operacion solicitada
+     * Si el objeto correspondiente a la referencia contenida
+     * en la variable de tipo por referencia de tipo String json,
+     * esta vacio, significa que el formulario del dato correspondiente
+     * a esta clase, esta vacio. Por lo tanto, la aplicacion del
+     * lado servidor retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "Debe proporcionar todos los datos
+     * requeridos" y no se realiza la operacion solicitada
      */
     if (json.isEmpty()) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EMPTY_FORM))).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EMPTY_DATA))).build();
     }
 
     IrrigationRecord modifiedIrrigationRecord = mapper.readValue(json, IrrigationRecord.class);
@@ -952,16 +952,16 @@ public class IrrigationRecordRestServlet {
     }
 
     /*
-     * Si el objeto de tipo String referenciado por la referencia
-     * contenida en la variable de tipo por referencia json de tipo
-     * String, esta vacio, significa que el formulario correspondiente
-     * a este metodo REST esta vacio (es decir, sus campos estan vacios).
-     * Por lo tanto, la aplicacion del lado servidor retorna el mensaje
-     * HTTP 400 (Bad request) junto con el mensaje "Debe completar todos
-     * los campos del formulario" y no se realiza la operacion solicitada
+     * Si el objeto correspondiente a la referencia contenida
+     * en la variable de tipo por referencia de tipo String json,
+     * esta vacio, significa que el formulario del dato correspondiente
+     * a esta clase, esta vacio. Por lo tanto, la aplicacion del
+     * lado servidor retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "Debe proporcionar todos los datos
+     * requeridos" y no se realiza la operacion solicitada
      */
     if (json.isEmpty()) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EMPTY_FORM))).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EMPTY_DATA))).build();
     }
 
     IrrigationWaterNeedFormData irrigationWaterNeedFormData = mapper.readValue(json, IrrigationWaterNeedFormData.class);

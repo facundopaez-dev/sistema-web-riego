@@ -35,7 +35,7 @@ public enum ReasonError {
   MALFORMED_EMAIL("La dirección de correo electrónico no es válida"),
   MALFORMED_PASSWORD("La contraseña debe tener como mínimo 8 caracteres de longitud, una letra minúscula, una letra mayúscula y un número de 0 a 9, con o sin caracteres especiales"),
   INCORRECTLY_CONFIRMED_PASSWORD("La confirmación de la contraseña no es igual a la contraseña ingresada"),
-  EMPTY_FORM("Debe completar todos los campos del formulario"),
+  EMPTY_DATA("Debe proporcionar todos los datos requeridos"),
   NEW_PASSWORD_INCORRECTLY_CONFIRMED("La confirmación de la nueva contraseña no es igual a la nueva contraseña ingresada"),
   INCORRECT_PASSWORD("Contraseña incorrecta"),
   UNDEFINED_NEW_PASSWORD("La nueva contraseña debe estar definida"),

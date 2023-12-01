@@ -529,20 +529,17 @@ public class ParcelRestServlet {
       return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
     }
 
-    /*
-     * Si el objeto de tipo String referenciado por la
-     * referencia contenida en la variable de tipo por
-     * referencia json de tipo String, esta vacio,
-     * significa que el usuario intento registrar una
-     * parcela con los campos vacios del formulario de
-     * registro. Por lo tanto, la aplicacion del lado
-     * servidor retorna el mensaje HTTP 400 (Bad request)
-     * junto con el mensaje "Debe completar todos los
-     * campos del formulario" y no se realiza la operacion
-     * solicitada
+    /* 
+     * Si el objeto correspondiente a la referencia contenida
+     * en la variable de tipo por referencia de tipo String json,
+     * esta vacio, significa que el formulario del dato correspondiente
+     * a esta clase, esta vacio. Por lo tanto, la aplicacion del
+     * lado servidor retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "Debe proporcionar todos los datos
+     * requeridos" y no se realiza la operacion solicitada
      */
     if (json.isEmpty()) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.EMPTY_FORM)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EMPTY_DATA))).build();
     }
 
     Parcel newParcel = mapper.readValue(json, Parcel.class);
@@ -839,19 +836,17 @@ public class ParcelRestServlet {
       return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
     }
 
-    /*
-     * Si el objeto de tipo String referenciado por la
-     * referencia contenida en la variable de tipo por
-     * referencia json de tipo String, esta vacio,
-     * significa que el usuario intento modificar una
-     * parcela con datos indefinidos. Por lo tanto, la
-     * aplicacion del lado servidor retorna el mensaje
-     * HTTP 400 (Bad request) junto con el mensaje "Debe
-     * completar todos los campos del formulario" y no
-     * se realiza la operacion solicitada
+    /* 
+     * Si el objeto correspondiente a la referencia contenida
+     * en la variable de tipo por referencia de tipo String json,
+     * esta vacio, significa que el formulario del dato correspondiente
+     * a esta clase, esta vacio. Por lo tanto, la aplicacion del
+     * lado servidor retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "Debe proporcionar todos los datos
+     * requeridos" y no se realiza la operacion solicitada
      */
     if (json.isEmpty()) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.EMPTY_FORM)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EMPTY_DATA))).build();
     }
 
     Parcel modifiedParcel = mapper.readValue(json, Parcel.class);
