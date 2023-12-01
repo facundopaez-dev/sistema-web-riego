@@ -133,7 +133,7 @@
 
             <!-- Campo del cultivo -->
             <input name="crop" type="text" ng-model="crop" placeholder="Cultivo"
-                uib-typeahead="crop as crop.name for crop in findCrop($viewValue)" typeahead-loading="loadingLocations"
+                uib-typeahead="crop as crop.name for crop in findCropByName($viewValue)" typeahead-loading="loadingLocations"
                 class="form-control" typeahead-editable="false" typeahead-min-lenght="3">
 
         </div>

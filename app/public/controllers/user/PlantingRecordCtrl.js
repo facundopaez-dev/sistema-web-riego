@@ -285,8 +285,8 @@ app.controller(
       }
 
       // Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
-      $scope.findByNameActiveCrop = function (cropName) {
-        return cropService.findByNameActiveCrop(cropName).
+      $scope.findActiveCropByName = function (cropName) {
+        return cropService.findActiveCropByName(cropName).
           then(function (response) {
             var crops = [];
             for (var i = 0; i < response.data.length; i++) {

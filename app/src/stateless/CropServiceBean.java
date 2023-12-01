@@ -284,7 +284,7 @@ public class CropServiceBean {
    * todos los cultivos activos o inactivos (eliminados logicamente)
    * que tienen un nombre que coincide con el nombre dado
    */
-  public Collection<Crop> findByNameTypeAhead(String cropName) {
+  public Collection<Crop> findByName(String cropName) {
     StringBuffer queryStr = new StringBuffer("SELECT c FROM Crop c");
 
     if (cropName != null) {
@@ -313,7 +313,7 @@ public class CropServiceBean {
    * todos los cultivos activos que tienen un nombre que coincide con
    * el nombre dado
    */
-  public Collection<Crop> findByNameActiveCrop(String cropName) {
+  public Collection<Crop> findActiveCropByName(String cropName) {
     StringBuffer queryStr = new StringBuffer("SELECT c FROM Crop c");
 
     if (cropName != null) {
@@ -340,7 +340,7 @@ public class CropServiceBean {
    * el cultivo que tiene el nombre dado, si existe en la base
    * de datos subyacente. En caso contrario, retorna null.
    */
-  public Crop findByName(String cropName) {
+  public Crop find(String cropName) {
     Query query = getEntityManager().createQuery("SELECT c FROM Crop c WHERE UPPER(c.name) = UPPER(:cropGivenName)");
     query.setParameter("cropGivenName", cropName);
 

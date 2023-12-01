@@ -83,7 +83,7 @@ app.controller(
                     });
             }
 
-            $scope.findCrop = function (cropName) {
+            $scope.findCropByName = function (cropName) {
                 return cropSrv.findByName(cropName).
                     then(function (response) {
                         var crops = [];

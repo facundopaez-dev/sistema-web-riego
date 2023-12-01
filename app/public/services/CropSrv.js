@@ -62,8 +62,8 @@ app.service(
 			}
 
 			// Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
-			this.findByNameActiveCrop = function (name) {
-				return $http.get("rest/crops/findByNameActiveCrop/?cropName=" + name);
+			this.findActiveCropByName = function (name) {
+				return $http.get("rest/crops/findActiveCropByName/?cropName=" + name);
 			}
 
 		}

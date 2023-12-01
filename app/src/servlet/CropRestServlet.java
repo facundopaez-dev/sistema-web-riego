@@ -225,7 +225,7 @@ public class CropRestServlet {
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
      * por el cliente
      */
-    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(cropService.findByNameTypeAhead(cropName))).build();
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(cropService.findByName(cropName))).build();
   }
 
   /*
@@ -235,8 +235,8 @@ public class CropRestServlet {
    * plantacion, por ejemplo.
    */
   @GET
-  @Path("/findByNameActiveCrop")
-  public Response findByNameActiveCrop(@Context HttpHeaders request, @QueryParam("cropName") String cropName) throws IOException {
+  @Path("/findActiveCropByName")
+  public Response findActiveCropByName(@Context HttpHeaders request, @QueryParam("cropName") String cropName) throws IOException {
     Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
 
     /*
@@ -321,7 +321,7 @@ public class CropRestServlet {
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
      * por el cliente
      */
-    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(cropService.findByNameActiveCrop(cropName))).build();
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(cropService.findActiveCropByName(cropName))).build();
   }
 
   @GET
