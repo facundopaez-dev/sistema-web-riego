@@ -4,7 +4,7 @@ app.service(
 		function ($http) {
 
 			this.findAll = function (callback) {
-				$http.get("rest/typeCrops").then(
+				$http.get("rest/typesCrop").then(
 					function (result) {
 						callback(false, result.data);
 					},
@@ -14,7 +14,7 @@ app.service(
 			}
 
 			this.find = function (id, callback) {
-				$http.get("rest/typeCrops/" + id).then(
+				$http.get("rest/typesCrop/" + id).then(
 					function (result) {
 						callback(false, result.data);
 					},
@@ -24,7 +24,7 @@ app.service(
 			}
 
 			this.create = function (data, callback) {
-				$http.post("rest/typeCrops", data)
+				$http.post("rest/typesCrop", data)
 					.then(
 						function (result) {
 							callback(false, result.data);
@@ -35,7 +35,7 @@ app.service(
 			}
 
 			this.delete = function (id, callback) {
-				$http.delete("rest/typeCrops/" + id)
+				$http.delete("rest/typesCrop/" + id)
 					.then(
 						function (result) {
 							callback(false, result.data);
@@ -46,7 +46,7 @@ app.service(
 			}
 
 			this.modify = function (data, callback) {
-				$http.put("rest/typeCrops/" + data.id, data)
+				$http.put("rest/typesCrop/" + data.id, data)
 					.then(
 						function (result) {
 							callback(false, result.data);
@@ -58,7 +58,7 @@ app.service(
 
 			// Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
 			this.findActiveTypeCropByName = function (name) {
-				return $http.get("rest/typeCrops/findActiveTypeCropByName/?typeCropName=" + name);
+				return $http.get("rest/typesCrop/findActiveTypeCropByName/?typeCropName=" + name);
 			}
 
 		}

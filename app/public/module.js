@@ -168,15 +168,15 @@ app.config(['$routeProvider', function (routeprovider) {
 			controller: 'AdminPasswordChangeCtrl'
 		})
 
-		.when('/adminHome/typeCrops', {
+		.when('/adminHome/typesCrop', {
 			templateUrl: 'partials/admin/type-crop-list.html',
-			controller: 'TypeCropsCtrl'
+			controller: 'TypesCropCtrl'
 		})
-		.when('/adminHome/typeCrops/:action', {
+		.when('/adminHome/typesCrop/:action', {
 			templateUrl: 'partials/admin/type-crop-form.html',
 			controller: 'TypeCropCtrl'
 		})
-		.when('/adminHome/typeCrops/:action/:id', {
+		.when('/adminHome/typesCrop/:action/:id', {
 			templateUrl: 'partials/admin/type-crop-form.html',
 			controller: 'TypeCropCtrl'
 		})

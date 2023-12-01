@@ -82,7 +82,7 @@ app.controller(
 
       if (['new', 'edit'].indexOf($params.action) == -1) {
         alert("Acción inválida: " + $params.action);
-        $location.path("/adminHome/typeCrops");
+        $location.path("/adminHome/typesCrop");
       }
 
       function find(id) {
@@ -140,7 +140,7 @@ app.controller(
           }
 
           $scope.data = data;
-          $location.path("/adminHome/typeCrops")
+          $location.path("/adminHome/typesCrop")
         });
       }
 
@@ -183,12 +183,12 @@ app.controller(
           }
 
           $scope.data = data;
-          $location.path("/adminHome/typeCrops")
+          $location.path("/adminHome/typesCrop")
         });
       }
 
       $scope.cancel = function () {
-        $location.path("/adminHome/typeCrops");
+        $location.path("/adminHome/typesCrop");
       }
 
       $scope.logout = function () {

@@ -28,7 +28,7 @@ import util.RequestManager;
 import utilJwt.AuthHeaderManager;
 import utilJwt.JwtManager;
 
-@Path("/typeCrops")
+@Path("/typesCrop")
 public class TypeCropRestServlet {
 
   // inject a reference to the TypeCropServiceBean slsb

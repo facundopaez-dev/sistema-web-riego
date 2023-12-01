@@ -1,9 +1,9 @@
 app.controller(
-	"TypeCropsCtrl",
+	"TypesCropCtrl",
 	["$scope", "$location", "$route", "TypeCropSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
 		function ($scope, $location, $route, typeCropService, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
 
-			console.log("TypeCropsCtrl loaded...")
+			console.log("TypesCropCtrl loaded...")
 
 			/*
 			Si el usuario NO tiene una sesion abierta, se le impide el acceso a
@@ -71,7 +71,7 @@ app.controller(
 						return;
 					}
 
-					$location.path("/adminHome/typeCrops");
+					$location.path("/adminHome/typesCrop");
 					$route.reload()
 				});
 			}
