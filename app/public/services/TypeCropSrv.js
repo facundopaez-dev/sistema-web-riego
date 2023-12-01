@@ -13,16 +13,6 @@ app.service(
 					});
 			}
 
-			this.findAllActive = function (callback) {
-				$http.get("rest/typeCrops/actives").then(
-					function (result) {
-						callback(false, result.data);
-					},
-					function (error) {
-						callback(error);
-					});
-			}
-
 			this.find = function (id, callback) {
 				$http.get("rest/typeCrops/" + id).then(
 					function (result) {
@@ -65,6 +55,11 @@ app.service(
 							callback(error);
 						});
 			};
+
+			// Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
+			this.findActiveTypeCropByName = function (name) {
+				return $http.get("rest/typeCrops/findActiveTypeCropByName/?typeCropName=" + name);
+			}
 
 		}
 	]);

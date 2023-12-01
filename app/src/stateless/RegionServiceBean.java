@@ -117,6 +117,34 @@ public class RegionServiceBean {
     }
 
     /**
+     * Retorna las regiones activas que tienen un nombre que coincide
+     * con el nombre de region dado. Este metodo es para el ingreso de
+     * la region en el formulario de creacion y modificacion de un dato
+     * asociado a una region, como un cultivo, por ejemplo.
+     * 
+     * @param regionName
+     * @return referencia a un objeto de tipo Collection que contiene
+     * todas las regiones activas que tienen un nombre que coincide con
+     * el nombre de region dado
+     */
+    public Collection<Region> findActiveRegionByName(String regionName) {
+        StringBuffer queryStr = new StringBuffer("SELECT r FROM Region r");
+
+        if (regionName != null) {
+            queryStr.append(" WHERE (UPPER(r.name) LIKE :name AND r.active = TRUE)");
+        }
+
+        Query query = entityManager.createQuery(queryStr.toString());
+
+        if (regionName != null) {
+            query.setParameter("name", "%" + regionName.toUpperCase() + "%");
+        }
+
+        Collection<Region> operators = (Collection) query.getResultList();
+        return operators;
+    }
+
+    /**
      * Retorna la region que tiene el nombre dado y un ID distinto
      * al de la region del ID dado, si y solo si existe en la base
      * de datos subyacente
@@ -155,15 +183,6 @@ public class RegionServiceBean {
      */
     public Collection<Region> findAll() {
         Query query = getEntityManager().createQuery("SELECT r FROM Region r ORDER BY r.id");
-        return (Collection) query.getResultList();
-    }
-
-    /**
-     * @return referencia a un objeto de tipo Collection que
-     * contiene todos las regiones activas
-     */
-    public Collection<Region> findAllActive() {
-        Query query = getEntityManager().createQuery("SELECT r FROM Region r WHERE r.active = TRUE ORDER BY r.id");
         return (Collection) query.getResultList();
     }
 

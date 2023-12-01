@@ -82,4 +82,27 @@ public class MonthServiceBean {
     return find(monthNumber + 1);
   }
 
+  /**
+   * @param monthName
+   * @return referencia a un objeto de tipo Collection que contiene
+   * todos los meses que tienen un nombre que coincide con el nombre
+   * dado
+   */
+  public Collection<Month> findByNameTypeAhead(String monthName) {
+    StringBuffer queryStr = new StringBuffer("SELECT m FROM Month m");
+
+    if (monthName != null) {
+      queryStr.append(" WHERE (UPPER(m.name) LIKE :name)");
+    }
+
+    Query query = entityManager.createQuery(queryStr.toString());
+
+    if (monthName != null) {
+      query.setParameter("name", "%" + monthName.toUpperCase() + "%");
+    }
+
+    Collection<Month> operators = (Collection) query.getResultList();
+    return operators;
+  }
+
 }

@@ -2,8 +2,8 @@ app.controller(
   "AdminCropCtrl",
   ["$scope", "$location", "$routeParams", "CropSrv", "TypeCropSrv", "RegionSrv", "MonthSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
     "ExpirationManager", "RedirectManager",
-    function ($scope, $location, $params, cropService, typeCropSrv, regionSrv, monthSrv, accessManager, errorResponseManager, authHeaderManager, logoutManager, expirationManager,
-      redirectManager) {
+    function ($scope, $location, $params, cropService, typeCropService, regionService, monthService, accessManager, errorResponseManager, authHeaderManager, logoutManager,
+      expirationManager, redirectManager) {
 
       console.log("AdminCropCtrl loaded with action: " + $params.action)
 
@@ -467,82 +467,47 @@ app.controller(
 
       $scope.action = $params.action;
 
-      function findAllActiveRegions() {
-        regionSrv.findAllActive(function (error, regions) {
-          if (error) {
-            console.log("Ocurrio un error: " + error);
-            return;
-          }
+      // Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
+      $scope.findMonthByName = function (monthName) {
+        return monthService.findByName(monthName).
+          then(function (response) {
+            var months = [];
+            for (var i = 0; i < response.data.length; i++) {
+              months.push(response.data[i]);
+            }
 
-          $scope.regions = regions;
-        })
+            return months;
+          });;
       }
 
-      function findAllRegions() {
-        regionSrv.findAll(function (error, regions) {
-          if (error) {
-            console.log("Ocurrio un error: " + error);
-            return;
-          }
+      // Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
+      $scope.findActiveTypeCropByName = function (typeCropName) {
+        return typeCropService.findActiveTypeCropByName(typeCropName).
+          then(function (response) {
+            var typesCrop = [];
+            for (var i = 0; i < response.data.length; i++) {
+              typesCrop.push(response.data[i]);
+            }
 
-          $scope.regions = regions;
-        })
+            return typesCrop;
+          });;
       }
 
-      function findAllActiveTypeCrops() {
-        typeCropSrv.findAllActive(function (error, typeCrops) {
-          if (error) {
-            console.log("Ocurrio un error: " + error);
-            return;
-          }
+      // Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
+      $scope.findActiveRegionByName = function (regionName) {
+        return regionService.findActiveRegionByName(regionName).
+          then(function (response) {
+            var regions = [];
+            for (var i = 0; i < response.data.length; i++) {
+              regions.push(response.data[i]);
+            }
 
-          $scope.typeCrops = typeCrops;
-        })
-      }
-
-      function findAllTypeCrops() {
-        typeCropSrv.findAll(function (error, typeCrops) {
-          if (error) {
-            console.log("Ocurrio un error: " + error);
-            return;
-          }
-
-          $scope.typeCrops = typeCrops;
-        })
-      }
-
-      function findAllMonths() {
-        monthSrv.findAll(function (error, months) {
-          if (error) {
-            console.log("Ocurrio un error: " + error);
-            return;
-          }
-
-          $scope.months = months;
-        })
-      }
-
-      if ($scope.action == 'new' || $scope.action == 'edit') {
-        findAllActiveRegions();
-        findAllActiveTypeCrops();
-        findAllMonths();
+            return regions;
+          });;
       }
 
       if ($scope.action == 'edit' || $scope.action == 'view') {
         find($params.id);
-      }
-
-      /*
-      En la visualizacion de un cultivo se debe poder ver el tipo de
-      cultivo y la region a los que esta asociado, independientemente
-      de si estos elementos estan activos o inactivos. Para esto se deben
-      recuperar todos los tipos de cultivos y todas las regiones, tanto
-      los activos como los inactivos.
-      */
-      if ($scope.action == 'view') {
-        findAllRegions();
-        findAllTypeCrops();
-        findAllMonths();
       }
 
     }]);

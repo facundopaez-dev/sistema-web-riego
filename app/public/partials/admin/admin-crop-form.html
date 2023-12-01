@@ -155,42 +155,54 @@
 			</div>
 
 			<div class="form-group">
-				<label for="crop_active" class="col-md-2 control-label">Activo</label>
+				<label for="planting_start_month" class="col-md-2 control-label">Mes de inicio de siembra</label>
 				<div class="col-md-3">
-					<input type="checkbox" id="crop_active" ng-model="data.active" ng-disabled="action == 'view'">
+					<input name="plantingStartMonth" type="text" ng-model="data.plantingStartMonth"
+						uib-typeahead="plantingStartMonth as plantingStartMonth.name for plantingStartMonth in findMonthByName($viewValue)"
+						typeahead-loading="loadingLocations" class="form-control" typeahead-editable="false"
+						typeahead-min-lenght="3" ng-disabled="action == 'view'">
+					<i ng-show="loadingLocations" class="glyphicon glyphicon-refresh"></i>
 				</div>
 			</div>
 
 			<div class="form-group">
-				<label for="selectMonth">Mes de inicio de siembra</label>
-				<select class="form-control col-md-6" id="selectMonth" ng-model="data.plantingStartMonth"
-					data-ng-options="m as (m.name ) for m in months track by m.id" ng-disabled="action == 'view'"
-					required>
-				</select>
+				<label for="end_planting_month" class="col-md-2 control-label">Mes de fin de siembra</label>
+				<div class="col-md-3">
+					<input name="endPlantingMonth" type="text" ng-model="data.endPlantingMonth"
+						uib-typeahead="endPlantingMonth as endPlantingMonth.name for endPlantingMonth in findMonthByName($viewValue)"
+						typeahead-loading="loadingLocations" class="form-control" typeahead-editable="false"
+						typeahead-min-lenght="3" ng-disabled="action == 'view'">
+					<i ng-show="loadingLocations" class="glyphicon glyphicon-refresh"></i>
+				</div>
 			</div>
 
 			<div class="form-group">
-				<label for="selectMonth">Mes de fin de siembra</label>
-				<select class="form-control col-md-6" id="selectMonth" ng-model="data.endPlantingMonth"
-					data-ng-options="m as (m.name ) for m in months track by m.id" ng-disabled="action == 'view'"
-					required>
-				</select>
+				<label for="type_crop" class="col-md-2 control-label">Tipo de cultivo</label>
+				<div class="col-md-3">
+					<input name="typeCrop" type="text" ng-model="data.typeCrop" placeholder="Ej.: Hortaliza"
+						uib-typeahead="typeCrop as typeCrop.name for typeCrop in findActiveTypeCropByName($viewValue)"
+						typeahead-loading="loadingLocations" class="form-control" typeahead-editable="false"
+						typeahead-min-lenght="3" ng-disabled="action == 'view'">
+					<i ng-show="loadingLocations" class="glyphicon glyphicon-refresh"></i>
+				</div>
 			</div>
 
 			<div class="form-group">
-				<label for="selectTypeCrop">Tipo de cultivo</label>
-				<select class="form-control col-md-6" id="selectTypeCrop" ng-model="data.typeCrop"
-					data-ng-options="t as ('ID: ' + t.id + ' Nombre: ' + t.name ) for t in typeCrops track by t.id"
-					ng-disabled="action == 'view'" required>
-				</select>
+				<label for="region" class="col-md-2 control-label">Región</label>
+				<div class="col-md-3">
+					<input name="region" type="text" ng-model="data.region" placeholder="Ej.: Mediterráneo"
+						uib-typeahead="region as region.name for region in findActiveRegionByName($viewValue)"
+						typeahead-loading="loadingLocations" class="form-control" typeahead-editable="false"
+						typeahead-min-lenght="3" ng-disabled="action == 'view'">
+					<i ng-show="loadingLocations" class="glyphicon glyphicon-refresh"></i>
+				</div>
 			</div>
 
 			<div class="form-group">
-				<label for="selectRegion">Región</label>
-				<select class="form-control col-md-6" id="selectRegion" ng-model="data.region"
-					data-ng-options="r as ('ID: ' + r.id + ' Nombre: ' + r.name ) for r in regions track by r.id"
-					ng-disabled="action == 'view'" required>
-				</select>
+				<label for="crop_active" class="col-md-2 control-label">Activo</label>
+				<div class="col-md-3">
+					<input type="checkbox" id="crop_active" ng-model="data.active" ng-disabled="action == 'view'">
+				</div>
 			</div>
 
 			<div class="form-group">

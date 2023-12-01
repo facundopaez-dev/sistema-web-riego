@@ -85,15 +85,6 @@ public class TypeCropServiceBean {
     return (Collection) query.getResultList();
   }
 
-  /**
-   * @return referencia a un objeto de tipo Collection que
-   * contiene todos los tipos de cultivo activos
-   */
-  public Collection<TypeCrop> findAllActive() {
-    Query query = getEntityManager().createQuery("SELECT t FROM TypeCrop t WHERE t.active = TRUE ORDER BY t.id");
-    return (Collection) query.getResultList();
-  }
-
   public TypeCrop find(int id) {
     return getEntityManager().find(TypeCrop.class, id);
   }
@@ -122,6 +113,35 @@ public class TypeCropServiceBean {
     }
 
     return typeCrop;
+  }
+
+  /**
+   * Retorna los tipos de cultivo activos que tienen un nombre que
+   * coincide con el nombre de tipo de cultivo dado. Este metodo es
+   * para el ingreso del tipo de cultivo en el formulario de creacion
+   * y modificacion de un dato asociado a un tipo de cultivo, como
+   * un cultivo, por ejemplo.
+   * 
+   * @param typeCropName
+   * @return referencia a un objeto de tipo Collection que contiene
+   * todos los tipos de cultivo activos que tienen un nombre que
+   * coincide con el nombre de tipo de cultivo dado
+   */
+  public Collection<TypeCrop> findActiveTypeCropByName(String typeCropName) {
+    StringBuffer queryStr = new StringBuffer("SELECT t FROM TypeCrop t");
+
+    if (typeCropName != null) {
+      queryStr.append(" WHERE (UPPER(t.name) LIKE :name AND t.active = TRUE)");
+    }
+
+    Query query = entityManager.createQuery(queryStr.toString());
+
+    if (typeCropName != null) {
+      query.setParameter("name", "%" + typeCropName.toUpperCase() + "%");
+    }
+
+    Collection<TypeCrop> operators = (Collection) query.getResultList();
+    return operators;
   }
 
   /**
