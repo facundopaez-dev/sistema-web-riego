@@ -97,7 +97,7 @@ app.controller(
         });
       }
 
-      const EMPTY_FORM = "Debe completar todos los campos del formulario";
+      const EMPTY_FORM = "Debe completar el formulario. Los campos de los meses y la región son opcionales (es decir, pueden estar vacíos).";
       const UNDEFINED_CROP_NAME = "El nombre del cultivo debe estar definido";
       const TYPE_CROP_UNDEFINED = "El tipo del cultivo debe estar definido";
       const INVALID_CROP_NAME = "El nombre de un cultivo debe empezar con una palabra formada únicamente por caracteres alfabéticos y puede tener más de una palabra formada únicamente por caracteres alfabéticos";

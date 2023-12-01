@@ -96,7 +96,7 @@ app.controller(
         $location.path("/home/parcels");
       }
 
-      const EMPTY_FORM = "Debe completar todos los campos del formulario";
+      const EMPTY_FORM = "Debe completar el formulario. El campo del suelo es opcional (es decir, puede estar vacío).";
       const PARCEL_NAME_UNDEFINED = "El nombre de la parcela debe estar definido";
       const INVALID_PARCEL_NAME = "El nombre de una parcela debe empezar con una palabra formada únicamente por caracteres alfabéticos y puede tener más de una palabra formada únicamente por caracteres alfanuméricos";
       const INVALID_NUMBER_OF_HECTARES = "La cantidad de hectáreas debe ser mayor a 0.0";
