@@ -85,10 +85,10 @@ public class MonthServiceBean {
   /**
    * @param monthName
    * @return referencia a un objeto de tipo Collection que contiene
-   * todos los meses que tienen un nombre que coincide con el nombre
-   * dado
+   * todos los meses que tienen un nombre que contiene parcial o
+   * totalmente un nombre dado
    */
-  public Collection<Month> findByNameTypeAhead(String monthName) {
+  public Collection<Month> findByName(String monthName) {
     StringBuffer queryStr = new StringBuffer("SELECT m FROM Month m");
 
     if (monthName != null) {

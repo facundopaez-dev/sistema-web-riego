@@ -237,7 +237,7 @@ public class MonthRestServlet {
          * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
          * por el cliente
          */
-        return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(monthService.findByNameTypeAhead(monthName))).build();
+        return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(monthService.findByName(monthName))).build();
     }
 
 }
