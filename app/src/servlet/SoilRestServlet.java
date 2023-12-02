@@ -352,7 +352,7 @@ public class SoilRestServlet {
          * NO se pudo satisfacer la solicitud, y no se realiza
          * la operacion solicitada
          */
-        if (!soilService.checkExistence(soilName)) {
+        if (!soilService.checkExistenceForSearch(soilName)) {
             return Response.status(Response.Status.NOT_FOUND).entity(new ErrorResponse(ReasonError.SOIL_NOT_FOUND, SourceUnsatisfiedResponse.SOIL)).build();
         }
 

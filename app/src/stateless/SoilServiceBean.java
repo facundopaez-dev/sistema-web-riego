@@ -76,13 +76,13 @@ public class SoilServiceBean {
      * 
      * @param soilName
      * @return referencia a un objeto de tipo Collection que
-     * contiene el suelo que tiene el nombre dado, si existe
-     * en la base de datos subyacente. En caso contrario,
-     * retorna null.
+     * contiene el suelo o los suelos que tienen un nombre que
+     * contiene parcial o totalmente un nombre dado. En caso
+     * contrario, retorna un objeto de tipo Collection vacio.
      */
     public Collection<Soil> search(String soilName) {
-        Query query = getEntityManager().createQuery("SELECT s FROM Soil s WHERE UPPER(s.name) = UPPER(:givenSoilName)");
-        query.setParameter("givenSoilName", soilName);
+        Query query = getEntityManager().createQuery("SELECT s FROM Soil s WHERE (UPPER(s.name) LIKE :givenSoilName) ORDER BY s.name");
+        query.setParameter("givenSoilName", "%" + soilName.toUpperCase() + "%");
 
         Collection<Soil> givenSoil = null;
 
@@ -235,6 +235,40 @@ public class SoilServiceBean {
         }
 
         return (findByName(name) != null);
+    }
+
+    /**
+     * Retorna true si y solo si existe en la base de datos subyacente
+     * un suelo o varios suelos que tienen un nombre que contiene
+     * parcial o totalmente un nombre dado.
+     * 
+     * @param name
+     * @return true si existe en la base de datos subyacente un suelo
+     * o varios suelos que tienen un nombre que contiene parcial o
+     * totalmente un nombre dado, false en caso contrario. Tambien
+     * retorna false en el caso en el que el argumento tiene el valor
+     * null.
+     */
+    public boolean checkExistenceForSearch(String name) {
+        /*
+         * Si el nombre del suelo tiene el valor null, se retorna
+         * false, ya que realizar la busqueda de un suelo con un
+         * nombre con este valor es similar a buscar un suelo
+         * inexistente en la base de datos subyacente.
+         * 
+         * Con este control se evita realizar una consulta a la base
+         * de datos comparando el nombre de un suelo con el valor null.
+         * Si no se realiza este control y se realiza esta consulta a
+         * la base de datos, ocurre la excepcion SQLSyntaxErrorException,
+         * debido a que la comparacion de un atributo con el valor
+         * null incumple la sintaxis del proveedor del motor de base
+         * de datos.
+         */
+        if (name == null) {
+            return false;
+        }
+
+        return (!search(name).isEmpty());
     }
 
     /**
