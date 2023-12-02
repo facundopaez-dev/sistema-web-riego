@@ -232,6 +232,7 @@ public class ParcelServiceBean {
    * de lista de datos que estan asociados a parcelas activas o
    * inactivas, como la pagina web de balances hidricos, por ejemplo.
    * 
+   * @param userId
    * @param parcelName
    * @return referencia a un objeto de tipo Collection que contiene
    * todas las parcelas activas o inactivas del usuario con el ID dado
@@ -262,6 +263,7 @@ public class ParcelServiceBean {
    * de un dato asociado a una parcela, como un registro de plantacion,
    * por ejemplo.
    * 
+   * @param userId
    * @param parcelName
    * @return referencia a un objeto de tipo Collection que contiene
    * todas las parcelas activas del usuario con el ID dado que tienen
