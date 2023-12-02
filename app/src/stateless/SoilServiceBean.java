@@ -81,8 +81,8 @@ public class SoilServiceBean {
      * contrario, retorna un objeto de tipo Collection vacio.
      */
     public Collection<Soil> search(String soilName) {
-        Query query = getEntityManager().createQuery("SELECT s FROM Soil s WHERE (UPPER(s.name) LIKE :givenSoilName) ORDER BY s.name");
-        query.setParameter("givenSoilName", "%" + soilName.toUpperCase() + "%");
+        Query query = getEntityManager().createQuery("SELECT s FROM Soil s WHERE (UPPER(s.name) LIKE :givenNameSoil) ORDER BY s.name");
+        query.setParameter("givenNameSoil", "%" + soilName.toUpperCase() + "%");
 
         Collection<Soil> givenSoil = null;
 
