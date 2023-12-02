@@ -669,7 +669,7 @@ public class ParcelRestServlet {
      * operacion solicitada
      */
     if (newParcel.getName() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.PARCEL_NAME_UNDEFINED)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_PARCEL_NAME)).build();
     }
 
     /*
@@ -976,7 +976,7 @@ public class ParcelRestServlet {
      * operacion solicitada
      */
     if (modifiedParcel.getName() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.PARCEL_NAME_UNDEFINED)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_PARCEL_NAME)).build();
     }
 
     /*
