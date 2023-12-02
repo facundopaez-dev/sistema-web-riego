@@ -40,6 +40,8 @@ public class CropRestServlet {
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
 
+  private final String UNDEFINED_VALUE = "undefined";
+
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response findAll(@Context HttpHeaders request) throws IOException {
@@ -211,6 +213,17 @@ public class CropRestServlet {
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
       return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+    }
+
+    /*
+     * Si el nombre del dato correspondiente a esta clase NO
+     * esta definido, la aplicacion del lado servidor retorna
+     * el mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "El <dato> debe estar definido" y no se realiza la
+     * operacion solicitada
+     */
+    if (cropName == null || cropName.equals(UNDEFINED_VALUE)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INDEFINITE_CROP)).build();
     }
 
     /*
