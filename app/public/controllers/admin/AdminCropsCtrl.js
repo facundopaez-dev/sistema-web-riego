@@ -112,6 +112,7 @@ app.controller(
 				cropService.search($scope.cropName, function (error, data) {
 					if (error) {
 						console.log(error);
+						$scope.cropName = undefined;
 						errorResponseManager.checkSearchResponse(error);
 						return;
 					}
