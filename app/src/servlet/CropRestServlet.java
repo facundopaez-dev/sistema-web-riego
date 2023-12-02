@@ -337,6 +337,17 @@ public class CropRestServlet {
     }
 
     /*
+     * Si el nombre del dato correspondiente a esta clase NO
+     * esta definido, la aplicacion del lado servidor retorna
+     * el mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "El nombre de <dato> debe estar definido" y no se realiza
+     * la operacion solicitada
+     */
+    if (cropName == null || cropName.equals(UNDEFINED_VALUE)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_CROP_NAME)).build();
+    }
+
+    /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados

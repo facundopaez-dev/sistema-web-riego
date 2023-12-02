@@ -106,7 +106,8 @@ public enum ReasonError {
   REGION_NOT_FOUND("Región inexistente"),
   PARCEL_NOT_FOUND("Parcela inexistente"),
   TYPE_CROP_NOT_FOUND("Tipo de cultivo inexistente"),
-  UNDEFINED_TYPE_CROP_NAME("El nombre del tipo de cultivo debe estar definido");
+  UNDEFINED_TYPE_CROP_NAME("El nombre del tipo de cultivo debe estar definido"),
+  UNDEFINED_MONTH_NAME("El nombre del mes debe estar definido");
 
   private final String reason;
 
