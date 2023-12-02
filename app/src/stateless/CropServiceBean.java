@@ -273,13 +273,13 @@ public class CropServiceBean {
    * 
    * @param cropName
    * @return referencia a un objeto de tipo Collection que
-   * contiene el cultivo que tiene el nombre dado, si existe
-   * en la base de datos subyacente. En caso contrario,
-   * retorna null.
+   * contiene el cultivo o los cultivos que tienen un nombre
+   * que contiene parcial o totalmente un nombre dado. En caso
+   * contrario, retorna un objeto de tipo Collection vacio.
    */
   public Collection<Crop> search(String cropName) {
-    Query query = getEntityManager().createQuery("SELECT c FROM Crop c WHERE UPPER(c.name) = UPPER(:cropGivenName)");
-    query.setParameter("cropGivenName", cropName);
+    Query query = getEntityManager().createQuery("SELECT c FROM Crop c WHERE (UPPER(c.name) LIKE :cropGivenName) ORDER BY c.name");
+    query.setParameter("cropGivenName", "%" + cropName.toUpperCase() + "%");
 
     Collection<Crop> givenCrop = null;
 
@@ -470,13 +470,16 @@ public class CropServiceBean {
   }
 
   /**
-   * Retorna true si y solo si existe un cultivo con el nombre
-   * dado en la base de datos subyacente
+   * Retorna true si y solo si existe en la base de datos subyacente
+   * un cultivo o varios cultivos que tienen un nombre que contiene
+   * parcial o totalmente un nombre dado.
    * 
    * @param name
-   * @return true si existe el cultivo con el nombre dado en la base
-   * de datos subyacente, false en caso contrario. Tambien retorna
-   * false en el caso en el que el argumento tiene el valor null.
+   * @return true si existe en la base de datos subyacente un cultivo
+   * o varios cultivos que tienen un nombre que contiene parcial o
+   * totalmente un nombre dado, false en caso contrario. Tambien
+   * retorna false en el caso en el que el argumento tiene el valor
+   * null.
    */
   public boolean checkExistence(String name) {
     /*
@@ -497,7 +500,7 @@ public class CropServiceBean {
       return false;
     }
 
-    return (find(name) != null);
+    return (!search(name).isEmpty());
   }
 
   /**
