@@ -85,6 +85,31 @@ public class TypeCropServiceBean {
     return (Collection) query.getResultList();
   }
 
+  /**
+   * Este metodo es para el menu de busqueda de un tipo de
+   * cultivo en la pagina web de lista de tipos de cultivo.
+   * 
+   * @param typeCropName
+   * @return referencia a un objeto de tipo Collection que contiene
+   * el tipo de cultivo o los tipos de cultivo que tienen un nombre
+   * que contiene parcial o totalmente un nombre dado. En caso
+   * contrario, retorna un objeto de tipo Collection vacio.
+   */
+  public Collection<TypeCrop> search(String typeCropName) {
+    Query query = getEntityManager().createQuery("SELECT t FROM TypeCrop t WHERE (UPPER(t.name) LIKE :givenTypeCropName) ORDER BY t.name");
+    query.setParameter("givenTypeCropName", "%" + typeCropName.toUpperCase() + "%");
+
+    Collection<TypeCrop> givenTypeCrop = null;
+
+    try {
+      givenTypeCrop = (Collection) query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return givenTypeCrop;
+  }
+
   public TypeCrop find(int id) {
     return getEntityManager().find(TypeCrop.class, id);
   }
@@ -187,6 +212,40 @@ public class TypeCropServiceBean {
     }
 
     return (findByName(cropTypeName) != null);
+  }
+
+    /**
+     * Retorna true si y solo si existe en la base de datos subyacente
+     * un tipo de cultivo o varios tipos de cultivo que tienen un nombre
+     * que contiene parcial o totalmente un nombre dado.
+     * 
+     * @param name
+     * @return true si existe en la base de datos subyacente un tipo de
+     * cultivo o varios tipos de cultivo que tienen un nombre que contiene
+     * parcial o totalmente un nombre dado, false en caso contrario. Tambien
+     * retorna false en el caso en el que el argumento tiene el valor
+     * null.
+     */
+    public boolean checkExistenceForSearch(String name) {
+      /*
+       * Si el nombre del tipo de cultivo tiene el valor null, se retorna
+       * false, ya que realizar la busqueda de un tipo de cultivo con un
+       * nombre con este valor es similar a buscar un tipo de cultivo
+       * inexistente en la base de datos subyacente.
+       * 
+       * Con este control se evita realizar una consulta a la base
+       * de datos comparando el nombre de un tipo de cultivo con el
+       * valor null. Si no se realiza este control y se realiza esta
+       * consulta a la base de datos, ocurre la excepcion
+       * SQLSyntaxErrorException, debido a que la comparacion de un
+       * atributo con el valor null incumple la sintaxis del proveedor
+       * del motor de base de datos.
+       */
+      if (name == null) {
+          return false;
+      }
+
+      return (!search(name).isEmpty());
   }
 
   /**

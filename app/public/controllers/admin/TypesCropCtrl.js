@@ -93,5 +93,48 @@ app.controller(
 				logoutManager.logout();
 			}
 
+			const UNDEFINED_TYPE_CROP_NAME = "El nombre del tipo de cultivo debe estar definido";
+
+			$scope.searchTypeCrop = function () {
+				/*
+				Si esta propiedad de $scope tiene el valor undefined y se
+				presiona el boton "Buscar", significa que NO se ingreso un
+				nombre en el campo de busqueda para realizar la busqueda de
+				un dato correspondiente a este controller. Por lo tanto, la
+				aplicacion muestra el mensaje dado y no ejecuta la instruccion
+				que realiza la peticion HTTP correspondiente esta funcion.
+				*/
+				if ($scope.typeCropName == undefined) {
+					alert(UNDEFINED_TYPE_CROP_NAME);
+					return;
+				}
+
+				typeCropService.search($scope.typeCropName, function (error, data) {
+					if (error) {
+						console.log(error);
+						$scope.typeCropName = undefined;
+						errorResponseManager.checkSearchResponse(error);
+						return;
+					}
+
+					$scope.data = data;
+				})
+			}
+
+			/*
+			Reinicia el listado de los datos correspondientes a este controller
+			cuando se presiona el boton "Reiniciar listado". Esto significa que
+			recupera todos los datos correspondientes a este controller.
+			*/
+			$scope.reset = function () {
+				/*
+				Esta instruccion es para eliminar el contenido del campo
+				del menu de busqueda de un dato correspondientes a este
+				controller
+				*/
+				$scope.typeCropName = undefined;
+				findAll();
+			}
+
 			findAll();
 		}]);

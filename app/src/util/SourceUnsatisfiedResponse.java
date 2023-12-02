@@ -12,7 +12,8 @@ package util;
 public enum SourceUnsatisfiedResponse {
   CROP("ORIGIN_CROP"),
   SOIL("ORIGIN_SOIL"),
-  REGION("ORIGIN_REGION");
+  REGION("ORIGIN_REGION"),
+  TYPE_CROP("ORIGIN_TYPE_CROP");
 
   private final String origin;
 
