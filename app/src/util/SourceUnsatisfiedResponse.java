@@ -13,7 +13,8 @@ public enum SourceUnsatisfiedResponse {
   CROP("ORIGIN_CROP"),
   SOIL("ORIGIN_SOIL"),
   REGION("ORIGIN_REGION"),
-  TYPE_CROP("ORIGIN_TYPE_CROP");
+  TYPE_CROP("ORIGIN_TYPE_CROP"),
+  PARCEL("ORIGIN_PARCEL");
 
   private final String origin;
 

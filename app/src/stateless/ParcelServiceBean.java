@@ -107,6 +107,34 @@ public class ParcelServiceBean {
     return parcelOne.getName().equals(parcelTwo.getName());
   }
 
+  /**
+   * Este metodo es para el menu de busqueda de una parcela en
+   * la pagina web de lista de parcelas de un usuario.
+   * 
+   * @param userId
+   * @param parcelName
+   * @return referencia a un objeto de tipo Collection que
+   * contiene la parcela o las parcelas de un usuario que
+   * tienen un nombre que contiene parcial o totalmente un
+   * nombre dado. En caso contrario, retorna un objeto de
+   * tipo Collection vacio.
+   */
+  public Collection<Parcel> search(int userId, String parcelName) {
+    Query query = getEntityManager().createQuery("SELECT p FROM Parcel p WHERE (p.user.id = :givenUserId AND UPPER(p.name) LIKE :givenParcelName) ORDER BY p.name");
+    query.setParameter("givenUserId", userId);
+    query.setParameter("givenParcelName", "%" + parcelName.toUpperCase() + "%");
+
+    Collection<Parcel> givenParcel = null;
+
+    try {
+      givenParcel = (Collection) query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return givenParcel;
+  }
+
   public Parcel find(int id) {
     return getEntityManager().find(Parcel.class, id);
   }
@@ -342,6 +370,40 @@ public class ParcelServiceBean {
    */
   public boolean checkExistence(int userId, String parcelName) {
     return (find(userId, parcelName) != null);
+  }
+
+  /**
+   * Retorna true si y solo si un usuario tiene una parcela o varias
+   * parcelas que tienen un nombre que contiene parcial o totalmente
+   * un nombre dado.
+   * 
+   * @param userId
+   * @param name
+   * @return true si un usuario tiene una parcela o varias parcelas
+   * que tienen un nombre que contiene parcial o totalmente un nombre
+   * dado, false en caso contrario. Tambien retorna false en el caso
+   * en el que el argumento tiene el valor null.
+   */
+  public boolean checkExistenceForSearch(int userId, String name) {
+    /*
+     * Si el nombre de la parcela tiene el valor null, se retorna
+     * false, ya que realizar la busqueda de una parcela con un
+     * nombre con este valor es similar a buscar una parcela
+     * inexistente en la base de datos subyacente.
+     * 
+     * Con este control se evita realizar una consulta a la base
+     * de datos comparando el nombre de una parcela con el valor null.
+     * Si no se realiza este control y se realiza esta consulta a
+     * la base de datos, ocurre la excepcion SQLSyntaxErrorException,
+     * debido a que la comparacion de un atributo con el valor
+     * null incumple la sintaxis del proveedor del motor de base
+     * de datos.
+     */
+    if (name == null) {
+      return false;
+    }
+
+    return (!search(userId, name).isEmpty());
   }
 
   /**

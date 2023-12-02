@@ -48,7 +48,8 @@ public enum ReasonError {
   PASSWORD_RESET_LINK_EXPIRED("Enlace de restablecimiento de contraseña expirado"),
   INACTIVE_USER_TO_RECOVER_PASSWORD("Para recuperar su contraseña primero debe activar su cuenta mediante el correo electrónico de confirmación de registro"),
   NEGATIVE_REALIZED_IRRIGATION("El riego realizado debe ser mayor o igual a cero"),
-  PARCEL_NAME_UNDEFINED("El nombre de la parcela debe estar definido"),
+  PARCEL_NAME_UNDEFINED("El nombre de la parcela debe estar definido"), // TODO: Borrarlo
+  UNDEFINED_PARCEL_NAME("El nombre de la parcela debe estar definido"),
   INVALID_NUMBER_OF_HECTARES("La cantidad de hectáreas debe ser mayor a 0.0"),
   INVALID_PARCEL_NAME("El nombre de una parcela debe empezar con una palabra formada únicamente por caracteres alfabéticos y puede tener más de una palabra formada únicamente por caracteres alfanuméricos"),
   PARCEL_NAME_ALREADY_USED("Nombre de parcela ya utilizado, elija otro"),
@@ -104,6 +105,7 @@ public enum ReasonError {
   CROP_NOT_FOUND("Cultivo inexistente"),
   SOIL_NOT_FOUND("Suelo inexistente"),
   REGION_NOT_FOUND("Región inexistente"),
+  PARCEL_NOT_FOUND("Parcela inexistente"),
   TYPE_CROP_NOT_FOUND("Tipo de cultivo inexistente"),
   UNDEFINED_TYPE_CROP_NAME("El nombre del tipo de cultivo debe estar definido");
 

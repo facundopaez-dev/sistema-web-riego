@@ -65,6 +65,16 @@ app.service(
 						});
 			}
 
+			this.search = function (name, callback) {
+				$http.get("rest/parcels/search/?parcelName=" + name).then(
+					function (result) {
+						callback(false, result.data);
+					},
+					function (error) {
+						callback(error);
+					});
+			}
+
 			// Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
 			this.findByName = function (name) {
 				return $http.get("rest/parcels/findByName/?parcelName=" + name);

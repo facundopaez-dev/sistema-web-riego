@@ -426,6 +426,7 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 	const USER_CROP_LIST_WEB_PAGE_ROUTE = "/home/crops";
 	const ADMIN_CROP_LIST_WEB_PAGE_ROUTE = "/adminHome/crops";
 	const USER_SOIL_LIST_WEB_PAGE_ROUTE = "/home/soils";
+	const USER_PARCEL_LIST_WEB_PAGE_ROUTE = "/home/parcels";
 	const ADMIN_SOIL_LIST_WEB_PAGE_ROUTE = "/adminHome/soils";
 	const ADMIN_REGION_LIST_WEB_PAGE_ROUTE = "/adminHome/regions";
 	const ADMIN_TYPES_CROP_LIST_WEB_PAGE_ROUTE = "/adminHome/typesCrop";
@@ -444,6 +445,7 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 	const SOIL = "ORIGIN_SOIL";
 	const REGION = "ORIGIN_REGION";
 	const TYPE_CROP = "ORIGIN_TYPE_CROP";
+	const PARCEL = "ORIGIN_PARCEL";
 
 	return {
 		/**
@@ -688,6 +690,15 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 			*/
 			if (error.status == NOT_FOUND && error.data.sourceUnsatisfiedResponse == SOIL && !accessManager.loggedAsAdmin()) {
 				$location.path(USER_SOIL_LIST_WEB_PAGE_ROUTE);
+				return;
+			}
+
+			/*
+			Si el usuario busca una parcela inexistente en la pagina web de lista
+			de parcelas, redirige al usuario a la pagina web de lista de parcelas
+			*/
+			if (error.status == NOT_FOUND && error.data.sourceUnsatisfiedResponse == PARCEL && !accessManager.loggedAsAdmin()) {
+				$location.path(USER_PARCEL_LIST_WEB_PAGE_ROUTE);
 				return;
 			}
 

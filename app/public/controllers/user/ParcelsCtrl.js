@@ -2,7 +2,7 @@ app.controller(
   "ParcelsCtrl",
   ["$scope", "$location", "$route", "ParcelSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
     function ($scope, $location, $route, parcelService, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
-      
+
       console.log("ParcelsCtrl loaded...")
 
       /*
@@ -102,6 +102,49 @@ app.controller(
         administrador o no.
         */
         logoutManager.logout();
+      }
+
+      const UNDEFINED_PARCEL_NAME = "El nombre de la parcela debe estar definido";
+
+      $scope.searchParcel = function () {
+        /*
+        Si esta propiedad de $scope tiene el valor undefined y se
+        presiona el boton "Buscar", significa que NO se ingreso un
+        nombre en el campo de busqueda para realizar la busqueda de
+        un dato correspondiente a este controller. Por lo tanto, la
+        aplicacion muestra el mensaje dado y no ejecuta la instruccion
+        que realiza la peticion HTTP correspondiente esta funcion.
+        */
+        if ($scope.parcelName == undefined) {
+          alert(UNDEFINED_PARCEL_NAME);
+          return;
+        }
+
+        parcelService.search($scope.parcelName, function (error, data) {
+          if (error) {
+            console.log(error);
+            $scope.parcelName = undefined;
+            errorResponseManager.checkSearchResponse(error);
+            return;
+          }
+
+          $scope.data = data;
+        })
+      }
+
+      /*
+      Reinicia el listado de los datos correspondientes a este controller
+      cuando se presiona el boton "Reiniciar listado". Esto significa que
+      recupera todos los datos correspondientes a este controller.
+      */
+      $scope.reset = function () {
+        /*
+        Esta instruccion es para eliminar el contenido del campo
+        del menu de busqueda de un dato correspondientes a este
+        controller
+        */
+        $scope.parcelName = undefined;
+        findAll();
       }
 
       findAll();
