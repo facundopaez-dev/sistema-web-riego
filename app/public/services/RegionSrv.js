@@ -56,6 +56,16 @@ app.service(
                         });
             };
 
+            this.search = function (name, callback) {
+                $http.get("rest/regions/search/?regionName=" + name).then(
+                    function (result) {
+                        callback(false, result.data);
+                    },
+                    function (error) {
+                        callback(error);
+                    });
+            }
+
             // Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
             this.findActiveRegionByName = function (name) {
                 return $http.get("rest/regions/findActiveRegionByName/?regionName=" + name);

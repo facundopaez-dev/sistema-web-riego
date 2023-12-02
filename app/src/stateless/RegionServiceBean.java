@@ -87,6 +87,31 @@ public class RegionServiceBean {
         return regionOne.getName().equals(regionTwo.getName());
     }
 
+    /**
+     * Este metodo es para el menu de busqueda de una region en
+     * la pagina web de lista de regiones.
+     * 
+     * @param regionName
+     * @return referencia a un objeto de tipo Collection que
+     * contiene la region o las regiones que tienen un nombre
+     * que contiene parcial o totalmente un nombre dado. En caso
+     * contrario, retorna un objeto de tipo Collection vacio.
+     */
+    public Collection<Region> search(String regionName) {
+        Query query = getEntityManager().createQuery("SELECT r FROM Region r WHERE (UPPER(r.name) LIKE :givenNameRegion) ORDER BY r.name");
+        query.setParameter("givenNameRegion", "%" + regionName.toUpperCase() + "%");
+
+        Collection<Region> givenRegion = null;
+
+        try {
+            givenRegion = (Collection) query.getResultList();
+        } catch (NoResultException e) {
+            e.printStackTrace();
+        }
+
+        return givenRegion;
+    }
+
     public Region find(int id) {
         return getEntityManager().find(Region.class, id);
     }
@@ -228,6 +253,40 @@ public class RegionServiceBean {
         }
 
         return (findByName(name) != null);
+    }
+
+    /**
+     * Retorna true si y solo si existe en la base de datos subyacente
+     * una region o varias regiones que tienen un nombre que contiene
+     * parcial o totalmente un nombre dado.
+     * 
+     * @param name
+     * @return true si existe en la base de datos subyacente una region
+     * o varias regiones que tienen un nombre que contiene parcial o
+     * totalmente un nombre dado, false en caso contrario. Tambien
+     * retorna false en el caso en el que el argumento tiene el valor
+     * null.
+     */
+    public boolean checkExistenceForSearch(String name) {
+        /*
+         * Si el nombre de la region tiene el valor null, se retorna
+         * false, ya que realizar la busqueda de una region con un
+         * nombre con este valor es similar a buscar una region
+         * inexistente en la base de datos subyacente.
+         * 
+         * Con este control se evita realizar una consulta a la base
+         * de datos comparando el nombre de una region con el valor null.
+         * Si no se realiza este control y se realiza esta consulta a
+         * la base de datos, ocurre la excepcion SQLSyntaxErrorException,
+         * debido a que la comparacion de un atributo con el valor
+         * null incumple la sintaxis del proveedor del motor de base
+         * de datos.
+         */
+        if (name == null) {
+            return false;
+        }
+
+        return (!search(name).isEmpty());
     }
 
     /**

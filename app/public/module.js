@@ -427,6 +427,7 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 	const ADMIN_CROP_LIST_WEB_PAGE_ROUTE = "/adminHome/crops";
 	const USER_SOIL_LIST_WEB_PAGE_ROUTE = "/home/soils";
 	const ADMIN_SOIL_LIST_WEB_PAGE_ROUTE = "/adminHome/soils";
+	const ADMIN_REGION_LIST_WEB_PAGE_ROUTE = "/adminHome/regions";
 
 	/*
 	El contenido de estas constantes debe ser igual al de las
@@ -440,6 +441,7 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 	*/
 	const CROP = "ORIGIN_CROP";
 	const SOIL = "ORIGIN_SOIL";
+	const REGION = "ORIGIN_REGION";
 
 	return {
 		/**
@@ -704,6 +706,16 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 			*/
 			if (error.status == NOT_FOUND && error.data.sourceUnsatisfiedResponse == SOIL && accessManager.loggedAsAdmin()) {
 				$location.path(ADMIN_SOIL_LIST_WEB_PAGE_ROUTE);
+				return;
+			}
+
+			/*
+			Si el administrador busca una region inexistente en la pagina web de
+			lista de regiones, redirige al administrador a la pagina web de lista
+			de regiones
+			*/
+			if (error.status == NOT_FOUND && error.data.sourceUnsatisfiedResponse == REGION && accessManager.loggedAsAdmin()) {
+				$location.path(ADMIN_REGION_LIST_WEB_PAGE_ROUTE);
 				return;
 			}
 
