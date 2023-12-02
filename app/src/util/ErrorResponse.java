@@ -14,12 +14,27 @@ public class ErrorResponse {
    */
   private String message;
 
+  /*
+   * La respuesta de error contiene la fuente en la que no
+   * se pudo satisfacer una peticion HTTP
+   */
+  private String sourceUnsatisfiedResponse;
+
   public ErrorResponse(ReasonError reasonError) {
     message = reasonError.getReason();
   }
 
+  public ErrorResponse(ReasonError reasonError, SourceUnsatisfiedResponse sourceUnsatisfiedResponse) {
+    message = reasonError.getReason();
+    this.sourceUnsatisfiedResponse = sourceUnsatisfiedResponse.getOrigin();
+  }
+
   public String getMessage() {
     return message;
+  }
+
+  public String getSourceUnsatisfiedResponse() {
+    return sourceUnsatisfiedResponse;
   }
 
 }

@@ -116,6 +116,16 @@
 	<div class="panel-heading">
 		<strong>Listado de cultivos</strong>
 	</div>
+
+	<form class="form-inline">
+		<div class="form-group">
+			<!-- Campo de cultivo -->
+			<input name="crop" type="text" ng-model="cropName" placeholder="Cultivo" class="form-control">
+		</div>
+		<button class="btn btn-default" ng-click="searchCrop()">Buscar</button>
+		<button class="btn btn-default" ng-click="reset()">Reiniciar listado</button>
+	</form>
+
 	<table class="table table-condensed table-hover">
 		<thead>
 			<tr>

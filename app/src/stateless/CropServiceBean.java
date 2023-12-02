@@ -267,6 +267,31 @@ public class CropServiceBean {
     return (crop.getInitialStage() + crop.getDevelopmentStage() + crop.getMiddleStage() + crop.getFinalStage());
   }
 
+  /**
+   * Este metodo es para el menu de busqueda de un cultivo en
+   * la pagina web de lista de cultivos.
+   * 
+   * @param cropName
+   * @return referencia a un objeto de tipo Collection que
+   * contiene el cultivo que tiene el nombre dado, si existe
+   * en la base de datos subyacente. En caso contrario,
+   * retorna null.
+   */
+  public Collection<Crop> search(String cropName) {
+    Query query = getEntityManager().createQuery("SELECT c FROM Crop c WHERE UPPER(c.name) = UPPER(:cropGivenName)");
+    query.setParameter("cropGivenName", cropName);
+
+    Collection<Crop> givenCrop = null;
+
+    try {
+      givenCrop = (Collection) query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return givenCrop;
+  }
+
   public Crop find(int id) {
     return getEntityManager().find(Crop.class, id);
   }
@@ -442,6 +467,37 @@ public class CropServiceBean {
     }
 
     return false;
+  }
+
+  /**
+   * Retorna true si y solo si existe un cultivo con el nombre
+   * dado en la base de datos subyacente
+   * 
+   * @param name
+   * @return true si existe el cultivo con el nombre dado en la base
+   * de datos subyacente, false en caso contrario. Tambien retorna
+   * false en el caso en el que el argumento tiene el valor null.
+   */
+  public boolean checkExistence(String name) {
+    /*
+     * Si el nombre del cultivo tiene el valor null, se retorna
+     * false, ya que realizar la busqueda de un cultivo con un
+     * nombre con este valor es similar a buscar un cultivo
+     * inexistente en la base de datos subyacente.
+     * 
+     * Con este control se evita realizar una consulta a la base
+     * de datos comparando el nombre de un cultivo con el valor null.
+     * Si no se realiza este control y se realiza esta consulta a
+     * la base de datos, ocurre la excepcion SQLSyntaxErrorException,
+     * debido a que la comparacion de un atributo con el valor
+     * null incumple la sintaxis del proveedor del motor de base
+     * de datos.
+     */
+    if (name == null) {
+      return false;
+    }
+
+    return (find(name) != null);
   }
 
   /**

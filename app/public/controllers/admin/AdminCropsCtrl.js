@@ -2,7 +2,7 @@ app.controller(
 	"AdminCropsCtrl",
 	["$scope", "$location", "$route", "CropSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
 		function ($scope, $location, $route, cropService, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
-			
+
 			console.log("AdminCropsCtrl loaded...")
 
 			/*
@@ -91,6 +91,47 @@ app.controller(
 				administrador o no.
 				*/
 				logoutManager.logout();
+			}
+
+			const UNDEFINED_CROP = "El cultivo debe estar definido";
+
+			$scope.searchCrop = function () {
+				/*
+				Si la propiedad crop de $scope tiene el valor undefined,
+				significa que NO se ingreso un nombre de cultivo en el campo
+				del nombre de cultivo para realizar la busqueda de un cultivo.
+				Por lo tanto, la aplicacion muestra el mensaje dado y no ejecuta
+				la instruccion que realiza la peticion HTTP correspondiente esta
+				funcion.
+				*/
+				if ($scope.cropName == undefined) {
+					alert(UNDEFINED_CROP);
+					return;
+				}
+
+				cropService.search($scope.cropName, function (error, data) {
+					if (error) {
+						console.log(error);
+						errorResponseManager.checkSearchResponse(error);
+						return;
+					}
+
+					$scope.data = data;
+				})
+			}
+
+			/*
+			Trae el listado de todos los cultivos cuando se presiona
+			el boton "Reiniciar listado"
+			*/
+			$scope.reset = function () {
+				/*
+				Esta instruccion es para eliminar el contenido del campo
+				del nombre de cultivo cuando se presiona el boton de reinicio
+				del listado de los datos correspondientes a este controller
+				*/
+				$scope.cropName = undefined;
+				findAll();
 			}
 
 			findAll();

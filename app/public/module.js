@@ -423,6 +423,20 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 	const ADMIN_HOME_ROUTE = "/adminHome";
 	const USER_LOGIN_ROUTE = "/";
 	const ADMIN_LOGIN_ROUTE = "/admin";
+	const USER_CROP_LIST_WEB_PAGE_ROUTE = "/home/crops";
+	const ADMIN_CROP_LIST_WEB_PAGE_ROUTE = "/adminHome/crops";
+
+	/*
+	El contenido de estas constantes debe ser igual al de las
+	constantes de la clase Java SourceUnsatisfiedResponse, la
+	cual se encuentra en la ruta app/src/util. De lo contrario,
+	la funcion checkSearchResponse no funcionara correctamente.
+
+	El motivo de estas constantes es realizar el correspondiente
+	direccionamiento en caso de que en una busqueda no se encuentre
+	el dato solicitado.
+	*/
+	const CROP = "ORIGIN_CROP";
 
 	return {
 		/**
@@ -632,7 +646,47 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 			if (error.status == NOT_FOUND && accessManager.loggedAsAdmin()) {
 				$location.path(ADMIN_HOME_ROUTE);
 			}
+		},
+
+		/**
+		 * Evalua la respuesta HTTP de error devuelta por la aplicacion del lado servidor
+		 * ante una peticion de busqueda.
+		 * 
+		 * Si el usuario realiza una busqueda en una pagina web de lista de algun dato y
+		 * la respuesta devuelta es el mensaje HTTP 400 (Not found), redirige al usuario
+		 * a la pagina web en la que realizo la busqueda.
+		 * 
+		 * @param {*} error este parametro es la respuesta HTTP de error devuelta por
+		 * la aplicacion del lado servidor
+		 */
+		checkSearchResponse: function (error) {
+			/*
+			Se imprime por pantalla la causa de la respuesta HTTP de error devuelta
+			por la aplicacion del lado servidor
+			*/
+			alert(error.data.message);
+
+			/*
+			Si el usuario busca un cultivo inexistente en la pagina web de lista de
+			cultivos, redirige al usuario a la pagina web de lista de cultivos
+			*/
+			if (error.status == NOT_FOUND && error.data.sourceUnsatisfiedResponse == CROP && !accessManager.loggedAsAdmin()) {
+				$location.path(USER_CROP_LIST_WEB_PAGE_ROUTE);
+				return;
+			}
+
+			/*
+			Si el administrador busca un cultivo inexistente en la pagina web de
+			lista de cultivos, redirige al administrador a la pagina web de lista
+			de cultivos
+			*/
+			if (error.status == NOT_FOUND && error.data.sourceUnsatisfiedResponse == CROP && accessManager.loggedAsAdmin()) {
+				$location.path(ADMIN_CROP_LIST_WEB_PAGE_ROUTE);
+				return;
+			}
+
 		}
+
 	}
 }]);
 
