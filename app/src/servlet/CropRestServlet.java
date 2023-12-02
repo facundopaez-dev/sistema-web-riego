@@ -230,7 +230,7 @@ public class CropRestServlet {
      * Si el dato solicitado no existe en la base de datos
      * subyacente, la aplicacion del lado servidor devuelve
      * el mensaje HTTP 404 (Not found) junto con el mensaje
-     * "<dato> no encontrado" y la fuente u origen en donde
+     * "<dato> inexistente" y la fuente u origen en donde
      * NO se pudo satisfacer la solicitud, y no se realiza
      * la operacion solicitada
      */
