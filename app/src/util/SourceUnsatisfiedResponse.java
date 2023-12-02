@@ -10,7 +10,8 @@ package util;
  * en la que NO se puede satisfacer dicha peticion es el cultivo.
  */
 public enum SourceUnsatisfiedResponse {
-  CROP("ORIGIN_CROP");
+  CROP("ORIGIN_CROP"),
+  SOIL("ORIGIN_SOIL");
 
   private final String origin;
 

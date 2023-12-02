@@ -72,6 +72,15 @@
     <div class="panel-heading">
         <strong>Listado de suelos</strong>
     </div>
+
+    <form class="form-inline">
+        <div class="form-group">
+            <input name="soil" type="text" ng-model="soilName" placeholder="Suelo" class="form-control">
+        </div>
+        <button class="btn btn-default" ng-click="searchSoil()">Buscar</button>
+        <button class="btn btn-default" ng-click="reset()">Reiniciar listado</button>
+    </form>
+
     <div class="panel-body">
         <a href="#!/adminHome/soils/new" class="btn btn-success" role="button">Nuevo suelo</a>
     </div>

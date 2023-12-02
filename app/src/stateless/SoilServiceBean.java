@@ -70,6 +70,31 @@ public class SoilServiceBean {
         return null;
     }
 
+    /**
+     * Este metodo es para el menu de busqueda de un suelo en
+     * la pagina web de lista de suelos.
+     * 
+     * @param soilName
+     * @return referencia a un objeto de tipo Collection que
+     * contiene el suelo que tiene el nombre dado, si existe
+     * en la base de datos subyacente. En caso contrario,
+     * retorna null.
+     */
+    public Collection<Soil> search(String soilName) {
+        Query query = getEntityManager().createQuery("SELECT s FROM Soil s WHERE UPPER(s.name) = UPPER(:givenSoilName)");
+        query.setParameter("givenSoilName", soilName);
+
+        Collection<Soil> givenSoil = null;
+
+        try {
+            givenSoil = (Collection) query.getResultList();
+        } catch (NoResultException e) {
+            e.printStackTrace();
+        }
+
+        return givenSoil;
+    }
+
     public Soil find(int id) {
         return getEntityManager().find(Soil.class, id);
     }

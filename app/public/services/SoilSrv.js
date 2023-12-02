@@ -56,6 +56,16 @@ app.service(
                         });
             };
 
+            this.search = function (name, callback) {
+                $http.get("rest/soils/search/?soilName=" + name).then(
+                    function (result) {
+                        callback(false, result.data);
+                    },
+                    function (error) {
+                        callback(error);
+                    });
+            }
+
             // Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
             this.findActiveSoilByName = function (name) {
                 return $http.get("rest/soils/findActiveSoilByName/?soilName=" + name);

@@ -2,7 +2,7 @@ app.controller(
 	"AdminSoilsCtrl",
 	["$scope", "$location", "$route", "SoilSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
 		function ($scope, $location, $route, soilService, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
-			
+
 			console.log("AdminSoilsCtrl loaded...")
 
 			/*
@@ -91,6 +91,48 @@ app.controller(
 				administrador o no.
 				*/
 				logoutManager.logout();
+			}
+
+			const UNDEFINED_SOIL = "El suelo debe estar definido";
+
+			$scope.searchSoil = function () {
+				/*
+				Si esta propiedad de $scope tiene el valor undefined y se
+				presiona el boton "Buscar", significa que NO se ingreso un
+				nombre en el campo de busqueda para realizar la busqueda de
+				un dato correspondiente a este controller. Por lo tanto, la
+				aplicacion muestra el mensaje dado y no ejecuta la instruccion
+				que realiza la peticion HTTP correspondiente esta funcion.
+				*/
+				if ($scope.soilName == undefined) {
+					alert(UNDEFINED_SOIL);
+					return;
+				}
+
+				soilService.search($scope.soilName, function (error, data) {
+					if (error) {
+						console.log(error);
+						$scope.soilName = undefined;
+						errorResponseManager.checkSearchResponse(error);
+						return;
+					}
+
+					$scope.data = data;
+				})
+			}
+
+			/*
+			Reinicia el listado de los datos correspondientes a este controller
+			cuando se presiona el boton "Reiniciar listado"
+			*/
+			$scope.reset = function () {
+				/*
+				Esta instruccion es para eliminar el contenido del campo
+				del menu de busqueda de un dato correspondientes a este
+				controller
+				*/
+				$scope.soilName = undefined;
+				findAll();
 			}
 
 			findAll();

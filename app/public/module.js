@@ -425,6 +425,8 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 	const ADMIN_LOGIN_ROUTE = "/admin";
 	const USER_CROP_LIST_WEB_PAGE_ROUTE = "/home/crops";
 	const ADMIN_CROP_LIST_WEB_PAGE_ROUTE = "/adminHome/crops";
+	const USER_SOIL_LIST_WEB_PAGE_ROUTE = "/home/soils";
+	const ADMIN_SOIL_LIST_WEB_PAGE_ROUTE = "/adminHome/soils";
 
 	/*
 	El contenido de estas constantes debe ser igual al de las
@@ -437,6 +439,7 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 	el dato solicitado.
 	*/
 	const CROP = "ORIGIN_CROP";
+	const SOIL = "ORIGIN_SOIL";
 
 	return {
 		/**
@@ -676,12 +679,31 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 			}
 
 			/*
+			Si el usuario busca un suelo inexistente en la pagina web de lista de
+			cultivos, redirige al usuario a la pagina web de lista de suelos
+			*/
+			if (error.status == NOT_FOUND && error.data.sourceUnsatisfiedResponse == SOIL && !accessManager.loggedAsAdmin()) {
+				$location.path(USER_SOIL_LIST_WEB_PAGE_ROUTE);
+				return;
+			}
+
+			/*
 			Si el administrador busca un cultivo inexistente en la pagina web de
 			lista de cultivos, redirige al administrador a la pagina web de lista
 			de cultivos
 			*/
 			if (error.status == NOT_FOUND && error.data.sourceUnsatisfiedResponse == CROP && accessManager.loggedAsAdmin()) {
 				$location.path(ADMIN_CROP_LIST_WEB_PAGE_ROUTE);
+				return;
+			}
+
+			/*
+			Si el administrador busca un suelo inexistente en la pagina web de
+			lista de cultivos, redirige al administrador a la pagina web de lista
+			de suelos
+			*/
+			if (error.status == NOT_FOUND && error.data.sourceUnsatisfiedResponse == SOIL && accessManager.loggedAsAdmin()) {
+				$location.path(ADMIN_SOIL_LIST_WEB_PAGE_ROUTE);
 				return;
 			}
 
