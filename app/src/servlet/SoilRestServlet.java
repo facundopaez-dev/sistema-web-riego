@@ -337,11 +337,11 @@ public class SoilRestServlet {
          * Si el nombre del dato correspondiente a esta clase NO
          * esta definido, la aplicacion del lado servidor retorna
          * el mensaje HTTP 400 (Bad request) junto con el mensaje
-         * "El <dato> debe estar definido" y no se realiza la
-         * operacion solicitada
+         * "El nombre de <dato> debe estar definido" y no se realiza
+         * la operacion solicitada
          */
         if (soilName == null || soilName.equals(UNDEFINED_VALUE)) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INDEFINITE_SOIL)).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_SOIL_NAME)).build();
         }
 
         /*

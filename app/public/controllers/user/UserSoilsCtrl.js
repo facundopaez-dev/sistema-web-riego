@@ -95,7 +95,7 @@ app.controller(
 				logoutManager.logout();
 			}
 
-			const UNDEFINED_SOIL = "El suelo debe estar definido";
+			const UNDEFINED_SOIL_NAME = "El nombre del suelo debe estar definido";
 
 			$scope.searchSoil = function () {
 				/*
@@ -107,7 +107,7 @@ app.controller(
 				que realiza la peticion HTTP correspondiente esta funcion.
 				*/
 				if ($scope.soilName == undefined) {
-					alert(UNDEFINED_SOIL);
+					alert(UNDEFINED_SOIL_NAME);
 					return;
 				}
 

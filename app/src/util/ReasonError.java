@@ -105,8 +105,6 @@ public enum ReasonError {
   SOIL_NOT_FOUND("Suelo inexistente"),
   REGION_NOT_FOUND("Región inexistente"),
   TYPE_CROP_NOT_FOUND("Tipo de cultivo inexistente"),
-  INDEFINITE_SOIL("El suelo debe estar definido"),
-  INDEFINITE_REGION("La región debe estar definida"),
   UNDEFINED_TYPE_CROP_NAME("El nombre del tipo de cultivo debe estar definido");
 
   private final String reason;

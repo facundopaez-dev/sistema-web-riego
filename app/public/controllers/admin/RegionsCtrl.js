@@ -93,7 +93,7 @@ app.controller(
 				logoutManager.logout();
 			}
 
-			const UNDEFINED_REGION = "La región debe estar definida";
+			const UNDEFINED_REGION_NAME = "El nombre de la región debe estar definido";
 
 			$scope.searchRegion = function () {
 				/*
@@ -105,7 +105,7 @@ app.controller(
 				que realiza la peticion HTTP correspondiente esta funcion.
 				*/
 				if ($scope.regionName == undefined) {
-					alert(UNDEFINED_REGION);
+					alert(UNDEFINED_REGION_NAME);
 					return;
 				}
 

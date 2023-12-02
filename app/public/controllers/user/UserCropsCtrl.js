@@ -95,7 +95,7 @@ app.controller(
 				logoutManager.logout();
 			}
 
-			const UNDEFINED_CROP = "El cultivo debe estar definido";
+			const UNDEFINED_CROP_NAME = "El nombre del cultivo debe estar definido";
 
 			$scope.searchCrop = function () {
 				/*
@@ -107,7 +107,7 @@ app.controller(
 				que realiza la peticion HTTP correspondiente esta funcion.
 				*/
 				if ($scope.cropName == undefined) {
-					alert(UNDEFINED_CROP);
+					alert(UNDEFINED_CROP_NAME);
 					return;
 				}
 
