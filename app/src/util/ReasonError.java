@@ -102,7 +102,8 @@ public enum ReasonError {
   INVALID_MIDDLE_KC("El coeficiente medio debe ser mayor a 0.0"),
   INVALID_FINAL_KC("El coeficiente final debe ser mayor a 0.0"),
   CROP_NOT_FOUND("Cultivo inexistente"),
-  SOIL_NOT_FOUND("Suelo inexistente");
+  SOIL_NOT_FOUND("Suelo inexistente"),
+  INDEFINITE_SOIL("El suelo debe estar definido");
 
   private final String reason;
 

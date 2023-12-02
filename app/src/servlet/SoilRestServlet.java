@@ -44,6 +44,7 @@ public class SoilRestServlet {
      * Expresion regular para validar el nombre de un suelo
      */
     private final String NAME_REGULAR_EXPRESSION = "^[A-Za-zÀ-ÿ]+(\\s[A-Za-zÀ-ÿ]+)*$";
+    private final String UNDEFINED_VALUE = "undefined";
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -330,6 +331,17 @@ public class SoilRestServlet {
          */
         if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
             return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+        }
+
+        /*
+         * Si el nombre del dato correspondiente a esta clase NO
+         * esta definido, la aplicacion del lado servidor retorna
+         * el mensaje HTTP 400 (Bad request) junto con el mensaje
+         * "El <dato> debe estar definido" y no se realiza la
+         * operacion solicitada
+         */
+        if (soilName == null || soilName.equals(UNDEFINED_VALUE)) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INDEFINITE_SOIL)).build();
         }
 
         /*
