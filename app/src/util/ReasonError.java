@@ -107,7 +107,9 @@ public enum ReasonError {
   PARCEL_NOT_FOUND("Parcela inexistente"),
   TYPE_CROP_NOT_FOUND("Tipo de cultivo inexistente"),
   UNDEFINED_TYPE_CROP_NAME("El nombre del tipo de cultivo debe estar definido"),
-  UNDEFINED_MONTH_NAME("El nombre del mes debe estar definido");
+  UNDEFINED_MONTH_NAME("El nombre del mes debe estar definido"),
+  LOWER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID("El límite inferior de la profundidad radicular máxima debe ser mayor a 0.0"),
+  UPPER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID("El límite superior de la profundidad radicular máxima debe ser mayor a 0.0");
 
   private final String reason;
 

@@ -115,6 +115,10 @@ app.controller(
       const INVALID_INITIAL_KC = "El coeficiente inicial debe ser mayor a 0.0";
       const INVALID_MIDDLE_KC = "El coeficiente medio debe ser mayor a 0.0";
       const INVALID_FINAL_KC = "El coeficiente final debe ser mayor a 0.0";
+      const UNDEFINED_LOWER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID = "El límite inferior de la profundidad radicular máxima debe estar definido";
+      const UNDEFINED_UPPER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID = "El límite superior de la profundidad radicular máxima debe estar definido";
+      const LOWER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID = "El límite inferior de la profundidad radicular máxima debe ser mayor a 0.0";
+      const UPPER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID = "El límite superior de la profundidad radicular máxima debe ser mayor a 0.0";
 
       $scope.create = function () {
         // Expresion regular para validar el nombre del cultivo
@@ -310,6 +314,53 @@ app.controller(
           return;
         }
 
+        /*
+        **************************************************
+        Controles sobre el valor del limite inferior y
+        superior de la profundidad radicular maxima
+        **************************************************
+        */
+
+        /*
+        Si el limite inferior de la profundidad radicular maxima NO
+        esta definido, la aplicacion muestra el mensaje dado y no
+        realiza la operacion solicitada
+        */
+        if ($scope.data.lowerLimitMaximumRootDepth == undefined) {
+          alert(UNDEFINED_LOWER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID);
+          return;
+        }
+
+        /*
+        Si el limite inferior de la profundidad radicular maxima
+        tiene un valor menor o igual a 0.0, la aplicacion muestra
+        el mensaje dado y no realiza la operacion solicitada
+        */
+        if ($scope.data.lowerLimitMaximumRootDepth <= 0.0) {
+          alert(LOWER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID);
+          return;
+        }
+
+        /*
+        Si el limite superior de la profundidad radicular maxima NO
+        esta definido, la aplicacion muestra el mensaje dado y no
+        realiza la operacion solicitada
+        */
+        if ($scope.data.upperLimitMaximumRootDepth == undefined) {
+          alert(UNDEFINED_UPPER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID);
+          return;
+        }
+
+        /*
+        Si el limite superior de la profundidad radicular maxima
+        tiene un valor menor o igual a 0.0, la aplicacion muestra
+        el mensaje dado y no realiza la operacion solicitada
+        */
+        if ($scope.data.upperLimitMaximumRootDepth <= 0.0) {
+          alert(UPPER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID);
+          return;
+        }
+
         cropService.create($scope.data, function (error, data) {
           if (error) {
             console.log(error);
@@ -429,6 +480,33 @@ app.controller(
         */
         if ($scope.data.finalKc <= 0.0) {
           alert(INVALID_FINAL_KC);
+          return;
+        }
+
+        /*
+        **************************************************
+        Controles sobre el valor del limite inferior y
+        superior de la profundidad radicular maxima
+        **************************************************
+        */
+
+        /*
+        Si el limite inferior de la profundidad radicular maxima
+        tiene un valor menor o igual a 0.0, la aplicacion muestra
+        el mensaje dado y no realiza la operacion solicitada
+        */
+        if ($scope.data.lowerLimitMaximumRootDepth <= 0.0) {
+          alert(LOWER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID);
+          return;
+        }
+
+        /*
+        Si el limite superior de la profundidad radicular maxima
+        tiene un valor menor o igual a 0.0, la aplicacion muestra
+        el mensaje dado y no realiza la operacion solicitada
+        */
+        if ($scope.data.upperLimitMaximumRootDepth <= 0.0) {
+          alert(UPPER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID);
           return;
         }
 

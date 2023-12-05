@@ -783,6 +783,28 @@ public class CropRestServlet {
     }
 
     /*
+     * ***************************************************
+     * Controles sobre el limite minimo y el limite maximo
+     * de la profundidad radicular
+     * ***************************************************
+     */
+
+    /*
+     * Si uno de los limites de la profundidad radicular maxima
+     * del cultivo a crear tiene un valor menor o igual a 0.0, la
+     * aplicacion del lado servidor retorna el mensaje HTTP 400
+     * (Bad request) junto con el mensaje "El <nombre del limite>
+     * debe ser mayor a 0.0" y no se realiza la operacion solicitada
+     */
+    if (newCrop.getLowerLimitMaximumRootDepth() <= 0.0) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.LOWER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID))).build();      
+    }
+
+    if (newCrop.getUpperLimitMaximumRootDepth() <= 0.0) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UPPER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID))).build();      
+    }
+
+    /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos que el
@@ -1143,6 +1165,29 @@ public class CropRestServlet {
 
     if (modifiedCrop.getFinalKc() <= 0.0) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_FINAL_KC))).build();      
+    }
+
+
+    /*
+     * ***************************************************
+     * Controles sobre el limite minimo y el limite maximo
+     * de la profundidad radicular
+     * ***************************************************
+     */
+
+    /*
+     * Si uno de los limites de la profundidad radicular maxima
+     * del cultivo a modificar tiene un valor menor o igual a 0.0,
+     * la aplicacion del lado servidor retorna el mensaje HTTP 400
+     * (Bad request) junto con el mensaje "El <nombre del limite>
+     * debe ser mayor a 0.0" y no se realiza la operacion solicitada
+     */
+    if (modifiedCrop.getLowerLimitMaximumRootDepth() <= 0.0) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.LOWER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID))).build();      
+    }
+
+    if (modifiedCrop.getUpperLimitMaximumRootDepth() <= 0.0) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UPPER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID))).build();      
     }
 
     /*

@@ -104,6 +104,8 @@ public class CropServiceBean {
       givenCrop.setFinalKc(modifiedCrop.getFinalKc());
       givenCrop.setLifeCycle(modifiedCrop.getLifeCycle());
       givenCrop.setActive(modifiedCrop.getActive());
+      givenCrop.setLowerLimitMaximumRootDepth(modifiedCrop.getLowerLimitMaximumRootDepth());
+      givenCrop.setUpperLimitMaximumRootDepth(modifiedCrop.getUpperLimitMaximumRootDepth());
       givenCrop.setPlantingStartMonth(modifiedCrop.getPlantingStartMonth());
       givenCrop.setEndPlantingMonth(modifiedCrop.getEndPlantingMonth());
       givenCrop.setTypeCrop(modifiedCrop.getTypeCrop());

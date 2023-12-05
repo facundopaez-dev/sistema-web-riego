@@ -55,6 +55,8 @@ class Cultivo {
 -kcFinal
 -cicloVida
 -activo
+-limiteInferiorProfundidadRadicularMaxima
+-limiteSuperiorProfundidadRadicularMaxima
 }
 
 class TipoCultivo {

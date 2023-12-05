@@ -49,6 +49,12 @@ public class Crop {
   @Column(name = "ACTIVE", nullable = false)
   private boolean active;
 
+  @Column(name = "LOWER_LIMIT_MAXIMUM_ROOT_DEPTH", nullable = false)
+  private double lowerLimitMaximumRootDepth;
+
+  @Column(name = "UPPER_LIMIT_MAXIMUM_ROOT_DEPTH", nullable = false)
+  private double upperLimitMaximumRootDepth;
+
   @ManyToOne
   @JoinColumn(name = "FK_PLANTING_START_MONTH")
   private Month plantingStartMonth;
@@ -151,6 +157,22 @@ public class Crop {
 
   public void setActive(boolean active) {
     this.active = active;
+  }
+
+  public double getLowerLimitMaximumRootDepth() {
+    return lowerLimitMaximumRootDepth;
+  }
+
+  public void setLowerLimitMaximumRootDepth(double lowerLimitMaximumRootDepth) {
+    this.lowerLimitMaximumRootDepth = lowerLimitMaximumRootDepth;
+  }
+
+  public double getUpperLimitMaximumRootDepth() {
+    return upperLimitMaximumRootDepth;
+  }
+
+  public void setUpperLimitMaximumRootDepth(double upperLimitMaximumRootDepth) {
+    this.upperLimitMaximumRootDepth = upperLimitMaximumRootDepth;
   }
 
   public Month getPlantingStartMonth() {
