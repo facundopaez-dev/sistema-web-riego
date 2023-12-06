@@ -953,10 +953,10 @@ public class WaterMathTest {
      * Persistencia de una opcion para el usuario de prueba
      */
     entityManager.getTransaction().begin();
-    Option userOption = optionService.create();
+    Option parcelOption = optionService.create();
     entityManager.getTransaction().commit();
 
-    options.add(userOption);
+    options.add(parcelOption);
 
     /*
      * Persistencia de un usuario de prueba
@@ -967,7 +967,6 @@ public class WaterMathTest {
     givenUser.setLastName("Auditore");
     givenUser.setEmail("giovanni@eservice.com");
     givenUser.setPassword("Giovanni");
-    givenUser.setOption(userOption);
 
     entityManager.getTransaction().begin();
     givenUser = userService.create(givenUser);
@@ -984,6 +983,7 @@ public class WaterMathTest {
     givenParcel.setLatitude(1);
     givenParcel.setLongitude(1);
     givenParcel.setUser(givenUser);
+    givenParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
     givenParcel = parcelService.create(givenParcel);
@@ -1127,10 +1127,10 @@ public class WaterMathTest {
      * Persistencia de una opcion para el usuario de prueba
      */
     entityManager.getTransaction().begin();
-    Option userOption = optionService.create();
+    Option parcelOption = optionService.create();
     entityManager.getTransaction().commit();
 
-    options.add(userOption);
+    options.add(parcelOption);
 
     /*
      * Persistencia de un usuario de prueba
@@ -1141,7 +1141,6 @@ public class WaterMathTest {
     givenUser.setLastName("Vance");
     givenUser.setEmail("alyx@eservice.com");
     givenUser.setPassword("Alyx");
-    givenUser.setOption(userOption);
 
     entityManager.getTransaction().begin();
     givenUser = userService.create(givenUser);
@@ -1158,6 +1157,7 @@ public class WaterMathTest {
     givenParcel.setLatitude(1);
     givenParcel.setLongitude(1);
     givenParcel.setUser(givenUser);
+    givenParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
     givenParcel = parcelService.create(givenParcel);
@@ -1301,10 +1301,10 @@ public class WaterMathTest {
      * Persistencia de una opcion para el usuario de prueba
      */
     entityManager.getTransaction().begin();
-    Option userOption = optionService.create();
+    Option parcelOption = optionService.create();
     entityManager.getTransaction().commit();
 
-    options.add(userOption);
+    options.add(parcelOption);
 
     /*
      * Persistencia de un usuario de prueba
@@ -1315,7 +1315,6 @@ public class WaterMathTest {
     givenUser.setLastName("Vance");
     givenUser.setEmail("eli@eservice.com");
     givenUser.setPassword("Eli");
-    givenUser.setOption(userOption);
 
     entityManager.getTransaction().begin();
     givenUser = userService.create(givenUser);
@@ -1332,6 +1331,7 @@ public class WaterMathTest {
     givenParcel.setLatitude(1);
     givenParcel.setLongitude(1);
     givenParcel.setUser(givenUser);
+    givenParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
     givenParcel = parcelService.create(givenParcel);
@@ -1475,10 +1475,10 @@ public class WaterMathTest {
      * Persistencia de una opcion para el usuario de prueba
      */
     entityManager.getTransaction().begin();
-    Option userOption = optionService.create();
+    Option parcelOption = optionService.create();
     entityManager.getTransaction().commit();
 
-    options.add(userOption);
+    options.add(parcelOption);
 
     /*
      * Persistencia de un usuario de prueba
@@ -1489,7 +1489,6 @@ public class WaterMathTest {
     givenUser.setLastName("Vance");
     givenUser.setEmail("vorti@eservice.com");
     givenUser.setPassword("Vorti");
-    givenUser.setOption(userOption);
 
     entityManager.getTransaction().begin();
     givenUser = userService.create(givenUser);
@@ -1506,6 +1505,7 @@ public class WaterMathTest {
     givenParcel.setLatitude(1);
     givenParcel.setLongitude(1);
     givenParcel.setUser(givenUser);
+    givenParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
     givenParcel = parcelService.create(givenParcel);
@@ -1649,10 +1649,10 @@ public class WaterMathTest {
      * Persistencia de una opcion para el usuario de prueba
      */
     entityManager.getTransaction().begin();
-    Option userOption = optionService.create();
+    Option parcelOption = optionService.create();
     entityManager.getTransaction().commit();
 
-    options.add(userOption);
+    options.add(parcelOption);
 
     /*
      * Persistencia de un usuario de prueba
@@ -1663,7 +1663,6 @@ public class WaterMathTest {
     givenUser.setLastName("Vance");
     givenUser.setEmail("barney@eservice.com");
     givenUser.setPassword("Barney");
-    givenUser.setOption(userOption);
 
     entityManager.getTransaction().begin();
     givenUser = userService.create(givenUser);
@@ -1680,6 +1679,7 @@ public class WaterMathTest {
     givenParcel.setLatitude(1);
     givenParcel.setLongitude(1);
     givenParcel.setUser(givenUser);
+    givenParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
     givenParcel = parcelService.create(givenParcel);
@@ -1823,10 +1823,10 @@ public class WaterMathTest {
      * Persistencia de una opcion para el usuario de prueba
      */
     entityManager.getTransaction().begin();
-    Option userOption = optionService.create();
+    Option parcelOption = optionService.create();
     entityManager.getTransaction().commit();
 
-    options.add(userOption);
+    options.add(parcelOption);
 
     /*
      * Persistencia de un usuario de prueba
@@ -1837,7 +1837,6 @@ public class WaterMathTest {
     givenUser.setLastName("Vance");
     givenUser.setEmail("william@eservice.com");
     givenUser.setPassword("William");
-    givenUser.setOption(userOption);
 
     entityManager.getTransaction().begin();
     givenUser = userService.create(givenUser);
@@ -1854,6 +1853,7 @@ public class WaterMathTest {
     givenParcel.setLatitude(1);
     givenParcel.setLongitude(1);
     givenParcel.setUser(givenUser);
+    givenParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
     givenParcel = parcelService.create(givenParcel);
@@ -1997,10 +1997,10 @@ public class WaterMathTest {
      * Persistencia de una opcion para el usuario de prueba
      */
     entityManager.getTransaction().begin();
-    Option userOption = optionService.create();
+    Option parcelOption = optionService.create();
     entityManager.getTransaction().commit();
 
-    options.add(userOption);
+    options.add(parcelOption);
 
     /*
      * Persistencia de un usuario de prueba
@@ -2011,7 +2011,6 @@ public class WaterMathTest {
     givenUser.setLastName("Vance");
     givenUser.setEmail("tom@eservice.com");
     givenUser.setPassword("Tom");
-    givenUser.setOption(userOption);
 
     entityManager.getTransaction().begin();
     givenUser = userService.create(givenUser);
@@ -2028,6 +2027,7 @@ public class WaterMathTest {
     givenParcel.setLatitude(1);
     givenParcel.setLongitude(1);
     givenParcel.setUser(givenUser);
+    givenParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
     givenParcel = parcelService.create(givenParcel);
@@ -2171,10 +2171,10 @@ public class WaterMathTest {
      * Persistencia de una opcion para el usuario de prueba
      */
     entityManager.getTransaction().begin();
-    Option userOption = optionService.create();
+    Option parcelOption = optionService.create();
     entityManager.getTransaction().commit();
 
-    options.add(userOption);
+    options.add(parcelOption);
 
     /*
      * Persistencia de un usuario de prueba
@@ -2185,7 +2185,6 @@ public class WaterMathTest {
     givenUser.setLastName("Vance");
     givenUser.setEmail("jerry@eservice.com");
     givenUser.setPassword("Jerry");
-    givenUser.setOption(userOption);
 
     entityManager.getTransaction().begin();
     givenUser = userService.create(givenUser);
@@ -2202,6 +2201,7 @@ public class WaterMathTest {
     givenParcel.setLatitude(1);
     givenParcel.setLongitude(1);
     givenParcel.setUser(givenUser);
+    givenParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
     givenParcel = parcelService.create(givenParcel);
@@ -2345,10 +2345,10 @@ public class WaterMathTest {
      * Persistencia de una opcion para el usuario de prueba
      */
     entityManager.getTransaction().begin();
-    Option userOption = optionService.create();
+    Option parcelOption = optionService.create();
     entityManager.getTransaction().commit();
 
-    options.add(userOption);
+    options.add(parcelOption);
 
     /*
      * Persistencia de un usuario de prueba
@@ -2359,7 +2359,6 @@ public class WaterMathTest {
     givenUser.setLastName("Vance");
     givenUser.setEmail("leon@eservice.com");
     givenUser.setPassword("Leon");
-    givenUser.setOption(userOption);
 
     entityManager.getTransaction().begin();
     givenUser = userService.create(givenUser);
@@ -2376,6 +2375,7 @@ public class WaterMathTest {
     givenParcel.setLatitude(1);
     givenParcel.setLongitude(1);
     givenParcel.setUser(givenUser);
+    givenParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
     givenParcel = parcelService.create(givenParcel);
@@ -2519,10 +2519,10 @@ public class WaterMathTest {
      * Persistencia de una opcion para el usuario de prueba
      */
     entityManager.getTransaction().begin();
-    Option userOption = optionService.create();
+    Option parcelOption = optionService.create();
     entityManager.getTransaction().commit();
 
-    options.add(userOption);
+    options.add(parcelOption);
 
     /*
      * Persistencia de un usuario de prueba
@@ -2533,7 +2533,6 @@ public class WaterMathTest {
     givenUser.setLastName("Redfield");
     givenUser.setEmail("claire@eservice.com");
     givenUser.setPassword("Claire");
-    givenUser.setOption(userOption);
 
     entityManager.getTransaction().begin();
     givenUser = userService.create(givenUser);
@@ -2550,6 +2549,7 @@ public class WaterMathTest {
     givenParcel.setLatitude(1);
     givenParcel.setLongitude(1);
     givenParcel.setUser(givenUser);
+    givenParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
     givenParcel = parcelService.create(givenParcel);
@@ -2693,10 +2693,10 @@ public class WaterMathTest {
      * Persistencia de una opcion para el usuario de prueba
      */
     entityManager.getTransaction().begin();
-    Option userOption = optionService.create();
+    Option parcelOption = optionService.create();
     entityManager.getTransaction().commit();
 
-    options.add(userOption);
+    options.add(parcelOption);
 
     /*
      * Persistencia de un usuario de prueba
@@ -2707,7 +2707,6 @@ public class WaterMathTest {
     givenUser.setLastName("Redfield");
     givenUser.setEmail("chris@eservice.com");
     givenUser.setPassword("Chris");
-    givenUser.setOption(userOption);
 
     entityManager.getTransaction().begin();
     givenUser = userService.create(givenUser);
@@ -2724,6 +2723,7 @@ public class WaterMathTest {
     givenParcel.setLatitude(1);
     givenParcel.setLongitude(1);
     givenParcel.setUser(givenUser);
+    givenParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
     givenParcel = parcelService.create(givenParcel);
@@ -2897,10 +2897,10 @@ public class WaterMathTest {
      * Persistencia de una opcion para el usuario de prueba
      */
     entityManager.getTransaction().begin();
-    Option userOption = optionService.create();
+    Option parcelOption = optionService.create();
     entityManager.getTransaction().commit();
 
-    options.add(userOption);
+    options.add(parcelOption);
 
     /*
      * Persistencia de un usuario de prueba
@@ -2911,7 +2911,6 @@ public class WaterMathTest {
     givenUser.setLastName("Cross");
     givenUser.setEmail("elizabeth@eservice.com");
     givenUser.setPassword("Elizabeth");
-    givenUser.setOption(userOption);
 
     entityManager.getTransaction().begin();
     givenUser = userService.create(givenUser);
@@ -2928,6 +2927,7 @@ public class WaterMathTest {
     givenParcel.setLatitude(1);
     givenParcel.setLongitude(1);
     givenParcel.setUser(givenUser);
+    givenParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
     givenParcel = parcelService.create(givenParcel);
@@ -3135,10 +3135,10 @@ public class WaterMathTest {
      * Persistencia de una opcion para el usuario de prueba
      */
     entityManager.getTransaction().begin();
-    Option userOption = optionService.create();
+    Option parcelOption = optionService.create();
     entityManager.getTransaction().commit();
 
-    options.add(userOption);
+    options.add(parcelOption);
 
     /*
      * Persistencia de un usuario de prueba
@@ -3149,7 +3149,6 @@ public class WaterMathTest {
     givenUser.setLastName("temple");
     givenUser.setEmail("jacob@eservice.com");
     givenUser.setPassword("Jacob");
-    givenUser.setOption(userOption);
 
     entityManager.getTransaction().begin();
     givenUser = userService.create(givenUser);
@@ -3166,6 +3165,7 @@ public class WaterMathTest {
     givenParcel.setLatitude(1);
     givenParcel.setLongitude(1);
     givenParcel.setUser(givenUser);
+    givenParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
     givenParcel = parcelService.create(givenParcel);
@@ -3373,10 +3373,10 @@ public class WaterMathTest {
      * Persistencia de una opcion para el usuario de prueba
      */
     entityManager.getTransaction().begin();
-    Option userOption = optionService.create();
+    Option parcelOption = optionService.create();
     entityManager.getTransaction().commit();
 
-    options.add(userOption);
+    options.add(parcelOption);
 
     /*
      * Persistencia de un usuario de prueba
@@ -3387,7 +3387,6 @@ public class WaterMathTest {
     givenUser.setLastName("Clarke");
     givenUser.setEmail("isaac@eservice.com");
     givenUser.setPassword("Isaac");
-    givenUser.setOption(userOption);
 
     entityManager.getTransaction().begin();
     givenUser = userService.create(givenUser);
@@ -3404,6 +3403,7 @@ public class WaterMathTest {
     givenParcel.setLatitude(1);
     givenParcel.setLongitude(1);
     givenParcel.setUser(givenUser);
+    givenParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
     givenParcel = parcelService.create(givenParcel);
@@ -3611,10 +3611,10 @@ public class WaterMathTest {
      * Persistencia de una opcion para el usuario de prueba
      */
     entityManager.getTransaction().begin();
-    Option userOption = optionService.create();
+    Option parcelOption = optionService.create();
     entityManager.getTransaction().commit();
 
-    options.add(userOption);
+    options.add(parcelOption);
 
     /*
      * Persistencia de un usuario de prueba
@@ -3625,7 +3625,6 @@ public class WaterMathTest {
     givenUser.setLastName("hammond");
     givenUser.setEmail("zach@eservice.com");
     givenUser.setPassword("Hammond");
-    givenUser.setOption(userOption);
 
     entityManager.getTransaction().begin();
     givenUser = userService.create(givenUser);
@@ -3642,6 +3641,7 @@ public class WaterMathTest {
     givenParcel.setLatitude(1);
     givenParcel.setLongitude(1);
     givenParcel.setUser(givenUser);
+    givenParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
     givenParcel = parcelService.create(givenParcel);
@@ -3849,10 +3849,10 @@ public class WaterMathTest {
      * Persistencia de una opcion para el usuario de prueba
      */
     entityManager.getTransaction().begin();
-    Option userOption = optionService.create();
+    Option parcelOption = optionService.create();
     entityManager.getTransaction().commit();
 
-    options.add(userOption);
+    options.add(parcelOption);
 
     /*
      * Persistencia de un usuario de prueba
@@ -3863,7 +3863,6 @@ public class WaterMathTest {
     givenUser.setLastName("temple");
     givenUser.setEmail("chen@eservice.com");
     givenUser.setPassword("Chen");
-    givenUser.setOption(userOption);
 
     entityManager.getTransaction().begin();
     givenUser = userService.create(givenUser);
@@ -3880,6 +3879,7 @@ public class WaterMathTest {
     givenParcel.setLatitude(1);
     givenParcel.setLongitude(1);
     givenParcel.setUser(givenUser);
+    givenParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
     givenParcel = parcelService.create(givenParcel);
@@ -4087,10 +4087,10 @@ public class WaterMathTest {
      * Persistencia de una opcion para el usuario de prueba
      */
     entityManager.getTransaction().begin();
-    Option userOption = optionService.create();
+    Option parcelOption = optionService.create();
     entityManager.getTransaction().commit();
 
-    options.add(userOption);
+    options.add(parcelOption);
 
     /*
      * Persistencia de un usuario de prueba
@@ -4101,7 +4101,6 @@ public class WaterMathTest {
     givenUser.setLastName("brennan");
     givenUser.setEmail("nicole@eservice.com");
     givenUser.setPassword("Nicole");
-    givenUser.setOption(userOption);
 
     entityManager.getTransaction().begin();
     givenUser = userService.create(givenUser);
@@ -4118,6 +4117,7 @@ public class WaterMathTest {
     givenParcel.setLatitude(1);
     givenParcel.setLongitude(1);
     givenParcel.setUser(givenUser);
+    givenParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
     givenParcel = parcelService.create(givenParcel);
@@ -4325,10 +4325,10 @@ public class WaterMathTest {
      * Persistencia de una opcion para el usuario de prueba
      */
     entityManager.getTransaction().begin();
-    Option userOption = optionService.create();
+    Option parcelOption = optionService.create();
     entityManager.getTransaction().commit();
 
-    options.add(userOption);
+    options.add(parcelOption);
 
     /*
      * Persistencia de un usuario de prueba
@@ -4339,7 +4339,6 @@ public class WaterMathTest {
     givenUser.setLastName("mallus");
     givenUser.setEmail("mercer@eservice.com");
     givenUser.setPassword("Mercer");
-    givenUser.setOption(userOption);
 
     entityManager.getTransaction().begin();
     givenUser = userService.create(givenUser);
@@ -4356,6 +4355,7 @@ public class WaterMathTest {
     givenParcel.setLatitude(1);
     givenParcel.setLongitude(1);
     givenParcel.setUser(givenUser);
+    givenParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
     givenParcel = parcelService.create(givenParcel);
@@ -4563,10 +4563,10 @@ public class WaterMathTest {
      * Persistencia de una opcion para el usuario de prueba
      */
     entityManager.getTransaction().begin();
-    Option userOption = optionService.create();
+    Option parcelOption = optionService.create();
     entityManager.getTransaction().commit();
 
-    options.add(userOption);
+    options.add(parcelOption);
 
     /*
      * Persistencia de un usuario de prueba
@@ -4577,7 +4577,6 @@ public class WaterMathTest {
     givenUser.setLastName("daniels");
     givenUser.setEmail("kendra@eservice.com");
     givenUser.setPassword("Kendra");
-    givenUser.setOption(userOption);
 
     entityManager.getTransaction().begin();
     givenUser = userService.create(givenUser);
@@ -4594,6 +4593,7 @@ public class WaterMathTest {
     givenParcel.setLatitude(1);
     givenParcel.setLongitude(1);
     givenParcel.setUser(givenUser);
+    givenParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
     givenParcel = parcelService.create(givenParcel);
@@ -4801,10 +4801,10 @@ public class WaterMathTest {
      * Persistencia de una opcion para el usuario de prueba
      */
     entityManager.getTransaction().begin();
-    Option userOption = optionService.create();
+    Option parcelOption = optionService.create();
     entityManager.getTransaction().commit();
 
-    options.add(userOption);
+    options.add(parcelOption);
 
     /*
      * Persistencia de un usuario de prueba
@@ -4815,7 +4815,6 @@ public class WaterMathTest {
     givenUser.setLastName("bolt");
     givenUser.setEmail("lumdila@eservice.com");
     givenUser.setPassword("Ludmila");
-    givenUser.setOption(userOption);
 
     entityManager.getTransaction().begin();
     givenUser = userService.create(givenUser);
@@ -4832,6 +4831,7 @@ public class WaterMathTest {
     givenParcel.setLatitude(1);
     givenParcel.setLongitude(1);
     givenParcel.setUser(givenUser);
+    givenParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
     givenParcel = parcelService.create(givenParcel);
@@ -5039,10 +5039,10 @@ public class WaterMathTest {
      * Persistencia de una opcion para el usuario de prueba
      */
     entityManager.getTransaction().begin();
-    Option userOption = optionService.create();
+    Option parcelOption = optionService.create();
     entityManager.getTransaction().commit();
 
-    options.add(userOption);
+    options.add(parcelOption);
 
     /*
      * Persistencia de un usuario de prueba
@@ -5053,7 +5053,6 @@ public class WaterMathTest {
     givenUser.setLastName("bolt");
     givenUser.setEmail("camila@eservice.com");
     givenUser.setPassword("Camila");
-    givenUser.setOption(userOption);
 
     entityManager.getTransaction().begin();
     givenUser = userService.create(givenUser);
@@ -5070,6 +5069,7 @@ public class WaterMathTest {
     givenParcel.setLatitude(1);
     givenParcel.setLongitude(1);
     givenParcel.setUser(givenUser);
+    givenParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
     givenParcel = parcelService.create(givenParcel);
@@ -5277,10 +5277,10 @@ public class WaterMathTest {
      * Persistencia de una opcion para el usuario de prueba
      */
     entityManager.getTransaction().begin();
-    Option userOption = optionService.create();
+    Option parcelOption = optionService.create();
     entityManager.getTransaction().commit();
 
-    options.add(userOption);
+    options.add(parcelOption);
 
     /*
      * Persistencia de un usuario de prueba
@@ -5291,7 +5291,6 @@ public class WaterMathTest {
     givenUser.setLastName("tanenbaum");
     givenUser.setEmail("andrew@eservice.com");
     givenUser.setPassword("Andrew");
-    givenUser.setOption(userOption);
 
     entityManager.getTransaction().begin();
     givenUser = userService.create(givenUser);
@@ -5308,6 +5307,7 @@ public class WaterMathTest {
     givenParcel.setLatitude(1);
     givenParcel.setLongitude(1);
     givenParcel.setUser(givenUser);
+    givenParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
     givenParcel = parcelService.create(givenParcel);
@@ -5520,10 +5520,10 @@ public class WaterMathTest {
      * Persistencia de una opcion para el usuario de prueba
      */
     entityManager.getTransaction().begin();
-    Option userOption = optionService.create();
+    Option parcelOption = optionService.create();
     entityManager.getTransaction().commit();
 
-    options.add(userOption);
+    options.add(parcelOption);
 
     /*
      * Persistencia de un usuario de prueba
@@ -5534,7 +5534,6 @@ public class WaterMathTest {
     givenUser.setLastName("kurose");
     givenUser.setEmail("james@eservice.com");
     givenUser.setPassword("James");
-    givenUser.setOption(userOption);
 
     entityManager.getTransaction().begin();
     givenUser = userService.create(givenUser);
@@ -5551,6 +5550,7 @@ public class WaterMathTest {
     givenParcel.setLatitude(1);
     givenParcel.setLongitude(1);
     givenParcel.setUser(givenUser);
+    givenParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
     givenParcel = parcelService.create(givenParcel);
