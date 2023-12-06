@@ -230,7 +230,7 @@ public class SoilWaterBalanceServiceBean {
                  * cuando se calcula la necesidad de agua de riego de un
                  * cultivo en la fecha actual [mm/dia]
                  */
-                accumulatedWaterDeficit = WaterMath.calculateAccumulatedDeficit(waterDeficitPerDay, accumulatedWaterDeficit);
+                accumulatedWaterDeficit = WaterMath.calculateAccumulatedDeficitPerDay(waterDeficitPerDay, accumulatedWaterDeficit);
 
                 /*
                  * Calcula el agua provista (lluvia o riego, o lluvia mas riego
@@ -258,7 +258,7 @@ public class SoilWaterBalanceServiceBean {
                 create(givenSoilWaterBalance);
             } else {
                 waterDeficitPerDay = WaterMath.calculateDeficitPerDay(currentClimateRecord, irrigationRecords);
-                accumulatedWaterDeficit = WaterMath.calculateAccumulatedDeficit(waterDeficitPerDay, accumulatedWaterDeficit);
+                accumulatedWaterDeficit = WaterMath.calculateAccumulatedDeficitPerDay(waterDeficitPerDay, accumulatedWaterDeficit);
                 waterProvidedPerDay = currentClimateRecord.getPrecip() + WaterMath.sumTotalAmountIrrigationWaterGivenDate(currentClimateRecord.getDate(), irrigationRecords);
 
                 givenSoilWaterBalance = find(userId, currentClimateRecord.getDate(), parcelName);

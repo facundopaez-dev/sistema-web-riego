@@ -5697,7 +5697,7 @@ public class WaterMathTest {
 
     for (ClimateRecord currentClimateRecord : givenClimateRecords) {
       differencePerDay = calculateDifferencePerDay(currentClimateRecord);
-      accumulatedDeficit = calculateAccumulatedDeficit(differencePerDay, accumulatedDeficit);
+      accumulatedDeficit = calculateAccumulatedDeficitPerDay(differencePerDay, accumulatedDeficit);
 
       System.out.print(" " + day + " (" + UtilDate.formatDate(currentClimateRecord.getDate()) + ")");
       System.out.print("  |");
@@ -5795,7 +5795,7 @@ public class WaterMathTest {
       currentClimateRecord = givenClimateRecords.get(i);
 
       differencePerDay = calculateDifferencePerDay(currentIrrigationRecord, currentClimateRecord);
-      accumulatedDeficit = calculateAccumulatedDeficit(differencePerDay, accumulatedDeficit);
+      accumulatedDeficit = calculateAccumulatedDeficitPerDay(differencePerDay, accumulatedDeficit);
 
       System.out.print(" " + day + " (" + UtilDate.formatDate(currentIrrigationRecord.getDate()) + ")");
       System.out.print("  |");
@@ -5926,11 +5926,12 @@ public class WaterMathTest {
    * @param accumulatedDeficit
    * 
    * @return double que representa el deficit (falta) acumulado de agua
-   * [mm/dia], el cual es el resultado de sumar la diferencia entre la
-   * lluvia y la ETc de cada dia. El deficit acumulado de agua representa
-   * la necesidad de agua de riego de un cultivo en una fecha dada.
+   * por dia [mm/dia], el cual es el resultado de sumar la diferencia
+   * entre la lluvia y la ETc de cada dia. El deficit acumulado de agua
+   * representa la necesidad de agua de riego de un cultivo en una fecha
+   * dada.
    */
-  private double calculateAccumulatedDeficit(double differencePerDay, double accumulatedDeficit) {
+  private double calculateAccumulatedDeficitPerDay(double differencePerDay, double accumulatedDeficit) {
     /*
      * Si la diferencia [mm/dia] entre la cantidad de agua provista
      * (lluvia o riego, o lluvia mas riego) [mm/dia] y la cantidad

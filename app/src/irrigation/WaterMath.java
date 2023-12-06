@@ -229,7 +229,7 @@ public class WaterMath {
        * de agua por dia [mm/dia] es el deficit acumulado de agua por
        * dia [mm/dia] de un cultivo en una fecha.
        */
-      accumulatedDeficit = calculateAccumulatedDeficit(deficitPerDay, accumulatedDeficit);
+      accumulatedDeficit = calculateAccumulatedDeficitPerDay(deficitPerDay, accumulatedDeficit);
     }
 
     /*
@@ -360,7 +360,7 @@ public class WaterMath {
    * para una parcela que tiene un cultivo sembrado y en desarrollo
    * en una fecha
    */
-  public static double calculateAccumulatedDeficit(double deficitPerDay, double accumulatedDeficit) {
+  public static double calculateAccumulatedDeficitPerDay(double deficitPerDay, double accumulatedDeficit) {
     /*
      * El deficit de agua por dia [mm/dia] en una parcela en una
      * fecha (*) es la diferencia entre el agua provista (lluvia
