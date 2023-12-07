@@ -193,7 +193,7 @@ public class WaterMath {
    * parcela en una fecha.
    */
   public static double calculateAccumulatedWaterDeficitPerDay(Collection<ClimateRecord> climateRecords, Collection<IrrigationRecord> irrigationRecords) {
-    double deficitPerDay = 0.0;
+    double waterDeficitPerDay = 0.0;
     double accumulatedDeficit = 0.0;
 
     /*
@@ -219,53 +219,50 @@ public class WaterMath {
        * porque un registro climatico y un registro de riego pertenecen
        * a una parcela y tienen una fecha (dia).
        */
-      deficitPerDay = calculateDeficitPerDay(currentClimateRecord, irrigationRecords);
+      waterDeficitPerDay = calculateWaterDeficitPerDay(currentClimateRecord, irrigationRecords);
 
       /*
        * Acumula el deficit (falta) de agua por dia [mm/dia] de una
        * parcela en una fecha
        */
-      accumulatedDeficit = calculateAccumulatedDeficitPerDay(deficitPerDay, accumulatedDeficit);
+      accumulatedDeficit = calculateAccumulatedDeficitPerDay(waterDeficitPerDay, accumulatedDeficit);
     }
 
     return Math.abs(accumulatedDeficit);
   }
 
   /**
-   * Calcula el deficit (falta) de agua por dia [mm/dia] en una parcela
-   * en una fecha. El motivo por el cual calcula el deficit de agua por
-   * dia [mm/dia] en una parcela en una fecha es que un registro climatico
-   * y un registro de riego pertenecen a una parcela y tienen una fecha
-   * (dia).
-   * 
-   * Si este metodo es invocado para una parcela que tiene un cultivo
-   * sembrado y en desarrollo en una fecha, el deficit (falta) de agua
-   * por dia [mm/dia] calculado en una fecha sera el deficit de agua
-   * por dia [mm/dia] de un cultivo en una fecha.
-   * 
    * @param climateRecord
    * @param irrigationRecords
    * @return double que representa el deficit (falta) de agua por dia
-   * [mm/dia] en una parcela en una fecha o de un cultivo en una fecha
-   * en caso de que se invoque este metodo con una parcela que tiene
-   * un cultivo sembrado y en desarrollo en una fecha
+   * [mm/dia] de un cultivo en una fecha si se lo invoca con un registro
+   * climatico y una coleccion de registros de riego pertenecientes a
+   * una misma parcela que tiene un cultivo sembrado en una fecha. En
+   * caso contrario, double que representa el deficit (falta) de agua
+   * por dia [mm/dia] de una parcela en una fecha. Se dice que el deficit
+   * de agua por dia [mm/dia] de un cultivo o de una parcela es de una
+   * fecha porque un registro climatico y un registro de riego tienen
+   * una fecha (dia) y pertenecen a una parcela.
    */
-  public static double calculateDeficitPerDay(ClimateRecord climateRecord, Collection<IrrigationRecord> irrigationRecords) {
-    double deficitPerDay = 0.0;
+  public static double calculateWaterDeficitPerDay(ClimateRecord climateRecord, Collection<IrrigationRecord> irrigationRecords) {
+    double waterDeficitPerDay = 0.0;
 
     /*
      * Obtiene la cantidad total de agua de riego utilizada en una
-     * parcela en una fecha. Si la parcela para la que se invoca
-     * este metodo tiene un cultivo sembrado y en desarrollo en
-     * una fecha, el valor devuelto por el mismo sera la cantidad
-     * total de agua de riego utilizada en un cultivo (sembrado en
-     * una parcela) en una fecha.
+     * fecha para regar una parcela [mm/dia]. Si se invoca este metodo
+     * con la fecha de un registro climatico y un conjunto de registros
+     * de riego, con una fecha igual a la fecha del registro climatico,
+     * siendo el registro climatico y el conjunto de registros de
+     * riego pertenecientes a una misma parcela que tiene un cultivo
+     * sembrado en una fecha, el valor devuelto por el mismo es la
+     * cantidad total de agua de riego utilizada en una fecha para
+     * regar un cultivo [mm/dia].
      * 
-     * El motivo por el cual se habla de la parcela y se usa la
-     * expresion "en una fecha" es que un registro de riego
-     * pertenece a una parcela y tiene una fecha (dia).
+     * El motivo por el cual se habla de parcela y se usa la frase
+     * "en una fecha" es que un registro de riego pertenece a una
+     * parcela y tiene una fecha (dia).
      */
-    double totalIrrigationWater = sumTotalAmountIrrigationWaterGivenDate(climateRecord.getDate(), irrigationRecords);
+    double totalIrrigationWaterGivenDate = sumTotalAmountIrrigationWaterGivenDate(climateRecord.getDate(), irrigationRecords);
 
     /*
      * Cuando una parcela NO tuvo un cultivo sembrado en una fecha
@@ -304,12 +301,12 @@ public class WaterMath {
      * riego pertenecen a una parcela y tienen una fecha (dia).
      */
     if (climateRecord.getEtc() == 0.0) {
-      deficitPerDay = (climateRecord.getPrecip() + totalIrrigationWater) - climateRecord.getEto();
+      waterDeficitPerDay = (climateRecord.getPrecip() + totalIrrigationWaterGivenDate) - climateRecord.getEto();
     } else {
-      deficitPerDay = (climateRecord.getPrecip() + totalIrrigationWater) - climateRecord.getEtc();
+      waterDeficitPerDay = (climateRecord.getPrecip() + totalIrrigationWaterGivenDate) - climateRecord.getEtc();
     }
 
-    return deficitPerDay;
+    return waterDeficitPerDay;
   }
 
   /**
@@ -412,26 +409,18 @@ public class WaterMath {
   }
 
   /**
-   * Calcula la cantidad total de agua de riego utilizada en
-   * una parcela en una fecha [mm/dia] porque un registro de
-   * riego pertenece a una parcela y tiene una fecha (dia).
-   * En caso de que este metodo se invoque para una parcela
-   * que tiene un cultivo sembrado y en desarrollo en una
-   * fecha, la cantidad total de agua de riego calculada sera
-   * la cantidad total de agua de riego utilizada en un cultivo
-   * (sembrado en una parcela, obviamente) en una fecha [mm/dia].
-   * 
    * @param date
    * @param irrigationRecords
-   * @return double que representa la cantidad total de agua
-   * de riego utilizada en una parcela en una fecha [mm/dia]
-   * o en un cultivo (sembrado en una parcela) en una fecha
-   * [mm/dia] en caso de que se invoque este metodo para una
-   * parcela que tiene un cultivo sembrado y en desarrollo
-   * en una fecha
+   * @return double que representa la cantidad total de agua de
+   * riego utilizada en una fecha para regar una parcela [mm/dia].
+   * Si se invoca este metodo con una coleccion de registros de
+   * riego pertenecientes a una misma parcela que tiene un cultivo
+   * sembrado en una fecha, double que representa la cantidad
+   * total de agua de riego utilizada en una fecha para regar un
+   * cultivo [mm/dia].
    */
   public static double sumTotalAmountIrrigationWaterGivenDate(Calendar date, Collection<IrrigationRecord> irrigationRecords) {
-    double totalIrrigationWater = 0.0;
+    double totalIrrigationWaterGivenDate = 0.0;
 
     for (IrrigationRecord currentIrrigationRecord : irrigationRecords) {
 
@@ -439,19 +428,20 @@ public class WaterMath {
        * Acumula el agua de riego de todos los registros de riego
        * pertenecientes a una parcela que tienen la misma fecha.
        * De esta manera, se calcula la cantidad total de agua de
-       * riego utilizada en una parcela en una fecha [mm/dia] o
-       * en un cultivo (sembrado en una parcela) en una fecha
-       * [mm/dia] en caso de que se invoque este metodo para una
-       * parcela que tiene un cultivo sembrado y en desarrollo
-       * en una fecha.
+       * riego utilizada en una fecha para regar una parcela [mm/dia].
+       * Si se invoca este metodo con una coleccion de registros
+       * de riego pertenecientes a una misma parcela que tiene un
+       * cultivo sembrado en una fecha, calcula la cantidad total
+       * de agua de riego utilizada en una fecha para regar un
+       * cultivo [mm/dia].
        */
       if (UtilDate.compareTo(currentIrrigationRecord.getDate(), date) == 0) {
-        totalIrrigationWater = totalIrrigationWater + currentIrrigationRecord.getIrrigationDone();
+        totalIrrigationWaterGivenDate = totalIrrigationWaterGivenDate + currentIrrigationRecord.getIrrigationDone();
       }
 
     }
 
-    return totalIrrigationWater;
+    return totalIrrigationWaterGivenDate;
   }
 
   /**
