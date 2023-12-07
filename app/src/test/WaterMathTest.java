@@ -186,7 +186,7 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 14.0;
-    double result = WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords);
+    double result = Math.abs(WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords));
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateAccumulatedWaterDeficitPerDay");
@@ -226,7 +226,7 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 9.0;
-    double result = WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords);
+    double result = Math.abs(WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords));
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateAccumulatedWaterDeficitPerDay");
@@ -266,7 +266,7 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 5.0;
-    double result = WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords);
+    double result = Math.abs(WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords));
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateAccumulatedWaterDeficitPerDay");
@@ -306,7 +306,7 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 0.0;
-    double result = WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords);
+    double result = Math.abs(WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords));
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateAccumulatedWaterDeficitPerDay");
@@ -346,7 +346,7 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 0.0;
-    double result = WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords);
+    double result = Math.abs(WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords));
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateAccumulatedWaterDeficitPerDay");
@@ -386,7 +386,7 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 4.0;
-    double result = WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords);
+    double result = Math.abs(WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords));
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateAccumulatedWaterDeficitPerDay");
@@ -426,7 +426,7 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 7.0;
-    double result = WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords);
+    double result = Math.abs(WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords));
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateAccumulatedWaterDeficitPerDay");
@@ -466,7 +466,7 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 4.0;
-    double result = WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords);
+    double result = Math.abs(WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords));
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateAccumulatedWaterDeficitPerDay");
@@ -506,7 +506,7 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 0.0;
-    double result = WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords);
+    double result = Math.abs(WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords));
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateAccumulatedWaterDeficitPerDay");
@@ -546,7 +546,7 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 0.0;
-    double result = WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords);
+    double result = Math.abs(WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords));
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateAccumulatedWaterDeficitPerDay");
@@ -586,7 +586,7 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 1.0;
-    double result = WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords);
+    double result = Math.abs(WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords));
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateAccumulatedWaterDeficitPerDay");
@@ -655,7 +655,7 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 4.5;
-    double result = WaterMath.calculateAccumulatedWaterDeficitPerDay(yesterdayClimateRecords, yesterdayIrrigationRecords);
+    double result = Math.abs(WaterMath.calculateAccumulatedWaterDeficitPerDay(yesterdayClimateRecords, yesterdayIrrigationRecords));
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateAccumulatedWaterDeficitPerDay");

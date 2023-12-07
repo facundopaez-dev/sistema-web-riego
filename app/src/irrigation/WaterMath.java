@@ -115,7 +115,7 @@ public class WaterMath {
       accumulatedWaterDeficitPerDay = accumulateWaterDeficitPerDay(waterDeficitPerDay, accumulatedWaterDeficitPerDay);
     }
 
-    return Math.abs(accumulatedWaterDeficitPerDay);
+    return accumulatedWaterDeficitPerDay;
   }
 
   /**
