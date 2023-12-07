@@ -37,7 +37,7 @@ import stateless.SessionServiceBean;
 import climate.ClimateClient;
 import et.HargreavesEto;
 import et.Etc;
-import irrigation.WaterMath;
+import irrigation.WaterNeedWit;
 import model.ClimateRecord;
 import model.Crop;
 import model.IrrigationRecord;
@@ -1877,7 +1877,7 @@ public class PlantingRecordRestServlet {
      */
     soilWaterBalanceService.generateSoilWaterBalances(userId, givenParcel.getName(), developingPlantingRecord.getCrop().getName(), climateRecords, irrigationRecords);
 
-    return WaterMath.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, climateRecords, irrigationRecords);
+    return WaterNeedWit.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, climateRecords, irrigationRecords);
   }
 
   /**

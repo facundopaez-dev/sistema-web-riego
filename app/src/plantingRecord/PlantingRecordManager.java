@@ -21,7 +21,7 @@ import model.ClimateRecord;
 import model.IrrigationRecord;
 import model.Option;
 import model.User;
-import irrigation.WaterMath;
+import irrigation.WaterNeedWit;
 import util.UtilDate;
 import et.HargreavesEto;
 import et.Etc;
@@ -703,7 +703,7 @@ public class PlantingRecordManager {
          */
         soilWaterBalanceService.generateSoilWaterBalances(userId, givenParcel.getName(), developingPlantingRecord.getCrop().getName(), climateRecords, irrigationRecords);
 
-        return WaterMath.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, climateRecords, irrigationRecords);
+        return WaterNeedWit.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, climateRecords, irrigationRecords);
     }
 
     /**
