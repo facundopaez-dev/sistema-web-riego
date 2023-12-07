@@ -194,7 +194,7 @@ public class WaterMath {
    */
   public static double calculateAccumulatedWaterDeficitPerDay(Collection<ClimateRecord> climateRecords, Collection<IrrigationRecord> irrigationRecords) {
     double waterDeficitPerDay = 0.0;
-    double accumulatedDeficit = 0.0;
+    double accumulatedWaterDeficitPerDay = 0.0;
 
     /*
      * Acumula el deficit (falta) de agua por dia [mm/dia] de dias
@@ -225,10 +225,10 @@ public class WaterMath {
        * Acumula el deficit (falta) de agua por dia [mm/dia] de una
        * parcela en una fecha
        */
-      accumulatedDeficit = calculateAccumulatedDeficitPerDay(waterDeficitPerDay, accumulatedDeficit);
+      accumulatedWaterDeficitPerDay = accumulateWaterDeficitPerDay(waterDeficitPerDay, accumulatedWaterDeficitPerDay);
     }
 
-    return Math.abs(accumulatedDeficit);
+    return Math.abs(accumulatedWaterDeficitPerDay);
   }
 
   /**
@@ -310,27 +310,14 @@ public class WaterMath {
   }
 
   /**
-   * Calcula el deficit (falta) acumulado de agua por dia en una
-   * parcela en una fecha [mm/dia] porque para ello utiliza el
-   * deficit de agua por dia [mm/dia], el cual es calculado en
-   * base a un registro climatico y una coleccion de registros
-   * de riego, y un registro climatico y un registro de riego
-   * pertenecen a una parcela y tienen una fecha (dia).
-   * 
-   * Si este metodo es invocado para una parcela que tiene un
-   * cultivo sembrado y en desarrollo en una fecha, el deficit
-   * acumulado de agua por dia [mm/dia] sera el deficit acumulado
-   * de agua por dia [mm/dia] de un cultivo en una fecha.
-   * 
    * @param deficitPerDay
-   * @param accumulatedDeficit
-   * @return double que representa el deficit (falta) acumulado
+   * @param accumulatedWaterDeficitPerDay
+   * @return double que representa el acumulado del deficit (falta)
    * de agua por dia en una parcela en una fecha [mm/dia] o de
-   * un cultivo en una fecha en caso de que se invoque este metodo
-   * para una parcela que tiene un cultivo sembrado y en desarrollo
-   * en una fecha
+   * un cultivo en una fecha [mm/dia] si este metodo se invoca para
+   * una parcela que tiene un cultivo sembrado en una fecha
    */
-  public static double calculateAccumulatedDeficitPerDay(double deficitPerDay, double accumulatedDeficit) {
+  public static double accumulateWaterDeficitPerDay(double deficitPerDay, double accumulatedWaterDeficitPerDay) {
     /*
      * El deficit de agua por dia [mm/dia] en una parcela en una
      * fecha (*) es la diferencia entre el agua provista (lluvia
@@ -339,18 +326,21 @@ public class WaterMath {
      * o la ETo [mm/dia] si la ETc = 0) en una parcela en una fecha.
      * Si el resultado de esta diferencia es menor a cero significa
      * que toda o parte de la cantidad de agua evaporada en una
-     * parcela en una fecha no fue cubierta (satisfecha). Este valor
-     * es acumulado porque es necesario para determinar la necesidad
-     * de agua de riego de un cultivo en una fecha, en caso de que
-     * este metodo sea invocado para una parcela que tiene un cultivo
-     * sembrado y en desarrollo en una fecha.
+     * parcela en una fecha NO fue cubierta (satisfecha). Si el
+     * deficit de agua por dia [mm/dia] es negativo, se lo acumula,
+     * ya que esto es necesario para determinar la necesidad de
+     * agua de riego de un cultivo en una fecha en caso de que
+     * este metodo sea invocado para una parcela que tiene un
+     * cultivo sembrado en una fecha.
      * 
      * (*) El motivo por el cual se usa la expresion "en una parcela
      * en una fecha" es que un registro climatico y un registro de
-     * riego pertenecen a una parcela y tienen una fecha (dia).
+     * riego pertenecen a una parcela y tienen una fecha (dia). La
+     * ETo, la ETc y el agua de lluvia pertenecen a un registro
+     * climatico y el agua de riego pertenece a un registro de riego.
      */
     if (deficitPerDay < 0) {
-      accumulatedDeficit = accumulatedDeficit + deficitPerDay;
+      accumulatedWaterDeficitPerDay = accumulatedWaterDeficitPerDay + deficitPerDay;
     }
 
     /*
@@ -360,11 +350,11 @@ public class WaterMath {
      * fue totalmente cubierta (satisfecha) y que hubo una cantidad
      * extra de agua [mm/dia].
      * 
-     * Si el deficit acumulado de agua por dia en una parcela en
+     * Si el acumulado del deficit de agua por dia en una parcela en
      * una fecha [mm/dia] es menor a cero significa que la cantidad
      * de agua evaporada en una parcela en un conjunto de dias
      * previos al dia correspondiente del deficit de agua por dia,
-     * no fue cubierta (satisfecha). Esta condicion representa la
+     * NO fue cubierta (satisfecha). Esta condicion representa la
      * situacion en la que hay lugar en el suelo para almacenar
      * agua.
      * 
@@ -373,39 +363,40 @@ public class WaterMath {
      * - que en el dia correspondiente al deficit de agua por
      * dia, hay lugar en el suelo para almacenar agua, ya que
      * un deficit acumulado de agua por dia menor a cero indica
-     * que la cantidad acumulado de agua evaporada de un conjunto
+     * que la cantidad acumulada de agua evaporada de un conjunto
      * de dias previos al dia correspondiente del deficit de agua
-     * por dia, no fue cubierta (satisfecha). El deficit acumulado
-     * de agua por dia es la sumatoria del deficit de agua por
-     * dia de un conjunto de dias.
-     * - que la cantidad de agua extra del dia correspondiente
-     * al deficit de agua por dia se almacena en el suelo, ya
+     * por dia, no fue cubierta (satisfecha). El acumulado del
+     * deficit de agua por dia es la sumatoria del deficit de
+     * agua por dia de un conjunto de dias previos a una fecha
+     * (dia).
+     * - que la cantidad extra de agua del dia correspondiente
+     * al deficit de agua por dia, se almacena en el suelo, ya
      * que este tiene lugar para almacenar mas agua.
      */
-    if (deficitPerDay > 0 && accumulatedDeficit < 0) {
-      accumulatedDeficit = accumulatedDeficit + deficitPerDay;
+    if (deficitPerDay > 0 && accumulatedWaterDeficitPerDay < 0) {
+      accumulatedWaterDeficitPerDay = accumulatedWaterDeficitPerDay + deficitPerDay;
 
       /*
-       * Si el deficit acumulado de agua por dia [mm/dia] despues de
-       * sumarle una cantidad extra de agua [mm/dia], es mayor a cero,
-       * significa que el deficit acumulado de agua por dia fue
-       * totalmente (satisfecho). Es decir, se satisfizo la cantidad
+       * Si el acumulado del deficit de agua por dia [mm/dia] despues
+       * de sumarle una cantidad extra de agua [mm/dia], es mayor a
+       * cero, significa que el acumulado del deficit de agua por dia
+       * fue totalmente cubierto. Es decir, se satisfizo la cantidad
        * acumulada de agua evaporada de un conjunto de dias previos
        * al dia correspondiente del deficit de agua por dia. Por lo
-       * tanto, en el dia del deficit de agua por dia no hay una
-       * cantidad de agua evaporada que cubrir (satisfacer). En
-       * consecuencia, el deficit acumulado de agua por dia en una
+       * tanto, en el dia del deficit de agua por dia calculado no
+       * hay una cantidad de agua evaporada que cubrir (satisfacer).
+       * En consecuencia, el deficit acumulado de agua por dia en una
        * parcela en una fecha o de un cultivo en una fecha en caso
-       * de que es invoque este metodo para una parcela que tiene un
-       * cultivo sembrado y en desarrollo en una fecha, es 0.
+       * de que se invoque este metodo para una parcela que tiene un
+       * cultivo sembrado en una fecha, es 0.
        */
-      if (accumulatedDeficit > 0) {
-        accumulatedDeficit = 0;
+      if (accumulatedWaterDeficitPerDay > 0) {
+        accumulatedWaterDeficitPerDay = 0;
       }
 
     }
 
-    return accumulatedDeficit;
+    return accumulatedWaterDeficitPerDay;
   }
 
   /**

@@ -199,7 +199,7 @@ public class SoilWaterBalanceServiceBean {
         SoilWaterBalance givenSoilWaterBalance = null;
 
         double waterDeficitPerDay = 0.0;
-        double accumulatedWaterDeficit = 0.0;
+        double accumulatedWaterDeficitPerDay = 0.0;
         double waterProvidedPerDay = 0.0;
 
         for (ClimateRecord currentClimateRecord : climateRecords) {
@@ -230,7 +230,7 @@ public class SoilWaterBalanceServiceBean {
                  * cuando se calcula la necesidad de agua de riego de un
                  * cultivo en la fecha actual [mm/dia]
                  */
-                accumulatedWaterDeficit = WaterMath.calculateAccumulatedDeficitPerDay(waterDeficitPerDay, accumulatedWaterDeficit);
+                accumulatedWaterDeficitPerDay = WaterMath.accumulateWaterDeficitPerDay(waterDeficitPerDay, accumulatedWaterDeficitPerDay);
 
                 /*
                  * Calcula el agua provista (lluvia o riego, o lluvia mas riego
@@ -249,7 +249,7 @@ public class SoilWaterBalanceServiceBean {
                 givenSoilWaterBalance.setEvaporatedWater(getEvaporatedWater(currentClimateRecord));
                 givenSoilWaterBalance.setWaterProvided(waterProvidedPerDay);
                 givenSoilWaterBalance.setWaterDeficit(waterDeficitPerDay);
-                givenSoilWaterBalance.setAccumulatedWaterDeficit(accumulatedWaterDeficit);
+                givenSoilWaterBalance.setAccumulatedWaterDeficit(accumulatedWaterDeficitPerDay);
                 givenSoilWaterBalance.setUserId(userId);
 
                 /*
@@ -258,11 +258,11 @@ public class SoilWaterBalanceServiceBean {
                 create(givenSoilWaterBalance);
             } else {
                 waterDeficitPerDay = WaterMath.calculateWaterDeficitPerDay(currentClimateRecord, irrigationRecords);
-                accumulatedWaterDeficit = WaterMath.calculateAccumulatedDeficitPerDay(waterDeficitPerDay, accumulatedWaterDeficit);
+                accumulatedWaterDeficitPerDay = WaterMath.accumulateWaterDeficitPerDay(waterDeficitPerDay, accumulatedWaterDeficitPerDay);
                 waterProvidedPerDay = currentClimateRecord.getPrecip() + WaterMath.sumTotalAmountIrrigationWaterGivenDate(currentClimateRecord.getDate(), irrigationRecords);
 
                 givenSoilWaterBalance = find(userId, currentClimateRecord.getDate(), parcelName);
-                update(givenSoilWaterBalance.getId(), cropName, getEvaporatedWater(currentClimateRecord), waterProvidedPerDay, waterDeficitPerDay, accumulatedWaterDeficit);
+                update(givenSoilWaterBalance.getId(), cropName, getEvaporatedWater(currentClimateRecord), waterProvidedPerDay, waterDeficitPerDay, accumulatedWaterDeficitPerDay);
             }
 
         }
