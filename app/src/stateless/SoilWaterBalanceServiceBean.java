@@ -84,16 +84,16 @@ public class SoilWaterBalanceServiceBean {
      * @param cropName
      * @param evaporatedWater
      * @param waterProvided
-     * @param waterDeficit
-     * @param accumulatedWaterDeficit
+     * @param waterDeficitPerDay
+     * @param accumulatedWaterDeficitPerDay
      */
-    public void update(int id, String cropName, double evaporatedWater, double waterProvided, double waterDeficit, double accumulatedWaterDeficit) {
-        Query query = getEntityManager().createQuery("UPDATE SoilWaterBalance c SET c.cropName = :cropName, c.evaporatedWater = :evaporatedWater, c.waterProvided = :waterProvided, c.waterDeficit = :waterDeficit, c.accumulatedWaterDeficit = :accumulatedWaterDeficit WHERE c.id = :id");
+    public void update(int id, String cropName, double evaporatedWater, double waterProvided, double waterDeficitPerDay, double accumulatedWaterDeficitPerDay) {
+        Query query = getEntityManager().createQuery("UPDATE SoilWaterBalance c SET c.cropName = :cropName, c.evaporatedWater = :evaporatedWater, c.waterProvided = :waterProvided, c.waterDeficitPerDay = :waterDeficitPerDay, c.accumulatedWaterDeficitPerDay = :accumulatedWaterDeficitPerDay WHERE c.id = :id");
         query.setParameter("cropName", cropName);
         query.setParameter("evaporatedWater", evaporatedWater);
         query.setParameter("waterProvided", waterProvided);
-        query.setParameter("waterDeficit", waterDeficit);
-        query.setParameter("accumulatedWaterDeficit", accumulatedWaterDeficit);
+        query.setParameter("waterDeficitPerDay", waterDeficitPerDay);
+        query.setParameter("accumulatedWaterDeficitPerDay", accumulatedWaterDeficitPerDay);
         query.setParameter("id", id);
         query.executeUpdate();
     }
@@ -248,8 +248,8 @@ public class SoilWaterBalanceServiceBean {
                 givenSoilWaterBalance.setCropName(cropName);
                 givenSoilWaterBalance.setEvaporatedWater(getEvaporatedWater(currentClimateRecord));
                 givenSoilWaterBalance.setWaterProvided(waterProvidedPerDay);
-                givenSoilWaterBalance.setWaterDeficit(waterDeficitPerDay);
-                givenSoilWaterBalance.setAccumulatedWaterDeficit(accumulatedWaterDeficitPerDay);
+                givenSoilWaterBalance.setWaterDeficitPerDay(waterDeficitPerDay);
+                givenSoilWaterBalance.setAccumulatedWaterDeficitPerDay(accumulatedWaterDeficitPerDay);
                 givenSoilWaterBalance.setUserId(userId);
 
                 /*

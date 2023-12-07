@@ -48,11 +48,11 @@ public class SoilWaterBalance {
     @Column(name = "EVAPORATED_WATER", nullable = false)
     private double evaporatedWater;
 
-    @Column(name = "WATER_DEFICIT", nullable = false)
-    private double waterDeficit;
+    @Column(name = "WATER_DEFICIT_PER_DAY", nullable = false)
+    private double waterDeficitPerDay;
 
-    @Column(name = "ACCUMULATED_WATER_DEFICIT", nullable = false)
-    private double accumulatedWaterDeficit;
+    @Column(name = "ACCUMULATED_WATER_DEFICIT_PER_DAY", nullable = false)
+    private double accumulatedWaterDeficitPerDay;
 
     @Column(name = "USER_ID", nullable = false)
     private int userId;
@@ -105,20 +105,20 @@ public class SoilWaterBalance {
         this.evaporatedWater = evaporatedWater;
     }
 
-    public double getWaterDeficit() {
-        return waterDeficit;
+    public double getWaterDeficitPerDay() {
+        return waterDeficitPerDay;
     }
 
-    public void setWaterDeficit(double waterDeficit) {
-        this.waterDeficit = waterDeficit;
+    public void setWaterDeficitPerDay(double waterDeficitPerDay) {
+        this.waterDeficitPerDay = waterDeficitPerDay;
     }
 
-    public double getAccumulatedWaterDeficit() {
-        return accumulatedWaterDeficit;
+    public double getAccumulatedWaterDeficitPerDay() {
+        return accumulatedWaterDeficitPerDay;
     }
 
-    public void setAccumulatedWaterDeficit(double accumulatedWaterDeficit) {
-        this.accumulatedWaterDeficit = accumulatedWaterDeficit;
+    public void setAccumulatedWaterDeficitPerDay(double accumulatedWaterDeficitPerDay) {
+        this.accumulatedWaterDeficitPerDay = accumulatedWaterDeficitPerDay;
     }
 
     public int getUserId() {
