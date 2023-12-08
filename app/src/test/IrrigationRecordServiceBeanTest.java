@@ -24,10 +24,12 @@ public class IrrigationRecordServiceBeanTest {
 
   private static EntityManager entityManager;
   private static EntityManagerFactory entityManagerFactory;
+
   private static ParcelServiceBean parcelService;
   private static IrrigationRecordServiceBean irrigationRecordService;
   private static UserServiceBean userService;
   private static OptionServiceBean optionService;
+
   private static Collection<Parcel> parcels;
   private static Collection<IrrigationRecord> irrigationRecords;
   private static Collection<User> users;
@@ -95,10 +97,10 @@ public class IrrigationRecordServiceBeanTest {
      * Persistencia de una opcion para un usuario
      */
     entityManager.getTransaction().begin();
-    Option newOption = optionService.create();
+    Option parcelOption = optionService.create();
     entityManager.getTransaction().commit();
 
-    options.add(newOption);
+    options.add(parcelOption);
 
     /*
      * Persistencia de un usuario de prueba
@@ -109,7 +111,6 @@ public class IrrigationRecordServiceBeanTest {
     givenUser.setLastName("Miller");
     givenUser.setEmail("matt@email.com");
     givenUser.setPassword("Matt");
-    givenUser.setOption(newOption);
 
     entityManager.getTransaction().begin();
     givenUser = userService.create(givenUser);
@@ -126,6 +127,7 @@ public class IrrigationRecordServiceBeanTest {
     givenParcel.setLatitude(1);
     givenParcel.setLongitude(1);
     givenParcel.setUser(givenUser);
+    givenParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
     givenParcel = parcelService.create(givenParcel);
@@ -250,10 +252,10 @@ public class IrrigationRecordServiceBeanTest {
      * Persistencia de una opcion para el usuario de prueba
      */
     entityManager.getTransaction().begin();
-    Option userOption = optionService.create();
+    Option parcelOption = optionService.create();
     entityManager.getTransaction().commit();
 
-    options.add(userOption);
+    options.add(parcelOption);
 
     /*
      * Persistencia de un usuario de prueba
@@ -264,7 +266,6 @@ public class IrrigationRecordServiceBeanTest {
     givenUser.setLastName("Miller");
     givenUser.setEmail("maxmiller@eservice.com");
     givenUser.setPassword("Max");
-    givenUser.setOption(userOption);
 
     entityManager.getTransaction().begin();
     givenUser = userService.create(givenUser);
@@ -281,6 +282,7 @@ public class IrrigationRecordServiceBeanTest {
     givenParcel.setLatitude(1);
     givenParcel.setLongitude(1);
     givenParcel.setUser(givenUser);
+    givenParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
     givenParcel = parcelService.create(givenParcel);
@@ -398,10 +400,10 @@ public class IrrigationRecordServiceBeanTest {
      * Persistencia de una opcion para el usuario de prueba
      */
     entityManager.getTransaction().begin();
-    Option userOption = optionService.create();
+    Option parcelOption = optionService.create();
     entityManager.getTransaction().commit();
 
-    options.add(userOption);
+    options.add(parcelOption);
 
     /*
      * Persistencia de un usuario de prueba
@@ -412,7 +414,6 @@ public class IrrigationRecordServiceBeanTest {
     givenUser.setLastName("Miller");
     givenUser.setEmail("smiller@eservice.com");
     givenUser.setPassword("Gordon");
-    givenUser.setOption(userOption);
 
     entityManager.getTransaction().begin();
     givenUser = userService.create(givenUser);
@@ -429,6 +430,7 @@ public class IrrigationRecordServiceBeanTest {
     givenParcel.setLatitude(1);
     givenParcel.setLongitude(1);
     givenParcel.setUser(givenUser);
+    givenParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
     givenParcel = parcelService.create(givenParcel);
