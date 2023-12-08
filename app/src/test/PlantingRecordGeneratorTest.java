@@ -22,6 +22,7 @@ public class PlantingRecordGeneratorTest {
 
   private static EntityManager entityManager;
   private static EntityManagerFactory entityManagerFactory;
+
   private static ParcelServiceBean parcelService;
   private static PlantingRecordServiceBean plantingRecordService;
   private static CropServiceBean cropService;
@@ -103,7 +104,7 @@ public class PlantingRecordGeneratorTest {
      */
     Random randomValueGenerator = new Random(System.currentTimeMillis());
     PlantingRecord newPlantingRecord;
-    PlantingRecordStatus finishedStatus = plantingRecordStatusService.findFinished();
+    PlantingRecordStatus finishedStatus = plantingRecordStatusService.findFinishedStatus();
     Parcel givenParcel = parcelService.find(1);
     Crop givenCrop;
     Calendar harvestDate;
@@ -142,6 +143,7 @@ public class PlantingRecordGeneratorTest {
       newPlantingRecord = new PlantingRecord();
       newPlantingRecord.setSeedDate(seedDate);
       newPlantingRecord.setHarvestDate(harvestDate);
+      newPlantingRecord.setIrrigationWaterNeed("n/a");
       newPlantingRecord.setParcel(givenParcel);
       newPlantingRecord.setCrop(givenCrop);
       newPlantingRecord.setStatus(finishedStatus);
