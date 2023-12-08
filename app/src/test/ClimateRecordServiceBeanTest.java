@@ -27,11 +27,13 @@ public class ClimateRecordServiceBeanTest {
 
   private static EntityManager entityManager;
   private static EntityManagerFactory entityManagerFactory;
+
   private static ParcelServiceBean parcelService;
   private static UserServiceBean userService;
   private static OptionServiceBean optionService;
   private static ClimateRecordServiceBean climateRecordService;
   private static TypePrecipitationServiceBean typePrecipitationService;
+
   private static Collection<Parcel> parcels;
   private static Collection<ClimateRecord> climateRecords;
   private static Collection<TypePrecipitation> typePrecipitations;
@@ -80,14 +82,40 @@ public class ClimateRecordServiceBeanTest {
 
   @Test
   public void test() {
-    System.out.println("Esta prueba unitaria es para probar que, cuando se obtiene un conjunto de datos meteorologicos, de una llamada a la");
-    System.out.println("API Visual Crossing Weather, que contiene tipos de precipitacion y se persiste un registro climatico con este conjunto,");
+    System.out.println("**************************************** Prueba unitaria del metodo getForecast ****************************************");
+    System.out.println("Esta prueba unitaria es para probar que, cuando se obtiene un conjunto de datos meteorologicos de una llamada a la");
+    System.out.println("API Visual Crossing Weather que contiene tipos de precipitacion y se persiste un registro climatico con este conjunto,");
     System.out.println("se persisten tambien los tipos de precipitacion.");
     System.out.println();
     System.out.println("Para demostrar en esta prueba que se persisten los tipos de precipitacion cuando se persiste un registro climatico,");
     System.out.println("se realiza una llamada a Visual Crossing Weather con una coordenada geografica de Nueva York y la fecha 14-1-2023.");
     System.out.println("Esta llamada devuelve un conjunto de datos meteorologicos en los que hay dos tipos de precipitacion: rain y snow.");
     System.out.println();
+
+    /*
+     * Persistencia de una opcion para la parcela de prueba
+     */
+    entityManager.getTransaction().begin();
+    Option parcelOption = optionService.create();
+    entityManager.getTransaction().commit();
+
+    options.add(parcelOption);
+
+    /*
+     * Persistencia de un usuario de prueba
+     */
+    User givenUser = new User();
+    givenUser.setUsername("nmiller");
+    givenUser.setName("Newt");
+    givenUser.setLastName("Miller");
+    givenUser.setEmail("nmiller@email.com");
+    givenUser.setPassword("Newt");
+
+    entityManager.getTransaction().begin();
+    givenUser = userService.create(givenUser);
+    entityManager.getTransaction().commit();
+
+    users.add(givenUser);
 
     /*
      * Creacion y persistencia de una parcela de prueba
@@ -97,7 +125,8 @@ public class ClimateRecordServiceBeanTest {
     givenParcel.setHectares(2);
     givenParcel.setLatitude(40.71427);
     givenParcel.setLongitude(-74.00597);
-    givenParcel.setUser(userService.find(1));
+    givenParcel.setUser(givenUser);
+    givenParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
     givenParcel = parcelService.create(givenParcel);
@@ -196,13 +225,13 @@ public class ClimateRecordServiceBeanTest {
     System.out.println();
 
     /*
-     * Persistencia de una opcion para el usuario de prueba
+     * Persistencia de una opcion para la parcela de prueba
      */
     entityManager.getTransaction().begin();
-    Option userOption = optionService.create();
+    Option parcelOption = optionService.create();
     entityManager.getTransaction().commit();
 
-    options.add(userOption);
+    options.add(parcelOption);
 
     /*
      * Persistencia de un usuario de prueba
@@ -213,7 +242,6 @@ public class ClimateRecordServiceBeanTest {
     givenUser.setLastName("Miller");
     givenUser.setEmail("tmiller@email.com");
     givenUser.setPassword("Tyler");
-    givenUser.setOption(userOption);
 
     entityManager.getTransaction().begin();
     givenUser = userService.create(givenUser);
@@ -230,6 +258,7 @@ public class ClimateRecordServiceBeanTest {
     givenParcel.setLatitude(1);
     givenParcel.setLongitude(1);
     givenParcel.setUser(givenUser);
+    givenParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
     givenParcel = parcelService.create(givenParcel);
@@ -341,13 +370,13 @@ public class ClimateRecordServiceBeanTest {
     System.out.println();
 
     /*
-     * Persistencia de una opcion para el usuario de prueba
+     * Persistencia de una opcion para la parcela de prueba
      */
     entityManager.getTransaction().begin();
-    Option userOption = optionService.create();
+    Option parcelOption = optionService.create();
     entityManager.getTransaction().commit();
 
-    options.add(userOption);
+    options.add(parcelOption);
 
     /*
      * Persistencia de un usuario de prueba
@@ -358,7 +387,6 @@ public class ClimateRecordServiceBeanTest {
     givenUser.setLastName("Miller");
     givenUser.setEmail("smiller@eservice.com");
     givenUser.setPassword("Sam");
-    givenUser.setOption(userOption);
 
     entityManager.getTransaction().begin();
     givenUser = userService.create(givenUser);
@@ -375,6 +403,7 @@ public class ClimateRecordServiceBeanTest {
     givenParcel.setLatitude(1);
     givenParcel.setLongitude(1);
     givenParcel.setUser(givenUser);
+    givenParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
     givenParcel = parcelService.create(givenParcel);
