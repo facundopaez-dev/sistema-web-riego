@@ -22,6 +22,7 @@ import model.Crop;
 public class GetKcTest {
   private static EntityManager entityManager;
   private static EntityManagerFactory entityMangerFactory;
+
   private static CropServiceBean cropService;
 
   private static final int JANUARY = 0;
@@ -56,7 +57,7 @@ public class GetKcTest {
     System.out.println("en la etapa inicial de su ciclo de vida.");
     System.out.println();
 
-    Crop givenCrop = cropService.findByName("Tomate");
+    Crop givenCrop = cropService.find("Tomate");
 
     System.out.println("* Cultivo de prueba");
     System.out.println(givenCrop);
@@ -123,7 +124,7 @@ public class GetKcTest {
     System.out.println("en la etapa de desarrollo de su ciclo de vida.");
     System.out.println();
 
-    Crop givenCrop = cropService.findByName("Tomate");
+    Crop givenCrop = cropService.find("Tomate");
 
     System.out.println("* Cultivo de prueba");
     System.out.println(givenCrop);
@@ -190,7 +191,7 @@ public class GetKcTest {
     System.out.println("en la etapa media de su ciclo de vida.");
     System.out.println();
 
-    Crop givenCrop = cropService.findByName("Tomate");
+    Crop givenCrop = cropService.find("Tomate");
 
     System.out.println("* Cultivo de prueba");
     System.out.println(givenCrop);
@@ -257,7 +258,7 @@ public class GetKcTest {
     System.out.println("en la etapa final de su ciclo de vida.");
     System.out.println();
 
-    Crop givenCrop = cropService.findByName("Tomate");
+    Crop givenCrop = cropService.find("Tomate");
 
     System.out.println("* Cultivo de prueba");
     System.out.println(givenCrop);
@@ -273,7 +274,7 @@ public class GetKcTest {
     seedDate.set(Calendar.YEAR, 2019);
 
     Calendar givenDate = Calendar.getInstance();
-    givenDate.set(Calendar.DAY_OF_MONTH, 19);
+    givenDate.set(Calendar.DAY_OF_MONTH, 9);
     givenDate.set(Calendar.MONTH, APRIL);
     givenDate.set(Calendar.YEAR, 2020);
 
