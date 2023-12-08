@@ -16,6 +16,7 @@ public class CalculateHarvestDateTest {
 
   private static EntityManager entityManager;
   private static EntityManagerFactory entityManagerFactory;
+
   private static CropServiceBean cropService;
 
   private static final int JANUARY = 0;
@@ -55,7 +56,7 @@ public class CalculateHarvestDateTest {
      * Impresion del cultivo de prueba
      */
     String cropName = "Rábano";
-    Crop givenCrop = cropService.findByName(cropName);
+    Crop givenCrop = cropService.find(cropName);
 
     System.out.println("* Cultivo de prueba *");
     System.out.println(givenCrop);
@@ -112,7 +113,7 @@ public class CalculateHarvestDateTest {
      * Impresion del cultivo de prueba
      */
     String cropName = "Rábano";
-    Crop givenCrop = cropService.findByName(cropName);
+    Crop givenCrop = cropService.find(cropName);
 
     System.out.println("* Cultivo de prueba *");
     System.out.println(givenCrop);
@@ -169,7 +170,7 @@ public class CalculateHarvestDateTest {
      * Impresion del cultivo de prueba
      */
     String cropName = "Rábano";
-    Crop givenCrop = cropService.findByName(cropName);
+    Crop givenCrop = cropService.find(cropName);
 
     System.out.println("* Cultivo de prueba *");
     System.out.println(givenCrop);
@@ -225,7 +226,7 @@ public class CalculateHarvestDateTest {
      * Impresion del cultivo de prueba
      */
     String cropName = "Uvas de vino";
-    Crop givenCrop = cropService.findByName(cropName);
+    Crop givenCrop = cropService.find(cropName);
 
     System.out.println("* Cultivo de prueba *");
     System.out.println(givenCrop);
@@ -283,7 +284,7 @@ public class CalculateHarvestDateTest {
      * Impresion del cultivo de prueba
      */
     String cropName = "Espinaca";
-    Crop givenCrop = cropService.findByName(cropName);
+    Crop givenCrop = cropService.find(cropName);
 
     System.out.println("* Cultivo de prueba *");
     System.out.println(givenCrop);
