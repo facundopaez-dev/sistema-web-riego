@@ -720,14 +720,15 @@ public class ParcelRestServlet {
       return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_NUMBER_OF_HECTARES)).build();
     }
 
+    newParcel.setUser(userService.find(userId));
+    newParcel.setOption(optionService.create());
+
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos que el
      * cliente solicito persistir
      */
-    newParcel.setUser(userService.find(userId));
-    newParcel.setOption(optionService.create());
     return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(parcelService.create(newParcel))).build();
   }
 
