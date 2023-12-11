@@ -734,7 +734,7 @@ public class WaterMathTest {
 
   /**
    * Establece la ETc, la lluvia y la fecha de 6 registros
-   * climaticos para la pruebta unitaria uno
+   * climaticos para la prueba unitaria uno
    */
   private void setClimateRecordsValuesOne() {
     climateRecordOne.setEtc(10);
@@ -764,7 +764,7 @@ public class WaterMathTest {
 
   /**
    * Establece la ETc, la lluvia y la fecha de 6 registros
-   * climaticos para la pruebta unitaria dos
+   * climaticos para la prueba unitaria dos
    */
   private void setClimateRecordsValuesTwo() {
     climateRecordOne.setEtc(10);
@@ -794,7 +794,7 @@ public class WaterMathTest {
 
   /**
    * Establece la ETc, la lluvia y la fecha de 6 registros
-   * climaticos para la pruebta unitaria tres
+   * climaticos para la prueba unitaria tres
    */
   private void setClimateRecordsValuesThree() {
     climateRecordOne.setEtc(10);
@@ -824,7 +824,7 @@ public class WaterMathTest {
 
   /**
    * Establece la ETc, la lluvia y la fecha de 6 registros
-   * climaticos para la pruebta unitaria cuatro
+   * climaticos para la prueba unitaria cuatro
    */
   private void setClimateRecordsValuesFour() {
     climateRecordOne.setEtc(10);
@@ -854,7 +854,7 @@ public class WaterMathTest {
 
   /**
    * Establece la ETc, la lluvia y la fecha de 6 registros
-   * climaticos para la pruebta unitaria cinco
+   * climaticos para la prueba unitaria cinco
    */
   private void setClimateRecordsValuesFive() {
     climateRecordOne.setEtc(10);
@@ -884,7 +884,7 @@ public class WaterMathTest {
 
   /**
    * Establece la ETc, la lluvia y la fecha de 6 registros
-   * climaticos para la pruebta unitaria seis
+   * climaticos para la prueba unitaria seis
    */
   private void setClimateRecordsValuesSix() {
     climateRecordOne.setEtc(10);
@@ -914,7 +914,7 @@ public class WaterMathTest {
 
   /**
    * Establece la ETc, la lluvia y la fecha de 6 registros
-   * climaticos para la pruebta unitaria siete
+   * climaticos para la prueba unitaria siete
    */
   private void setClimateRecordsValuesSeven() {
     climateRecordOne.setEtc(15);
@@ -944,7 +944,7 @@ public class WaterMathTest {
 
   /**
    * Establece la ETc, la lluvia y la fecha de 6 registros
-   * climaticos para la pruebta unitaria ocho
+   * climaticos para la prueba unitaria ocho
    */
   private void setClimateRecordsValuesEight() {
     climateRecordOne.setEtc(15);
@@ -974,7 +974,7 @@ public class WaterMathTest {
 
   /**
    * Establece la ETc, la lluvia y la fecha de 6 registros
-   * climaticos para la pruebta unitaria nueve
+   * climaticos para la prueba unitaria nueve
    */
   private void setClimateRecordsValuesNine() {
     climateRecordOne.setEtc(15);
@@ -1004,7 +1004,7 @@ public class WaterMathTest {
 
   /**
    * Establece la ETc, la lluvia y la fecha de 6 registros
-   * climaticos para la pruebta unitaria diez
+   * climaticos para la prueba unitaria diez
    */
   private void setClimateRecordsValuesTen() {
     climateRecordOne.setEtc(15);
@@ -1034,7 +1034,7 @@ public class WaterMathTest {
 
   /**
    * Establece la ETc, la lluvia y la fecha de 6 registros
-   * climaticos para la pruebta unitaria once
+   * climaticos para la prueba unitaria once
    */
   private void setClimateRecordsValuesEleven() {
     climateRecordOne.setEtc(15);
