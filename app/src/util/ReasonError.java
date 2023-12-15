@@ -109,7 +109,8 @@ public enum ReasonError {
   UNDEFINED_TYPE_CROP_NAME("El nombre del tipo de cultivo debe estar definido"),
   UNDEFINED_MONTH_NAME("El nombre del mes debe estar definido"),
   LOWER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID("El límite inferior de la profundidad radicular máxima debe ser mayor a 0.0"),
-  UPPER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID("El límite superior de la profundidad radicular máxima debe ser mayor a 0.0");
+  UPPER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID("El límite superior de la profundidad radicular máxima debe ser mayor a 0.0"),
+  INVALID_DEPLETION_FACTOR("El factor de agotamiento debe tener un valor entre 0.1 y 0.8");
 
   private final String reason;
 

@@ -119,6 +119,11 @@ app.controller(
       const UNDEFINED_UPPER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID = "El límite superior de la profundidad radicular máxima debe estar definido";
       const LOWER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID = "El límite inferior de la profundidad radicular máxima debe ser mayor a 0.0";
       const UPPER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID = "El límite superior de la profundidad radicular máxima debe ser mayor a 0.0";
+      const UNDEFINED_DEPLETION_FACTOR = "El factor de agotamiento debe estar definido";
+      const INVALID_DEPLETION_FACTOR = "El factor de agotamiento debe tener un valor entre 0.1 y 0.8";
+
+      const LOWER_LIMIT_DEPLETION_FACTOR = 0.1;
+      const UPPER_LIMIT_DEPLETION_FACTOR = 0.8;
 
       $scope.create = function () {
         // Expresion regular para validar el nombre del cultivo
@@ -361,6 +366,31 @@ app.controller(
           return;
         }
 
+        /*
+        **************************************************
+        Controles sobre el valor del factor de agotamiento
+        **************************************************
+        */
+
+        /*
+        Si el factor de agotamiento NO esta definido, la aplicacion
+        muestra el mensaje dado y no realiza la operacion solicitada
+        */
+        if ($scope.data.depletionFactor == undefined) {
+          alert(UNDEFINED_DEPLETION_FACTOR);
+          return;
+        }
+
+        /*
+        Si el factor de agotamiento es menor a 0.1 o mayor a 0.8,
+        la aplicacion muestra el mensaje dado y no realiza la
+        operacion solicitada
+        */
+        if ($scope.data.depletionFactor < LOWER_LIMIT_DEPLETION_FACTOR || $scope.data.depletionFactor > UPPER_LIMIT_DEPLETION_FACTOR) {
+          alert(INVALID_DEPLETION_FACTOR);
+          return;
+        }
+
         cropService.create($scope.data, function (error, data) {
           if (error) {
             console.log(error);
@@ -507,6 +537,22 @@ app.controller(
         */
         if ($scope.data.upperLimitMaximumRootDepth <= 0.0) {
           alert(UPPER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID);
+          return;
+        }
+
+        /*
+        **************************************************
+        Controles sobre el valor del factor de agotamiento
+        **************************************************
+        */
+
+        /*
+        Si el factor de agotamiento es menor a 0.1 o mayor a 0.8,
+        la aplicacion muestra el mensaje dado y no realiza la
+        operacion solicitada
+        */
+        if ($scope.data.depletionFactor < LOWER_LIMIT_DEPLETION_FACTOR || $scope.data.depletionFactor > UPPER_LIMIT_DEPLETION_FACTOR) {
+          alert(INVALID_DEPLETION_FACTOR);
           return;
         }
 

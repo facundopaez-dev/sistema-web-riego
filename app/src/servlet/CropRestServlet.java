@@ -805,6 +805,30 @@ public class CropRestServlet {
     }
 
     /*
+     * **************************************************
+     * Controles sobre el valor del factor de agotamiento
+     * **************************************************
+     */
+
+    /*
+     * Si el factor de agotamiento (p) es menor al limite inferior
+     * (0.1) o mayor al limite superior (0.8), la aplicacion del
+     * lado servidor retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "El factor de agotamiento debe tener
+     * un valor entre 0.1 y 0.8" y no se realiza la operacion
+     * solicitada.
+     * 
+     * ¿De donde proviene esta limitacion del factor de agotamiento
+     * (p)? La establece el libro "Evapotranspiracion del cultivo,
+     * estudio FAO riego y drenaje 56" en el primer parrafo de la
+     * pagina 163.
+     */
+    if (newCrop.getDepletionFactor() < cropService.getLowerLimitDepletionFactor()
+        || newCrop.getDepletionFactor() > cropService.getUpperLimitDepletionFactor()) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_DEPLETION_FACTOR))).build();
+    }
+
+    /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos que el
@@ -1188,6 +1212,30 @@ public class CropRestServlet {
 
     if (modifiedCrop.getUpperLimitMaximumRootDepth() <= 0.0) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UPPER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID))).build();      
+    }
+
+    /*
+     * **************************************************
+     * Controles sobre el valor del factor de agotamiento
+     * **************************************************
+     */
+
+    /*
+     * Si el factor de agotamiento (p) es menor al limite inferior
+     * (0.1) o mayor al limite superior (0.8), la aplicacion del
+     * lado servidor retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "El factor de agotamiento debe tener
+     * un valor entre 0.1 y 0.8" y no se realiza la operacion
+     * solicitada.
+     * 
+     * ¿De donde proviene esta limitacion del factor de agotamiento
+     * (p)? La establece el libro "Evapotranspiracion del cultivo,
+     * estudio FAO riego y drenaje 56" en el primer parrafo de la
+     * pagina 163.
+     */
+    if (modifiedCrop.getDepletionFactor() < cropService.getLowerLimitDepletionFactor()
+        || modifiedCrop.getDepletionFactor() > cropService.getUpperLimitDepletionFactor()) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_DEPLETION_FACTOR))).build();
     }
 
     /*

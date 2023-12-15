@@ -21,6 +21,23 @@ public class CropServiceBean {
   @PersistenceContext(unitName = "swcar")
   protected EntityManager entityManager;
 
+  /*
+   * ¿De donde proviene esta limitacion del factor de agotamiento
+   * (p)? La establece el libro "Evapotranspiracion del cultivo,
+   * estudio FAO riego y drenaje 56" en el primer parrafo de la
+   * pagina 163. 
+   */
+  private final double LOWER_LIMIT_DEPLETION_FACTOR = 0.1;
+  private final double UPPER_LIMIT_DEPLETION_FACTOR = 0.8;
+
+  public double getLowerLimitDepletionFactor() {
+    return LOWER_LIMIT_DEPLETION_FACTOR;
+  }
+
+  public double getUpperLimitDepletionFactor() {
+    return UPPER_LIMIT_DEPLETION_FACTOR;
+  }
+
   public void setEntityManager(EntityManager localEntityManager) {
     entityManager = localEntityManager;
   }
@@ -106,6 +123,7 @@ public class CropServiceBean {
       givenCrop.setActive(modifiedCrop.getActive());
       givenCrop.setLowerLimitMaximumRootDepth(modifiedCrop.getLowerLimitMaximumRootDepth());
       givenCrop.setUpperLimitMaximumRootDepth(modifiedCrop.getUpperLimitMaximumRootDepth());
+      givenCrop.setDepletionFactor(modifiedCrop.getDepletionFactor());
       givenCrop.setPlantingStartMonth(modifiedCrop.getPlantingStartMonth());
       givenCrop.setEndPlantingMonth(modifiedCrop.getEndPlantingMonth());
       givenCrop.setTypeCrop(modifiedCrop.getTypeCrop());
