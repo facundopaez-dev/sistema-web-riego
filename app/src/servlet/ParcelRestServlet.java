@@ -722,6 +722,14 @@ public class ParcelRestServlet {
       return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_NUMBER_OF_HECTARES)).build();
     }
 
+    /*
+     * Elimina los espacios en blanco de los extremos del nombre
+     * de una parcela y reduce a uno los espacios en blanco entre
+     * palabra y palabra del nombre de una parcela que tengan una
+     * longitud mayor o igual a dos espacios en blanco, si el nombre
+     * de una parcela esta formado por mas de una palabra
+     */
+    newParcel.setName(parcelService.setBlankSpacesInNameToOne(newParcel.getName()));
     newParcel.setUser(userService.find(userId));
     newParcel.setOption(optionService.create());
 
@@ -1031,6 +1039,15 @@ public class ParcelRestServlet {
     if (modifiedParcel.getHectares() <= 0.0) {
       return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_NUMBER_OF_HECTARES)).build();
     }
+
+    /*
+     * Elimina los espacios en blanco de los extremos del nombre
+     * de una parcela y reduce a uno los espacios en blanco entre
+     * palabra y palabra del nombre de una parcela que tengan una
+     * longitud mayor o igual a dos espacios en blanco, si el nombre
+     * de una parcela esta formado por mas de una palabra
+     */
+    modifiedParcel.setName(parcelService.setBlankSpacesInNameToOne(modifiedParcel.getName()));
 
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP

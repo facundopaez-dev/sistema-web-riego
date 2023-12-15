@@ -428,6 +428,17 @@ public class ParcelServiceBean {
     return (find(userId, parcelId, parcelName) != null);
   }
 
+  /**
+   * @param parcelName
+   * @return referencia a un objeto de tipo String que contiene el
+   * nombre de una parcela sin espacios en blanco en los extremos
+   * y con un espacio en blanco entre palabra y palabra, si el nombre
+   * de una parcela esta formado por mas de una palabra
+   */
+  public String setBlankSpacesInNameToOne(String parcelName) {
+    return parcelName.trim().replaceAll("\\s{2,}", " ");
+  }
+
   public Page<Parcel> findByPage(Integer page, Integer cantPerPage, Map<String, String> parameters) {
     // Genero el WHERE dinámicamente
     StringBuffer where = new StringBuffer(" WHERE 1=1");
