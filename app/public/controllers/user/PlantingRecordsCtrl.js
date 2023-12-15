@@ -67,7 +67,7 @@ app.controller(
 			$scope.delete = function (id) {
 				console.log("Deleting: " + id)
 
-				var result = window.confirm("¿Desea eliminar el registro de plantación seleccionado?");
+				var result = window.confirm("¿Desea eliminar el elemento seleccionado?");
 
 				if (result === false) {
 					return;
