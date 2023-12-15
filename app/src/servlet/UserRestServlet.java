@@ -17,6 +17,7 @@ import javax.ws.rs.core.Response.Status;
 import stateless.SecretKeyServiceBean;
 import stateless.UserServiceBean;
 import stateless.PasswordResetLinkServiceBean;
+import stateless.PasswordServiceBean;
 import stateless.SessionServiceBean;
 import util.ErrorResponse;
 import util.ReasonError;
@@ -37,6 +38,7 @@ public class UserRestServlet {
 
   // inject a reference to the UserServiceBean slsb
   @EJB UserServiceBean userService;
+  @EJB PasswordServiceBean passwordService;
   @EJB SecretKeyServiceBean secretKeyService;
   @EJB PasswordResetLinkServiceBean passwordResetLinkService;
   @EJB SessionServiceBean sessionService;
@@ -696,7 +698,7 @@ public class UserRestServlet {
      * (Bad request) junto con el mensaje "Contraseña incorrecta"
      * y no se realiza la operacion solicitada
      */
-    if (!(userService.authenticate(givenUser.getUsername(), newPasswordData.getPassword()))) {
+    if (!(passwordService.authenticateUser(givenUser.getUsername(), newPasswordData.getPassword()))) {
       return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INCORRECT_PASSWORD)).build();
     }
 
@@ -705,7 +707,7 @@ public class UserRestServlet {
      * servidor modifica la contraseña del usuario y retorna el
      * mensaje HTTP 200 (Ok)
      */
-    userService.modifyPassword(userId, newPasswordData.getNewPassword());
+    passwordService.modify(userId, newPasswordData.getNewPassword());
     return Response.status(Response.Status.OK).build();
   }
 
@@ -980,7 +982,7 @@ public class UserRestServlet {
      * el usuario que solicito dicho restablecimiento, accede a dicho
      * enlace y restablece su contraseña.
      */
-    userService.modifyPassword(userService.findByEmail(userEmail).getId(), passwordResetFormData.getNewPassword());
+    passwordService.modify(userService.findByEmail(userEmail).getId(), passwordResetFormData.getNewPassword());
     passwordResetLinkService.setConsumed(passwordResetLinkId);
     return Response.status(Response.Status.OK).entity(new SuccessfullyResponse(ReasonSuccess.PASSWORD_RESET_SUCCESSFULLY)).build();
   }

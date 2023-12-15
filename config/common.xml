@@ -260,6 +260,18 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
+    <!-- Carga la tabla PASSWORD -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/passwordInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
     <!-- Carga la tabla TYPE_CROP -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
@@ -494,6 +506,18 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
+    <!-- Carga la tabla PASSWORD -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/passwordInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
     <!-- Carga la tabla SOIL -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
@@ -601,6 +625,18 @@ Comandos para detener el server y la base de datos.
       userid="${DERBY_USER}"
       password="${DERBY_PWD}"
       src="etc/sql/userInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla PASSWORD -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/passwordInserts.sql"
       onerror="continue">
       <classpath>
         <pathelement path="${DERBY_CLASSPATH}" />
@@ -742,6 +778,18 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
+    <!-- Carga la tabla PASSWORD -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/passwordInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
     <!-- Carga la tabla TYPE_CROP -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
@@ -871,6 +919,18 @@ Comandos para detener el server y la base de datos.
       userid="${DERBY_USER}"
       password="${DERBY_PWD}"
       src="etc/sql/userInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla PASSWORD -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/passwordInserts.sql"
       onerror="continue">
       <classpath>
         <pathelement path="${DERBY_CLASSPATH}" />
@@ -1012,6 +1072,18 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
+    <!-- Carga la tabla PASSWORD -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/passwordInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
     <!-- Carga la tabla TYPE_CROP -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
@@ -1141,6 +1213,18 @@ Comandos para detener el server y la base de datos.
       userid="${DERBY_USER}"
       password="${DERBY_PWD}"
       src="etc/sql/userInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla PASSWORD -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/passwordInserts.sql"
       onerror="continue">
       <classpath>
         <pathelement path="${DERBY_CLASSPATH}" />
@@ -1294,6 +1378,18 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
+    <!-- Carga la tabla PASSWORD -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/passwordInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
     <!-- Carga la tabla SOIL -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
@@ -1363,6 +1459,18 @@ Comandos para detener el server y la base de datos.
       userid="${DERBY_USER}"
       password="${DERBY_PWD}"
       src="etc/sql/userInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla PASSWORD -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/passwordInserts.sql"
       onerror="continue">
       <classpath>
         <pathelement path="${DERBY_CLASSPATH}" />
@@ -1516,6 +1624,18 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
+    <!-- Carga la tabla PASSWORD -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/passwordInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
     <!-- Carga la tabla TYPE_CROP -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
@@ -1651,6 +1771,18 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
+    <!-- Carga la tabla PASSWORD -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/passwordInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
     <!-- Carga la tabla TYPE_CROP -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
@@ -1780,6 +1912,18 @@ Comandos para detener el server y la base de datos.
       userid="${DERBY_USER}"
       password="${DERBY_PWD}"
       src="etc/sql/userInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla PASSWORD -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/passwordInserts.sql"
       onerror="continue">
       <classpath>
         <pathelement path="${DERBY_CLASSPATH}" />
@@ -1927,6 +2071,18 @@ Comandos para detener el server y la base de datos.
       userid="${DERBY_USER}"
       password="${DERBY_PWD}"
       src="etc/sql/userInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla PASSWORD -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/passwordInserts.sql"
       onerror="continue">
       <classpath>
         <pathelement path="${DERBY_CLASSPATH}" />

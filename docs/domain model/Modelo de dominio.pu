@@ -21,6 +21,7 @@ Parcela "1" --> "1" Opcion
 Cultivo "*" --> "0..1" Region
 Cultivo "*" --> "0..2" Mes
 Parcela "*" --> "0..1" Suelo
+Contraseña "1" --> "1" Usuario
 
 class Parcela {
 -id
@@ -113,7 +114,6 @@ class Opcion {
 class Usuario {
 -id
 -nombreUsuario
--contraseña
 -nombre
 -apellido
 -email
@@ -192,6 +192,11 @@ class Suelo {
 -capacidadCampo
 -marchitezPermanente
 -activo
+}
+
+class Contraseña {
+-id
+-valor
 }
 
 @enduml

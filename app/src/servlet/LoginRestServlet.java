@@ -12,8 +12,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import model.SecretKey;
 import model.User;
+import model.AccessCredential;
 import stateless.SecretKeyServiceBean;
 import stateless.SessionServiceBean;
+import stateless.PasswordServiceBean;
 import stateless.UserServiceBean;
 import util.ErrorResponse;
 import util.ReasonError;
@@ -24,7 +26,10 @@ import utilJwt.Token;
 public class LoginRestServlet {
 
   @EJB
-  UserServiceBean userService;
+  PasswordServiceBean passwordService;
+
+  @EJB
+  UserServiceBean userServiceBean;
 
   @EJB
   SecretKeyServiceBean secretKeyService;
@@ -51,7 +56,11 @@ public class LoginRestServlet {
      * Estas dos comprobaciones se realizan al hacer la autenticacion del usuario.
      */
 
-    User givenUser = mapper.readValue(json, User.class);
+    /*
+     * La credencial de acceso es el nombre de usuario y la
+     * contraseña
+     */
+    AccessCredential accessCredential = mapper.readValue(json, AccessCredential.class);
 
     /*
      * Si el usuario que inicia sesion NO es autentico (es decir, el
@@ -61,7 +70,7 @@ public class LoginRestServlet {
      * HTTP 401 (Unauthorized) junto con el mensaje "Nombre de usuario
      * o contraseña incorrectos" y no se inicia la sesion solicitada
      */
-    if (!userService.authenticate(givenUser.getUsername(), givenUser.getPassword())) {
+    if (!passwordService.authenticateUser(accessCredential.getUsername(), accessCredential.getPassword())) {
       return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.USERNAME_OR_PASSWORD_INCORRECT)).build();
     }
 
@@ -71,7 +80,7 @@ public class LoginRestServlet {
      * solo contiene el nombre de usuario y la contraseña ingresados
      * por el usuario en la pagina web de inicio de sesion
      */
-    givenUser = userService.findByUsername(givenUser.getUsername());
+    User givenUser = userServiceBean.findByUsername(accessCredential.getUsername());
 
     /*
      * Si la cuenta con la que el usuario intenta iniciar sesion NO
@@ -162,7 +171,11 @@ public class LoginRestServlet {
      * Las primeras dos comprobaciones se realizan al hacer la autenticacion del usuario.
      */
 
-    User givenUser = mapper.readValue(json, User.class);
+    /*
+     * La credencial de acceso es el nombre de usuario y la
+     * contraseña
+     */
+    AccessCredential accessCredential = mapper.readValue(json, AccessCredential.class);
 
     /*
      * Si el usuario que inicia sesion NO es autentico (es decir, el
@@ -172,7 +185,7 @@ public class LoginRestServlet {
      * HTTP 401 (Unauthorized) junto con el mensaje "Nombre de usuario
      * o contraseña incorrectos" y no se inicia la sesion solicitada
      */
-    if (!userService.authenticate(givenUser.getUsername(), givenUser.getPassword())) {
+    if (!passwordService.authenticateUser(accessCredential.getUsername(), accessCredential.getPassword())) {
       return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.USERNAME_OR_PASSWORD_INCORRECT)).build();
     }
 
@@ -182,7 +195,7 @@ public class LoginRestServlet {
      * solo contiene el nombre de usuario y la contraseña ingresados
      * por el usuario en la pagina web de inicio de sesion
      */
-    givenUser = userService.findByUsername(givenUser.getUsername());
+    User givenUser = userServiceBean.findByUsername(accessCredential.getUsername());
 
     /*
      * Si la cuenta con la que el usuario intenta iniciar sesion NO
@@ -205,7 +218,7 @@ public class LoginRestServlet {
      * y luego la comprobacion del permiso de super usuario, dicha comprobacion
      * nunca va a fallar en caso de que se ingrese un usuario inexistente.
      */
-    if (!userService.checkSuperuserPermission(givenUser.getUsername())) {
+    if (!userServiceBean.checkSuperuserPermission(givenUser.getUsername())) {
       return Response.status(Response.Status.FORBIDDEN).entity(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS)).build();
     }
 

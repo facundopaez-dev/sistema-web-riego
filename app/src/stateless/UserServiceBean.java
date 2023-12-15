@@ -242,83 +242,6 @@ public class UserServiceBean {
   }
 
   /**
-   * Retorna true si y solo si el nombre de usuario y la contraseña
-   * provistos son iguales a uno de los pares (nombre de usuario, contraseña)
-   * que estan almacenados en la base de datos subyacente. De esta manera,
-   * se realiza la autenticacion del usuario que inicia sesion en la
-   * aplicacion.
-   *
-   * @param username provisto por el usuario cuando inicia sesion en la
-   * aplicacion para demostrar que es quien dice ser
-   * @param plainPassword provisto por el usuario cuando inicia sesion
-   * en la aplicacion para demostrar que es quien dice ser
-   * @return true si el nombre de usuario y la contraseña provistos son
-   * iguales a uno de los pares (nombre de usuario, contraseña) que estan
-   * almacenados en la base de datos subyacente, en caso contrario false
-   */
-  public boolean authenticate(String username, String plainPassword) {
-    /*
-     * Si el nombre de usuario y/o la contraseña tienen el valor null,
-     * se retorna false, ya que realizar la autenticacion con un nombre
-     * de usuario y/o una contraseña con este valor es similar a autenticar
-     * un usuario inexistente en la base de datos subyacente.
-     * 
-     * Con este control se evita realizar una consulta a la base de
-     * datos comparando el nombre de usuario y/o la contraseña con
-     * el valor null. Si no se realiza este control y se realiza esta
-     * consulta a la base de datos, ocurre la excepcion
-     * SQLSyntaxErrorException, debido a que la comparacion de
-     * un atributo con el valor null incumple la sintaxis del
-     * proveedor del motor de base de datos.
-     */
-    if (username == null || plainPassword == null) {
-      return false;
-    }
-
-    return (findByUsernameAndPassword(username, plainPassword) != null);
-  }
-
-  /**
-   * Retorna una referencia a un objeto de tipo User si y solo si
-   * se encuentra en la base de datos subyacente, el usuario
-   * correspondiente al nombre de usuario y la contraseña dados
-   * 
-   * @param username
-   * @param plainPassword
-   * @return referencia a un objeto de tipo User si se encuentra en
-   * la base de datos subyacente, el usuario correspondiente al
-   * nombre de usuario y la contraseña dados, en caso contrario null
-   */
-  private User findByUsernameAndPassword(String username, String plainPassword) {
-    Query query = getEntityManager().createQuery("SELECT u FROM User u WHERE UPPER(u.username) = UPPER(:username) AND UPPER(u.password) = UPPER(:password)");
-    query.setParameter("username", username);
-    query.setParameter("password", getPasswordHash(plainPassword));
-
-    User givenUser = null;
-
-    try {
-      givenUser = (User) query.getSingleResult();
-    } catch (NoResultException e) {
-      e.printStackTrace();
-    }
-
-    return givenUser;
-  }
-
-  /**
-   * Calcula el valor hash de una contraseña plana usando el algoritmo
-   * SHA256
-   * 
-   * @param plainPassword
-   * @return una referencia a un objeto de tipo String que contiene
-   * el valor hash en formato SHA256 hexadecimal de una contraseña
-   * plana
-   */
-  public String getPasswordHash(String plainPassword) {
-    return DigestUtils.sha256Hex(plainPassword);
-  }
-
-  /**
    * Comprueba si el usuario con el nombre de usuario provisto, tiene
    * el permiso de administrador (super usuario)
    *
@@ -479,20 +402,6 @@ public class UserServiceBean {
     }
 
     return (findByEmail(userId, email) != null);
-  }
-
-  /**
-   * Modifica la contraseña del usuario correspondiente al ID dado
-   * con la nueva contraseña ingresada por el mismo
-   * 
-   * @param userId
-   * @param newPlainPassword
-   */
-  public void modifyPassword(int userId, String newPlainPassword) {
-    Query query = getEntityManager().createQuery("UPDATE User u SET u.password = :newPassword WHERE u.id = :userId");
-    query.setParameter("userId", userId);
-    query.setParameter("newPassword", getPasswordHash(newPlainPassword));
-    query.executeUpdate();
   }
 
   /**

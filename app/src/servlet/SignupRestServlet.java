@@ -10,9 +10,11 @@ import javax.ws.rs.core.Response.Status;
 import util.ErrorResponse;
 import util.ReasonError;
 import model.User;
+import model.Password;
 import model.SignupFormData;
 import stateless.UserServiceBean;
 import stateless.AccountActivationLinkServiceBean;
+import stateless.PasswordServiceBean;
 import util.Email;
 
 @Path("/signup")
@@ -21,6 +23,9 @@ public class SignupRestServlet {
   // inject a reference to the UserServiceBean slsb
   @EJB
   UserServiceBean userService;
+
+  @EJB
+  PasswordServiceBean passwordService;
 
   @EJB
   AccountActivationLinkServiceBean accountActivationLinkService;
@@ -270,6 +275,16 @@ public class SignupRestServlet {
     newUser = userService.create(newUser);
 
     /*
+     * Luego de persistir un usuario se debe persistir la
+     * contraseña del mismo
+     */
+    Password newPassword = new Password();
+    newPassword.setValue(passwordService.getPasswordHash(newUserData.getPassword()));
+    newPassword.setUser(newUser);
+
+    passwordService.create(newPassword);
+
+    /*
      * Se persiste en la base de datos subyacente un enlace de
      * activacion de cuenta para el usuario registrado
      */
@@ -304,7 +319,6 @@ public class SignupRestServlet {
     newUser.setName(newUserData.getName());
     newUser.setLastName(newUserData.getLastName());
     newUser.setEmail(newUserData.getEmail());
-    newUser.setPassword(userService.getPasswordHash(newUserData.getPassword()));
   }
 
 }
