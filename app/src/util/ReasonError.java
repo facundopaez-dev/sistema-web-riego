@@ -50,7 +50,7 @@ public enum ReasonError {
   NEGATIVE_REALIZED_IRRIGATION("El riego realizado debe ser mayor o igual a cero"),
   UNDEFINED_PARCEL_NAME("El nombre de la parcela debe estar definido"),
   INVALID_NUMBER_OF_HECTARES("La cantidad de hectáreas debe ser mayor a 0.0"),
-  INVALID_PARCEL_NAME("El nombre de una parcela debe empezar con una palabra formada únicamente por caracteres alfabéticos y puede tener más de una palabra formada únicamente por caracteres alfanuméricos"),
+  INVALID_PARCEL_NAME("El nombre de una parcela debe empezar con una palabra formada únicamente por caracteres alfabéticos. Puede haber más de una palabra formada únicamente por caracteres alfabéticos y puede haber palabras formadas únicamente por caracteres numéricos. Todas las palabras deben estar separadas por un espacio en blanco."),
   PARCEL_NAME_ALREADY_USED("Nombre de parcela ya utilizado, elija otro"),
   DATE_FROM_UNDEFINED("La fecha desde debe estar definida"),
   DATE_FROM_AND_DATE_UNTIL_OVERLAPPING("La fecha desde no debe ser mayor o igual a la fecha hasta"),

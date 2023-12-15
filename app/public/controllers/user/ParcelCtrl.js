@@ -98,7 +98,7 @@ app.controller(
 
       const EMPTY_FORM = "Debe completar el formulario. El campo del suelo es opcional (es decir, puede estar vacío).";
       const PARCEL_NAME_UNDEFINED = "El nombre de la parcela debe estar definido";
-      const INVALID_PARCEL_NAME = "El nombre de una parcela debe empezar con una palabra formada únicamente por caracteres alfabéticos y puede tener más de una palabra formada únicamente por caracteres alfanuméricos";
+      const INVALID_PARCEL_NAME = "El nombre de una parcela debe empezar con una palabra formada únicamente por caracteres alfabéticos. Puede haber más de una palabra formada únicamente por caracteres alfabéticos y puede haber palabras formadas únicamente por caracteres numéricos. Todas las palabras deben estar separadas por un espacio en blanco.";
       const INVALID_NUMBER_OF_HECTARES = "La cantidad de hectáreas debe ser mayor a 0.0";
       const UNDEFINED_GEOGRAPHIC_COORDINATE = "La coordenada geográfica de la parcela debe estar definida";
 
@@ -149,7 +149,7 @@ app.controller(
 
       $scope.create = function () {
         // Expresion regular para validar el nombre de la parcela
-        var nameRegexp = /^[A-Za-zÀ-ÿ]+(\s[A-Za-zÀ-ÿ]*[0-9]*[A-Za-zÀ-ÿ]*)*$/g;
+        var nameRegexp = /^[A-Za-zÀ-ÿ]+(\s[A-Za-zÀ-ÿ]*[0-9]*)*$/g;
 
         /*
         Si la propiedad data de $scope tiene el valor undefined,
@@ -175,9 +175,8 @@ app.controller(
 
         /*
         Si el nombre de la parcela NO empieza con una cadena
-        formada unicamente por caracteres alfabeticos seguido
-        de palabras formadas unicamente por caracteres alfanumericos,
-        la aplicacion muestra el mensaje dado y no ejecuta la
+        formada unicamente por caracteres alfabeticos, la
+        aplicacion muestra el mensaje dado y no ejecuta la
         instruccion que realiza la peticion HTTP correspondiente
         a esta funcion
         */
@@ -241,7 +240,7 @@ app.controller(
 
       $scope.modify = function () {
         // Expresion regular para validar el nombre de la parcela
-        var nameRegexp = /^[A-Za-zÀ-ÿ]+(\s[A-Za-zÀ-ÿ]*[0-9]*[A-Za-zÀ-ÿ]*)*$/g;
+        var nameRegexp = /^[A-Za-zÀ-ÿ]+(\s[A-Za-zÀ-ÿ]*[0-9]*)*$/g;
 
         /*
         Si el nombre de la parcela NO esta definido, la aplicacion
@@ -255,9 +254,8 @@ app.controller(
 
         /*
         Si el nombre de la parcela NO empieza con una cadena
-        formada unicamente por caracteres alfabeticos seguido
-        de palabras formadas unicamente por caracteres alfanumericos,
-        la aplicacion muestra el mensaje dado y no ejecuta la
+        formada unicamente por caracteres alfabeticos, la
+        aplicacion muestra el mensaje dado y no ejecuta la
         instruccion que realiza la peticion HTTP correspondiente
         a esta funcion
         */

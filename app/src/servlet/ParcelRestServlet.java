@@ -50,6 +50,8 @@ public class ParcelRestServlet {
 
   private final String UNDEFINED_VALUE = "undefined";
 
+  private final String NAME_REGULAR_EXPRESSION = "^[A-Za-zÀ-ÿ]+(\\s[A-Za-zÀ-ÿ]*[0-9]*)*$";
+
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response findAll(@Context HttpHeaders request) throws IOException {
@@ -685,16 +687,16 @@ public class ParcelRestServlet {
 
     /*
      * Si el nombre de la nueva parcela NO empieza con caracteres
-     * alfabeticos, seguido de un espacio en blanco entre palabra
-     * y palabra en el caso en el que el nombre este formado por
-     * mas de una palabra, la aplicacion del lado servidor retorna
-     * el mensaje HTTP 400 (Bad request) junto con el mensaje "El
+     * alfabeticos, la aplicacion del lado servidor retorna el
+     * mensaje HTTP 400 (Bad request) junto con el mensaje "El
      * nombre de una parcela debe empezar con una palabra formada
-     * unicamente por caracteres alfabeticos y puede tener mas de
-     * una palabra formada por caracteres alfanuméricos" y no se
-     * realiza la operacion solicitada
+     * unicamente por caracteres alfabeticos. Puede haber mas de
+     * una palabra formada unicamente por caracteres alfabeticos
+     * y puede haber palabras formadas unicamente por caracteres
+     * numericos. Todas las palabras deben estar separadas por un
+     * espacio en blanco." y no se realiza la operacion solicitada
      */
-    if (!newParcel.getName().matches("^[A-Za-zÀ-ÿ]+(\\s[A-Za-zÀ-ÿ]*[0-9]*[A-Za-zÀ-ÿ]*)*$")) {
+    if (!newParcel.getName().matches(NAME_REGULAR_EXPRESSION)) {
       return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_PARCEL_NAME)).build();
     }
 
@@ -993,16 +995,17 @@ public class ParcelRestServlet {
 
     /*
      * Si el nombre de la parcela a modificar NO empieza con
-     * una cadena formada unicamente por caracteres alfabeticos
-     * seguida por mas de una cadena formada por caracteres alfanumericos
-     * en caso de que el nombre este formado por mas de una palabra,
-     * la aplicacion del lado servidor retorna el mensaje HTTP 400
-     * (Bad request) junto con el mensaje "El nombre de una parcela
-     * debe empezar con una palabra formada unicamente por caracteres
-     * alfabeticos y puede tener mas de una palabra formada por caracteres
-     * alfanuméricos" y no se realiza la operacion solicitada
+     * caracteres alfabeticos, la aplicacion del lado servidor
+     * retorna el mensaje HTTP 400 (Bad request) junto con el
+     * mensaje "El nombre de una parcela debe empezar con una
+     * palabra formada unicamente por caracteres alfabeticos.
+     * Puede haber mas de una palabra formada unicamente por
+     * caracteres alfabeticos y puede haber palabras formadas
+     * unicamente por caracteres numericos. Todas las palabras
+     * deben estar separadas por un espacio en blanco." y no
+     * se realiza la operacion solicitada
      */
-    if (!modifiedParcel.getName().matches("^[A-Za-zÀ-ÿ]+(\\s[A-Za-zÀ-ÿ]*[0-9]*[A-Za-zÀ-ÿ]*)*$")) {
+    if (!modifiedParcel.getName().matches(NAME_REGULAR_EXPRESSION)) {
       return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_PARCEL_NAME)).build();
     }
 
