@@ -7,7 +7,6 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import model.User;
-import org.apache.commons.codec.digest.DigestUtils;
 
 @Stateless
 public class UserServiceBean {
