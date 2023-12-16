@@ -1402,10 +1402,10 @@ public class PlantingRecordRestServlet {
    * los cuales estan definidos en la clase OptionServiceBean.
    * 
    * @param userId
-   * @param userOption
+   * @param parcelOption
    * @param developingPlantingRecord
    */
-  private void requestPastClimateRecords(int userId, Option userOption, PlantingRecord developingPlantingRecord) {
+  private void requestPastClimateRecords(int userId, Option parcelOption, PlantingRecord developingPlantingRecord) {
     /*
      * Esta variable representa la cantidad de registros climaticos
      * del pasado (es decir, anteriores a la fecha actual) que la
@@ -1459,7 +1459,7 @@ public class PlantingRecordRestServlet {
      * de dia en el año de la fecha inmediatamente anterior a
      * la fecha actual
      */
-    if (userOption.getThirtyDaysFlag() && irrigationRecordService.checkExistenceLastBetweenDates(userId, givenParcel.getId(), minorDate, majorDate)) {
+    if (parcelOption.getThirtyDaysFlag() && irrigationRecordService.checkExistenceLastBetweenDates(userId, givenParcel.getId(), minorDate, majorDate)) {
       /*
        * La fecha a partir de la que se deben recuperar los registros
        * climaticos del pasado (es decir, anteriores a la fecha actual)
@@ -1497,8 +1497,8 @@ public class PlantingRecordRestServlet {
      * fecha actual) a partir de la cual obtener los registros
      * climaticos mediante dicha cantidad
      */
-    if (!userOption.getThirtyDaysFlag() || !irrigationRecordService.checkExistenceLastBetweenDates(userId, givenParcel.getId(), minorDate, majorDate)) {
-      pastDaysReference = userOption.getPastDaysReference();
+    if (!parcelOption.getThirtyDaysFlag() || !irrigationRecordService.checkExistenceLastBetweenDates(userId, givenParcel.getId(), minorDate, majorDate)) {
+      pastDaysReference = parcelOption.getPastDaysReference();
       givenPastDate = UtilDate.getPastDateFromOffset(pastDaysReference);
     }
 
@@ -1546,10 +1546,10 @@ public class PlantingRecordRestServlet {
    * los cuales estan definidos en la clase OptionServiceBean.
    * 
    * @param userId
-   * @param userOption
+   * @param parcelOption
    * @param developingPlantingRecord
    */
-  private void calculateEtsPastClimateRecords(int userId, Option userOption, PlantingRecord developingPlantingRecord) {
+  private void calculateEtsPastClimateRecords(int userId, Option parcelOption, PlantingRecord developingPlantingRecord) {
     /*
      * Esta variable representa la cantidad de registros climaticos
      * del pasado (es decir, anteriores a la fecha actual) que la
@@ -1607,7 +1607,7 @@ public class PlantingRecordRestServlet {
      * de dia en el año de la fecha inmediatamente anterior a
      * la fecha actual
      */
-    if (userOption.getThirtyDaysFlag() && irrigationRecordService.checkExistenceLastBetweenDates(userId, givenParcel.getId(), minorDate, majorDate)) {
+    if (parcelOption.getThirtyDaysFlag() && irrigationRecordService.checkExistenceLastBetweenDates(userId, givenParcel.getId(), minorDate, majorDate)) {
       /*
        * La fecha a partir de la que se deben recuperar los registros
        * climaticos del pasado (es decir, anteriores a la fecha actual)
@@ -1645,8 +1645,8 @@ public class PlantingRecordRestServlet {
      * fecha actual) a partir de la cual obtener los registros
      * climaticos mediante dicha cantidad
      */
-    if (!userOption.getThirtyDaysFlag() || !irrigationRecordService.checkExistenceLastBetweenDates(userId, givenParcel.getId(), minorDate, majorDate)) {
-      pastDaysReference = userOption.getPastDaysReference();
+    if (!parcelOption.getThirtyDaysFlag() || !irrigationRecordService.checkExistenceLastBetweenDates(userId, givenParcel.getId(), minorDate, majorDate)) {
+      pastDaysReference = parcelOption.getPastDaysReference();
       givenPastDate = UtilDate.getPastDateFromOffset(pastDaysReference);
     }
 
@@ -1722,11 +1722,11 @@ public class PlantingRecordRestServlet {
    * 
    * @param userId
    * @param developingPlantingRecord
-   * @param userOption
+   * @param parcelOption
    * @return double que representa la necesidad de agua de riego
    * de un cultivo en la fecha actual [mm/dia]
    */
-  private double calculateIrrigationWaterNeedCurrentDate(int userId, PlantingRecord developingPlantingRecord, Option userOption) {
+  private double calculateIrrigationWaterNeedCurrentDate(int userId, PlantingRecord developingPlantingRecord, Option parcelOption) {
     /*
      * Estas fechas se utilizan para obtener de la base de datos
      * subyacente los registros climaticos y los registros de riego
@@ -1807,7 +1807,7 @@ public class PlantingRecordRestServlet {
      * con este metodo es calcular la necesidad de agua de riego
      * de un cultivo en la fecha actual [mm/dia]
      */
-    if (userOption.getThirtyDaysFlag() && irrigationRecordService.checkExistenceLastBetweenDates(userId, givenParcel.getId(), minorDate, majorDate)) {
+    if (parcelOption.getThirtyDaysFlag() && irrigationRecordService.checkExistenceLastBetweenDates(userId, givenParcel.getId(), minorDate, majorDate)) {
       /*
        * La fecha a partir de la que se deben obtener los registros
        * climaticos y los registros de riego previos a la fecha
@@ -1837,8 +1837,8 @@ public class PlantingRecordRestServlet {
      * busca con este metodo es calcular la necesidad de agua
      * de riego de un cultivo en la fecha actual [mm/dia]
      */
-    if (!userOption.getThirtyDaysFlag() || !irrigationRecordService.checkExistenceLastBetweenDates(userId, givenParcel.getId(), minorDate, majorDate)) {
-      dateFrom = UtilDate.getPastDateFromOffset(userOption.getPastDaysReference());
+    if (!parcelOption.getThirtyDaysFlag() || !irrigationRecordService.checkExistenceLastBetweenDates(userId, givenParcel.getId(), minorDate, majorDate)) {
+      dateFrom = UtilDate.getPastDateFromOffset(parcelOption.getPastDaysReference());
     }
 
     double totalIrrigationWaterCurrentDate = irrigationRecordService.calculateTotalIrrigationWaterCurrentDate(givenParcel);
