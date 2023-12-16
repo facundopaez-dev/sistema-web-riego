@@ -12,7 +12,7 @@ import javax.persistence.Id;
 import java.util.Calendar;
 
 @Entity
-@Table(name = "SOIL_WATER_BALANCE", uniqueConstraints = { @UniqueConstraint(columnNames = { "DATE", "PARCEL_NAME", "CROP_NAME", "USER_ID" }) })
+@Table(name = "SOIL_WATER_BALANCE", uniqueConstraints = { @UniqueConstraint(columnNames = { "DATE", "PARCEL_NAME" }) })
 public class SoilWaterBalance {
 
     @Id
@@ -53,9 +53,6 @@ public class SoilWaterBalance {
 
     @Column(name = "ACCUMULATED_WATER_DEFICIT_PER_DAY", nullable = false)
     private double accumulatedWaterDeficitPerDay;
-
-    @Column(name = "USER_ID", nullable = false)
-    private int userId;
 
     public int getId() {
         return id;
@@ -119,14 +116,6 @@ public class SoilWaterBalance {
 
     public void setAccumulatedWaterDeficitPerDay(double accumulatedWaterDeficitPerDay) {
         this.accumulatedWaterDeficitPerDay = accumulatedWaterDeficitPerDay;
-    }
-
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
     }
 
 }

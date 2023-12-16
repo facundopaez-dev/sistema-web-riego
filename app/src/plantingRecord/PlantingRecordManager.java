@@ -11,6 +11,7 @@ import stateless.CropServiceBean;
 import stateless.IrrigationRecordServiceBean;
 import stateless.ClimateRecordServiceBean;
 import stateless.SolarRadiationServiceBean;
+import stateless.ParcelServiceBean;
 import stateless.MonthServiceBean;
 import stateless.OptionServiceBean;
 import stateless.LatitudeServiceBean;
@@ -60,6 +61,9 @@ public class PlantingRecordManager {
 
     @EJB
     SoilWaterBalanceServiceBean soilWaterBalanceService;
+
+    @EJB
+    ParcelServiceBean parcelService;
 
     /*
      * Establece de manera automatica el estado finalizado de un registro de
@@ -701,8 +705,19 @@ public class PlantingRecordManager {
          * se presiona el boton "Calcular" sobre un registro de plantacion
          * en desarrollo.
          */
-        soilWaterBalanceService.generateSoilWaterBalances(userId, givenParcel.getName(), developingPlantingRecord.getCrop().getName(), climateRecords, irrigationRecords);
+        soilWaterBalanceService.generateSoilWaterBalances(developingPlantingRecord.getParcel(),
+                developingPlantingRecord.getCrop().getName(), climateRecords, irrigationRecords);
 
+        /*
+         * Se debe invocar el metodo merge() de la clase ParcelServiceBean
+         * para persistir los elementos que se hayan agregado a
+         * la coleccion soilWaterBalances de una parcela durante
+         * la ejecucion del metodo generateSoilWaterBalances de
+         * la clase generateSoilWaterBalances(). De lo contrario,
+         * la base de datos subyacente quedara en un estado
+         * inconsistente.
+         */
+        parcelService.merge(givenParcel);
         return WaterNeedWit.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, climateRecords, irrigationRecords);
     }
 

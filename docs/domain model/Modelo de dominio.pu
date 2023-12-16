@@ -22,6 +22,7 @@ Cultivo "*" --> "0..1" Region
 Cultivo "*" --> "0..2" Mes
 Parcela "*" --> "0..1" Suelo
 Contraseña "1" --> "1" Usuario
+Parcela "1" --> "*" BalanceHidricoSuelo
 
 class Parcela {
 -id
@@ -182,7 +183,6 @@ class BalanceHidricoSuelo {
 -aguaEvaporada
 -deficitAguaPorDia
 -acumuladoDeficitAguaPorDia
--usuarioId
 }
 
 class Suelo {

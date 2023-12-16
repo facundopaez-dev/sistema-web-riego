@@ -9,6 +9,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import model.Parcel;
+import model.SoilWaterBalance;
 
 @Stateless
 public class ParcelServiceBean {
@@ -95,6 +96,57 @@ public class ParcelServiceBean {
     }
 
     return null;
+  }
+
+  /**
+   * Segun la documentacion web de la clase EntityManager, el metodo
+   * merge() de esta clase fusiona el estado de una entidad en el
+   * contexto de persistencia actual.
+   * 
+   * Los siguientes dos parrafos pertenecen a la pagina 161 del
+   * libro "Pro JPA 2 Mastering the JavaTM Persistente API".
+   * 
+   * Devolver una instancia administrada distinta de la entidad
+   * original es una parte fundamental del proceso de fusion.
+   * Si ya existe una instancia de entidad con el mismo identificador
+   * en el contexto de persistencia, el proveedor sobrescribira
+   * su estado con el estado de la entidad que se esta fusionando,
+   * pero la version administrada que ya existia debe devolverse
+   * al cliente para que pueda ser usada. Si el proveedor no
+   * actualiza una instancia en el contexto de persistencia,
+   * cualquier referencia a esa instancia sera inconsistente
+   * con el nuevo estado en el que se fusionara.
+   * 
+   * Cuando se invoca merge() en una nueva entidad, se comporta
+   * de manera similar a la operacion persist(). Agrega la entidad
+   * al contexto de persistencia, pero en lugar de agregar la
+   * instancia de la entidad original, crea una nueva copia y
+   * administra esa instancia. La copia creada por la operacion
+   * merge() persiste como si se invocara el metodo persist()
+   * en ella.
+   * 
+   * ************************************************************
+   * 
+   * Debido a la funcion que cumple el metodo merge() de la clase
+   * EntityManager:
+   * - la tabla de union que existe entre las entidades Parcel y
+   * SoilWaterBalance en la base de datos subyacente, es escrita
+   * en funcion de una instancia de tipo Parcel y su coleccion
+   * de balances hidricos de suelo llamada soilWaterBalances.
+   * - la tabla que existe para la entidad SoilWaterBalance en
+   * la base de datos subyacente, es actualizada con los cambios
+   * realizados en los elementos de la coleccion soilWaterBalances
+   * de una instancia de tipo Parcel.
+   * 
+   * @param parcel
+   * @return referencia a un objeto de tipo Parcel que contiene
+   * los cambios realizados en el durante la ejecucion de la
+   * aplicacion, si se invoca este metodo con una entidad de
+   * tipo Parcel administrada. En cambio, si se lo invoca con
+   * una nueva entidad de tipo Parcel, la persiste.
+   */
+  public Parcel merge(Parcel parcel) {
+    return entityManager.merge(parcel);
   }
 
   /**
@@ -440,7 +492,7 @@ public class ParcelServiceBean {
   }
 
   public Page<Parcel> findByPage(Integer page, Integer cantPerPage, Map<String, String> parameters) {
-    // Genero el WHERE dinámicamente
+    // Genero el WHERE dinamicamente
     StringBuffer where = new StringBuffer(" WHERE 1=1");
 
     if (parameters != null)

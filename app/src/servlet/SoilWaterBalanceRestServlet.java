@@ -18,12 +18,14 @@ import javax.ws.rs.core.HttpHeaders;
 import stateless.SoilWaterBalanceServiceBean;
 import stateless.SecretKeyServiceBean;
 import stateless.SessionServiceBean;
+import stateless.ParcelServiceBean;
 import util.ErrorResponse;
 import util.ReasonError;
 import util.RequestManager;
 import util.UtilDate;
 import utilJwt.AuthHeaderManager;
 import utilJwt.JwtManager;
+import model.Parcel;
 
 @Path("/soilWaterBalances")
 public class SoilWaterBalanceRestServlet {
@@ -31,6 +33,7 @@ public class SoilWaterBalanceRestServlet {
     @EJB SoilWaterBalanceServiceBean soilWaterBalanceService;
     @EJB SecretKeyServiceBean secretKeyService;
     @EJB SessionServiceBean sessionService;
+    @EJB ParcelServiceBean parcelService;
 
     // mapea lista de pojo a JSON
     ObjectMapper mapper = new ObjectMapper();
@@ -123,6 +126,7 @@ public class SoilWaterBalanceRestServlet {
             return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
         }
 
+        Parcel parcel = parcelService.find(userId, parcelName);
         SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
         Date dateFrom;
         Date dateUntil;
@@ -172,7 +176,7 @@ public class SoilWaterBalanceRestServlet {
          */
         if (stringDateFrom == null && stringDateUntil == null) {
             return Response.status(Response.Status.OK)
-                    .entity(mapper.writeValueAsString(soilWaterBalanceService.findAllByParcelNameAndCropName(userId, parcelName, cropName)))
+                    .entity(mapper.writeValueAsString(soilWaterBalanceService.findAllByParcelIdAndCropName(parcel.getId(), cropName)))
                     .build();
         }
 
@@ -188,7 +192,7 @@ public class SoilWaterBalanceRestServlet {
         if (stringDateFrom != null && stringDateUntil == null) {
             dateFrom = new Date(dateFormatter.parse(stringDateFrom).getTime());
             return Response.status(Response.Status.OK)
-                    .entity(mapper.writeValueAsString(soilWaterBalanceService.findAllByDateGreaterThanOrEqual(userId, parcelName, cropName, UtilDate.toCalendar(dateFrom))))
+                    .entity(mapper.writeValueAsString(soilWaterBalanceService.findAllByDateGreaterThanOrEqual(parcel.getId(), cropName, UtilDate.toCalendar(dateFrom))))
                     .build();
         }
 
@@ -204,7 +208,7 @@ public class SoilWaterBalanceRestServlet {
         if (stringDateFrom == null && stringDateUntil != null) {
             dateUntil = new Date(dateFormatter.parse(stringDateUntil).getTime());
             return Response.status(Response.Status.OK)
-                    .entity(mapper.writeValueAsString(soilWaterBalanceService.findAllByDateLessThanOrEqual(userId, parcelName, cropName, UtilDate.toCalendar(dateUntil))))
+                    .entity(mapper.writeValueAsString(soilWaterBalanceService.findAllByDateLessThanOrEqual(parcel.getId(), cropName, UtilDate.toCalendar(dateUntil))))
                     .build();
         }
 
@@ -227,8 +231,8 @@ public class SoilWaterBalanceRestServlet {
         dateUntil = new Date(dateFormatter.parse(stringDateUntil).getTime());
 
         return Response.status(Response.Status.OK)
-                .entity(mapper.writeValueAsString(soilWaterBalanceService.findByAllFilterParameters(userId,
-                        parcelName, cropName, UtilDate.toCalendar(dateFrom), UtilDate.toCalendar(dateUntil))))
+                .entity(mapper.writeValueAsString(soilWaterBalanceService.findByAllFilterParameters(parcel.getId(),
+                        cropName, UtilDate.toCalendar(dateFrom), UtilDate.toCalendar(dateUntil))))
                 .build();
     }
 
