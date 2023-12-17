@@ -103,18 +103,6 @@ public class UserServiceBean {
   }
 
   /**
-   * @return referencia a un objeto de tipo Collection que contiene
-   * todos los usuarios (activos e inactivos), excepto el usuario
-   * admin
-   */
-  public Collection<User> findAll() {
-    Query query = getEntityManager().createQuery("SELECT u FROM User u WHERE u.username != :username ORDER BY u.id");
-    query.setParameter("username", "admin");
-
-    return (Collection) query.getResultList();
-  }
-
-  /**
    * Busca un usuario en la base de datos subyacente mediante un
    * nombre de usuario
    *
