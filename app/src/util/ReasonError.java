@@ -66,8 +66,6 @@ public enum ReasonError {
   INVALID_PRECIPITATION("La precipitación debe ser un valor mayor o igual 0.0"),
   INVALID_CLOUDINESS("La nubosidad debe ser un valor entre 0.0 y 100, incluido"),
   INVALID_ATMOSPHERIC_PRESSURE("La presión atmosférica debe ser un valor mayor a 0.0"),
-  INVALID_ETO("La evapotranspiración del cultivo de referencia (ETo) debe ser un valor mayor o igual a 0.0"),
-  INVALID_ETC("La evapotranspiración del cultivo (ETc) debe ser un valor mayor o igual a 0.0"),
   MODIFICATION_WITH_PAST_SEED_DATE_NOT_ALLOWED("No está permitido modificar un registro de plantación con una fecha de siembra menor a la fecha actual (es decir, anterior a la fecha actual)"),
   MODIFICATION_WITH_FUTURE_SEED_DATE_NOT_ALLOWED("No está permitido modificar un registro de plantación con una fecha de siembra mayor a la fecha actual (es decir, posterior a la fecha actual)"),
   DELETION_PARCEL_WITH_PLANTING_RECORD_IN_DEVELOPMENT_NOT_ALLOWED("No está permitido eliminar (lógicamente) una parcela que tiene un registro de plantación en desarrollo"),

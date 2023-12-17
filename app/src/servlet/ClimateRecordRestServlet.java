@@ -3,6 +3,7 @@ package servlet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Calendar;
 import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -19,7 +20,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import model.ClimateRecord;
+import model.PlantingRecord;
 import stateless.ClimateRecordServiceBean;
+import stateless.CropServiceBean;
+import stateless.SolarRadiationServiceBean;
+import stateless.LatitudeServiceBean;
+import stateless.MonthServiceBean;
+import stateless.PlantingRecordServiceBean;
+import stateless.PlantingRecordStatusServiceBean;
 import stateless.SecretKeyServiceBean;
 import stateless.SessionServiceBean;
 import util.ErrorResponse;
@@ -28,6 +36,8 @@ import util.RequestManager;
 import utilJwt.AuthHeaderManager;
 import utilJwt.JwtManager;
 import climate.ClimateClient;
+import et.Etc;
+import et.HargreavesEto;
 import model.Parcel;
 
 @Path("/climateRecords")
@@ -35,8 +45,14 @@ public class ClimateRecordRestServlet {
 
   // inject a reference to the ClimateRecordServiceBean slsb
   @EJB ClimateRecordServiceBean climateRecordService;
+  @EJB PlantingRecordServiceBean plantingRecordService;
+  @EJB CropServiceBean cropService;
+  @EJB PlantingRecordStatusServiceBean plantingRecordStatusService;
   @EJB SecretKeyServiceBean secretKeyService;
   @EJB SessionServiceBean sessionService;
+  @EJB SolarRadiationServiceBean solarService;
+  @EJB LatitudeServiceBean latitudeService;
+  @EJB MonthServiceBean monthService;
 
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
@@ -512,30 +528,6 @@ public class ClimateRecordRestServlet {
     }
 
     /*
-     * Si la evapotranspiracion del cultivo de referencia (ETo)
-     * tiene un valor menor a 0.0, la aplicacion del lado
-     * servidor retorna el mensaje HTTP 400 (Bad request)
-     * junto con el mensaje "La evapotranspiracion del cultivo
-     * de referencia (ETo) debe ser un valor mayor o igual
-     * a 0.0" y no se realiza la operacion solicitada
-     */
-    if (newClimateRecord.getEto() < 0.0) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_ETO))).build();
-    }
-
-    /*
-     * Si la evapotranspiracion del cultivo (ETc) tiene un
-     * valor menor a 0.0, la aplicacion del lado servidor
-     * retorna el mensaje HTTP 400 (Bad request) junto
-     * con el mensaje "La evapotranspiracion del cultivo
-     * (ETc) debe ser un valor mayor o igual a 0.0" y no
-     * se realiza la operacion solicitada
-     */
-    if (newClimateRecord.getEtc() < 0.0) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_ETC))).build();
-    }
-
-    /*
      * Si la parcela NO esta definida, la aplicacion del
      * lado servidor retorna el mensaje HTTP 400 (Bad
      * request) junto con el mensaje "La parcela debe
@@ -558,6 +550,81 @@ public class ClimateRecordRestServlet {
     if (climateRecordService.checkExistence(newClimateRecord.getDate(), newClimateRecord.getParcel())) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EXISTING_CLIMATE_RECORD))).build();
     }
+
+    /*
+     * Calculo de la ETo (evapotranspiracion del cultivo
+     * de referencia) [mm/dia] para el registro climatico
+     */
+    Parcel givenParcel = newClimateRecord.getParcel();
+    double extraterrestrialSolarRadiation = solarService.getRadiation(givenParcel.getLatitude(),
+        monthService.getMonth(newClimateRecord.getDate().get(Calendar.MONTH)), latitudeService.find(givenParcel.getLatitude()),
+        latitudeService.findPreviousLatitude(givenParcel.getLatitude()),
+        latitudeService.findNextLatitude(givenParcel.getLatitude()));
+
+    double eto = HargreavesEto.calculateEto(newClimateRecord.getMaximumTemperature(), newClimateRecord.getMinimumTemperature(), extraterrestrialSolarRadiation);
+
+    /*
+     * Calculo de la ETc (evapotranspiracion del cultivo
+     * bajo condiciones estandar) [mm/dia] para el registro
+     * climatico
+     */
+    PlantingRecord givenPlantingRecord = null;
+    double etc = 0.0;
+
+    /*
+     * Si una parcela tiene un registro de plantacion que tiene
+     * un periodo, el cual esta definido por una fecha de siembra
+     * y una fecha de cosecha, dentro del cual esta la fecha de
+     * un registro climatico, y si este registro de plantacion
+     * tiene el estado "En espera", NO se calcula la ETc del
+     * cultivo correspondiente a este registro de plantacion,
+     * ya que NO es logico calcular la ETc de un cultivo perteneciente
+     * a un registro de plantacion que tiene el estado "En espera".
+     * Un registro de plantacion que tiene el estado "En espera"
+     * representa la planificacion de la siembra de un cultivo,
+     * por lo tanto, NO es logico calcular la ETc de un cultivo
+     * que esta planificado a ser sembrado.
+     */
+    if (plantingRecordService.checkExistence(givenParcel, newClimateRecord.getDate())) {
+      givenPlantingRecord = plantingRecordService.find(givenParcel, newClimateRecord.getDate());
+
+      /*
+       * Si un registro de plantacion que tiene un periodo, el
+       * cual esta definido por una fecha de siembra y una fecha
+       * de cosecha, dentro del cual esta la fecha de un registro
+       * climatico, tiene el estado "Finalizado", se calcula la
+       * ETc del cultivo correspondiente a este registro de
+       * plantacion, ya que la existencia de un registro de
+       * plantacion finalizado representa la situacion en la que
+       * una parcela tuvo un cultivo sembrado en una fecha, el
+       * cual luego de un tiempo fue cosechado
+       */
+      if (plantingRecordStatusService.equals(givenPlantingRecord.getStatus(), plantingRecordStatusService.findFinishedStatus())) {
+        etc = Etc.calculateEtc(eto, cropService.getKc(givenPlantingRecord.getCrop(), givenPlantingRecord.getSeedDate(), newClimateRecord.getDate()));
+      }
+
+      /*
+       * Si un registro de plantacion que tine un periodo, el
+       * cual esta definido por una fecha de siembra y una fecha
+       * de cosecha, dentro del cual esta la fecha de un registro
+       * climatico, tiene el estado "En desarrollo", se calcula
+       * la ETc del cultivo correspondiente a este registro de
+       * plantacion, ya que la existencia de un registro de
+       * plantacion en desarrollo representa la situacion en
+       * la que una parcela tiene un cultivo sembrado y en
+       * desarrollo
+       */
+      if (plantingRecordStatusService.equals(givenPlantingRecord.getStatus(), plantingRecordStatusService.findDevelopmentStatus())) {
+        etc = Etc.calculateEtc(eto, cropService.getKc(givenPlantingRecord.getCrop(), givenPlantingRecord.getSeedDate()));
+      }
+
+    }
+
+    /*
+     * Asignacion de la ETo y la ETc al registro climatico
+     */
+    newClimateRecord.setEto(eto);
+    newClimateRecord.setEtc(etc);
 
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
@@ -756,30 +823,6 @@ public class ClimateRecordRestServlet {
     }
 
     /*
-     * Si la evapotranspiracion del cultivo de referencia (ETo)
-     * tiene un valor menor a 0.0, la aplicacion del lado
-     * servidor retorna el mensaje HTTP 400 (Bad request)
-     * junto con el mensaje "La evapotranspiracion del cultivo
-     * de referencia (ETo) debe ser un valor mayor o igual
-     * a 0.0" y no se realiza la operacion solicitada
-     */
-    if (modifiedClimateRecord.getEto() < 0.0) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_ETO))).build();
-    }
-
-    /*
-     * Si la evapotranspiracion del cultivo (ETc) tiene un
-     * valor menor a 0.0, la aplicacion del lado servidor
-     * retorna el mensaje HTTP 400 (Bad request) junto
-     * con el mensaje "La evapotranspiracion del cultivo
-     * (ETc) debe ser un valor mayor o igual a 0.0" y no
-     * se realiza la operacion solicitada
-     */
-    if (modifiedClimateRecord.getEtc() < 0.0) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_ETC))).build();
-    }
-
-    /*
      * Si la parcela NO esta definida, la aplicacion del
      * lado servidor retorna el mensaje HTTP 400 (Bad
      * request) junto con el mensaje "La parcela debe
@@ -802,6 +845,81 @@ public class ClimateRecordRestServlet {
     if (climateRecordService.checkRepeated(climateRecordId, modifiedClimateRecord.getParcel(), modifiedClimateRecord.getDate())) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EXISTING_CLIMATE_RECORD))).build();
     }
+
+    /*
+     * Calculo de la ETo (evapotranspiracion del cultivo
+     * de referencia) [mm/dia] para el registro climatico
+     */
+    Parcel givenParcel = modifiedClimateRecord.getParcel();
+    double extraterrestrialSolarRadiation = solarService.getRadiation(givenParcel.getLatitude(),
+        monthService.getMonth(modifiedClimateRecord.getDate().get(Calendar.MONTH)), latitudeService.find(givenParcel.getLatitude()),
+        latitudeService.findPreviousLatitude(givenParcel.getLatitude()),
+        latitudeService.findNextLatitude(givenParcel.getLatitude()));
+
+    double eto = HargreavesEto.calculateEto(modifiedClimateRecord.getMaximumTemperature(), modifiedClimateRecord.getMinimumTemperature(), extraterrestrialSolarRadiation);
+
+    /*
+     * Calculo de la ETc (evapotranspiracion del cultivo
+     * bajo condiciones estandar) [mm/dia] para el registro
+     * climatico
+     */
+    PlantingRecord givenPlantingRecord = null;
+    double etc = 0.0;
+
+    /*
+     * Si una parcela tiene un registro de plantacion que tiene
+     * un periodo, el cual esta definido por una fecha de siembra
+     * y una fecha de cosecha, dentro del cual esta la fecha de
+     * un registro climatico, y si este registro de plantacion
+     * tiene el estado "En espera", NO se calcula la ETc del
+     * cultivo correspondiente a este registro de plantacion,
+     * ya que NO es logico calcular la ETc de un cultivo perteneciente
+     * a un registro de plantacion que tiene el estado "En espera".
+     * Un registro de plantacion que tiene el estado "En espera"
+     * representa la planificacion de la siembra de un cultivo,
+     * por lo tanto, NO es logico calcular la ETc de un cultivo
+     * que esta planificado a ser sembrado.
+     */
+    if (plantingRecordService.checkExistence(givenParcel, modifiedClimateRecord.getDate())) {
+      givenPlantingRecord = plantingRecordService.find(givenParcel, modifiedClimateRecord.getDate());
+
+      /*
+       * Si un registro de plantacion que tiene un periodo, el
+       * cual esta definido por una fecha de siembra y una fecha
+       * de cosecha, dentro del cual esta la fecha de un registro
+       * climatico, tiene el estado "Finalizado", se calcula la
+       * ETc del cultivo correspondiente a este registro de
+       * plantacion, ya que la existencia de un registro de
+       * plantacion finalizado representa la situacion en la que
+       * una parcela tuvo un cultivo sembrado en una fecha, el
+       * cual luego de un tiempo fue cosechado
+       */
+      if (plantingRecordStatusService.equals(givenPlantingRecord.getStatus(), plantingRecordStatusService.findFinishedStatus())) {
+        etc = Etc.calculateEtc(eto, cropService.getKc(givenPlantingRecord.getCrop(), givenPlantingRecord.getSeedDate(), modifiedClimateRecord.getDate()));
+      }
+
+      /*
+       * Si un registro de plantacion que tine un periodo, el
+       * cual esta definido por una fecha de siembra y una fecha
+       * de cosecha, dentro del cual esta la fecha de un registro
+       * climatico, tiene el estado "En desarrollo", se calcula
+       * la ETc del cultivo correspondiente a este registro de
+       * plantacion, ya que la existencia de un registro de
+       * plantacion en desarrollo representa la situacion en
+       * la que una parcela tiene un cultivo sembrado y en
+       * desarrollo
+       */
+      if (plantingRecordStatusService.equals(givenPlantingRecord.getStatus(), plantingRecordStatusService.findDevelopmentStatus())) {
+        etc = Etc.calculateEtc(eto, cropService.getKc(givenPlantingRecord.getCrop(), givenPlantingRecord.getSeedDate()));
+      }
+
+    }
+
+    /*
+     * Asignacion de la ETo y la ETc al registro climatico
+     */
+    modifiedClimateRecord.setEto(eto);
+    modifiedClimateRecord.setEtc(etc);
 
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP

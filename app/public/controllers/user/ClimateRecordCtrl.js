@@ -117,16 +117,12 @@ app.controller(
       const UNDEFINED_CLOUDINESS = "La nubosidad debe estar definida";
       const UNDEFINED_ATMOSPHERIC_PRESSURE = "La presión atmosférica debe estar definida";
       const UNDEFINED_DEW_POINT = "El punto de rocío debe estar definido";
-      const UNDEFINED_ETO = "La evapotranspiración del cultivo de referencia (ETo) debe estar definida";
-      const UNDEFINED_ETC = "La evapotranspiración del cultivo (ETc) debe estar definida";
       const UNDEFINED_PARCEL = "La parcela debe estar definida";
       const INVALID_WIND_SPEED = "La velocidad del viento debe ser un valor mayor o igual a 0.0";
       const INVALID_PRECIPITATION_PROBABILITY = "La probabilidad de la precipitación debe ser un valor entre 0.0 y 100, incluido";
       const INVALID_PRECIPITATION = "La precipitación debe ser un valor mayor o igual 0.0";
       const INVALID_CLOUDINESS = "La nubosidad debe ser un valor entre 0.0 y 100, incluido";
       const INVALID_ATMOSPHERIC_PRESSURE = "La presión atmosférica debe ser un valor mayor a 0.0";
-      const INVALID_ETO = "La evapotranspiración del cultivo de referencia (ETo) debe ser un valor mayor o igual a 0.0";
-      const INVALID_ETC = "La evapotranspiración del cultivo (ETc) debe ser un valor mayor o igual a 0.0";
 
       $scope.create = function () {
         /*
@@ -218,26 +214,6 @@ app.controller(
 
         if ($scope.data.dewPoint == undefined) {
           alert(UNDEFINED_DEW_POINT);
-          return;
-        }
-
-        if ($scope.data.eto == undefined) {
-          alert(UNDEFINED_ETO);
-          return;
-        }
-
-        if ($scope.data.eto < 0.0) {
-          alert(INVALID_ETO);
-          return;
-        }
-
-        if ($scope.data.etc == undefined) {
-          alert(UNDEFINED_ETC);
-          return;
-        }
-
-        if ($scope.data.etc < 0.0) {
-          alert(INVALID_ETC);
           return;
         }
 
@@ -337,26 +313,6 @@ app.controller(
 
         if ($scope.data.dewPoint == undefined) {
           alert(UNDEFINED_DEW_POINT);
-          return;
-        }
-
-        if ($scope.data.eto == undefined) {
-          alert(UNDEFINED_ETO);
-          return;
-        }
-
-        if ($scope.data.eto < 0.0) {
-          alert(INVALID_ETO);
-          return;
-        }
-
-        if ($scope.data.etc == undefined) {
-          alert(UNDEFINED_ETC);
-          return;
-        }
-
-        if ($scope.data.etc < 0.0) {
-          alert(INVALID_ETC);
           return;
         }
 
