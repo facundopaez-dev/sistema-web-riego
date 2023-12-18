@@ -102,10 +102,10 @@ app.controller(
       const INVALID_SOIL_NAME = "El nombre de un suelo debe empezar con una palabra formada únicamente por caracteres alfabéticos y puede tener más de una palabra formada únicamente por caracteres alfabéticos";
       const UNDEFINED_APPARENT_SPECIFIC_WEIGHT = "El peso específico aparente debe estar definido";
       const UNDEFINED_FIELD_CAPACITY = "La capacidad de campo debe estar definida";
-      const UNDEFINED_PERMANENT_WILTING = "La martchitez permanente debe estar definida";
+      const UNDEFINED_PERMANENT_WILTING_POINT = "El punto de marchitez permanente debe estar definido";
       const INVALID_APPARENT_SPECIFIC_WIGHT = "El peso específico aparente debe ser mayor a cero";
       const INVALID_FIELD_CAPACITY = "La capacidad de campo debe ser mayor a cero";
-      const INVALID_PERMANENT_WILTING = "La marchitez permanente debe ser mayor a cero";
+      const INVALID_PERMANENT_WILTING_POINT = "El punto de marchitez permanente debe ser mayor a cero";
 
       $scope.create = function () {
         // Expresion regular para validar el nombre del cultivo
@@ -189,21 +189,21 @@ app.controller(
         }
 
         /*
-        Si la marchitez permanente NO esta definida, la aplicacion
+        Si el punto de marchitez permanente NO esta definido, la aplicacion
         muestra el mensaje dado y no realiza la operacion solicitada
         */
-        if ($scope.data.permanentWilting == undefined) {
-          alert(UNDEFINED_PERMANENT_WILTING);
+        if ($scope.data.permanentWiltingPoint == undefined) {
+          alert(UNDEFINED_PERMANENT_WILTING_POINT);
           return;
         }
 
         /*
-        Si la marchitez permanente tiene un valor menor o igual a cero,
-        la aplicacion muestra el mensaje dado y no realiza la
+        Si el punto de marchitez permanente tiene un valor menor o igual
+        a cero, la aplicacion muestra el mensaje dado y no realiza la
         operacion solicitada
         */
-        if ($scope.data.permanentWilting <= 0.0) {
-          alert(INVALID_PERMANENT_WILTING);
+        if ($scope.data.permanentWiltingPoint <= 0.0) {
+          alert(INVALID_PERMANENT_WILTING_POINT);
           return;
         }
 
@@ -262,12 +262,12 @@ app.controller(
         }
 
         /*
-        Si la marchitez permanente tiene un valor menor o igual a cero,
-        la aplicacion muestra el mensaje dado y no realiza la
+        Si el punto de marchitez permanente tiene un valor menor o igual
+        a cero, la aplicacion muestra el mensaje dado y no realiza la
         operacion solicitada
         */
-        if ($scope.data.permanentWilting <= 0.0) {
-          alert(INVALID_PERMANENT_WILTING);
+        if ($scope.data.permanentWiltingPoint <= 0.0) {
+          alert(INVALID_PERMANENT_WILTING_POINT);
           return;
         }
 

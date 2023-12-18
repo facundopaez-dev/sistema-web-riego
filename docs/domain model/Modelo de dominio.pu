@@ -190,7 +190,7 @@ class Suelo {
 -nombre
 -pesoEspecificoAparente
 -capacidadCampo
--marchitezPermanente
+-puntoMarchitezPermanente
 -activo
 }
 

@@ -42,7 +42,7 @@ public class SoilServiceBean {
             givenSoil.setName(modifiedSoil.getName());
             givenSoil.setApparentSpecificWeight(modifiedSoil.getApparentSpecificWeight());
             givenSoil.setFieldCapacity(modifiedSoil.getFieldCapacity());
-            givenSoil.setPermanentWilting(modifiedSoil.getPermanentWilting());
+            givenSoil.setPermanentWiltingPoint(modifiedSoil.getPermanentWiltingPoint());
             givenSoil.setActive(modifiedSoil.getActive());
             return givenSoil;
         }

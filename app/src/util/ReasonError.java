@@ -91,7 +91,7 @@ public enum ReasonError {
   SOIL_NAME_ALREADY_USED("Nombre de suelo ya utilizado, elija otro"),
   INVALID_APPARENT_SPECIFIC_WIGHT("El peso específico aparente debe ser mayor a cero"),
   INVALID_FIELD_CAPACITY("La capacidad de campo debe ser mayor a cero"),
-  INVALID_PERMANENT_WILTING("La marchitez permanente debe ser mayor a cero"),
+  INVALID_PERMANENT_WILTING_POINT("El punto de marchitez permanente debe ser mayor a cero"),
   INVALID_INITIAL_STAGE("La etapa inicial debe ser mayor a cero"),
   INVALID_DEVELOPMENT_STAGE("La etapa de desarrollo debe ser mayor a cero"),
   INVALID_MIDDLE_STAGE("La etapa media debe ser mayor a cero"),

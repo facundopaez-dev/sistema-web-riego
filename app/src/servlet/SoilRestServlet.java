@@ -620,14 +620,13 @@ public class SoilRestServlet {
         }
 
         /*
-         * Si la marchitez permanente es menor o igual a cero, la
-         * aplicacion del lado servidor retorna el mensaje 400
-         * (Bad request) junto con el mensaje "La marchitez permanente
-         * debe ser mayor a cero" y no se realiza la operacion
-         * solicitada
+         * Si el punto de marchitez permanente es menor o igual a cero,
+         * la aplicacion del lado servidor retorna el mensaje 400 (Bad
+         * request) junto con el mensaje "El punto de marchitez permanente
+         * debe ser mayor a cero" y no se realiza la operacion solicitada
          */
-        if (newSoil.getPermanentWilting() <= 0.0) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_PERMANENT_WILTING))).build();
+        if (newSoil.getPermanentWiltingPoint() <= 0.0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_PERMANENT_WILTING_POINT))).build();
         }
 
         /*
@@ -939,14 +938,13 @@ public class SoilRestServlet {
         }
 
         /*
-         * Si la marchitez permanente es menor o igual a cero, la
-         * aplicacion del lado servidor retorna el mensaje 400
-         * (Bad request) junto con el mensaje "La marchitez permanente
-         * debe ser mayor a cero" y no se realiza la operacion
-         * solicitada
+         * Si el punto de marchitez permanente es menor o igual a cero,
+         * la aplicacion del lado servidor retorna el mensaje 400 (Bad
+         * request) junto con el mensaje "El punto de marchitez permanente
+         * debe ser mayor a cero" y no se realiza la operacion solicitada
          */
-        if (modifiedSoil.getPermanentWilting() <= 0.0) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_PERMANENT_WILTING))).build();
+        if (modifiedSoil.getPermanentWiltingPoint() <= 0.0) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_PERMANENT_WILTING_POINT))).build();
         }
 
         /*

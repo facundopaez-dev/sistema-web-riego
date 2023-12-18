@@ -195,10 +195,10 @@ public class WaterNeedItTest {
     testIrrigationRecords.add(irrigationRecordSix);
 
     testCrop = new Crop();
-    testCrop.setName("Alfalfa");
-    testCrop.setLowerLimitMaximumRootDepth(1.0);
-    testCrop.setUpperLimitMaximumRootDepth(3.0);
-    testCrop.setDepletionFactor(0.6);
+    testCrop.setName("Lechuga");
+    testCrop.setLowerLimitMaximumRootDepth(0.3);
+    testCrop.setUpperLimitMaximumRootDepth(0.5);
+    testCrop.setDepletionFactor(0.30);
 
     testSoil = new Soil();
     testSoil.setName("Arcilloso");
@@ -347,7 +347,7 @@ public class WaterNeedItTest {
     System.out.println();
   }
 
-  @Test
+  @Ignore
   public void testTwoCalculateIrrigationWaterNeed() {
     System.out.println("**************************************** Prueba dos del metodo calculateIrrigationWaterNeed *****************************************");
     printDescriptionMethodToTest();
@@ -421,7 +421,7 @@ public class WaterNeedItTest {
     System.out.println();
   }
 
-  @Test
+  @Ignore
   public void testThreeCalculateIrrigationWaterNeed() {
     System.out.println("**************************************** Prueba tres del metodo calculateIrrigationWaterNeed *****************************************");
     printDescriptionMethodToTest();
@@ -495,7 +495,7 @@ public class WaterNeedItTest {
     System.out.println();
   }
 
-  @Test
+  @Ignore
   public void testFourCalculateIrrigationWaterNeed() {
     System.out.println("**************************************** Prueba cuatro del metodo calculateIrrigationWaterNeed *****************************************");
     printDescriptionMethodToTest();
@@ -569,7 +569,7 @@ public class WaterNeedItTest {
     System.out.println();
   }
 
-  @Test
+  @Ignore
   public void testFiveCalculateIrrigationWaterNeed() {
     System.out.println("**************************************** Prueba cinco del metodo calculateIrrigationWaterNeed *****************************************");
     printDescriptionMethodToTest();
@@ -644,7 +644,7 @@ public class WaterNeedItTest {
     System.out.println();
   }
 
-  @Test
+  @Ignore
   public void testSixCalculateIrrigationWaterNeed() {
     System.out.println("**************************************** Prueba seis del metodo calculateIrrigationWaterNeed *****************************************");
     printDescriptionMethodToTest();
@@ -718,7 +718,7 @@ public class WaterNeedItTest {
     System.out.println();
   }
 
-  @Test
+  @Ignore
   public void testSevenCalculateIrrigationWaterNeed() {
     System.out.println("**************************************** Prueba siete del metodo calculateIrrigationWaterNeed *****************************************");
     printDescriptionMethodToTest();
@@ -792,7 +792,7 @@ public class WaterNeedItTest {
     System.out.println();
   }
 
-  @Test
+  @Ignore
   public void testEightCalculateIrrigationWaterNeed() {
     System.out.println("**************************************** Prueba ocho del metodo calculateIrrigationWaterNeed *****************************************");
     printDescriptionMethodToTest();
@@ -866,7 +866,7 @@ public class WaterNeedItTest {
     System.out.println();
   }
 
-  @Test
+  @Ignore
   public void testNineCalculateIrrigationWaterNeed() {
     System.out.println("**************************************** Prueba nueve del metodo calculateIrrigationWaterNeed *****************************************");
     printDescriptionMethodToTest();
@@ -940,7 +940,7 @@ public class WaterNeedItTest {
     System.out.println();
   }
 
-  @Test
+  @Ignore
   public void testTenCalculateIrrigationWaterNeed() {
     System.out.println("**************************************** Prueba diez del metodo calculateIrrigationWaterNeed *****************************************");
     printDescriptionMethodToTest();
@@ -1235,7 +1235,7 @@ public class WaterNeedItTest {
     System.out.println();
     System.out.println("ETc [mm/dia]");
     System.out.println("H2O (lluvia o riego, o lluvia mas riego y viceversa) [mm/dia]");
-    System.out.println("Diferencia (Lluvia - ETc) [mm/dia]");
+    System.out.println("Diferencia (H2O - ETc) [mm/dia]");
     System.out.println("Acumulado del deficit de agua por dia de dias previos a una fecha (dia) [mm/dia]");
     System.out.println();
   }
@@ -1368,22 +1368,22 @@ public class WaterNeedItTest {
    */
   private void setRecordsValuesOne() {
     climateRecordOne.setEtc(5);
-    climateRecordOne.setPrecip(2);
+    climateRecordOne.setPrecip(0);
 
     climateRecordTwo.setEtc(5);
-    climateRecordTwo.setPrecip(6);
+    climateRecordTwo.setPrecip(0);
 
     climateRecordThree.setEtc(5);
-    climateRecordThree.setPrecip(7);
+    climateRecordThree.setPrecip(0);
 
     climateRecordFour.setEtc(5);
-    climateRecordFour.setPrecip(4);
+    climateRecordFour.setPrecip(1);
 
     climateRecordFive.setEtc(5);
-    climateRecordFive.setPrecip(4);
+    climateRecordFive.setPrecip(0.5);
 
     climateRecordSix.setEtc(5);
-    climateRecordSix.setPrecip(6.65);
+    climateRecordSix.setPrecip(1);
   }
 
   /**

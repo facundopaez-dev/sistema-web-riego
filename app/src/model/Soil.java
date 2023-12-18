@@ -25,8 +25,8 @@ public class Soil {
   @Column(name = "FIELD_CAPACITY", nullable = false)
   private double fieldCapacity;
 
-  @Column(name = "PERMANENT_WILTING", nullable = false)
-  private double permanentWilting;
+  @Column(name = "PERMANENT_WILTING_POINT", nullable = false)
+  private double permanentWiltingPoint;
 
   @Column(name = "ACTIVE", nullable = false)
   private boolean active;
@@ -63,12 +63,12 @@ public class Soil {
     this.fieldCapacity = fieldCapacity;
   }
 
-  public double getPermanentWilting() {
-    return permanentWilting;
+  public double getPermanentWiltingPoint() {
+    return permanentWiltingPoint;
   }
 
-  public void setPermanentWilting(double permanentWilting) {
-    this.permanentWilting = permanentWilting;
+  public void setPermanentWiltingPoint(double permanentWiltingPoint) {
+    this.permanentWiltingPoint = permanentWiltingPoint;
   }
 
   public boolean getActive() {
@@ -82,12 +82,12 @@ public class Soil {
   @Override
   public String toString() {
     return String.format(
-        "ID: %d\nSuelo: %s\nPeso especifico aparente: %.2f\nCapacidad de campo: %.2f\nMarchitez permanente: %.2f\nActivo: %b\n",
+        "ID: %d\nSuelo: %s\nPeso especifico aparente: %.2f\nCapacidad de campo: %.2f\nPunto de marchitez permanente: %.2f\nActivo: %b\n",
         id,
         name,
         apparentSpecificWeight,
         fieldCapacity,
-        permanentWilting,
+        permanentWiltingPoint,
         active);
   }
 

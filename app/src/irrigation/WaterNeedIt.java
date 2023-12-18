@@ -174,17 +174,17 @@ public class WaterNeedIt {
      * @param soil
      * @return double que representa la cantidad de agua que puede
      * retener un suelo en el volumen determinado por los valores
-     * de suelo (capacidad de campo, marchitez permanente, peso
-     * especifico aparente) y la profundidad de las raices de un
-     * cultivo, medida en [mm]. Esto es la lamina total de agua
+     * de suelo (capacidad de campo, punto de marchitez permanente,
+     * peso especifico aparente) y la profundidad de las raices de
+     * un cultivo, medida en [mm]. Esto es la lamina total de agua
      * disponible (dt).
      */
     public static double calculateTotalAmountWaterAvailable(Crop crop, Soil soil) {
         // Capacidad de campo de un suelo
         double wc = soil.getFieldCapacity();
 
-        // Marchitez permanente de un suelo
-        double wm = soil.getPermanentWilting();
+        // Punto de marchitez permanente de un suelo
+        double wm = soil.getPermanentWiltingPoint();
 
         // Peso especifico aparente de un suelo
         double pea = soil.getApparentSpecificWeight();
