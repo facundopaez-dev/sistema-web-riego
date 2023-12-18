@@ -14,9 +14,32 @@ public class PasswordServiceBean {
   @PersistenceContext(unitName = "swcar")
   protected EntityManager entityManager;
 
+  public void setEntityManager(EntityManager localEntityManager) {
+    entityManager = localEntityManager;
+  }
+
   public Password create(Password newPassword) {
     entityManager.persist(newPassword);
     return newPassword;
+  }
+
+  /**
+   * Elimina fisicamente una contraseña de la base de datos subyacente
+   * 
+   * @param id
+   * @return referencia a un objeto de tipo Password en caso de eliminarse
+   * de la base de datos subyacente, la contraseña correspondiente al
+   * ID dado, en caso contrario null
+   */
+  public Password remove(int id) {
+    Password givenPassword = entityManager.find(Password.class, id);
+
+    if (givenPassword != null) {
+      entityManager.remove(givenPassword);
+      return givenPassword;
+    }
+
+    return null;
   }
 
   /**
