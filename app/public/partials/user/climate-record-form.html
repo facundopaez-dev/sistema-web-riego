@@ -149,7 +149,7 @@
                 <label for="climateRecord_minimumTemperature" class="col-md-2 control-label">Temperatura mínima
                     [°C]</label>
                 <div class="col-md-3">
-                    <input type="number" class="form-control" id="climateRecord_minimumTemperature"
+                    <input step="any" type="number" class="form-control" id="climateRecord_minimumTemperature"
                         ng-model="data.minimumTemperature" ng-disabled="action == 'view'">
                 </div>
             </div>
@@ -158,7 +158,7 @@
                 <label for="climateRecord_maximumTemperature" class="col-md-2 control-label">Temperatura máxima
                     [°C]</label>
                 <div class="col-md-3">
-                    <input type="number" class="form-control" id="climateRecord_maximumTemperature"
+                    <input step="any" type="number" class="form-control" id="climateRecord_maximumTemperature"
                         ng-model="data.maximumTemperature" ng-disabled="action == 'view'">
                 </div>
             </div>
@@ -166,8 +166,8 @@
             <div class="form-group">
                 <label for="climateRecord_windSpeed" class="col-md-2 control-label">Velocidad del viento [km/h]</label>
                 <div class="col-md-3">
-                    <input type="number" class="form-control" id="climateRecord_windSpeed" ng-model="data.windSpeed"
-                        ng-disabled="action == 'view'">
+                    <input step="any" type="number" class="form-control" id="climateRecord_windSpeed"
+                        ng-model="data.windSpeed" ng-disabled="action == 'view'">
                 </div>
             </div>
 
@@ -175,7 +175,7 @@
                 <label for="climateRecord_precipProbability" class="col-md-2 control-label">Probabilidad de
                     precipitación [0% - 100%]</label>
                 <div class="col-md-3">
-                    <input type="number" class="form-control" id="climateRecord_precipProbability"
+                    <input step="any" type="number" class="form-control" id="climateRecord_precipProbability"
                         ng-model="data.precipProbability" ng-disabled="action == 'view'">
                 </div>
             </div>
@@ -183,16 +183,16 @@
             <div class="form-group">
                 <label for="climateRecord_precip" class="col-md-2 control-label">Precipitación [mm/día]</label>
                 <div class="col-md-3">
-                    <input type="number" class="form-control" id="climateRecord_precip" ng-model="data.precip"
-                        ng-disabled="action == 'view'">
+                    <input step="any" type="number" class="form-control" id="climateRecord_precip"
+                        ng-model="data.precip" ng-disabled="action == 'view'">
                 </div>
             </div>
 
             <div class="form-group">
                 <label for="climateRecord_cloudCover" class="col-md-2 control-label">Nubosidad [0% - 100%]</label>
                 <div class="col-md-3">
-                    <input type="number" class="form-control" id="climateRecord_cloudCover" ng-model="data.cloudCover"
-                        ng-disabled="action == 'view'">
+                    <input step="any" type="number" class="form-control" id="climateRecord_cloudCover"
+                        ng-model="data.cloudCover" ng-disabled="action == 'view'">
                 </div>
             </div>
 
@@ -200,7 +200,7 @@
                 <label for="climateRecord_atmosphericPressure" class="col-md-2 control-label">Presión atmosférica
                     [milibares (hectopascales)]</label>
                 <div class="col-md-3">
-                    <input type="number" class="form-control" id="climateRecord_atmosphericPressure"
+                    <input step="any" type="number" class="form-control" id="climateRecord_atmosphericPressure"
                         ng-model="data.atmosphericPressure" ng-disabled="action == 'view'">
                 </div>
             </div>
@@ -208,8 +208,8 @@
             <div class="form-group">
                 <label for="climateRecord_dewPoint" class="col-md-2 control-label">Punto de rocío [°C]</label>
                 <div class="col-md-3">
-                    <input type="number" class="form-control" id="climateRecord_dewPoint" ng-model="data.dewPoint"
-                        ng-disabled="action == 'view'">
+                    <input step="any" type="number" class="form-control" id="climateRecord_dewPoint"
+                        ng-model="data.dewPoint" ng-disabled="action == 'view'">
                 </div>
             </div>
 
@@ -217,7 +217,7 @@
                 <label for="climateRecord_eto" class="col-md-2 control-label">Evapotranspiración del cultivo de
                     referencia (ETo) [mm/día]</label>
                 <div class="col-md-3">
-                    <input type="number" class="form-control" id="climateRecord_eto" ng-model="data.eto"
+                    <input step="any" type="number" class="form-control" id="climateRecord_eto" ng-model="data.eto"
                         ng-disabled="action == 'edit' || action == 'view'">
                 </div>
             </div>
@@ -226,7 +226,7 @@
                 <label for="climateRecord_etc" class="col-md-2 control-label">Evapotranspiración del cultivo (ETc)
                     [mm/día]</label>
                 <div class="col-md-3">
-                    <input type="number" class="form-control" id="climateRecord_etc" ng-model="data.etc"
+                    <input step="any" type="number" class="form-control" id="climateRecord_etc" ng-model="data.etc"
                         ng-disabled="action == 'edit' || action == 'view'">
                 </div>
             </div>
