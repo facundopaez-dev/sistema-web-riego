@@ -201,10 +201,10 @@ public class WaterNeedItTest {
     testCrop.setDepletionFactor(0.30);
 
     testSoil = new Soil();
-    testSoil.setName("Arcilloso");
-    testSoil.setApparentSpecificWeight(1.25);
-    testSoil.setFieldCapacity(35);
-    testSoil.setPermanentWilting(17);
+    testSoil.setName("Arenoso");
+    testSoil.setApparentSpecificWeight(1.65);
+    testSoil.setFieldCapacity(9);
+    testSoil.setPermanentWiltingPoint(4);
   }
 
   /*
@@ -222,13 +222,13 @@ public class WaterNeedItTest {
    * 3. Registros climaticos previos a una fecha con precipitacion > 0, registros de riego previos a una fecha con riego realizado == 0
    * (para esto se puede utilizar una coleccion vacia de registros de riego, lo cual es igual a tener una coleccion de registros de riego
    * que tienen riego realizado == 0), acumulado del deficit de agua por dia de dias previos a una fecha estrictamente mayor a la lamina
-   * de riego optima (drop) negativa de una fecha y estrictamente menor a la capacidad de campo (0 [mm]) y cantidad total de agua de riego
-   * de una fecha == 0.
+   * de riego optima (drop) negativa de una fecha y estrictamente menor a la capacidad de campo (0 [mm]) del suelo y cantidad total de
+   * agua de riego de una fecha == 0.
    * 
    * 4. Registros climaticos previos a una fecha con precipitacion > 0, registros de riego previos a una fecha con riego realizado == 0
    * (para esto se puede utilizar una coleccion vacia de registros de riego, lo cual es igual a tener una coleccion de registros de riego
    * que tienen riego realizado == 0), acumulado del deficit de agua por dia de dias previos a una fecha igual a la capacidad de campo
-   * (0 [mm]) y cantidad total de agua de riego de una fecha == 0.
+   * (0 [mm]) del suelo y cantidad total de agua de riego de una fecha == 0.
    * 
    * 5. Una de estas cuatro pruebas unitarias debe ser realizada con registros climaticos previos a una fecha con precipitacion == 0 y
    * registros de riego previos a una fecha con riego realizado > 0. Esta prueba es para demostrar que la necesidad de agua de riego de
@@ -249,19 +249,27 @@ public class WaterNeedItTest {
    * 8. Registros climaticos previos a una fecha con precipitacion > 0, registros de riego previos a una fecha con riego realizado == 0
    * (para esto se puede utilizar una coleccion vacia de registros de riego, lo cual es igual a tener una coleccion de registros de riego
    * que tienen riego realizado == 0), acumulado del deficit de agua por dia de dias previos a una fecha estrictamente mayor a la lamina
-   * de riego optima (drop) negativa de una fecha y estrictamente menor a la capacidad de campo (0) y cantidad total de agua de riego de
-   * una fecha > 0.
+   * de riego optima (drop) negativa de una fecha y estrictamente menor a la capacidad de campo (0 [mm]) del suelo, cantidad total de agua
+   * de riego de una fecha > 0 y suma entre el acumulado del deficit de agua por dia de dias previos a una fecha [mm/dia] y la cantidad
+   * total de agua de riego de una fecha [mm/dia] estrictamente menor a la capacidad de campo (0 [mm]) del suelo.
    * 
    * 9. Registros climaticos previos a una fecha con precipitacion > 0, registros de riego previos a una fecha con riego realizado == 0
    * (para esto se puede utilizar una coleccion vacia de registros de riego, lo cual es igual a tener una coleccion de registros de riego
    * que tienen riego realizado == 0), acumulado del deficit de agua por dia de dias previos a una fecha igual a la capacidad de campo
-   * (0 [mm]) y cantidad total de agua de riego de una fecha > 0.
+   * (0 [mm]) del suelo y cantidad total de agua de riego de una fecha > 0.
    * 
    * 10. Registros climaticos previos a una fecha con precipitacion > 0, registros de riego previos a una fecha con riego realizado == 0
    * (para esto se puede utilizar una coleccion vacia de registros de riego, lo cual es igual a tener una coleccion de registros de riego
    * que tienen riego realizado == 0), acumulado del deficit de agua por dia de dias previos a una fecha estrictamente mayor a la lamina
-   * de riego optima (drop) de una fecha y estrictamente menor a la capacidad de campo (0 [mm]), y cantidad total de agua de riego de una
-   * fecha > 0.
+   * de riego optima (drop) de una fecha y estrictamente menor a la capacidad de campo (0 [mm]) del suelo, cantidad total de agua de riego
+   * de una fecha > 0 y suma entre el acumulado del deficit de agua por dia de dias previos a una fecha [mm/dia] y la cantidad total de
+   * agua de riego de una fecha [mm/dia] mayor o igual a la capacidad de campo (0 [mm]) del suelo.
+   * 
+   * 11. Se debe realizar una de estas pruebas unitarias con registros climaticos previos a una fecha con precipitacion > 0, registros de
+   * riego previos a una fecha con riego realizado > 0 y cantidad total de agua de riego de una fecha == 0.
+   * 
+   * 12. Se debe realizar una de estas pruebas unitarias con registros climaticos previos a una fecha con precipitacion > 0, registros de
+   * riego previos a una fecha con riego realizado > 0 y cantidad total de agua de riego de una fecha > 0.
    * 
    * Que el acumulado del deficit de agua por dia de dias previos a una fecha [mm/dia] sea igual a la capacidad de campo (0 [mm]) de un
    * suelo, que tiene un cultivo sembrado, significa que el suelo esta lleno de agua, y quiza anegado.
@@ -270,7 +278,7 @@ public class WaterNeedItTest {
    * el suelo esta lleno de agua, y quiza anegado.
    * 
    * La frase 'y quiza anegado' se debe a que, si a un suelo que esta lleno de agua, se le agrega mas agua, la misma se escurre, pero
-   * dependiendo de la cantidad de agua que se le agrege a un suelo lleno de agua, puede suceder que se anegue.
+   * dependiendo de la cantidad de agua que se le agregue a un suelo lleno de agua, puede suceder que se anegue.
    */
 
   @Test
@@ -347,7 +355,7 @@ public class WaterNeedItTest {
     System.out.println();
   }
 
-  @Ignore
+  @Test
   public void testTwoCalculateIrrigationWaterNeed() {
     System.out.println("**************************************** Prueba dos del metodo calculateIrrigationWaterNeed *****************************************");
     printDescriptionMethodToTest();
@@ -421,7 +429,7 @@ public class WaterNeedItTest {
     System.out.println();
   }
 
-  @Ignore
+  @Test
   public void testThreeCalculateIrrigationWaterNeed() {
     System.out.println("**************************************** Prueba tres del metodo calculateIrrigationWaterNeed *****************************************");
     printDescriptionMethodToTest();
@@ -495,7 +503,7 @@ public class WaterNeedItTest {
     System.out.println();
   }
 
-  @Ignore
+  @Test
   public void testFourCalculateIrrigationWaterNeed() {
     System.out.println("**************************************** Prueba cuatro del metodo calculateIrrigationWaterNeed *****************************************");
     printDescriptionMethodToTest();
@@ -554,7 +562,7 @@ public class WaterNeedItTest {
      * necesidad de agua de riego de un cultivo en la
      * presunta fecha actual.
      */
-    double expectedResult = Math.abs(accumulatedWaterDeficitPerDay);
+    double expectedResult = 0;
     double result = WaterNeedIt.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate,
         climateRecordSeven.getEtc(), testCrop, testSoil, testClimateRecords, zeroIrrigationRecords);
 
@@ -569,7 +577,7 @@ public class WaterNeedItTest {
     System.out.println();
   }
 
-  @Ignore
+  @Test
   public void testFiveCalculateIrrigationWaterNeed() {
     System.out.println("**************************************** Prueba cinco del metodo calculateIrrigationWaterNeed *****************************************");
     printDescriptionMethodToTest();
@@ -644,7 +652,7 @@ public class WaterNeedItTest {
     System.out.println();
   }
 
-  @Ignore
+  @Test
   public void testSixCalculateIrrigationWaterNeed() {
     System.out.println("**************************************** Prueba seis del metodo calculateIrrigationWaterNeed *****************************************");
     printDescriptionMethodToTest();
@@ -666,10 +674,10 @@ public class WaterNeedItTest {
 
     printWaterBalanceTable(presumedCurrentDate, climateRecordsToShow, zeroIrrigationRecords);
 
+    double totalIrrigationWaterCurrentDate = 3.9;
     double accumulatedWaterDeficitPerDay = WaterMath.calculateAccumulatedWaterDeficitPerDay(testClimateRecords, zeroIrrigationRecords);
     double optimalIrrigationLayer = WaterNeedIt.calculateOptimalIrrigationLayer(climateRecordSeven.getEtc(), testCrop, testSoil);
     double totalAmountWaterAvailable = WaterNeedIt.calculateTotalAmountWaterAvailable(testCrop, testSoil);
-    double totalIrrigationWaterCurrentDate = optimalIrrigationLayer / 2;
 
     printAccumulatedAmountRainWater(presumedCurrentDate, testClimateRecords);
     printAccumulatedAmountIrrigationWater(presumedCurrentDate, zeroIrrigationRecords);
@@ -703,7 +711,7 @@ public class WaterNeedItTest {
      * necesidad de agua de riego de un cultivo en la
      * presunta fecha actual.
      */
-    double expectedResult = optimalIrrigationLayer / 2;
+    double expectedResult = optimalIrrigationLayer - totalIrrigationWaterCurrentDate;
     double result = WaterNeedIt.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate,
         climateRecordSeven.getEtc(), testCrop, testSoil, testClimateRecords, zeroIrrigationRecords);
 
@@ -718,7 +726,7 @@ public class WaterNeedItTest {
     System.out.println();
   }
 
-  @Ignore
+  @Test
   public void testSevenCalculateIrrigationWaterNeed() {
     System.out.println("**************************************** Prueba siete del metodo calculateIrrigationWaterNeed *****************************************");
     printDescriptionMethodToTest();
@@ -740,10 +748,10 @@ public class WaterNeedItTest {
 
     printWaterBalanceTable(presumedCurrentDate, climateRecordsToShow, zeroIrrigationRecords);
 
+    double totalIrrigationWaterCurrentDate = 1.9;
     double accumulatedWaterDeficitPerDay = WaterMath.calculateAccumulatedWaterDeficitPerDay(testClimateRecords, zeroIrrigationRecords);
     double optimalIrrigationLayer = WaterNeedIt.calculateOptimalIrrigationLayer(climateRecordSeven.getEtc(), testCrop, testSoil);
     double totalAmountWaterAvailable = WaterNeedIt.calculateTotalAmountWaterAvailable(testCrop, testSoil);
-    double totalIrrigationWaterCurrentDate = optimalIrrigationLayer / 2;
 
     printAccumulatedAmountRainWater(presumedCurrentDate, testClimateRecords);
     printAccumulatedAmountIrrigationWater(presumedCurrentDate, zeroIrrigationRecords);
@@ -777,7 +785,7 @@ public class WaterNeedItTest {
      * necesidad de agua de riego de un cultivo en la
      * presunta fecha actual.
      */
-    double expectedResult = optimalIrrigationLayer / 2;
+    double expectedResult = optimalIrrigationLayer - totalIrrigationWaterCurrentDate;
     double result = WaterNeedIt.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate,
         climateRecordSeven.getEtc(), testCrop, testSoil, testClimateRecords, zeroIrrigationRecords);
 
@@ -792,7 +800,7 @@ public class WaterNeedItTest {
     System.out.println();
   }
 
-  @Ignore
+  @Test
   public void testEightCalculateIrrigationWaterNeed() {
     System.out.println("**************************************** Prueba ocho del metodo calculateIrrigationWaterNeed *****************************************");
     printDescriptionMethodToTest();
@@ -814,7 +822,7 @@ public class WaterNeedItTest {
 
     printWaterBalanceTable(presumedCurrentDate, climateRecordsToShow, zeroIrrigationRecords);
 
-    double totalIrrigationWaterCurrentDate = 0.1;
+    double totalIrrigationWaterCurrentDate = 2;
     double accumulatedWaterDeficitPerDay = WaterMath.calculateAccumulatedWaterDeficitPerDay(testClimateRecords, zeroIrrigationRecords);
     double optimalIrrigationLayer = WaterNeedIt.calculateOptimalIrrigationLayer(climateRecordSeven.getEtc(), testCrop, testSoil);
     double totalAmountWaterAvailable = WaterNeedIt.calculateTotalAmountWaterAvailable(testCrop, testSoil);
@@ -851,7 +859,7 @@ public class WaterNeedItTest {
      * necesidad de agua de riego de un cultivo en la
      * presunta fecha actual.
      */
-    double expectedResult = 0.07999999999999971;
+    double expectedResult = Math.abs(accumulatedWaterDeficitPerDay + totalIrrigationWaterCurrentDate);
     double result = WaterNeedIt.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate,
         climateRecordSeven.getEtc(), testCrop, testSoil, testClimateRecords, zeroIrrigationRecords);
 
@@ -866,7 +874,7 @@ public class WaterNeedItTest {
     System.out.println();
   }
 
-  @Ignore
+  @Test
   public void testNineCalculateIrrigationWaterNeed() {
     System.out.println("**************************************** Prueba nueve del metodo calculateIrrigationWaterNeed *****************************************");
     printDescriptionMethodToTest();
@@ -940,7 +948,7 @@ public class WaterNeedItTest {
     System.out.println();
   }
 
-  @Ignore
+  @Test
   public void testTenCalculateIrrigationWaterNeed() {
     System.out.println("**************************************** Prueba diez del metodo calculateIrrigationWaterNeed *****************************************");
     printDescriptionMethodToTest();
@@ -962,7 +970,7 @@ public class WaterNeedItTest {
 
     printWaterBalanceTable(presumedCurrentDate, climateRecordsToShow, zeroIrrigationRecords);
 
-    double totalIrrigationWaterCurrentDate = 1;
+    double totalIrrigationWaterCurrentDate = 5;
     double accumulatedWaterDeficitPerDay = WaterMath.calculateAccumulatedWaterDeficitPerDay(testClimateRecords, zeroIrrigationRecords);
     double optimalIrrigationLayer = WaterNeedIt.calculateOptimalIrrigationLayer(climateRecordSeven.getEtc(), testCrop, testSoil);
     double totalAmountWaterAvailable = WaterNeedIt.calculateTotalAmountWaterAvailable(testCrop, testSoil);
@@ -999,9 +1007,157 @@ public class WaterNeedItTest {
      * necesidad de agua de riego de un cultivo en la
      * presunta fecha actual.
      */
-    double expectedResult = 0.0;
+    double expectedResult = 0;
     double result = WaterNeedIt.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate,
         climateRecordSeven.getEtc(), testCrop, testSoil, testClimateRecords, zeroIrrigationRecords);
+
+    System.out.println("* Valor esperado (nec. agua riego de un cultivo en la fecha actual [mm/dia]): " + expectedResult);
+    System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed (nec. agua riego");
+    System.out.println("de un cultivo en fecha actual [mm/dia]): " + result);
+    System.out.println();
+
+    assertEquals(expectedResult, result, 0.001);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+    System.out.println();
+  }
+
+  @Test
+  public void testElevenCalculateIrrigationWaterNeed() {
+    System.out.println("**************************************** Prueba once del metodo calculateIrrigationWaterNeed *****************************************");
+    printDescriptionMethodToTest();
+
+    System.out.println("# Descripcion de la prueba unitaria");
+
+    /*
+     * Establece los datos de los registros para
+     * esta prueba
+     */
+    setRecordsValuesEleven();
+
+    System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
+    System.out.println();
+    printTestCrop(testCrop);
+    System.out.println();
+    printTestSoil(testSoil);
+    System.out.println();
+
+    printWaterBalanceTable(presumedCurrentDate, climateRecordsToShow, testIrrigationRecords);
+
+    double totalIrrigationWaterCurrentDate = 0;
+    double accumulatedWaterDeficitPerDay = WaterMath.calculateAccumulatedWaterDeficitPerDay(testClimateRecords, testIrrigationRecords);
+    double optimalIrrigationLayer = WaterNeedIt.calculateOptimalIrrigationLayer(climateRecordSeven.getEtc(), testCrop, testSoil);
+    double totalAmountWaterAvailable = WaterNeedIt.calculateTotalAmountWaterAvailable(testCrop, testSoil);
+
+    printAccumulatedAmountRainWater(presumedCurrentDate, testClimateRecords);
+    printAccumulatedAmountIrrigationWater(presumedCurrentDate, testIrrigationRecords);
+    printTotalAmountWaterAvailable(totalAmountWaterAvailable);
+    System.out.println();
+    printTotalIrrigationWaterCurrentDate(presumedCurrentDate, totalIrrigationWaterCurrentDate);
+    printAccumulatedWaterDeficitPerDay(presumedCurrentDate, accumulatedWaterDeficitPerDay);
+    printOptimalIrrigationLayer(optimalIrrigationLayer);
+
+    System.out.println();
+    printMessageSituationTwo();
+    System.out.println();
+
+    /*
+     * Seccion de prueba
+     */
+    System.out.println("# Ejecucion de la prueba unitaria");
+
+    /*
+     * Al metodo calculateIrrigationWaterNeed de la clase
+     * WaterNeedIt se le pasa como argumento la ETc de la
+     * presunta fecha actual porque el registro climatico
+     * siete tiene la presunta fecha actual. El motivo de
+     * este pasaje es que, para calcular correctamente la
+     * necesidad de agua de riego de un cultivo en la
+     * presunta fecha actual, se requiere ajustar el
+     * factor de agotamiento (p) a la ETc de la presunta
+     * fecha actual, con base a la cual se calcula la
+     * lamina de riego optima (drop) de la presunta
+     * fecha actual, con base a la cual se calcula la
+     * necesidad de agua de riego de un cultivo en la
+     * presunta fecha actual.
+     */
+    double expectedResult = Math.abs(accumulatedWaterDeficitPerDay);
+    double result = WaterNeedIt.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate,
+        climateRecordSeven.getEtc(), testCrop, testSoil, testClimateRecords, testIrrigationRecords);
+
+    System.out.println("* Valor esperado (nec. agua riego de un cultivo en la fecha actual [mm/dia]): " + expectedResult);
+    System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed (nec. agua riego");
+    System.out.println("de un cultivo en fecha actual [mm/dia]): " + result);
+    System.out.println();
+
+    assertEquals(expectedResult, result, 0.001);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+    System.out.println();
+  }
+
+  @Test
+  public void testTwelveCalculateIrrigationWaterNeed() {
+    System.out.println("**************************************** Prueba doce del metodo calculateIrrigationWaterNeed *****************************************");
+    printDescriptionMethodToTest();
+
+    System.out.println("# Descripcion de la prueba unitaria");
+
+    /*
+     * Establece los datos de los registros para
+     * esta prueba
+     */
+    setRecordsValuesTwelve();
+
+    System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
+    System.out.println();
+    printTestCrop(testCrop);
+    System.out.println();
+    printTestSoil(testSoil);
+    System.out.println();
+
+    printWaterBalanceTable(presumedCurrentDate, climateRecordsToShow, testIrrigationRecords);
+
+    double totalIrrigationWaterCurrentDate = 2;
+    double accumulatedWaterDeficitPerDay = WaterMath.calculateAccumulatedWaterDeficitPerDay(testClimateRecords, testIrrigationRecords);
+    double optimalIrrigationLayer = WaterNeedIt.calculateOptimalIrrigationLayer(climateRecordSeven.getEtc(), testCrop, testSoil);
+    double totalAmountWaterAvailable = WaterNeedIt.calculateTotalAmountWaterAvailable(testCrop, testSoil);
+
+    printAccumulatedAmountRainWater(presumedCurrentDate, testClimateRecords);
+    printAccumulatedAmountIrrigationWater(presumedCurrentDate, testIrrigationRecords);
+    printTotalAmountWaterAvailable(totalAmountWaterAvailable);
+    System.out.println();
+    printTotalIrrigationWaterCurrentDate(presumedCurrentDate, totalIrrigationWaterCurrentDate);
+    printAccumulatedWaterDeficitPerDay(presumedCurrentDate, accumulatedWaterDeficitPerDay);
+    printOptimalIrrigationLayer(optimalIrrigationLayer);
+
+    System.out.println();
+    printMessageSituationFive();
+    System.out.println();
+
+    /*
+     * Seccion de prueba
+     */
+    System.out.println("# Ejecucion de la prueba unitaria");
+
+    /*
+     * Al metodo calculateIrrigationWaterNeed de la clase
+     * WaterNeedIt se le pasa como argumento la ETc de la
+     * presunta fecha actual porque el registro climatico
+     * siete tiene la presunta fecha actual. El motivo de
+     * este pasaje es que, para calcular correctamente la
+     * necesidad de agua de riego de un cultivo en la
+     * presunta fecha actual, se requiere ajustar el
+     * factor de agotamiento (p) a la ETc de la presunta
+     * fecha actual, con base a la cual se calcula la
+     * lamina de riego optima (drop) de la presunta
+     * fecha actual, con base a la cual se calcula la
+     * necesidad de agua de riego de un cultivo en la
+     * presunta fecha actual.
+     */
+    double expectedResult = Math.abs(accumulatedWaterDeficitPerDay + totalIrrigationWaterCurrentDate);
+    double result = WaterNeedIt.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate,
+        climateRecordSeven.getEtc(), testCrop, testSoil, testClimateRecords, testIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego de un cultivo en la fecha actual [mm/dia]): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed (nec. agua riego");
@@ -1063,9 +1219,9 @@ public class WaterNeedItTest {
     System.out.println("riego optima (drop) negativa [mm] de la fecha actual y estrictamente menor a la capacidad de campo (0 [mm]) del suelo, y");
     System.out.println("- la cantidad total de agua de riego de la fecha actual [mm/dia] igual a cero,");
     System.out.println();
-    System.out.println("el valor devuelto por el metodo calculateIrrigationWaterNeed de la clase WaterNeedIt debe ser el acumulado del deficit de");
-    System.out.println("agua por dia de dias previos a la fecha actual [mm/dia]. Por lo tanto, la necesidad de agua de riego de un cultivo en la");
-    System.out.println("fecha actual [mm/dia] es el acumulado del deficit de agua por dia de dias previos a la fecha actual [mm/dia].");
+    System.out.println("el valor devuelto por el metodo calculateIrrigationWaterNeed de la clase WaterNeedIt debe ser el valor absoluto del acumulado del");
+    System.out.println("deficit de agua por dia de dias previos a la fecha actual [mm/dia]. Por lo tanto, la necesidad de agua de riego de un cultivo en");
+    System.out.println("la fecha actual [mm/dia] es el valor absoluto del acumulado del deficit de agua por dia de dias previos a la fecha actual [mm/dia].");
   }
 
   /**
@@ -1094,7 +1250,7 @@ public class WaterNeedItTest {
     System.out.println("[mm/dia].");
     System.out.println();
     System.out.println("La frase 'y quiza anegado' se debe a que, si a un suelo que esta lleno de agua, se le agrega mas agua, la misma se escurre, pero");
-    System.out.println("dependiendo de la cantidad de agua que se le agrege a un suelo lleno de agua, puede suceder que se anegue.");
+    System.out.println("dependiendo de la cantidad de agua que se le agregue a un suelo lleno de agua, puede suceder que se anegue.");
   }
 
   /**
@@ -1119,15 +1275,15 @@ public class WaterNeedItTest {
    * La situacion cinco es aquella en la que el nivel de humedad
    * de un suelo (*) [mm] en una fecha, que tiene un cultivo sembrado,
    * es estrictamente mayor a la lamina de riego optima (drop) [mm]
-   * negativa de una fecha y es estrictamente menor a la capacidad
-   * de campo del suelo, y la cantidad total de agua de riego de
-   * una fecha [mm/dia] es estrictamente mayor a cero
+   * negativa y estrictamente menor a la capacidad de campo (0 [mm])
+   * del suelo y la cantidad total de agua de riego de una fecha
+   * [mm/dia] es estrictamente mayor a cero
    */
   private void printMessageSituationFive() {
     System.out.println("Al ser:");
-    System.out.println("- el acumulado del deficit de agua por dia de dias previos a la fecha actual [mm/dia] estrictamente mayor a la lamina de");
-    System.out.println("riego optima (drop) negativa [mm] de la fecha actual y estrictamente menor a la capacidad de campo (0 [mm]) del suelo, y");
-    System.out.println("- la cantidad total de agua de riego de la fecha actual [mm/dia] estrictamente mayor a cero,");
+    System.out.println("- el acumulado del deficit de agua por dia de dias previos a la fecha actual [mm/dia] estrictamente mayor a la lamina riego");
+    System.out.println("optima (drop) negativa [mm] de la fecha actual y estrictamente menor a la capacidad de campo (0 [mm]) del suelo, y");
+    System.out.println("- la cantidad total de agua de reigo de la fecha actual [mm/dia] estrictamente mayor a cero,");
     System.out.println();
     System.out.println("el valor devuelto por el metodo calculateIrrigationWaterNeed de la clase WaterNeedIt debe ser el valor absoluto de la suma");
     System.out.println("entre el acumulado del deficit de agua por dia de dias previos a la fecha actual [mm/dia] y la cantidad total de agua de riego");
@@ -1157,7 +1313,7 @@ public class WaterNeedItTest {
     System.out.println("Nombre: " + testSoil.getName());
     System.out.println("Peso especifico aparente [gr%cm3]: " + testSoil.getApparentSpecificWeight());
     System.out.println("Capacidad de campo [gr%gr]: " + testSoil.getFieldCapacity());
-    System.out.println("Marchitez permanente [gr%gr]: " + testSoil.getPermanentWilting());
+    System.out.println("Punto de marchitez permanente [gr%gr]: " + testSoil.getPermanentWiltingPoint());
   }
 
   /**
@@ -1368,22 +1524,22 @@ public class WaterNeedItTest {
    */
   private void setRecordsValuesOne() {
     climateRecordOne.setEtc(5);
-    climateRecordOne.setPrecip(0);
+    climateRecordOne.setPrecip(3);
 
-    climateRecordTwo.setEtc(5);
-    climateRecordTwo.setPrecip(0);
+    climateRecordTwo.setEtc(3);
+    climateRecordTwo.setPrecip(2);
 
-    climateRecordThree.setEtc(5);
-    climateRecordThree.setPrecip(0);
+    climateRecordThree.setEtc(2);
+    climateRecordThree.setPrecip(2);
 
-    climateRecordFour.setEtc(5);
-    climateRecordFour.setPrecip(1);
+    climateRecordFour.setEtc(2);
+    climateRecordFour.setPrecip(0);
 
-    climateRecordFive.setEtc(5);
-    climateRecordFive.setPrecip(0.5);
+    climateRecordFive.setEtc(1.5);
+    climateRecordFive.setPrecip(0);
 
-    climateRecordSix.setEtc(5);
-    climateRecordSix.setPrecip(1);
+    climateRecordSix.setEtc(4);
+    climateRecordSix.setPrecip(0);
   }
 
   /**
@@ -1392,22 +1548,22 @@ public class WaterNeedItTest {
    */
   private void setRecordsValuesTwo() {
     climateRecordOne.setEtc(5);
-    climateRecordOne.setPrecip(4.95);
+    climateRecordOne.setPrecip(3);
 
-    climateRecordTwo.setEtc(5);
-    climateRecordTwo.setPrecip(4.95);
+    climateRecordTwo.setEtc(3);
+    climateRecordTwo.setPrecip(2);
 
-    climateRecordThree.setEtc(5);
-    climateRecordThree.setPrecip(4.95);
+    climateRecordThree.setEtc(4);
+    climateRecordThree.setPrecip(2);
 
-    climateRecordFour.setEtc(5);
-    climateRecordFour.setPrecip(4.95);
+    climateRecordFour.setEtc(3);
+    climateRecordFour.setPrecip(1);
 
     climateRecordFive.setEtc(5);
-    climateRecordFive.setPrecip(4.9);
+    climateRecordFive.setPrecip(3);
 
-    climateRecordSix.setEtc(5);
-    climateRecordSix.setPrecip(5.03);
+    climateRecordSix.setEtc(2);
+    climateRecordSix.setPrecip(1.1);
   }
 
   /**
@@ -1416,22 +1572,22 @@ public class WaterNeedItTest {
    */
   private void setRecordsValuesThree() {
     climateRecordOne.setEtc(5);
-    climateRecordOne.setPrecip(3);
+    climateRecordOne.setPrecip(5);
 
     climateRecordTwo.setEtc(5);
-    climateRecordTwo.setPrecip(5);
+    climateRecordTwo.setPrecip(3);
 
     climateRecordThree.setEtc(5);
     climateRecordThree.setPrecip(6);
 
-    climateRecordFour.setEtc(5);
-    climateRecordFour.setPrecip(4);
+    climateRecordFour.setEtc(3);
+    climateRecordFour.setPrecip(0);
 
-    climateRecordFive.setEtc(5);
-    climateRecordFive.setPrecip(6);
+    climateRecordFive.setEtc(2);
+    climateRecordFive.setPrecip(1);
 
-    climateRecordSix.setEtc(5);
-    climateRecordSix.setPrecip(5.82);
+    climateRecordSix.setEtc(3);
+    climateRecordSix.setPrecip(3);
   }
 
   /**
@@ -1439,23 +1595,23 @@ public class WaterNeedItTest {
    * en la prueba unitaria cuatro
    */
   private void setRecordsValuesFour() {
-    climateRecordOne.setEtc(5);
-    climateRecordOne.setPrecip(5);
+    climateRecordOne.setEtc(2);
+    climateRecordOne.setPrecip(3);
 
-    climateRecordTwo.setEtc(5);
-    climateRecordTwo.setPrecip(4);
+    climateRecordTwo.setEtc(3);
+    climateRecordTwo.setPrecip(3);
 
     climateRecordThree.setEtc(5);
     climateRecordThree.setPrecip(2);
 
-    climateRecordFour.setEtc(5);
-    climateRecordFour.setPrecip(6);
+    climateRecordFour.setEtc(4);
+    climateRecordFour.setPrecip(2);
 
-    climateRecordFive.setEtc(5);
+    climateRecordFive.setEtc(3);
     climateRecordFive.setPrecip(6);
 
-    climateRecordSix.setEtc(5);
-    climateRecordSix.setPrecip(7);
+    climateRecordSix.setEtc(2);
+    climateRecordSix.setPrecip(4);
   }
 
   /**
@@ -1466,27 +1622,27 @@ public class WaterNeedItTest {
     climateRecordOne.setEtc(5);
     climateRecordOne.setPrecip(0);
 
-    climateRecordTwo.setEtc(5);
+    climateRecordTwo.setEtc(3);
     climateRecordTwo.setPrecip(0);
 
-    climateRecordThree.setEtc(5);
+    climateRecordThree.setEtc(2);
     climateRecordThree.setPrecip(0);
 
-    climateRecordFour.setEtc(5);
+    climateRecordFour.setEtc(2);
     climateRecordFour.setPrecip(0);
 
-    climateRecordFive.setEtc(5);
+    climateRecordFive.setEtc(2);
     climateRecordFive.setPrecip(0);
 
-    climateRecordSix.setEtc(5);
+    climateRecordSix.setEtc(4);
     climateRecordSix.setPrecip(0);
 
-    irrigationRecordOne.setIrrigationDone(2);
-    irrigationRecordTwo.setIrrigationDone(6);
-    irrigationRecordThree.setIrrigationDone(7);
-    irrigationRecordFour.setIrrigationDone(4);
-    irrigationRecordFive.setIrrigationDone(4);
-    irrigationRecordSix.setIrrigationDone(6.65);
+    irrigationRecordOne.setIrrigationDone(0);
+    irrigationRecordTwo.setIrrigationDone(1);
+    irrigationRecordThree.setIrrigationDone(1);
+    irrigationRecordFour.setIrrigationDone(1);
+    irrigationRecordFive.setIrrigationDone(3);
+    irrigationRecordSix.setIrrigationDone(1);
   }
 
   /**
@@ -1494,23 +1650,23 @@ public class WaterNeedItTest {
    * en la prueba unitaria seis
    */
   private void setRecordsValuesSix() {
-    climateRecordOne.setEtc(5);
-    climateRecordOne.setPrecip(2);
+    climateRecordOne.setEtc(2);
+    climateRecordOne.setPrecip(1);
 
     climateRecordTwo.setEtc(5);
-    climateRecordTwo.setPrecip(6);
+    climateRecordTwo.setPrecip(3);
 
-    climateRecordThree.setEtc(5);
-    climateRecordThree.setPrecip(7);
+    climateRecordThree.setEtc(4);
+    climateRecordThree.setPrecip(1);
 
-    climateRecordFour.setEtc(5);
-    climateRecordFour.setPrecip(4);
+    climateRecordFour.setEtc(3);
+    climateRecordFour.setPrecip(2);
 
     climateRecordFive.setEtc(5);
-    climateRecordFive.setPrecip(4);
+    climateRecordFive.setPrecip(2);
 
-    climateRecordSix.setEtc(5);
-    climateRecordSix.setPrecip(6.65);
+    climateRecordSix.setEtc(2);
+    climateRecordSix.setPrecip(0);
   }
 
   /**
@@ -1519,22 +1675,22 @@ public class WaterNeedItTest {
    */
   private void setRecordsValuesSeven() {
     climateRecordOne.setEtc(5);
-    climateRecordOne.setPrecip(4.95);
+    climateRecordOne.setPrecip(3);
 
-    climateRecordTwo.setEtc(5);
-    climateRecordTwo.setPrecip(4.95);
+    climateRecordTwo.setEtc(3);
+    climateRecordTwo.setPrecip(2);
 
-    climateRecordThree.setEtc(5);
-    climateRecordThree.setPrecip(4.95);
+    climateRecordThree.setEtc(4);
+    climateRecordThree.setPrecip(2);
 
-    climateRecordFour.setEtc(5);
-    climateRecordFour.setPrecip(4.95);
+    climateRecordFour.setEtc(3);
+    climateRecordFour.setPrecip(1);
 
     climateRecordFive.setEtc(5);
-    climateRecordFive.setPrecip(4.9);
+    climateRecordFive.setPrecip(3);
 
-    climateRecordSix.setEtc(5);
-    climateRecordSix.setPrecip(5.03);
+    climateRecordSix.setEtc(2);
+    climateRecordSix.setPrecip(1.1);
   }
 
   /**
@@ -1543,22 +1699,22 @@ public class WaterNeedItTest {
    */
   private void setRecordsValuesEight() {
     climateRecordOne.setEtc(5);
-    climateRecordOne.setPrecip(3);
+    climateRecordOne.setPrecip(5);
 
     climateRecordTwo.setEtc(5);
-    climateRecordTwo.setPrecip(5);
+    climateRecordTwo.setPrecip(3);
 
     climateRecordThree.setEtc(5);
     climateRecordThree.setPrecip(6);
 
-    climateRecordFour.setEtc(5);
-    climateRecordFour.setPrecip(4);
+    climateRecordFour.setEtc(3);
+    climateRecordFour.setPrecip(0);
 
-    climateRecordFive.setEtc(5);
-    climateRecordFive.setPrecip(6);
+    climateRecordFive.setEtc(2);
+    climateRecordFive.setPrecip(1);
 
-    climateRecordSix.setEtc(5);
-    climateRecordSix.setPrecip(5.82);
+    climateRecordSix.setEtc(3);
+    climateRecordSix.setPrecip(3);
   }
 
   /**
@@ -1566,23 +1722,23 @@ public class WaterNeedItTest {
    * en la prueba unitaria nueve
    */
   private void setRecordsValuesNine() {
-    climateRecordOne.setEtc(5);
-    climateRecordOne.setPrecip(5);
+    climateRecordOne.setEtc(2);
+    climateRecordOne.setPrecip(3);
 
-    climateRecordTwo.setEtc(5);
-    climateRecordTwo.setPrecip(4);
+    climateRecordTwo.setEtc(3);
+    climateRecordTwo.setPrecip(3);
 
     climateRecordThree.setEtc(5);
     climateRecordThree.setPrecip(2);
 
-    climateRecordFour.setEtc(5);
-    climateRecordFour.setPrecip(6);
+    climateRecordFour.setEtc(4);
+    climateRecordFour.setPrecip(2);
 
-    climateRecordFive.setEtc(5);
+    climateRecordFive.setEtc(3);
     climateRecordFive.setPrecip(6);
 
-    climateRecordSix.setEtc(5);
-    climateRecordSix.setPrecip(7);
+    climateRecordSix.setEtc(2);
+    climateRecordSix.setPrecip(4);
   }
 
   /**
@@ -1591,22 +1747,84 @@ public class WaterNeedItTest {
    */
   private void setRecordsValuesTen() {
     climateRecordOne.setEtc(5);
-    climateRecordOne.setPrecip(3);
+    climateRecordOne.setPrecip(5);
 
-    climateRecordTwo.setEtc(5);
-    climateRecordTwo.setPrecip(5);
+    climateRecordTwo.setEtc(3);
+    climateRecordTwo.setPrecip(2);
 
-    climateRecordThree.setEtc(5);
-    climateRecordThree.setPrecip(6);
+    climateRecordThree.setEtc(3);
+    climateRecordThree.setPrecip(3);
 
-    climateRecordFour.setEtc(5);
-    climateRecordFour.setPrecip(4);
+    climateRecordFour.setEtc(2);
+    climateRecordFour.setPrecip(1);
 
-    climateRecordFive.setEtc(5);
-    climateRecordFive.setPrecip(6);
+    climateRecordFive.setEtc(4);
+    climateRecordFive.setPrecip(5);
 
-    climateRecordSix.setEtc(5);
-    climateRecordSix.setPrecip(5.82);
+    climateRecordSix.setEtc(3);
+    climateRecordSix.setPrecip(2);
+  }
+
+  /**
+   * Establece los datos de los registros utilizados
+   * en la prueba unitaria once
+   */
+  private void setRecordsValuesEleven() {
+    climateRecordOne.setEtc(5);
+    climateRecordOne.setPrecip(1);
+
+    climateRecordTwo.setEtc(3);
+    climateRecordTwo.setPrecip(0.5);
+
+    climateRecordThree.setEtc(3);
+    climateRecordThree.setPrecip(0.5);
+
+    climateRecordFour.setEtc(2);
+    climateRecordFour.setPrecip(2);
+
+    climateRecordFive.setEtc(2);
+    climateRecordFive.setPrecip(0);
+
+    climateRecordSix.setEtc(4);
+    climateRecordSix.setPrecip(5);
+
+    irrigationRecordOne.setIrrigationDone(2);
+    irrigationRecordTwo.setIrrigationDone(0.5);
+    irrigationRecordThree.setIrrigationDone(0.5);
+    irrigationRecordFour.setIrrigationDone(0);
+    irrigationRecordFive.setIrrigationDone(3);
+    irrigationRecordSix.setIrrigationDone(1);
+  }
+
+  /**
+   * Establece los datos de los registros utilizados
+   * en la prueba unitaria doce
+   */
+  private void setRecordsValuesTwelve() {
+    climateRecordOne.setEtc(5);
+    climateRecordOne.setPrecip(1);
+
+    climateRecordTwo.setEtc(3);
+    climateRecordTwo.setPrecip(0.5);
+
+    climateRecordThree.setEtc(3);
+    climateRecordThree.setPrecip(0.5);
+
+    climateRecordFour.setEtc(2);
+    climateRecordFour.setPrecip(2);
+
+    climateRecordFive.setEtc(2);
+    climateRecordFive.setPrecip(0);
+
+    climateRecordSix.setEtc(4);
+    climateRecordSix.setPrecip(5);
+
+    irrigationRecordOne.setIrrigationDone(2);
+    irrigationRecordTwo.setIrrigationDone(0.5);
+    irrigationRecordThree.setIrrigationDone(0.5);
+    irrigationRecordFour.setIrrigationDone(0);
+    irrigationRecordFive.setIrrigationDone(3);
+    irrigationRecordSix.setIrrigationDone(1);
   }
 
 }

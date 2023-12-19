@@ -188,7 +188,23 @@ public class WaterNeedIt {
 
         // Peso especifico aparente de un suelo
         double pea = soil.getApparentSpecificWeight();
-        double averageRoothDepth = calculateAverageRootDepth(crop);
+
+        /*
+         * La profundidad radicular promedio de un cultivo esta
+         * medida en metros porque los limites del rango de la
+         * profundidad radicular de un cultivo estan medidos
+         * en metros. Debido a que la ETc (evapotranspiracion
+         * del cultivo bajo condiciones estandar) esta medida
+         * en mm/dia, se debe convertir la profundidad radicular
+         * promedio de un cultivo de metros a milimetros, lo cual
+         * se realiza multiplicandola por 1000.
+         * 
+         * La ETc, junto con el agua provista (lluvia o riego, o
+         * lluvia mas riego y viceversa) [mm/dia], se utiliza para
+         * calcular la necesidad de agua de riego de un cultivo en
+         * una fecha [mm/dia].
+         */
+        double averageRoothDepth = calculateAverageRootDepth(crop) * 1000;
 
         return ((wc - wm) / 100) * pea * averageRoothDepth;
     }
