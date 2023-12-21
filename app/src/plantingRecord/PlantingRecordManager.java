@@ -22,7 +22,7 @@ import model.ClimateRecord;
 import model.IrrigationRecord;
 import model.Option;
 import model.User;
-import irrigation.WaterNeedWit;
+import irrigation.WaterNeedWos;
 import util.UtilDate;
 import et.HargreavesEto;
 import et.Etc;
@@ -718,7 +718,7 @@ public class PlantingRecordManager {
          * inconsistente.
          */
         parcelService.merge(givenParcel);
-        return WaterNeedWit.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, climateRecords, irrigationRecords);
+        return WaterNeedWos.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, climateRecords, irrigationRecords);
     }
 
     /**

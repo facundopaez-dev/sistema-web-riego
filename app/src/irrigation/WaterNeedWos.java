@@ -6,12 +6,12 @@ import java.util.Collection;
 
 /*
  * Esta clase representa (y contiene en forma de metodo) el algoritmo
- * del calculo, sin umbral de riego, de la necesidad de agua de riego
- * de un cultivo en una fecha [mm/dia]. La palabra "Wit" al final del
- * nombre de la clase proviene de la frase en ingles "Without Irrigation
- * Threshold" que en español significa "sin umbral de riego".
+ * del calculo, sin datos de suelo o sin suelo, de la necesidad de agua
+ * de riego de un cultivo en una fecha [mm/dia]. La palabra "Wos" al
+ * final del nombre de la clase proviene de la frase en ingles "WithOut
+ * Soil" que en español significa "sin suelo".
  */
-public class WaterNeedWit {
+public class WaterNeedWos {
 
     /*
      * El metodo constructor tiene el modificador de acceso 'private'
@@ -20,7 +20,7 @@ public class WaterNeedWit {
      * son estaticos, con lo cual no se requiere una instancia de
      * esta clase para invocar a sus metodos publicos
      */
-    private WaterNeedWit() {
+    private WaterNeedWos() {
 
     }
 

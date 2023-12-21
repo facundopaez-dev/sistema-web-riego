@@ -12,10 +12,10 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import irrigation.WaterMath;
-import irrigation.WaterNeedWit;
+import irrigation.WaterNeedWos;
 import util.UtilDate;
 
-public class WaterNeedWitTest {
+public class WaterNeedWosTest {
 
   private static Collection<ClimateRecord> testClimateRecords;
   private static Collection<IrrigationRecord> testIrrigationRecords;
@@ -220,7 +220,7 @@ public class WaterNeedWitTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 8.5;
-    double result = WaterNeedWit.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, testClimateRecords, zeroIrrigationRecords);
+    double result = WaterNeedWos.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, testClimateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed (nec. agua riego");
@@ -269,7 +269,7 @@ public class WaterNeedWitTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 2;
-    double result = WaterNeedWit.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, testClimateRecords, zeroIrrigationRecords);
+    double result = WaterNeedWos.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, testClimateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed (nec. agua riego");
@@ -318,7 +318,7 @@ public class WaterNeedWitTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 2;
-    double result = WaterNeedWit.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, testClimateRecords, testIrrigationRecords);
+    double result = WaterNeedWos.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, testClimateRecords, testIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed (nec. agua riego");
@@ -367,7 +367,7 @@ public class WaterNeedWitTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 1.0;
-    double result = WaterNeedWit.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, testClimateRecords, testIrrigationRecords);
+    double result = WaterNeedWos.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, testClimateRecords, testIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed (nec. agua riego");
@@ -416,7 +416,7 @@ public class WaterNeedWitTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 4.0;
-    double result = WaterNeedWit.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, testClimateRecords, zeroIrrigationRecords);
+    double result = WaterNeedWos.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, testClimateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed (nec. agua riego");
@@ -465,7 +465,7 @@ public class WaterNeedWitTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 1;
-    double result = WaterNeedWit.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, testClimateRecords, zeroIrrigationRecords);
+    double result = WaterNeedWos.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, testClimateRecords, zeroIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed (nec. agua riego");
@@ -514,7 +514,7 @@ public class WaterNeedWitTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 0.5;
-    double result = WaterNeedWit.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, testClimateRecords, testIrrigationRecords);
+    double result = WaterNeedWos.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, testClimateRecords, testIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed (nec. agua riego");
@@ -563,7 +563,7 @@ public class WaterNeedWitTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 0.8;
-    double result = WaterNeedWit.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, testClimateRecords, testIrrigationRecords);
+    double result = WaterNeedWos.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, testClimateRecords, testIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed (nec. agua riego");
@@ -612,7 +612,7 @@ public class WaterNeedWitTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 0.0;
-    double result = WaterNeedWit.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, testClimateRecords, testIrrigationRecords);
+    double result = WaterNeedWos.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, testClimateRecords, testIrrigationRecords);
 
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
     System.out.println("* Valor devuelto por el metodo calculateIrrigationWaterNeed (nec. agua riego");
@@ -772,10 +772,10 @@ public class WaterNeedWitTest {
   /**
    * Imprime la descripcion del metodo a probar, el cual en este
    * caso es el metodo calculateIrrigationWaterNeed de la clase
-   * WaterNeedWit
+   * WaterNeedWos
    */
   private void printDescriptionMethodToTest() {
-    System.out.println("El metodo calculateIrrigationWaterNeed de la clase WaterNeedWit calcula la necesidad de agua de riego [mm/dia] de un cultivo en una");
+    System.out.println("El metodo calculateIrrigationWaterNeed de la clase WaterNeedWos calcula la necesidad de agua de riego [mm/dia] de un cultivo en una");
     System.out.println("fecha, si se lo invoca con una coleccción de registros climaticos y una coleccion de registros de riego previos a una fecha pertenecientes");
     System.out.println("a una misma parcela que tiene un cultivo sembrado en una fecha. La fecha para la que se calcula la necesidad de agua de riego de un");
     System.out.println("cultivo puede ser la fecha actual (es decir, hoy) o una fecha posterior a la fecha actual. Pero tambien puede ser una fecha del pasado");

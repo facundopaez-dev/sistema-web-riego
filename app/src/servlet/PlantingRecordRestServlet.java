@@ -37,7 +37,7 @@ import stateless.SessionServiceBean;
 import climate.ClimateClient;
 import et.HargreavesEto;
 import et.Etc;
-import irrigation.WaterNeedWit;
+import irrigation.WaterNeedWos;
 import model.ClimateRecord;
 import model.Crop;
 import model.IrrigationRecord;
@@ -1889,7 +1889,7 @@ public class PlantingRecordRestServlet {
      * inconsistente.
      */
     parcelService.merge(givenParcel);
-    return WaterNeedWit.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, climateRecords, irrigationRecords);
+    return WaterNeedWos.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, climateRecords, irrigationRecords);
   }
 
   /**
