@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.lang.Math;
 import model.ClimateRecord;
 import model.IrrigationRecord;
+import model.Crop;
+import model.Soil;
 import util.UtilDate;
 
 public class WaterMath {
@@ -322,6 +324,118 @@ public class WaterMath {
     }
 
     return totalIrrigationWaterGivenDate;
+  }
+
+  /**
+   * La formula ((Wc - Wm) / 100) * pea * D representa la capacidad
+   * de almacenamiento de agua que tiene un suelo, la cual esta
+   * en funcion de la profundidad de las raices del cultivo que
+   * se siembra en un suelo.
+   * 
+   * @param crop
+   * @param soil
+   * @return double que representa la cantidad de agua que puede
+   * retener un suelo en el volumen determinado por los valores
+   * de suelo (capacidad de campo, punto de marchitez permanente,
+   * peso especifico aparente) y la profundidad de las raices de
+   * un cultivo. Esto es la lamina total de agua disponible (dt)
+   * [mm].
+   */
+  public static double calculateTotalAmountWaterAvailable(Crop crop, Soil soil) {
+    // Capacidad de campo de un suelo
+    double wc = soil.getFieldCapacity();
+
+    // Punto de marchitez permanente de un suelo
+    double wm = soil.getPermanentWiltingPoint();
+
+    // Peso especifico aparente de un suelo
+    double pea = soil.getApparentSpecificWeight();
+
+    /*
+     * La profundidad radicular promedio de un cultivo esta
+     * medida en metros porque los limites del rango de la
+     * profundidad radicular de un cultivo estan medidos
+     * en metros. Debido a que la ETc (evapotranspiracion
+     * del cultivo bajo condiciones estandar) esta medida
+     * en mm/dia, se debe convertir la profundidad radicular
+     * promedio de un cultivo de metros a milimetros, lo cual
+     * se realiza multiplicandola por 1000.
+     * 
+     * La ETc, junto con el agua provista (lluvia o riego, o
+     * lluvia mas riego y viceversa) [mm/dia], se utiliza para
+     * calcular la necesidad de agua de riego de un cultivo en
+     * una fecha [mm/dia].
+     */
+    double averageRoothDepth = calculateAverageRootDepth(crop) * 1000;
+
+    return ((wc - wm) / 100) * pea * averageRoothDepth;
+  }
+
+  /**
+   * La multiplicacion entre la lamina total de agua disponible (dt),
+   * calculada por el metodo calculateTotalAmountWaterAvailable de
+   * esta clase, y el factor de agotamiento (depletionFactor)
+   * representa la cantidad maxima de agua que puede perder un suelo
+   * lleno de agua, pero no anegado (esto es que el nivel de humedad
+   * del suelo esta en capacidad de campo), que tiene un cultivo
+   * sembrado, a partir de la cual NO conviene perder mas agua, sino
+   * que se le debe añadir agua para llenarlo, pero sin anegarlo
+   * (esto es llevar el nivel de humedad a capacidad de campo).
+   * El resultado de esta multiplicacion esta medido en milimetros.
+   * 
+   * Por ejemplo, si el resultado de esta multiplicacion es 10 [mm]
+   * significa que un suelo lleno de agua, pero no anegado (esto es
+   * que el nivel de humedad del suelo esta en capacidad de campo),
+   * que tiene un cultivo sembrado, puede perder como maximo 10 [mm]
+   * de agua y NO conviene que pierda mas de esa cantidad. Por lo
+   * tanto, cuando el nivel de humedad del suelo descienda (perdida
+   * de humedad) a los 10 [mm] se le debe añadir agua para llevar el
+   * nivel de humedad a capacidad de campo, es decir, se le debe
+   * añadir agua al suelo hasta la capacidad de campo.
+   * 
+   * Un valor de 0,50 para el factor de agotamiento (depletionFactor),
+   * representado con la letra p en la formula de la lamina de riego
+   * optima (drop), es utilizado comunmente para una gran variedad
+   * de cultivos.
+   * 
+   * Formula de la lamina de riego optima (drop):
+   * ((Wc - Wm) / 100) * pea * D * p
+   * 
+   * @param etcGivenDate
+   * @param crop
+   * @param soil
+   * @return double que representa la cantidad maxima de agua que
+   * puede perder un suelo lleno de agua, pero no anegado (esto es
+   * que el nivel de humedad del suelo esta en capacidad de campo),
+   * que tiene un cultivo sembrado, medida en [mm]. Esto es la lamina
+   * de riego optima (drop).
+   */
+  public static double calculateOptimalIrrigationLayer(double etcGivenDate, Crop crop, Soil soil) {
+    return calculateTotalAmountWaterAvailable(crop, soil) * adjustDepletionFactorToEtc(etcGivenDate, crop.getDepletionFactor());
+  }
+
+  /**
+   * @param crop
+   * @return double que representa el promedio de la
+   * profundidad radicular de un cultivo medida en
+   * metros
+   */
+  private static double calculateAverageRootDepth(Crop crop) {
+    return (crop.getUpperLimitMaximumRootDepth() + crop.getLowerLimitMaximumRootDepth()) / 2;
+  }
+
+  /**
+   * Esta formula fue tomada de la pagina 163 del libro
+   * "Evapotranspiracion del cultivo, estudio FAO riego y
+   * drenaje".
+   * 
+   * @param etcGivenDate
+   * @param cropDepletionFactor
+   * @return double que representa un factor de agotamiento
+   * (p) ajustado a una ETc de una fecha [mm/dia]
+   */
+  private static double adjustDepletionFactorToEtc(double etcGivenDate, double cropDepletionFactor) {
+    return (cropDepletionFactor + 0.04 * (5 - etcGivenDate));
   }
 
   /**
