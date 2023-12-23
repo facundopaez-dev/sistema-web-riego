@@ -97,7 +97,10 @@ class RegistroPlantacion {
 -id
 -fechaSiembra
 -fechaCosecha
+-fechaMarchitez
 -necesidadAguaRiego
+-laminaTotalAguaDisponible
+-laminaRiegoOptima
 }
 
 class RegistroRiego {
@@ -109,6 +112,7 @@ class RegistroRiego {
 class Opcion {
 -id
 -diasPasadosReferencia
+-banderaSuelo
 -banderaTreintaDias
 }
 

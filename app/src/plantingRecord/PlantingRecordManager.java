@@ -21,8 +21,11 @@ import model.PlantingRecord;
 import model.ClimateRecord;
 import model.IrrigationRecord;
 import model.Option;
+import model.Crop;
 import model.User;
 import irrigation.WaterNeedWos;
+import irrigation.WaterNeedWs;
+import irrigation.WaterMath;
 import util.UtilDate;
 import et.HargreavesEto;
 import et.Etc;
@@ -32,38 +35,19 @@ import climate.ClimateClient;
 public class PlantingRecordManager {
 
     // inject a reference to the PlantingRecordServiceBean
-    @EJB
-    PlantingRecordServiceBean plantingRecordService;
+    @EJB PlantingRecordServiceBean plantingRecordService;
+    @EJB PlantingRecordStatusServiceBean plantingRecordStatusService;
+    @EJB CropServiceBean cropService;
+    @EJB IrrigationRecordServiceBean irrigationRecordService;
+    @EJB ClimateRecordServiceBean climateRecordService;
+    @EJB SolarRadiationServiceBean solarService;
+    @EJB MonthServiceBean monthService;
+    @EJB LatitudeServiceBean latitudeService;
+    @EJB OptionServiceBean optionService;
+    @EJB SoilWaterBalanceServiceBean soilWaterBalanceService;
+    @EJB ParcelServiceBean parcelService;
 
-    @EJB
-    PlantingRecordStatusServiceBean plantingRecordStatusService;
-
-    @EJB
-    CropServiceBean cropService;
-
-    @EJB
-    IrrigationRecordServiceBean irrigationRecordService;
-
-    @EJB
-    ClimateRecordServiceBean climateRecordService;
-
-    @EJB
-    SolarRadiationServiceBean solarService;
-
-    @EJB
-    MonthServiceBean monthService;
-
-    @EJB
-    LatitudeServiceBean latitudeService;
-
-    @EJB
-    OptionServiceBean optionService;
-
-    @EJB
-    SoilWaterBalanceServiceBean soilWaterBalanceService;
-
-    @EJB
-    ParcelServiceBean parcelService;
+    private final String NOT_AVAILABLE = "n/a";
 
     /*
      * Establece de manera automatica el estado finalizado de un registro de
@@ -168,7 +152,7 @@ public class PlantingRecordManager {
         Parcel givenParcel = null;
         User givenUser = null;
 
-        double currentIrrigationWaterNeed = 0.0;
+        double irrigationWaterNeedCurrentDate = 0.0;
 
         /*
          * Establece la necesidad de agua de riego [mm/dia] de la fecha
@@ -205,17 +189,59 @@ public class PlantingRecordManager {
             calculateEtsPastClimateRecords(givenUser.getId(), givenParcel.getOption(), developingPlantingRecord);
 
             /*
+             * Actualiza la lamina total de agua disponible (dt) [mm]
+             * y la lamina de riego optima (drop) [mm] de un registro
+             * de plantacion en desarrollo
+             */
+            updateIrrigationSheets(developingPlantingRecord);
+
+            /*
              * Calculo de la necesidad de agua de riego en la fecha actual
              * de un cultivo sembrado y en desarrollo en una parcela
              */
-            currentIrrigationWaterNeed = calculateIrrigationWaterNeedCurrentDate(givenUser.getId(), developingPlantingRecord, givenParcel.getOption());
+            irrigationWaterNeedCurrentDate = calculateIrrigationWaterNeedCurrentDate(givenUser.getId(), developingPlantingRecord);
 
             /*
-             * Actualizacion de la necesidad de agua de riego del
-             * registro de plantacion en desarrollo correspondiente
-             * al cultivo en desarrollo en la fecha actual
+             * Si la necesidad de agua de riego de un cultivo (en
+             * desarrollo) en la fecha actual [mm/dia] es negativa
+             * significa dos cosas:
+             * - que el algoritmo utilizado para calcular dicha
+             * necesidad es el que utiliza datos de suelo para ello,
+             * ya que este es el unico de los dos algoritmos del
+             * calculo de la necesidad de agua de riego de un cultivo
+             * en una fecha [mm/dia] que puede retornar -1,
+             * - y que el nivel de humedad del suelo de una parcela
+             * que tiene un cultivo sembrado y en desarrollo, esta
+             * en el punto de marchitez permanente, en el cual un
+             * cultivo no puede extraer agua del suelo y no puede
+             * recuperarse de la perdida hidrica aunque la humedad
+             * ambiental sea saturada.
+             * 
+             * Por lo tanto, la aplicacion del lado servidor asigna
+             * la abreviatura "n/a" (no disponible) a la necesidad
+             * de agua de riego de un cultivo en la fecha actual
+             * [mm/dia] de un registro de plantacion en desarrollo
+             * y retorna el mensaje HTTP 400 (Bad request) junto con
+             * el mensaje dado, y no se realiza la operacion solicitada.
              */
-            plantingRecordService.updateIrrigationWaterNeed(developingPlantingRecord.getId(), givenParcel, String.valueOf(currentIrrigationWaterNeed));
+            if (irrigationWaterNeedCurrentDate < 0.0) {
+                plantingRecordService.updateIrrigationWaterNeed(developingPlantingRecord.getId(), developingPlantingRecord.getParcel(), NOT_AVAILABLE);
+                plantingRecordService.setStatus(developingPlantingRecord.getId(), plantingRecordStatusService.findWitheredStatus());
+                plantingRecordService.updateWiltingDate(developingPlantingRecord.getId(), UtilDate.getCurrentDate());
+            }
+
+            /*
+             * Si la necesidad de agua de riego de un cultivo (en
+             * desarrollo) en la fecha actual [mm/dia] es mayor o
+             * igual a cero, se actualiza la necesidad de agua de
+             * riego del registro de plantacion en desarrollo
+             * correspondiente al cultivo en desarrollo en la
+             * fecha actual
+             */
+            if (irrigationWaterNeedCurrentDate >= 0.0) {
+                plantingRecordService.updateIrrigationWaterNeed(developingPlantingRecord.getId(), givenParcel, String.valueOf(irrigationWaterNeedCurrentDate));
+            }
+
         } // End for
 
     }
@@ -552,11 +578,10 @@ public class PlantingRecordManager {
      * 
      * @param userId
      * @param developingPlantingRecord
-     * @param parcelOption
      * @return double que representa la necesidad de agua de riego
      * de un cultivo en la fecha actual [mm/dia]
      */
-    private double calculateIrrigationWaterNeedCurrentDate(int userId, PlantingRecord developingPlantingRecord, Option parcelOption) {
+    private double calculateIrrigationWaterNeedCurrentDate(int userId, PlantingRecord developingPlantingRecord) {
         /*
          * Estas fechas se utilizan para obtener de la base de datos
          * subyacente los registros climaticos y los registros de riego
@@ -609,6 +634,7 @@ public class PlantingRecordManager {
         Calendar dateUntil = UtilDate.getYesterdayDate();
 
         Parcel givenParcel = developingPlantingRecord.getParcel();
+        Option parcelOption = givenParcel.getOption();
 
         /*
          * Estas fechas son utilizadas para comprobar si existe el
@@ -718,7 +744,46 @@ public class PlantingRecordManager {
          * inconsistente.
          */
         parcelService.merge(givenParcel);
-        return WaterNeedWos.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, climateRecords, irrigationRecords);
+
+        double irrigationWaterNeedCurrentDate = 0.0;
+
+        /*
+         * Si la bandera suelo NO esta activa se calcula la necesidad
+         * de agua de riego de un cultivo en la fecha actual [mm/dia]
+         * mediante el algoritmo que NO utiliza datos de suelo para
+         * ello.
+         * 
+         * En otras palabras, se calcula la necesidad de agua de riego
+         * de un cultivo en la fecha actual [mm/dia] sin tener en cuenta
+         * el suelo de la parcela en la que esta sembrado, independientemente
+         * de si la parcela tiene o no asignado un suelo.
+         */
+        if (!parcelOption.getSoilFlag()) {
+            irrigationWaterNeedCurrentDate = WaterNeedWos.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, climateRecords, irrigationRecords);
+        }
+
+        /*
+         * Si la bandera suelo esta activa se calcula la necesidad
+         * de agua de riego de un cultivo en la fecha actual [mm/dia]
+         * mediante el algoritmo que utiliza datos de suelo para ello.
+         * 
+         * En otras palabras, se calcula la necesidad de agua de riego
+         * de un cultivo en la fecha actual [mm/dia] teniendo en cuenta
+         * el suelo de la parcela en la que esta sembrado.
+         * 
+         * Este algoritmo puede retornar el valor -1, el cual representa
+         * la situacion en la que el nivel de humedad del suelo, que tiene
+         * un cultivo sembrado, esta en el punto de marchitez permanente,
+         * en el cual un cultivo no puede extraer agua del suelo y no
+         * puede recuperarse de la perdida hidrica aunque la humedad
+         * ambiental sea saturada.
+         */
+        if (parcelOption.getSoilFlag()) {
+            irrigationWaterNeedCurrentDate = WaterNeedWs.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate,
+                    developingPlantingRecord.getCrop(), givenParcel.getSoil(), climateRecords, irrigationRecords);
+        }
+
+        return irrigationWaterNeedCurrentDate;
     }
 
     /**
@@ -767,6 +832,92 @@ public class PlantingRecordManager {
      */
     private double calculateEtcForClimateRecord(double givenEto, PlantingRecord givenPlantingRecord, Calendar dateUntil) {
         return Etc.calculateEtc(givenEto, cropService.getKc(givenPlantingRecord.getCrop(), givenPlantingRecord.getSeedDate(), dateUntil));
+    }
+
+    /**
+     * Actualiza la lamina total de agua disponible (dt) [mm]
+     * y la lamina de riego optima (drop) [mm] de un registro
+     * de plantacion en desarrollo
+     * 
+     * @param developingPlantingRecord
+     */
+    private void updateIrrigationSheets(PlantingRecord developingPlantingRecord) {
+        Parcel givenParcel = developingPlantingRecord.getParcel();
+        Option parcelOption = givenParcel.getOption();
+
+        double etcCurrentDate = 0.0;
+
+        /*
+         * Si la parcela de un registro de plantacion tiene la bandera
+         * suelo activa, se calcula la lamina de riego optima (drop)
+         * (umbral de riego) [mm] de la fecha actual y la lamina total
+         * de agua disponible (dt) [mm] y se las asigna al registro de
+         * plantacion en desarrollo.
+         * 
+         * La lamina de riego optima (drop) [mm] es de la fecha actual
+         * porque el factor de agotamiento (p) con la que se la calcula
+         * se debe ajustar a la ETc de la fecha actual, ya que se busca
+         * calcular la necesidad de agua de riego de un cultivo en la
+         * fecha actual [mm/dia].
+         */
+        if (parcelOption.getSoilFlag()) {
+            double etoCurrentDate = 0.0;
+
+            Crop givenCrop = developingPlantingRecord.getCrop();
+            ClimateRecord currentClimateRecord;
+
+            /*
+             * Si en la base de datos subyacente existe para una parcela
+             * el registro climatico de la fecha actual, se obtiene su
+             * ETc para calcuar la lamina de riego optima (drop). De lo
+             * contrario, se lo solicita al servicio climatico, se lo
+             * persiste y se obtiene su ETc para calcular dicha lamina.
+             */
+            if (climateRecordService.checkExistence(UtilDate.getCurrentDate(), givenParcel)) {
+                currentClimateRecord = climateRecordService.find(UtilDate.getCurrentDate(), givenParcel);
+                etcCurrentDate = currentClimateRecord.getEtc();
+            } else {
+                currentClimateRecord = ClimateClient.getForecast(givenParcel,
+                        UtilDate.getCurrentDate().getTimeInMillis() / 1000);
+
+                double extraterrestrialSolarRadiation = solarService.getRadiation(givenParcel.getLatitude(),
+                        monthService.getMonth(currentClimateRecord.getDate().get(Calendar.MONTH)),
+                        latitudeService.find(givenParcel.getLatitude()),
+                        latitudeService.findPreviousLatitude(givenParcel.getLatitude()),
+                        latitudeService.findNextLatitude(givenParcel.getLatitude()));
+
+                etoCurrentDate = HargreavesEto.calculateEto(currentClimateRecord.getMaximumTemperature(),
+                        currentClimateRecord.getMinimumTemperature(), extraterrestrialSolarRadiation);
+                etcCurrentDate = Etc.calculateEtc(etoCurrentDate, cropService.getKc(givenCrop, developingPlantingRecord.getSeedDate()));
+
+                currentClimateRecord.setEto(etoCurrentDate);
+                currentClimateRecord.setEtc(etcCurrentDate);
+
+                /*
+                 * Persistencia del registro climatico de la fecha actual (hoy)
+                 */
+                climateRecordService.create(currentClimateRecord);
+            }
+
+            /*
+             * Actualizacion de la lamina total de agua disponible (dt) [mm]
+             * de un registro de plantacion en la base de datos subyacente
+             */
+            plantingRecordService.updateTotalAmountWaterAvailable(developingPlantingRecord.getId(),
+                    WaterMath.calculateTotalAmountWaterAvailable(givenCrop, givenParcel.getSoil()));
+
+            /*
+             * Actualizacion de la lamina de riego optima (drop) [mm] de
+             * un registro de plantacion en la base de datos subyacente.
+             * A esta se le asigna el signo negativo (-) porque representa
+             * la cantidad maxima de agua que puede perder un suelo, que
+             * tiene un cultivo sembrado, a partir de la cual NO conviene
+             * perder mas agua, sino que se le debe añadir agua
+             */
+            plantingRecordService.updateOptimalIrrigationLayer(developingPlantingRecord.getId(),
+                    (-1 * WaterMath.calculateOptimalIrrigationLayer(etcCurrentDate, givenCrop, givenParcel.getSoil())));
+        }
+
     }
 
 }

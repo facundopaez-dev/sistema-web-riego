@@ -107,11 +107,21 @@ app.controller(
           if ($scope.data.harvestDate != null) {
             $scope.data.harvestDate = new Date($scope.data.harvestDate);
           }
+
+          if ($scope.data.wiltingDate != null) {
+            $scope.data.wiltingDate = new Date($scope.data.wiltingDate);
+          }
+
         });
       }
 
+      /*
+      Tres de los cuatro estados que puede tener un registro
+      de plantacion
+      */
       const DEVELOPING_STATE = "En desarrollo";
       const ON_HOLD = "En espera";
+      const WITHERED_STATUS = "Marchitado";
 
       /*
       Constantes de mensaje en caso de que los datos de entrada
@@ -233,7 +243,23 @@ app.controller(
           return;
         }
 
-        plantingRecordService.modify($scope.data, function (error, data) {
+        let maintainWitheredStatus = false;
+
+        /*
+        Si el registro de plantacion a modificar tiene el estado marchitado,
+        se pide al usuario que confirme si desea que el registro de plantacion
+        cambie su estado marchitado a finalizado o en desarrollo dependiendo
+        de las fechas elegidas
+        */
+        if ($scope.data.status.name == WITHERED_STATUS) {
+          var message = "Si se modifica el registro de plantación con una fecha de cosecha anterior a la fecha actual, adquirirá el estado finalizado. "
+            + "Si las fechas permanecen iguales, el registro de plantación adquirirá el estado en desarrolllo. "
+            + "¿Desea que el registro de plantación mantenga el estado marchitado luego de la modificación?";
+
+          maintainWitheredStatus = confirm(message);
+        }
+
+        plantingRecordService.modify($scope.data, maintainWitheredStatus, function (error, data) {
           if (error) {
             console.log(error);
             errorResponseManager.checkResponse(error);

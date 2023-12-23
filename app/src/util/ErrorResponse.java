@@ -29,6 +29,11 @@ public class ErrorResponse {
     this.sourceUnsatisfiedResponse = sourceUnsatisfiedResponse.getOrigin();
   }
 
+  public ErrorResponse(String message, SourceUnsatisfiedResponse sourceUnsatisfiedResponse) {
+    this.message = message;
+    this.sourceUnsatisfiedResponse = sourceUnsatisfiedResponse.getOrigin();
+  }
+
   public String getMessage() {
     return message;
   }

@@ -20,6 +20,9 @@ public class Option {
     @Column(name = "PAST_DAYS_REFERENCE", nullable = false)
     private int pastDaysReference;
 
+    @Column(name = "SOIL_FLAG", nullable = false)
+    private boolean soilFlag;
+
     @Column(name = "THIRTY_DAYS_FLAG", nullable = false)
     private boolean thirtyDaysFlag;
 
@@ -41,6 +44,14 @@ public class Option {
 
     public void setPastDaysReference(int pastDaysReference) {
         this.pastDaysReference = pastDaysReference;
+    }
+
+    public boolean getSoilFlag() {
+        return soilFlag;
+    }
+
+    public void setSoilFlag(boolean soilFlag) {
+        this.soilFlag = soilFlag;
     }
 
     public boolean getThirtyDaysFlag() {

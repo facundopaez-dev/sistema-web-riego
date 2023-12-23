@@ -1,7 +1,7 @@
 app.controller(
 	"PlantingRecordsCtrl",
-	["$scope", "$location", "$route", "PlantingRecordSrv", "ParcelSrv", "IrrigationRecordSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
-		function ($scope, $location, $route, plantingRecordSrv, parcelSrv, irrigationRecordService, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
+	["$scope", "$location", "$route", "PlantingRecordSrv", "ParcelSrv", "WaterNeedFormManager", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
+		function ($scope, $location, $route, plantingRecordSrv, parcelSrv, waterNeedFormManager, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
 
 			console.log("Cargando PlantingRecordsCtrl...")
 
@@ -61,6 +61,13 @@ app.controller(
 					}
 
 					$scope.data = data;
+
+					/*
+					La coleccion de registros de plantacion se añade a un arreglo
+					para realizar el control de acceso al formulario del calculo
+					de la necesidad de agua de riego de un cultivo
+					*/
+					waterNeedFormManager.setPlantingRecords(data);
 				})
 			}
 
@@ -83,39 +90,6 @@ app.controller(
 					$location.path("/home/plantingRecords");
 					$route.reload()
 				});
-			}
-
-			$scope.calculateIrrigationWaterNeed = function (id) {
-				plantingRecordSrv.calculateIrrigationWaterNeed(id, function (error, irrigationWaterNeedData) {
-					if (error) {
-						console.log(error);
-						errorResponseManager.checkResponse(error);
-						return;
-					}
-
-					/*
-					Si esta instruccion no esta, no se puede ver la
-					necesidad de agua de riego en el modal
-					*/
-					$scope.irrigationWaterNeedData = irrigationWaterNeedData;
-				});
-			}
-
-			$scope.saveIrrigationWaterNeedData = function () {
-				if ($scope.irrigationWaterNeedData.irrigationDone >= 0) {
-					irrigationRecordService.saveIrrigationWaterNeedData($scope.irrigationWaterNeedData, function (error, irrigationWaterNeedData) {
-						if (error) {
-							console.log(error);
-							errorResponseManager.checkResponse(error);
-							return;
-						}
-
-						$scope.irrigationWaterNeedData = irrigationWaterNeedData;
-					});
-				} else {
-					alert("El riego realizado debe ser mayor o igual a cero");
-				}
-
 			}
 
 			$scope.logout = function () {

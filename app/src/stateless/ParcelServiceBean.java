@@ -309,6 +309,36 @@ public class ParcelServiceBean {
   }
 
   /**
+   * @param optionId
+   * @return referencia a un objeto de tipo Parcel si en la
+   * base de datos subyacente se encuentra la parcela asociada
+   * a la opcion que tiene el ID dado. En caso contrario, null.
+   */
+  public Parcel findByOptionId(int optionId) {
+    Query query = entityManager.createQuery("SELECT p FROM Parcel p WHERE p.option.id = :optionId");
+    query.setParameter("optionId", optionId);
+
+    Parcel givenParcel = null;
+
+    try {
+      givenParcel = (Parcel) query.getSingleResult();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return givenParcel;
+  }
+
+  /**
+   * @param optionId
+   * @return true si una parcela asociada a una opcion, tiene
+   * asignado un suelo. En caso contrario, false.
+   */
+  public boolean checkSoil(int optionId) {
+    return (findByOptionId(optionId).getSoil() != null);
+  }
+
+  /**
    * Retorna las parcelas activas de un usuario que tienen un nombre
    * que coincide con el nombre de parcela dado. Este metodo es para
    * el ingreso de la parcela en el formulario de creacion y modificacion

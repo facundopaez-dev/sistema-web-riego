@@ -60,6 +60,15 @@ public class PlantingRecordStatusServiceBean {
   }
 
   /**
+   * @return referencia a un objeto de tipo PlantingRecordStatus que
+   * representa el estado "Marchitado"
+   */
+  public PlantingRecordStatus findWitheredStatus() {
+    Query query = getEntityManager().createQuery("SELECT p FROM PlantingRecordStatus p WHERE p.name = 'Marchitado'");
+    return (PlantingRecordStatus) query.getSingleResult();
+  }
+
+  /**
    * Calcula el estado de un registro de plantacion en base a su
    * fecha de siembra y su fecha de cosecha. Un registro de plantacion
    * representa la siembra de un cultivo. Por lo tanto, este metodo

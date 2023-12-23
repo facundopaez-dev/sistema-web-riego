@@ -71,6 +71,25 @@ public class SoilServiceBean {
     }
 
     /**
+     * @param soilOne
+     * @param soilTwo
+     * @return true si el suelo uno tiene el mismo nombre que
+     * el suelo dos, en caso contrario false
+     */
+    public boolean equals(Soil soilOne, Soil soilTwo) {
+
+        if (soilOne == null || soilTwo == null) {
+            return false;
+        }
+
+        if (soilOne.getName() == null || soilTwo.getName() == null) {
+            return false;
+        }
+
+        return soilOne.getName().equals(soilTwo.getName());
+    }
+
+    /**
      * Este metodo es para el menu de busqueda de un suelo en
      * la pagina web de lista de suelos.
      * 

@@ -21,11 +21,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import model.Parcel;
+import model.PlantingRecord;
+import model.Soil;
 import stateless.ParcelServiceBean;
 import stateless.SecretKeyServiceBean;
 import stateless.UserServiceBean;
 import stateless.PlantingRecordServiceBean;
 import stateless.SessionServiceBean;
+import stateless.SoilServiceBean;
 import stateless.OptionServiceBean;
 import util.ErrorResponse;
 import util.ReasonError;
@@ -44,13 +47,14 @@ public class ParcelRestServlet {
   @EJB PlantingRecordServiceBean plantingRecordService;
   @EJB SessionServiceBean sessionService;
   @EJB OptionServiceBean optionService;
+  @EJB SoilServiceBean soilService;
 
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
 
   private final String UNDEFINED_VALUE = "undefined";
-
   private final String NAME_REGULAR_EXPRESSION = "^[A-Za-zÀ-ÿ]+(\\s[A-Za-zÀ-ÿ]*[0-9]*)*$";
+  private final String IRRIGATION_WATER_NEED_NOT_AVAILABLE_BUT_CALCULABLE = "-";
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
@@ -989,6 +993,8 @@ public class ParcelRestServlet {
     }
 
     Parcel modifiedParcel = mapper.readValue(json, Parcel.class);
+    Soil modifiedSoil = modifiedParcel.getSoil();
+    Soil currentSoil = parcelService.find(parcelId).getSoil();
 
     /*
      * Si el nombre de la parcela a modificar no esta definido,
@@ -1038,6 +1044,35 @@ public class ParcelRestServlet {
      */
     if (modifiedParcel.getHectares() <= 0.0) {
       return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_NUMBER_OF_HECTARES)).build();
+    }
+
+    /*
+     * Si en la modificacion de una parcela, el suelo NO esta
+     * definido, la bandera umbral de riego de la opcion asociada
+     * a dicha parcela es establecida en false, ya que para
+     * calcular, mediante un umbral de riego, la necesidad de
+     * agua de riego de un cultivo en la fecha actual se necesitan
+     * datos de suelo (capacidad de campo, punto de marchitez
+     * permanente y peso especifico aparente), los cuales
+     * estan presentes en un suelo
+     */
+    if (modifiedParcel.getSoil() == null) {
+      optionService.unsetSoilFlag(modifiedParcel.getOption().getId());
+    }
+
+    /*
+     * Si la parcela modificada tiene un registro de plantacion
+     * "En desarrollo" y un suelo distinto al original, se asigna
+     * el caracter "-" a la necesidad de agua de riego de un cultivo
+     * en la fecha actual de dicho registro para hacer que el usuario
+     * ejecute el proceso del calculo de la necesidad de agua de
+     * riego de un cultivo en la fecha actual [mm/dia]. La manera
+     * en la que el usuario realiza esto es mediante el boton
+     * "Calcular" de la pagina de registros de plantacion.
+     */
+    if (plantingRecordService.checkOneInDevelopment(modifiedParcel) && !soilService.equals(modifiedSoil, currentSoil)) {
+      PlantingRecord developingPlantingRecord = plantingRecordService.findInDevelopment(modifiedParcel);
+      plantingRecordService.updateIrrigationWaterNeed(developingPlantingRecord.getId(), modifiedParcel, IRRIGATION_WATER_NEED_NOT_AVAILABLE_BUT_CALCULABLE);
     }
 
     /*

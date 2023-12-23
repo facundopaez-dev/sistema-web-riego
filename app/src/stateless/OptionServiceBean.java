@@ -71,11 +71,24 @@ public class OptionServiceBean {
 
         if (givenOption != null) {
             givenOption.setPastDaysReference(modifiedOption.getPastDaysReference());
+            givenOption.setSoilFlag(modifiedOption.getSoilFlag());
             givenOption.setThirtyDaysFlag(modifiedOption.getThirtyDaysFlag());
             return givenOption;
         }
 
         return null;
+    }
+
+    /**
+     * Establece en false la bandera suelo de una opcion
+     * de parcela
+     * 
+     * @param id
+     */
+    public void unsetSoilFlag(int id) {
+        Query query = entityManager.createQuery("UPDATE Option o SET o.soilFlag = 0 WHERE o.id = :optionId");
+        query.setParameter("optionId", id);
+        query.executeUpdate();
     }
 
     /**

@@ -41,8 +41,8 @@ app.service("PlantingRecordSrv", ["$http", function ($http) {
         });
   }
 
-  this.modify = function (data, callback) {
-    $http.put("rest/plantingRecords/" + data.id, data)
+  this.modify = function (data, maintainWitheredStatus, callback) {
+    $http.put("rest/plantingRecords/" + data.id + "/" + maintainWitheredStatus, data)
       .then(
         function (result) {
           callback(false, result.data);

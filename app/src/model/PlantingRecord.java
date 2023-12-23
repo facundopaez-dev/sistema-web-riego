@@ -30,6 +30,10 @@ public class PlantingRecord {
   @Temporal(TemporalType.DATE)
   private Calendar harvestDate;
 
+  @Column(name = "WILTING_DATE")
+  @Temporal(TemporalType.DATE)
+  private Calendar wiltingDate;
+
   /*
    * Esta variable es para mostrar u ocultar el boton de modificacion
    * de registro de plantacion en la interfaz grafica del usuario. Si
@@ -55,6 +59,20 @@ public class PlantingRecord {
    */
   @Column(name = "IRRIGATION_WATER_NEED", nullable = false)
   private String irrigationWaterNeed;
+
+  /*
+   * Lamina total de agua disponible (dt) [mm]. Esta es la
+   * capacidad de almacenamiento de agua que tiene un suelo.
+   */
+  @Column(name = "TOTAL_AMOUNT_WATER_AVAILABLE")
+  private double totalAmountWaterAvailable;
+
+  /*
+   * Lamina de riego optima (drop) [mm]. Esta es el umbral de
+   * riego.
+   */
+  @Column(name = "OPTIMAL_IRRIGATION_LAYER")
+  private double optimalIrrigationLayer;
 
   @ManyToOne
   @JoinColumn(name = "FK_PARCEL", nullable = false)
@@ -96,6 +114,14 @@ public class PlantingRecord {
     this.harvestDate = harvestDate;
   }
 
+  public Calendar getWiltingDate() {
+    return wiltingDate;
+  }
+
+  public void setWiltingDate(Calendar wiltingDate) {
+    this.wiltingDate = wiltingDate;
+  }
+
   public boolean getModifiable() {
     return modifiable;
   }
@@ -110,6 +136,22 @@ public class PlantingRecord {
 
   public void setIrrigationWaterNeed(String irrigationWaterNeed) {
     this.irrigationWaterNeed = irrigationWaterNeed;
+  }
+
+  public double getTotalAmountWaterAvailable() {
+    return totalAmountWaterAvailable;
+  }
+
+  public void setTotalAmountWaterAvailable(double totalAmountWaterAvailable) {
+    this.totalAmountWaterAvailable = totalAmountWaterAvailable;
+  }
+
+  public double getOptimalIrrigationLayer() {
+    return optimalIrrigationLayer;
+  }
+
+  public void setOptimalIrrigationLayer(double optimalIrrigationLayer) {
+    this.optimalIrrigationLayer = optimalIrrigationLayer;
   }
 
   public Parcel getParcel() {

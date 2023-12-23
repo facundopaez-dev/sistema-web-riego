@@ -38,6 +38,8 @@ import climate.ClimateClient;
 import et.HargreavesEto;
 import et.Etc;
 import irrigation.WaterNeedWos;
+import irrigation.WaterNeedWs;
+import irrigation.WaterMath;
 import model.ClimateRecord;
 import model.Crop;
 import model.IrrigationRecord;
@@ -49,8 +51,10 @@ import model.IrrigationWaterNeedFormData;
 import model.User;
 import model.Option;
 import util.ErrorResponse;
+import util.PersonalizedResponse;
 import util.ReasonError;
 import util.RequestManager;
+import util.SourceUnsatisfiedResponse;
 import util.UtilDate;
 import utilJwt.AuthHeaderManager;
 import utilJwt.JwtManager;
@@ -60,43 +64,19 @@ public class PlantingRecordRestServlet {
 
   // inject a reference to the PlantingRecordServiceBean
   @EJB PlantingRecordServiceBean plantingRecordService;
-
-  // inject a reference to the ParcelServiceBean
   @EJB ParcelServiceBean parcelService;
-
-  // inject a reference to the ClimateRecordServiceBean
   @EJB ClimateRecordServiceBean climateRecordService;
-
-  // inject a reference to the CropServiceBean
   @EJB CropServiceBean cropService;
-
-  // inject a reference to the IrrigationRecordServiceBean
   @EJB IrrigationRecordServiceBean irrigationRecordService;
-
-  // inject a reference to the PlantingRecordStatusServiceBean
   @EJB PlantingRecordStatusServiceBean statusService;
-
-  // inject a reference to the SolarRadiationServiceBean
   @EJB SolarRadiationServiceBean solarService;
-
-  // inject a reference to the MaximumInsolationServiceBean
   @EJB MaximumInsolationServiceBean insolationService;
-
-  // inject a reference to the SecretKeyServiceBean
   @EJB SecretKeyServiceBean secretKeyService;
-
-  // inject a reference to the MonthServiceBean
   @EJB MonthServiceBean monthService;
-
-  // inject a reference to the LatitudeServiceBean
   @EJB LatitudeServiceBean latitudeService;
-
   @EJB UserServiceBean userService;
-
   @EJB OptionServiceBean optionService;
-
   @EJB SoilWaterBalanceServiceBean soilWaterBalanceService;
-
   @EJB SessionServiceBean sessionService;
 
   // Mapea lista de pojo a JSON
@@ -113,6 +93,7 @@ public class PlantingRecordRestServlet {
    * La abreviatura "n/a" significa "no disponible".
    */
   private final String NOT_AVAILABLE = "n/a";
+  private final String IRRIGATION_WATER_NEED_NOT_AVAILABLE_BUT_CALCULABLE = "-";
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
@@ -586,7 +567,7 @@ public class PlantingRecordRestServlet {
      */
     newPlantingRecord.setStatus(statusService.calculateStatus(newPlantingRecord));
 
-    PlantingRecordStatus givenStatus = newPlantingRecord.getStatus();
+    PlantingRecordStatus statusNewPlantingRecord = newPlantingRecord.getStatus();
     PlantingRecordStatus finishedStatus = statusService.findFinishedStatus();
     PlantingRecordStatus developmentStatus = statusService.findDevelopmentStatus();
     PlantingRecordStatus waitingStatus = statusService.findWaitingStatus();
@@ -618,16 +599,22 @@ public class PlantingRecordRestServlet {
      * no se puede calcular la necesidad de agua de riego de un
      * cultivo.
      */
-    if (statusService.equals(givenStatus, finishedStatus) || (statusService.equals(givenStatus, waitingStatus))) {
+    if (statusService.equals(statusNewPlantingRecord, finishedStatus) || (statusService.equals(statusNewPlantingRecord, waitingStatus))) {
       newPlantingRecord.setIrrigationWaterNeed(NOT_AVAILABLE);
     }
 
     /*
-     * Inicialmente la necesidad de agua de riego de un registro
-     * de plantacion que tiene el estado "En desarrollo" es 0
+     * Inicialmente un registro de plantacion que tiene el estado
+     * "En desarrollo" NO tiene la necesidad de agua de riego de
+     * un cultivo en la fecha actual [mm/dia], lo cual se realiza
+     * para hacer que el usuario ejecute el proceso del calculo de
+     * la necesidad de agua de riego de un cultivo en la fecha actual
+     * [mm/dia]. La manera en la que el usuario realiza esto es
+     * mediante el boton "Calcular" de la pagina de registros de
+     * plantacion.
      */
-    if (statusService.equals(givenStatus, developmentStatus)) {
-      newPlantingRecord.setIrrigationWaterNeed(String.valueOf(0));
+    if (statusService.equals(statusNewPlantingRecord, developmentStatus)) {
+      newPlantingRecord.setIrrigationWaterNeed(IRRIGATION_WATER_NEED_NOT_AVAILABLE_BUT_CALCULABLE);
     }
 
     /*
@@ -641,27 +628,6 @@ public class PlantingRecordRestServlet {
     newPlantingRecord = plantingRecordService.create(newPlantingRecord);
 
     /*
-     * Si un registro de plantacion nuevo tiene el estado "En
-     * desarrollo", se calcula la necesidad de agua de riego
-     * del cultivo que esta en desarrollo en la fecha actual.
-     * Esto se hace porque un registro de plantacion representa
-     * a un cultivo sembrado. Por lo tanto, si hay un registro
-     * de plantacion en desarrollo es porque hay un cultivo en
-     * desarrollo, y al existir este cultivo se debe calcular
-     * la necesidad de agua de riego del mismo.
-     */
-    if (statusService.equals(givenStatus, developmentStatus)) {
-      /*
-       * Ejecuta el proceso del calculo de la necesidad de agua
-       * de riego de un cultivo en la fecha actual. Esto es que
-       * ejecuta los metodos necesarios para calcular y actualizar
-       * la necesidad de agua de riego de un cultivo (en desarrollo)
-       * en la fecha actual.
-       */
-      runCalculationIrrigationWaterNeedCurrentDate(userService.find(userId), newPlantingRecord);
-    }
-
-    /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido y no se cumplen las condiciones de
      * los controles para la creacion de un registro de plantacion, la
@@ -672,9 +638,10 @@ public class PlantingRecordRestServlet {
   }
 
   @PUT
-  @Path("/{id}")
+  @Path("/{id}/{maintainWitheredStatus}")
   @Produces(MediaType.APPLICATION_JSON)
-  public Response modify(@Context HttpHeaders request, @PathParam("id") int plantingRecordId, String json) throws IOException {
+  public Response modify(@Context HttpHeaders request, @PathParam("id") int plantingRecordId,
+      @PathParam("maintainWitheredStatus") boolean maintainWitheredStatus, String json) throws IOException {
     Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
 
     /*
@@ -805,10 +772,16 @@ public class PlantingRecordRestServlet {
     PlantingRecord modifiedPlantingRecord = mapper.readValue(json, PlantingRecord.class);
     PlantingRecord currentPlantingRecord = plantingRecordService.find(plantingRecordId);
 
+    Parcel modifiedParcel = modifiedPlantingRecord.getParcel();
+    Parcel currentParcel = currentPlantingRecord.getParcel();
+
+    Crop modifiedCrop = modifiedPlantingRecord.getCrop();
+    Crop currentCrop = currentPlantingRecord.getCrop();
+
     Calendar seedDate = modifiedPlantingRecord.getSeedDate();
     Calendar harvestDate = modifiedPlantingRecord.getHarvestDate();
 
-    PlantingRecordStatus givenStatus = currentPlantingRecord.getStatus();
+    PlantingRecordStatus currentStatus = currentPlantingRecord.getStatus();
     PlantingRecordStatus finishedStatus = statusService.findFinishedStatus();
     PlantingRecordStatus developmentStatus = statusService.findDevelopmentStatus();
     PlantingRecordStatus waitingStatus = statusService.findWaitingStatus();
@@ -823,7 +796,7 @@ public class PlantingRecordRestServlet {
      * plantacion en desarrollo o en espera sea no modificable" y
      * no se realiza la operacion solicitada
      */
-    if (!modifiedPlantingRecord.getModifiable() && (statusService.equals(givenStatus, developmentStatus) || statusService.equals(givenStatus, waitingStatus))) {
+    if (!modifiedPlantingRecord.getModifiable() && (statusService.equals(currentStatus, developmentStatus) || statusService.equals(currentStatus, waitingStatus))) {
       return Response.status(Response.Status.BAD_REQUEST)
           .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFIABILITY_PLANTING_RECORD_NOT_ALLOWED)))
           .build();
@@ -929,12 +902,21 @@ public class PlantingRecordRestServlet {
     }
 
     /*
-     * Se establece el estado de un registro de plantacion
-     * modificado en base a la fecha de siembra y la fecha de
-     * cosecha de su cultivo
+     * Si un registro de plantacion a modificar tiene el estado
+     * marchitado y NO se desea que mantenga ese estado luego
+     * de su modificado, se calcula su proximo estado
      */
-    modifiedPlantingRecord.setStatus(statusService.calculateStatus(modifiedPlantingRecord));
-    PlantingRecordStatus modifiedStatus = modifiedPlantingRecord.getStatus();
+    if (!maintainWitheredStatus) {
+      /*
+       * Se establece el estado de un registro de plantacion
+       * modificado en base a la fecha de siembra y la fecha de
+       * cosecha de su cultivo
+       */
+      modifiedPlantingRecord.setStatus(statusService.calculateStatus(modifiedPlantingRecord));
+      plantingRecordService.unsetWiltingDate(modifiedPlantingRecord.getId());
+    }
+
+    PlantingRecordStatus modifiedPlantingRecordStatus = modifiedPlantingRecord.getStatus();
 
     /*
      * Un registro de plantacion tiene el estado "Finalizado"
@@ -963,8 +945,28 @@ public class PlantingRecordRestServlet {
      * no se puede calcular la necesidad de agua de riego de un
      * cultivo.
      */
-    if (statusService.equals(modifiedStatus, finishedStatus) || (statusService.equals(modifiedStatus, waitingStatus))) {
+    if (statusService.equals(modifiedPlantingRecordStatus, finishedStatus) || (statusService.equals(modifiedPlantingRecordStatus, waitingStatus))) {
       modifiedPlantingRecord.setIrrigationWaterNeed(NOT_AVAILABLE);
+    }
+
+    /*
+     * Si el registro de plantacion modificado tiene el estado "En
+     * desarrollo" y tiene una parcela o un cultivo distinto a los
+     * originales, se asigna el caracter "-" a la necesidad de agua
+     * de riego de dicho registro para hacer que el usuario ejecute
+     * el proceso del calculo de la necesidad de agua de riego de
+     * un cultivo en la fecha actual [mm/dia]. La manera en la que
+     * el usuario realiza esto es mediante el boton "Calcular" de
+     * la pagina de registros de plantacion. Tambien se asigna el
+     * caracter "-" a la necesidad de agua de riego de un cultivo
+     * en la fecha actual de un registro de plantacion en desarrollo
+     * perteneciente a una parcela a la que se le modifica el
+     * suelo. Esto esta programado en el metodo modify de la clase
+     * ParcelRestServlet.
+     */
+    if (statusService.equals(modifiedPlantingRecordStatus, developmentStatus)
+        && (!parcelService.equals(modifiedParcel, currentParcel) || !cropService.equals(modifiedCrop, currentCrop))) {
+      modifiedPlantingRecord.setIrrigationWaterNeed(IRRIGATION_WATER_NEED_NOT_AVAILABLE_BUT_CALCULABLE);
     }
 
     /*
@@ -972,27 +974,6 @@ public class PlantingRecordRestServlet {
      * de plantacion
      */
     modifiedPlantingRecord = plantingRecordService.modify(userId, plantingRecordId, modifiedPlantingRecord);
-
-    /*
-     * Si un registro de plantacion modificado tiene el estado "En
-     * desarrollo", se calcula la necesidad de agua de riego
-     * del cultivo que esta en desarrollo en la fecha actual.
-     * Esto se hace porque un registro de plantacion representa
-     * a un cultivo sembrado. Por lo tanto, si hay un registro
-     * de plantacion en desarrollo es porque hay un cultivo en
-     * desarrollo, y al existir este cultivo se debe calcular
-     * la necesidad de agua de riego del mismo.
-     */
-    if (statusService.equals(modifiedStatus, developmentStatus)) {
-      /*
-       * Ejecuta el proceso del calculo de la necesidad de agua
-       * de riego de un cultivo en la fecha actual. Esto es que
-       * ejecuta los metodos necesarios para calcular y actualizar
-       * la necesidad de agua de riego de un cultivo (en desarrollo)
-       * en la fecha actual.
-       */
-      runCalculationIrrigationWaterNeedCurrentDate(userService.find(userId), modifiedPlantingRecord);
-    }
 
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
@@ -1258,15 +1239,18 @@ public class PlantingRecordRestServlet {
 
     /*
      * Si se intenta calcular la necesidad de agua de riego de
-     * un cultivo perteneciente a un registro de plantacion finalizado
-     * o en espera, la aplicacion del lado servidor retorna el
-     * mensaje HTTP 400 (Bad request) junto con el mensaje "No
-     * esta permitido calcular la necesidad de agua de riego de
-     * un cultivo finalizado o en espera" y no se realiza la
-     * operacion solicitada
+     * un cultivo perteneciente a un registro de plantacion
+     * finalizado, en espera o marchitado, la aplicacion del lado
+     * servidor retorna el mensaje HTTP 400 (Bad request) junto
+     * con el mensaje "No esta permitido calcular la necesidad
+     * de agua de riego de un cultivo finalizado, en espera o
+     * marchitado" y no se realiza la operacion solicitada
      */
-    if (plantingRecordService.checkFinishedStatus(plantingRecordId) || plantingRecordService.checkWaitingStatus(plantingRecordId)) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_REQUEST_CALCULATION_IRRIGATION_WATER_NEED))).build();
+    if (plantingRecordService.checkFinishedStatus(plantingRecordId)
+        || plantingRecordService.checkWaitingStatus(plantingRecordId)
+        || plantingRecordService.checkWitheredStatus(plantingRecordId)) {
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_REQUEST_CALCULATION_IRRIGATION_WATER_NEED))).build();
     }
 
     /*
@@ -1281,15 +1265,133 @@ public class PlantingRecordRestServlet {
      */
     PlantingRecord developingPlantingRecord = plantingRecordService.find(plantingRecordId);
     Parcel givenParcel = developingPlantingRecord.getParcel();
+    Option parcelOption = givenParcel.getOption();
+
+    double etcCurrentDate = 0.0;
+
+    /*
+     * Si la parcela de un registro de plantacion tiene la bandera
+     * suelo activa, se calcula la lamina de riego optima (drop)
+     * (umbral de riego) [mm] de la fecha actual y la lamina total
+     * de agua disponible (dt) [mm] y se las asigna al registro de
+     * plantacion en desarrollo.
+     * 
+     * La lamina de riego optima (drop) [mm] es de la fecha actual
+     * porque el factor de agotamiento (p) con la que se la calcula
+     * se debe ajustar a la ETc de la fecha actual, ya que se busca
+     * calcular la necesidad de agua de riego de un cultivo en la
+     * fecha actual [mm/dia]. 
+     */
+    if (parcelOption.getSoilFlag()) {
+      double etoCurrentDate = 0.0;
+
+      Crop givenCrop = developingPlantingRecord.getCrop();
+      ClimateRecord currentClimateRecord;
+
+      /*
+       * Si en la base de datos subyacente existe para una parcela
+       * el registro climatico de la fecha actual, se obtiene su
+       * ETc para calcuar la lamina de riego optima (drop). De lo
+       * contrario, se lo solicita al servicio climatico, se lo
+       * persiste y se obtiene su ETc para calcular dicha lamina.
+       */
+      if (climateRecordService.checkExistence(UtilDate.getCurrentDate(), givenParcel)) {
+        currentClimateRecord = climateRecordService.find(UtilDate.getCurrentDate(), givenParcel);
+        etcCurrentDate = currentClimateRecord.getEtc();
+      } else {
+        currentClimateRecord  = ClimateClient.getForecast(givenParcel, UtilDate.getCurrentDate().getTimeInMillis() / 1000);
+
+        double extraterrestrialSolarRadiation = solarService.getRadiation(givenParcel.getLatitude(),
+        monthService.getMonth(currentClimateRecord.getDate().get(Calendar.MONTH)), latitudeService.find(givenParcel.getLatitude()),
+        latitudeService.findPreviousLatitude(givenParcel.getLatitude()),
+        latitudeService.findNextLatitude(givenParcel.getLatitude()));
+
+        etoCurrentDate = HargreavesEto.calculateEto(currentClimateRecord.getMaximumTemperature(), currentClimateRecord.getMinimumTemperature(), extraterrestrialSolarRadiation);
+        etcCurrentDate = Etc.calculateEtc(etoCurrentDate, cropService.getKc(givenCrop, developingPlantingRecord.getSeedDate()));
+
+        currentClimateRecord.setEto(etoCurrentDate);
+        currentClimateRecord.setEtc(etcCurrentDate);
+
+        /*
+         * Persistencia del registro climatico de la fecha actual (hoy)
+         */
+        climateRecordService.create(currentClimateRecord);
+      }
+
+      /*
+       * Actualizacion de la lamina total de agua disponible (dt) [mm]
+       * de un registro de plantacion en la base de datos subyacente
+       */
+      plantingRecordService.updateTotalAmountWaterAvailable(developingPlantingRecord.getId(),
+          WaterMath.calculateTotalAmountWaterAvailable(givenCrop, givenParcel.getSoil()));
+
+      /*
+       * Actualizacion de la lamina de riego optima (drop) [mm] de
+       * un registro de plantacion en la base de datos subyacente.
+       * A esta se le asigna el signo negativo (-) porque representa
+       * la cantidad maxima de agua que puede perder un suelo, que
+       * tiene un cultivo sembrado, a partir de la cual NO conviene
+       * perder mas agua, sino que se le debe añadir agua
+       */
+      plantingRecordService.updateOptimalIrrigationLayer(developingPlantingRecord.getId(),
+          (-1 * WaterMath.calculateOptimalIrrigationLayer(etcCurrentDate, givenCrop, givenParcel.getSoil())));
+    }
 
     /*
      * Ejecuta el proceso del calculo de la necesidad de agua
-     * de riego de un cultivo en la fecha actual. Esto es que
-     * ejecuta los metodos necesarios para calcular y actualizar
-     * la necesidad de agua de riego de un cultivo (en desarrollo)
-     * en la fecha actual.
+     * de riego de un cultivo en la fecha actual [mm/dia]. Esto
+     * es que ejecuta los metodos necesarios para calcular y
+     * actualizar la necesidad de agua de riego de un cultivo
+     * (en desarrollo) en la fecha actual.
      */
     double irrigationWaterNeedCurrentDate = runCalculationIrrigationWaterNeedCurrentDate(userService.find(userId), developingPlantingRecord);
+
+    /*
+     * Si la necesidad de agua de riego de un cultivo (en
+     * desarrollo) en la fecha actual [mm/dia] es negativa
+     * significa dos cosas:
+     * - que el algoritmo utilizado para calcular dicha
+     * necesidad es el que utiliza datos de suelo para ello,
+     * ya que este es el unico de los dos algoritmos del
+     * calculo de la necesidad de agua de riego de un cultivo
+     * en una fecha [mm/dia] que puede retornar -1,
+     * - y que el nivel de humedad del suelo de una parcela
+     * que tiene un cultivo sembrado y en desarrollo, esta
+     * en el punto de marchitez permanente, en el cual un
+     * cultivo no puede extraer agua del suelo y no puede
+     * recuperarse de la perdida hidrica aunque la humedad
+     * ambiental sea saturada.
+     * 
+     * Por lo tanto, la aplicacion del lado servidor asigna
+     * la abreviatura "n/a" (no disponible) a la necesidad
+     * de agua de riego de un cultivo en la fecha actual
+     * [mm/dia] de un registro de plantacion en desarrollo
+     * y retorna el mensaje HTTP 400 (Bad request) junto con
+     * el mensaje dado, y no se realiza la operacion solicitada.
+     */
+    if (irrigationWaterNeedCurrentDate < 0.0) {
+      plantingRecordService.updateIrrigationWaterNeed(developingPlantingRecord.getId(), developingPlantingRecord.getParcel(), NOT_AVAILABLE);
+      plantingRecordService.setStatus(developingPlantingRecord.getId(), statusService.findWitheredStatus());
+      plantingRecordService.updateWiltingDate(developingPlantingRecord.getId(), UtilDate.getCurrentDate());
+
+      String message = "Utilizando los datos climáticos y de riego de " + parcelOption.getPastDaysReference()
+          + " (valor de las opciones de la parcela) días previos a la fecha actual,"
+          + " el cultivo se ha marchitado porque el nivel de humedad del suelo, en el que está sembrado, está en el punto de marchitez permanente."
+          + " Esto se debe a que el nivel de humedad del suelo es menor a la capacidad de almacenamiento de agua del suelo.";
+
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(message, SourceUnsatisfiedResponse.WATER_NEED_CROP))).build();
+    }
+
+    /*
+     * *****************************************************
+     * Actualizacion del atributo "necesidad agua riego" del
+     * registro de plantacion en desarrollo, que tiene el
+     * cultivo para el que se solicita calcular su necesidad
+     * de agua de riego en la fecha actual [mm/dia], con el
+     * valor de de dicha necesidad de agua de riego
+     * *****************************************************
+     */
+    plantingRecordService.updateIrrigationWaterNeed(developingPlantingRecord.getId(), developingPlantingRecord.getParcel(), String.valueOf(irrigationWaterNeedCurrentDate));
 
     /*
      * Datos del formulario del calculo de la necesidad de
@@ -1345,8 +1447,6 @@ public class PlantingRecordRestServlet {
    * actual [mm/dia]
    */
   private double runCalculationIrrigationWaterNeedCurrentDate(User user, PlantingRecord developingPlantingRecord) {
-    Parcel givenParcel = developingPlantingRecord.getParcel();
-
     /*
      * Persiste pastDaysReference registros climaticos anteriores
      * a la fecha actual pertenecientes a una parcela dada que tiene
@@ -1354,7 +1454,7 @@ public class PlantingRecordRestServlet {
      * registros climaticos son obtenidos del servicio meteorologico
      * utilizado por la aplicacion.
      */
-    requestPastClimateRecords(user.getId(), givenParcel.getOption(), developingPlantingRecord);
+    requestPastClimateRecords(user.getId(), developingPlantingRecord);
 
     /*
      * Calcula la ETo y la ETc de pastDaysReference registros
@@ -1362,7 +1462,7 @@ public class PlantingRecordRestServlet {
      * parcela dada que tiene un cultivo sembrado y en desarrollo en
      * la fecha actual
      */
-    calculateEtsPastClimateRecords(user.getId(), givenParcel.getOption(), developingPlantingRecord);
+    calculateEtsPastClimateRecords(user.getId(), developingPlantingRecord);
 
     /*
      * ********************************************************
@@ -1375,19 +1475,7 @@ public class PlantingRecordRestServlet {
      * actual
      * ********************************************************
      */
-    double irrigationWaterNeedCurrentDate = calculateIrrigationWaterNeedCurrentDate(user.getId(), developingPlantingRecord, givenParcel.getOption());
-
-    /*
-     * *****************************************************
-     * Actualizacion del atributo "necesidad agua riego" del
-     * registro de plantacion en desarrollo, que tiene el
-     * cultivo para el que se solicita calcular su necesidad
-     * de agua de riego en la fecha actual, con el valor de
-     * de dicha necesidad de agua de riego
-     * *****************************************************
-     */
-    plantingRecordService.updateIrrigationWaterNeed(developingPlantingRecord.getId(), developingPlantingRecord.getParcel(), String.valueOf(irrigationWaterNeedCurrentDate));
-    return irrigationWaterNeedCurrentDate;
+    return calculateIrrigationWaterNeedCurrentDate(user.getId(), developingPlantingRecord);
   }
 
   /**
@@ -1402,10 +1490,9 @@ public class PlantingRecordRestServlet {
    * los cuales estan definidos en la clase OptionServiceBean.
    * 
    * @param userId
-   * @param parcelOption
    * @param developingPlantingRecord
    */
-  private void requestPastClimateRecords(int userId, Option parcelOption, PlantingRecord developingPlantingRecord) {
+  private void requestPastClimateRecords(int userId, PlantingRecord developingPlantingRecord) {
     /*
      * Esta variable representa la cantidad de registros climaticos
      * del pasado (es decir, anteriores a la fecha actual) que la
@@ -1420,6 +1507,7 @@ public class PlantingRecordRestServlet {
      * la fecha actual
      */
     Parcel givenParcel = developingPlantingRecord.getParcel();
+    Option parcelOption = givenParcel.getOption();
 
     /*
      * Estas fechas son utilizadas para comprobar si existe el
@@ -1546,10 +1634,9 @@ public class PlantingRecordRestServlet {
    * los cuales estan definidos en la clase OptionServiceBean.
    * 
    * @param userId
-   * @param parcelOption
    * @param developingPlantingRecord
    */
-  private void calculateEtsPastClimateRecords(int userId, Option parcelOption, PlantingRecord developingPlantingRecord) {
+  private void calculateEtsPastClimateRecords(int userId, PlantingRecord developingPlantingRecord) {
     /*
      * Esta variable representa la cantidad de registros climaticos
      * del pasado (es decir, anteriores a la fecha actual) que la
@@ -1564,6 +1651,7 @@ public class PlantingRecordRestServlet {
      * la fecha actual
      */
     Parcel givenParcel = developingPlantingRecord.getParcel();
+    Option parcelOption = givenParcel.getOption();
 
     /*
      * Estas fechas son utilizadas para comprobar si existe el
@@ -1722,11 +1810,10 @@ public class PlantingRecordRestServlet {
    * 
    * @param userId
    * @param developingPlantingRecord
-   * @param parcelOption
    * @return double que representa la necesidad de agua de riego
    * de un cultivo en la fecha actual [mm/dia]
    */
-  private double calculateIrrigationWaterNeedCurrentDate(int userId, PlantingRecord developingPlantingRecord, Option parcelOption) {
+  private double calculateIrrigationWaterNeedCurrentDate(int userId, PlantingRecord developingPlantingRecord) {
     /*
      * Estas fechas se utilizan para obtener de la base de datos
      * subyacente los registros climaticos y los registros de riego
@@ -1779,6 +1866,7 @@ public class PlantingRecordRestServlet {
     Calendar dateUntil = UtilDate.getYesterdayDate();
 
     Parcel givenParcel = developingPlantingRecord.getParcel();
+    Option parcelOption = givenParcel.getOption();
 
     /*
      * Estas fechas son utilizadas para comprobar si existe el
@@ -1889,7 +1977,46 @@ public class PlantingRecordRestServlet {
      * inconsistente.
      */
     parcelService.merge(givenParcel);
-    return WaterNeedWos.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, climateRecords, irrigationRecords);
+
+    double irrigationWaterNeedCurrentDate = 0.0;
+
+    /*
+     * Si la bandera suelo NO esta activa se calcula la necesidad
+     * de agua de riego de un cultivo en la fecha actual [mm/dia]
+     * mediante el algoritmo que NO utiliza datos de suelo para
+     * ello.
+     * 
+     * En otras palabras, se calcula la necesidad de agua de riego
+     * de un cultivo en la fecha actual [mm/dia] sin tener en cuenta
+     * el suelo de la parcela en la que esta sembrado, independientemente
+     * de si la parcela tiene o no asignado un suelo.
+     */
+    if (!parcelOption.getSoilFlag()) {
+      irrigationWaterNeedCurrentDate = WaterNeedWos.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, climateRecords, irrigationRecords);
+    }
+
+    /*
+     * Si la bandera suelo esta activa se calcula la necesidad
+     * de agua de riego de un cultivo en la fecha actual [mm/dia]
+     * mediante el algoritmo que utiliza datos de suelo para ello.
+     * 
+     * En otras palabras, se calcula la necesidad de agua de riego
+     * de un cultivo en la fecha actual [mm/dia] teniendo en cuenta
+     * el suelo de la parcela en la que esta sembrado.
+     * 
+     * Este algoritmo puede retornar el valor -1, el cual representa
+     * la situacion en la que el nivel de humedad del suelo, que tiene
+     * un cultivo sembrado, esta en el punto de marchitez permanente,
+     * en el cual un cultivo no puede extraer agua del suelo y no
+     * puede recuperarse de la perdida hidrica aunque la humedad
+     * ambiental sea saturada.
+     */
+    if (parcelOption.getSoilFlag()) {
+      irrigationWaterNeedCurrentDate = WaterNeedWs.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate,
+          developingPlantingRecord.getCrop(), givenParcel.getSoil(), climateRecords, irrigationRecords);
+    }
+
+    return irrigationWaterNeedCurrentDate;
   }
 
   /**

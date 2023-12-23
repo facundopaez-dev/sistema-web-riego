@@ -14,6 +14,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.PathParam;
 import stateless.OptionServiceBean;
+import stateless.ParcelServiceBean;
+import stateless.PlantingRecordServiceBean;
 import stateless.SecretKeyServiceBean;
 import stateless.SessionServiceBean;
 import util.ErrorResponse;
@@ -23,11 +25,14 @@ import util.RequestManager;
 import utilJwt.AuthHeaderManager;
 import utilJwt.JwtManager;
 import model.Option;
+import model.PlantingRecord;
 
 @Path("/options")
 public class OptionRestServlet {
 
     @EJB OptionServiceBean optionService;
+    @EJB ParcelServiceBean parcelService;
+    @EJB PlantingRecordServiceBean plantingRecordService;
     @EJB SecretKeyServiceBean secretKeyService;
     @EJB SessionServiceBean sessionService;
 
@@ -243,6 +248,35 @@ public class OptionRestServlet {
 
             PersonalizedResponse personalizedResponse = new PersonalizedResponse(message);
             return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(personalizedResponse)).build();
+        }
+
+        /*
+         * Si la opcion suelo NO esta activa y la parcela correspondiente
+         * a dicha opcion tiene un registro de plantacion en el estado
+         * "En desarrollo", se actualiza la lamina total de agua disponible
+         * (dt) [mm] y la lamina de riego optima (drop) (umbral de riego)
+         * [mm] del mismo con 0 en la base de datos subyacente para
+         * representar que NO se utiliza el algoritmo del calculo, con
+         * datos de suelo o con suelo, de la necesidad de agua de riego
+         * de un cultivo en la fecha actual [mm/dia]
+         */
+        if (!modifiedOption.getSoilFlag() && plantingRecordService.checkOneInDevelopment(parcelService.findByOptionId(optionId))) {
+            PlantingRecord developingPlantingRecord = plantingRecordService.findInDevelopment(parcelService.findByOptionId(optionId));
+            plantingRecordService.updateTotalAmountWaterAvailable(developingPlantingRecord.getId(), 0);
+            plantingRecordService.updateOptimalIrrigationLayer(developingPlantingRecord.getId(), 0);
+        }
+
+        /*
+         * Si la bandera suelo esta activa y la parcela correspondiente
+         * a la opcion de esta bandera, NO tiene asignado un suelo, la
+         * aplicacion del lado servidor retorna el mensaje HTTP 400 (Bad
+         * request) junto con el mensaje "Para calcular la necesidad de
+         * agua de riego de un cultivo en la fecha actual con datos de
+         * suelo es necesario asignar un suelo a la parcela" y no se
+         * realiza la operacion solicitada
+         */
+        if (modifiedOption.getSoilFlag() && !parcelService.checkSoil(optionId)) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_SOIL))).build();
         }
 
         /*

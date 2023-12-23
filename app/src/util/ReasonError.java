@@ -79,7 +79,7 @@ public enum ReasonError {
   MODIFICATION_NON_MODIFIABLE_PLANTING_RECORD_NOT_ALLOWED("No está permitida la modificación de un registro de plantación no modificable"),
   MODIFIABILITY_PLANTING_RECORD_NOT_ALLOWED("No está permitido hacer que un registro de plantación en desarrollo o en espera sea no modificable"),
   IRRIGATION_RECORD_OF_THE_FUTURE_NOT_ALLOWED("No está permitido que un registro de riego tenga una fecha estrictamente mayor (es decir, posterior) a la fecha actual"),
-  INVALID_REQUEST_CALCULATION_IRRIGATION_WATER_NEED("No está permitido calcular la necesidad de agua de riego de un cultivo finalizado o en espera"),
+  INVALID_REQUEST_CALCULATION_IRRIGATION_WATER_NEED("No está permitido calcular la necesidad de agua de riego de un cultivo finalizado, en espera o marchitado"),
   DATE_UNTIL_FUTURE_NOT_ALLOWED("La fecha hasta no debe ser estrictamente mayor (es decir, posterior) a la fecha actual"),
   THERE_IS_NO_CROP_IN_DEVELOPMENT("No está permitido crear un registro de riego para una parcela que no tiene un cultivo en desarrollo"),
   UNDEFINED_REGION_NAME("El nombre de la región debe estar definido"),
@@ -108,7 +108,8 @@ public enum ReasonError {
   UNDEFINED_MONTH_NAME("El nombre del mes debe estar definido"),
   LOWER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID("El límite inferior de la profundidad radicular máxima debe ser mayor a 0.0"),
   UPPER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID("El límite superior de la profundidad radicular máxima debe ser mayor a 0.0"),
-  INVALID_DEPLETION_FACTOR("El factor de agotamiento debe tener un valor entre 0.1 y 0.8");
+  INVALID_DEPLETION_FACTOR("El factor de agotamiento debe tener un valor entre 0.1 y 0.8"),
+  UNDEFINED_SOIL("Para calcular la necesidad de agua de riego de un cultivo en la fecha actual con datos de suelo es necesario asignar un suelo a la parcela");
 
   private final String reason;
 

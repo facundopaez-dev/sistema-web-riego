@@ -121,8 +121,8 @@
     <div class="form-group">
       <!-- Campo de parcela -->
       <input name="parcel" type="text" ng-model="parcel" placeholder="Parcela"
-        uib-typeahead="parcel as parcel.name for parcel in findParcelByName($viewValue)" typeahead-loading="loadingLocations"
-        class="form-control" typeahead-editable="false" typeahead-min-lenght="3">
+        uib-typeahead="parcel as parcel.name for parcel in findParcelByName($viewValue)"
+        typeahead-loading="loadingLocations" class="form-control" typeahead-editable="false" typeahead-min-lenght="3">
     </div>
     <button class="btn btn-default" ng-click="findAllByParcelName()">Filtrar</button>
     <button class="btn btn-default" ng-click="reset()">Reiniciar listado</button>
@@ -137,10 +137,12 @@
       <tr>
         <th>ID</th>
         <th>Cultivo</th>
-        <th>Fecha siembra</th>
-        <th>Fecha cosecha</th>
+        <th>F. siembra</th>
+        <th>F. cosecha</th>
         <th>Parcela</th>
-        <th>Necesidad agua riego [mm/día]</th>
+        <th>Nec. agua riego [mm/día]</th>
+        <th>Cap. almac. agua suelo [mm]</th>
+        <th>Umbral riego [mm]</th>
         <th>Estado cultivo</th>
         <th class="text-right"></th>
       </tr>
@@ -153,13 +155,15 @@
         <td>{{p.harvestDate | date:'dd/MM/yyyy'}}</td>
         <td>{{p.parcel.name}}</td>
         <td>{{p.irrigationWaterNeed}}</td>
+        <td>{{p.totalAmountWaterAvailable > 0 ? p.totalAmountWaterAvailable : '-' }}</td>
+        <td>{{p.optimalIrrigationLayer < 0 ? p.optimalIrrigationLayer : '-' }}</td>
         <td>{{p.status.name}}</td>
         <td class="text-right">
           <div class="btn-group" role="group" aria-label="...">
-            <button type="button" class="btn btn-success" aria-label="Calcular" data-toggle="modal"
-              data-target="#IrrigationModal" ng-show="{{p.status.name == 'En desarrollo'}}"
-              ng-click="calculateIrrigationWaterNeed(p.id)">Calcular
-            </button>
+            <a href="#!/home/calculateIrrigationWaterNeed/{{p.id}}" class="btn btn-success" role="button"
+              ng-show="{{p.status.name == 'En desarrollo'}}">
+              <span aria-hidden="true">Calcular</span>
+            </a>
             <a href="#!/home/plantingRecords/view/{{p.id}}" class="btn btn-success" role="button">
               <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
             </a>
@@ -176,96 +180,4 @@
       </tr>
     </tbody>
   </table>
-</div>
-
-<!-- Panel para la necesidad de agua de riego y el riego realizado -->
-<div class="modal fade" id="IrrigationModal" tabindex="-1" role="dialog" aria-labelledby="irrigationModalCenterTitle"
-  aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-
-      <div class="modal-header">
-        <h5 class="modal-title" id="irrigationModalCenterTitle">
-          <p class="modal-title">Cálculo de la necesidad de agua de riego para hoy</p>
-        </h5>
-      </div>
-
-      <div class="modal-body">
-        <form id="formIrrigation" class="form-horizontal" role="form" name="formIrrigation" novalidate>
-
-          <div class="form-group">
-            <label for="parcelId" class="col-md-3 control-label">
-              <p class="text-right">ID de la parcela</p>
-            </label>
-            <div class="col-md-5">
-              <input type="number" class="form-control" id="parcelId" ng-model="irrigationWaterNeedData.parcel.id"
-                ng-disabled="true">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="parcelName" class="col-md-3 control-label">
-              <p class="text-right">Nombre de la parcela</p>
-            </label>
-            <div class="col-md-5">
-              <input type="text" class="form-control" id="parcelName" ng-model="irrigationWaterNeedData.parcel.name"
-                ng-disabled="true">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="hectares" class="col-md-3 control-label">
-              <p class="text-right">Hectáreas de la parcela</p>
-            </label>
-            <div class="col-md-5">
-              <input type="number" class="form-control" id="hectares" ng-model="irrigationWaterNeedData.parcel.hectares"
-                ng-disabled="true">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="cropName" class="col-md-3 control-label">
-              <p class="text-right">Cultivo</p>
-            </label>
-            <div class="col-md-5">
-              <input type="text" class="form-control" id="cropName" ng-model="irrigationWaterNeedData.crop.name"
-                ng-disabled="true">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="irrigationWaterNeed" class="col-md-3 control-label">
-              <p class="text-right">Necesidad de agua de riego de hoy [mm/día]</p>
-            </label>
-            <div class="col-md-4">
-              <input type="text" class="form-control" id="irrigationWaterNeed"
-                ng-model="irrigationWaterNeedData.irrigationWaterNeed" ng-disabled="true">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="irrigationDone" class="col-md-3 control-label">
-              <p class="text-right">Riego realizado hoy [mm/día]</p>
-            </label>
-            <div class="col-md-4">
-              <input type="number" min="0" name="irrigationDone" class="form-control" id="irrigationDone"
-                placeholder="Riego Realizado" ng-model="irrigationWaterNeedData.irrigationDone" required />
-            </div>
-            <div ng-show="formIrrigation.irrigationDone.$error.required" class="col-md-2">
-              <p style="color: red">Requerido</p>
-            </div>
-          </div>
-
-        </form>
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-success" data-dismiss="modal" ng-click="saveIrrigationWaterNeedData()"
-          ng-disabled="formIrrigation.irrigationDone.$error.required">Guardar
-        </button>
-        <button type="button" class="btn btn-success" data-dismiss="modal" ng-click="cancel()">Cancelar</button>
-      </div>
-
-    </div>
-  </div>
 </div>

@@ -124,6 +124,11 @@ app.config(['$routeProvider', function (routeprovider) {
 			controller: 'PlantingRecordCtrl'
 		})
 
+		.when('/home/calculateIrrigationWaterNeed/:id', {
+			templateUrl: 'partials/user/water-need-form.html',
+			controller: 'WaterNeedFormCtrl'
+		})
+
 		.when('/home/statisticalReports', {
 			templateUrl: 'partials/user/statistical-report-list.html',
 			controller: 'StatisticalReportsCtrl'
@@ -416,6 +421,7 @@ por la aplicacion del lado servidor
 */
 app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager', function ($location, accessManager, jwtManager) {
 
+	const BAD_REQUEST = 400;
 	const UNAUTHORIZED = 401;
 	const FORBIDDEN = 403;
 	const NOT_FOUND = 404;
@@ -430,6 +436,7 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 	const ADMIN_SOIL_LIST_WEB_PAGE_ROUTE = "/adminHome/soils";
 	const ADMIN_REGION_LIST_WEB_PAGE_ROUTE = "/adminHome/regions";
 	const ADMIN_TYPES_CROP_LIST_WEB_PAGE_ROUTE = "/adminHome/typesCrop";
+	const USER_PLANTING_RECORD_ROUTE = "home/plantingRecords";
 
 	/*
 	El contenido de estas constantes debe ser igual al de las
@@ -446,6 +453,7 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 	const REGION = "ORIGIN_REGION";
 	const TYPE_CROP = "ORIGIN_TYPE_CROP";
 	const PARCEL = "ORIGIN_PARCEL";
+	const WATER_NEED_CROP = "ORIGIN_NEED_WATER_CROP";
 
 	return {
 		/**
@@ -465,6 +473,9 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 		 * administrador (siempre y cuando tenga permiso de  administrador), lo redirige
 		 * a la pagina web de inicio del administrador.
 		 * 
+		 * La mayoria de las respuestas HTTP del servidor que evalua la aplicacion
+		 * del lado del navegador web son estas dos descritas.
+		 * 
 		 * @param {*} error este parametro es la respuesta HTTP de error devuelta por
 		 * la aplicacion del lado servidor
 		 */
@@ -474,6 +485,16 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 			por la aplicacion del lado servidor
 			*/
 			alert(error.data.message);
+
+			/*
+			Si el resultado de calcular la necesidad de agua de riego de un cultivo
+			en la fecha actual [mm/dia] es un cultivo marchitado, redirige al usuario
+			a la pagina web de registros de plantacion
+			*/
+			if (accessManager.isUserLoggedIn() && !accessManager.loggedAsAdmin() && error.status == BAD_REQUEST && error.data.sourceUnsatisfiedResponse == WATER_NEED_CROP) {
+				$location.path(USER_PLANTING_RECORD_ROUTE);
+				return;
+			}
 
 			/*
 			Si el usuario NO tiene una sesion abierta, si esta en la pagina web de
@@ -1035,6 +1056,55 @@ app.factory('UtilDate', function () {
 		 */
 		formatDate: function (date) {
 			return date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear();
+		}
+
+	}
+});
+
+/*
+WaterNeedFormManager es la factory que se utiliza para controlar el
+acceso al formulario del calculo de la necesidad de agua de riego
+de un cultivo. Si el usuario intenta acceder a dicho formulario
+con el ID de un registro de plantacion que NO esta en desarrollo,
+se debe impedir dicho acceso.
+*/
+app.factory('WaterNeedFormManager', function () {
+
+	var plantingRecords = new Array();
+
+	return {
+
+		/**
+		 * Inicializa un arreglo con los registros de plantacion
+		 * asociados a las parcelas del usuario. Este arreglo se
+		 * utiliza para realizar el control de acceso al formulario
+		 * del calculo de la necesidad de agua de riego de un
+		 * cultivo.
+		 * 
+		 * @param {*} collectionPlantingRecords 
+		 */
+		setPlantingRecords: function (collectionPlantingRecords) {
+			plantingRecords = collectionPlantingRecords;
+		},
+
+		/**
+		 * 
+		 * @param {*} plantingRecordId 
+		 * @returns true si el ID corresponde a un registro de
+		 * plantacion en desarrollo
+		 */
+		isInDevelopment: function (plantingRecordId) {
+
+			for (let index = 0; index < plantingRecords.length; index++) {
+				const currentPlantingRecord = plantingRecords[index];
+
+				if (currentPlantingRecord.id == plantingRecordId && currentPlantingRecord.status.name == 'En desarrollo') {
+					return true;
+				}
+
+			}
+
+			return false;
 		}
 
 	}

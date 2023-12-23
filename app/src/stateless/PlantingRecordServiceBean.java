@@ -1581,6 +1581,62 @@ public class PlantingRecordServiceBean {
   }
 
   /**
+   * Actualiza la lamina total de agua disponible (dt)
+   * [mm] de un registro de plantacion en la base de
+   * datos subyacente
+   * 
+   * @param plantingRecordId
+   * @param totalAmountWaterAvailable
+   */
+  public void updateTotalAmountWaterAvailable(int plantingRecordId, double totalAmountWaterAvailable) {
+    Query query = entityManager.createQuery("UPDATE PlantingRecord p SET p.totalAmountWaterAvailable = :totalAmountWaterAvailable WHERE p.id = :plantingRecordId");
+    query.setParameter("totalAmountWaterAvailable", totalAmountWaterAvailable);
+    query.setParameter("plantingRecordId", plantingRecordId);
+    query.executeUpdate();
+  }
+
+  /**
+   * Actualiza la lamina de riego optima (drop) (umbral de
+   * riego) [mm] de un registro de plantacion en la base
+   * de datos subyacente
+   * 
+   * @param plantingRecordId
+   * @param optimalIrrigationLayer
+   */
+  public void updateOptimalIrrigationLayer(int plantingRecordId, double optimalIrrigationLayer) {
+    Query query = entityManager.createQuery("UPDATE PlantingRecord p SET p.optimalIrrigationLayer = :optimalIrrigationLayer WHERE p.id = :plantingRecordId");
+    query.setParameter("optimalIrrigationLayer", optimalIrrigationLayer);
+    query.setParameter("plantingRecordId", plantingRecordId);
+    query.executeUpdate();
+  }
+
+  /**
+   * Actualiza la fecha de marchitez de un registro de
+   * plantacion en la base de datos subyacente
+   * 
+   * @param plantingRecordId
+   * @param wiltingDate
+   */
+  public void updateWiltingDate(int plantingRecordId, Calendar wiltingDate) {
+    Query query = entityManager.createQuery("UPDATE PlantingRecord p SET p.wiltingDate = :wiltingDate WHERE p.id = :plantingRecordId");
+    query.setParameter("wiltingDate", wiltingDate);
+    query.setParameter("plantingRecordId", plantingRecordId);
+    query.executeUpdate();
+  }
+
+  /**
+   * Elimina la fecha de marchitez de un registro de
+   * plantacion
+   * 
+   * @param plantingRecordId
+   */
+  public void unsetWiltingDate(int plantingRecordId) {
+    Query query = entityManager.createQuery("UPDATE PlantingRecord p SET p.wiltingDate = NULL WHERE p.id = :plantingRecordId");
+    query.setParameter("plantingRecordId", plantingRecordId);
+    query.executeUpdate();
+  }
+
+  /**
    * Retorna true si y solo si las fechas de un registro de
    * plantacion de una parcela estan superpuestas con las
    * fechas de los demas registros de plantacion de la misma
@@ -1767,6 +1823,42 @@ public class PlantingRecordServiceBean {
    */
   public boolean checkWaitingStatus(int id) {
     return (findByWaitingStatus(id) != null);
+  }
+
+  /**
+   * @param id
+   * @return referencia a un objeto de tipo PlantingRecord que
+   * representa el registro de plantacion marchitado de una parcela
+   * en caso de encontrarse en la base de datos subyacente el
+   * registro de plantacion marchitado correspondiente al ID dado,
+   * en caso contrario null
+   */
+  public PlantingRecord findByWitheredStatus(int id) {
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.status s WHERE (r.id = :givenId AND s.name = 'Marchitado')");
+    query.setParameter("givenId", id);
+
+    PlantingRecord witheredPlantingRecord = null;
+
+    try {
+      witheredPlantingRecord = (PlantingRecord) query.getSingleResult();
+    } catch(NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return witheredPlantingRecord;
+  }
+
+  /**
+   * Comprueba la existencia de un registro de plantacion marchitado
+   * en la base de datos subyacente. Retorna true si y solo si existe
+   * el registro de plantacion marchitado con el ID dado.
+   * 
+   * @param id
+   * @return true si el registro de plantacion marchitado con el ID dado
+   * existe en la base de datos subyacente, en caso contrario false
+   */
+  public boolean checkWitheredStatus(int id) {
+    return (findByWitheredStatus(id) != null);
   }
 
 }

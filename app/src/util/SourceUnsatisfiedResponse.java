@@ -14,7 +14,8 @@ public enum SourceUnsatisfiedResponse {
   SOIL("ORIGIN_SOIL"),
   REGION("ORIGIN_REGION"),
   TYPE_CROP("ORIGIN_TYPE_CROP"),
-  PARCEL("ORIGIN_PARCEL");
+  PARCEL("ORIGIN_PARCEL"),
+  WATER_NEED_CROP("ORIGIN_NEED_WATER_CROP");
 
   private final String origin;
 
