@@ -23,8 +23,8 @@ public class Option {
     @Column(name = "SOIL_FLAG", nullable = false)
     private boolean soilFlag;
 
-    @Column(name = "THIRTY_DAYS_FLAG", nullable = false)
-    private boolean thirtyDaysFlag;
+    @Column(name = "FLAG_LAST_IRRIGATION_THIRTY_DAYS", nullable = false)
+    private boolean flagLastIrrigationThirtyDays;
 
     public Option() {
 
@@ -54,12 +54,12 @@ public class Option {
         this.soilFlag = soilFlag;
     }
 
-    public boolean getThirtyDaysFlag() {
-        return thirtyDaysFlag;
+    public boolean getFlagLastIrrigationThirtyDays() {
+        return flagLastIrrigationThirtyDays;
     }
 
-    public void setThirtyDaysFlag(boolean thirtyDaysFlag) {
-        this.thirtyDaysFlag = thirtyDaysFlag;
+    public void setFlagLastIrrigationThirtyDays(boolean flagLastIrrigationThirtyDays) {
+        this.flagLastIrrigationThirtyDays = flagLastIrrigationThirtyDays;
     }
 
 }

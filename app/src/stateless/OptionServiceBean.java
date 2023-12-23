@@ -72,7 +72,7 @@ public class OptionServiceBean {
         if (givenOption != null) {
             givenOption.setPastDaysReference(modifiedOption.getPastDaysReference());
             givenOption.setSoilFlag(modifiedOption.getSoilFlag());
-            givenOption.setThirtyDaysFlag(modifiedOption.getThirtyDaysFlag());
+            givenOption.setFlagLastIrrigationThirtyDays(modifiedOption.getFlagLastIrrigationThirtyDays());
             return givenOption;
         }
 

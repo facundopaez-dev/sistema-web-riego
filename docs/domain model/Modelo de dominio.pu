@@ -113,7 +113,7 @@ class Opcion {
 -id
 -diasPasadosReferencia
 -banderaSuelo
--banderaTreintaDias
+-banderaUltimoRiegoTreintaDias
 }
 
 class Usuario {
