@@ -93,6 +93,13 @@ public class PlantingRecordRestServlet {
    * La abreviatura "n/a" significa "no disponible".
    */
   private final String NOT_AVAILABLE = "n/a";
+
+  /*
+   * Este simbolo se utiliza para representar que la necesidad
+   * de agua de riego de un cultivo en la fecha actual [mm/dia]
+   * no esta disponible, pero se puede calcular. Esta situacion
+   * ocurre unicamente para un registro de plantacion en desarrollo.
+   */
   private final String IRRIGATION_WATER_NEED_NOT_AVAILABLE_BUT_CALCULABLE = "-";
 
   @GET
@@ -961,15 +968,36 @@ public class PlantingRecordRestServlet {
      * un cultivo en la fecha actual [mm/dia]. La manera en la que
      * el usuario realiza esto es mediante el boton "Calcular" de
      * la pagina de registros de plantacion. Tambien se asigna el
-     * caracter "-" a la necesidad de agua de riego de un cultivo
-     * en la fecha actual de un registro de plantacion en desarrollo
-     * perteneciente a una parcela a la que se le modifica el
-     * suelo. Esto esta programado en el metodo modify de la clase
-     * ParcelRestServlet.
+     * caracter "-" a la necesidad de agua de riego de un registro
+     * de plantacion en desarrollo perteneciente a una parcela a la
+     * que se le modifica el suelo. Esto esta programado en el metodo
+     * modify de la clase ParcelRestServlet.
+     * 
+     * El simbolo "-" (guion) se utiliza para representar que la
+     * necesidad de agua de riego de un cultivo en la fecha actual
+     * [mm/dia] no esta disponible, pero es calculable. Esta situacion
+     * ocurre unicamente para un registro de plantacion en desarrollo.
+     * 
+     * La lamina total de agua disponible (dt) [mm] y la lamina
+     * de riego optima (drop) [mm] estan en funcion de un suelo
+     * y un cultivo. Una parcela tiene un suelo y un registro de
+     * plantacion tiene una parcela. Por lo tanto, si se modifica
+     * la parcela y/o el cultivo de un registro de plantacion en
+     * desarrollo, se establece el valor 0 en las laminas de dicho
+     * registro.
+     * 
+     * La lamina total de agua disponible (dt) representa la capacidad
+     * de almacenamiento de agua que tiene un suelo para el cultivo
+     * que tiene sembrado. La lamina de riego optima (drop) representa
+     * la cantidad maxima que puede perder un suelo, que tiene un
+     * cultivo sembrado, a partir de la cual no conviene que pierda
+     * mas agua, sino que se le debe añadir agua.
      */
     if (statusService.equals(modifiedPlantingRecordStatus, developmentStatus)
         && (!parcelService.equals(modifiedParcel, currentParcel) || !cropService.equals(modifiedCrop, currentCrop))) {
       modifiedPlantingRecord.setIrrigationWaterNeed(IRRIGATION_WATER_NEED_NOT_AVAILABLE_BUT_CALCULABLE);
+      plantingRecordService.updateTotalAmountWaterAvailable(plantingRecordId, 0);
+      plantingRecordService.updateOptimalIrrigationLayer(plantingRecordId, 0);
     }
 
     /*
