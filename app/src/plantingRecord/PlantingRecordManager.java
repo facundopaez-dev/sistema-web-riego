@@ -79,8 +79,23 @@ public class PlantingRecordManager {
              * En cambio, si su fecha de cosecha es estrictamente menor
              * (es decir, anterior) a la fecha actual, se debe establecer
              * el estado finalizado en el mismo.
+             * 
+             * Se asigna el valor "n/a" a la necesidad de agua de riego de
+             * un registro de plantacion finalizado porque no tiene ninguna
+             * utilidad que un registro de plantacion en este estado tenga
+             * un valor numerico mayor o igual a cero en la necesidad de
+             * agua de riego.
+             * 
+             * Se asigna el valor 0 a la lamina total de agua disponible
+             * (dt) [mm] y a la lamina de riego optima (drop) [mm] de un
+             * registro de plantacion que tiene el estado finalizado, ya
+             * que en este estado NO tiene ningna utilidad tener tales
+             * datos.
              */
             if (plantingRecordService.isFinished(currentPlantingRecord)) {
+                plantingRecordService.updateIrrigationWaterNeed(currentPlantingRecord.getId(), currentPlantingRecord.getParcel(), NOT_AVAILABLE);
+                plantingRecordService.updateTotalAmountWaterAvailable(currentPlantingRecord.getId(), 0);
+                plantingRecordService.updateOptimalIrrigationLayer(currentPlantingRecord.getId(), 0);
                 plantingRecordService.setStatus(currentPlantingRecord.getId(), plantingRecordStatusService.findFinishedStatus());
             }
 
