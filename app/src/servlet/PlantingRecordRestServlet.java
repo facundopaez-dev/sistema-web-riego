@@ -1000,6 +1000,41 @@ public class PlantingRecordRestServlet {
     }
 
     /*
+     * Si el estado actual del registro de plantacion modificado
+     * es distinto del nuevo estado y este es el estado "En
+     * desarrollo", se asigna el caracter "-" a la necesidad
+     * de agua de riego de dicho reigstro para hacer que el
+     * usuario ejecute el proceso del calculo de la necesidad
+     * de agua de riego de un cultivo en la fecha actual [mm/dia].
+     * La manera en la que el usuario realiza esto es mediante
+     * el boton "Calcular" de la pagina de registros de plantacion.
+     * Tambien se asigna el caracter "-" a la necesidad de agua
+     * de riego de un cultivo en la fecha actual de un registro
+     * de plantacion en desarrollo perteneciente a una parcela
+     * a la que se le modifica el suelo. Esto esta programado
+     * en el metodo modify de la clase ParcelRestServlet.
+     * 
+     * Este control es para el caso en el que se modifica un
+     * registro de plantacion que tiene la parcela y el cultivo
+     * originales y que originalmente NO tiene el estado en
+     * desarrollo, pero lo adquiere al calcular su proximo
+     * estado. En esta situacion se asigna el caracter "-"
+     * a la necesidad de agua de riego de un registro de
+     * plantacion en desarrollo, ya que un registro de
+     * plantacion en dicho estado NO tiene la necesidad de
+     * agua de riego calculada.
+     * 
+     * El simbolo "-" (guion) se utiliza para representar que
+     * la necesidad de agua de riego de un cultivo en la fecha
+     * actual [mm/dia] no esta disponible, pero es calculable.
+     * Esta situacion ocurre unicamente para un registro de
+     * plantacion en desarrollo.
+     */
+    if (!statusService.equals(currentStatus, modifiedPlantingRecordStatus) && statusService.equals(modifiedPlantingRecordStatus, developmentStatus)) {
+      modifiedPlantingRecord.setIrrigationWaterNeed(IRRIGATION_WATER_NEED_NOT_AVAILABLE_BUT_CALCULABLE);
+    }
+
+    /*
      * Se persisten los cambios realizados en el registro
      * de plantacion
      */
