@@ -904,49 +904,52 @@ public class PlantingRecordRestServlet {
     /*
      * Si un registro de plantacion a modificar tiene el estado
      * marchitado y NO se desea que mantenga ese estado luego
-     * de su modificado, se calcula su proximo estado
+     * de su modificacion, se establece su proximo estado. El
+     * estado de un registro de plantacion se calcula con base
+     * en la fecha de siembra y la fecha de cosecha.
      */
     if (!maintainWitheredStatus) {
-      /*
-       * Se establece el estado de un registro de plantacion
-       * modificado en base a la fecha de siembra y la fecha de
-       * cosecha de su cultivo
-       */
       modifiedPlantingRecord.setStatus(statusService.calculateStatus(modifiedPlantingRecord));
-      plantingRecordService.unsetWiltingDate(modifiedPlantingRecord.getId());
+      plantingRecordService.unsetWiltingDate(plantingRecordId);
     }
 
     PlantingRecordStatus modifiedPlantingRecordStatus = modifiedPlantingRecord.getStatus();
 
     /*
-     * Un registro de plantacion tiene el estado "Finalizado"
-     * cuando es del pasado (es decir, tanto su fecha de siembra
-     * como su fecha de cosecha son estrictamente menores a la
-     * fecha actual).
+     * Un registro de plantacion tiene el estado "Finalizado" cuando
+     * es del pasado, esto es que tanto su fecha de siembra como su
+     * fecha de cosecha son estrictamente menores a la fecha actual
+     * (hoy).
      * 
-     * Un registro de plantacion tiene el estado "En espera"
-     * cuando es del futuro (es decir, tanto su fecha de isembra
-     * como su fecha de cosecha son estrictamente mayor a la fecha
-     * actual).
+     * Un registro de plantacion tiene el estado "En espera" cuando
+     * es del futuro, esto es que tanto su fecha de siembra como su
+     * fecha de cosecha son estrictamente mayor a la fecha actual
+     * (hoy).
      * 
      * Un registro de plantacion del pasado tiene el valor "n/a" (no
      * disponible) en su atributo de la necesidad de agua de riego
      * porque no se tienen los registros climaticos del pasado, con
      * los cuales se calcula la ETc (evapotranspiracion del cultivo
      * bajo condiciones estandar) de un cultivo y al no tener la ETc
-     * no se puede calcular la necesidad de agua de riego de un
-     * cultivo.
+     * no se puede calcular la necesidad de agua de riego de un cultivo.
      * 
      * Un registro de plantacion del futuro tiene el valor "n/a" (no
      * disponible) en su atributo de la necesidad de agua de riego
      * porque no se tienen los registros climaticos del futuro, con
      * los cuales se calcula la ETc (evapotranspiracion del cultivo
      * bajo condiciones estandar) de un cultivo y al no tener la ETc
-     * no se puede calcular la necesidad de agua de riego de un
-     * cultivo.
+     * no se puede calcular la necesidad de agua de riego de un cultivo.
+     * 
+     * Se asigna el valor 0 a la lamina total de agua disponible (dt)
+     * [mm] y a la lamina de riego optima (drop) [mm] de un registro
+     * de plantacion modificado que tiene el estado finalizado o el
+     * estado en espera, ya que en uno de estos estados NO tiene
+     * ningna utilidad tener tales datos.
      */
     if (statusService.equals(modifiedPlantingRecordStatus, finishedStatus) || (statusService.equals(modifiedPlantingRecordStatus, waitingStatus))) {
       modifiedPlantingRecord.setIrrigationWaterNeed(NOT_AVAILABLE);
+      plantingRecordService.updateTotalAmountWaterAvailable(plantingRecordId, 0);
+      plantingRecordService.updateOptimalIrrigationLayer(plantingRecordId, 0);
     }
 
     /*
