@@ -47,6 +47,24 @@ public class PlantingRecordManager {
     @EJB SoilWaterBalanceServiceBean soilWaterBalanceService;
     @EJB ParcelServiceBean parcelService;
 
+    /*
+     * El valor de esta constante se asigna a la necesidad de
+     * agua de riego [mm/dia] de un registro de plantacion
+     * para el que no se puede calcular dicha necesidad, lo
+     * cual, ocurre cuando no se tiene la evapotranspiracion
+     * del cultivo bajo condiciones estandar (ETc) [mm/dia]
+     * ni la precipitacion [mm/dia], siendo ambos valores de
+     * la fecha actual.
+     * 
+     * El valor de esta constante tambien se asigna a la
+     * necesidad de agua de riego de un registro de plantacion
+     * finalizado o en espera, ya que NO tiene ninguna utilidad
+     * que un registro de plantacion en uno de estos estados
+     * tenga un valor numerico mayor o igual a cero en la
+     * necesidad de agua de riego.
+     * 
+     * La abreviatura "n/a" significa "no disponible".
+     */
     private final String NOT_AVAILABLE = "n/a";
 
     /*
