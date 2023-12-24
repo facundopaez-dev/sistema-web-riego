@@ -805,6 +805,20 @@ public class CropRestServlet {
     }
 
     /*
+     * Si el limite inferior de la profundidad radicular maxima
+     * de un cultivo es mayor o igual al limite superior de la
+     * profundidad radicular maxima de un cultivo, la aplicacion
+     * del lado servidor retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "El limite inferior de la profundidad
+     * radicular maxima no debe ser mayor o igual al limite superior
+     * de la profundidad radicular maxima" y no se realiza la
+     * operacion solicitada
+     */
+    if (newCrop.getLowerLimitMaximumRootDepth() >= newCrop.getUpperLimitMaximumRootDepth()) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.OVERLAPPING_ROOT_DEPTH_LIMITS))).build();      
+    }
+
+    /*
      * **************************************************
      * Controles sobre el valor del factor de agotamiento
      * **************************************************
@@ -1212,6 +1226,20 @@ public class CropRestServlet {
 
     if (modifiedCrop.getUpperLimitMaximumRootDepth() <= 0.0) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UPPER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID))).build();      
+    }
+
+    /*
+     * Si el limite inferior de la profundidad radicular maxima
+     * de un cultivo es mayor o igual al limite superior de la
+     * profundidad radicular maxima de un cultivo, la aplicacion
+     * del lado servidor retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "El limite inferior de la profundidad
+     * radicular maxima no debe ser mayor o igual al limite superior
+     * de la profundidad radicular maxima" y no se realiza la
+     * operacion solicitada
+     */
+    if (modifiedCrop.getLowerLimitMaximumRootDepth() >= modifiedCrop.getUpperLimitMaximumRootDepth()) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.OVERLAPPING_ROOT_DEPTH_LIMITS))).build();      
     }
 
     /*

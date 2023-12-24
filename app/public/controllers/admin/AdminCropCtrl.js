@@ -121,6 +121,7 @@ app.controller(
       const UPPER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID = "El límite superior de la profundidad radicular máxima debe ser mayor a 0.0";
       const UNDEFINED_DEPLETION_FACTOR = "El factor de agotamiento debe estar definido";
       const INVALID_DEPLETION_FACTOR = "El factor de agotamiento debe tener un valor entre 0.1 y 0.8";
+      const OVERLAPPING_ROOT_DEPTH_LIMITS = "El límite inferior de la profundidad radicular máxima no debe ser mayor o igual al límite superior de la profundidad radicular máxima";
 
       const LOWER_LIMIT_DEPLETION_FACTOR = 0.1;
       const UPPER_LIMIT_DEPLETION_FACTOR = 0.8;
@@ -367,6 +368,17 @@ app.controller(
         }
 
         /*
+        Si el limite inferior de la profundida radicular maxima
+        es mayor o igual al limite superior de la profundidad
+        radicular maxima, la aplicacion muestra el mensaje dado
+        y no se realiza la operacion solicitada
+        */
+        if ($scope.data.lowerLimitMaximumRootDepth >= $scope.data.upperLimitMaximumRootDepth) {
+          alert(OVERLAPPING_ROOT_DEPTH_LIMITS);
+          return;
+        }
+
+        /*
         **************************************************
         Controles sobre el valor del factor de agotamiento
         **************************************************
@@ -537,6 +549,17 @@ app.controller(
         */
         if ($scope.data.upperLimitMaximumRootDepth <= 0.0) {
           alert(UPPER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID);
+          return;
+        }
+
+        /*
+        Si el limite inferior de la profundida radicular maxima
+        es mayor o igual al limite superior de la profundidad
+        radicular maxima, la aplicacion muestra el mensaje dado
+        y no se realiza la operacion solicitada
+        */
+        if ($scope.data.lowerLimitMaximumRootDepth >= $scope.data.upperLimitMaximumRootDepth) {
+          alert(OVERLAPPING_ROOT_DEPTH_LIMITS);
           return;
         }
 
