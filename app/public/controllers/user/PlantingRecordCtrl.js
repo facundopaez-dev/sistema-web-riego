@@ -243,17 +243,26 @@ app.controller(
           return;
         }
 
+        const currentDate = new Date();
         let maintainWitheredStatus = false;
 
         /*
-        Si el registro de plantacion a modificar tiene el estado marchitado,
-        se pide al usuario que confirme si desea que el registro de plantacion
-        cambie su estado marchitado a finalizado o en desarrollo dependiendo
-        de las fechas elegidas
+        Si el registro de plantacion a modificar tiene el estado marchitado y
+        existe la posibilidad de que adquiera al estado "Finalizado" (si la
+        fecha de cosecha elegida es anterior a la fecha actual) o el estado
+        "En desarrollo" (si la fecha actual es mayor o igual a la fecha de
+        siembra elegida y menor o igual a la fecha de cosecha elegida, es
+        decir, si la fecha actual esta entre la fecha de siembra y la fecha
+        de cosecha elegidas), se pide al usuario que confirme si desea que
+        el registro de plantacion mantenga el estado marchitado luego de la
+        modificacion
         */
-        if ($scope.data.status.name == WITHERED_STATUS) {
+        if (($scope.data.status.name == WITHERED_STATUS)
+          && (utilDate.compareTo($scope.data.harvestDate, currentDate) < 0
+            || (utilDate.compareTo(currentDate, $scope.data.seedDate) >= 0 && utilDate.compareTo(currentDate, $scope.data.harvestDate) <= 0))) {
           var message = "Si se modifica el registro de plantación con una fecha de cosecha anterior a la fecha actual, adquirirá el estado finalizado. "
-            + "Si las fechas permanecen iguales, el registro de plantación adquirirá el estado en desarrolllo. "
+            + "En cambio, si se lo modifica con fechas de tal manera que la fecha actual (hoy) esté en el período definido por las fechas elegidas, el "
+            + "registro de plantación adquirirá el estado en desarrolllo. "
             + "¿Desea que el registro de plantación mantenga el estado marchitado luego de la modificación?";
 
           maintainWitheredStatus = confirm(message);
