@@ -110,7 +110,10 @@ public enum ReasonError {
   UPPER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID("El límite superior de la profundidad radicular máxima debe ser mayor a 0.0"),
   INVALID_DEPLETION_FACTOR("El factor de agotamiento debe tener un valor entre 0.1 y 0.8"),
   UNDEFINED_SOIL("Para calcular la necesidad de agua de riego de un cultivo en la fecha actual con datos de suelo es necesario asignar un suelo a la parcela"),
-  OVERLAPPING_ROOT_DEPTH_LIMITS("El límite inferior de la profundidad radicular máxima no debe ser mayor o igual al límite superior de la profundidad radicular máxima");
+  OVERLAPPING_ROOT_DEPTH_LIMITS("El límite inferior de la profundidad radicular máxima no debe ser mayor o igual al límite superior de la profundidad radicular máxima"),
+  MONTH_START_PLANTING_NON_EXISTENT("El mes de inicio de siembra elegido no existe"),
+  NON_EXISTENT_END_PLANTING_MONTH("El mes de fin de siembra elegido no existe"),
+  OVERLAP_BETWEEN_MONTH_START_PLANTING_AND_MONTH_END_PLANTING("El mes de inicio de siembra no debe ser mayor al mes de fin de siembra");
 
   private final String reason;
 

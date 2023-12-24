@@ -19,7 +19,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import model.Crop;
+import model.Month;
 import stateless.CropServiceBean;
+import stateless.MonthServiceBean;
 import stateless.SecretKeyServiceBean;
 import stateless.SessionServiceBean;
 import util.ErrorResponse;
@@ -36,6 +38,7 @@ public class CropRestServlet {
   @EJB CropServiceBean cropService;
   @EJB SecretKeyServiceBean secretKeyService;
   @EJB SessionServiceBean sessionService;
+  @EJB MonthServiceBean monthService;
 
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
@@ -843,6 +846,69 @@ public class CropRestServlet {
     }
 
     /*
+     * ************************************************
+     * Controles sobre el mes de inicio de siembra y el
+     * mes de fin de siembra
+     * ************************************************
+     */
+
+    Month plantingStartMonth = newCrop.getPlantingStartMonth();
+    Month endPlantingMonth = newCrop.getEndPlantingMonth();
+
+    /*
+     * Si el mes de inicio de siembra esta definido y NO existe
+     * en la base de datos subyacente un mes con el nombre del
+     * mes de inicio de siembra, la aplicacion del lado servidor
+     * retorna el mensaje HTTP 400 (Bad request) junto con el
+     * mensaje "El mes de inicio de siembra elegido no existe"
+     * y no se realiza la operacion solicitada
+     */
+    if (plantingStartMonth != null && !monthService.checkExistence(plantingStartMonth.getName())) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MONTH_START_PLANTING_NON_EXISTENT))).build();
+    }
+
+    /*
+     * Si el mes de fin de siembra esta definido y NO existe
+     * en la base de datos subyacente un mes con el nombre del
+     * mes de fin de siembra, la aplicacion del lado servidor
+     * retorna el mensaje HTTP 400 (Bad request) junto con el
+     * mensaje "El mes de fin de siembra elegido no existe" y
+     * no se realiza la operacion solicitada
+     */
+    if (endPlantingMonth != null && !monthService.checkExistence(endPlantingMonth.getName())) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NON_EXISTENT_END_PLANTING_MONTH))).build();
+    }
+
+    /*
+     * Si:
+     * - el mes de inicio de siembra y el mes de fin de siembra
+     * estan definidos, y
+     * - sus nombres estan definidos, y
+     * - el mes de inicio de siembra es estrictamente mayor al
+     * mes de fin de siembra,
+     * 
+     * la aplicacion del lado servidor retorna el mensaje HTTP
+     * 400 (Bad request) junto con el mensaje "El mes de inicio
+     * de siembra no debe ser mayor al mes de fin de siembra" y
+     * no se realiza la operacion solicitada.
+     * 
+     * La comparacion entre el mes de inicio de siembra y el
+     * mes de fin de siembra para determinar si el primero es
+     * estrictamente mayor al segundo se realiza mediante la
+     * comparacion entre los IDs de los mismos. Por lo tanto,
+     * para que esta comparacion funcione correctamente los
+     * meses del año deben ser cargados en orden cronologico
+     * en la base de datos subyacente. De lo contrario, este
+     * control no funcionara como corresponde.
+     */
+    if (plantingStartMonth != null && plantingStartMonth.getName() != null
+        && endPlantingMonth != null && endPlantingMonth.getName() != null
+        && monthService.find(plantingStartMonth.getName()).getId() > monthService.find(endPlantingMonth.getName()).getId()) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(
+          new ErrorResponse(ReasonError.OVERLAP_BETWEEN_MONTH_START_PLANTING_AND_MONTH_END_PLANTING))).build();
+    }
+
+    /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos que el
@@ -1264,6 +1330,69 @@ public class CropRestServlet {
     if (modifiedCrop.getDepletionFactor() < cropService.getLowerLimitDepletionFactor()
         || modifiedCrop.getDepletionFactor() > cropService.getUpperLimitDepletionFactor()) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_DEPLETION_FACTOR))).build();
+    }
+
+    /*
+     * ************************************************
+     * Controles sobre el mes de inicio de siembra y el
+     * mes de fin de siembra
+     * ************************************************
+     */
+
+    Month plantingStartMonth = modifiedCrop.getPlantingStartMonth();
+    Month endPlantingMonth = modifiedCrop.getEndPlantingMonth();
+
+    /*
+     * Si el mes de inicio de siembra esta definido y NO existe
+     * en la base de datos subyacente un mes con el nombre del
+     * mes de inicio de siembra, la aplicacion del lado servidor
+     * retorna el mensaje HTTP 400 (Bad request) junto con el
+     * mensaje "El mes de inicio de siembra elegido no existe"
+     * y no se realiza la operacion solicitada
+     */
+    if (plantingStartMonth != null && !monthService.checkExistence(plantingStartMonth.getName())) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MONTH_START_PLANTING_NON_EXISTENT))).build();
+    }
+
+    /*
+     * Si el mes de fin de siembra esta definido y NO existe
+     * en la base de datos subyacente un mes con el nombre del
+     * mes de fin de siembra, la aplicacion del lado servidor
+     * retorna el mensaje HTTP 400 (Bad request) junto con el
+     * mensaje "El mes de fin de siembra elegido no existe" y
+     * no se realiza la operacion solicitada
+     */
+    if (endPlantingMonth != null && !monthService.checkExistence(endPlantingMonth.getName())) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NON_EXISTENT_END_PLANTING_MONTH))).build();
+    }
+
+    /*
+     * Si:
+     * - el mes de inicio de siembra y el mes de fin de siembra
+     * estan definidos, y
+     * - sus nombres estan definidos, y
+     * - el mes de inicio de siembra es estrictamente mayor al
+     * mes de fin de siembra,
+     * 
+     * la aplicacion del lado servidor retorna el mensaje HTTP
+     * 400 (Bad request) junto con el mensaje "El mes de inicio
+     * de siembra no debe ser mayor al mes de fin de siembra" y
+     * no se realiza la operacion solicitada.
+     * 
+     * La comparacion entre el mes de inicio de siembra y el
+     * mes de fin de siembra para determinar si el primero es
+     * estrictamente mayor al segundo se realiza mediante la
+     * comparacion entre los IDs de los mismos. Por lo tanto,
+     * para que esta comparacion funcione correctamente los
+     * meses del año deben ser cargados en orden cronologico
+     * en la base de datos subyacente. De lo contrario, este
+     * control no funcionara como corresponde.
+     */
+    if (plantingStartMonth != null && plantingStartMonth.getName() != null
+        && endPlantingMonth != null && endPlantingMonth.getName() != null
+        && monthService.find(plantingStartMonth.getName()).getId() > monthService.find(endPlantingMonth.getName()).getId()) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(
+          new ErrorResponse(ReasonError.OVERLAP_BETWEEN_MONTH_START_PLANTING_AND_MONTH_END_PLANTING))).build();
     }
 
     /*

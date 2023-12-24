@@ -3,6 +3,7 @@ package stateless;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import java.util.Collection;
 import model.Month;
@@ -103,6 +104,54 @@ public class MonthServiceBean {
 
     Collection<Month> operators = (Collection) query.getResultList();
     return operators;
+  }
+
+  /**
+   * @param name
+   * @return referencia a un objeto de tipo Month que representa
+   * un mes si en la base de datos subyacente hay un mes con el
+   * nombre dado, en caso contrario null
+   */
+  public Month find(String name) {
+    Query query = entityManager.createQuery("SELECT m FROM Month m WHERE UPPER(m.name) = UPPER(:monthName)");
+    query.setParameter("monthName", name);
+
+    Month givenMonth = null;
+
+    try {
+      givenMonth = (Month) query.getSingleResult();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return givenMonth;
+  }
+
+  /**
+   * @param name
+   * @return true si en la base de datos subyacente existe
+   * un mes con el nombre dado, en caso contrario false
+   */
+  public boolean checkExistence(String name) {
+    /*
+     * Si el nombre del mes tiene el valor null, se retorna false,
+     * ya que realizar la busqueda de un mes con un nombre con este
+     * valor es similar a buscar un mes inexistente en la base de
+     * datos subyacente.
+     * 
+     * Con este control se evita realizar una consulta a la base
+     * de datos comparando el nombre de un mes con el valor null.
+     * Si no se realiza este control y se realiza esta consulta a
+     * la base de datos, ocurre la excepcion SQLSyntaxErrorException,
+     * debido a que la comparacion de un atributo con el valor
+     * null incumple la sintaxis del proveedor del motor de base
+     * de datos.
+     */
+    if (name == null) {
+      return false;
+    }
+
+    return (find(name) != null);
   }
 
 }
