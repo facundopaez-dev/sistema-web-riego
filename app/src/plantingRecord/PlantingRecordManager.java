@@ -50,6 +50,14 @@ public class PlantingRecordManager {
     private final String NOT_AVAILABLE = "n/a";
 
     /*
+     * Este simbolo se utiliza para representar que la necesidad
+     * de agua de riego de un cultivo en la fecha actual [mm/dia]
+     * no esta disponible, pero se puede calcular. Esta situacion
+     * ocurre unicamente para un registro de plantacion en desarrollo.
+     */
+    private final String IRRIGATION_WATER_NEED_NOT_AVAILABLE_BUT_CALCULABLE = "-";
+
+    /*
      * Establece de manera automatica el estado finalizado de un registro de
      * plantacion presuntamente en desarrollo. Esto lo hace cada 24 horas a
      * partir de las 00 horas.
@@ -132,14 +140,24 @@ public class PlantingRecordManager {
              * esta en espera, se establece el estado en desarrollo en
              * el mismo.
              * 
-             * Un registro de plantacion en espera, esta en espera si su
-             * fecha de siembra es estrictamente mayor (es decir, posterior)
-             * a la fecha actual. En cambio, si su fecha de siembra es menor
-             * o igual a la fecha actual y su fecha de cosecha es mayor o igual
-             * a la fecha actual, se debe establecer el estado en desarrollo en
-             * el mismo.
+             * Un registro de plantacion en espera, esta en espera si
+             * su fecha de siembra es estrictamente mayor (es decir,
+             * posterior) a la fecha actual. En cambio, si su fecha de
+             * siembra es menor o igual a la fecha actual y su fecha
+             * de cosecha es mayor o igual a la fecha actual, se debe
+             * establecer el estado en desarrollo en el mismo.
+             * 
+             * Se asigna el simbolo "-" (guion) a la necesidad de agua
+             * de riego de un registro de plantacion en desarrollo. Dicho
+             * simbolo se utiliza para representar que la necesidad de
+             * agua de riego de un cultivo en la fecha actual [mm/dia]
+             * no esta disponible, pero es calculable. Esta situacion
+             * ocurre unicamente para un registro de plantacion en
+             * desarrollo.
              */
             if (plantingRecordService.isInDevelopment(currentPlantingRecord)) {
+                plantingRecordService.updateIrrigationWaterNeed(currentPlantingRecord.getId(),
+                        currentPlantingRecord.getParcel(), IRRIGATION_WATER_NEED_NOT_AVAILABLE_BUT_CALCULABLE);
                 plantingRecordService.setStatus(currentPlantingRecord.getId(), plantingRecordStatusService.findDevelopmentStatus());
             }
 
