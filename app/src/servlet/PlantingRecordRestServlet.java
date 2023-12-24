@@ -978,13 +978,12 @@ public class PlantingRecordRestServlet {
      * [mm/dia] no esta disponible, pero es calculable. Esta situacion
      * ocurre unicamente para un registro de plantacion en desarrollo.
      * 
-     * La lamina total de agua disponible (dt) [mm] y la lamina
-     * de riego optima (drop) [mm] estan en funcion de un suelo
-     * y un cultivo. Una parcela tiene un suelo y un registro de
-     * plantacion tiene una parcela. Por lo tanto, si se modifica
-     * la parcela y/o el cultivo de un registro de plantacion en
-     * desarrollo, se establece el valor 0 en las laminas de dicho
-     * registro.
+     * La lamina total de agua disponible (dt) [mm] y la lamina de
+     * riego optima (drop) [mm] estan en funcion de un suelo y un
+     * cultivo. Una parcela tiene un suelo y un registro de plantacion
+     * tiene una parcela. Por lo tanto, si se modifica la parcela
+     * y/o el cultivo de un registro de plantacion en desarrollo,
+     * se establece el valor 0 en las laminas de dicho registro.
      * 
      * La lamina total de agua disponible (dt) representa la capacidad
      * de almacenamiento de agua que tiene un suelo para el cultivo
