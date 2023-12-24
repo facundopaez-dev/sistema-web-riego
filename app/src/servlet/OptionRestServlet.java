@@ -242,7 +242,7 @@ public class OptionRestServlet {
          * y no se realiza la operacion solicitada
          */
         if (!optionService.validatePastDaysReference(modifiedOption)) {
-            String message = "La cantidad de días anteriores a la fecha actual utilizados como referencia para el cálculo de la"
+            String message = "La cantidad de días anteriores a la fecha actual utilizados como referencia para el cálculo de la "
                     + "necesidad de agua de riego de un cultivo en la fecha actual debe ser un número entre "
                     + optionService.getLowerLimitPastDays() + " y " + optionService.getUpperLimitPastDays();
 
