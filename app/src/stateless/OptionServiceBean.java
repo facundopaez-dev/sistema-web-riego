@@ -25,10 +25,10 @@ public class OptionServiceBean {
     /*
      * Esta constante es utilizada para calcular la necesidad de
      * agua de riego de un cultivo en la fecha actual a partir
-     * del ultimo riego registrado en los ultimos treinta dias
+     * del ultimo riego registrado dentro de los treinta dias
      * anteriores a la fecha actual, si el usuario activa la
      * opcion correspondiente a este calculo de la necesidad de
-     * agua de riego.
+     * agua de riego de un cultivo
      */
     private final int THIRTY_DAYS = 30;
 
@@ -46,7 +46,7 @@ public class OptionServiceBean {
 
     /**
      * Persiste una opcion que tiene el valor de la constante
-     * UPPER_LIMIT_PAST_DAYS y el valor booleano false por defecto
+     * UPPER_LIMIT_PAST_DAYS
      * 
      * @return referencia a un objeto de tipo Option
      */
