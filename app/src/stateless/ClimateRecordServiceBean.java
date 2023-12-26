@@ -566,25 +566,4 @@ public class ClimateRecordServiceBean {
     return (UtilDate.compareTo(climateRecord.getDate(), UtilDate.getCurrentDate()) < 0);
   }
 
-  /**
-   * Obtiene y persiste el registro climatico de la fecha actual.
-   * Este metodo es para el metodo calculateIrrigationWaterNeed
-   * de la clase PlantingRecordRestServlet.
-   * 
-   * @param givenParcel
-   * @return referencia a un objeto de tipo ClimateRecord que
-   * representa el registro climatico de la fecha actual
-   */
-  public ClimateRecord persistCurrentClimateRecord(Parcel givenParcel) {
-    /*
-     * Se divide el tiempo en milisegundos de la fecha actual
-     * entre 1000 porque el metodo estatico getForecast de la
-     * clase ClimateClient utiliza el tiempo en formato UNIX,
-     * el cual, son los segundos trancurridos desde el 1 de
-     * enero de 1970 (epoca).
-     */
-    ClimateRecord currentClimateRecord = ClimateClient.getForecast(givenParcel, (UtilDate.getCurrentDate().getTimeInMillis() / 1000));
-    return create(currentClimateRecord);
-  }
-
 }
