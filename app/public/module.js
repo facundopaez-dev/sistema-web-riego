@@ -472,10 +472,10 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 		 * 
 		 * Si la respuesta devuelta es el mensaje HTTP 403 (Forbidden) o el mensaje
 		 * 404 (Not found), redirige al usuario a la pagina web de inicio correspondiente.
-		 * Si el usuario NO tiene su sesion abierta como administrador, lo redirige a la
-		 * pagina web de inicio del usuario. Si el usuario tiene su sesion abierta como
-		 * administrador (siempre y cuando tenga permiso de  administrador), lo redirige
-		 * a la pagina web de inicio del administrador.
+		 * Si el usuario NO tiene su sesion abierta como administrador, lo redirige
+		 * a la pagina web de inicio del usuario. Si el usuario tiene su sesion
+		 * abierta como administrador (siempre y cuando tenga permiso de administrador),
+		 * lo redirige a la pagina web de inicio del administrador.
 		 * 
 		 * La mayoria de las respuestas HTTP del servidor que evalua la aplicacion
 		 * del lado del navegador web son estas dos descritas.

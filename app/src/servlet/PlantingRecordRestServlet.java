@@ -170,7 +170,7 @@ public class PlantingRecordRestServlet {
      * a la fecha de emision de la sesion activa del usuario,
      * la aplicacion del lado servidor retorna el mensaje HTTP
      * 400 (Bad request) junto con el mensaje "El JWT no
-     * corresponde a una sesión abierta" y no se realiza la
+     * corresponde a una sesion abierta" y no se realiza la
      * operacion solicitada.
      * 
      * Se debe tener en cuenta que el metodo checkDateIssueLastSession
@@ -262,7 +262,7 @@ public class PlantingRecordRestServlet {
      * a la fecha de emision de la sesion activa del usuario,
      * la aplicacion del lado servidor retorna el mensaje HTTP
      * 400 (Bad request) junto con el mensaje "El JWT no
-     * corresponde a una sesión abierta" y no se realiza la
+     * corresponde a una sesion abierta" y no se realiza la
      * operacion solicitada.
      * 
      * Se debe tener en cuenta que el metodo checkDateIssueLastSession
@@ -354,7 +354,7 @@ public class PlantingRecordRestServlet {
      * a la fecha de emision de la sesion activa del usuario,
      * la aplicacion del lado servidor retorna el mensaje HTTP
      * 400 (Bad request) junto con el mensaje "El JWT no
-     * corresponde a una sesión abierta" y no se realiza la
+     * corresponde a una sesion abierta" y no se realiza la
      * operacion solicitada.
      * 
      * Se debe tener en cuenta que el metodo checkDateIssueLastSession
@@ -467,7 +467,7 @@ public class PlantingRecordRestServlet {
      * a la fecha de emision de la sesion activa del usuario,
      * la aplicacion del lado servidor retorna el mensaje HTTP
      * 400 (Bad request) junto con el mensaje "El JWT no
-     * corresponde a una sesión abierta" y no se realiza la
+     * corresponde a una sesion abierta" y no se realiza la
      * operacion solicitada.
      * 
      * Se debe tener en cuenta que el metodo checkDateIssueLastSession
@@ -714,7 +714,7 @@ public class PlantingRecordRestServlet {
      * a la fecha de emision de la sesion activa del usuario,
      * la aplicacion del lado servidor retorna el mensaje HTTP
      * 400 (Bad request) junto con el mensaje "El JWT no
-     * corresponde a una sesión abierta" y no se realiza la
+     * corresponde a una sesion abierta" y no se realiza la
      * operacion solicitada.
      * 
      * Se debe tener en cuenta que el metodo checkDateIssueLastSession
@@ -1118,7 +1118,7 @@ public class PlantingRecordRestServlet {
      * a la fecha de emision de la sesion activa del usuario,
      * la aplicacion del lado servidor retorna el mensaje HTTP
      * 400 (Bad request) junto con el mensaje "El JWT no
-     * corresponde a una sesión abierta" y no se realiza la
+     * corresponde a una sesion abierta" y no se realiza la
      * operacion solicitada.
      * 
      * Se debe tener en cuenta que el metodo checkDateIssueLastSession
@@ -1266,7 +1266,7 @@ public class PlantingRecordRestServlet {
      * a la fecha de emision de la sesion activa del usuario,
      * la aplicacion del lado servidor retorna el mensaje HTTP
      * 400 (Bad request) junto con el mensaje "El JWT no
-     * corresponde a una sesión abierta" y no se realiza la
+     * corresponde a una sesion abierta" y no se realiza la
      * operacion solicitada.
      * 
      * Se debe tener en cuenta que el metodo checkDateIssueLastSession
