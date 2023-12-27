@@ -109,6 +109,7 @@ app.controller(
             errorResponseManager.checkResponse(error);
             return;
           }
+
           $scope.data = data;
 
           /*
@@ -333,17 +334,12 @@ app.controller(
           lng: -3.823,
           zoom: 7
         },
-        Madryn: {
-          lat: -42.787220,
-          lng: -65.066404,
-          zoom: 4
-        },
-        position: {
-          lat: 51,
-          lng: 0
+        Origin: {
+          lat: 0.037668,
+          lng: 34.706523,
+          zoom: 1
         },
         events: {}
-
       });
 
       /*
