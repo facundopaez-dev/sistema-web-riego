@@ -458,6 +458,7 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 	const TYPE_CROP = "ORIGIN_TYPE_CROP";
 	const PARCEL = "ORIGIN_PARCEL";
 	const WATER_NEED_CROP = "ORIGIN_NEED_WATER_CROP";
+	const WATER_NEED_WITHERED_CROP = "ORIGIN_NEED_WATER_WITHERED_CROP";
 
 	return {
 		/**
@@ -533,7 +534,8 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 			en la fecha actual [mm/dia] es un cultivo marchitado, redirige al usuario
 			a la pagina web de registros de plantacion
 			*/
-			if (accessManager.isUserLoggedIn() && !accessManager.loggedAsAdmin() && error.status == BAD_REQUEST && error.data.sourceUnsatisfiedResponse == WATER_NEED_CROP) {
+			if (accessManager.isUserLoggedIn() && !accessManager.loggedAsAdmin() && error.status == BAD_REQUEST
+				&& error.data.sourceUnsatisfiedResponse == WATER_NEED_WITHERED_CROP) {
 				$location.path(USER_PLANTING_RECORD_ROUTE);
 				return;
 			}

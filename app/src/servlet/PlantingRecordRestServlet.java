@@ -1523,7 +1523,9 @@ public class PlantingRecordRestServlet {
           + " el cultivo se ha marchitado porque el nivel de humedad del suelo, en el que está sembrado, está en el punto de marchitez permanente."
           + " Esto se debe a que el nivel de humedad del suelo es menor a la capacidad de almacenamiento de agua del suelo.";
 
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(message, SourceUnsatisfiedResponse.WATER_NEED_CROP))).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(message, SourceUnsatisfiedResponse.WATER_NEED_WITHERED_CROP)))
+          .build();
     }
 
     /*
