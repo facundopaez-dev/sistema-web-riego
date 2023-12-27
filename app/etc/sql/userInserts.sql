@@ -22,3 +22,6 @@ VALUES ('taylor', 'Taylor', 'Doe', 'taylor@eservice.com', 1, 0);
 -- Nombre de usuario: jack, contraseña: jack
 INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
 VALUES ('jack', 'Jack', 'Doe', 'jack@eservice.com', 1, 0);
+
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
+VALUES ('liam', 'Liam', 'Doe', 'liam@eservice.com', 1, 0);
