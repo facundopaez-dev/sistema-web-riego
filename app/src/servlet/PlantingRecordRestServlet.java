@@ -109,6 +109,8 @@ public class PlantingRecordRestServlet {
    * ocurre unicamente para un registro de plantacion en desarrollo.
    */
   private final String IRRIGATION_WATER_NEED_NOT_AVAILABLE_BUT_CALCULABLE = "-";
+  private final int TOO_MANY_REQUESTS = 429;
+  private final int SERVICE_UNAVAILABLE = 503;
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
@@ -1410,14 +1412,83 @@ public class PlantingRecordRestServlet {
           (-1 * WaterMath.calculateOptimalIrrigationLayer(etcCurrentDate, givenCrop, givenParcel.getSoil())));
     }
 
-    /*
-     * Ejecuta el proceso del calculo de la necesidad de agua
-     * de riego de un cultivo en la fecha actual [mm/dia]. Esto
-     * es que ejecuta los metodos necesarios para calcular y
-     * actualizar la necesidad de agua de riego de un cultivo
-     * (en desarrollo) en la fecha actual.
-     */
-    double irrigationWaterNeedCurrentDate = runCalculationIrrigationWaterNeedCurrentDate(userService.find(userId), developingPlantingRecord);
+    double irrigationWaterNeedCurrentDate = 0.0;
+
+    try {
+      /*
+       * Ejecuta el proceso del calculo de la necesidad de agua
+       * de riego de un cultivo en la fecha actual [mm/dia]. Esto
+       * es que ejecuta los metodos necesarios para calcular y
+       * actualizar la necesidad de agua de riego de un cultivo
+       * (en desarrollo) en la fecha actual.
+       */
+      irrigationWaterNeedCurrentDate = runCalculationIrrigationWaterNeedCurrentDate(userService.find(userId), developingPlantingRecord);
+    } catch (Exception e) {
+      e.printStackTrace();
+
+      /*
+       * El mensaje de la excepcion contiene el codigo de respuesta
+       * HTTP devuelto por el servicio meteorologico Visual Crossing
+       * Weather porque en la clase ClimateClient se asigna dicho
+       * codigo al mensaje de la excepcion producida
+       */
+      int responseCode = Integer.parseInt(e.getMessage());
+
+      /*
+       * El servicio meteorologico Visual Crossing Wather brinda
+       * 1000 peticiones gratuitas por dia. Si al intentar calcular
+       * la necesidad de agua de riego de un cultivo en la fecha
+       * actual [mm/dia] se supera esta cantidad, dicho servicio
+       * devuelve el mensaje HTTP 429 (Too many requests). Si la
+       * aplicacion del lado servidor recibe este mensaje HTTP de
+       * parte de dicho servicio, devuelve el mensaje HTTP 429 a
+       * la aplicacion del lado del navegador web junto con el
+       * mensaje "La aplicacion no puede calcular la necesidad de
+       * agua de riego de un cultivo porque se supero la cantidad
+       * de 1000 peticiones gratuitas por dia del servicio
+       * meteorologico Visual Crossing Weather" y no se realiza la
+       * operacion solicitada
+       */
+      if (responseCode == TOO_MANY_REQUESTS) {
+        return Response.status(Response.Status.TOO_MANY_REQUESTS)
+            .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.REQUEST_LIMIT_EXCEEDED, SourceUnsatisfiedResponse.WATER_NEED_CROP)))
+            .build();
+      }
+
+      /*
+       * Si el servicio meteorologico Visual Crossing Weather NO
+       * esta disponible al intentar calcular la necesidad de agua
+       * de riego de un cultivo en la fecha actual [mm/dia],
+       * devuelve el mensaje HTTP 503 (Service unavailable). Si la
+       * aplicacion del lado servidor recibe este mensaje HTTP de
+       * parte de dicho servicio, devuelve el mensaje HTTP 503 a
+       * la aplicacion del lado del navegador web junot con el
+       * mensaje "La aplicacion no puede calcular la necesidad de
+       * agua de riego de un cultivo porque el servicio meteorologico
+       * Visual Crossing Weather no se encuentra en funcionamiento"
+       * y no se realiza la operacion solicitada
+       */
+      if (responseCode == SERVICE_UNAVAILABLE) {
+        return Response.status(Response.Status.SERVICE_UNAVAILABLE)
+            .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.WEATHER_SERVICE_UNAVAILABLE, SourceUnsatisfiedResponse.WATER_NEED_CROP)))
+            .build();
+      }
+
+      /*
+       * Si al intentar calcular la necesidad de agua de riego
+       * de un cultivo en la fecha actual [mm/dia], el servicio
+       * meteorologico Visual Crossing Weather devuelve un
+       * mensaje HTTP distinto a 429 y 503, la aplicacion del
+       * lado devuelve el mensaje HTTP 500 (Internal server
+       * error) a la aplicacion del lado del navegador web junto
+       * con el mensaje "Se produjo un error al calcular la
+       * necesidad de agua de riego de un cultivo" y no se
+       * realiza la operacion solicitada
+       */
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNKNOW_ERROR_IN_IRRIGATION_WATER_NEED_CALCULATION, SourceUnsatisfiedResponse.WATER_NEED_CROP)))
+          .build();
+    }
 
     /*
      * Si la necesidad de agua de riego de un cultivo (en
@@ -1519,7 +1590,7 @@ public class PlantingRecordRestServlet {
    * de riego de un cultivo (en desarrollo) en la fecha
    * actual [mm/dia]
    */
-  private double runCalculationIrrigationWaterNeedCurrentDate(User user, PlantingRecord developingPlantingRecord) {
+  private double runCalculationIrrigationWaterNeedCurrentDate(User user, PlantingRecord developingPlantingRecord) throws IOException {
     /*
      * Persiste pastDaysReference registros climaticos anteriores
      * a la fecha actual pertenecientes a una parcela dada que tiene
@@ -1565,7 +1636,7 @@ public class PlantingRecordRestServlet {
    * @param userId
    * @param developingPlantingRecord
    */
-  private void requestPastClimateRecords(int userId, PlantingRecord developingPlantingRecord) {
+  private void requestPastClimateRecords(int userId, PlantingRecord developingPlantingRecord) throws IOException {
     /*
      * Esta variable representa la cantidad de registros climaticos
      * del pasado (es decir, anteriores a la fecha actual) que la

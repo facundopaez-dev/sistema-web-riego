@@ -2,6 +2,7 @@ package climate;
 
 import com.google.gson.Gson;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -75,7 +76,7 @@ public class ClimateClient {
    *         contiene los datos meteorologicos obtenidos en base a una
    *         coordenada geografica y una fecha en tiempo UNIX
    */
-  public static ClimateRecord getForecast(Parcel givenParcel, long datetimeEpoch) {
+  public static ClimateRecord getForecast(Parcel givenParcel, long datetimeEpoch) throws IOException {
     ClimateRecord newClimateRecord = new ClimateRecord();
     newClimateRecord.setParcel(givenParcel);
 
@@ -105,7 +106,7 @@ public class ClimateClient {
    *         contiene los datos meteorologicos obtenidos para una
    *         latitud y una longitud, en una fecha en tiempo UNIX
    */
-  private static Forecast requestWeatherData(double latitude, double longitude, long datetimeEpoch) {
+  private static Forecast requestWeatherData(double latitude, double longitude, long datetimeEpoch) throws IOException {
     /*
      * Si no se agrega este bloque de codigo antes del bloque de
      * codigo que realiza la invocacion a la API climatica Visual
@@ -167,39 +168,49 @@ public class ClimateClient {
      * Crossing Weather) en formato JSON
      */
     String resultApiCall = null;
+    BufferedReader bufferedReader = null;
+    InputStreamReader inputStreamReader = null;
+    HttpURLConnection httpUrlConnection = null;
 
     try {
       URL url = new URL(getCompleteWeatherUrl(latitude, longitude, datetimeEpoch));
 
-      HttpURLConnection httpUrlConnection = (HttpURLConnection) url.openConnection();
+      httpUrlConnection = (HttpURLConnection) url.openConnection();
       httpUrlConnection.setRequestMethod("GET");
       httpUrlConnection.setRequestProperty("Accept", "application/json");
 
-      /*
-       * Si el codigo de respuesta del servidor sobre el cual
-       * se invoca el servicio web deseado es distinto de 200
-       * (ok, sin problemas) hay un problema, con lo cual
-       * se lanza una excepcion
-       */
+      inputStreamReader = new InputStreamReader(httpUrlConnection.getInputStream());
+      bufferedReader = new BufferedReader(inputStreamReader);
+      } catch (Exception e) {
+        e.printStackTrace();
+
+        /*
+         * Si el codigo de respuesta del servidor sobre el cual
+         * se invoca el servicio web deseado es distinto de 200
+         * (Ok), significa que hubo un problema al realizar la
+         * peticion, con lo cual se lanza una excepcion con el
+         * codigo de la respuesta
+         */
       if (httpUrlConnection.getResponseCode() != 200) {
-        throw new RuntimeException("Failed : HTTP Error code : " + httpUrlConnection.getResponseCode());
+        throw new RuntimeException(String.valueOf(httpUrlConnection.getResponseCode()));
       }
 
-      InputStreamReader inputStreamReader = new InputStreamReader(httpUrlConnection.getInputStream());
-      BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+    }
 
-      resultApiCall = bufferedReader.readLine();
+    resultApiCall = bufferedReader.readLine();
 
-      /*
-       * De esta forman se liberan estos
-       * recursos utilizados lo que probablemente
-       * libere el espacio de memoria que esten
-       * utilizando estas variables
-       */
-      httpUrlConnection.disconnect();
+    /*
+     * De esta forman se liberan estos
+     * recursos utilizados lo que probablemente
+     * libere el espacio de memoria que esten
+     * utilizando estas variables
+     */
+    if (inputStreamReader != null) {
       inputStreamReader.close();
-    } catch (Exception e) {
-      e.printStackTrace();
+    }
+
+    if (httpUrlConnection != null) {
+      httpUrlConnection.disconnect();
     }
 
     /*

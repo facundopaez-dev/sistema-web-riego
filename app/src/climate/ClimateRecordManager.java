@@ -113,14 +113,21 @@ public class ClimateRecordManager {
        * dada, se solicita y persiste uno para dicha parcela
        */
       if (!climateRecordService.checkExistence(currentDate, givenParcel)) {
-        /*
-         * Obtiene un registro climatico que contiene los datos
-         * del conjunto de datos meteorologicos devuelto por la
-         * API Visual Crossing Weather mediante la fecha actual
-         * en formato UNIX y las coordenadas geograficas de la
-         * parcela dada
-         */
-        currentClimateRecord = ClimateClient.getForecast(givenParcel, unixTime);
+
+        try {
+          /*
+           * Obtiene un registro climatico que contiene los datos
+           * del conjunto de datos meteorologicos devuelto por la
+           * API Visual Crossing Weather mediante la fecha actual
+           * en formato UNIX y las coordenadas geograficas de la
+           * parcela dada
+           */
+          currentClimateRecord = ClimateClient.getForecast(givenParcel, unixTime);
+        } catch (Exception e) {
+          e.printStackTrace();
+          break;
+        }
+
         eto = calculateEtoForClimateRecord(currentClimateRecord);
 
         /*

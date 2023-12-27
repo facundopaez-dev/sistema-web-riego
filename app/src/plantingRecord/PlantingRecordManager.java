@@ -1,5 +1,6 @@
 package plantingRecord;
 
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Collection;
 import javax.ejb.EJB;
@@ -223,14 +224,19 @@ public class PlantingRecordManager {
             givenParcel = developingPlantingRecord.getParcel();
             givenUser = developingPlantingRecord.getParcel().getUser();
 
-            /*
-             * Persiste pastDaysReference registros climaticos anteriores a la
-             * fecha actual pertenecientes a una parcela dada que tiene
-             * un cultivo sembrado y en desarrollo en la fecha actual. Estos
-             * registros climaticos son obtenidos del servicio meteorologico
-             * utilizado por la aplicacion.
-             */
-            requestPastClimateRecords(givenUser.getId(), givenParcel.getOption(), developingPlantingRecord);
+            try {
+                /*
+                 * Persiste pastDaysReference registros climaticos anteriores a la
+                 * fecha actual pertenecientes a una parcela dada que tiene
+                 * un cultivo sembrado y en desarrollo en la fecha actual. Estos
+                 * registros climaticos son obtenidos del servicio meteorologico
+                 * utilizado por la aplicacion.
+                 */
+                requestPastClimateRecords(givenUser.getId(), givenParcel.getOption(), developingPlantingRecord);
+            } catch (Exception e) {
+                e.printStackTrace();
+                break;
+            }
 
             /*
              * Calcula la ETo y la ETc de pastDaysReference registros climaticos
@@ -239,12 +245,17 @@ public class PlantingRecordManager {
              */
             calculateEtsPastClimateRecords(givenUser.getId(), givenParcel.getOption(), developingPlantingRecord);
 
-            /*
-             * Actualiza la lamina total de agua disponible (dt) [mm]
-             * y la lamina de riego optima (drop) [mm] de un registro
-             * de plantacion en desarrollo
-             */
-            updateIrrigationSheets(developingPlantingRecord);
+            try {
+                /*
+                 * Actualiza la lamina total de agua disponible (dt) [mm]
+                 * y la lamina de riego optima (drop) [mm] de un registro
+                 * de plantacion en desarrollo
+                 */
+                updateIrrigationSheets(developingPlantingRecord);
+            } catch (Exception e) {
+                e.printStackTrace();
+                break;
+            }
 
             /*
              * Calculo de la necesidad de agua de riego en la fecha actual
@@ -312,7 +323,7 @@ public class PlantingRecordManager {
      * @param parcelOption
      * @param developingPlantingRecord
      */
-    private void requestPastClimateRecords(int userId, Option parcelOption, PlantingRecord developingPlantingRecord) {
+    private void requestPastClimateRecords(int userId, Option parcelOption, PlantingRecord developingPlantingRecord) throws IOException {
         /*
          * Esta variable representa la cantidad de registros climaticos
          * del pasado (es decir, anteriores a la fecha actual) que la
@@ -892,7 +903,7 @@ public class PlantingRecordManager {
      * 
      * @param developingPlantingRecord
      */
-    private void updateIrrigationSheets(PlantingRecord developingPlantingRecord) {
+    private void updateIrrigationSheets(PlantingRecord developingPlantingRecord) throws IOException {
         Parcel givenParcel = developingPlantingRecord.getParcel();
         Option parcelOption = givenParcel.getOption();
 

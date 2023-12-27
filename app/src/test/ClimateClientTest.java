@@ -1,10 +1,7 @@
 import static org.junit.Assert.*;
 
-import climate.ClimateClient;
+import java.io.IOException;
 import java.util.Calendar;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import model.ClimateRecord;
 import model.Parcel;
 import org.junit.AfterClass;
@@ -12,17 +9,9 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import util.UtilDate;
+import climate.ClimateClient;
 
 public class ClimateClientTest {
-
-  private static EntityManager entityManager;
-  private static EntityManagerFactory entityManagerFactory;
-
-  @BeforeClass
-  public static void preTest() {
-    entityManagerFactory = Persistence.createEntityManagerFactory("swcar");
-    entityManager = entityManagerFactory.createEntityManager();
-  }
 
   @Test
   public void testOneClimateClient() {
@@ -46,7 +35,13 @@ public class ClimateClientTest {
     /*
      * Seccion de prueba
      */
-    ClimateRecord givenClimateRecord = ClimateClient.getForecast(newParcel, datetimeEpoch);
+    ClimateRecord givenClimateRecord = null;
+
+    try {
+      givenClimateRecord = ClimateClient.getForecast(newParcel, datetimeEpoch);
+    } catch (Exception e) {
+      System.out.println("Codigo de estado de respuesta HTTP: " + e.getMessage());
+    }
 
     System.out.println("* Registro climatico obtenido *");
     System.out.println(givenClimateRecord);
@@ -79,7 +74,13 @@ public class ClimateClientTest {
     /*
      * Seccion de prueba
      */
-    ClimateRecord givenClimateRecord = ClimateClient.getForecast(newParcel, datetimeEpoch);
+    ClimateRecord givenClimateRecord = null;
+
+    try {
+      givenClimateRecord = ClimateClient.getForecast(newParcel, datetimeEpoch);
+    } catch (Exception e) {
+      System.out.println("Codigo de estado de respuesta HTTP: " + e.getMessage());
+    }
 
     System.out.println("* Registro climatico obtenido *");
     System.out.println(givenClimateRecord);
@@ -115,7 +116,13 @@ public class ClimateClientTest {
      * (1 de enero de 1970) para obtener los datos meteorologicos
      * de una ubicacion geografica en una fecha dada.
      */
-    ClimateRecord givenClimateRecord = ClimateClient.getForecast(newParcel, (currentDate.getTimeInMillis() / 1000));
+    ClimateRecord givenClimateRecord = null;
+
+    try {
+      givenClimateRecord = ClimateClient.getForecast(newParcel, (currentDate.getTimeInMillis() / 1000));
+    } catch (Exception e) {
+      System.out.println("Codigo de estado de respuesta HTTP: " + e.getMessage());
+    }
 
     System.out.println("* Registro climatico obtenido *");
     System.out.println(givenClimateRecord);
@@ -124,13 +131,6 @@ public class ClimateClientTest {
 
     System.out.println("* Prueba pasada satisfactoriamente *");
     System.out.println();
-  }
-
-  @AfterClass
-  public static void postTest() {
-    // Cierra las conexiones
-    entityManager.close();
-    entityManagerFactory.close();
   }
 
 }

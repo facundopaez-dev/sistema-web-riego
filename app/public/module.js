@@ -425,6 +425,10 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 	const UNAUTHORIZED = 401;
 	const FORBIDDEN = 403;
 	const NOT_FOUND = 404;
+	const TOO_MANY_REQUESTS = 429;
+	const INTERNAL_SERVER_ERROR = 500;
+	const SERVICE_UNAVAILABLE = 503;
+
 	const USER_HOME_ROUTE = "/home";
 	const ADMIN_HOME_ROUTE = "/adminHome";
 	const USER_LOGIN_ROUTE = "/";
@@ -485,6 +489,44 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 			por la aplicacion del lado servidor
 			*/
 			alert(error.data.message);
+
+			/*
+			Al intentar calcular la necesidad de agua de riego de un cultivo la
+			aplicacion del lado servidor puede devolver uno de los siguientes
+			mensajes HTTP:
+			- 429 (Too many requests)
+			- 500 (Internal server error)
+			- 503 (Service unavailable)
+
+			El servicio meteorologico Visual Crossing Weather brinda 1000 peticiones
+			gratuitas por dia. Si se supera esta cantidad de peticiones, dicho
+			servicio devuelve el mensaje HTTP 429.
+
+			Si el servicio meteorologico Visual Crossing Weather NO esta funcionamiento,
+			devuelve el mensaje HTTP 500.
+
+			La aplicacion del lado servidor recibe estos mensajes HTTP de parte
+			de dicho servicio al intentar calcular la necesidad de agua de riego
+			de cultivo. Cuando lo hace los devuelve a la aplicacion del lado del
+			navegador web junto con un mensaje que describe el motivo por el cual
+			NO pudo calcular la necesidad de agua de riego de un cultivo.
+
+			En el caso en el que el servicio meteorologico Visual Crossing Weather
+			devuelve a la aplicacion del lado servidor un mensaje HTTP distinto a
+			429 y 503, la aplicacion del lado servidor devuelve el mensaje HTTP
+			500 a la aplicacion del lado del navegador web junto con un mensaje
+			que describe que hubo un problema al calcular la necesidad de agua de
+			riego de un cultivo, pero sin describir el motivo de dicho problema.
+
+			Cuando la aplicacion del lado del navegador web recibe uno de estos
+			mensajes HTTP de parte de la aplicacion del lado servidor, redirige
+			al usuario a la pagina web de registros de plantacion.
+			*/
+			if (accessManager.isUserLoggedIn() && !accessManager.loggedAsAdmin() && error.data.sourceUnsatisfiedResponse == WATER_NEED_CROP
+				&& (error.status == TOO_MANY_REQUESTS || error.status == INTERNAL_SERVER_ERROR || error.status == SERVICE_UNAVAILABLE)) {
+				$location.path(USER_PLANTING_RECORD_ROUTE);
+				return;
+			}
 
 			/*
 			Si el resultado de calcular la necesidad de agua de riego de un cultivo
