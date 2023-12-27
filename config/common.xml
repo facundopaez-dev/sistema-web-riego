@@ -2219,7 +2219,7 @@ Comandos para detener el server y la base de datos.
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
       userid="${DERBY_USER}"
       password="${DERBY_PWD}"
-      src="etc/sql/adminUserInserts.sql"
+      src="etc/sql/sampleUserInserts.sql"
       onerror="continue">
       <classpath>
         <pathelement path="${DERBY_CLASSPATH}" />

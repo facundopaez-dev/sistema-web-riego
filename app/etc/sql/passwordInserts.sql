@@ -16,6 +16,3 @@ INSERT INTO PASSWORD (VALUE, FK_USER) VALUES ('8e924025a26c584ad4ac6365116e09b85
 -- LEER: Este usuario es necesario para la prueba de la implementacion correspondiente a la tarea 85 de la pila del producto
 -- Nombre de usuario: jack, contraseña: jack
 INSERT INTO PASSWORD (VALUE, FK_USER) VALUES ('31611159e7e6ff7843ea4627745e89225fc866621cfcfdbd40871af4413747cc', 6);
-
--- Nombre de usuario: liam, contraseña: liam
-INSERT INTO PASSWORD (VALUE, FK_USER) VALUES ('f73137d930c31d188d901d57d78c13c88458d61600d1355d28c8841d590a6d69', 7);
