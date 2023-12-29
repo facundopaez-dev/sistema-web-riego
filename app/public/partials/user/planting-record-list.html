@@ -136,13 +136,13 @@
     <thead>
       <tr>
         <th>ID</th>
+        <th>Parcela</th>
         <th>Cultivo</th>
         <th>F. siembra</th>
         <th>F. cosecha</th>
-        <th>Parcela</th>
-        <th>Nec. agua riego [mm/día]</th>
         <th>Cap. almac. agua suelo [mm]</th>
         <th>Umbral riego [mm]</th>
+        <th>Nec. agua riego [mm/día]</th>
         <th>Estado cultivo</th>
         <th class="text-right"></th>
       </tr>
@@ -150,13 +150,13 @@
     <tbody>
       <tr ng-repeat="p in data">
         <td>{{p.id}}</td>
+        <td>{{p.parcel.name}}</td>
         <td>{{p.crop.name}}</td>
         <td>{{p.seedDate | date:'dd/MM/yyyy'}}</td>
         <td>{{p.harvestDate | date:'dd/MM/yyyy'}}</td>
-        <td>{{p.parcel.name}}</td>
-        <td>{{p.irrigationWaterNeed}}</td>
         <td>{{p.totalAmountWaterAvailable > 0 ? p.totalAmountWaterAvailable : '-' }}</td>
         <td>{{p.optimalIrrigationLayer < 0 ? p.optimalIrrigationLayer : '-' }}</td>
+        <td>{{p.irrigationWaterNeed}}</td>
         <td>{{p.status.name}}</td>
         <td class="text-right">
           <div class="btn-group" role="group" aria-label="...">
