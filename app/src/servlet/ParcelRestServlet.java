@@ -23,6 +23,7 @@ import javax.ws.rs.core.Response.Status;
 import model.Parcel;
 import model.PlantingRecord;
 import model.Soil;
+import model.User;
 import stateless.ParcelServiceBean;
 import stateless.SecretKeyServiceBean;
 import stateless.UserServiceBean;
@@ -734,8 +735,21 @@ public class ParcelRestServlet {
      * de una parcela esta formado por mas de una palabra
      */
     newParcel.setName(parcelService.setBlankSpacesInNameToOne(newParcel.getName()));
-    newParcel.setUser(userService.find(userId));
     newParcel.setOption(optionService.create());
+
+    /*
+     * Persistencia de una parcela
+     */
+    newParcel = parcelService.create(newParcel);
+
+    /*
+     * Persiste la relacion expresada mediante la
+     * añadidura de una nueva parcela a la coleccion
+     * de parcelas de un usuario
+     */
+    User user = userService.find(userId);
+    user.getParcels().add(newParcel);
+    userService.merge(user);
 
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
@@ -743,7 +757,7 @@ public class ParcelRestServlet {
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos que el
      * cliente solicito persistir
      */
-    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(parcelService.create(newParcel))).build();
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(newParcel)).build();
   }
 
   @DELETE

@@ -1,6 +1,6 @@
 @startuml
 
-Parcela "*"-->"1" Usuario
+Usuario "1"-->"*" Parcela
 InformeEstadistico "*"-->"1" Parcela
 RegistroClimatico "*"-->"1" Parcela
 RegistroClimatico "1"<-->"*" TipoPrecipitacion

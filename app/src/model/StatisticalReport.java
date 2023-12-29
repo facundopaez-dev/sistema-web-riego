@@ -139,11 +139,10 @@ public class StatisticalReport {
             + "Cultivo con el menor ciclo de vida plantado: %s\nCantidad de dias en los que la parcela no tuvo ningun cultivo plantado: %s\n"
             + "Cantidad total de agua de lluvia que cayo sobre la parcela en el periodo ["
             + UtilDate.formatDate(dateFrom) + ", " + UtilDate.formatDate(dateUntil)
-            + "]: %s\nID de la parcela: %d\nNombre de la parcela: %s\n"
-            + "ID del usuario al que pertenece la parcela: %d\n",
+            + "]: %s\nID de la parcela: %d\nNombre de la parcela: %s\n",
         id, UtilDate.formatDate(dateFrom), UtilDate.formatDate(dateUntil), mostPlantedCrop, lessPlantedCrop,
         cropLongestLifeCyclePlanted, cropShortestLifeCyclePlanted, daysWithoutCrops, totalAmountRainwater,
-        parcel.getId(), parcel.getName(), parcel.getUser().getId());
+        parcel.getId(), parcel.getName());
   }
 
 }

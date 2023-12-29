@@ -362,7 +362,7 @@ public class ClimateRecordRestServlet {
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
      * por el cliente
      */
-    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(climateRecordService.find(userId, climateRecordId))).build();
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(climateRecordService.findByUserId(userId, climateRecordId))).build();
   }
 
   @POST

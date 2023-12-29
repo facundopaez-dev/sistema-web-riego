@@ -141,7 +141,7 @@ public class IrrigationRecordServiceBean {
    * del ID dado, en caso contrario null
    */
   public IrrigationRecord findByUserId(int userId, int irrigationRecordId) {
-    Query query = getEntityManager().createQuery("SELECT i FROM IrrigationRecord i WHERE (i.id = :irrigationRecordId AND i.parcel.user.id = :userId)");
+    Query query = getEntityManager().createQuery("SELECT i FROM IrrigationRecord i JOIN i.parcel p WHERE (i.id = :irrigationRecordId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId))");
     query.setParameter("irrigationRecordId", irrigationRecordId);
     query.setParameter("userId", userId);
 
@@ -166,7 +166,7 @@ public class IrrigationRecordServiceBean {
    * parcelas del usuario con el ID dado
    */
   public Collection<IrrigationRecord> findAll(int userId) {
-    Query query = entityManager.createQuery("SELECT i FROM IrrigationRecord i WHERE (i.parcel.user.id = :userId) ORDER BY i.id");
+    Query query = entityManager.createQuery("SELECT i FROM IrrigationRecord i JOIN i.parcel p WHERE p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId) ORDER BY i.id");
     query.setParameter("userId", userId);
 
     return (Collection) query.getResultList();
@@ -178,22 +178,22 @@ public class IrrigationRecordServiceBean {
    * una parcela
    * 
    * @param userId
-   * @param givenParcelName
+   * @param parcelName
    * @return referencia a un objeto de tipo Collection que
    * contiene los registros de riego de la parcela que tiene
    * el nombre dado y que pertenece al usuario con el ID dado
    */
-  public Collection<IrrigationRecord> findAllByParcelName(int userId, String givenParcelName) {
-    Query query = getEntityManager().createQuery("SELECT i FROM IrrigationRecord i WHERE (i.parcel.name = :givenParcelName AND i.parcel.user.id = :userId) ORDER BY i.id");
+  public Collection<IrrigationRecord> findAllByParcelName(int userId, String parcelName) {
+    Query query = getEntityManager().createQuery("SELECT i FROM IrrigationRecord i JOIN i.parcel p WHERE (p.name = :parcelName AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY i.id");
     query.setParameter("userId", userId);
-    query.setParameter("givenParcelName", givenParcelName);
+    query.setParameter("parcelName", parcelName);
 
     return (Collection) query.getResultList();
   }
 
   /**
-   * @param givenUserId
-   * @param givenParcelId
+   * @param userId
+   * @param parcelId
    * @param givenMinorDate
    * @param givenMajorDate
    * @return referencia a un objeto de tipo IrrigationRecord que
@@ -202,14 +202,14 @@ public class IrrigationRecordServiceBean {
    * registro en la base de datos subyacente. En caso contrario,
    * null.
    */
-  public IrrigationRecord findLastBetweenDates(int givenUserId, int givenParcelId, Calendar givenMinorDate, Calendar givenMajorDate) {
+  public IrrigationRecord findLastBetweenDates(int userId, int parcelId, Calendar givenMinorDate, Calendar givenMajorDate) {
     /*
      * Selecciona el ID mas grande del conjunto de registros de
      * riego pertenecientes a una parcela de un usuario dado
      * que estan entre dos fechas dadas
      */
-    String subQuery = "(SELECT MAX(i.id) FROM IrrigationRecord i WHERE (i.parcel.user.id = :userId AND i.parcel.id = :parcelId AND "
-        + "i.date >= :minorDate AND i.date <= :majorDate))";
+    String subQuery = "(SELECT MAX(i.id) FROM IrrigationRecord i JOIN i.parcel p WHERE (p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId) "
+        + "AND i.date >= :minorDate AND i.date <= :majorDate))";
 
     /*
      * Selecciona el ultimo registro de riego de una parcela de
@@ -217,8 +217,8 @@ public class IrrigationRecordServiceBean {
      * dadas
      */
     Query query = entityManager.createQuery("SELECT i FROM IrrigationRecord i WHERE i.id = " + subQuery);
-    query.setParameter("userId", givenUserId);
-    query.setParameter("parcelId", givenParcelId);
+    query.setParameter("userId", userId);
+    query.setParameter("parcelId", parcelId);
     query.setParameter("minorDate", givenMinorDate);
     query.setParameter("majorDate", givenMajorDate);
 
@@ -249,7 +249,7 @@ public class IrrigationRecordServiceBean {
    * vacio (0 elementos).
    */
   public Collection<IrrigationRecord> findAllByParcelIdAndPeriod(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
-    Query query = getEntityManager().createQuery("SELECT i FROM IrrigationRecord i JOIN i.parcel p WHERE (p.id = :parcelId AND p.user.id = :userId AND :dateFrom <= i.date AND i.date <= :dateUntil) ORDER BY i.date");
+    Query query = getEntityManager().createQuery("SELECT i FROM IrrigationRecord i JOIN i.parcel p WHERE (p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId) AND :dateFrom <= i.date AND i.date <= :dateUntil) ORDER BY i.date");
     query.setParameter("userId", userId);
     query.setParameter("parcelId", parcelId);
     query.setParameter("dateFrom", dateFrom);

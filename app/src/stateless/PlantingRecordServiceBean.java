@@ -187,7 +187,8 @@ public class PlantingRecordServiceBean {
    * del ID dado, en caso contrario null
    */
   public PlantingRecord findByUserId(int userId, int plantingRecordId) {
-    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (r.id = :plantingRecordId AND p.user.id = :userId)");
+    Query query = getEntityManager().createQuery(
+        "SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (r.id = :plantingRecordId AND p IN (SELECT p FROM User u JOIN u.parcels p WHERE u.id = :userId))");
     query.setParameter("plantingRecordId", plantingRecordId);
     query.setParameter("userId", userId);
 
@@ -212,7 +213,7 @@ public class PlantingRecordServiceBean {
    * del usuario con el ID dado
    */
   public Collection<PlantingRecord> findAll(int userId) {
-    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (p.user.id = :userId) ORDER BY r.id");
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId) ORDER BY r.id");
     query.setParameter("userId", userId);
 
     return (Collection) query.getResultList();
@@ -265,16 +266,16 @@ public class PlantingRecordServiceBean {
    * una parcela
    * 
    * @param userId
-   * @param givenParcelName
+   * @param parcelName
    * @return referencia a un objeto de tipo Collection que
    * contiene los registros de plantacion de la parcela que
    * tiene el nombre dado y que pertenece al usuario con el
    * ID dado
    */
-  public Collection<PlantingRecord> findAllByParcelName(int userId, String givenParcelName) {
-    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r WHERE (r.parcel.name = :givenParcelName AND r.parcel.user.id = :userId) ORDER BY r.seedDate");
+  public Collection<PlantingRecord> findAllByParcelName(int userId, String parcelName) {
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r WHERE (r.parcel.name = :parcelName AND r.parcel p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY r.seedDate");
     query.setParameter("userId", userId);
-    query.setParameter("givenParcelName", givenParcelName);
+    query.setParameter("parcelName", parcelName);
 
     return (Collection) query.getResultList();
   }
@@ -362,9 +363,9 @@ public class PlantingRecordServiceBean {
    * parcela de un usuario
    */
   public Collection<PlantingRecord> findAllByParcelId(int userId, int parcelId) {
-    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (p.id = :givenParcelId AND p.user.id = :givenUserId AND r.status.name = 'Finalizado') ORDER BY r.id");
-    query.setParameter("givenUserId", userId);
-    query.setParameter("givenParcelId", parcelId);
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY r.id");
+    query.setParameter("userId", userId);
+    query.setParameter("parcelId", parcelId);
 
     return (Collection) query.getResultList();
   }
@@ -500,7 +501,7 @@ public class PlantingRecordServiceBean {
         + "(r.seedDate >= :givenDateFrom AND r.harvestDate <= :givenDateUntil) OR "
         + "(:givenDateUntil < r.harvestDate AND :givenDateFrom <= r.seedDate AND r.seedDate <= :givenDateUntil)";
 
-    String conditionWhere = "(p.id = :givenParcelId AND p.user.id = :givenUserId AND r.status.name = 'Finalizado' AND (" + dateCondition + "))";
+    String conditionWhere = "(p.id = :givenParcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :givenUserId) AND r.status.name = 'Finalizado' AND (" + dateCondition + "))";
 
     /*
      * Selecciona los registros de plantacion finalizados
@@ -546,7 +547,7 @@ public class PlantingRecordServiceBean {
    * dada de un usuario dado, en el que una fecha dada este en el
    * periodo definido por su fecha de siembra y su fecha de cosecha
    * 
-   * @param givenUserId
+   * @param userId
    * @param givenParcel
    * @param givenDate
    * @return referencia a un objeto de tipo PlantingRecord si
@@ -555,15 +556,15 @@ public class PlantingRecordServiceBean {
    * este en el periodo definido por su fecha de siembra y su
    * fecha de cosecha
    */
-  public PlantingRecord findByDate(int givenUserId, Parcel givenParcel, Calendar givenDate) {
+  public PlantingRecord findByDate(int userId, Parcel parcel, Calendar givenDate) {
     /*
      * Selecciona el registro de plantacion de una parcela correspondiente
      * a un usuario, en el que una fecha dada este en el periodo definido
      * por su fecha de siembra y su fecha de cosecha
      */
-    Query query = getEntityManager().createQuery("SELECT p FROM PlantingRecord p WHERE (p.parcel.user.id = :userId AND p.parcel = :parcel AND :date >= p.seedDate AND :date <= p.harvestDate)");
-    query.setParameter("userId", givenUserId);
-    query.setParameter("parcel", givenParcel);
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (p = :parcel AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId) AND :date >= r.seedDate AND :date <= r.harvestDate)");
+    query.setParameter("userId", userId);
+    query.setParameter("parcel", parcel);
     query.setParameter("date", givenDate);
 
     PlantingRecord plantingRecord = null;
@@ -578,7 +579,7 @@ public class PlantingRecordServiceBean {
   }
 
   /**
-   * @param givenUserId
+   * @param userId
    * @param givenParcel
    * @param givenDate
    * @return true si existe un registro de plantacion de una parcela
@@ -586,8 +587,8 @@ public class PlantingRecordServiceBean {
    * dada este en el periodo definido por su fecha de siembra y su
    * fecha de cosecha. En caso contrario, false.
    */
-  public boolean checkByDate(int givenUserId, Parcel givenParcel, Calendar givenDate) {
-    return (findByDate(givenUserId, givenParcel, givenDate) != null);
+  public boolean checkByDate(int userId, Parcel givenParcel, Calendar givenDate) {
+    return (findByDate(userId, givenParcel, givenDate) != null);
   }
 
   /**

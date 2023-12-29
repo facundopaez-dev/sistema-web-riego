@@ -1,6 +1,7 @@
 package model;
 
 import java.util.Calendar;
+import java.util.Collection;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,6 +9,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.JoinTable;
 
 @Entity
 @Table(name = "IRRIGATION_SYSTEM_USER")
@@ -35,6 +38,10 @@ public class User {
 
   @Column(name = "SUPERUSER", nullable = false)
   private boolean superuser;
+
+  @OneToMany
+  @JoinTable(name = "ISUSER_PARCEL", joinColumns = @JoinColumn(name = "FK_IRRIGATION_SYSTEM_USER"), inverseJoinColumns = @JoinColumn(name = "FK_PARCEL"))
+  private Collection<Parcel> parcels;
 
   public User() {
 
@@ -94,6 +101,14 @@ public class User {
 
   public void setSuperuser(boolean superuser) {
     this.superuser = superuser;
+  }
+
+  public Collection<Parcel> getParcels() {
+    return parcels;
+  }
+
+  public void setParcels(Collection<Parcel> parcels) {
+    this.parcels = parcels;
   }
 
   @Override

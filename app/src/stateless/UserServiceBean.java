@@ -73,6 +73,57 @@ public class UserServiceBean {
     return null;
   }
 
+  /**
+   * Segun la documentacion web de la clase EntityManager, el metodo
+   * merge() de esta clase fusiona el estado de una entidad en el
+   * contexto de persistencia actual.
+   * 
+   * Los siguientes dos parrafos pertenecen a la pagina 161 del
+   * libro "Pro JPA 2 Mastering the JavaTM Persistente API".
+   * 
+   * Devolver una instancia administrada distinta de la entidad
+   * original es una parte fundamental del proceso de fusion.
+   * Si ya existe una instancia de entidad con el mismo identificador
+   * en el contexto de persistencia, el proveedor sobrescribira
+   * su estado con el estado de la entidad que se esta fusionando,
+   * pero la version administrada que ya existia debe devolverse
+   * al cliente para que pueda ser usada. Si el proveedor no
+   * actualiza una instancia en el contexto de persistencia,
+   * cualquier referencia a esa instancia sera inconsistente
+   * con el nuevo estado en el que se fusionara.
+   * 
+   * Cuando se invoca merge() en una nueva entidad, se comporta
+   * de manera similar a la operacion persist(). Agrega la entidad
+   * al contexto de persistencia, pero en lugar de agregar la
+   * instancia de la entidad original, crea una nueva copia y
+   * administra esa instancia. La copia creada por la operacion
+   * merge() persiste como si se invocara el metodo persist()
+   * en ella.
+   * 
+   * ************************************************************
+   * 
+   * Debido a la funcion que cumple el metodo merge() de la clase
+   * EntityManager:
+   * - la tabla de union que existe entre las entidades User y
+   * Parcel en la base de datos subyacente, es escrita en funcion
+   * de una instancia de tipo User y su coleccion de parcelas
+   * llamada parcels.
+   * - la tabla que existe para la entidad Parcel en la base de
+   * datos subyacente, es actualizada con los cambios realizados
+   * en los elementos de la coleccion parcels de una instancia
+   * de tipo User.
+   * 
+   * @param user
+   * @return referencia a un objeto de tipo User que contiene
+   * los cambios realizados en el durante la ejecucion de la
+   * aplicacion, si se invoca este metodo con una entidad de
+   * tipo User administrada. En cambio, si se lo invoca con
+   * una nueva entidad de tipo User, la persiste.
+   */
+  public User merge(User user) {
+    return entityManager.merge(user);
+  }
+
   public User find(int id) {
     return getEntityManager().find(User.class, id);
   }
@@ -216,6 +267,28 @@ public class UserServiceBean {
     Query query = getEntityManager().createQuery("SELECT u FROM User u WHERE (u.id != :userId AND UPPER(u.email) = UPPER(:email))");
     query.setParameter("userId", userId);
     query.setParameter("email", email);
+
+    User user = null;
+
+    try {
+      user = (User) query.getSingleResult();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return user;
+  }
+
+  /**
+   * @param parcelId
+   * @return referencia a un objeto de tipo User si en la
+   * base de datos subyacente existe un usuario que tiene
+   * una parcela que tiene el ID dado, en caso contrario
+   * null
+   */
+  public User findByParcelId(int parcelId) {
+    Query query = getEntityManager().createQuery("SELECT u FROM User u JOIN u.parcels t WHERE t.id = :parcelId");
+    query.setParameter("parcelId", parcelId);
 
     User user = null;
 

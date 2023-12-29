@@ -12,6 +12,7 @@ import stateless.CropServiceBean;
 import stateless.IrrigationRecordServiceBean;
 import stateless.ClimateRecordServiceBean;
 import stateless.SolarRadiationServiceBean;
+import stateless.UserServiceBean;
 import stateless.ParcelServiceBean;
 import stateless.MonthServiceBean;
 import stateless.OptionServiceBean;
@@ -47,6 +48,7 @@ public class PlantingRecordManager {
     @EJB OptionServiceBean optionService;
     @EJB SoilWaterBalanceServiceBean soilWaterBalanceService;
     @EJB ParcelServiceBean parcelService;
+    @EJB UserServiceBean userService;
 
     /*
      * El valor de esta constante se asigna a la necesidad de
@@ -222,7 +224,7 @@ public class PlantingRecordManager {
          */
         for (PlantingRecord developingPlantingRecord : developingPlantingRecords) {
             givenParcel = developingPlantingRecord.getParcel();
-            givenUser = developingPlantingRecord.getParcel().getUser();
+            givenUser = userService.findByParcelId(givenParcel.getId());
 
             try {
                 /*

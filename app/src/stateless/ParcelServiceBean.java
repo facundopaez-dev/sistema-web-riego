@@ -172,9 +172,9 @@ public class ParcelServiceBean {
    * tipo Collection vacio.
    */
   public Collection<Parcel> search(int userId, String parcelName) {
-    Query query = getEntityManager().createQuery("SELECT p FROM Parcel p WHERE (p.user.id = :givenUserId AND UPPER(p.name) LIKE :givenParcelName) ORDER BY p.name");
-    query.setParameter("givenUserId", userId);
-    query.setParameter("givenParcelName", "%" + parcelName.toUpperCase() + "%");
+    Query query = getEntityManager().createQuery("SELECT p FROM User u JOIN u.parcels p WHERE (u.id = :userId AND UPPER(p.name) LIKE :parcelName) ORDER BY p.name");
+    query.setParameter("userId", userId);
+    query.setParameter("parcelName", "%" + parcelName.toUpperCase() + "%");
 
     Collection<Parcel> givenParcel = null;
 
@@ -203,9 +203,9 @@ public class ParcelServiceBean {
    * usuario del ID dado. En caso contrario, null.
    */
   public Parcel find(int userId, int parcelId) {
-    Query query = entityManager.createQuery("SELECT p FROM Parcel p WHERE (p.id = :parcelId AND p.user.id = :userId)");
-    query.setParameter("parcelId", parcelId);
+    Query query = entityManager.createQuery("SELECT p FROM User u JOIN u.parcels p WHERE (u.id = :userId AND p.id = :parcelId)");
     query.setParameter("userId", userId);
+    query.setParameter("parcelId", parcelId);
 
     Parcel givenParcel = null;
 
@@ -231,9 +231,9 @@ public class ParcelServiceBean {
    * al usuario con el ID dado, en caso contrario null
    */
   public Parcel find(int userId, String parcelName) {
-    Query query = entityManager.createQuery("SELECT p FROM Parcel p WHERE (UPPER(p.name) = UPPER(:givenParcelName) AND p.user.id = :userId)");
-    query.setParameter("givenParcelName", parcelName);
+    Query query = entityManager.createQuery("SELECT p FROM User u JOIN u.parcels p WHERE (u.id = :userId AND UPPER(p.name) = UPPER(:parcelName))");
     query.setParameter("userId", userId);
+    query.setParameter("parcelName", parcelName);
 
     Parcel givenParcel = null;
 
@@ -261,10 +261,10 @@ public class ParcelServiceBean {
    * del ID dado, en caso contrario null
    */
   public Parcel find(int userId, int parcelId, String parcelName) {
-    Query query = entityManager.createQuery("SELECT p FROM Parcel p WHERE (p.id != :givenParcelId AND UPPER(p.name) = UPPER(:givenParcelName) AND p.user.id = :userId)");
-    query.setParameter("givenParcelId", parcelId);
-    query.setParameter("givenParcelName", parcelName);
+    Query query = entityManager.createQuery("SELECT p FROM User u JOIN u.parcels p WHERE (u.id = :userId AND p.id != :parcelId AND UPPER(p.name) = UPPER(:parcelName))");
     query.setParameter("userId", userId);
+    query.setParameter("parcelId", parcelId);
+    query.setParameter("parcelName", parcelName);
 
     Parcel givenParcel = null;
 
@@ -291,10 +291,10 @@ public class ParcelServiceBean {
    * que tienen un nombre que coincide con el nombre de parcela dado
    */
   public Collection<Parcel> findByName(int userId, String parcelName) {
-    StringBuffer queryStr = new StringBuffer("SELECT p FROM Parcel p");
+    StringBuffer queryStr = new StringBuffer("SELECT p FROM User u JOIN u.parcels p");
 
     if (parcelName != null) {
-      queryStr.append(" WHERE (p.user.id = :userId AND UPPER(p.name) LIKE :name)");
+      queryStr.append(" WHERE (u.id = :userId AND UPPER(p.name) LIKE :name)");
     }
 
     Query query = entityManager.createQuery(queryStr.toString());
@@ -315,7 +315,7 @@ public class ParcelServiceBean {
    * a la opcion que tiene el ID dado. En caso contrario, null.
    */
   public Parcel findByOptionId(int optionId) {
-    Query query = entityManager.createQuery("SELECT p FROM Parcel p WHERE p.option.id = :optionId");
+    Query query = entityManager.createQuery("SELECT p FROM User u JOIN u.parcels p WHERE p.option.id = :optionId");
     query.setParameter("optionId", optionId);
 
     Parcel givenParcel = null;
@@ -352,10 +352,10 @@ public class ParcelServiceBean {
    * un nombre que coincide con el nombre de parcela dado
    */
   public Collection<Parcel> findActiveParcelByName(int userId, String parcelName) {
-    StringBuffer queryStr = new StringBuffer("SELECT p FROM Parcel p");
+    StringBuffer queryStr = new StringBuffer("SELECT p FROM User u JOIN u.parcels p");
 
     if (parcelName != null) {
-      queryStr.append(" WHERE (p.user.id = :userId AND UPPER(p.name) LIKE :name AND p.active = TRUE)");
+      queryStr.append(" WHERE (u.id = :userId AND UPPER(p.name) LIKE :name AND p.active = TRUE)");
     }
 
     Query query = entityManager.createQuery(queryStr.toString());
@@ -393,7 +393,7 @@ public class ParcelServiceBean {
    * datos subyacente
    */
   public Collection<Parcel> findAll() {
-    Query query = entityManager.createQuery("SELECT p FROM Parcel p ORDER BY p.id");
+    Query query = entityManager.createQuery("SELECT p FROM User u JOIN u.parcels p ORDER BY p.id");
     return (Collection) query.getResultList();
   }
 
@@ -405,7 +405,7 @@ public class ParcelServiceBean {
    * contiene todas las parcelas del usuario con el ID dado
    */
   public Collection<Parcel> findAll(int userId) {
-    Query query = entityManager.createQuery("SELECT p FROM Parcel p WHERE p.user.id = :userId ORDER BY p.id");
+    Query query = entityManager.createQuery("SELECT p FROM User u JOIN u.parcels p WHERE (u.id = :userId) ORDER BY p.id");
     query.setParameter("userId", userId);
 
     return (Collection) query.getResultList();

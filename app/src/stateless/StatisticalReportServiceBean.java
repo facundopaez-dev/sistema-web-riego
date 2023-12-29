@@ -69,7 +69,7 @@ public class StatisticalReportServiceBean {
    * En caso contrario, null.
    */
   public StatisticalReport find(int userId, int statisticalReportId) {
-    Query query = getEntityManager().createQuery("SELECT s FROM StatisticalReport s JOIN s.parcel p WHERE (s.id = :statisticalReportId AND p.user.id = :userId)");
+    Query query = getEntityManager().createQuery("SELECT s FROM StatisticalReport s JOIN s.parcel p WHERE (s.id = :statisticalReportId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId))");
     query.setParameter("statisticalReportId", statisticalReportId);
     query.setParameter("userId", userId);
 
@@ -94,7 +94,7 @@ public class StatisticalReportServiceBean {
    * pertenecientes al usuario con el ID dado
    */
   public Collection<StatisticalReport> findAll(int userId) {
-    Query query = getEntityManager().createQuery("SELECT s FROM StatisticalReport s JOIN s.parcel p WHERE (p.user.id = :userId) ORDER BY s.id");
+    Query query = getEntityManager().createQuery("SELECT s FROM StatisticalReport s JOIN s.parcel p WHERE p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId) ORDER BY s.id");
     query.setParameter("userId", userId);
 
     return (Collection) query.getResultList();
@@ -106,15 +106,15 @@ public class StatisticalReportServiceBean {
    * una parcela
    * 
    * @param userId
-   * @param givenParcelName
+   * @param parcelName
    * @return referencia a un objeto de tipo Collection que
    * contiene los informes estadisticos de la parcela que tiene
    * el nombre dado y que pertenece al usuario con el ID dado
    */
-  public Collection<StatisticalReport> findAllByParcelName(int userId, String givenParcelName) {
-    Query query = getEntityManager().createQuery("SELECT s FROM StatisticalReport s WHERE (s.parcel.name = :givenParcelName AND s.parcel.user.id = :userId) ORDER BY s.id");
+  public Collection<StatisticalReport> findAllByParcelName(int userId, String parcelName) {
+    Query query = getEntityManager().createQuery("SELECT s FROM StatisticalReport s JOIN s.parcel p WHERE (p.name = :parcelName AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY s.id");
     query.setParameter("userId", userId);
-    query.setParameter("givenParcelName", givenParcelName);
+    query.setParameter("parcelName", parcelName);
 
     return (Collection) query.getResultList();
   }

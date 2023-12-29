@@ -99,38 +99,10 @@ public class ClimateRecordServiceBean {
    * el ID dado asociado a una parcela del usuario del ID
    * dado. En caso contrario, null.
    */
-  public ClimateRecord find(int userId, int climateRecordId) {
-    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (c.id = :climateRecordId AND p.user.id = :userId)");
-    query.setParameter("climateRecordId", climateRecordId);
-    query.setParameter("userId", userId);
-
-    ClimateRecord givenClimateRecord = null;
-
-    try {
-      givenClimateRecord = (ClimateRecord) query.getSingleResult();
-    } catch (NoResultException e) {
-      e.printStackTrace();
-    }
-
-    return givenClimateRecord;
-  }
-
-  /**
-   * Retorna un registro climatico perteneciente a una de las
-   * parcelas de un usuario
-   * 
-   * @param userId
-   * @param climateRecordId
-   * @return referencia a un objeto de tipo ClimateRecord que
-   * representa el registro climatico de una parcela de un
-   * usuario en caso de encontrarse en la base de datos subyacente
-   * el registro climatico con el ID dado y asociado al usuario
-   * del ID dado, en caso contrario null
-   */
   public ClimateRecord findByUserId(int userId, int climateRecordId) {
-    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (c.id = :climateRecordId AND p.user.id = :userId)");
-    query.setParameter("climateRecordId", climateRecordId);
+    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (c.id = :climateRecordId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId))");
     query.setParameter("userId", userId);
+    query.setParameter("climateRecordId", climateRecordId);
 
     ClimateRecord climateRecord = null;
 
@@ -153,7 +125,7 @@ public class ClimateRecordServiceBean {
    * pertenecientes al usuario con el ID dado
    */
   public Collection<ClimateRecord> findAll(int userId) {
-    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (p.user.id = :userId) ORDER BY c.id");
+    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId) ORDER BY c.id");
     query.setParameter("userId", userId);
 
     return (Collection) query.getResultList();
@@ -165,15 +137,15 @@ public class ClimateRecordServiceBean {
    * una parcela
    * 
    * @param userId
-   * @param givenParcelName
+   * @param parcelName
    * @return referencia a un objeto de tipo Collection que
    * contiene los registros climaticos de la parcela que tiene
    * el nombre dado y que pertenece al usuario con el ID dado
    */
-  public Collection<ClimateRecord> findAllByParcelName(int userId, String givenParcelName) {
-    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c WHERE (c.parcel.name = :givenParcelName AND c.parcel.user.id = :userId) ORDER BY c.date");
+  public Collection<ClimateRecord> findAllByParcelName(int userId, String parcelName) {
+    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (p.name = :parcelName AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY c.date");
     query.setParameter("userId", userId);
-    query.setParameter("givenParcelName", givenParcelName);
+    query.setParameter("parcelName", parcelName);
 
     return (Collection) query.getResultList();
   }
@@ -206,9 +178,9 @@ public class ClimateRecordServiceBean {
    * vacio (0 elementos).
    */
   public Collection<ClimateRecord> findAllByParcelId(int userId, int parcelId) {
-    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (p.id = :givenParcelId AND p.user.id = :givenUserId) ORDER BY c.id");
-    query.setParameter("givenUserId", userId);
-    query.setParameter("givenParcelId", parcelId);
+    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY c.id");
+    query.setParameter("userId", userId);
+    query.setParameter("parcelId", parcelId);
 
     return (Collection) query.getResultList();
   }
@@ -228,9 +200,9 @@ public class ClimateRecordServiceBean {
    * referencia a un objeto de tipo Collection vacio (0 elementos).
    */
   public Collection<ClimateRecord> findAllByParcelIdAndPeriod(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
-    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (p.id = :givenParcelId AND p.user.id = :givenUserId AND :givenDateFrom <= c.date AND c.date <= :givenDateUntil) ORDER BY c.date");
-    query.setParameter("givenUserId", userId);
-    query.setParameter("givenParcelId", parcelId);
+    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId) AND :givenDateFrom <= c.date AND c.date <= :givenDateUntil) ORDER BY c.date");
+    query.setParameter("userId", userId);
+    query.setParameter("parcelId", parcelId);
     query.setParameter("givenDateFrom", dateFrom);
     query.setParameter("givenDateUntil", dateUntil);
 
@@ -265,7 +237,7 @@ public class ClimateRecordServiceBean {
    * contrario
    */
   public ClimateRecord modify(int userId, int climateRecordId, ClimateRecord modifiedClimateRecord) {
-    ClimateRecord chosenClimateRecord = find(userId, climateRecordId);
+    ClimateRecord chosenClimateRecord = findByUserId(userId, climateRecordId);
 
     if (chosenClimateRecord != null) {
       chosenClimateRecord.setDate(modifiedClimateRecord.getDate());
@@ -330,7 +302,7 @@ public class ClimateRecordServiceBean {
    * ID y el ID de usuario provistos, false en caso contrario
    */
   public boolean checkUserOwnership(int userId, int climateRecordId) {
-    return (find(userId, climateRecordId) != null);
+    return (findByUserId(userId, climateRecordId) != null);
   }
 
   /**

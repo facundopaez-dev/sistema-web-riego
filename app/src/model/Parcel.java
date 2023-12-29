@@ -38,10 +38,6 @@ public class Parcel {
   @Column(name = "ACTIVE", nullable = false)
   private boolean active;
 
-  @ManyToOne
-  @JoinColumn(name = "FK_USER", nullable = false)
-  private User user;
-
   @OneToOne
   @JoinColumn(name = "FK_OPTION", nullable = false, unique = true)
   private Option option;
@@ -157,24 +153,6 @@ public class Parcel {
     this.active = active;
   }
 
-  /**
-   * Returns value of user
-   * 
-   * @return
-   */
-  public User getUser() {
-    return user;
-  }
-
-  /**
-   * Sets new value of user
-   * 
-   * @param
-   */
-  public void setUser(User user) {
-    this.user = user;
-  }
-
   public Option getOption() {
     return option;
   }
@@ -208,8 +186,7 @@ public class Parcel {
         hectares,
         latitude,
         longitude,
-        active,
-        user.getId());
+        active);
   }
 
 }
