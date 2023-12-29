@@ -273,7 +273,7 @@ public class PlantingRecordServiceBean {
    * ID dado
    */
   public Collection<PlantingRecord> findAllByParcelName(int userId, String parcelName) {
-    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r WHERE (r.parcel.name = :parcelName AND r.parcel p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY r.seedDate");
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (p.name = :parcelName AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY r.seedDate");
     query.setParameter("userId", userId);
     query.setParameter("parcelName", parcelName);
 
