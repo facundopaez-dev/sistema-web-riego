@@ -152,11 +152,10 @@
 				</div>
 			</div>
 
-			<div class="form-group">
+			<div class="form-group" ng-hide="action == 'new'">
 				<label for="parcel_active" class="col-md-2 control-label">Activa</label>
 				<div class="col-md-3">
-					<input type="checkbox" value="False" id="parcel_active" ng-model="data.active"
-						ng-disabled="action == 'view'">
+					<input type="checkbox" id="parcel_active" ng-model="data.active" ng-disabled="action == 'view'">
 				</div>
 			</div>
 

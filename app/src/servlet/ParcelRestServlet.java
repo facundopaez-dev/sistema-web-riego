@@ -735,6 +735,12 @@ public class ParcelRestServlet {
      * de una parcela esta formado por mas de una palabra
      */
     newParcel.setName(parcelService.setBlankSpacesInNameToOne(newParcel.getName()));
+
+    /*
+     * Una parcela nueva esta inicialmente activa
+     */
+    newParcel.setActive(true);
+
     newParcel.setOption(optionService.create());
 
     /*
