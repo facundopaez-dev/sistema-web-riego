@@ -181,7 +181,7 @@ public class ClimateRecordManager {
    * @return double que representa la ETo (evapotranspiracion del
    * cultivo de referencia) calculada en una fecha con los datos
    * meteorologicos de un registro climatico perteneciente a una
-   * parcela de una fecha dada
+   * parcela y una fecha dada
    */
   private double calculateEtoForClimateRecord(ClimateRecord givenClimateRecord) {
     Parcel givenParcel = givenClimateRecord.getParcel();
