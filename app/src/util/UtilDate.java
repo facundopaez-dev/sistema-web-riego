@@ -291,7 +291,7 @@ public class UtilDate {
    * @param offset
    * @return referencia a un objeto de tipo Calendar que contiene
    * una fecha pasada calculada a partir de la resta entre un
-   * numero enteror mayor a cero (desplazamiento) y la fecha actual
+   * numero entero mayor a cero (desplazamiento) y la fecha actual
    */
   public static Calendar getPastDateFromOffset(int offset) {
     Calendar pastDate = getCurrentDate();
