@@ -401,7 +401,6 @@ public class WaterMath {
    * Formula de la lamina de riego optima (drop):
    * ((Wc - Wm) / 100) * pea * D * p
    * 
-   * @param etcGivenDate
    * @param crop
    * @param soil
    * @return double que representa la cantidad maxima de agua que
@@ -410,8 +409,8 @@ public class WaterMath {
    * que tiene un cultivo sembrado, medida en [mm]. Esto es la lamina
    * de riego optima (drop).
    */
-  public static double calculateOptimalIrrigationLayer(double etcGivenDate, Crop crop, Soil soil) {
-    return calculateTotalAmountWaterAvailable(crop, soil) * adjustDepletionFactorToEtc(etcGivenDate, crop.getDepletionFactor());
+  public static double calculateOptimalIrrigationLayer(Crop crop, Soil soil) {
+    return calculateTotalAmountWaterAvailable(crop, soil) * crop.getDepletionFactor();
   }
 
   /**
@@ -422,20 +421,6 @@ public class WaterMath {
    */
   private static double calculateAverageRootDepth(Crop crop) {
     return (crop.getUpperLimitMaximumRootDepth() + crop.getLowerLimitMaximumRootDepth()) / 2;
-  }
-
-  /**
-   * Esta formula fue tomada de la pagina 163 del libro
-   * "Evapotranspiracion del cultivo, estudio FAO riego y
-   * drenaje".
-   * 
-   * @param etcGivenDate
-   * @param cropDepletionFactor
-   * @return double que representa un factor de agotamiento
-   * (p) ajustado a una ETc de una fecha [mm/dia]
-   */
-  private static double adjustDepletionFactorToEtc(double etcGivenDate, double cropDepletionFactor) {
-    return (cropDepletionFactor + 0.04 * (5 - etcGivenDate));
   }
 
   /**

@@ -909,59 +909,15 @@ public class PlantingRecordManager {
         Parcel givenParcel = developingPlantingRecord.getParcel();
         Option parcelOption = givenParcel.getOption();
 
-        double etcCurrentDate = 0.0;
-
         /*
          * Si la parcela de un registro de plantacion tiene la bandera
          * suelo activa, se calcula la lamina de riego optima (drop)
          * (umbral de riego) [mm] de la fecha actual y la lamina total
          * de agua disponible (dt) [mm] y se las asigna al registro de
-         * plantacion en desarrollo.
-         * 
-         * La lamina de riego optima (drop) [mm] es de la fecha actual
-         * porque el factor de agotamiento (p) con la que se la calcula
-         * se debe ajustar a la ETc de la fecha actual, ya que se busca
-         * calcular la necesidad de agua de riego de un cultivo en la
-         * fecha actual [mm/dia].
+         * plantacion en desarrollo
          */
         if (parcelOption.getSoilFlag()) {
-            double etoCurrentDate = 0.0;
-
             Crop givenCrop = developingPlantingRecord.getCrop();
-            ClimateRecord currentClimateRecord;
-
-            /*
-             * Si en la base de datos subyacente existe para una parcela
-             * el registro climatico de la fecha actual, se obtiene su
-             * ETc para calcuar la lamina de riego optima (drop). De lo
-             * contrario, se lo solicita al servicio climatico, se lo
-             * persiste y se obtiene su ETc para calcular dicha lamina.
-             */
-            if (climateRecordService.checkExistence(UtilDate.getCurrentDate(), givenParcel)) {
-                currentClimateRecord = climateRecordService.find(UtilDate.getCurrentDate(), givenParcel);
-                etcCurrentDate = currentClimateRecord.getEtc();
-            } else {
-                currentClimateRecord = ClimateClient.getForecast(givenParcel,
-                        UtilDate.getCurrentDate().getTimeInMillis() / 1000);
-
-                double extraterrestrialSolarRadiation = solarService.getRadiation(givenParcel.getLatitude(),
-                        monthService.getMonth(currentClimateRecord.getDate().get(Calendar.MONTH)),
-                        latitudeService.find(givenParcel.getLatitude()),
-                        latitudeService.findPreviousLatitude(givenParcel.getLatitude()),
-                        latitudeService.findNextLatitude(givenParcel.getLatitude()));
-
-                etoCurrentDate = HargreavesEto.calculateEto(currentClimateRecord.getMaximumTemperature(),
-                        currentClimateRecord.getMinimumTemperature(), extraterrestrialSolarRadiation);
-                etcCurrentDate = Etc.calculateEtc(etoCurrentDate, cropService.getKc(givenCrop, developingPlantingRecord.getSeedDate()));
-
-                currentClimateRecord.setEto(etoCurrentDate);
-                currentClimateRecord.setEtc(etcCurrentDate);
-
-                /*
-                 * Persistencia del registro climatico de la fecha actual (hoy)
-                 */
-                climateRecordService.create(currentClimateRecord);
-            }
 
             /*
              * Actualizacion de la lamina total de agua disponible (dt) [mm]
@@ -979,7 +935,7 @@ public class PlantingRecordManager {
              * perder mas agua, sino que se le debe añadir agua
              */
             plantingRecordService.updateOptimalIrrigationLayer(developingPlantingRecord.getId(),
-                    (-1 * WaterMath.calculateOptimalIrrigationLayer(etcCurrentDate, givenCrop, givenParcel.getSoil())));
+                    (-1 * WaterMath.calculateOptimalIrrigationLayer(givenCrop, givenParcel.getSoil())));
         }
 
     }
