@@ -332,4 +332,144 @@ public class UtilDateTest {
     System.out.println("- Prueba pasada satisfactoriamente");
   }
 
+  @Test
+  public void testOneGetNextDateFromDate() {
+    System.out.println("**************************** Prueba uno del metodo getNextDateFromDate ****************************");
+    System.out.println("El metodo getNextDateFromDate() de la clase UtilDate retorna la fecha inmediatamente siguiente a la");
+    System.out.println("fecha que se le pasa como argumento.");
+    System.out.println();
+    System.out.println("Para demostrar el correcto funcionamiento de este metodo, en esta prueba se utiliza la fecha 31-12-2022.");
+    System.out.println("Por lo tanto, el metodo getNextDateFromDate() debe retornar la fecha 1-1-2023.");
+    System.out.println();
+
+    Calendar date = Calendar.getInstance();
+    date.set(Calendar.YEAR, 2022);
+    date.set(Calendar.MONTH, DECEMBER);
+    date.set(Calendar.DAY_OF_MONTH, 31);
+
+    Calendar expectedDate = Calendar.getInstance();
+    expectedDate.set(Calendar.YEAR, 2023);
+    expectedDate.set(Calendar.MONTH, JANUARY);
+    expectedDate.set(Calendar.DAY_OF_MONTH, 1);
+
+    /*
+     * Seccion de prueba
+     */
+    Calendar resultingDate = UtilDate.getNextDateFromDate(date);
+
+    System.out.println("Fecha a partir de la cual obtener la fecha inmediatamente siguiente: " + UtilDate.formatDate(date));
+    System.out.println("Fecha esperada: " + UtilDate.formatDate(expectedDate));
+    System.out.println("Fecha devuelta por el metodo getNextDateFromDate(): " + UtilDate.formatDate(resultingDate));
+    System.out.println();
+
+    assertTrue(UtilDate.compareTo(resultingDate, expectedDate) == 0);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+  }
+
+  @Test
+  public void testTwoGetNextDateFromDate() {
+    System.out.println("**************************** Prueba dos del metodo getNextDateFromDate ****************************");
+    System.out.println("El metodo getNextDateFromDate() de la clase UtilDate retorna la fecha inmediatamente siguiente a la");
+    System.out.println("fecha que se le pasa como argumento.");
+    System.out.println();
+    System.out.println("Para demostrar el correcto funcionamiento de este metodo, en esta prueba se utiliza la fecha 29-2-2020.");
+    System.out.println("Por lo tanto, el metodo getNextDateFromDate() debe retornar la fecha 1-3-2020 (año bisiesto).");
+    System.out.println();
+
+    Calendar date = Calendar.getInstance();
+    date.set(Calendar.YEAR, 2020);
+    date.set(Calendar.MONTH, FEBRUARY);
+    date.set(Calendar.DAY_OF_MONTH, 29);
+
+    Calendar expectedDate = Calendar.getInstance();
+    expectedDate.set(Calendar.YEAR, 2020);
+    expectedDate.set(Calendar.MONTH, MARCH);
+    expectedDate.set(Calendar.DAY_OF_MONTH, 1);
+
+    /*
+     * Seccion de prueba
+     */
+    Calendar resultingDate = UtilDate.getNextDateFromDate(date);
+
+    System.out.println("Fecha a partir de la cual obtener la fecha inmediatamente siguiente: " + UtilDate.formatDate(date));
+    System.out.println("Fecha esperada: " + UtilDate.formatDate(expectedDate));
+    System.out.println("Fecha devuelta por el metodo getNextDateFromDate(): " + UtilDate.formatDate(resultingDate));
+    System.out.println();
+
+    assertTrue(UtilDate.compareTo(resultingDate, expectedDate) == 0);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+  }
+
+  @Test
+  public void testThreeGetNextDateFromDate() {
+    System.out.println("**************************** Prueba tres del metodo getNextDateFromDate ****************************");
+    System.out.println("El metodo getNextDateFromDate() de la clase UtilDate retorna la fecha inmediatamente siguiente a la");
+    System.out.println("fecha que se le pasa como argumento.");
+    System.out.println();
+    System.out.println("Para demostrar el correcto funcionamiento de este metodo, en esta prueba se utiliza la fecha 28-2-2020.");
+    System.out.println("Por lo tanto, el metodo getNextDateFromDate() debe retornar la fecha 29-2-2020 (año bisiesto).");
+    System.out.println();
+
+    Calendar date = Calendar.getInstance();
+    date.set(Calendar.YEAR, 2020);
+    date.set(Calendar.MONTH, FEBRUARY);
+    date.set(Calendar.DAY_OF_MONTH, 28);
+
+    Calendar expectedDate = Calendar.getInstance();
+    expectedDate.set(Calendar.YEAR, 2020);
+    expectedDate.set(Calendar.MONTH, FEBRUARY);
+    expectedDate.set(Calendar.DAY_OF_MONTH, 29);
+
+    /*
+     * Seccion de prueba
+     */
+    Calendar resultingDate = UtilDate.getNextDateFromDate(date);
+
+    System.out.println("Fecha a partir de la cual obtener la fecha inmediatamente siguiente: " + UtilDate.formatDate(date));
+    System.out.println("Fecha esperada: " + UtilDate.formatDate(expectedDate));
+    System.out.println("Fecha devuelta por el metodo getNextDateFromDate(): " + UtilDate.formatDate(resultingDate));
+    System.out.println();
+
+    assertTrue(UtilDate.compareTo(resultingDate, expectedDate) == 0);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+  }
+
+  @Test
+  public void testFourGetNextDateFromDate() {
+    System.out.println("**************************** Prueba cuatro del metodo getNextDateFromDate ****************************");
+    System.out.println("El metodo getNextDateFromDate() de la clase UtilDate retorna la fecha inmediatamente siguiente a la");
+    System.out.println("fecha que se le pasa como argumento.");
+    System.out.println();
+    System.out.println("Para demostrar el correcto funcionamiento de este metodo, en esta prueba se utiliza la fecha 1-1-2023.");
+    System.out.println("Por lo tanto, el metodo getNextDateFromDate() debe retornar la fecha 2-1-2023.");
+    System.out.println();
+
+    Calendar date = Calendar.getInstance();
+    date.set(Calendar.YEAR, 2023);
+    date.set(Calendar.MONTH, JANUARY);
+    date.set(Calendar.DAY_OF_MONTH, 1);
+
+    Calendar expectedDate = Calendar.getInstance();
+    expectedDate.set(Calendar.YEAR, 2023);
+    expectedDate.set(Calendar.MONTH, JANUARY);
+    expectedDate.set(Calendar.DAY_OF_MONTH, 2);
+
+    /*
+     * Seccion de prueba
+     */
+    Calendar resultingDate = UtilDate.getNextDateFromDate(date);
+
+    System.out.println("Fecha a partir de la cual obtener la fecha inmediatamente siguiente: " + UtilDate.formatDate(date));
+    System.out.println("Fecha esperada: " + UtilDate.formatDate(expectedDate));
+    System.out.println("Fecha devuelta por el metodo getNextDateFromDate(): " + UtilDate.formatDate(resultingDate));
+    System.out.println();
+
+    assertTrue(UtilDate.compareTo(resultingDate, expectedDate) == 0);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+  }
+
 }

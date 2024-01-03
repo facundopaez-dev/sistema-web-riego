@@ -103,6 +103,56 @@ public class UtilDate {
   }
 
   /**
+   * @param date
+   * @return referencia a un objeto de tipo Calendar que
+   * contiene la fecha inmediatamente siguiente a otra
+   * fecha
+   */
+  public static Calendar getNextDateFromDate(Calendar date) {
+    /*
+     * El metodo getInstance de la clase Calendar retorna
+     * la referencia a un objeto de tipo Calendar que
+     * contiene la fecha actual. Por lo tanto, para que
+     * este metodo devuelva una fecha inmediatamente siguiente
+     * a otra fecha se debe realizar un tratamiento sobre
+     * dicho objeto.
+     */
+    Calendar dateFollowingAnotherDate = Calendar.getInstance();
+    int days = date.get(Calendar.DAY_OF_YEAR) + 1;
+    int daysYear = 365;
+
+    if (isLeapYear(date.get(Calendar.YEAR))) {
+      daysYear = 366;      
+    }
+
+    /*
+     * Si la suma de uno al numero de dia en el año de una
+     * fecha es menor o igual a la cantidad de dias que hay
+     * en un año (bisiesto o no bisiesto), significa que el
+     * año de la fecha inmediatamente siguiente a otra es
+     * igual al año de la misma
+     */
+    if (days <= daysYear) {
+      dateFollowingAnotherDate.set(Calendar.YEAR, date.get(Calendar.YEAR));
+      dateFollowingAnotherDate.set(Calendar.DAY_OF_YEAR, date.get(Calendar.DAY_OF_YEAR) + 1);
+      return dateFollowingAnotherDate;
+    }
+
+    /*
+     * Si la suma de uno al numero de dia en el año de una
+     * fecha es estrictamente mayor a la cantidad de dias
+     * que hay en un año (bisiesto o no bisiesto), significa
+     * que la fecha es el dia 31 de diciembre de un año.
+     * Por lo tanto, la fecha inmediatamente siguiente a
+     * 31 de diciembre de un año es el dia 1 de enero del
+     * año inmediatamente siguiente.
+     */
+    dateFollowingAnotherDate.set(Calendar.YEAR, date.get(Calendar.YEAR) + 1);
+    dateFollowingAnotherDate.set(Calendar.DAY_OF_YEAR, 1);
+    return dateFollowingAnotherDate;
+  }
+
+  /**
    * Retorna true si y solo si un año es bisiesto
    * 
    * @param year
