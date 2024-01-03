@@ -51,21 +51,54 @@ public class UtilDate {
   }
 
   /**
-   * @param givenDate
+   * @param date
    * @return referencia a un objeto de tipo Calendar que
-   * contiene la fecha inmediatamente anterior a una fecha
-   * dada
+   * contiene la fecha inmediatamente anterior a otra fecha
    */
-  public static Calendar getYesterdayDateFromDate(Calendar givenDate) {
+  public static Calendar getYesterdayDateFromDate(Calendar date) {
     /*
      * El metodo getInstance de la clase Calendar retorna
      * la referencia a un objeto de tipo Calendar que
-     * contiene la fecha actual. Para obtener el dia
-     * inmediatamente anterior a una fecha se debe restar
-     * uno al numero de dia en el año de la fecha.
+     * contiene la fecha actual. Por lo tanto, para que
+     * este metodo devuelva una fecha inmediatamente anterior
+     * a otra fecha se debe realizar un tratamiento sobre
+     * dicho objeto.
      */
     Calendar yesterdayDateFromDate = Calendar.getInstance();
-    yesterdayDateFromDate.set(Calendar.DAY_OF_YEAR, (givenDate.get(Calendar.DAY_OF_YEAR) - 1));
+    int days = date.get(Calendar.DAY_OF_YEAR) - 1;
+
+    /*
+     * Si la resta de uno al numero de dia en el año de una
+     * fecha es igual a 0, significa que la fecha es el dia
+     * 1 de enero de un año. Por lo tanto, la fecha
+     * inmediatamente anterior a 1 de enero de un año es
+     * el dia 31 de diciembre del año inmediatamente anterior.
+     */
+    if (days == 0) {
+      yesterdayDateFromDate.set(Calendar.YEAR, date.get(Calendar.YEAR) - 1);
+
+      /*
+       * Si el año de la fecha inmediatamente anterior a otra fecha
+       * es bisiesto, el numero de dia en el año del dia 31 de
+       * diciembre es 366. En caso contrario, es 365.
+       */
+      if (isLeapYear(yesterdayDateFromDate.get(Calendar.YEAR))) {
+        yesterdayDateFromDate.set(Calendar.DAY_OF_YEAR, 366);
+      } else {
+        yesterdayDateFromDate.set(Calendar.DAY_OF_YEAR, 365);
+      }
+
+      return yesterdayDateFromDate;
+    }
+
+    /*
+     * Si la resta de uno al numero de dia en el año de una
+     * fecha es estrictamente mayor a 0, significa que el
+     * año de la fecha inmediatamente anterior a otra es
+     * igual al año de la misma
+     */
+    yesterdayDateFromDate.set(Calendar.YEAR, date.get(Calendar.YEAR));
+    yesterdayDateFromDate.set(Calendar.DAY_OF_YEAR, date.get(Calendar.DAY_OF_YEAR) - 1);
     return yesterdayDateFromDate;    
   }
 
