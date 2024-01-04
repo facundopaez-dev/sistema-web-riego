@@ -290,8 +290,8 @@ public class ClimateRecordServiceBean {
 
   /**
    * Comprueba si un registro climatico pertenece a un usuario
-   * dado, mediante la relacion muchos a uno que hay entre los
-   * modelos de datos ClimateRecord y Parcel.
+   * dado, mediante la relacion uno a muchos que hay entre los
+   * modelos de datos User y Parcel.
    * 
    * Retorna true si y solo si un registro climatico pertenece
    * a un usuario.
