@@ -233,4 +233,46 @@ public class CalculateDifferenceBetweenDatesTest {
     System.out.println("- Prueba pasada satisfactoriamente");
   }
 
+  @Test
+  public void testSix() {
+    System.out.println("********************* Prueba seis del metodo calculateDifferenceBetweenDates *********************");
+    System.out.println("El metodo calculateDifferenceBetweenDates de la clase UtilDate calcula la diferencia de dias que");
+    System.out.println("hay entre dos fechas dadas.");
+    System.out.println();
+    System.out.println("En esta prueba se demuestra que el metodo calculateDifferenceBetweenDates calcula correctamente la");
+    System.out.println("diferencia de dias que hay entre dos fechas dadas cuando hay mas de una unidad de diferencia entre");
+    System.out.println("el año de una fecha y el año de otra fecha, y el año de la segunda fecha es bisiesto.");
+    System.out.println();
+
+    Calendar dateOne = Calendar.getInstance();
+    dateOne.set(Calendar.YEAR, 2019);
+    dateOne.set(Calendar.MONTH, JANUARY);
+    dateOne.set(Calendar.DAY_OF_MONTH, 1);
+
+    Calendar dateTwo = Calendar.getInstance();
+    dateTwo.set(Calendar.YEAR, 2024);
+    dateTwo.set(Calendar.MONTH, JANUARY);
+    dateTwo.set(Calendar.DAY_OF_MONTH, 31);
+
+    System.out.println("Fechas utilizadas para la prueba");
+    System.out.println("Fecha uno: " + UtilDate.formatDate(dateOne));
+    System.out.println("Fecha dos: " + UtilDate.formatDate(dateTwo));
+    System.out.println();
+
+    /*
+     * Seccion de prueba
+     */
+    int expectedResult = 1856;
+    int daysDifference = UtilDate.calculateDifferenceBetweenDates(dateOne, dateTwo);
+
+    System.out.println("* Seccion de prueba *");
+    System.out.println("Resultado esperado: " + expectedResult);
+    System.out.println("Resultado devuelto por el metodo calculateDifferenceBetweenDates: " + daysDifference);
+    System.out.println();
+
+    assertTrue(expectedResult == daysDifference);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+  }
+
 }
