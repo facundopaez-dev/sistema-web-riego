@@ -271,7 +271,7 @@ app.controller(
             || (utilDate.compareTo(currentDate, $scope.data.seedDate) >= 0 && utilDate.compareTo(currentDate, $scope.data.harvestDate) <= 0))) {
           var message = "Si se modifica el registro de plantación con una fecha de cosecha anterior a la fecha actual, adquirirá el estado finalizado. "
             + "En cambio, si se lo modifica con fechas de tal manera que la fecha actual (hoy) esté en el período definido por las fechas elegidas, el "
-            + "registro de plantación adquirirá un estado de desarrollo (en desarrollo o desarrollo óptimo dependiendo de si se tiene en cuenta el suelo o no). "
+            + "registro de plantación adquirirá un estado de desarrollo (en desarrollo o desarrollo óptimo dependiendo de si se utilizan datos de suelo o no). "
             + "¿Desea que el registro de plantación mantenga el estado muerto luego de la modificación?";
 
           maintainDeadStatus = confirm(message);
