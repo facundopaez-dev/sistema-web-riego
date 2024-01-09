@@ -940,6 +940,18 @@ public class PlantingRecordRestServlet {
     }
 
     /*
+     * Si un registro de plantacion a modificar NO tiene el
+     * estado muerto, se establece su proximo estado. Esto
+     * se realiza independientemente del valor de la variable
+     * maintainDeadStatus. El estado de un registro de plantacion
+     * se calcula con base en la fecha de siembra y la fecha
+     * de cosecha.
+     */
+    if (!statusService.equals(modifiedPlantingRecordStatus, deadStatus)) {
+      modifiedPlantingRecord.setStatus(statusService.calculateStatus(modifiedPlantingRecord));
+    }
+
+    /*
      * El simbolo de esta variable se utiliza para representar que la
      * necesidad de agua de riego de un cultivo en la fecha actual [mm/dia]
      * no esta disponible, pero se puede calcular. Esta situacion
