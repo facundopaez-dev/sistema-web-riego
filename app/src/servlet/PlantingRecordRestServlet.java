@@ -1638,14 +1638,19 @@ public class PlantingRecordRestServlet {
     calculateEtsPastClimateRecordsTwo(developingPlantingRecord);
 
     /*
-     * Calcula y persiste los balances hidricos de suelo de una parcela,
-     * que tiene un cultivo en desarrollo, para calcular la necesidad
-     * de agua de riego del mismo en la fecha actual [mm/dia]
+     * Persiste el balance hidrico de la fecha de siembra de un cultivo,
+     * si no existe en la base de datos subyacente. En caso contrario,
+     * lo modifica. Este paso es el primer paso necesario para el
+     * calculo de los balances hidricos de suelo de una parcela que
+     * tiene un cultivo sembrado. Este calculo se realiza para
+     * calcular la necesidad de agua de riego de un cultivo en la
+     * fecha actual [mm/dia].
      */
-    calculateSoilWaterBalances(developingPlantingRecord);
+    persistSoilWaterBalanceSeedDate(developingPlantingRecord);
 
     String notCalculated = soilWaterBalanceService.getNotCalculated();
     Parcel parcel = developingPlantingRecord.getParcel();
+    Calendar seedDate = developingPlantingRecord.getSeedDate();
 
     /*
      * La necesidad de agua de riego de un cultivo en la fecha actual
@@ -1657,6 +1662,46 @@ public class PlantingRecordRestServlet {
      * a la fecha actual.
      */
     Calendar yesterday = UtilDate.getYesterdayDate();
+    Calendar currentDate = UtilDate.getCurrentDate();
+
+    /*
+     * Si la fecha de siembra de un cultivo es igual a la fecha actual
+     * (es decir, hoy), la necesidad de agua de riego de un cultivo
+     * en la fecha actual [mm/dia] es el acumulado del deficit de agua
+     * por dia [mm/dia] de la fecha actual
+     */
+    if (UtilDate.compareTo(seedDate, currentDate) == 0) {
+      return soilWaterBalanceService.find(parcel.getId(), currentDate).getAccumulatedWaterDeficitPerDay();
+    }
+
+    /*
+     * Si la fecha de siembra de un cultivo es igual a la fecha
+     * inmediatamente anterior a la fecha actual (es decir, hoy),
+     * la necesidad de agua de riego de un cultivo en la fecha
+     * actual [mm/dia] es el acumulado del deficit de agua por dia
+     * [mm/dia] de la fecha inmediatamente anterior a la fecha
+     * actual
+     */
+    if (UtilDate.compareTo(seedDate, yesterday) == 0) {
+      return soilWaterBalanceService.find(parcel.getId(), yesterday).getAccumulatedWaterDeficitPerDay();
+    }
+
+    /*
+     * Calcula y persiste los balances hidricos de suelo de una parcela,
+     * que tiene un cultivo en desarrollo, para calcular la necesidad
+     * de agua de riego del mismo en la fecha actual [mm/dia]. Esto se
+     * realiza si y solo si la cantidad de dias entre la fecha de siembra
+     * de un cultivo y la fecha actual (es decir, hoy) es mayor o igual
+     * a dos.
+     */
+    calculateSoilWaterBalances(developingPlantingRecord);
+
+    /*
+     * La necesidad de agua de riego de un cultivo en la fecha actual
+     * (es decir, hoy) [mm/dia] se determina en funcion del acumulado
+     * del deficit de agua por dia [mm/dia] del dia inmediatamente
+     * anterior a la fecha actual
+     */
     String stringAccumulatedWaterDeficitPerDay = soilWaterBalanceService.find(parcel.getId(), yesterday).getAccumulatedWaterDeficitPerDay();
 
     /*
@@ -1845,8 +1890,6 @@ public class PlantingRecordRestServlet {
    * @param developingPlantingRecord
    */
   private void calculateSoilWaterBalances(PlantingRecord developingPlantingRecord) {
-    persistSoilWaterBalanceSeedDate(developingPlantingRecord);
-
     Parcel parcel = developingPlantingRecord.getParcel();
     Crop crop = developingPlantingRecord.getCrop();
     SoilWaterBalance soilWaterBalance = null;
