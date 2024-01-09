@@ -1645,6 +1645,11 @@ public class PlantingRecordRestServlet {
      * tiene un cultivo sembrado. Este calculo se realiza para
      * calcular la necesidad de agua de riego de un cultivo en la
      * fecha actual [mm/dia].
+     * 
+     * El balance hidrico de la fecha de siembra de un cultivo tiene
+     * el valor 0 en todos sus atributos porque en la fecha de siembra
+     * de un cultivo se parte del suelo a capacidad de campo, esto es
+     * que el suelo esta lleno de agua, pero no anegado.
      */
     persistSoilWaterBalanceSeedDate(developingPlantingRecord);
 
