@@ -1749,40 +1749,86 @@ public class PlantingRecordRestServlet {
 
   /**
    * Persiste los registros climaticos de una parcela, que
-   * tiene un cultivo en desarrollo, desde la fecha de
-   * siembra hasta la fecha inmediatamente anterior a la
-   * fecha actual
+   * tiene un cultivo en desarrollo, desde la fecha
+   * inmediatamente siguiente a la fecha de siembra hasta
+   * la fecha inmediatamente anterior a la fecha actual
+   * (es decir, hoy)
    * 
    * @param developingPlantingRecord
    */
   private void requestPastClimateRecordsTwo(PlantingRecord developingPlantingRecord) throws IOException {
+    Calendar seedDate = developingPlantingRecord.getSeedDate();
+
+    /*
+     * Fecha inmediatamente anterior a la fecha actual
+     * (es decir, hoy)
+     */
+    Calendar yesterday = UtilDate.getYesterdayDate();
+
+    /*
+     * Si la fecha de siembra de un cultivo es igual a la fecha
+     * actual (es decir, hoy), NO se solicita ni se persiste el
+     * registro climatico de la fecha actual, ya que en la fecha
+     * de siembra se parte del suelo en capacidad de campo, esto
+     * es que el suelo esta lleno de agua, pero no anegado. En
+     * esta situacion, el acumulado del deficit de agua por dia
+     * [mm/dia] de la fecha actual es 0. Por lo tanto, la necesidad
+     * de agua de riego de un cultivo en la fecha actual [mm/dia]
+     * es 0.
+     */
+    if (UtilDate.compareTo(seedDate, UtilDate.getCurrentDate()) == 0) {
+      return;
+    }
+
+    /*
+     * Si la fecha de siembra de un cultivo es igual a la fecha
+     * inmediatamente anterior a la fecha actual (es decir, hoy),
+     * NO se solicita ni persiste el registro climatico de la
+     * fecha inmediatamente anterior a la fecha actual, ya que
+     * en la fecha de siembra se parte del suelo en capacidad
+     * de campo, esto es que el suelo esta lleno de agua, pero
+     * no anegado. En esta situacion, el acumulado del deficit
+     * de agua por dia [mm/dia] del dia inmediatamente anterior
+     * es 0. Por lo tanto, la necesidad de agua de riego de
+     * un cultivo en la fecha actual [mm/dia] es 0.
+     */
+    if (UtilDate.compareTo(seedDate, yesterday) == 0) {
+      return;
+    }
+
     Parcel parcel = developingPlantingRecord.getParcel();
     ClimateRecord newClimateRecord = null;
 
-    Calendar seedDate = developingPlantingRecord.getSeedDate();
-    Calendar yesterday = UtilDate.getYesterdayDate();
-
+    /*
+     * A partir de la fecha inmediatamente siguiente a la fecha
+     * de siembra de un cultivo se solicitan y persisten los
+     * registros climaticos de una parcela que tiene un cultivo
+     * en desarrollo en la fecha actual (es decir, hoy)
+     */
+    Calendar dateFollowingSeedDate = UtilDate.getNextDateFromDate(seedDate);
     Calendar pastDate = Calendar.getInstance();
-    pastDate.set(Calendar.YEAR, seedDate.get(Calendar.YEAR));
-    pastDate.set(Calendar.MONTH, seedDate.get(Calendar.MONTH));
-    pastDate.set(Calendar.DAY_OF_YEAR, seedDate.get(Calendar.DAY_OF_YEAR));
+    pastDate.set(Calendar.YEAR, dateFollowingSeedDate.get(Calendar.YEAR));
+    pastDate.set(Calendar.MONTH, dateFollowingSeedDate.get(Calendar.MONTH));
+    pastDate.set(Calendar.DAY_OF_YEAR, dateFollowingSeedDate.get(Calendar.DAY_OF_YEAR));
 
     /*
      * Los registros climaticos a obtener pertenecen al periodo
-     * definido por la fecha de siembra de un cultivo y la fecha
-     * inmediatamente anterior a la fecha actual.
+     * definido por la fecha inmediatamente siguiente a la fecha
+     * de siembra y la fecha inmediatamente anterior a la fecha
+     * actual (es decir, hoy).
      * 
      * Se debe sumar un uno al resultado de esta diferencia para
      * que este metodo persista el registro climatico de la fecha
      * inmediatamente anterior a la fecha actual.
      */
-    int days = UtilDate.calculateDifferenceBetweenDates(seedDate, yesterday) + 1;
+    int days = UtilDate.calculateDifferenceBetweenDates(dateFollowingSeedDate, yesterday) + 1;
 
     /*
-     * Crea y persiste los registros climaticos desde la fecha de
-     * siembra hasta la fecha inmediatamente anterior a la fecha
-     * actual, pertenecientes a una parcela que tiene un cultivo
-     * en desarrollo en la fecha actual
+     * Crea y persiste los registros climaticos desde la fecha
+     * inmediatamente siguiente a la fecha de siembra hasta
+     * la fecha inmediatamente anterior a la fecha actual (es
+     * decir, hoy), pertenecientes a una parcela que tiene un
+     * cultivo en desarrollo en la fecha actual
      */
     for (int i = 0; i < days; i++) {
 
@@ -1810,36 +1856,82 @@ public class PlantingRecordRestServlet {
    * Calcula y actualiza la ETo y la ETc de los registros
    * climaticos, pertenecientes a una parcela que tiene un
    * cultivo en desarrollo en la fecha actual, comprendidos
-   * en el periodo definido por la fecha de siembra de un
-   * cultivo y la fecha inmediatamente anterior a la fecha
-   * actual
+   * en el periodo definido por la fecha inmediatamente
+   * siguiente a la fecha de siembra de un cultivo y la
+   * fecha inmediatamente anterior a la fecha actual (es
+   * decir, hoy)
    * 
    * @param developingPlantingRecord
    */
   private void calculateEtsPastClimateRecordsTwo(PlantingRecord developingPlantingRecord) {
+    Calendar seedDate = developingPlantingRecord.getSeedDate();
+
+    /*
+     * Fecha inmediatamente anterior a la fecha actual
+     * (es decir, hoy)
+     */
+    Calendar yesterday = UtilDate.getYesterdayDate();
+
+    /*
+     * Si la fecha de siembra de un cultivo es igual a la fecha
+     * actual (es decir, hoy), NO se calculan la ETo y la ETc
+     * del registro climatico de la fecha actual, ya que NO se
+     * lo persiste debido a que en la fecha de siembra se parte
+     * del suelo en capacidad de campo, esto es que el suelo
+     * esta lleno de agua, pero no anegado. En esta situacion,
+     * el acumulado del deficit de agua por dia [mm/dia] de la
+     * fecha actual es 0. Por lo tanto, la necesidad de agua de
+     * riego de un cultivo en la fecha actual [mm/dia] es 0.
+     */
+    if (UtilDate.compareTo(seedDate, UtilDate.getCurrentDate()) == 0) {
+      return;
+    }
+
+    /*
+     * Si la fecha de siembra de un cultivo es igual a la fecha
+     * inmediatamente anterior a la fecha actual (es decir, hoy),
+     * NO se calculan la ETo y la ETc del registro climatico de
+     * la fecha inmediatamente anterior a la fecha actual, ya que
+     * NO se lo persiste debido a que en la fecha de siembra se
+     * parte del suelo en capacidad de campo, esto es que el suelo
+     * esta lleno de agua, pero no anegado. En esta situacion,
+     * el acumulado del deficit de agua por dia [mm/dia] del dia
+     * inmediatamente anterior a la fecha actual es 0. Por lo tanto,
+     * la necesidad de agua de riego de un cultivo en la fecha
+     * actual [mm/dia] es 0.
+     */
+    if (UtilDate.compareTo(seedDate, yesterday) == 0) {
+      return;
+    }
+
     Parcel parcel = developingPlantingRecord.getParcel();
     ClimateRecord climateRecord = null;
 
-    Calendar seedDate = developingPlantingRecord.getSeedDate();
-    Calendar yesterday = UtilDate.getYesterdayDate();
-
+    /*
+     * A partir de la fecha inmediatamente siguiente a la fecha
+     * de siembra de un cultivo se calculan los balances hidricos
+     * de suelo de una parcela que tiene un cultivo en desarrollo
+     * en la fecha actual (es decir, hoy)
+     */
+    Calendar dateFollowingSeedDate = UtilDate.getNextDateFromDate(seedDate);
     Calendar pastDate = Calendar.getInstance();
-    pastDate.set(Calendar.YEAR, seedDate.get(Calendar.YEAR));
-    pastDate.set(Calendar.MONTH, seedDate.get(Calendar.MONTH));
-    pastDate.set(Calendar.DAY_OF_YEAR, seedDate.get(Calendar.DAY_OF_YEAR));
+    pastDate.set(Calendar.YEAR, dateFollowingSeedDate.get(Calendar.YEAR));
+    pastDate.set(Calendar.MONTH, dateFollowingSeedDate.get(Calendar.MONTH));
+    pastDate.set(Calendar.DAY_OF_YEAR, dateFollowingSeedDate.get(Calendar.DAY_OF_YEAR));
 
     /*
      * Los registros climaticos para los que se calcula
      * su ETo y su ETc pertenecen al periodo definido por
-     * la fecha de siembra de un cultivo y la fecha
-     * inmediatamente anterior a la fecha actual.
+     * la fecha inmediatamente siguiente a la fecha de
+     * siembra de un cultivo y la fecha inmediatamente
+     * anterior a la fecha actual (es decir, hoy).
      * 
      * Se debe sumar un uno al resultado de esta diferencia
      * para que este metodo calcule la ETo y la ETc del
      * registro climatico de la fecha inmediatamente
      * anterior a la fecha actual.
      */
-    int days = UtilDate.calculateDifferenceBetweenDates(seedDate, yesterday) + 1;
+    int days = UtilDate.calculateDifferenceBetweenDates(dateFollowingSeedDate, yesterday) + 1;
 
     double eto = 0.0;
     double etc = 0.0;
@@ -1848,9 +1940,10 @@ public class PlantingRecordRestServlet {
      * Calcula la ETo y la ETc de los registros climaticos,
      * pertenecientes a una parcela que tiene un cultivo
      * en desarrollo en la fecha actual, comprendidos en
-     * el periodo definido por la fecha de siembra de un
-     * cultivo y la fecha inmediatamente anterior a la fecha
-     * actual
+     * el periodo definido por la fecha inmediatamente
+     * siguiente a la fecha de siembra de un cultivo y la
+     * fecha inmediatamente anterior a la fecha actual (es
+     * decir, hoy)
      */
     for (int i = 0; i < days; i++) {
 
@@ -1884,12 +1977,51 @@ public class PlantingRecordRestServlet {
   /**
    * Calcula y persiste los balances hidricos de suelo de
    * una parcela, que tiene un cultivo sembrado, desde la
-   * fecha de siembra de un cultivo hasta la fecha
-   * inmediatamente anterior a la fecha actual
+   * fecha inmediatamente siguiente a la fecha de siembra
+   * hasta la fecha inmediatamente anterior a la fecha
+   * actual (es decir, hoy)
    * 
    * @param developingPlantingRecord
    */
   private void calculateSoilWaterBalances(PlantingRecord developingPlantingRecord) {
+    Calendar seedDate = developingPlantingRecord.getSeedDate();
+
+    /*
+     * Fecha inmediatamente anterior a la fecha actual
+     * (es decir, hoy)
+     */
+    Calendar yesterday = UtilDate.getYesterdayDate();
+
+    /*
+     * Si la fecha de siembra de un cultivo es igual a la fecha
+     * actual (es decir, hoy), NO se calcula el balance hidrico
+     * de la fecha actual, ya que en la fecha de siembra se parte
+     * del suelo en capacidad de campo, esto es que el suelo esta
+     * lleno de agua, pero no anegado. En esta situacion, el
+     * acumulado del deficit de agua por dia [mm/dia] de la fecha
+     * actual es 0. Por lo tanto, la necesidad de agua de riego
+     * de un cultivo en la fecha actual [mm/dia] es 0.
+     */
+    if (UtilDate.compareTo(seedDate, UtilDate.getCurrentDate()) == 0) {
+      return;
+    }
+
+    /*
+     * Si la fecha de siembra de un cultivo es igual a la fecha
+     * inmediatamente anterior a la fecha actual (es decir, hoy),
+     * NO se calcula el balance hidrico de la fecha inmediatamente
+     * anterior a la fecha actual, ya que en la fecha de siembra
+     * se parte del suelo en capacidad de campo, esto es que el
+     * suelo esta lleno de agua, pero no anegado. En esta situacion,
+     * el acumulado del deficit de agua por dia [mm/dia] del dia
+     * inmediatamente anterior es 0. Por lo tanto, la necesidad
+     * de agua de riego de un cultivo en la fecha actual [mm/dia]
+     * es 0.
+     */
+    if (UtilDate.compareTo(seedDate, yesterday) == 0) {
+      return;
+    }
+
     Parcel parcel = developingPlantingRecord.getParcel();
     Crop crop = developingPlantingRecord.getCrop();
     SoilWaterBalance soilWaterBalance = null;
@@ -1900,14 +2032,9 @@ public class PlantingRecordRestServlet {
      * tiene un cultivo sembrado, se calculan desde la
      * fecha inmediatamente siguiente a la fecha de
      * siembra de un cultivo hasta la fecha inmediatamente
-     * anterior a la fecha actual (hoy)
+     * anterior a la fecha actual (es decir, hoy)
      */
-    Calendar pastDate = UtilDate.getNextDateFromDate(developingPlantingRecord.getSeedDate());
-
-    /*
-     * Fecha inmediatamente anterior a la fecha actual (hoy)
-     */
-    Calendar yesterday = UtilDate.getYesterdayDate();
+    Calendar pastDate = UtilDate.getNextDateFromDate(seedDate);
     Calendar yesterdayDateFromDate = null;
 
     /*
@@ -1915,7 +2042,7 @@ public class PlantingRecordRestServlet {
      * tiene un cultivo sembrado, se calculan desde la
      * fecha inmediatamente siguiente a la fecha de siembra
      * hasta la fecha inmediatamente anterior a la fecha
-     * actual.
+     * actual (es decir, hoy).
      * 
      * Se debe sumar un uno al resultado de esta diferencia
      * para que este metodo calcule el balance hidrico de
@@ -1943,6 +2070,13 @@ public class PlantingRecordRestServlet {
     PlantingRecordStatus developmentInWiltheringStatus = statusService.findDevelopmentInWitheringStatus();
     PlantingRecordStatus deadStatus = statusService.findDeadStatus();
 
+    /*
+     * Calcula los balances hidricos de suelo de una parcela,
+     * que tiene un cultivo en desarrollo en la fecha actual
+     * (es decir, hoy), desde la fecha inmediatamente siguiente
+     * a la fecha de siembra hasta la fecha inmediatamente
+     * anterior a la fecha actual
+     */
     for (int i = 0; i < days; i++) {
 
       /*
