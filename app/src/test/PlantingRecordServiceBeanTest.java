@@ -10,6 +10,7 @@ import model.PlantingRecord;
 import model.Parcel;
 import model.User;
 import model.Crop;
+import model.Option;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -20,22 +21,27 @@ import stateless.PlantingRecordStatusServiceBean;
 import stateless.TypeCropServiceBean;
 import stateless.UserServiceBean;
 import stateless.CropServiceBean;
+import stateless.OptionServiceBean;
 import util.UtilDate;
 
 public class PlantingRecordServiceBeanTest {
 
         private static EntityManager entityManager;
         private static EntityManagerFactory entityManagerFactory;
+
         private static ParcelServiceBean parcelService;
         private static UserServiceBean userService;
         private static CropServiceBean cropService;
         private static PlantingRecordServiceBean plantingRecordService;
         private static PlantingRecordStatusServiceBean plantingRecordStatusService;
         private static TypeCropServiceBean typeCropService;
+        private static OptionServiceBean optionService;
+
         private static Collection<Parcel> parcels;
         private static Collection<PlantingRecord> plantingRecords;
         private static Collection<User> users;
         private static Collection<Crop> crops;
+        private static Collection<Option> options;
 
         private static final int JANUARY = 0;
         private static final int FEBRUARY = 1;
@@ -73,10 +79,14 @@ public class PlantingRecordServiceBeanTest {
                 typeCropService = new TypeCropServiceBean();
                 typeCropService.setEntityManager(entityManager);
 
+                optionService = new OptionServiceBean();
+                optionService.setEntityManager(entityManager);
+
                 parcels = new ArrayList<>();
                 plantingRecords = new ArrayList<>();
                 users = new ArrayList<>();
                 crops = new ArrayList<>();
+                options = new ArrayList<>();
         }
 
         /*
@@ -104,20 +114,11 @@ public class PlantingRecordServiceBeanTest {
                 System.out.println();
 
                 /*
-                 * Creacion y persistencia de un usuario de prueba
+                 * Creacion y persistencia de una opcion para una parcela
                  */
-                User newUser = new User();
-                newUser.setUsername("testOneCheckByDate");
-                newUser.setName("Peter");
-                newUser.setLastName("Doe");
-                newUser.setPassword("Ultra secret password");
-                newUser.setEmail("testOneCheckByDate@eservice.com");
-
                 entityManager.getTransaction().begin();
-                newUser = userService.create(newUser);
+                Option newParcelOption = optionService.create();
                 entityManager.getTransaction().commit();
-
-                users.add(newUser);
 
                 /*
                  * Creacion y persistencia de una parcela
@@ -127,13 +128,26 @@ public class PlantingRecordServiceBeanTest {
                 newParcel.setHectares(2);
                 newParcel.setLatitude(1);
                 newParcel.setLongitude(1);
-                newParcel.setUser(newUser);
+                newParcel.setOption(newParcelOption);
 
                 entityManager.getTransaction().begin();
                 newParcel = parcelService.create(newParcel);
                 entityManager.getTransaction().commit();
 
-                parcels.add(newParcel);
+                /*
+                 * Creacion y persistencia de un usuario de prueba
+                 */
+                User newUser = new User();
+                newUser.setUsername("testOneCheckByDate");
+                newUser.setName("Peter");
+                newUser.setLastName("Doe");
+                newUser.setEmail("testOneCheckByDate@eservice.com");
+                newUser.setParcels(new ArrayList<>());
+                newUser.getParcels().add(newParcel);
+
+                entityManager.getTransaction().begin();
+                newUser = userService.create(newUser);
+                entityManager.getTransaction().commit();
 
                 /*
                  * Creacion y persistencia de un cultivo de prueba
@@ -155,6 +169,15 @@ public class PlantingRecordServiceBeanTest {
                 newCrop = cropService.create(newCrop);
                 entityManager.getTransaction().commit();
 
+                /*
+                 * Se añaden los datos creados a una coleccion para
+                 * su respectiva eliminacion de la base de datos
+                 * subyacente. Esto se hace con el fin de hacer que
+                 * la base de datos quede en su estado original.
+                 */
+                users.add(newUser);
+                options.add(newParcelOption);
+                parcels.add(newParcel);
                 crops.add(newCrop);
 
                 /*
@@ -231,20 +254,11 @@ public class PlantingRecordServiceBeanTest {
                 System.out.println();
 
                 /*
-                 * Creacion y persistencia de un usuario de prueba
+                 * Creacion y persistencia de una opcion para una parcela
                  */
-                User newUser = new User();
-                newUser.setUsername("testTwoCheckByDate");
-                newUser.setName("Peter");
-                newUser.setLastName("Doe");
-                newUser.setPassword("Ultra secret password");
-                newUser.setEmail("testTwoCheckByDate@eservice.com");
-
                 entityManager.getTransaction().begin();
-                newUser = userService.create(newUser);
+                Option newParcelOption = optionService.create();
                 entityManager.getTransaction().commit();
-
-                users.add(newUser);
 
                 /*
                  * Creacion y persistencia de una parcela
@@ -254,13 +268,26 @@ public class PlantingRecordServiceBeanTest {
                 newParcel.setHectares(2);
                 newParcel.setLatitude(1);
                 newParcel.setLongitude(1);
-                newParcel.setUser(newUser);
+                newParcel.setOption(newParcelOption);
 
                 entityManager.getTransaction().begin();
                 newParcel = parcelService.create(newParcel);
                 entityManager.getTransaction().commit();
 
-                parcels.add(newParcel);
+                /*
+                 * Creacion y persistencia de un usuario de prueba
+                 */
+                User newUser = new User();
+                newUser.setUsername("testTwoCheckByDate");
+                newUser.setName("Peter");
+                newUser.setLastName("Doe");
+                newUser.setEmail("testTwoCheckByDate@eservice.com");
+                newUser.setParcels(new ArrayList<>());
+                newUser.getParcels().add(newParcel);
+
+                entityManager.getTransaction().begin();
+                newUser = userService.create(newUser);
+                entityManager.getTransaction().commit();
 
                 /*
                  * Creacion y persistencia de un cultivo de prueba
@@ -282,6 +309,15 @@ public class PlantingRecordServiceBeanTest {
                 newCrop = cropService.create(newCrop);
                 entityManager.getTransaction().commit();
 
+                /*
+                 * Se añaden los datos creados a una coleccion para
+                 * su respectiva eliminacion de la base de datos
+                 * subyacente. Esto se hace con el fin de hacer que
+                 * la base de datos quede en su estado original.
+                 */
+                users.add(newUser);
+                options.add(newParcelOption);
+                parcels.add(newParcel);
                 crops.add(newCrop);
 
                 /*
@@ -358,20 +394,11 @@ public class PlantingRecordServiceBeanTest {
                 System.out.println();
 
                 /*
-                 * Creacion y persistencia de un usuario de prueba
+                 * Creacion y persistencia de una opcion para una parcela
                  */
-                User newUser = new User();
-                newUser.setUsername("testThreeCheckByDate");
-                newUser.setName("Peter");
-                newUser.setLastName("Doe");
-                newUser.setPassword("Ultra secret password");
-                newUser.setEmail("testThreeCheckByDate@eservice.com");
-
                 entityManager.getTransaction().begin();
-                newUser = userService.create(newUser);
+                Option newParcelOption = optionService.create();
                 entityManager.getTransaction().commit();
-
-                users.add(newUser);
 
                 /*
                  * Creacion y persistencia de una parcela
@@ -381,13 +408,26 @@ public class PlantingRecordServiceBeanTest {
                 newParcel.setHectares(2);
                 newParcel.setLatitude(1);
                 newParcel.setLongitude(1);
-                newParcel.setUser(newUser);
+                newParcel.setOption(newParcelOption);
 
                 entityManager.getTransaction().begin();
                 newParcel = parcelService.create(newParcel);
                 entityManager.getTransaction().commit();
 
-                parcels.add(newParcel);
+                /*
+                 * Creacion y persistencia de un usuario de prueba
+                 */
+                User newUser = new User();
+                newUser.setUsername("testThreeCheckByDate");
+                newUser.setName("Peter");
+                newUser.setLastName("Doe");
+                newUser.setEmail("testThreeCheckByDate@eservice.com");
+                newUser.setParcels(new ArrayList<>());
+                newUser.getParcels().add(newParcel);
+
+                entityManager.getTransaction().begin();
+                newUser = userService.create(newUser);
+                entityManager.getTransaction().commit();
 
                 /*
                  * Creacion y persistencia de un cultivo de prueba
@@ -409,6 +449,15 @@ public class PlantingRecordServiceBeanTest {
                 newCrop = cropService.create(newCrop);
                 entityManager.getTransaction().commit();
 
+                /*
+                 * Se añaden los datos creados a una coleccion para
+                 * su respectiva eliminacion de la base de datos
+                 * subyacente. Esto se hace con el fin de hacer que
+                 * la base de datos quede en su estado original.
+                 */
+                users.add(newUser);
+                options.add(newParcelOption);
+                parcels.add(newParcel);
                 crops.add(newCrop);
 
                 /*
@@ -484,20 +533,11 @@ public class PlantingRecordServiceBeanTest {
                 System.out.println();
 
                 /*
-                 * Creacion y persistencia de un usuario de prueba
+                 * Creacion y persistencia de una opcion para una parcela
                  */
-                User newUser = new User();
-                newUser.setUsername("testFourCheckByDate");
-                newUser.setName("Peter");
-                newUser.setLastName("Doe");
-                newUser.setPassword("Ultra secret password");
-                newUser.setEmail("testFourCheckByDate@eservice.com");
-
                 entityManager.getTransaction().begin();
-                newUser = userService.create(newUser);
+                Option newParcelOption = optionService.create();
                 entityManager.getTransaction().commit();
-
-                users.add(newUser);
 
                 /*
                  * Creacion y persistencia de una parcela
@@ -507,13 +547,26 @@ public class PlantingRecordServiceBeanTest {
                 newParcel.setHectares(2);
                 newParcel.setLatitude(1);
                 newParcel.setLongitude(1);
-                newParcel.setUser(newUser);
+                newParcel.setOption(newParcelOption);
 
                 entityManager.getTransaction().begin();
                 newParcel = parcelService.create(newParcel);
                 entityManager.getTransaction().commit();
 
-                parcels.add(newParcel);
+                /*
+                 * Creacion y persistencia de un usuario de prueba
+                 */
+                User newUser = new User();
+                newUser.setUsername("testFourCheckByDate");
+                newUser.setName("Peter");
+                newUser.setLastName("Doe");
+                newUser.setEmail("testFourCheckByDate@eservice.com");
+                newUser.setParcels(new ArrayList<>());
+                newUser.getParcels().add(newParcel);
+
+                entityManager.getTransaction().begin();
+                newUser = userService.create(newUser);
+                entityManager.getTransaction().commit();
 
                 /*
                  * Creacion y persistencia de un cultivo de prueba
@@ -535,6 +588,15 @@ public class PlantingRecordServiceBeanTest {
                 newCrop = cropService.create(newCrop);
                 entityManager.getTransaction().commit();
 
+                /*
+                 * Se añaden los datos creados a una coleccion para
+                 * su respectiva eliminacion de la base de datos
+                 * subyacente. Esto se hace con el fin de hacer que
+                 * la base de datos quede en su estado original.
+                 */
+                users.add(newUser);
+                options.add(newParcelOption);
+                parcels.add(newParcel);
                 crops.add(newCrop);
 
                 /*
@@ -611,20 +673,11 @@ public class PlantingRecordServiceBeanTest {
                 System.out.println();
 
                 /*
-                 * Creacion y persistencia de un usuario de prueba
+                 * Creacion y persistencia de una opcion para una parcela
                  */
-                User newUser = new User();
-                newUser.setUsername("testFiveCheckByDate");
-                newUser.setName("Peter");
-                newUser.setLastName("Doe");
-                newUser.setPassword("Ultra secret password");
-                newUser.setEmail("testFiveCheckByDate@eservice.com");
-
                 entityManager.getTransaction().begin();
-                newUser = userService.create(newUser);
+                Option newParcelOption = optionService.create();
                 entityManager.getTransaction().commit();
-
-                users.add(newUser);
 
                 /*
                  * Creacion y persistencia de una parcela
@@ -634,13 +687,26 @@ public class PlantingRecordServiceBeanTest {
                 newParcel.setHectares(2);
                 newParcel.setLatitude(1);
                 newParcel.setLongitude(1);
-                newParcel.setUser(newUser);
+                newParcel.setOption(newParcelOption);
 
                 entityManager.getTransaction().begin();
                 newParcel = parcelService.create(newParcel);
                 entityManager.getTransaction().commit();
 
-                parcels.add(newParcel);
+                /*
+                 * Creacion y persistencia de un usuario de prueba
+                 */
+                User newUser = new User();
+                newUser.setUsername("testFiveCheckByDate");
+                newUser.setName("Peter");
+                newUser.setLastName("Doe");
+                newUser.setEmail("testFiveCheckByDate@eservice.com");
+                newUser.setParcels(new ArrayList<>());
+                newUser.getParcels().add(newParcel);
+
+                entityManager.getTransaction().begin();
+                newUser = userService.create(newUser);
+                entityManager.getTransaction().commit();
 
                 /*
                  * Creacion y persistencia de un cultivo de prueba
@@ -662,6 +728,15 @@ public class PlantingRecordServiceBeanTest {
                 newCrop = cropService.create(newCrop);
                 entityManager.getTransaction().commit();
 
+                /*
+                 * Se añaden los datos creados a una coleccion para
+                 * su respectiva eliminacion de la base de datos
+                 * subyacente. Esto se hace con el fin de hacer que
+                 * la base de datos quede en su estado original.
+                 */
+                users.add(newUser);
+                options.add(newParcelOption);
+                parcels.add(newParcel);
                 crops.add(newCrop);
 
                 /*
@@ -738,20 +813,11 @@ public class PlantingRecordServiceBeanTest {
                 System.out.println();
 
                 /*
-                 * Creacion y persistencia de un usuario de prueba
+                 * Creacion y persistencia de una opcion para una parcela
                  */
-                User newUser = new User();
-                newUser.setUsername("testSixCheckByDate");
-                newUser.setName("Peter");
-                newUser.setLastName("Doe");
-                newUser.setPassword("Ultra secret password");
-                newUser.setEmail("testSixCheckByDate@eservice.com");
-
                 entityManager.getTransaction().begin();
-                newUser = userService.create(newUser);
+                Option newParcelOption = optionService.create();
                 entityManager.getTransaction().commit();
-
-                users.add(newUser);
 
                 /*
                  * Creacion y persistencia de una parcela
@@ -761,13 +827,26 @@ public class PlantingRecordServiceBeanTest {
                 newParcel.setHectares(2);
                 newParcel.setLatitude(1);
                 newParcel.setLongitude(1);
-                newParcel.setUser(newUser);
+                newParcel.setOption(newParcelOption);
 
                 entityManager.getTransaction().begin();
                 newParcel = parcelService.create(newParcel);
                 entityManager.getTransaction().commit();
 
-                parcels.add(newParcel);
+                /*
+                 * Creacion y persistencia de un usuario de prueba
+                 */
+                User newUser = new User();
+                newUser.setUsername("testSixCheckByDate");
+                newUser.setName("Peter");
+                newUser.setLastName("Doe");
+                newUser.setEmail("testSixCheckByDate@eservice.com");
+                newUser.setParcels(new ArrayList<>());
+                newUser.getParcels().add(newParcel);
+
+                entityManager.getTransaction().begin();
+                newUser = userService.create(newUser);
+                entityManager.getTransaction().commit();
 
                 /*
                  * Creacion y persistencia de un cultivo de prueba
@@ -789,6 +868,15 @@ public class PlantingRecordServiceBeanTest {
                 newCrop = cropService.create(newCrop);
                 entityManager.getTransaction().commit();
 
+                /*
+                 * Se añaden los datos creados a una coleccion para
+                 * su respectiva eliminacion de la base de datos
+                 * subyacente. Esto se hace con el fin de hacer que
+                 * la base de datos quede en su estado original.
+                 */
+                users.add(newUser);
+                options.add(newParcelOption);
+                parcels.add(newParcel);
                 crops.add(newCrop);
 
                 /*
@@ -868,12 +956,16 @@ public class PlantingRecordServiceBeanTest {
                         cropService.physicallyRemove(currentCrop.getId());
                 }
 
+                for (User currentUser : users) {
+                        userService.remove(currentUser.getId());
+                }
+
                 for (Parcel currentParcel : parcels) {
                         parcelService.remove(currentParcel.getId());
                 }
 
-                for (User currentUser : users) {
-                        userService.remove(currentUser.getId());
+                for (Option currentOption : options) {
+                        optionService.remove(currentOption.getId());
                 }
 
                 entityManager.getTransaction().commit();
