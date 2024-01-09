@@ -16,6 +16,7 @@ import javax.ws.rs.PathParam;
 import stateless.OptionServiceBean;
 import stateless.ParcelServiceBean;
 import stateless.PlantingRecordServiceBean;
+import stateless.PlantingRecordStatusServiceBean;
 import stateless.SecretKeyServiceBean;
 import stateless.SessionServiceBean;
 import util.ErrorResponse;
@@ -26,6 +27,9 @@ import utilJwt.AuthHeaderManager;
 import utilJwt.JwtManager;
 import model.Option;
 import model.PlantingRecord;
+import model.Parcel;
+import model.Crop;
+import irrigation.WaterMath;
 
 @Path("/options")
 public class OptionRestServlet {
@@ -33,6 +37,7 @@ public class OptionRestServlet {
     @EJB OptionServiceBean optionService;
     @EJB ParcelServiceBean parcelService;
     @EJB PlantingRecordServiceBean plantingRecordService;
+    @EJB PlantingRecordStatusServiceBean plantingRecordStatusService;
     @EJB SecretKeyServiceBean secretKeyService;
     @EJB SessionServiceBean sessionService;
 
@@ -62,6 +67,17 @@ public class OptionRestServlet {
          */
         if (!RequestManager.isAccepted(givenResponse)) {
             return givenResponse;
+        }
+
+        /*
+         * Si el dato solicitado no existe en la base de datos
+         * subyacente, la aplicacion del lado servidor devuelve
+         * el mensaje HTTP 404 (Not found) junto con el mensaje
+         * "Recurso no encontrado" y no se realiza la operacion
+         * solicitada
+         */
+        if (!optionService.checkExistence(optionId)) {
+            return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
         }
 
         /*
@@ -120,6 +136,18 @@ public class OptionRestServlet {
          */
         if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
             return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+        }
+
+        /*
+         * Si al usuario que hizo esta peticion HTTP, no le pertenece
+         * la opcion solicitada (debido a que esta opcion NO esta
+         * asociada a ninguna de sus parcelas), la aplicacion del lado
+         * servidor devuelve el mensaje HTTP 403 (Forbidden) junto con
+         * el mensaje "Acceso no autorizado" (contenido en el enum
+         * ReasonError) y no se realiza la operacion solicitada
+         */
+        if (!optionService.checkUserOwnership(userId, optionId)) {
+            return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
         }
 
         /*
@@ -157,6 +185,17 @@ public class OptionRestServlet {
         }
 
         /*
+         * Si el dato solicitado no existe en la base de datos
+         * subyacente, la aplicacion del lado servidor devuelve
+         * el mensaje HTTP 404 (Not found) junto con el mensaje
+         * "Recurso no encontrado" y no se realiza la operacion
+         * solicitada
+         */
+        if (!optionService.checkExistence(optionId)) {
+            return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
+        }
+
+        /*
          * Obtiene el JWT del valor del encabezado de autorizacion
          * de una peticion HTTP
          */
@@ -215,6 +254,18 @@ public class OptionRestServlet {
         }
 
         /*
+         * Si al usuario que hizo esta peticion HTTP, no le pertenece
+         * la opcion solicitada (debido a que esta opcion NO esta
+         * asociada a ninguna de sus parcelas), la aplicacion del lado
+         * servidor devuelve el mensaje HTTP 403 (Forbidden) junto con
+         * el mensaje "Acceso no autorizado" (contenido en el enum
+         * ReasonError) y no se realiza la operacion solicitada
+         */
+        if (!optionService.checkUserOwnership(userId, optionId)) {
+            return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
+        }
+
+        /*
          * Si el objeto correspondiente a la referencia contenida
          * en la variable de tipo por referencia de tipo String json,
          * esta vacio, significa que el formulario del dato correspondiente
@@ -241,30 +292,14 @@ public class OptionRestServlet {
          * debe ser un número entre <limite inferior> y <limite superior>"
          * y no se realiza la operacion solicitada
          */
-        if (!optionService.validatePastDaysReference(modifiedOption)) {
-            String message = "La cantidad de días anteriores a la fecha actual utilizados como referencia para el cálculo de la "
-                    + "necesidad de agua de riego de un cultivo en la fecha actual debe ser un número entre "
-                    + optionService.getLowerLimitPastDays() + " y " + optionService.getUpperLimitPastDays();
+        // if (!optionService.validatePastDaysReference(modifiedOption)) {
+        //     String message = "La cantidad de días anteriores a la fecha actual utilizados como referencia para el cálculo de la "
+        //             + "necesidad de agua de riego de un cultivo en la fecha actual debe ser un número entre "
+        //             + optionService.getLowerLimitPastDays() + " y " + optionService.getUpperLimitPastDays();
 
-            PersonalizedResponse personalizedResponse = new PersonalizedResponse(message);
-            return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(personalizedResponse)).build();
-        }
-
-        /*
-         * Si la opcion suelo NO esta activa y la parcela correspondiente
-         * a dicha opcion tiene un registro de plantacion en el estado
-         * "En desarrollo", se actualiza la lamina total de agua disponible
-         * (dt) [mm] y la lamina de riego optima (drop) (umbral de riego)
-         * [mm] del mismo con 0 en la base de datos subyacente para
-         * representar que NO se utiliza el algoritmo del calculo, con
-         * datos de suelo o con suelo, de la necesidad de agua de riego
-         * de un cultivo en la fecha actual [mm/dia]
-         */
-        if (!modifiedOption.getSoilFlag() && plantingRecordService.checkOneInDevelopment(parcelService.findByOptionId(optionId))) {
-            PlantingRecord developingPlantingRecord = plantingRecordService.findInDevelopment(parcelService.findByOptionId(optionId));
-            plantingRecordService.updateTotalAmountWaterAvailable(developingPlantingRecord.getId(), 0);
-            plantingRecordService.updateOptimalIrrigationLayer(developingPlantingRecord.getId(), 0);
-        }
+        //     PersonalizedResponse personalizedResponse = new PersonalizedResponse(message);
+        //     return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(personalizedResponse)).build();
+        // }
 
         /*
          * Si la bandera suelo esta activa y la parcela correspondiente
@@ -280,6 +315,80 @@ public class OptionRestServlet {
         }
 
         /*
+         * Persistencia de los cambios realizados en una opcion de una
+         * parcela. Es importante realizar primero la modificacion de
+         * la opcion para que el calculo y el establecimiento del estado
+         * del registro de plantacion en desarrollo correspondiente a la
+         * parcela de esta opcion, sea realizado satisfactoriamente.
+         */
+        modifiedOption = optionService.modify(optionId, modifiedOption);
+
+        /*
+         * Si la parcela correspondiente a la opcion modificada, tiene
+         * un registro de plantacion en un estado en desarrollo, se
+         * modifican la capacidad de almacenamiento de agua (dt) [mm/dia],
+         * la lamina de riego optima (drop) [mm/dia], la necesidad de
+         * agua de riego [mm/dia] y el estado del mismo.
+         */
+        if (plantingRecordService.checkOneInDevelopment(parcelService.findByOptionId(optionId).getId())) {
+            PlantingRecord developingPlantingRecord = plantingRecordService.findInDevelopment(parcelService.findByOptionId(optionId).getId());
+            Parcel givenParcel = developingPlantingRecord.getParcel();
+            Crop givenCrop = developingPlantingRecord.getCrop();
+
+            /*
+             * Si la opcion suelo NO esta activa y la parcela correspondiente
+             * a dicha opcion tiene un registro de plantacion en un estado en
+             * desarrollo, se actualiza la lamina total de agua disponible (dt)
+             * [mm] y la lamina de riego optima (drop) (umbral de riego) [mm]
+             * del mismo con 0 en la base de datos subyacente para representar
+             * que NO se utiliza el algoritmo del calculo, con datos de suelo
+             * o con suelo, de la necesidad de agua de riego de un cultivo en
+             * la fecha actual [mm/dia]
+             */
+            if (!modifiedOption.getSoilFlag()) {
+                plantingRecordService.updateTotalAmountWaterAvailable(developingPlantingRecord.getId(), 0);
+                plantingRecordService.updateOptimalIrrigationLayer(developingPlantingRecord.getId(), 0);
+            }
+
+            /*
+             * Si la parcela de un registro de plantacion tiene la bandera
+             * suelo activa, se calcula la lamina de riego optima (drop)
+             * (umbral de riego) [mm] de la fecha actual y la lamina total
+             * de agua disponible (dt) [mm] y se las asigna al registro de
+             * plantacion en desarrollo
+             */
+            if (modifiedOption.getSoilFlag()) {
+                /*
+                 * Actualizacion de la lamina total de agua disponible (dt) [mm]
+                 * de un registro de plantacion en la base de datos subyacente
+                 */
+                plantingRecordService.updateTotalAmountWaterAvailable(developingPlantingRecord.getId(),
+                        WaterMath.calculateTotalAmountWaterAvailable(givenCrop, givenParcel.getSoil()));
+
+                /*
+                 * Actualizacion de la lamina de riego optima (drop) [mm] de
+                 * un registro de plantacion en la base de datos subyacente.
+                 * A esta se le asigna el signo negativo (-) porque representa
+                 * la cantidad maxima de agua que puede perder un suelo, que
+                 * tiene un cultivo sembrado, a partir de la cual NO conviene
+                 * perder mas agua, sino que se le debe añadir agua
+                 */
+                plantingRecordService.updateOptimalIrrigationLayer(developingPlantingRecord.getId(),
+                        (-1 * WaterMath.calculateOptimalIrrigationLayer(givenCrop, givenParcel.getSoil())));
+            }
+
+            /*
+             * Si la bandera suelo esta activa, un registro de plantacion
+             * en desarrollo adquiere el estado "Desarrollo optimo". En
+             * cambio, si NO esta activa, adquiere el estado "En desarrollo".
+             * Cuando se modifica la bandera suelo de una parcela se debe
+             * realizar el calculo de este estado para un registro de
+             * plantacion en desarrollo.
+             */
+            plantingRecordService.setStatus(developingPlantingRecord.getId(), plantingRecordStatusService.calculateStatus(developingPlantingRecord));
+        }
+
+        /*
          * Si el valor del encabezado de autorizacion de la peticion HTTP
          * dada, tiene un JWT valido, y se pasan todos los controles para
          * la modificacion del dato correspondiente a este bloque de codigo
@@ -287,7 +396,7 @@ public class OptionRestServlet {
          * mensaje HTTP 200 (Ok) junto con el dato que el cliente solicito
          * modificar
          */
-        return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(optionService.modify(optionId, modifiedOption))).build();
+        return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(modifiedOption)).build();
     }
 
 }

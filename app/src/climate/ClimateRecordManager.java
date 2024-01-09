@@ -144,8 +144,8 @@ public class ClimateRecordManager {
          * en desarrollo es una parcela que tiene un cultivo
          * plantado y en desarrollo.
          */
-        if (plantingRecordService.checkOneInDevelopment(givenParcel)) {
-          developingPlantingRecord = plantingRecordService.findInDevelopment(givenParcel);
+        if (plantingRecordService.checkOneInDevelopment(givenParcel.getId())) {
+          developingPlantingRecord = plantingRecordService.findInDevelopment(givenParcel.getId());
           etc = calculateEtcForCurrentClimateRecord(eto, developingPlantingRecord);
         }
 

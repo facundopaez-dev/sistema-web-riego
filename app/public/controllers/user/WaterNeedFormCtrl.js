@@ -55,10 +55,12 @@ app.controller(
             }
 
             /*
-            Si el registro de plantacion correspondiente a un ID NO
-            tiene el estado "En desarrollo", se impide el acceso al
-            formulario del calculo de la necesidad de agua de riego
-            redireccionando a la pagina de registros de plantacion
+            Si el registro de plantacion correspondiente a un ID NO tiene
+            un estado en desarrollo (en desarrollo, desarrollo optimo,
+            desarrollo en riesgo de marchitez, desarrollo en marchitez), se
+            impide el acceso al formulario del calculo de la necesidad de
+            agua de riego de un cultivo redireccionando a la pagina de
+            registros de plantacion
             */
             if (!waterNeedFormManager.isInDevelopment($params.id)) {
                 $location.path("/home/plantingRecords");

@@ -20,6 +20,22 @@ public class SoilWaterBalanceServiceBean {
     @PersistenceContext(unitName = "swcar")
     private EntityManager entityManager;
 
+    /*
+     * El valor de esta constante se utiliza para representar
+     * la situacion en la que NO se calcula el acumulado del
+     * deficit de agua por dia de dias previos a una fecha de
+     * un balance hidrico de suelo de una parcela que tiene
+     * un cultivo sembrado y en desarrollo. Esta situacion
+     * ocurre cuando el nivel de humedad de un suelo, que tiene
+     * un cultivo sembrado, es estrictamente menor al doble de
+     * la capacidad de almacenamiento de agua del mismo.
+     */
+    private final String NOT_CALCULATED = "NC";
+
+    public String getNotCalculated() {
+        return NOT_CALCULATED;
+    }
+
     public void setEntityManager(EntityManager localEntityManager) {
         entityManager = localEntityManager;
     }
@@ -29,12 +45,40 @@ public class SoilWaterBalanceServiceBean {
     }
 
     /**
+     * 
      * @param newSoilWaterBalance
      * @return referencia a un objeto de tipo SoilWaterBalance
      */
     public SoilWaterBalance create(SoilWaterBalance newSoilWaterBalance) {
         entityManager.persist(newSoilWaterBalance);
         return newSoilWaterBalance;
+    }
+
+    /**
+     * Modifica el balance hidrico de suelo de una parcela y una
+     * fecha
+     * 
+     * @param parcelId
+     * @param date
+     * @param modifiedSoilWaterBalance
+     * @return referencia a un objeto de tipo SoilWaterBalance si
+     * se modifica el balance hidrico de de una parcela y una
+     * fecha. En caso contrario null.
+     */
+    public SoilWaterBalance modify(int parcelId, Calendar date, SoilWaterBalance modifiedSoilWaterBalance) {
+        SoilWaterBalance chosenSoilWaterBalanace = find(parcelId, date);
+
+        if (chosenSoilWaterBalanace != null) {
+            chosenSoilWaterBalanace.setParcelName(modifiedSoilWaterBalance.getParcelName());
+            chosenSoilWaterBalanace.setCropName(modifiedSoilWaterBalance.getCropName());
+            chosenSoilWaterBalanace.setWaterProvided(modifiedSoilWaterBalance.getWaterProvided());
+            chosenSoilWaterBalanace.setEvaporatedWater(modifiedSoilWaterBalance.getEvaporatedWater());
+            chosenSoilWaterBalanace.setWaterDeficitPerDay(modifiedSoilWaterBalance.getWaterDeficitPerDay());
+            chosenSoilWaterBalanace.setAccumulatedWaterDeficitPerDay(modifiedSoilWaterBalance.getAccumulatedWaterDeficitPerDay());
+            return chosenSoilWaterBalanace;
+        }
+
+        return null;
     }
 
     /**
@@ -68,7 +112,7 @@ public class SoilWaterBalanceServiceBean {
      * balance hidrico de suelo con un ID de parcela y una fecha.
      * En caso contrario, false.
      */
-    private boolean checkExistence(int parcelId, Calendar date) {
+    public boolean checkExistence(int parcelId, Calendar date) {
         return (find(parcelId, date) != null);
     }
 
@@ -86,7 +130,7 @@ public class SoilWaterBalanceServiceBean {
      * @param waterDeficitPerDay
      * @param accumulatedWaterDeficitPerDay
      */
-    public void update(int id, String cropName, double evaporatedWater, double waterProvided, double waterDeficitPerDay, double accumulatedWaterDeficitPerDay) {
+    public void update(int id, String cropName, double evaporatedWater, double waterProvided, double waterDeficitPerDay, String accumulatedWaterDeficitPerDay) {
         Query query = getEntityManager().createQuery("UPDATE SoilWaterBalance s SET s.cropName = :cropName, s.evaporatedWater = :evaporatedWater, s.waterProvided = :waterProvided, s.waterDeficitPerDay = :waterDeficitPerDay, s.accumulatedWaterDeficitPerDay = :accumulatedWaterDeficitPerDay WHERE s.id = :id");
         query.setParameter("cropName", cropName);
         query.setParameter("evaporatedWater", evaporatedWater);
@@ -170,6 +214,21 @@ public class SoilWaterBalanceServiceBean {
     }
 
     /**
+     * Actualiza el estado de instancias de tipo SoilWaterBalance
+     * desde la base de datos, sobrescribiendo los cambios realizados
+     * en cada una de ellas, si los hubiere
+     * 
+     * @param soilWaterBalances
+     */
+    public void refreshSoilWaterBalances(Collection<SoilWaterBalance> soilWaterBalances) {
+
+        for (SoilWaterBalance currentSoilWaterBalance : soilWaterBalances) {
+            getEntityManager().refresh(getEntityManager().merge(currentSoilWaterBalance));
+        }
+
+    }
+
+    /**
      * Crea y persiste los balances hidricos de suelo con
      * determinadas fechas para una parcela que tiene un
      * cultivo en desarrollo cuando se calcula la necesidad
@@ -246,7 +305,7 @@ public class SoilWaterBalanceServiceBean {
                 newSoilWaterBalance.setEvaporatedWater(getEvaporatedWater(currentClimateRecord));
                 newSoilWaterBalance.setWaterProvided(waterProvidedPerDay);
                 newSoilWaterBalance.setWaterDeficitPerDay(waterDeficitPerDay);
-                newSoilWaterBalance.setAccumulatedWaterDeficitPerDay(accumulatedWaterDeficitPerDay);
+                newSoilWaterBalance.setAccumulatedWaterDeficitPerDay(String.valueOf(accumulatedWaterDeficitPerDay));
 
                 /*
                  * Persiste el nuevo balance hidrico de suelo
@@ -261,7 +320,7 @@ public class SoilWaterBalanceServiceBean {
                 listSoilWaterBalances.add(newSoilWaterBalance);
             } else {
                 givenSoilWaterBalance = find(parcel.getId(), currentClimateRecord.getDate());
-                update(givenSoilWaterBalance.getId(), cropName, getEvaporatedWater(currentClimateRecord), waterProvidedPerDay, waterDeficitPerDay, accumulatedWaterDeficitPerDay);
+                update(givenSoilWaterBalance.getId(), cropName, getEvaporatedWater(currentClimateRecord), waterProvidedPerDay, waterDeficitPerDay, String.valueOf(accumulatedWaterDeficitPerDay));
             }
 
         } // End for
@@ -273,7 +332,7 @@ public class SoilWaterBalanceServiceBean {
      * @return double que representa el agua evaporada, la cual
      * puede ser la ETc o la ETo en caso de que la ETc = 0
      */
-    private double getEvaporatedWater(ClimateRecord climateRecord) {
+    public double getEvaporatedWater(ClimateRecord climateRecord) {
         /*
          * Cuando una parcela NO tuvo un cultivo sembrado en una fecha,
          * la ETc [mm/dia] del registro climatico correspondiente a

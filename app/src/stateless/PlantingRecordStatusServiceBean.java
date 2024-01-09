@@ -7,6 +7,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import model.PlantingRecord;
 import model.PlantingRecordStatus;
+import model.Option;
 import util.UtilDate;
 
 @Stateless
@@ -37,7 +38,7 @@ public class PlantingRecordStatusServiceBean {
    * representa el estado "Finalizado"
    */
   public PlantingRecordStatus findFinishedStatus() {
-    Query query = getEntityManager().createQuery("SELECT p FROM PlantingRecordStatus p WHERE p.name = 'Finalizado'");
+    Query query = getEntityManager().createQuery("SELECT p FROM PlantingRecordStatus p WHERE UPPER(p.name) = UPPER('Finalizado')");
     return (PlantingRecordStatus) query.getSingleResult();
   }
 
@@ -45,8 +46,35 @@ public class PlantingRecordStatusServiceBean {
    * @return referencia a un objeto de tipo PlantingRecordStatus que
    * representa el estado "En desarrollo"
    */
-  public PlantingRecordStatus findDevelopmentStatus() {
+  public PlantingRecordStatus findInDevelopmentStatus() {
     Query query = getEntityManager().createQuery("SELECT p FROM PlantingRecordStatus p WHERE p.name = 'En desarrollo'");
+    return (PlantingRecordStatus) query.getSingleResult();
+  }
+
+  /**
+   * @return referencia a un objeto de tipo PlantingRecordStatus que
+   * representa el estado "Desarrollo optimo"
+   */
+  public PlantingRecordStatus findOptimalDevelopmentStatus() {
+    Query query = getEntityManager().createQuery("SELECT p FROM PlantingRecordStatus p WHERE UPPER(p.name) = UPPER('Desarrollo óptimo')");
+    return (PlantingRecordStatus) query.getSingleResult();
+  }
+
+  /**
+   * @return referencia a un objeto de tipo PlantingRecordStatus que
+   * representa el estado "Desarrollo en riesgo de marchitez"
+   */
+  public PlantingRecordStatus findDevelopmentAtRiskWiltingStatus() {
+    Query query = getEntityManager().createQuery("SELECT p FROM PlantingRecordStatus p WHERE UPPER(p.name) = UPPER('Desarrollo en riesgo de marchitez')");
+    return (PlantingRecordStatus) query.getSingleResult();
+  }
+
+  /**
+   * @return referencia a un objeto de tipo PlantingRecordStatus que
+   * representa el estado "Desarrollo en marchitez"
+   */
+  public PlantingRecordStatus findDevelopmentInWitheringStatus() {
+    Query query = getEntityManager().createQuery("SELECT p FROM PlantingRecordStatus p WHERE UPPER(p.name) = UPPER('Desarrollo en marchitez')");
     return (PlantingRecordStatus) query.getSingleResult();
   }
 
@@ -55,16 +83,16 @@ public class PlantingRecordStatusServiceBean {
    * representa el estado "En espera"
    */
   public PlantingRecordStatus findWaitingStatus() {
-    Query query = getEntityManager().createQuery("SELECT p FROM PlantingRecordStatus p WHERE p.name = 'En espera'");
+    Query query = getEntityManager().createQuery("SELECT p FROM PlantingRecordStatus p WHERE UPPER(p.name) = UPPER('En espera')");
     return (PlantingRecordStatus) query.getSingleResult();
   }
 
   /**
    * @return referencia a un objeto de tipo PlantingRecordStatus que
-   * representa el estado "Marchitado"
+   * representa el estado "Muerto"
    */
-  public PlantingRecordStatus findWitheredStatus() {
-    Query query = getEntityManager().createQuery("SELECT p FROM PlantingRecordStatus p WHERE p.name = 'Marchitado'");
+  public PlantingRecordStatus findDeadStatus() {
+    Query query = getEntityManager().createQuery("SELECT p FROM PlantingRecordStatus p WHERE UPPER(p.name) = UPPER('Muerto')");
     return (PlantingRecordStatus) query.getSingleResult();
   }
 
@@ -75,7 +103,7 @@ public class PlantingRecordStatusServiceBean {
    * calcula el estado de un cultivo sembrado en una parcela en base
    * a su fecha de siembra y su fecha de cosecha.
    * 
-   * @param givenPlantingRecord
+   * @param plantingRecord
    * @return una referencia a un objeto de tipo PlantingRecordStatus
    * que representa el estado "Finalizado" si la fecha de cosecha de
    * un registro de plantacion es estrictamente menor a la fecha actual,
@@ -85,10 +113,11 @@ public class PlantingRecordStatusServiceBean {
    * siembra de un registro de plantacion es estrictamente mayor a la
    * fecha actual
    */
-  public PlantingRecordStatus calculateStatus(PlantingRecord givenPlantingRecord) {
+  public PlantingRecordStatus calculateStatus(PlantingRecord plantingRecord) {
     Calendar currentDate = UtilDate.getCurrentDate();
-    Calendar seedDate = givenPlantingRecord.getSeedDate();
-    Calendar harvestDate = givenPlantingRecord.getHarvestDate();
+    Calendar seedDate = plantingRecord.getSeedDate();
+    Calendar harvestDate = plantingRecord.getHarvestDate();
+    Option parcelOption = plantingRecord.getParcel().getOption();
 
     /*
      * Si la fecha de cosecha de un registro de plantacion
@@ -100,13 +129,23 @@ public class PlantingRecordStatusServiceBean {
     }
 
     /*
-     * Si la fecha actual es mayor o igual a la fecha de
-     * siembra y es menor o igual a la fecha de cosecha
-     * de un registro de plantacion, el estado de un
-     * registro de plantacion es "En desarrollo"
+     * Si la bandera suelo NO esta activa y la fecha actual es
+     * mayor o igual a la fecha de siembra y es menor o igual a
+     * la fecha de cosecha de un registro de plantacion, el estado
+     * de un registro de plantacion es "En desarrollo"
      */
-    if ((UtilDate.compareTo(currentDate, seedDate) >= 0) && (UtilDate.compareTo(currentDate, harvestDate) <= 0)) {
-      return findDevelopmentStatus();
+    if (!parcelOption.getSoilFlag() && UtilDate.compareTo(currentDate, seedDate) >= 0 && UtilDate.compareTo(currentDate, harvestDate) <= 0) {
+      return findInDevelopmentStatus();
+    }
+
+    /*
+     * Si la bandera suelo esta activa y la fecha actual es mayor
+     * o igual a la fecha de siembra y es menor o igual a la fecha
+     * de cosecha de un registro de plantacion, el estado de un
+     * registro de plantacion es "Desarrollo optimo"
+     */
+    if (parcelOption.getSoilFlag() && UtilDate.compareTo(currentDate, seedDate) >= 0 && UtilDate.compareTo(currentDate, harvestDate) <= 0) {
+      return findOptimalDevelopmentStatus();
     }
 
     /*

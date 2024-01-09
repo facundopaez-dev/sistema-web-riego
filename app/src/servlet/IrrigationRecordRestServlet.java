@@ -1019,7 +1019,7 @@ public class IrrigationRecordRestServlet {
      * registro de riego para una parcela que no tiene un cultivo en
      * desarrollo" y no se realiza la operacion solicitada
      */
-    if (!plantingRecordService.checkOneInDevelopment(newIrrigationRecord.getParcel())) {
+    if (!plantingRecordService.checkOneInDevelopment(newIrrigationRecord.getParcel().getId())) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.THERE_IS_NO_CROP_IN_DEVELOPMENT))).build();
     }
 
@@ -1030,16 +1030,7 @@ public class IrrigationRecordRestServlet {
      * este metodo REST, tiene un cultivo en desarrollo, lo cual
      * se representa mediante un registro de plantacion en desarrollo
      */
-    newIrrigationRecord.setCrop(plantingRecordService.findInDevelopment(newIrrigationRecord.getParcel()).getCrop());
-
-    /*
-     * Si la parcela para la cual se crea un registro de riego,
-     * tiene un cultivo en desarrollo, se establece dicho cultivo
-     * en el nuevo registro de riego
-     */
-    if (plantingRecordService.checkOneInDevelopment(newIrrigationRecord.getParcel())) {
-      newIrrigationRecord.setCrop(plantingRecordService.findInDevelopment(newIrrigationRecord.getParcel()).getCrop());
-    }
+    newIrrigationRecord.setCrop(plantingRecordService.findInDevelopment(newIrrigationRecord.getParcel().getId()).getCrop());
 
     /*
      * Persistencia del nuevo registro de riego

@@ -52,7 +52,7 @@ public class SoilWaterBalance {
     private double waterDeficitPerDay;
 
     @Column(name = "ACCUMULATED_WATER_DEFICIT_PER_DAY", nullable = false)
-    private double accumulatedWaterDeficitPerDay;
+    private String accumulatedWaterDeficitPerDay;
 
     public int getId() {
         return id;
@@ -110,11 +110,11 @@ public class SoilWaterBalance {
         this.waterDeficitPerDay = waterDeficitPerDay;
     }
 
-    public double getAccumulatedWaterDeficitPerDay() {
+    public String getAccumulatedWaterDeficitPerDay() {
         return accumulatedWaterDeficitPerDay;
     }
 
-    public void setAccumulatedWaterDeficitPerDay(double accumulatedWaterDeficitPerDay) {
+    public void setAccumulatedWaterDeficitPerDay(String accumulatedWaterDeficitPerDay) {
         this.accumulatedWaterDeficitPerDay = accumulatedWaterDeficitPerDay;
     }
 

@@ -458,7 +458,7 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 	const TYPE_CROP = "ORIGIN_TYPE_CROP";
 	const PARCEL = "ORIGIN_PARCEL";
 	const WATER_NEED_CROP = "ORIGIN_NEED_WATER_CROP";
-	const WATER_NEED_WITHERED_CROP = "ORIGIN_NEED_WATER_WITHERED_CROP";
+	const DEAD_CROP_WATER_NEED = "ORIGIN_DEAD_CROP_WATER_NEED";
 
 	return {
 		/**
@@ -531,11 +531,11 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 
 			/*
 			Si el resultado de calcular la necesidad de agua de riego de un cultivo
-			en la fecha actual [mm/dia] es un cultivo marchitado, redirige al usuario
+			en la fecha actual [mm/dia] es un cultivo muerto, redirige al usuario
 			a la pagina web de registros de plantacion
 			*/
 			if (accessManager.isUserLoggedIn() && !accessManager.loggedAsAdmin() && error.status == BAD_REQUEST
-				&& error.data.sourceUnsatisfiedResponse == WATER_NEED_WITHERED_CROP) {
+				&& error.data.sourceUnsatisfiedResponse == DEAD_CROP_WATER_NEED) {
 				$location.path(USER_PLANTING_RECORD_ROUTE);
 				return;
 			}
@@ -1008,6 +1008,10 @@ UtilDate es la factory creada para todas las operaciones
 con fechas.
 */
 app.factory('UtilDate', function () {
+
+	const JANUARY = 0;
+	const DECEMBER = 11;
+
 	return {
 		/**
 		 * 
@@ -1047,16 +1051,148 @@ app.factory('UtilDate', function () {
 
 		/**
 		 * 
+		 * @param {*} int 
+		 * @param {*} year 
+		 * @returns true si un año es bisiesto, en caso contrario false
+		 */
+		isLeapYear: function (year) {
+			/*
+			Un año es bisiesto si es divisible por 4 y no es divisible
+			por 100
+			*/
+			if (year % 4 == 0 && !(year % 100 == 0)) {
+				return true;
+			}
+
+			/*
+			Un año es bisiesto si es divisible por 4, por 100 y por 400
+			*/
+			if (year % 4 == 0 && year % 100 == 0 && year % 400 == 0) {
+				return true;
+			}
+
+			return false;
+		},
+
+		/**
+		 * 
 		 * @param {*} minorDate 
 		 * @param {*} majorDate 
-		 * @returns la diferencia en dias entre dos fechas dadas
+		 * @returns cantidad de dias de diferencia que hay entre dos
+		 * fechas
 		 */
 		calculateDifferenceBetweenDates: function (minorDate, majorDate) {
 			var minorDateTime = new Date(minorDate).getTime();
 			var majorDateTime = new Date(majorDate).getTime();
+			var yearsDifference = majorDate.getFullYear() - minorDate.getFullYear();
 
-			// (1000 * 60 * 60 * 24) --> milisegundos -> segundos -> minutos -> horas -> dias
-			return (majorDateTime - minorDateTime) / (1000 * 60 * 60 * 24);
+			/*
+			Si la diferencia en años entre dos fechas es igual a 0,
+			significa que las dos fechas tienen el mismo año. Por lo
+			tanto, se calcula directamente la cantidad de dias que
+			hay entre ambas.
+			*/
+			if (yearsDifference == 0) {
+				// (1000 * 60 * 60 * 24) --> milisegundos -> segundos -> minutos -> horas -> dias
+				return (majorDateTime - minorDateTime) / (1000 * 60 * 60 * 24);
+			}
+
+			/*
+			Si la diferencia en años entre dos fechas es estrictamente
+			mayor a cero, significa que el año de la fecha menor es
+			menor al año de la fecha mayor por una unidad o mas. Por lo
+			tanto, la cantidad de dias que hay entre dos fechas se
+			calcula sumando la cantidad de dias que hay entre la fecha
+			menor hasta el ultimo dia del año de la misma, la cantidad
+			de dias de los años que hay entre la fecha menor y la fecha
+			mayor, y la cantidad de dias que hay entre el primer dia del
+			año de la fecha mayor hasta la misma.
+			*/
+			var lastDayDateTime = new Date(minorDate.getFullYear(), DECEMBER, 31).getTime();
+			var firstDayDateTime = new Date(majorDate.getFullYear(), JANUARY, 1).getTime();
+			var days = 0;
+
+			/*
+			(1000 * 60 * 60 * 24) --> milisegundos -> segundos -> minutos -> horas -> dias
+
+			Convierte a dias el tiempo en milisegundos resultante de la
+			diferencia en milisegundos entre la fecha menor y el ultimo
+			dia de año de la fecha menor.
+
+			Convierte a dias el tiempo en milisegundos resultante de la
+			diferencia en milisegundos entre el primer dia en el año de
+			la fecha mayor y la misma.
+			*/
+			var daysFromMinorDate = (lastDayDateTime - minorDateTime) / (1000 * 60 * 60 * 24);
+			var daysUntileMajorDate = (majorDateTime - firstDayDateTime) / (1000 * 60 * 60 * 24);
+
+			/*
+			Acumula la cantidad de dias de los años que hay entre la
+			fecha menor y la fecha mayor, sin acumular la cantidad de
+			dias del año de la fecha menor ni del año de la fecha mayor
+			*/
+			for (let year = minorDate.getFullYear() + 1; year < majorDate.getFullYear(); year++) {
+
+				if (!this.isLeapYear(year)) {
+					days = days + 365;
+				} else {
+					days = days + 366;
+				}
+
+			}
+
+			/*
+			Se suma un uno para incluir unicamente la fecha menor en el
+			calculo de la cantidad de dias que hay entre una fecha mayor
+			y una fecha menor
+			*/
+			return (daysFromMinorDate + days + daysUntileMajorDate) + 1;
+		},
+
+		/**
+		 * 
+		 * @param {*} date 
+		 * @returns string que contiene una fecha en el formato dd-MM-YYYY
+		 */
+		formatDate: function (date) {
+			return date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear();
+		}
+
+	}
+});
+
+/*
+CropManager es la factory creada para controles
+relacionados a un cultivo.
+*/
+app.factory('CropManager', ['UtilDate', function (utilDate) {
+
+	return {
+
+		/**
+		 * 
+		 * @param {*} lifeCycle 
+		 * @param {*} seedDate 
+		 * @param {*} harvestDate 
+		 * @returns true si la cantidad de dias entre una fecha de siembra y una
+		 * fecha de cosecha elegidas para un cultivo elegido es estrictamente
+		 * mayor al ciclo de vida del mismo. En caso contrario, false.
+		 */
+		lifeCycleExceeded: function (lifeCycle, seedDate, harvestDate) {
+			/*
+			Esta funcion devuelve la diferencia en dias entre dos fechas dadas.
+			A la diferencia entre la fecha de siembra y la fecha de cosecha
+			elegidas para un cultivo se suma un uno para incluir a la fecha de
+			cosecha en el resultado dicha diferencia, ya que cuenta como un dia
+			dentro del periodo elegido para un cultivo.
+			*/
+			var difference = utilDate.calculateDifferenceBetweenDates(seedDate, harvestDate) + 1;
+
+			if (difference > lifeCycle) {
+				return true;
+			}
+
+			return false;
 		},
 
 		/**
@@ -1095,15 +1231,34 @@ app.factory('UtilDate', function () {
 
 		/**
 		 * 
-		 * @param {*} date 
-		 * @returns string que contiene una fecha en el formato dd-MM-YYYY
+		 * @param {*} seedDate 
+		 * @param {*} harvestDate 
+		 * @param {*} lifeCycle 
+		 * @param {*} suggestedHarvestDate 
+		 * @returns string que contiene un mensaje de advertencia en el caso
+		 * en el que la diferencia de dias entre la fecha de siembra y la
+		 * fecha de cosecha elegidas para un cultivo sea estrictamente mayor
+		 * al ciclo de vida del mismo
 		 */
-		formatDate: function (date) {
-			return date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear();
+		getLifeCycleExceededWarning: function (seedDate, harvestDate, lifeCycle, suggestedHarvestDate) {
+			/*
+			Esta funcion devuelve la diferencia en dias entre dos fechas dadas.
+			A la diferencia entre la fecha de siembra y la fecha de cosecha
+			elegidas para un cultivo se suma un uno para incluir a la fecha de
+			cosecha en el resultado dicha diferencia, ya que cuenta como un dia
+			dentro del periodo elegido para un cultivo.
+			*/
+			var difference = utilDate.calculateDifferenceBetweenDates(seedDate, harvestDate) + 1;
+			var warningMessage = "La cantidad de días (" + difference + ") que hay entre la fecha de siembra y la fecha de cosecha elegidas es mayor al ciclo de vida (" +
+				lifeCycle + " días) del cultivo elegido. Esto hará que la aplicación utilice la ETo para calcular la necesidad de agua de riego en la fecha actual cuando " +
+				"el cultivo haya alcanzado su ciclo de vida. Se sugiere modificar la fecha de cosecha a la fecha " + utilDate.formatDate(suggestedHarvestDate) + " porque " +
+				"entre la fecha de siembra elegida y la fecha de cosecha sugerida hay una cantidad de días igual al ciclo de vida (" + lifeCycle + " días) del cultivo elegido.";
+
+			return warningMessage;
 		}
 
 	}
-});
+}]);
 
 /*
 WaterNeedFormManager es la factory que se utiliza para controlar el
@@ -1115,6 +1270,33 @@ se debe impedir dicho acceso.
 app.factory('WaterNeedFormManager', function () {
 
 	var plantingRecords = new Array();
+
+	/*
+	El estado "En desarrollo" se utiliza en el caso en el que
+	la opcion del uso del suelo para el calculo de la necesidad
+	de agua de riego de un cultivo en la fecha actual NO esta
+	activa.
+
+	El desarrollo optimo de un cultivo ocurre cuando el nivel de
+	humedad del suelo, en el que esta sembrado, es menor o igual
+	a la capacidad de campo del suelo y estrictamente mayor al
+	umbral de riego.
+
+	El desarrollo en riesgo de marchitez de un cultivo ocurre
+	cuando el nivel de humedad del suelo, en el que esta sembrado,
+	es menor o igual al umbral de riego y estrictamente mayor a
+	la capacidad de almacenamiento de agua del suelo.
+
+	El desarrollo en marchitez de un cultivo ocurre cuando el
+	nivel de humedad del suelo, en el que esta sembrado, es
+	estrictamente menor a la capacidad de almacenamiento de
+	agua del suelo y mayor o igual al doble de la capacidad
+	de almacenamiento de agua del suelo.
+	*/
+	const IN_DEVELOPMENT = "En desarrollo";
+	const OPTIMAL_DEVELOPMENT = "Desarrollo óptimo";
+	const DEVELOPMENT_AT_RISK_OF_WILTING = "Desarrollo en riesgo de marchitez";
+	const DEVELOPMENT_IN_WILTING = "Desarrollo en marchitez";
 
 	return {
 
@@ -1135,14 +1317,18 @@ app.factory('WaterNeedFormManager', function () {
 		 * 
 		 * @param {*} plantingRecordId 
 		 * @returns true si el ID corresponde a un registro de
-		 * plantacion en desarrollo
+		 * plantacion que tiene un estado en desarrollo
 		 */
 		isInDevelopment: function (plantingRecordId) {
 
 			for (let index = 0; index < plantingRecords.length; index++) {
 				const currentPlantingRecord = plantingRecords[index];
 
-				if (currentPlantingRecord.id == plantingRecordId && currentPlantingRecord.status.name == 'En desarrollo') {
+				if (currentPlantingRecord.id == plantingRecordId
+					&& (currentPlantingRecord.status.name == IN_DEVELOPMENT
+						|| currentPlantingRecord.status.name == OPTIMAL_DEVELOPMENT
+						|| currentPlantingRecord.status.name == DEVELOPMENT_AT_RISK_OF_WILTING
+						|| currentPlantingRecord.status.name == DEVELOPMENT_IN_WILTING)) {
 					return true;
 				}
 

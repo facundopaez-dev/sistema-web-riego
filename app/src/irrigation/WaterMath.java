@@ -23,6 +23,70 @@ public class WaterMath {
   }
 
   /**
+   * @param totalIrrigationWaterGivenDate
+   * @param accumulatedWaterDeficitPerDay
+   * @return double que representa la necesidad de agua de
+   * riego de un cultivo de una fecha [mm/dia].
+   * 
+   * La fecha para la que se calcula la necesidad de agua
+   * de riego de un cultivo [mm/dia] depende de la fecha
+   * de la cantidad total de agua de riego [mm/dia] y de
+   * la fecha del acumulado del deficit de agua por dia
+   * [mm/dia], el cual debe ser de la fecha inmediatamente
+   * anterior a la fecha de la cantidad total de agua de
+   * riego si se quiere calcular la necesidad de agua de
+   * riego de un cultivo en una fecha.
+   * 
+   * Para calcular la necesidad de agua de riego de un
+   * cultivo en la fecha actual se debe utilizar la
+   * cantidad total de agua de riego [mm/dia] de la
+   * fecha actual (es decir, hoy) y el acumulado del
+   * deficit de agua por dia [mm/dia] de la fecha
+   * inmediatamente a la fech actual.
+   * 
+   * Si este metodo se utiliza con la cantidad total de
+   * agua de riego de ayer y el acumulado del deficit de
+   * agua por dia de antes de ayer, la necesidad de agua
+   * de riego de un cultivo calculada es de ayer.
+   */
+  public static double calculateIrrigationWaterNeed(double totalIrrigationWaterGivenDate, double accumulatedWaterDeficitPerDay) {
+
+    /*
+     * Si la suma entre la cantidad total de agua de riego de
+     * una fecha [mm/dia] y el acumulado del deficit de agua
+     * por dia [mm/dia] de una fecha inmediatamente anterior
+     * a la fecha de la cantidad total de agua de riego es
+     * mayor o igual a cero, la cantidad total de agua evaporada
+     * de dias previos a una fecha [mm/dia] fue totalmente
+     * cubierta (satisfecha) en una fecha. Por lo tanto, la
+     * necesidad de agua de riego de un cultivo en una fecha
+     * es 0 [mm/dia].
+     * 
+     * El motivo por el cual se realiza la suma entre estos
+     * dos valores es que el acumulado del deficit de agua
+     * por dia [mm/dia] de dias previos a una fecha es menor
+     * o igual a cero.
+     */
+    if ((totalIrrigationWaterGivenDate + accumulatedWaterDeficitPerDay) >= 0) {
+      return 0.0;
+    }
+
+    /*
+     * Si la suma entre la cantidad total de agua de riego de
+     * una fecha [mm/dia] y el acumulado del deficit de agua
+     * por dia [mm/dia] de una fecha inmediatamente anterior
+     * a la fecha de la cantidad total de agua de riego es
+     * estrictamente menor a cero, la cantidad total de agua
+     * evaporada de dias previos a una fecha [mm/dia] NO
+     * fue totalmente cubierta (satisfecha) en una fecha.
+     * Por lo tanto, la necesidad de agua de riego de un
+     * cultivo en una fecha [mm/dia] es el valor absoluto de
+     * la suma entre estos dos valores.
+     */
+    return Math.abs(totalIrrigationWaterGivenDate + accumulatedWaterDeficitPerDay);
+  }
+
+  /**
    * Este metodo calcula el acumulado del deficit de agua por dia [mm/dia]
    * de dias previos a una fecha sumando el deficit de agua por dia
    * de cada uno de dichos dias. La fecha puede ser la fecha actual

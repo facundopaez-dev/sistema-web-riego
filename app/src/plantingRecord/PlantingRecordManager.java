@@ -51,34 +51,6 @@ public class PlantingRecordManager {
     @EJB UserServiceBean userService;
 
     /*
-     * El valor de esta constante se asigna a la necesidad de
-     * agua de riego [mm/dia] de un registro de plantacion
-     * para el que no se puede calcular dicha necesidad, lo
-     * cual, ocurre cuando no se tiene la evapotranspiracion
-     * del cultivo bajo condiciones estandar (ETc) [mm/dia]
-     * ni la precipitacion [mm/dia], siendo ambos valores de
-     * la fecha actual.
-     * 
-     * El valor de esta constante tambien se asigna a la
-     * necesidad de agua de riego de un registro de plantacion
-     * finalizado o en espera, ya que NO tiene ninguna utilidad
-     * que un registro de plantacion en uno de estos estados
-     * tenga un valor numerico mayor o igual a cero en la
-     * necesidad de agua de riego.
-     * 
-     * La abreviatura "n/a" significa "no disponible".
-     */
-    private final String NOT_AVAILABLE = "n/a";
-
-    /*
-     * Este simbolo se utiliza para representar que la necesidad
-     * de agua de riego de un cultivo en la fecha actual [mm/dia]
-     * no esta disponible, pero se puede calcular. Esta situacion
-     * ocurre unicamente para un registro de plantacion en desarrollo.
-     */
-    private final String IRRIGATION_WATER_NEED_NOT_AVAILABLE_BUT_CALCULABLE = "-";
-
-    /*
      * Establece de manera automatica el estado finalizado de un registro de
      * plantacion presuntamente en desarrollo. Esto lo hace cada 24 horas a
      * partir de las 00 horas.
@@ -94,6 +66,25 @@ public class PlantingRecordManager {
     // @Schedule(second = "*", minute = "*", hour = "0/23", persistent = false)
     // @Schedule(second = "*/10", minute = "*", hour = "*", persistent = false)
     public void modifyToFinishedStatus() {
+        /*
+         * El valor de esta constante se asigna a la necesidad de
+         * agua de riego [mm/dia] de un registro de plantacion
+         * para el que no se puede calcular dicha necesidad, lo
+         * cual, ocurre cuando no se tiene la evapotranspiracion
+         * del cultivo bajo condiciones estandar (ETc) [mm/dia]
+         * ni la precipitacion [mm/dia], siendo ambos valores de
+         * la fecha actual.
+         * 
+         * El valor de esta constante tambien se asigna a la
+         * necesidad de agua de riego de un registro de plantacion
+         * finalizado o en espera, ya que NO tiene ninguna utilidad
+         * que un registro de plantacion en uno de estos estados
+         * tenga un valor numerico mayor o igual a cero en la
+         * necesidad de agua de riego.
+         * 
+         * La abreviatura "n/a" significa "no disponible".
+         */
+        String notAvailable = plantingRecordService.getNotAvailable();
         Collection<PlantingRecord> developingPlantingRecords = plantingRecordService.findAllInDevelopment();
 
         for (PlantingRecord currentPlantingRecord : developingPlantingRecords) {
@@ -122,7 +113,7 @@ public class PlantingRecordManager {
              * datos.
              */
             if (plantingRecordService.isFinished(currentPlantingRecord)) {
-                plantingRecordService.updateIrrigationWaterNeed(currentPlantingRecord.getId(), currentPlantingRecord.getParcel(), NOT_AVAILABLE);
+                plantingRecordService.updateIrrigationWaterNeed(currentPlantingRecord.getId(), currentPlantingRecord.getParcel(), notAvailable);
                 plantingRecordService.updateTotalAmountWaterAvailable(currentPlantingRecord.getId(), 0);
                 plantingRecordService.updateOptimalIrrigationLayer(currentPlantingRecord.getId(), 0);
                 plantingRecordService.setStatus(currentPlantingRecord.getId(), plantingRecordStatusService.findFinishedStatus());
@@ -147,6 +138,14 @@ public class PlantingRecordManager {
     // @Schedule(second = "*", minute = "*", hour = "1/23", persistent = false)
     // @Schedule(second = "*/10", minute = "*", hour = "*", persistent = false)
     public void modifyToInDevelopmentStatus() {
+        /*
+         * El simbolo de esta variable se utiliza para representar que la
+         * necesidad de agua de riego de un cultivo en la fecha actual [mm/dia]
+         * no esta disponible, pero se puede calcular. Esta situacion
+         * ocurre unicamente para un registro de plantacion en desarrollo.
+         */
+        String irrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getIrrigationWaterNotAvailableButCalculable();
+
         /*
          * Obtiene una coleccion que contiene el registro de
          * plantacion en espera mas antiguo de los registros
@@ -178,8 +177,8 @@ public class PlantingRecordManager {
              */
             if (plantingRecordService.isInDevelopment(currentPlantingRecord)) {
                 plantingRecordService.updateIrrigationWaterNeed(currentPlantingRecord.getId(),
-                        currentPlantingRecord.getParcel(), IRRIGATION_WATER_NEED_NOT_AVAILABLE_BUT_CALCULABLE);
-                plantingRecordService.setStatus(currentPlantingRecord.getId(), plantingRecordStatusService.findDevelopmentStatus());
+                        currentPlantingRecord.getParcel(), irrigationWaterNeedNotAvailableButCalculable);
+                plantingRecordService.setStatus(currentPlantingRecord.getId(), plantingRecordStatusService.findInDevelopmentStatus());
             }
 
         }
@@ -202,6 +201,25 @@ public class PlantingRecordManager {
     // @Schedule(second = "*", minute = "*", hour = "1/2", persistent = false)
     // @Schedule(second = "*/5", minute = "*", hour = "*", persistent = false)
     private void setIrrigationWaterNeed() {
+        /*
+         * El valor de esta constante se asigna a la necesidad de
+         * agua de riego [mm/dia] de un registro de plantacion
+         * para el que no se puede calcular dicha necesidad, lo
+         * cual, ocurre cuando no se tiene la evapotranspiracion
+         * del cultivo bajo condiciones estandar (ETc) [mm/dia]
+         * ni la precipitacion [mm/dia], siendo ambos valores de
+         * la fecha actual.
+         * 
+         * El valor de esta constante tambien se asigna a la
+         * necesidad de agua de riego de un registro de plantacion
+         * finalizado o en espera, ya que NO tiene ninguna utilidad
+         * que un registro de plantacion en uno de estos estados
+         * tenga un valor numerico mayor o igual a cero en la
+         * necesidad de agua de riego.
+         * 
+         * La abreviatura "n/a" significa "no disponible".
+         */
+        String notAvailable = plantingRecordService.getNotAvailable();
         Collection<PlantingRecord> developingPlantingRecords = plantingRecordService.findAllInDevelopment();
         Parcel givenParcel = null;
         User givenUser = null;
@@ -289,9 +307,9 @@ public class PlantingRecordManager {
              * el mensaje dado, y no se realiza la operacion solicitada.
              */
             if (irrigationWaterNeedCurrentDate < 0.0) {
-                plantingRecordService.updateIrrigationWaterNeed(developingPlantingRecord.getId(), developingPlantingRecord.getParcel(), NOT_AVAILABLE);
-                plantingRecordService.setStatus(developingPlantingRecord.getId(), plantingRecordStatusService.findWitheredStatus());
-                plantingRecordService.updateWiltingDate(developingPlantingRecord.getId(), UtilDate.getCurrentDate());
+                plantingRecordService.updateIrrigationWaterNeed(developingPlantingRecord.getId(), developingPlantingRecord.getParcel(), notAvailable);
+                // plantingRecordService.setStatus(developingPlantingRecord.getId(), plantingRecordStatusService.findWitheredStatus());
+                // plantingRecordService.updateWiltingDate(developingPlantingRecord.getId(), UtilDate.getCurrentDate());
             }
 
             /*
@@ -761,7 +779,7 @@ public class PlantingRecordManager {
             dateFrom = UtilDate.getPastDateFromOffset(parcelOption.getPastDaysReference());
         }
 
-        double totalIrrigationWaterCurrentDate = irrigationRecordService.calculateTotalIrrigationWaterCurrentDate(givenParcel);
+        double totalIrrigationWaterCurrentDate = irrigationRecordService.calculateTotalIrrigationWaterCurrentDate(givenParcel.getId());
 
         /*
          * Obtiene de la base de datos subyacente los registros

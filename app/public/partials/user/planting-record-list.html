@@ -163,7 +163,7 @@
         <td class="text-right">
           <div class="btn-group" role="group" aria-label="...">
             <a href="#!/home/calculateIrrigationWaterNeed/{{p.id}}" class="btn btn-success" role="button"
-              ng-show="{{p.status.name == 'En desarrollo'}}">
+              ng-show="{{p.status.name == 'En desarrollo' || p.status.name == 'Desarrollo óptimo' || p.status.name == 'Desarrollo en riesgo de marchitez' || p.status.name == 'Desarrollo en marchitez'}}">
               <span aria-hidden="true">Calcular</span>
             </a>
             <a href="#!/home/plantingRecords/view/{{p.id}}" class="btn btn-success" role="button">

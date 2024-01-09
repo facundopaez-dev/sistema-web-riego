@@ -1,9 +1,9 @@
 app.controller(
   "PlantingRecordCtrl",
   ["$scope", "$location", "$route", "$routeParams", "PlantingRecordSrv", "CropSrv", "ParcelSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager",
-    "LogoutManager", "ExpirationManager", "RedirectManager", "UtilDate",
+    "LogoutManager", "ExpirationManager", "RedirectManager", "CropManager", "UtilDate",
     function ($scope, $location, $route, $params, plantingRecordService, cropService, parcelService, accessManager, errorResponseManager, authHeaderManager,
-      logoutManager, expirationManager, redirectManager, utilDate) {
+      logoutManager, expirationManager, redirectManager, cropManager, utilDate) {
 
       console.log("PlantingRecordCtrl loaded with action: " + $params.action)
 
@@ -108,20 +108,23 @@ app.controller(
             $scope.data.harvestDate = new Date($scope.data.harvestDate);
           }
 
-          if ($scope.data.wiltingDate != null) {
-            $scope.data.wiltingDate = new Date($scope.data.wiltingDate);
+          if ($scope.data.deathDate != null) {
+            $scope.data.deathDate = new Date($scope.data.deathDate);
           }
 
         });
       }
 
       /*
-      Tres de los cuatro estados que puede tener un registro
+      Algunos de los estados que puede tener un registro
       de plantacion
       */
-      const DEVELOPING_STATE = "En desarrollo";
+      const IN_DEVELOPMENT = "En desarrollo";
+      const OPTIMAL_DEVELOPMENT_STATE = "Desarrollo óptimo";
+      const DEVELOPMENT_AT_RISK_WILTING_STATE = "Desarrollo en riesgo de marchitez";
+      const DEVELOPMENT_IN_WILTING_STATE = "Desarrollo en marchitez";
       const ON_HOLD = "En espera";
-      const WITHERED_STATUS = "Marchitado";
+      const DEAD_STATUS = "Muerto";
 
       /*
       Constantes de mensaje en caso de que los datos de entrada
@@ -195,15 +198,21 @@ app.controller(
           }
 
           /*
-          Si el cultivo elegido tiene el estado "En desarrollo" o el estado "En espera"
-          y la cantidad de dias entre la fecha de siembra y la fecha de cosecha elegidas
-          para el mismo es mayor a su ciclo de vida, la aplicacion muestra un mensaje
-          de advertencia sugiriendo cual debe ser la fecha de cosecha
+          Si el cultivo elegido tiene un estado en desarrollo (en desarrollo,
+          desarrollo optimo, desarrollo en riesgo de marchitez o desarrollo en
+          marchitez) o el estado "En espera" y la cantidad de dias entre la fecha
+          de siembra y la fecha de cosecha elegidas para el mismo es mayor a su
+          ciclo de vida, la aplicacion muestra un mensaje de advertencia sugiriendo
+          cual debe ser la fecha de cosecha
           */
-          if (($scope.data.status.name === DEVELOPING_STATE || $scope.data.status.name === ON_HOLD) &&
-            lifeCycleExceeded($scope.data.crop.lifeCycle, $scope.data.seedDate, $scope.data.harvestDate)) {
-            var suggestedHarvestDate = utilDate.calculateSuggestedHarvestDate($scope.data.seedDate, $scope.data.crop.lifeCycle);
-            alert(getLifeCycleExceededWarning($scope.data.seedDate, $scope.data.harvestDate, $scope.data.crop.lifeCycle, suggestedHarvestDate));
+          if (($scope.data.status.name === IN_DEVELOPMENT
+            || $scope.data.status.name === OPTIMAL_DEVELOPMENT_STATE
+            || $scope.data.status.name === DEVELOPMENT_AT_RISK_WILTING_STATE
+            || $scope.data.status.name === DEVELOPMENT_IN_WILTING_STATE
+            || $scope.data.status.name === ON_HOLD) &&
+            cropManager.lifeCycleExceeded($scope.data.crop.lifeCycle, $scope.data.seedDate, $scope.data.harvestDate)) {
+            var suggestedHarvestDate = cropManager.calculateSuggestedHarvestDate($scope.data.seedDate, $scope.data.crop.lifeCycle);
+            alert(cropManager.getLifeCycleExceededWarning($scope.data.seedDate, $scope.data.harvestDate, $scope.data.crop.lifeCycle, suggestedHarvestDate));
           }
 
           $location.path("/home/plantingRecords");
@@ -244,31 +253,31 @@ app.controller(
         }
 
         const currentDate = new Date();
-        let maintainWitheredStatus = false;
+        let maintainDeadStatus = false;
 
         /*
-        Si el registro de plantacion a modificar tiene el estado marchitado y
+        Si el registro de plantacion a modificar tiene el estado muerto y
         existe la posibilidad de que adquiera al estado "Finalizado" (si la
-        fecha de cosecha elegida es anterior a la fecha actual) o el estado
-        "En desarrollo" (si la fecha actual es mayor o igual a la fecha de
+        fecha de cosecha elegida es anterior a la fecha actual) o un estado
+        en desarrollo (si la fecha actual es mayor o igual a la fecha de
         siembra elegida y menor o igual a la fecha de cosecha elegida, es
         decir, si la fecha actual esta entre la fecha de siembra y la fecha
         de cosecha elegidas), se pide al usuario que confirme si desea que
-        el registro de plantacion mantenga el estado marchitado luego de la
+        el registro de plantacion mantenga el estado muerto luego de la
         modificacion
         */
-        if (($scope.data.status.name == WITHERED_STATUS)
+        if (($scope.data.status.name == DEAD_STATUS)
           && (utilDate.compareTo($scope.data.harvestDate, currentDate) < 0
             || (utilDate.compareTo(currentDate, $scope.data.seedDate) >= 0 && utilDate.compareTo(currentDate, $scope.data.harvestDate) <= 0))) {
           var message = "Si se modifica el registro de plantación con una fecha de cosecha anterior a la fecha actual, adquirirá el estado finalizado. "
             + "En cambio, si se lo modifica con fechas de tal manera que la fecha actual (hoy) esté en el período definido por las fechas elegidas, el "
-            + "registro de plantación adquirirá el estado en desarrolllo. "
-            + "¿Desea que el registro de plantación mantenga el estado marchitado luego de la modificación?";
+            + "registro de plantación adquirirá un estado de desarrollo (en desarrollo o desarrollo óptimo dependiendo de si se tiene en cuenta el suelo o no). "
+            + "¿Desea que el registro de plantación mantenga el estado muerto luego de la modificación?";
 
-          maintainWitheredStatus = confirm(message);
+          maintainDeadStatus = confirm(message);
         }
 
-        plantingRecordService.modify($scope.data, maintainWitheredStatus, function (error, data) {
+        plantingRecordService.modify($scope.data, maintainDeadStatus, function (error, data) {
           if (error) {
             console.log(error);
             errorResponseManager.checkResponse(error);
@@ -286,15 +295,21 @@ app.controller(
           }
 
           /*
-          Si el cultivo elegido tiene el estado "En desarrollo" o el estado "En espera"
-          y la cantidad de dias entre la fecha de siembra y la fecha de cosecha elegidas
-          para el mismo es mayor a su ciclo de vida, la aplicacion muestra un mensaje
-          de advertencia sugiriendo cual debe ser la fecha de cosecha
+          Si el cultivo elegido tiene un estado en desarrollo (en desarrollo,
+          desarrollo optimo, desarrollo en riesgo de marchitez o desarrollo en
+          marchitez) o el estado "En espera" y la cantidad de dias entre la fecha
+          de siembra y la fecha de cosecha elegidas para el mismo es mayor a su
+          ciclo de vida, la aplicacion muestra un mensaje de advertencia sugiriendo
+          cual debe ser la fecha de cosecha
           */
-          if (($scope.data.status.name === DEVELOPING_STATE || $scope.data.status.name === ON_HOLD) &&
-            lifeCycleExceeded($scope.data.crop.lifeCycle, $scope.data.seedDate, $scope.data.harvestDate)) {
-            var suggestedHarvestDate = utilDate.calculateSuggestedHarvestDate($scope.data.seedDate, $scope.data.crop.lifeCycle);
-            alert(getLifeCycleExceededWarning($scope.data.seedDate, $scope.data.harvestDate, $scope.data.crop.lifeCycle, suggestedHarvestDate));
+          if (($scope.data.status.name === IN_DEVELOPMENT
+            || $scope.data.status.name === OPTIMAL_DEVELOPMENT_STATE
+            || $scope.data.status.name === DEVELOPMENT_AT_RISK_WILTING_STATE
+            || $scope.data.status.name === DEVELOPMENT_IN_WILTING_STATE
+            || $scope.data.status.name === ON_HOLD) &&
+            cropManager.lifeCycleExceeded($scope.data.crop.lifeCycle, $scope.data.seedDate, $scope.data.harvestDate)) {
+            var suggestedHarvestDate = cropManager.calculateSuggestedHarvestDate($scope.data.seedDate, $scope.data.crop.lifeCycle);
+            alert(cropManager.getLifeCycleExceededWarning($scope.data.seedDate, $scope.data.harvestDate, $scope.data.crop.lifeCycle, suggestedHarvestDate));
           }
 
           $location.path("/home/plantingRecords")
@@ -330,60 +345,6 @@ app.controller(
 
             return crops;
           });;
-      }
-
-      /**
-       * 
-       * @param {*} lifeCycle 
-       * @param {*} seedDate 
-       * @param {*} harvestDate 
-       * @returns true si la cantidad de dias entre una fecha de siembra y una
-       * fecha de cosecha elegidas para un cultivo elegido es estrictamente
-       * mayor al ciclo de vida del mismo. En caso contrario, false.
-       */
-      function lifeCycleExceeded(lifeCycle, seedDate, harvestDate) {
-        /*
-        Esta funcion devuelve la diferencia en dias entre dos fechas dadas.
-        A la diferencia entre la fecha de siembra y la fecha de cosecha
-        elegidas para un cultivo se suma un uno para incluir a la fecha de
-        cosecha en el resultado dicha diferencia, ya que cuenta como un dia
-        dentro del periodo elegido para un cultivo.
-        */
-        var difference = utilDate.calculateDifferenceBetweenDates(seedDate, harvestDate) + 1;
-
-        if (difference > lifeCycle) {
-          return true;
-        }
-
-        return false;
-      }
-
-      /**
-       * 
-       * @param {*} seedDate 
-       * @param {*} harvestDate 
-       * @param {*} lifeCycle 
-       * @param {*} suggestedHarvestDate 
-       * @returns string que contiene un mensaje de advertencia en el caso
-       * en el que la diferencia de dias entre la fecha de siembra y la
-       * fecha de cosecha elegidas para un cultivo sea estrictamente mayor
-       * al ciclo de vida del mismo
-       */
-      function getLifeCycleExceededWarning(seedDate, harvestDate, lifeCycle, suggestedHarvestDate) {
-        /*
-        Esta funcion devuelve la diferencia en dias entre dos fechas dadas.
-        A la diferencia entre la fecha de siembra y la fecha de cosecha
-        elegidas para un cultivo se suma un uno para incluir a la fecha de
-        cosecha en el resultado dicha diferencia, ya que cuenta como un dia
-        dentro del periodo elegido para un cultivo.
-        */
-        var difference = utilDate.calculateDifferenceBetweenDates(seedDate, harvestDate) + 1;
-        var warningMessage = "La cantidad de días (" + difference + ") que hay entre la fecha de siembra y la fecha de cosecha elegidas es mayor al ciclo de vida (" +
-          lifeCycle + " días) del cultivo elegido. Esto hará que la aplicación utilice la ETo para calcular la necesidad de agua de riego en la fecha actual cuando " +
-          "el cultivo haya alcanzado su ciclo de vida. Se sugiere modificar la fecha de cosecha a la fecha " + utilDate.formatDate(suggestedHarvestDate) + " porque " +
-          "entre la fecha de siembra elegida y la fecha de cosecha sugerida hay una cantidad de días igual al ciclo de vida (" + lifeCycle + " días) del cultivo elegido.";
-
-        return warningMessage;
       }
 
       $scope.logout = function () {

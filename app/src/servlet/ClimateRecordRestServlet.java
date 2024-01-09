@@ -604,17 +604,21 @@ public class ClimateRecordRestServlet {
       }
 
       /*
-       * Si un registro de plantacion que tine un periodo, el
+       * Si un registro de plantacion que tiene un periodo, el
        * cual esta definido por una fecha de siembra y una fecha
        * de cosecha, dentro del cual esta la fecha de un registro
-       * climatico, tiene el estado "En desarrollo", se calcula
-       * la ETc del cultivo correspondiente a este registro de
-       * plantacion, ya que la existencia de un registro de
-       * plantacion en desarrollo representa la situacion en
-       * la que una parcela tiene un cultivo sembrado y en
-       * desarrollo
+       * climatico, tiene un estado en desarrollo (en desarrollo,
+       * desarrollo optimo, desarrollo en riesgo de marchitez o
+       * desarrollo en marchitez), se calcula la ETc del cultivo
+       * correspondiente a este registro de plantacion, ya que la
+       * existencia de un registro de plantacion en desarrollo
+       * representa la situacion en la que una parcela tiene un
+       * cultivo sembrado y en desarrollo
        */
-      if (plantingRecordStatusService.equals(givenPlantingRecord.getStatus(), plantingRecordStatusService.findDevelopmentStatus())) {
+      if (plantingRecordStatusService.equals(givenPlantingRecord.getStatus(), plantingRecordStatusService.findInDevelopmentStatus())
+          || plantingRecordStatusService.equals(givenPlantingRecord.getStatus(), plantingRecordStatusService.findOptimalDevelopmentStatus())
+          || plantingRecordStatusService.equals(givenPlantingRecord.getStatus(), plantingRecordStatusService.findDevelopmentAtRiskWiltingStatus())
+          || plantingRecordStatusService.equals(givenPlantingRecord.getStatus(), plantingRecordStatusService.findDevelopmentInWitheringStatus())) {
         etc = Etc.calculateEtc(eto, cropService.getKc(givenPlantingRecord.getCrop(), givenPlantingRecord.getSeedDate()));
       }
 
@@ -899,17 +903,21 @@ public class ClimateRecordRestServlet {
       }
 
       /*
-       * Si un registro de plantacion que tine un periodo, el
+       * Si un registro de plantacion que tiene un periodo, el
        * cual esta definido por una fecha de siembra y una fecha
        * de cosecha, dentro del cual esta la fecha de un registro
-       * climatico, tiene el estado "En desarrollo", se calcula
-       * la ETc del cultivo correspondiente a este registro de
-       * plantacion, ya que la existencia de un registro de
-       * plantacion en desarrollo representa la situacion en
-       * la que una parcela tiene un cultivo sembrado y en
-       * desarrollo
+       * climatico, tiene un estado en desarrollo (en desarrollo,
+       * desarrollo optimo, desarrollo en riesgo de marchitez o
+       * desarrollo en marchitez), se calcula la ETc del cultivo
+       * correspondiente a este registro de plantacion, ya que la
+       * existencia de un registro de plantacion en desarrollo
+       * representa la situacion en la que una parcela tiene un
+       * cultivo sembrado y en desarrollo
        */
-      if (plantingRecordStatusService.equals(givenPlantingRecord.getStatus(), plantingRecordStatusService.findDevelopmentStatus())) {
+      if (plantingRecordStatusService.equals(givenPlantingRecord.getStatus(), plantingRecordStatusService.findInDevelopmentStatus())
+          || plantingRecordStatusService.equals(givenPlantingRecord.getStatus(), plantingRecordStatusService.findOptimalDevelopmentStatus())
+          || plantingRecordStatusService.equals(givenPlantingRecord.getStatus(), plantingRecordStatusService.findDevelopmentAtRiskWiltingStatus())
+          || plantingRecordStatusService.equals(givenPlantingRecord.getStatus(), plantingRecordStatusService.findDevelopmentInWitheringStatus())) {
         etc = Etc.calculateEtc(eto, cropService.getKc(givenPlantingRecord.getCrop(), givenPlantingRecord.getSeedDate()));
       }
 

@@ -30,9 +30,9 @@ public class PlantingRecord {
   @Temporal(TemporalType.DATE)
   private Calendar harvestDate;
 
-  @Column(name = "WILTING_DATE")
+  @Column(name = "DEATH_DATE")
   @Temporal(TemporalType.DATE)
-  private Calendar wiltingDate;
+  private Calendar deathDate;
 
   /*
    * Esta variable es para mostrar u ocultar el boton de modificacion
@@ -114,12 +114,12 @@ public class PlantingRecord {
     this.harvestDate = harvestDate;
   }
 
-  public Calendar getWiltingDate() {
-    return wiltingDate;
+  public Calendar getDeathDate() {
+    return deathDate;
   }
 
-  public void setWiltingDate(Calendar wiltingDate) {
-    this.wiltingDate = wiltingDate;
+  public void setDeathDate(Calendar deathDate) {
+    this.deathDate = deathDate;
   }
 
   public boolean getModifiable() {

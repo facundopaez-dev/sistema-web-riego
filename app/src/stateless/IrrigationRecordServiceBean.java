@@ -101,34 +101,6 @@ public class IrrigationRecordServiceBean {
   }
 
   /**
-   * Recupera un registro de riego de una parcela mediante
-   * una fecha si y solo si existe en la base de datos
-   * subyacente
-   * 
-   * @param givenDate
-   * @param givenParcel
-   * @return referencia a un objeto de tipo IrrigationRecord que
-   * representa el registro de riego que tiene una fecha dada
-   * y pertenece a una parcela, si existe en la base de datos
-   * subyacente. En caso contrario, null.
-   */
-  public IrrigationRecord find(Calendar givenDate, Parcel givenParcel) {
-    Query query = entityManager.createQuery("SELECT i FROM IrrigationRecord i WHERE (i.date = :givenDate AND i.parcel = :givenParcel)");
-    query.setParameter("givenDate", givenDate);
-    query.setParameter("givenParcel", givenParcel);
-
-    IrrigationRecord givenIrrigationRecord = null;
-
-    try {
-      givenIrrigationRecord = (IrrigationRecord) query.getSingleResult();
-    } catch (NoResultException e) {
-      e.printStackTrace();
-    }
-
-    return givenIrrigationRecord;
-  }
-
-  /**
    * Retorna un registro de riego perteneciente a una de las
    * parcelas de un usuario
    * 
@@ -187,6 +159,21 @@ public class IrrigationRecordServiceBean {
     Query query = getEntityManager().createQuery("SELECT i FROM IrrigationRecord i JOIN i.parcel p WHERE (p.name = :parcelName AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY i.id");
     query.setParameter("userId", userId);
     query.setParameter("parcelName", parcelName);
+
+    return (Collection) query.getResultList();
+  }
+
+  /**
+   * @param parcelId
+   * @param date
+   * @return referencia a un objeto de tipo Collection que
+   * contiene todos los registros de riego de una parcela
+   * que tienen una fecha
+   */
+  public Collection<IrrigationRecord> findAllByParcelIdAndDate(int parcelId, Calendar date) {
+    Query query = entityManager.createQuery("SELECT i FROM IrrigationRecord i WHERE (i.date = :date AND i.parcel.id = :parcelId)");
+    query.setParameter("date", date);
+    query.setParameter("parcelId", parcelId);
 
     return (Collection) query.getResultList();
   }
@@ -303,19 +290,21 @@ public class IrrigationRecordServiceBean {
   }
 
   /**
-   * @param givenParcel
-   * @return punto flotante que representa la cantidad total de
-   *         agua de riego utilizada para un cultivo en la fecha
-   *         actual
+   * @param parcelId
+   * @return double que representa la cantidad total de agua
+   * de riego utilizada en una parcela en la fecha actual.
+   * Si la parcela tiene un cultivo sembrado y en desarrollo
+   * en la fecha actual, el double representa la cantidad total
+   * de agua utilizada para regar un cultivo en la fecha actual.
    */
-  public double calculateTotalIrrigationWaterCurrentDate(Parcel givenParcel) {
+  public double calculateTotalIrrigationWaterCurrentDate(int parcelId) {
     /*
      * Suma el riego realizado de cada uno de los registros
      * de riego de una parcela en la fecha actual
      */
-    Query query = entityManager.createQuery("SELECT SUM(i.irrigationDone) FROM IrrigationRecord i WHERE (i.date = :currentDate AND i.parcel = :givenParcel)");
+    Query query = entityManager.createQuery("SELECT SUM(i.irrigationDone) FROM IrrigationRecord i JOIN i.parcel p WHERE (i.date = :currentDate AND p.id = :parcelId)");
     query.setParameter("currentDate", UtilDate.getCurrentDate());
-    query.setParameter("givenParcel", givenParcel);
+    query.setParameter("parcelId", parcelId);
 
     double totalIrrigationWaterCurrentDate = 0.0;
 
@@ -366,22 +355,6 @@ public class IrrigationRecordServiceBean {
     }
 
     return result;
-  }
-
-  /**
-   * Comprueba la existencia de un registro de riego en la base
-   * de datos subyacente. Retorna true si y solo si existe en
-   * la base de datos el registro de riego con una fecha dada
-   * perteneciente a una parcela dada.
-   * 
-   * @param givenDate
-   * @param givenParcel
-   * @return true si el registro de riego con una fecha dada
-   * perteneciente a una parcela dada existe en la base de datos
-   * subyacente, en caso contrario false
-   */
-  public boolean checkExistence(Calendar givenDate, Parcel givenParcel) {
-    return (find(givenDate, givenParcel) != null);
   }
 
   /**

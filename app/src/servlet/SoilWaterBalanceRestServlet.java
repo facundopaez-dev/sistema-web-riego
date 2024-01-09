@@ -2,6 +2,7 @@ package servlet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
@@ -26,6 +27,7 @@ import util.UtilDate;
 import utilJwt.AuthHeaderManager;
 import utilJwt.JwtManager;
 import model.Parcel;
+import model.SoilWaterBalance;
 
 @Path("/soilWaterBalances")
 public class SoilWaterBalanceRestServlet {
@@ -165,6 +167,19 @@ public class SoilWaterBalanceRestServlet {
         if (parcelName == null || cropName == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_PARCEL_NAME_AND_CROP_NAME))).build();
         }
+
+        Collection<SoilWaterBalance> soilWaterBalances = soilWaterBalanceService.findAllByParcelIdAndCropName(parcel.getId(), cropName);
+
+        /*
+         * Actualiza instancias de tipo SoilWaterBalance desde la base
+         * de datos subyacente, sobrescribiendo los cambios realizados
+         * en ellas, si los hubiere. Esto se realiza para recuperar
+         * los balances hidricos de suelo con los datos con las fechas
+         * con las que estan almacenados en la base de datos subyacente.
+         * De lo contrario, se los obtiene con fechas distintas a las
+         * fechas con las que estan almacenados.
+         */
+        soilWaterBalanceService.refreshSoilWaterBalances(soilWaterBalances);
 
         /*
          * Siempre y cuando no se elimine el control por el nombre

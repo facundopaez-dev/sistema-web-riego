@@ -47,6 +47,7 @@ import model.Parcel;
 import model.PasswordResetFormData;
 import model.PlantingRecord;
 import model.PlantingRecordStatus;
+import model.SoilWaterBalance;
 import model.IrrigationWaterNeedFormData;
 import model.User;
 import model.Option;
@@ -82,33 +83,6 @@ public class PlantingRecordRestServlet {
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
 
-  /*
-   * El valor de esta constante se asigna a la necesidad de
-   * agua de riego [mm/dia] de un registro de plantacion
-   * para el que no se puede calcular dicha necesidad, lo
-   * cual, ocurre cuando no se tiene la evapotranspiracion
-   * del cultivo bajo condiciones estandar (ETc) [mm/dia]
-   * ni la precipitacion [mm/dia], siendo ambos valores de
-   * la fecha actual.
-   * 
-   * El valor de esta constante tambien se asigna a la
-   * necesidad de agua de riego de un registro de plantacion
-   * finalizado o en espera, ya que NO tiene ninguna utilidad
-   * que un registro de plantacion en uno de estos estados
-   * tenga un valor numerico mayor o igual a cero en la
-   * necesidad de agua de riego.
-   * 
-   * La abreviatura "n/a" significa "no disponible".
-   */
-  private final String NOT_AVAILABLE = "n/a";
-
-  /*
-   * Este simbolo se utiliza para representar que la necesidad
-   * de agua de riego de un cultivo en la fecha actual [mm/dia]
-   * no esta disponible, pero se puede calcular. Esta situacion
-   * ocurre unicamente para un registro de plantacion en desarrollo.
-   */
-  private final String IRRIGATION_WATER_NEED_NOT_AVAILABLE_BUT_CALCULABLE = "-";
   private final int TOO_MANY_REQUESTS = 429;
   private final int SERVICE_UNAVAILABLE = 503;
 
@@ -578,6 +552,14 @@ public class PlantingRecordRestServlet {
     }
 
     /*
+     * El simbolo de esta variable se utiliza para representar que la
+     * necesidad de agua de riego de un cultivo en la fecha actual [mm/dia]
+     * no esta disponible, pero se puede calcular. Esta situacion
+     * ocurre unicamente para un registro de plantacion en desarrollo.
+     */
+    String irrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getIrrigationWaterNotAvailableButCalculable();
+
+    /*
      * Se establece el estado del nuevo registro de plantacion
      * en base a la fecha de siembra y la fecha de cosecha de
      * su cultivo
@@ -586,8 +568,29 @@ public class PlantingRecordRestServlet {
 
     PlantingRecordStatus statusNewPlantingRecord = newPlantingRecord.getStatus();
     PlantingRecordStatus finishedStatus = statusService.findFinishedStatus();
-    PlantingRecordStatus developmentStatus = statusService.findDevelopmentStatus();
     PlantingRecordStatus waitingStatus = statusService.findWaitingStatus();
+    PlantingRecordStatus inDevelopmentStatus = statusService.findInDevelopmentStatus();
+    PlantingRecordStatus optimalDevelopmentStatus = statusService.findOptimalDevelopmentStatus();
+
+    /*
+     * El valor de esta constante se asigna a la necesidad de
+     * agua de riego [mm/dia] de un registro de plantacion
+     * para el que no se puede calcular dicha necesidad, lo
+     * cual, ocurre cuando no se tiene la evapotranspiracion
+     * del cultivo bajo condiciones estandar (ETc) [mm/dia]
+     * ni la precipitacion [mm/dia], siendo ambos valores de
+     * la fecha actual.
+     * 
+     * El valor de esta constante tambien se asigna a la
+     * necesidad de agua de riego de un registro de plantacion
+     * finalizado o en espera, ya que NO tiene ninguna utilidad
+     * que un registro de plantacion en uno de estos estados
+     * tenga un valor numerico mayor o igual a cero en la
+     * necesidad de agua de riego.
+     * 
+     * La abreviatura "n/a" significa "no disponible".
+     */
+    String notAvailable = plantingRecordService.getNotAvailable();
 
     /*
      * Un registro de plantacion nuevo tiene el estado "Finalizado"
@@ -617,21 +620,22 @@ public class PlantingRecordRestServlet {
      * cultivo.
      */
     if (statusService.equals(statusNewPlantingRecord, finishedStatus) || (statusService.equals(statusNewPlantingRecord, waitingStatus))) {
-      newPlantingRecord.setIrrigationWaterNeed(NOT_AVAILABLE);
+      newPlantingRecord.setIrrigationWaterNeed(notAvailable);
     }
 
     /*
      * Inicialmente un registro de plantacion que tiene el estado
-     * "En desarrollo" NO tiene la necesidad de agua de riego de
-     * un cultivo en la fecha actual [mm/dia], lo cual se realiza
-     * para hacer que el usuario ejecute el proceso del calculo de
-     * la necesidad de agua de riego de un cultivo en la fecha actual
-     * [mm/dia]. La manera en la que el usuario realiza esto es
-     * mediante el boton "Calcular" de la pagina de registros de
-     * plantacion.
+     * "En desarrollo" o el estado "Desarrollo optimo" NO tiene la
+     * necesidad de agua de riego de un cultivo en la fecha actual
+     * [mm/dia], lo cual se realiza para hacer que el usuario ejecute
+     * el proceso del calculo de la necesidad de agua de riego de
+     * un cultivo en la fecha actual [mm/dia]. La manera en la que
+     * el usuario realiza esto es mediante el boton "Calcular" de
+     * la pagina de registros de plantacion.
      */
-    if (statusService.equals(statusNewPlantingRecord, developmentStatus)) {
-      newPlantingRecord.setIrrigationWaterNeed(IRRIGATION_WATER_NEED_NOT_AVAILABLE_BUT_CALCULABLE);
+    if (statusService.equals(statusNewPlantingRecord, inDevelopmentStatus)
+        || statusService.equals(statusNewPlantingRecord, optimalDevelopmentStatus)) {
+      newPlantingRecord.setIrrigationWaterNeed(irrigationWaterNeedNotAvailableButCalculable);
     }
 
     /*
@@ -655,10 +659,10 @@ public class PlantingRecordRestServlet {
   }
 
   @PUT
-  @Path("/{id}/{maintainWitheredStatus}")
+  @Path("/{id}/{maintainDeadStatus}")
   @Produces(MediaType.APPLICATION_JSON)
   public Response modify(@Context HttpHeaders request, @PathParam("id") int plantingRecordId,
-      @PathParam("maintainWitheredStatus") boolean maintainWitheredStatus, String json) throws IOException {
+      @PathParam("maintainDeadStatus") boolean maintainDeadStatus, String json) throws IOException {
     Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
 
     /*
@@ -795,25 +799,28 @@ public class PlantingRecordRestServlet {
     Crop modifiedCrop = modifiedPlantingRecord.getCrop();
     Crop currentCrop = currentPlantingRecord.getCrop();
 
-    Calendar seedDate = modifiedPlantingRecord.getSeedDate();
+    Calendar currentSeedDate = currentPlantingRecord.getSeedDate();
+    Calendar modifiedSeedDate = modifiedPlantingRecord.getSeedDate();
     Calendar harvestDate = modifiedPlantingRecord.getHarvestDate();
 
     PlantingRecordStatus currentStatus = currentPlantingRecord.getStatus();
     PlantingRecordStatus finishedStatus = statusService.findFinishedStatus();
-    PlantingRecordStatus developmentStatus = statusService.findDevelopmentStatus();
     PlantingRecordStatus waitingStatus = statusService.findWaitingStatus();
+    PlantingRecordStatus deadStatus = statusService.findDeadStatus();
+    PlantingRecordStatus inDevelopmentStatus = statusService.findInDevelopmentStatus();
+    PlantingRecordStatus optimalDevelopmentStatus = statusService.findOptimalDevelopmentStatus();
 
     /*
      * Si el registro de plantacion modificado tiene el atributo
      * modifiable en false y si el registro de plantacion correspondiente
-     * al registro de plantacion modificado tiene el estado "En
-     * desarrollo" o el estado "En espera", la aplicacion del lado
-     * servidor retorna el mensaje HTTP 400 (Bad request) junto con
-     * el mensaje "No esta permitido hacer que un registro de
-     * plantacion en desarrollo o en espera sea no modificable" y
-     * no se realiza la operacion solicitada
+     * al registro de plantacion modificado tiene un estado
+     * distinto al estado "Finalizado", la aplicacion del lado
+     * servidor retorna el el mensaje HTTP 400 (Bad request) junto
+     * con el mensaje "No esta permitido hacer que un registro
+     * de plantacion que no tiene el estado finalizado sea no
+     * modificable" y no se realiza la operacion solicitada
      */
-    if (!modifiedPlantingRecord.getModifiable() && (statusService.equals(currentStatus, developmentStatus) || statusService.equals(currentStatus, waitingStatus))) {
+    if (!modifiedPlantingRecord.getModifiable() && !(statusService.equals(currentStatus, finishedStatus))) {
       return Response.status(Response.Status.BAD_REQUEST)
           .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFIABILITY_PLANTING_RECORD_NOT_ALLOWED)))
           .build();
@@ -826,7 +833,7 @@ public class PlantingRecordRestServlet {
      * "La fecha de siembra debe estar definida" y no se realiza
      * la operacion solicitada
      */
-    if (seedDate == null) {
+    if (modifiedSeedDate == null) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_SEED_DATE))).build();
     }
 
@@ -848,7 +855,7 @@ public class PlantingRecordRestServlet {
      * "La fecha de siembra no debe ser mayor ni igual a la
      * fecha de cosecha" y no se realiza la operacion solicitada
      */
-    if (UtilDate.compareTo(seedDate, harvestDate) >= 0) {
+    if (UtilDate.compareTo(modifiedSeedDate, harvestDate) >= 0) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.OVERLAPPING_SEED_DATE_AND_HARVEST_DATE))).build();
     }
 
@@ -887,7 +894,7 @@ public class PlantingRecordRestServlet {
      * la operacion solicitada
      */
     if (!(parcelService.equals(modifiedPlantingRecord.getParcel(), currentPlantingRecord.getParcel()))
-        && (plantingRecordService.checkOneInDevelopment(modifiedPlantingRecord.getParcel()))) {
+        && (plantingRecordService.checkOneInDevelopment(modifiedPlantingRecord.getParcel().getId()))) {
       return Response.status(Response.Status.BAD_REQUEST)
           .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_WITH_PARCEL_HAS_PLANTING_RECORD_IN_DEVELOPMENT_NOT_ALLOWED)))
           .build();
@@ -918,19 +925,47 @@ public class PlantingRecordRestServlet {
         .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_IRRIGATION_WATER_NEED_NOT_ALLOWED))).build();
     }
 
+    PlantingRecordStatus modifiedPlantingRecordStatus = modifiedPlantingRecord.getStatus();
+
     /*
      * Si un registro de plantacion a modificar tiene el estado
-     * marchitado y NO se desea que mantenga ese estado luego
+     * muerto y NO se desea que mantenga ese estado luego
      * de su modificacion, se establece su proximo estado. El
      * estado de un registro de plantacion se calcula con base
      * en la fecha de siembra y la fecha de cosecha.
      */
-    if (!maintainWitheredStatus) {
+    if (statusService.equals(modifiedPlantingRecordStatus, deadStatus) && !maintainDeadStatus) {
       modifiedPlantingRecord.setStatus(statusService.calculateStatus(modifiedPlantingRecord));
-      plantingRecordService.unsetWiltingDate(plantingRecordId);
+      plantingRecordService.unsetDeathDate(plantingRecordId);
     }
 
-    PlantingRecordStatus modifiedPlantingRecordStatus = modifiedPlantingRecord.getStatus();
+    /*
+     * El simbolo de esta variable se utiliza para representar que la
+     * necesidad de agua de riego de un cultivo en la fecha actual [mm/dia]
+     * no esta disponible, pero se puede calcular. Esta situacion
+     * ocurre unicamente para un registro de plantacion en desarrollo.
+     */
+    String irrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getIrrigationWaterNotAvailableButCalculable();
+
+    /*
+     * El valor de esta constante se asigna a la necesidad de
+     * agua de riego [mm/dia] de un registro de plantacion
+     * para el que no se puede calcular dicha necesidad, lo
+     * cual, ocurre cuando no se tiene la evapotranspiracion
+     * del cultivo bajo condiciones estandar (ETc) [mm/dia]
+     * ni la precipitacion [mm/dia], siendo ambos valores de
+     * la fecha actual.
+     * 
+     * El valor de esta constante tambien se asigna a la
+     * necesidad de agua de riego de un registro de plantacion
+     * finalizado o en espera, ya que NO tiene ninguna utilidad
+     * que un registro de plantacion en uno de estos estados
+     * tenga un valor numerico mayor o igual a cero en la
+     * necesidad de agua de riego.
+     * 
+     * La abreviatura "n/a" significa "no disponible".
+     */
+    String notAvailable = plantingRecordService.getNotAvailable();
 
     /*
      * Un registro de plantacion tiene el estado "Finalizado" cuando
@@ -964,24 +999,25 @@ public class PlantingRecordRestServlet {
      * ningna utilidad tener tales datos.
      */
     if (statusService.equals(modifiedPlantingRecordStatus, finishedStatus) || (statusService.equals(modifiedPlantingRecordStatus, waitingStatus))) {
-      modifiedPlantingRecord.setIrrigationWaterNeed(NOT_AVAILABLE);
+      modifiedPlantingRecord.setIrrigationWaterNeed(notAvailable);
       plantingRecordService.updateTotalAmountWaterAvailable(plantingRecordId, 0);
       plantingRecordService.updateOptimalIrrigationLayer(plantingRecordId, 0);
     }
 
     /*
-     * Si el registro de plantacion modificado tiene el estado "En
-     * desarrollo" y tiene una parcela o un cultivo distinto a los
-     * originales, se asigna el caracter "-" a la necesidad de agua
-     * de riego de dicho registro para hacer que el usuario ejecute
-     * el proceso del calculo de la necesidad de agua de riego de
-     * un cultivo en la fecha actual [mm/dia]. La manera en la que
-     * el usuario realiza esto es mediante el boton "Calcular" de
-     * la pagina de registros de plantacion. Tambien se asigna el
-     * caracter "-" a la necesidad de agua de riego de un registro
-     * de plantacion en desarrollo perteneciente a una parcela a la
-     * que se le modifica el suelo. Esto esta programado en el metodo
-     * modify de la clase ParcelRestServlet.
+     * Si el registro de plantacion modificado tiene un estado en
+     * desarrollo (en desarrollo, desarrollo optimo) y tiene una
+     * parcela o un cultivo distinto a los originales, se asigna
+     * el caracter "-" a la necesidad de agua de riego de dicho
+     * registro para hacer que el usuario ejecute el proceso del
+     * calculo de la necesidad de agua de riego de un cultivo en
+     * la fecha actual [mm/dia]. La manera en la que el usuario
+     * realiza esto es mediante el boton "Calcular" de la pagina
+     * de registros de plantacion. Tambien se asigna el caracter
+     * "-" a la necesidad de agua de riego de un registro de
+     * plantacion en desarrollo perteneciente a una parcela a la
+     * que se le modifica el suelo. Esto esta programado en el
+     * metodo modify de la clase ParcelRestServlet.
      * 
      * El simbolo "-" (guion) se utiliza para representar que la
      * necesidad de agua de riego de un cultivo en la fecha actual
@@ -1002,27 +1038,28 @@ public class PlantingRecordRestServlet {
      * cultivo sembrado, a partir de la cual no conviene que pierda
      * mas agua, sino que se le debe añadir agua.
      */
-    if (statusService.equals(modifiedPlantingRecordStatus, developmentStatus)
+    if ((statusService.equals(modifiedPlantingRecordStatus, inDevelopmentStatus)
+        || statusService.equals(modifiedPlantingRecordStatus, optimalDevelopmentStatus))
         && (!parcelService.equals(modifiedParcel, currentParcel) || !cropService.equals(modifiedCrop, currentCrop))) {
-      modifiedPlantingRecord.setIrrigationWaterNeed(IRRIGATION_WATER_NEED_NOT_AVAILABLE_BUT_CALCULABLE);
+      modifiedPlantingRecord.setIrrigationWaterNeed(irrigationWaterNeedNotAvailableButCalculable);
       plantingRecordService.updateTotalAmountWaterAvailable(plantingRecordId, 0);
       plantingRecordService.updateOptimalIrrigationLayer(plantingRecordId, 0);
     }
 
     /*
      * Si el estado actual del registro de plantacion modificado
-     * es distinto del nuevo estado y este es el estado "En
-     * desarrollo", se asigna el caracter "-" a la necesidad
-     * de agua de riego de dicho reigstro para hacer que el
-     * usuario ejecute el proceso del calculo de la necesidad
-     * de agua de riego de un cultivo en la fecha actual [mm/dia].
-     * La manera en la que el usuario realiza esto es mediante
-     * el boton "Calcular" de la pagina de registros de plantacion.
-     * Tambien se asigna el caracter "-" a la necesidad de agua
-     * de riego de un cultivo en la fecha actual de un registro
-     * de plantacion en desarrollo perteneciente a una parcela
-     * a la que se le modifica el suelo. Esto esta programado
-     * en el metodo modify de la clase ParcelRestServlet.
+     * es distinto del nuevo estado y este es un estado en desarrollo
+     * (en desarrollo, desarrollo optimo), se asigna el caracter
+     * "-" a la necesidad de agua de riego de dicho registro para
+     * hacer que el usuario ejecute el proceso del calculo de la
+     * necesidad de agua de riego de un cultivo en la fecha actual
+     * [mm/dia]. La manera en la que el usuario realiza esto es
+     * mediante el boton "Calcular" de la pagina de registros de
+     * plantacion. Tambien se asigna el caracter "-" a la necesidad
+     * de agua de riego de un cultivo en la fecha actual de un
+     * registro de plantacion en desarrollo perteneciente a una
+     * parcela a la que se le modifica el suelo. Esto esta
+     * programado en el metodo modify de la clase ParcelRestServlet.
      * 
      * Este control es para el caso en el que se modifica un
      * registro de plantacion que tiene la parcela y el cultivo
@@ -1040,8 +1077,32 @@ public class PlantingRecordRestServlet {
      * Esta situacion ocurre unicamente para un registro de
      * plantacion en desarrollo.
      */
-    if (!statusService.equals(currentStatus, modifiedPlantingRecordStatus) && statusService.equals(modifiedPlantingRecordStatus, developmentStatus)) {
-      modifiedPlantingRecord.setIrrigationWaterNeed(IRRIGATION_WATER_NEED_NOT_AVAILABLE_BUT_CALCULABLE);
+    if (!statusService.equals(currentStatus, modifiedPlantingRecordStatus) &&
+        (statusService.equals(modifiedPlantingRecordStatus, inDevelopmentStatus)
+            || statusService.equals(modifiedPlantingRecordStatus, optimalDevelopmentStatus))) {
+      modifiedPlantingRecord.setIrrigationWaterNeed(irrigationWaterNeedNotAvailableButCalculable);
+    }
+
+    /*
+     * Si el estado del registro de plantacion modificado es un
+     * estado de desarrollo (en desarrollo, desarrollo optimo)
+     * y la fecha de siembra fue modificada, se asigna el caracter
+     * "-" (guion) a la necesidad de agua de riego de un cultivo
+     * en la fecha actual de un registro de plantacion en desarrollo.
+     * Esto se hace para que el usuario ejecute el proceso del
+     * calculo de la necesidad de agua de riego de un cultivo
+     * en la fecha actual [mm/dia].
+     * 
+     * El simbolo "-" (guion) se utiliza para representar que
+     * la necesidad de agua de riego de un cultivo en la fecha
+     * actual [mm/dia] no esta disponible, pero es calculable.
+     * Esta situacion ocurre unicamente para un registro de
+     * plantacion en desarrollo.
+     */
+    if ((statusService.equals(modifiedPlantingRecordStatus, inDevelopmentStatus)
+        || statusService.equals(modifiedPlantingRecordStatus, optimalDevelopmentStatus))
+        && UtilDate.compareTo(modifiedSeedDate, currentSeedDate) != 0) {
+      modifiedPlantingRecord.setIrrigationWaterNeed(irrigationWaterNeedNotAvailableButCalculable);
     }
 
     /*
@@ -1315,18 +1376,26 @@ public class PlantingRecordRestServlet {
     /*
      * Si se intenta calcular la necesidad de agua de riego de
      * un cultivo perteneciente a un registro de plantacion
-     * finalizado, en espera o marchitado, la aplicacion del lado
+     * finalizado, en espera o muerto, la aplicacion del lado
      * servidor retorna el mensaje HTTP 400 (Bad request) junto
      * con el mensaje "No esta permitido calcular la necesidad
      * de agua de riego de un cultivo finalizado, en espera o
-     * marchitado" y no se realiza la operacion solicitada
+     * muerto" y no se realiza la operacion solicitada
      */
     if (plantingRecordService.checkFinishedStatus(plantingRecordId)
         || plantingRecordService.checkWaitingStatus(plantingRecordId)
-        || plantingRecordService.checkWitheredStatus(plantingRecordId)) {
+        || plantingRecordService.checkDeadStatus(plantingRecordId)) {
       return Response.status(Response.Status.BAD_REQUEST)
           .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_REQUEST_CALCULATION_IRRIGATION_WATER_NEED))).build();
     }
+
+    /*
+     * ***********************************************************
+     * A partir de aqui comienza el codigo necesario para calcular
+     * la necesidad de agua de riego de un cultivo en la fecha
+     * actual [mm/dia]
+     * ***********************************************************
+     */
 
     /*
      * Si el flujo de ejecucion de este metodo llega a estas lineas
@@ -1339,39 +1408,19 @@ public class PlantingRecordRestServlet {
      * de agua de riego de un cultivo en desarrollo en la fecha actual.
      */
     PlantingRecord developingPlantingRecord = plantingRecordService.find(plantingRecordId);
-    Parcel givenParcel = developingPlantingRecord.getParcel();
-    Option parcelOption = givenParcel.getOption();
 
     /*
-     * Si la parcela de un registro de plantacion tiene la bandera
-     * suelo activa, se calcula la lamina de riego optima (drop)
-     * (umbral de riego) [mm] de la fecha actual y la lamina total
-     * de agua disponible (dt) [mm] y se las asigna al registro de
-     * plantacion en desarrollo
+     * El valor de esta variable se utiliza para representar
+     * la situacion en la que NO se calcula el acumulado del
+     * deficit de agua por dia de dias previos a una fecha de
+     * un balance hidrico de suelo de una parcela que tiene
+     * un cultivo sembrado y en desarrollo. Esta situacion
+     * ocurre cuando el nivel de humedad de un suelo, que tiene
+     * un cultivo sembrado, es estrictamente menor al doble de
+     * la capacidad de almacenamiento de agua del mismo.
      */
-    if (parcelOption.getSoilFlag()) {
-      Crop givenCrop = developingPlantingRecord.getCrop();
-
-      /*
-       * Actualizacion de la lamina total de agua disponible (dt) [mm]
-       * de un registro de plantacion en la base de datos subyacente
-       */
-      plantingRecordService.updateTotalAmountWaterAvailable(developingPlantingRecord.getId(),
-          WaterMath.calculateTotalAmountWaterAvailable(givenCrop, givenParcel.getSoil()));
-
-      /*
-       * Actualizacion de la lamina de riego optima (drop) [mm] de
-       * un registro de plantacion en la base de datos subyacente.
-       * A esta se le asigna el signo negativo (-) porque representa
-       * la cantidad maxima de agua que puede perder un suelo, que
-       * tiene un cultivo sembrado, a partir de la cual NO conviene
-       * perder mas agua, sino que se le debe añadir agua
-       */
-      plantingRecordService.updateOptimalIrrigationLayer(developingPlantingRecord.getId(),
-          (-1 * WaterMath.calculateOptimalIrrigationLayer(givenCrop, givenParcel.getSoil())));
-    }
-
-    double irrigationWaterNeedCurrentDate = 0.0;
+    String notCalculated = soilWaterBalanceService.getNotCalculated();
+    String stringIrrigationWaterNeedCurrentDate = null;
 
     try {
       /*
@@ -1381,7 +1430,7 @@ public class PlantingRecordRestServlet {
        * actualizar la necesidad de agua de riego de un cultivo
        * (en desarrollo) en la fecha actual.
        */
-      irrigationWaterNeedCurrentDate = runCalculationIrrigationWaterNeedCurrentDate(userService.find(userId), developingPlantingRecord);
+      stringIrrigationWaterNeedCurrentDate = runCalculationIrrigationWaterNeedCurrentDateTwo(developingPlantingRecord);
     } catch (Exception e) {
       e.printStackTrace();
 
@@ -1450,42 +1499,73 @@ public class PlantingRecordRestServlet {
     }
 
     /*
+     * El valor de esta constante se asigna a la necesidad de
+     * agua de riego [mm/dia] de un registro de plantacion
+     * para el que no se puede calcular dicha necesidad, lo
+     * cual, ocurre cuando no se tiene la evapotranspiracion
+     * del cultivo bajo condiciones estandar (ETc) [mm/dia]
+     * ni la precipitacion [mm/dia], siendo ambos valores de
+     * la fecha actual.
+     * 
+     * El valor de esta constante tambien se asigna a la
+     * necesidad de agua de riego de un registro de plantacion
+     * finalizado o en espera, ya que NO tiene ninguna utilidad
+     * que un registro de plantacion en uno de estos estados
+     * tenga un valor numerico mayor o igual a cero en la
+     * necesidad de agua de riego.
+     * 
+     * La abreviatura "n/a" significa "no disponible".
+     */
+    String notAvailable = plantingRecordService.getNotAvailable();
+
+    /*
      * Si la necesidad de agua de riego de un cultivo (en
-     * desarrollo) en la fecha actual [mm/dia] es negativa
-     * significa dos cosas:
-     * - que el algoritmo utilizado para calcular dicha
-     * necesidad es el que utiliza datos de suelo para ello,
-     * ya que este es el unico de los dos algoritmos del
-     * calculo de la necesidad de agua de riego de un cultivo
-     * en una fecha [mm/dia] que puede retornar -1,
-     * - y que el nivel de humedad del suelo de una parcela
-     * que tiene un cultivo sembrado y en desarrollo, esta
-     * en el punto de marchitez permanente, en el cual un
-     * cultivo no puede extraer agua del suelo y no puede
-     * recuperarse de la perdida hidrica aunque la humedad
-     * ambiental sea saturada.
+     * desarrollo) en la fecha actual [mm/dia] es "NC"
+     * (valor de la variable notCalculated) significa que
+     * el algoritmo utilizado para calcular dicha necesidad
+     * es el que utiliza el suelo para ello, ya que al
+     * utilizar este algoritmo se retorna el valor "NC"
+     * para representar la situacion en la que NO se
+     * calcula el acumulado del deficit de agua por dia
+     * del balance hidrico de una parcela que tiene un
+     * cultivo sembrado y en desarrollo. Esta situacion
+     * ocurre cuando el nivel de humedad de un suelo, que
+     * tiene un cultivo sembrado, es estrictamente menor
+     * al doble de la capacidad de almacenamiento de agua
+     * de un suelo que tiene un cultivo sembrado.
      * 
      * Por lo tanto, la aplicacion del lado servidor asigna
-     * la abreviatura "n/a" (no disponible) a la necesidad
-     * de agua de riego de un cultivo en la fecha actual
-     * [mm/dia] de un registro de plantacion en desarrollo
-     * y retorna el mensaje HTTP 400 (Bad request) junto con
-     * el mensaje dado, y no se realiza la operacion solicitada.
+     * la abreviatura "n/a" (no disponible) a la necesidad de
+     * agua de riego de un cultivo en la fecha actual [mm/dia]
+     * de un registro de plantacion en desarrollo y no se
+     * realiza la operacion solicitada.
+     * 
+     * En esta situacion, la aplicacion retorna el mensaje
+     * HTTP 400 (Bad request) informando de que el cultivo
+     * para el que se deseo calcular su necesidad de agua
+     * de riego en la fecha actual [mm/dia], esta muerto.
      */
-    if (irrigationWaterNeedCurrentDate < 0.0) {
-      plantingRecordService.updateIrrigationWaterNeed(developingPlantingRecord.getId(), developingPlantingRecord.getParcel(), NOT_AVAILABLE);
-      plantingRecordService.setStatus(developingPlantingRecord.getId(), statusService.findWitheredStatus());
-      plantingRecordService.updateWiltingDate(developingPlantingRecord.getId(), UtilDate.getCurrentDate());
+    if (stringIrrigationWaterNeedCurrentDate != null && stringIrrigationWaterNeedCurrentDate.equals(notCalculated)) {
+      plantingRecordService.updateIrrigationWaterNeed(developingPlantingRecord.getId(), developingPlantingRecord.getParcel(), notAvailable);
+      plantingRecordService.updateDateDeath(developingPlantingRecord.getId(), UtilDate.getCurrentDate());
 
-      String message = "Utilizando los datos climáticos y de riego de " + parcelOption.getPastDaysReference()
-          + " (valor de las opciones de la parcela) días previos a la fecha actual,"
-          + " el cultivo se ha marchitado porque el nivel de humedad del suelo, en el que está sembrado, está en el punto de marchitez permanente."
-          + " Esto se debe a que el nivel de humedad del suelo es menor a la capacidad de almacenamiento de agua del suelo.";
+      String message = "El cultivo murió por ser el nivel de humedad del suelo, en el que está sembrado, estrictamente menor al doble"
+          + " de la capacidad de almacenamiento de agua del suelo (2 * " + developingPlantingRecord.getTotalAmountWaterAvailable()
+          + " = " + (2 * developingPlantingRecord.getTotalAmountWaterAvailable())  + ")";
 
       return Response.status(Response.Status.BAD_REQUEST)
-          .entity(mapper.writeValueAsString(new ErrorResponse(message, SourceUnsatisfiedResponse.WATER_NEED_WITHERED_CROP)))
+          .entity(mapper.writeValueAsString(new ErrorResponse(message, SourceUnsatisfiedResponse.DEAD_CROP_WATER_NEED)))
           .build();
     }
+
+    /*
+     * Si el valor de la necesidad de agua de riego de un
+     * cultivo en la fecha actual [mm/dia] NO es igual al
+     * valor "NC", significa que es un valor numerico. Por
+     * lo tanto, se lo convierte a double, ya que dicha
+     * necesidad esta expresada como double.
+     */
+    double irrigationWaterNeedCurrentDate = Math.abs(Double.parseDouble(stringIrrigationWaterNeedCurrentDate));
 
     /*
      * *****************************************************
@@ -1506,7 +1586,7 @@ public class PlantingRecordRestServlet {
      * Calcular sobre un registro de plantacion en desarrollo.
      */
     IrrigationWaterNeedFormData irrigationWaterNeedFormData = new IrrigationWaterNeedFormData();
-    irrigationWaterNeedFormData.setParcel(givenParcel);
+    irrigationWaterNeedFormData.setParcel(developingPlantingRecord.getParcel());
     irrigationWaterNeedFormData.setCrop(developingPlantingRecord.getCrop());
     irrigationWaterNeedFormData.setIrrigationWaterNeed(irrigationWaterNeedCurrentDate);
     irrigationWaterNeedFormData.setIrrigationDone(irrigationWaterNeedCurrentDate);
@@ -1518,6 +1598,548 @@ public class PlantingRecordRestServlet {
      * pertinentes
      */
     return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(irrigationWaterNeedFormData)).build();
+  }
+
+  /**
+   * @param developingPlantingRecord
+   * @return referencia a un objeto de tipo String que contiene el
+   * valor utilizado para determinar la necesidad de agua de riego
+   * de un cultivo en la fecha actual [mm/dia]
+   * @throws IOException
+   */
+  private String runCalculationIrrigationWaterNeedCurrentDateTwo(PlantingRecord developingPlantingRecord) throws IOException {
+    /*
+     * Persiste los registros climaticos de la parcela de un registro
+     * de plantacion en desarrollo desde la fecha de siembra hasta la
+     * fecha inmediatamente anterior a la fecha actual, si NO existen
+     * en la base de datos subyacente. Estos registros climaticos son
+     * obtenidos del servicio meteorologico utilizado por la aplicacion.
+     */
+    requestPastClimateRecordsTwo(developingPlantingRecord);
+
+    /*
+     * Calcula la ETo y la ETc de los registros climaticos de la parcela
+     * de un registro de plantacion en desarrollo previamente obtenidos.
+     * La ETc es necesaria para calcular los balances hidricos de suelo
+     * de una parcela que tiene un cultivo en desarrollo. 
+     */
+    calculateEtsPastClimateRecordsTwo(developingPlantingRecord);
+
+    /*
+     * Calcula y persiste los balances hidricos de suelo de una parcela,
+     * que tiene un cultivo en desarrollo, para calcular la necesidad
+     * de agua de riego del mismo en la fecha actual [mm/dia]
+     */
+    calculateSoilWaterBalances(developingPlantingRecord);
+
+    String notCalculated = soilWaterBalanceService.getNotCalculated();
+    Parcel parcel = developingPlantingRecord.getParcel();
+
+    /*
+     * La necesidad de agua de riego de un cultivo en la fecha actual
+     * se determina con el acumulado del deficit de agua por dia [mm/dia]
+     * de la fecha inmediatamente anterior a la fecha actual. Por este
+     * motivo se recupera de la base de datos subyacente el balance
+     * hidrico de suelo de la parcela, que tiene tiene un cultivo
+     * sembrado y en desarrollo, de la fecha inmediatamente anterior
+     * a la fecha actual.
+     */
+    Calendar yesterday = UtilDate.getYesterdayDate();
+    String stringAccumulatedWaterDeficitPerDay = soilWaterBalanceService.find(parcel.getId(), yesterday).getAccumulatedWaterDeficitPerDay();
+
+    /*
+     * Si el valor del acumulado del deficit de agua por dia [mm/dia]
+     * de ayer es "NC" (no calculado), significa dos cosas:
+     * - que el algoritmo utilizado para calcular la necesidad de
+     * agua de riego de un cultivo en la fecha actual [mm/dia] es
+     * el que utiliza el suelo para ello,
+     * - y que el nivel de humedad del suelo, que tiene un cultivo
+     * sembrado, es estrictamente menor al doble de la capacidad de
+     * almacenamiento de agua del suelo.
+     * 
+     * Por lo tanto, se retorna "NC" para indicar que la necesidad de
+     * agua de riego de un cultivo en la fecha actual [mm/dia] no se
+     * calculo, ya que el cultivo esta muerto debido a que el nivel
+     * de humedad del suelo, en el que esta sembrado, es estrictamente
+     * menor al doble de la capacidad de almacenamiento de agua
+     * del suelo.
+     */
+    if (stringAccumulatedWaterDeficitPerDay.equals(notCalculated)) {
+      return notCalculated;
+    }
+
+    double totalIrrigationWaterCUrrentDate = irrigationRecordService.calculateTotalIrrigationWaterCurrentDate(parcel.getId());
+    double accumulatedWaterDeficitPerDay = Double.parseDouble(stringAccumulatedWaterDeficitPerDay);
+
+    /*
+     * Calculo de la necesidad de agua de riego de un cultivo
+     * en la fecha actual [mm/dia]. El motivo por el cual este
+     * calculo corresponde a la fecha actual es que la cantidad
+     * total de agua de riego de un cultivo [mm/dia] es de la
+     * fecha actual y el acumulado del deficit de agua por dia
+     * [mm] es del dia inmediatamente anterior a la fecha actual
+     * (es decir, hoy). En cambio, si en este metodo se utiliza
+     * la cantidad total de agua de riego de ayer y el acumulado
+     * del deficit de agua por dia de antes de ayer, la necesidad
+     * de agua de riego de un cultivo calculada es de ayer. Por
+     * lo tanto, lo que determina la fecha de la necesidad de agua
+     * de riego de un cultivo es la fecha de la cantidad total
+     * de agua de riego de un cultivo y la fecha del acumulado
+     * del deficit de agua por dia.
+     */
+    return String.valueOf(WaterMath.calculateIrrigationWaterNeed(totalIrrigationWaterCUrrentDate, accumulatedWaterDeficitPerDay));
+  }
+
+  /**
+   * Persiste los registros climaticos de una parcela, que
+   * tiene un cultivo en desarrollo, desde la fecha de
+   * siembra hasta la fecha inmediatamente anterior a la
+   * fecha actual
+   * 
+   * @param developingPlantingRecord
+   */
+  private void requestPastClimateRecordsTwo(PlantingRecord developingPlantingRecord) throws IOException {
+    Parcel parcel = developingPlantingRecord.getParcel();
+    ClimateRecord newClimateRecord = null;
+
+    Calendar seedDate = developingPlantingRecord.getSeedDate();
+    Calendar yesterday = UtilDate.getYesterdayDate();
+
+    Calendar pastDate = Calendar.getInstance();
+    pastDate.set(Calendar.YEAR, seedDate.get(Calendar.YEAR));
+    pastDate.set(Calendar.MONTH, seedDate.get(Calendar.MONTH));
+    pastDate.set(Calendar.DAY_OF_YEAR, seedDate.get(Calendar.DAY_OF_YEAR));
+
+    /*
+     * Los registros climaticos a obtener pertenecen al periodo
+     * definido por la fecha de siembra de un cultivo y la fecha
+     * inmediatamente anterior a la fecha actual.
+     * 
+     * Se debe sumar un uno al resultado de esta diferencia para
+     * que este metodo persista el registro climatico de la fecha
+     * inmediatamente anterior a la fecha actual.
+     */
+    int days = UtilDate.calculateDifferenceBetweenDates(seedDate, yesterday) + 1;
+
+    /*
+     * Crea y persiste los registros climaticos desde la fecha de
+     * siembra hasta la fecha inmediatamente anterior a la fecha
+     * actual, pertenecientes a una parcela que tiene un cultivo
+     * en desarrollo en la fecha actual
+     */
+    for (int i = 0; i < days; i++) {
+
+      /*
+       * Si una parcela dada NO tiene un registro climatico
+       * perteneciente a una fecha, se lo solicita al servicio
+       * meteorologico utilizado y se lo persiste
+       */
+      if (!climateRecordService.checkExistence(pastDate, parcel)) {
+        newClimateRecord = ClimateClient.getForecast(parcel, pastDate.getTimeInMillis() / 1000);
+        climateRecordService.create(newClimateRecord);
+      }
+
+      /*
+       * Suma un uno al numero de dia en el año de una fecha
+       * pasada dada para obtener el siguiente registro climatico
+       * correspondiente a una fecha pasada
+       */
+      pastDate.set(Calendar.DAY_OF_YEAR, pastDate.get(Calendar.DAY_OF_YEAR) + 1);
+    }
+
+  }
+
+  /**
+   * Calcula y actualiza la ETo y la ETc de los registros
+   * climaticos, pertenecientes a una parcela que tiene un
+   * cultivo en desarrollo en la fecha actual, comprendidos
+   * en el periodo definido por la fecha de siembra de un
+   * cultivo y la fecha inmediatamente anterior a la fecha
+   * actual
+   * 
+   * @param developingPlantingRecord
+   */
+  private void calculateEtsPastClimateRecordsTwo(PlantingRecord developingPlantingRecord) {
+    Parcel parcel = developingPlantingRecord.getParcel();
+    ClimateRecord climateRecord = null;
+
+    Calendar seedDate = developingPlantingRecord.getSeedDate();
+    Calendar yesterday = UtilDate.getYesterdayDate();
+
+    Calendar pastDate = Calendar.getInstance();
+    pastDate.set(Calendar.YEAR, seedDate.get(Calendar.YEAR));
+    pastDate.set(Calendar.MONTH, seedDate.get(Calendar.MONTH));
+    pastDate.set(Calendar.DAY_OF_YEAR, seedDate.get(Calendar.DAY_OF_YEAR));
+
+    /*
+     * Los registros climaticos para los que se calcula
+     * su ETo y su ETc pertenecen al periodo definido por
+     * la fecha de siembra de un cultivo y la fecha
+     * inmediatamente anterior a la fecha actual.
+     * 
+     * Se debe sumar un uno al resultado de esta diferencia
+     * para que este metodo calcule la ETo y la ETc del
+     * registro climatico de la fecha inmediatamente
+     * anterior a la fecha actual.
+     */
+    int days = UtilDate.calculateDifferenceBetweenDates(seedDate, yesterday) + 1;
+
+    double eto = 0.0;
+    double etc = 0.0;
+
+    /*
+     * Calcula la ETo y la ETc de los registros climaticos,
+     * pertenecientes a una parcela que tiene un cultivo
+     * en desarrollo en la fecha actual, comprendidos en
+     * el periodo definido por la fecha de siembra de un
+     * cultivo y la fecha inmediatamente anterior a la fecha
+     * actual
+     */
+    for (int i = 0; i < days; i++) {
+
+      if (climateRecordService.checkExistence(pastDate, parcel)) {
+        climateRecord = climateRecordService.find(pastDate, parcel);
+
+        eto = calculateEtoForClimateRecord(climateRecord);
+        etc = calculateEtcForClimateRecord(eto, developingPlantingRecord, pastDate);
+
+        climateRecordService.updateEtoAndEtc(pastDate, parcel, eto, etc);
+
+        /*
+         * Luego de calcular la ETc de un registro climatico, se debe
+         * restablecer el valor por defecto de esta variable para evitar
+         * el error logico de asignar la ETc de un registro climatico a
+         * otro registro climatico
+         */
+        etc = 0.0;
+      }
+
+      /*
+       * Suma un uno al numero de dia en el año de una fecha
+       * pasada dada para obtener el siguiente registro climatico
+       * correspondiente a una fecha pasada
+       */
+      pastDate.set(Calendar.DAY_OF_YEAR, pastDate.get(Calendar.DAY_OF_YEAR) + 1);
+    } // End for
+
+  }
+
+  /**
+   * Calcula y persiste los balances hidricos de suelo de
+   * una parcela, que tiene un cultivo sembrado, desde la
+   * fecha de siembra de un cultivo hasta la fecha
+   * inmediatamente anterior a la fecha actual
+   * 
+   * @param developingPlantingRecord
+   */
+  private void calculateSoilWaterBalances(PlantingRecord developingPlantingRecord) {
+    persistSoilWaterBalanceSeedDate(developingPlantingRecord);
+
+    Parcel parcel = developingPlantingRecord.getParcel();
+    Crop crop = developingPlantingRecord.getCrop();
+    SoilWaterBalance soilWaterBalance = null;
+    ClimateRecord climateRecord = null;
+
+    /*
+     * Los balances hidricos de suelo de una parcela, que
+     * tiene un cultivo sembrado, se calculan desde la
+     * fecha inmediatamente siguiente a la fecha de
+     * siembra de un cultivo hasta la fecha inmediatamente
+     * anterior a la fecha actual (hoy)
+     */
+    Calendar pastDate = UtilDate.getNextDateFromDate(developingPlantingRecord.getSeedDate());
+
+    /*
+     * Fecha inmediatamente anterior a la fecha actual (hoy)
+     */
+    Calendar yesterday = UtilDate.getYesterdayDate();
+    Calendar yesterdayDateFromDate = null;
+
+    /*
+     * Los balances hidricos de suelo de una parcela, que
+     * tiene un cultivo sembrado, se calculan desde la
+     * fecha inmediatamente siguiente a la fecha de siembra
+     * hasta la fecha inmediatamente anterior a la fecha
+     * actual.
+     * 
+     * Se debe sumar un uno al resultado de esta diferencia
+     * para que este metodo calcule el balance hidrico de
+     * suelo de la fecha inmediatamente anterior a la
+     * fecha actual.
+     */
+    int days = UtilDate.calculateDifferenceBetweenDates(pastDate, yesterday) + 1;
+
+    double evaporatedWater = 0.0;
+    double waterProvidedPerDay = 0.0;
+    double waterDeficitPerDay = 0.0;
+    double accumulatedWaterDeficitPerDay = 0.0;
+    double accumulatedWaterDeficitPerPreviousDay = 0.0;
+    double totalAmountWaterAvailable = 0.0;
+    double optimalIrrigationLayer = WaterMath.calculateOptimalIrrigationLayer(crop, parcel.getSoil());
+
+    String stringAccumulatedWaterDeficitPerPreviousDay = null;
+    String stringAccumulatedWaterDeficitPerDay = null;
+    String notCalculated = soilWaterBalanceService.getNotCalculated();
+
+    Collection<IrrigationRecord> irrigationRecords = null;
+
+    PlantingRecordStatus optimalDevelopmentStatus = statusService.findOptimalDevelopmentStatus();
+    PlantingRecordStatus developmentAtRiskWiltingStatus = statusService.findDevelopmentAtRiskWiltingStatus();
+    PlantingRecordStatus developmentInWiltheringStatus = statusService.findDevelopmentInWitheringStatus();
+    PlantingRecordStatus deadStatus = statusService.findDeadStatus();
+
+    for (int i = 0; i < days; i++) {
+
+      /*
+       * Obtencion del registro climatico y de los registros de
+       * riego de una fecha para el calculo del agua provista
+       * en un dia (fecha) [mm/dia] y del deficit de agua en un
+       * dia (fecha) [mm/dia]
+       */
+      climateRecord = climateRecordService.find(pastDate, parcel);
+      irrigationRecords = irrigationRecordService.findAllByParcelIdAndDate(parcel.getId(), pastDate);
+
+      waterProvidedPerDay = climateRecord.getPrecip() + WaterMath.sumTotalAmountIrrigationWaterGivenDate(climateRecord.getDate(), irrigationRecords);
+      waterDeficitPerDay = WaterMath.calculateWaterDeficitPerDay(climateRecord, irrigationRecords);
+      evaporatedWater = soilWaterBalanceService.getEvaporatedWater(climateRecord);
+
+      /*
+       * Obtiene el acumulado del deficit de agua por dia del
+       * balance hidrico de suelo de la fecha inmediatamente
+       * a una fecha pasada
+       */
+      yesterdayDateFromDate = UtilDate.getYesterdayDateFromDate(pastDate);
+      stringAccumulatedWaterDeficitPerPreviousDay = soilWaterBalanceService.find(parcel.getId(), yesterdayDateFromDate).getAccumulatedWaterDeficitPerDay();
+
+      /*
+       * Si el acumulado del deficit de agua por dia de la fecha
+       * inmediatamente anterior a una fecha pasada NO es NC (no
+       * calculado), significa que el cultivo correspondiente a
+       * este calculo de balances hidricos de suelo NO murio en
+       * la fecha pasada, por lo tanto, se calcula el acumulado
+       * del deficit de agua por dia [mm/dia] de la fecha pasada,
+       * lo cual se realiza para calcular el balance hidrico de
+       * suelo, en el que esta sembrado un cultivo, de la fecha
+       * pasada. En caso contrario, significa que el cultivo
+       * murio en la fecha pasada, por lo tanto, NO se calcula
+       * el acumulado del deficit de agua por dia [mm/dia] de
+       * la fecha pasada, lo cual se representa mediante la
+       * asignacion de la sigla "NC" a la variable String del
+       * acumulado del deficit de agua por dia.
+       */
+      if (!stringAccumulatedWaterDeficitPerPreviousDay.equals(notCalculated)) {
+        accumulatedWaterDeficitPerPreviousDay = Double.parseDouble(stringAccumulatedWaterDeficitPerPreviousDay);
+
+        /*
+         * El acumulado del deficit de agua por dia [mm/dia] de
+         * una fecha depende del acumulado del deficit de agua
+         * por dia de la fecha inmdiatamente anterior
+         */
+        accumulatedWaterDeficitPerDay = WaterMath.accumulateWaterDeficitPerDay(waterDeficitPerDay, accumulatedWaterDeficitPerPreviousDay);
+        stringAccumulatedWaterDeficitPerDay = String.valueOf(accumulatedWaterDeficitPerDay);
+
+        /*
+         * Si la bandera suelo de una parcela esta activa, se
+         * comprueba el nivel de humedad del suelo para establecer
+         * el estado del registro de plantacion en desarrollo para
+         * el que se calcula la necesidad de agua de riego de su
+         * cultivo en la fecha actual [mm/dia]
+         */
+        if (parcel.getOption().getSoilFlag()) {
+          totalAmountWaterAvailable = WaterMath.calculateTotalAmountWaterAvailable(crop, parcel.getSoil());
+  
+          /*
+           * Si el acumulado del deficit de agua por dia [mm/dia] de
+           * una fecha es menor o igual a la capacidad de campo (0) y
+           * estrictamente mayor a la lamina de riego optima (drop)
+           * negativa, significa que en una fecha el nivel de humedad
+           * del suelo, que tiene un cultivo sembrado, fue menor o
+           * igual a la capacidad de campo (0) y estrictamente mayor
+           * a la lamina de riego optima. En esta situacion, el
+           * registro de plantacion en desarrollo adquiere el estado
+           * "Desarrollo optimo".
+           * 
+           * El motivo por el cual se coloca el signo negativo a la
+           * lamina de riego optima es que el acumulado del deficit
+           * de agua por dia [mm/dia] es menor o igual a cero.
+           */
+          if (accumulatedWaterDeficitPerDay <= 0 && accumulatedWaterDeficitPerDay > - (optimalIrrigationLayer)) {
+            plantingRecordService.setStatus(developingPlantingRecord.getId(), optimalDevelopmentStatus);
+          }
+  
+          /*
+           * Si el acumulado del deficit de agua por dia [mm/dia] de
+           * una fecha es menor o igual a la lamina de riego optima
+           * (drop) negativa y estrictamente mayor al negativo de la
+           * capacidad de almacenamiento de agua del suelo (dt),
+           * significa que en una fecha el nivel de humedad del suelo,
+           * que tiene un cultivo sembrado, fue menor o igual a la
+           * lamina de riego optima y estrictamente mayor a la capacidad
+           * de almacenamiento de agua del suelo. En esta situacion,
+           * el registro de plantacion en desarrollo adquiere el
+           * estado "Desarrollo en riesgo de marchitez".
+           * 
+           * El motivo por el cual se coloca el signo negativo a la
+           * lamina de riego optima y a la capacidad de almacenamiento
+           * de agua del suelo es que el acumulado del deficit de
+           * agua por dia [mm/dia] es menor o igual a cero.
+           */
+          if (accumulatedWaterDeficitPerDay <= - (optimalIrrigationLayer) && accumulatedWaterDeficitPerDay > - (totalAmountWaterAvailable)) {
+            plantingRecordService.setStatus(developingPlantingRecord.getId(), developmentAtRiskWiltingStatus);
+          }
+  
+          /*
+           * Si el acumulado del deficit de agua por dia [mm/dia] de
+           * una fecha es menor o igual a la capacidad de almacenamiento
+           * del agua del suelo negativa y estrictamente mayor al doble
+           * de la capacidad de almacenamiento de agua negativo,
+           * significa que en una fecha el nivel de humedad del suelo,
+           * que tiene un cultivo sembrado, fue menor o igual a la
+           * capacidad de almacenamiento de agua del suelo y estrictamente
+           * mayor al doble de la capacidad de almacenamiento de agua
+           * del suelo. En esta situacion, el registro de plantacion
+           * en desarrollo adquiere el estado "Desarrollo en marchitez".
+           * 
+           * El motivo por el cual se coloca el signo negativo a la
+           * capacidad de almacenamiento de agua del suelo y a su doble
+           * es que el acumulado del deficit de agua por dia [mm/dia]
+           * es menor o igual a cero.
+           */
+          if (accumulatedWaterDeficitPerDay <= - (totalAmountWaterAvailable) && accumulatedWaterDeficitPerDay > - (2 * totalAmountWaterAvailable)) {
+            plantingRecordService.setStatus(developingPlantingRecord.getId(), developmentInWiltheringStatus);
+          }
+  
+          /*
+           * Si el acumulado del deficit de agua por dia [mm/dia] de
+           * una fecha es estrictamente menor al doble de la capacidad
+           * de almacenamiento de agua del suelo negativo, significa
+           * que el nivel de humedad del suelo, que tiene un cultivo
+           * sembrado, es estrictamente menor al doble de la capacidad
+           * de almacenamiento de agua del suelo. En esta situacion
+           * el cultivo esta muerto y el registro de plantacion en
+           * desarrollo adquiere el estado "Muerto".
+           * 
+           * El motivo por el cual se coloca el signo negativo al
+           * doble de la capacidad de almacenamiento de agua del suelo
+           * es que el acumulado del deficit de agua por dia [mm/dia]
+           * es menor o igual a cero.
+           */
+          if (accumulatedWaterDeficitPerDay < - (2 * totalAmountWaterAvailable)) {
+            stringAccumulatedWaterDeficitPerDay = notCalculated;
+            plantingRecordService.setStatus(developingPlantingRecord.getId(), deadStatus);
+          }
+  
+        } // End if
+
+      } else {
+        stringAccumulatedWaterDeficitPerDay = notCalculated;
+      }
+
+      /*
+       * Si el balance hidrico de suelo de una parcela y una
+       * fecha NO existe en la base de datos subyacente, se lo
+       * crea y persiste. En caso contrario, se lo actualiza.
+       */
+      if (!soilWaterBalanceService.checkExistence(parcel.getId(), pastDate)) {
+        soilWaterBalance = new SoilWaterBalance();
+        soilWaterBalance.setDate(pastDate);
+        soilWaterBalance.setParcelName(parcel.getName());
+        soilWaterBalance.setCropName(crop.getName());
+        soilWaterBalance.setWaterProvided(waterProvidedPerDay);
+        soilWaterBalance.setEvaporatedWater(evaporatedWater);
+        soilWaterBalance.setWaterDeficitPerDay(waterDeficitPerDay);
+        soilWaterBalance.setAccumulatedWaterDeficitPerDay(stringAccumulatedWaterDeficitPerDay);
+
+        /*
+         * Persistencia del balance hidrico
+         */
+        soilWaterBalance = soilWaterBalanceService.create(soilWaterBalance);
+
+        /*
+         * Se debe invocar el metodo merge() de la clase ParcelServiceBean
+         * para persistir los elementos que se hayan agregado a
+         * la coleccion soilWaterBalances de una parcela. De lo
+         * contrario, la base de datos subyacente quedara en un
+         * estado inconsistente.
+         */
+        parcel.getSoilWaterBalances().add(soilWaterBalance);
+        parcelService.merge(parcel);
+      } else {
+        soilWaterBalance = soilWaterBalanceService.find(parcel.getId(), pastDate);
+        soilWaterBalanceService.update(soilWaterBalance.getId(), crop.getName(), evaporatedWater,
+            waterProvidedPerDay, waterDeficitPerDay, stringAccumulatedWaterDeficitPerDay);
+      }
+
+      /*
+       * Suma un uno al numero de dia en el año de una fecha
+       * pasada dada para obtener el siguiente registro climatico
+       * correspondiente a una fecha pasada
+       */
+      pastDate.set(Calendar.DAY_OF_YEAR, pastDate.get(Calendar.DAY_OF_YEAR) + 1);
+    } // End for
+
+  }
+
+  /**
+   * Persiste el balance hidrico de suelo de una parcela,
+   * que tiene un cultivo sembrado, correspondiente a la
+   * fecha de siembra de un cultivo, si NO existe en la
+   * base de datos subyacente. En caso contrario, lo
+   * modifica.
+   * 
+   * El balance hidrico de suelo de la fecha de siembra
+   * tiene todos sus valores numericos en 0, ya que en
+   * el dia de la fecha de siembra de un cultivo, un
+   * suelo deberia estar en capacidad de campo, esto
+   * es que esta lleno de agua, pero no anegado.
+   * 
+   * @param developingPlantingRecord
+   */
+  private void persistSoilWaterBalanceSeedDate(PlantingRecord developingPlantingRecord) {
+    Parcel parcel = developingPlantingRecord.getParcel();
+    Calendar seedDate = developingPlantingRecord.getSeedDate();
+    SoilWaterBalance soilWaterBalance = null;
+
+    if (!soilWaterBalanceService.checkExistence(parcel.getId(), seedDate)) {
+      soilWaterBalance = new SoilWaterBalance();
+      soilWaterBalance.setDate(seedDate);
+      soilWaterBalance.setParcelName(parcel.getName());
+      soilWaterBalance.setCropName(developingPlantingRecord.getCrop().getName());
+      soilWaterBalance.setWaterProvided(0);
+      soilWaterBalance.setEvaporatedWater(0);
+      soilWaterBalance.setWaterDeficitPerDay(0);
+      soilWaterBalance.setAccumulatedWaterDeficitPerDay(String.valueOf(0));
+
+      /*
+       * Persistencia del balance hidrico
+       */
+      soilWaterBalance = soilWaterBalanceService.create(soilWaterBalance);
+
+      /*
+       * Se debe invocar el metodo merge() de la clase ParcelServiceBean
+       * para persistir los elementos que se hayan agregado a
+       * la coleccion soilWaterBalances de una parcela. De lo
+       * contrario, la base de datos subyacente quedara en un
+       * estado inconsistente.
+       */
+      parcel.getSoilWaterBalances().add(soilWaterBalance);
+      parcelService.merge(parcel);
+    } else {
+      soilWaterBalance = soilWaterBalanceService.find(parcel.getId(), seedDate);
+      soilWaterBalance.setParcelName(parcel.getName());
+      soilWaterBalance.setCropName(developingPlantingRecord.getCrop().getName());
+      soilWaterBalance.setWaterProvided(0);
+      soilWaterBalance.setEvaporatedWater(0);
+      soilWaterBalance.setWaterDeficitPerDay(0);
+      soilWaterBalance.setAccumulatedWaterDeficitPerDay(String.valueOf(0));
+
+      /*
+       * Realiza las modificaciones del balance hidrico
+       * de suelo de la fecha de siembra de un cultivo
+       */
+      soilWaterBalanceService.modify(parcel.getId(), seedDate, soilWaterBalance);
+    }
+
   }
 
   /**
@@ -2034,7 +2656,7 @@ public class PlantingRecordRestServlet {
       dateFrom = UtilDate.getPastDateFromOffset(parcelOption.getPastDaysReference());
     }
 
-    double totalIrrigationWaterCurrentDate = irrigationRecordService.calculateTotalIrrigationWaterCurrentDate(givenParcel);
+    double totalIrrigationWaterCurrentDate = irrigationRecordService.calculateTotalIrrigationWaterCurrentDate(givenParcel.getId());
 
     /*
      * Obtiene de la base de datos subyacente los registros

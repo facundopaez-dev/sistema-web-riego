@@ -1,4 +1,7 @@
 INSERT INTO PLANTING_RECORD_STATUS (NAME, DESCRIPTION) VALUES ('Finalizado', 'Estado del cultivo que ha alcanzado su fecha de cosecha');
-INSERT INTO PLANTING_RECORD_STATUS (NAME, DESCRIPTION) VALUES ('En desarrollo', 'Estado del cultivo que no ha alcanzado su fecha de cosecha');
 INSERT INTO PLANTING_RECORD_STATUS (NAME, DESCRIPTION) VALUES ('En espera', 'Estado del cultivo que no ha comenzado su ciclo de vida');
-INSERT INTO PLANTING_RECORD_STATUS (NAME, DESCRIPTION) VALUES ('Marchitado', 'Estado del cultivo que se ha marchitado por estar el nivel de humedad del suelo, en el que esta sembrado, en el punto de marchitez permanente');
+INSERT INTO PLANTING_RECORD_STATUS (NAME, DESCRIPTION) VALUES ('En desarrollo', 'Estado del cultivo que no ha alcanzado su fecha de cosecha');
+INSERT INTO PLANTING_RECORD_STATUS (NAME, DESCRIPTION) VALUES ('Desarrollo óptimo', 'Estado del cultivo que tiene un desarrollo óptimo por ser el nivel de humedad del suelo, en el que está sembrado, menor o igual a la capacidad de campo y mayor o igual al umbra del riego');
+INSERT INTO PLANTING_RECORD_STATUS (NAME, DESCRIPTION) VALUES ('Desarrollo en riesgo de marchitez', 'Estado del cultivo que está en riesgo de marchitez por ser el nivel de humedad del suelo, en el que está sembrado, menor o igual al umbral de riego y mayor o igual a la capacidad de almacenamiento de agua del suelo');
+INSERT INTO PLANTING_RECORD_STATUS (NAME, DESCRIPTION) VALUES ('Desarrollo en marchitez', 'Estado del cultivo que se ha marchitado por ser el nivel de humedad del suelo, en el que esta sembrado, menor a la capacidad de almacenamiento de agua del suelo');
+INSERT INTO PLANTING_RECORD_STATUS (NAME, DESCRIPTION) VALUES ('Muerto', 'Estado del cultivo que ha muerto por ser el nivel de humedad del suelo, en el que está sembrado, menor al doble de la capaciadad de almacenamiento de agua del suelo');

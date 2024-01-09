@@ -55,7 +55,6 @@ public class ParcelRestServlet {
 
   private final String UNDEFINED_VALUE = "undefined";
   private final String NAME_REGULAR_EXPRESSION = "^[A-Za-zÀ-ÿ]+(\\s[A-Za-zÀ-ÿ]*[0-9]*)*$";
-  private final String IRRIGATION_WATER_NEED_NOT_AVAILABLE_BUT_CALCULABLE = "-";
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
@@ -879,7 +878,7 @@ public class ParcelRestServlet {
      * de plantacion en desarrollo" y no se realiza la
      * operacion solicitada
      */
-    if (plantingRecordService.checkOneInDevelopment(parcelService.find(parcelId))) {
+    if (plantingRecordService.checkOneInDevelopment(parcelService.find(parcelId).getId())) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(
           new ErrorResponse(ReasonError.DELETION_PARCEL_WITH_PLANTING_RECORD_IN_DEVELOPMENT_NOT_ALLOWED))).build();
     }
@@ -1080,18 +1079,26 @@ public class ParcelRestServlet {
     }
 
     /*
-     * Si la parcela modificada tiene un registro de plantacion
-     * "En desarrollo" y un suelo distinto al original, se asigna
-     * el caracter "-" a la necesidad de agua de riego de un cultivo
-     * en la fecha actual de dicho registro para hacer que el usuario
-     * ejecute el proceso del calculo de la necesidad de agua de
-     * riego de un cultivo en la fecha actual [mm/dia]. La manera
-     * en la que el usuario realiza esto es mediante el boton
+     * El simbolo de esta variable se utiliza para representar que la
+     * necesidad de agua de riego de un cultivo en la fecha actual [mm/dia]
+     * no esta disponible, pero se puede calcular. Esta situacion
+     * ocurre unicamente para un registro de plantacion en desarrollo.
+     */
+    String irrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getIrrigationWaterNotAvailableButCalculable();
+
+    /*
+     * Si la parcela modificada tiene un registro de plantacion en
+     * un estado en desarrollo y un suelo distinto al original, se
+     * asigna el caracter "-" a la necesidad de agua de riego de un
+     * cultivo en la fecha actual de dicho registro para hacer que
+     * el usuario ejecute el proceso del calculo de la necesidad de
+     * agua de riego de un cultivo en la fecha actual [mm/dia]. La
+     * manera en la que el usuario realiza esto es mediante el boton
      * "Calcular" de la pagina de registros de plantacion.
      */
-    if (plantingRecordService.checkOneInDevelopment(modifiedParcel) && !soilService.equals(modifiedSoil, currentSoil)) {
-      PlantingRecord developingPlantingRecord = plantingRecordService.findInDevelopment(modifiedParcel);
-      plantingRecordService.updateIrrigationWaterNeed(developingPlantingRecord.getId(), modifiedParcel, IRRIGATION_WATER_NEED_NOT_AVAILABLE_BUT_CALCULABLE);
+    if (plantingRecordService.checkOneInDevelopment(parcelId) && !soilService.equals(modifiedSoil, currentSoil)) {
+      PlantingRecord developingPlantingRecord = plantingRecordService.findInDevelopment(parcelId);
+      plantingRecordService.updateIrrigationWaterNeed(developingPlantingRecord.getId(), modifiedParcel, irrigationWaterNeedNotAvailableButCalculable);
     }
 
     /*

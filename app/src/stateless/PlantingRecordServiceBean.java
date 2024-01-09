@@ -20,8 +20,44 @@ public class PlantingRecordServiceBean {
 
   @PersistenceContext(unitName = "swcar")
   protected EntityManager entityManager;
+
   private final String NON_EXISTENT_CROP = "Cultivo inexistente";
-  private final String FINISHED_STATUS = "Finalizado";
+
+  /*
+   * El valor de esta constante se asigna a la necesidad de
+   * agua de riego [mm/dia] de un registro de plantacion
+   * para el que no se puede calcular dicha necesidad, lo
+   * cual, ocurre cuando no se tiene la evapotranspiracion
+   * del cultivo bajo condiciones estandar (ETc) [mm/dia]
+   * ni la precipitacion [mm/dia], siendo ambos valores de
+   * la fecha actual.
+   * 
+   * El valor de esta constante tambien se asigna a la
+   * necesidad de agua de riego de un registro de plantacion
+   * finalizado o en espera, ya que NO tiene ninguna utilidad
+   * que un registro de plantacion en uno de estos estados
+   * tenga un valor numerico mayor o igual a cero en la
+   * necesidad de agua de riego.
+   * 
+   * La abreviatura "n/a" significa "no disponible".
+   */
+  private final String NOT_AVAILABLE = "n/a";
+
+  /*
+   * Este simbolo se utiliza para representar que la necesidad
+   * de agua de riego de un cultivo en la fecha actual [mm/dia]
+   * no esta disponible, pero se puede calcular. Esta situacion
+   * ocurre unicamente para un registro de plantacion en desarrollo.
+   */
+  private final String IRRIGATION_WATER_NEED_NOT_AVAILABLE_BUT_CALCULABLE = "-";
+
+  public String getNotAvailable() {
+    return NOT_AVAILABLE;
+  }
+
+  public String getIrrigationWaterNotAvailableButCalculable() {
+    return IRRIGATION_WATER_NEED_NOT_AVAILABLE_BUT_CALCULABLE;
+  }
 
   public void setEntityManager(EntityManager localEntityManager) {
     entityManager = localEntityManager;
@@ -403,7 +439,7 @@ public class PlantingRecordServiceBean {
    * subyacente
    */
   public Collection<PlantingRecord> findAllInDevelopment() {
-    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r WHERE r.status.name = 'En desarrollo' ORDER BY r.id");
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.status s WHERE s IN (SELECT t FROM PlantingRecordStatus t WHERE UPPER(t.name) LIKE (CONCAT('%', UPPER('Desarrollo'), '%'))) ORDER BY r.id");
     return (Collection) query.getResultList();
   }
 
@@ -518,18 +554,16 @@ public class PlantingRecordServiceBean {
   }
 
   /**
-   * Retorna el registro de plantacion en desarrollo de una
-   * parcela, si existe.
-   * 
-   * @param givenParcel
+   * @param parcelId
    * @return referencia a un objeto de tipo PlantingRecord que
-   * representa un registro de plantacion en el estado "En
-   * desarrollo" de una parcela, si existe dicho registro. En
-   * caso contrario, retornan null.
+   * representa un registro de plantacion que tiene un estado
+   * en desarrollo (desarrollo optimo, desarrollo riesgoso,
+   * desarrollo en marchitez), si existe en la base de datos
+   * subyacente. En caso contrario, retorna null.
    */
-  public PlantingRecord findInDevelopment(Parcel givenParcel) {
-    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p JOIN r.status s WHERE (s.name = 'En desarrollo' AND p = :parcel)");
-    query.setParameter("parcel", givenParcel);
+  public PlantingRecord findInDevelopment(int parcelId) {
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p JOIN r.status s WHERE (p.id = :parcelId AND s IN (SELECT t FROM PlantingRecordStatus t WHERE UPPER(t.name) LIKE (CONCAT('%', UPPER('Desarrollo'), '%'))))");
+    query.setParameter("parcelId", parcelId);
 
     PlantingRecord plantingRecord = null;
 
@@ -600,8 +634,8 @@ public class PlantingRecordServiceBean {
    * @return true si la parcela dada tiene un registro de
    * plantacion en desarrollo, false en caso contrario
    */
-  public boolean checkOneInDevelopment(Parcel givenParcel) {
-    return (findInDevelopment(givenParcel) != null);
+  public boolean checkOneInDevelopment(int parcelId) {
+    return (findInDevelopment(parcelId) != null);
   }
 
   /**
@@ -1612,27 +1646,27 @@ public class PlantingRecordServiceBean {
   }
 
   /**
-   * Actualiza la fecha de marchitez de un registro de
+   * Actualiza la fecha de muerte de un registro de
    * plantacion en la base de datos subyacente
    * 
    * @param plantingRecordId
-   * @param wiltingDate
+   * @param deathDate
    */
-  public void updateWiltingDate(int plantingRecordId, Calendar wiltingDate) {
-    Query query = entityManager.createQuery("UPDATE PlantingRecord p SET p.wiltingDate = :wiltingDate WHERE p.id = :plantingRecordId");
-    query.setParameter("wiltingDate", wiltingDate);
+  public void updateDateDeath(int plantingRecordId, Calendar deathDate) {
+    Query query = entityManager.createQuery("UPDATE PlantingRecord p SET p.deathDate = :deathDate WHERE p.id = :plantingRecordId");
+    query.setParameter("deathDate", deathDate);
     query.setParameter("plantingRecordId", plantingRecordId);
     query.executeUpdate();
   }
 
   /**
-   * Elimina la fecha de marchitez de un registro de
+   * Elimina la fecha de muerte de un registro de
    * plantacion
    * 
    * @param plantingRecordId
    */
-  public void unsetWiltingDate(int plantingRecordId) {
-    Query query = entityManager.createQuery("UPDATE PlantingRecord p SET p.wiltingDate = NULL WHERE p.id = :plantingRecordId");
+  public void unsetDeathDate(int plantingRecordId) {
+    Query query = entityManager.createQuery("UPDATE PlantingRecord p SET p.deathDate = NULL WHERE p.id = :plantingRecordId");
     query.setParameter("plantingRecordId", plantingRecordId);
     query.executeUpdate();
   }
@@ -1829,13 +1863,12 @@ public class PlantingRecordServiceBean {
   /**
    * @param id
    * @return referencia a un objeto de tipo PlantingRecord que
-   * representa el registro de plantacion marchitado de una parcela
-   * en caso de encontrarse en la base de datos subyacente el
-   * registro de plantacion marchitado correspondiente al ID dado,
-   * en caso contrario null
+   * representa el registro de plantacion que tiene el estado
+   * muerto, si existe en la base de datos subyacente. En caso
+   * contrario, null.
    */
-  public PlantingRecord findByWitheredStatus(int id) {
-    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.status s WHERE (r.id = :givenId AND s.name = 'Marchitado')");
+  public PlantingRecord findByDeadStatus(int id) {
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.status s WHERE (r.id = :givenId AND s.name = 'Muerto')");
     query.setParameter("givenId", id);
 
     PlantingRecord witheredPlantingRecord = null;
@@ -1850,16 +1883,16 @@ public class PlantingRecordServiceBean {
   }
 
   /**
-   * Comprueba la existencia de un registro de plantacion marchitado
-   * en la base de datos subyacente. Retorna true si y solo si existe
-   * el registro de plantacion marchitado con el ID dado.
+   * Comprueba la existencia de un registro de plantacion muerto
+   * en la base de datos subyacente. Retorna true si y solo si
+   * existe el registro de plantacion muerto con el ID dado.
    * 
    * @param id
-   * @return true si el registro de plantacion marchitado con el ID dado
+   * @return true si el registro de plantacion muerto con el ID dado
    * existe en la base de datos subyacente, en caso contrario false
    */
-  public boolean checkWitheredStatus(int id) {
-    return (findByWitheredStatus(id) != null);
+  public boolean checkDeadStatus(int id) {
+    return (findByDeadStatus(id) != null);
   }
 
 }
