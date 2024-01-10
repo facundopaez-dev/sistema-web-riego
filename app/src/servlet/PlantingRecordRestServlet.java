@@ -1730,7 +1730,7 @@ public class PlantingRecordRestServlet {
       return notCalculated;
     }
 
-    double totalIrrigationWaterCUrrentDate = irrigationRecordService.calculateTotalIrrigationWaterCurrentDate(parcel.getId());
+    double totalIrrigationWaterCurrentDate = irrigationRecordService.calculateTotalIrrigationWaterCurrentDate(parcel.getId());
     double accumulatedWaterDeficitPerDay = Double.parseDouble(stringAccumulatedWaterDeficitPerDay);
 
     /*
@@ -1749,7 +1749,7 @@ public class PlantingRecordRestServlet {
      * de agua de riego de un cultivo y la fecha del acumulado
      * del deficit de agua por dia.
      */
-    return String.valueOf(WaterMath.calculateIrrigationWaterNeed(totalIrrigationWaterCUrrentDate, accumulatedWaterDeficitPerDay));
+    return String.valueOf(WaterMath.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, accumulatedWaterDeficitPerDay));
   }
 
   /**
