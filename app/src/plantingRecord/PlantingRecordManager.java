@@ -124,7 +124,7 @@ public class PlantingRecordManager {
     }
 
     /*
-     * Establece de manera automatica el estado en desarrollo en el registro
+     * Establece de manera automatica un estado de desarrollo en el registro
      * de plantacion presuntamente en espera mas antiguo de los registros de
      * plantacion en espera de cada una de las parcelas registradas en la base
      * de datos subyacente. Esto lo hace cada 24 horas a parit de las 01 horas,
@@ -137,7 +137,7 @@ public class PlantingRecordManager {
      */
     // @Schedule(second = "*", minute = "*", hour = "1/23", persistent = false)
     // @Schedule(second = "*/10", minute = "*", hour = "*", persistent = false)
-    public void modifyToInDevelopmentStatus() {
+    public void modifyToDevelopmentStatus() {
         /*
          * El simbolo de esta variable se utiliza para representar que la
          * necesidad de agua de riego de un cultivo en la fecha actual [mm/dia]
@@ -157,15 +157,16 @@ public class PlantingRecordManager {
         for (PlantingRecord currentPlantingRecord : pendingPlantingRecords) {
             /*
              * Si un registro de plantacion presuntamente en espera, NO
-             * esta en espera, se establece el estado en desarrollo en
-             * el mismo.
+             * esta en espera, se le asigna un estado de desarrollo
+             * (en desarrollo o desarrollo optimo) dependiendo del valor
+             * de la bandera suelo de la parcela a la que pertenece.
              * 
              * Un registro de plantacion en espera, esta en espera si
              * su fecha de siembra es estrictamente mayor (es decir,
              * posterior) a la fecha actual. En cambio, si su fecha de
              * siembra es menor o igual a la fecha actual y su fecha
              * de cosecha es mayor o igual a la fecha actual, se debe
-             * establecer el estado en desarrollo en el mismo.
+             * establecer un estado en desarrollo en el mismo.
              * 
              * Se asigna el simbolo "-" (guion) a la necesidad de agua
              * de riego de un registro de plantacion en desarrollo. Dicho
@@ -178,10 +179,22 @@ public class PlantingRecordManager {
             if (plantingRecordService.isInDevelopment(currentPlantingRecord)) {
                 plantingRecordService.updateIrrigationWaterNeed(currentPlantingRecord.getId(),
                         currentPlantingRecord.getParcel(), irrigationWaterNeedNotAvailableButCalculable);
-                plantingRecordService.setStatus(currentPlantingRecord.getId(), plantingRecordStatusService.findInDevelopmentStatus());
+
+                /*
+                 * Si un registro de plantacion presuntamente en espera tiene
+                 * una parcela que tiene la bandera suelo NO activa, se asigna
+                 * el estado "En desarrollo" al registro de plantacion. En caso
+                 * contrario, se le asigna el estado "Desarrollo optimo".
+                 */
+                if (!currentPlantingRecord.getParcel().getOption().getSoilFlag()) {
+                    plantingRecordService.setStatus(currentPlantingRecord.getId(), plantingRecordStatusService.findInDevelopmentStatus());
+                } else {
+                    plantingRecordService.setStatus(currentPlantingRecord.getId(), plantingRecordStatusService.findOptimalDevelopmentStatus());
+                }
+
             }
 
-        }
+        } // End for
 
     }
 
