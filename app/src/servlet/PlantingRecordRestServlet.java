@@ -1420,18 +1420,6 @@ public class PlantingRecordRestServlet {
      * de agua de riego de un cultivo en desarrollo en la fecha actual.
      */
     PlantingRecord developingPlantingRecord = plantingRecordService.find(plantingRecordId);
-
-    /*
-     * El valor de esta variable se utiliza para representar
-     * la situacion en la que NO se calcula el acumulado del
-     * deficit de agua por dia de dias previos a una fecha de
-     * un balance hidrico de suelo de una parcela que tiene
-     * un cultivo sembrado y en desarrollo. Esta situacion
-     * ocurre cuando el nivel de humedad de un suelo, que tiene
-     * un cultivo sembrado, es estrictamente menor al doble de
-     * la capacidad de almacenamiento de agua del mismo.
-     */
-    String notCalculated = soilWaterBalanceService.getNotCalculated();
     String stringIrrigationWaterNeedCurrentDate = null;
 
     try {
@@ -1509,6 +1497,18 @@ public class PlantingRecordRestServlet {
           .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNKNOW_ERROR_IN_IRRIGATION_WATER_NEED_CALCULATION, SourceUnsatisfiedResponse.WATER_NEED_CROP)))
           .build();
     }
+
+    /*
+     * El valor de esta variable se utiliza para representar
+     * la situacion en la que NO se calcula el acumulado del
+     * deficit de agua por dia de dias previos a una fecha de
+     * un balance hidrico de suelo de una parcela que tiene
+     * un cultivo sembrado y en desarrollo. Esta situacion
+     * ocurre cuando el nivel de humedad de un suelo, que tiene
+     * un cultivo sembrado, es estrictamente menor al doble de
+     * la capacidad de almacenamiento de agua del mismo.
+     */
+    String notCalculated = soilWaterBalanceService.getNotCalculated();
 
     /*
      * El valor de esta constante se asigna a la necesidad de
