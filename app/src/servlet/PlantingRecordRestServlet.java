@@ -2056,6 +2056,7 @@ public class PlantingRecordRestServlet {
      */
     int days = UtilDate.calculateDifferenceBetweenDates(pastDate, yesterday) + 1;
 
+    double totalIrrigationWaterCurrentDate = 0.0;
     double evaporatedWater = 0.0;
     double waterProvidedPerDay = 0.0;
     double waterDeficitPerDay = 0.0;
@@ -2118,8 +2119,9 @@ public class PlantingRecordRestServlet {
        * murio en la fecha pasada, por lo tanto, NO se calcula
        * el acumulado del deficit de agua por dia [mm/dia] de
        * la fecha pasada, lo cual se representa mediante la
-       * asignacion de la sigla "NC" a la variable String del
-       * acumulado del deficit de agua por dia.
+       * asignacion de la sigla "NC" a la variable de tipo String
+       * del acumulado del deficit de agua por dia [mm/dia]
+       * de un balance hidrico.
        */
       if (!stringAccumulatedWaterDeficitPerPreviousDay.equals(notCalculated)) {
         accumulatedWaterDeficitPerPreviousDay = Double.parseDouble(stringAccumulatedWaterDeficitPerPreviousDay);
@@ -2141,88 +2143,129 @@ public class PlantingRecordRestServlet {
          */
         if (parcel.getOption().getSoilFlag()) {
           totalAmountWaterAvailable = WaterMath.calculateTotalAmountWaterAvailable(crop, parcel.getSoil());
-  
+
           /*
            * Si el acumulado del deficit de agua por dia [mm/dia] de
-           * una fecha es menor o igual a la capacidad de campo (0) y
-           * estrictamente mayor a la lamina de riego optima (drop)
-           * negativa, significa que en una fecha el nivel de humedad
-           * del suelo, que tiene un cultivo sembrado, fue menor o
-           * igual a la capacidad de campo (0) y estrictamente mayor
-           * a la lamina de riego optima. En esta situacion, el
+           * dias previos a la fecha actual es estrictamente menor al
+           * doble del negativo de la capacidad de almacenamiento de
+           * agua del suelo, significa que el nivel de humedad del
+           * suelo, que tiene un cultivo sembrado, es estrictamente
+           * menor al doble de la capacidad de almacenamiento de agua
+           * del suelo. En esta situacion el cultivo esta muerto y el
            * registro de plantacion en desarrollo adquiere el estado
-           * "Desarrollo optimo".
+           * "Muerto".
            * 
-           * El motivo por el cual se coloca el signo negativo a la
-           * lamina de riego optima es que el acumulado del deficit
-           * de agua por dia [mm/dia] es menor o igual a cero.
-           */
-          if (accumulatedWaterDeficitPerDay <= 0 && accumulatedWaterDeficitPerDay > - (optimalIrrigationLayer)) {
-            plantingRecordService.setStatus(developingPlantingRecord.getId(), optimalDevelopmentStatus);
-          }
-  
-          /*
-           * Si el acumulado del deficit de agua por dia [mm/dia] de
-           * una fecha es menor o igual a la lamina de riego optima
-           * (drop) negativa y estrictamente mayor al negativo de la
-           * capacidad de almacenamiento de agua del suelo (dt),
-           * significa que en una fecha el nivel de humedad del suelo,
-           * que tiene un cultivo sembrado, fue menor o igual a la
-           * lamina de riego optima y estrictamente mayor a la capacidad
-           * de almacenamiento de agua del suelo. En esta situacion,
-           * el registro de plantacion en desarrollo adquiere el
-           * estado "Desarrollo en riesgo de marchitez".
+           * Si un cultivo esta muerto NO sirve verificar en que punto
+           * se encuentra el nivel de humedad del suelo con respecto a
+           * la capacidad de campo, el umbral de riego, la capacidad de
+           * almacenamiento de agua del suelo y el doble de la capacidad
+           * de almacenamiento de agua del suelo.
            * 
-           * El motivo por el cual se coloca el signo negativo a la
-           * lamina de riego optima y a la capacidad de almacenamiento
-           * de agua del suelo es que el acumulado del deficit de
-           * agua por dia [mm/dia] es menor o igual a cero.
-           */
-          if (accumulatedWaterDeficitPerDay <= - (optimalIrrigationLayer) && accumulatedWaterDeficitPerDay > - (totalAmountWaterAvailable)) {
-            plantingRecordService.setStatus(developingPlantingRecord.getId(), developmentAtRiskWiltingStatus);
-          }
-  
-          /*
-           * Si el acumulado del deficit de agua por dia [mm/dia] de
-           * una fecha es menor o igual a la capacidad de almacenamiento
-           * del agua del suelo negativa y estrictamente mayor al doble
-           * de la capacidad de almacenamiento de agua negativo,
-           * significa que en una fecha el nivel de humedad del suelo,
-           * que tiene un cultivo sembrado, fue menor o igual a la
-           * capacidad de almacenamiento de agua del suelo y estrictamente
-           * mayor al doble de la capacidad de almacenamiento de agua
-           * del suelo. En esta situacion, el registro de plantacion
-           * en desarrollo adquiere el estado "Desarrollo en marchitez".
+           * Las raices de un cultivo pueden crecer más allá de la capacidad
+           * de almacenamiento de agua del suelo, con lo cual un cultivo
+           * puede absorber el agua que hay en el punto de marchitez permanente
+           * del suelo (*) y la que hay debajo de este punto. Las raices
+           * de un cultivo no crecen más allá del doble de la capacidad
+           * de almacenamiento de agua del suelo, con lo cual un cultivo
+           * no puede absorber el agua que hay en el doble de la capacidad
+           * de almacenamiento de agua del suelo ni la que hay debajo de
+           * este punto. Por lo tanto, si el nivel de humedad del suelo,
+           * en el que está sembrado un cultivo, es estrictamente menor
+           * al doble de la capacidad de almacenamiento de agua del mismo,
+           * el cultivo no puede absorber el agua que hay en este punto
+           * ni la que hay debajo de este punto, lo cual produce como
+           * consecuencia la marchitez, y, por ende, la muerte del cultivo.
            * 
-           * El motivo por el cual se coloca el signo negativo a la
-           * capacidad de almacenamiento de agua del suelo y a su doble
-           * es que el acumulado del deficit de agua por dia [mm/dia]
-           * es menor o igual a cero.
-           */
-          if (accumulatedWaterDeficitPerDay <= - (totalAmountWaterAvailable) && accumulatedWaterDeficitPerDay > - (2 * totalAmountWaterAvailable)) {
-            plantingRecordService.setStatus(developingPlantingRecord.getId(), developmentInWiltheringStatus);
-          }
-  
-          /*
-           * Si el acumulado del deficit de agua por dia [mm/dia] de
-           * una fecha es estrictamente menor al doble de la capacidad
-           * de almacenamiento de agua del suelo negativo, significa
-           * que el nivel de humedad del suelo, que tiene un cultivo
-           * sembrado, es estrictamente menor al doble de la capacidad
-           * de almacenamiento de agua del suelo. En esta situacion
-           * el cultivo esta muerto y el registro de plantacion en
-           * desarrollo adquiere el estado "Muerto".
+           * (*) La capacidad de almacenamiento de agua del suelo:
+           * - es en funcion de la profundidad radicular de un cultivo y
+           * de otros datos, ya que esta dada por la lamina total de agua
+           * disponible (dt) [mm], y
+           * - tiene dos extremos: capacidad de campo (extremo superior)
+           * y punto de marchitez permanente (extremo inferior).
            * 
-           * El motivo por el cual se coloca el signo negativo al
-           * doble de la capacidad de almacenamiento de agua del suelo
-           * es que el acumulado del deficit de agua por dia [mm/dia]
-           * es menor o igual a cero.
+           * El motivo por el cual se coloca el signo negativo al doble
+           * de la capacidad de almacenamiento de agua del suelo es que
+           * el acumulado del deficit de agua por dia [mm/dia] es menor
+           * o igual a cero.
            */
-          if (accumulatedWaterDeficitPerDay < - (2 * totalAmountWaterAvailable)) {
+          if (accumulatedWaterDeficitPerDay < -(2 * totalAmountWaterAvailable)) {
             stringAccumulatedWaterDeficitPerDay = notCalculated;
             plantingRecordService.setStatus(developingPlantingRecord.getId(), deadStatus);
-          }
-  
+          } else {
+            totalIrrigationWaterCurrentDate = irrigationRecordService.calculateTotalIrrigationWaterCurrentDate(parcel.getId());
+
+            /*
+             * Si la suma entre el acumulado del deficit de agua por dia
+             * [mm/dia] de dias previos a la fecha actual y la cantidad
+             * total de agua de riego de la fecha actual (es decir, hoy)
+             * [mm/dia] es menor o igual a la capacidad de campo (0) del
+             * suelo y estrictamente mayor a la lamina de riego optima
+             * (drop) [mm] negativa, significa que en la fecha actual el
+             * nivel de humedad del suelo, que tiene un cultivo sembrado,
+             * es menor o igual a la capacidad de campo (0) del suelo y
+             * estrictamente mayor a la lamina de riego optima. En esta
+             * situacion, el registro de plantacion en desarrollo adquiere
+             * el estado "Desarrollo optimo".
+             * 
+             * El motivo por el cual se coloca el signo negativo a la
+             * lamina de riego optima es que el acumulado del deficit
+             * de agua por dia [mm/dia] es menor o igual a cero.
+             */
+            if ((accumulatedWaterDeficitPerDay + totalIrrigationWaterCurrentDate) <= 0
+                && (accumulatedWaterDeficitPerDay + totalIrrigationWaterCurrentDate) > -(optimalIrrigationLayer)) {
+              plantingRecordService.setStatus(developingPlantingRecord.getId(), optimalDevelopmentStatus);
+            }
+
+            /*
+             * Si la suma entre el acumulado del deficit de agua por dia
+             * [mm/dia] de dias previos a la fecha actual y la cantidad
+             * total de agua de riego de la fecha actual (es decir, hoy)
+             * [mm/dia] es menor o igual a la lamina de riego optima (drop)
+             * [mm] negativa y estrictamente mayor al negativo de la
+             * capacidad de almacenamiento de agua del suelo (dt) [mm],
+             * significa que en la fecha actual el nivel de humedad del
+             * suelo, que tiene un cultivo sembrado, es menor o igual a
+             * la lamina de riego optima y estrictamente mayor a la
+             * capacidad de almacenamiento de agua del suelo. En esta
+             * situacion, el registro de plantacion en desarrollo
+             * adquiere el estado "Desarrollo en riesgo de marchitez".
+             * 
+             * El motivo por el cual se coloca el signo negativo a la
+             * lamina de riego optima y a la capacidad de almacenamiento
+             * de agua del suelo es que el acumulado del deficit de
+             * agua por dia [mm/dia] es menor o igual a cero.
+             */
+            if ((accumulatedWaterDeficitPerDay + totalIrrigationWaterCurrentDate) <= -(optimalIrrigationLayer)
+                && (accumulatedWaterDeficitPerDay + totalIrrigationWaterCurrentDate) > -(totalAmountWaterAvailable)) {
+              plantingRecordService.setStatus(developingPlantingRecord.getId(), developmentAtRiskWiltingStatus);
+            }
+
+            /*
+             * Si la suma entre el acumulado del deficit de agua por dia
+             * [mm/dia] de dias previos a la fecha actual y la cantidad
+             * total de agua de riego de la fecha actual (es decir, hoy)
+             * [mm/dia] es menor o igual al negativo de la capacidad de
+             * almacenamiento de agua del suelo [mm] y estrictamente
+             * mayor al doble del negativo de la capacidad de almacenamiento
+             * de agua del suelo [mm], significa que el nivel de humedad
+             * del suelo en la fecha actual es menor o igual a la capacidad
+             * de almacenamiento de agua del suelo y estrictamente mayor
+             * al doble de la capacidad de almacenamiento de agua del
+             * suelo. En esta situacion, el registro de plantacion en
+             * desarrollo adquiere el estado "Desarrollo en marchitez".
+             * 
+             * El motivo por el cual se coloca el signo negativo a la
+             * capacidad de almacenamiento de agua del suelo y a su doble
+             * es que el acumulado del deficit de agua por dia [mm/dia]
+             * es menor o igual a cero.
+             */
+            if ((accumulatedWaterDeficitPerDay + totalIrrigationWaterCurrentDate) <= -(totalAmountWaterAvailable)
+                && (accumulatedWaterDeficitPerDay + totalIrrigationWaterCurrentDate) > -(2 * totalAmountWaterAvailable)) {
+              plantingRecordService.setStatus(developingPlantingRecord.getId(), developmentInWiltheringStatus);
+            }
+
+          } // End if
+
         } // End if
 
       } else {
