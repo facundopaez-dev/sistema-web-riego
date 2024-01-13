@@ -116,27 +116,50 @@ app.controller(
 					});
 			}
 
+			const UNDEFINED_PARCEL_AND_DATE = "La parcela y la fecha deben estar definidas";
 			const UNDEFINED_PARCEL = "La parcela debe estar definida";
 
-			/*
-			Trae el listado de registros de riego pertenecientes
-			a la parcela con el nombre dado
-			*/
-			$scope.findAllByParcelName = function () {
+			$scope.filter = function () {
+
+				/*
+				Si las propiedades parcel y date de $scope tienen el valor
+				undefined, significa que NO se eligio una parcela ni una
+				fecha para filtrar registros de riego. Por lo tanto, la
+				aplicacion muestra el mensaje dado y no ejecuta la instrccion
+				que realiza la peticion HTTP correspondiente a esta funcion.
+				*/
+				if ($scope.parcel == undefined && $scope.date == undefined) {
+					alert(UNDEFINED_PARCEL_AND_DATE);
+					return;
+				}
+
 				/*
 				Si la propiedad parcel de $scope tiene el valor undefined,
 				significa que NO se cargo una parcela en el campo del nombre
-				de una parcela para filtrar registros de riego por una parcela.
-				Por lo tanto, la aplicacion muestra el mensaje dado y no ejecuta
-				la instruccion que realiza la peticion HTTP correspondiente esta
-				funcion.
+				de una parcela para filtrar registros de riego. Por lo tanto,
+				la aplicacion muestra el mensaje dado y no ejecuta la instruccion
+				que realiza la peticion HTTP correspondiente esta funcion.
 				*/
-				if ($scope.parcel == undefined) {
+				if ($scope.parcel == undefined && $scope.date != undefined) {
 					alert(UNDEFINED_PARCEL);
 					return;
 				}
 
-				irrigationRecordService.findAllByParcelName($scope.parcel.name, function (error, data) {
+				var newDate = null;
+
+				/*
+				Si la fecha esta definida (es decir, tiene un valor asignado),
+				se crea una variable con la fecha elegida usando el formato
+				yyyy-MM-dd. El motivo de esto es que el metodo filter de la
+				clase REST IrrigationRecordRestServlet de la aplicacion del lado
+				servidor, utiliza la fecha en el formato yyyy-MM-dd para
+				recuperar registros de riego de la base de datos subyacente.
+				*/
+				if ($scope.date != undefined || $scope.date != null) {
+					newDate = $scope.date.getFullYear() + "-" + ($scope.date.getMonth() + 1) + "-" + $scope.date.getDate();
+				}
+
+				irrigationRecordService.filter($scope.parcel.name, newDate, function (error, data) {
 					if (error) {
 						console.log(error);
 						errorResponseManager.checkResponse(error);
@@ -154,12 +177,12 @@ app.controller(
 			*/
 			$scope.reset = function () {
 				/*
-				Esta instruccion es para eliminar el contenido del campo
-				del nombre de parcela cuando el usuario presiona el boton
-				de reinicio del listado de los datos correspondientes a
-				este controller
+				Esta instruccion es para eliminar el contenido de los
+				campos del filtro de los datos correspondientes a este
+				controller
 				*/
 				$scope.parcel = undefined;
+				$scope.date = undefined;
 				findAll();
 			}
 

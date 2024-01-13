@@ -116,7 +116,8 @@ public enum ReasonError {
   OVERLAP_BETWEEN_MONTH_START_PLANTING_AND_MONTH_END_PLANTING("El mes de inicio de siembra no debe ser mayor al mes de fin de siembra"),
   REQUEST_LIMIT_EXCEEDED("La aplicación no puede calcular la necesidad de agua de riego de un cultivo porque se supero la cantidad de 1000 peticiones gratuitas por día del servicio meteorológico Visual Crossing Weather"),
   WEATHER_SERVICE_UNAVAILABLE("La aplicación no puede calcular la necesidad de agua de riego de un cultivo porque el servicio meteorológico Visual Crossing Weather no se encuentra en funcionamiento"),
-  UNKNOW_ERROR_IN_IRRIGATION_WATER_NEED_CALCULATION("Se produjo un error al calcular la necesidad de agua de riego de un cultivo");
+  UNKNOW_ERROR_IN_IRRIGATION_WATER_NEED_CALCULATION("Se produjo un error al calcular la necesidad de agua de riego de un cultivo"),
+  UNDEFINED_PARCEL_NAME_AND_DATE("La parcela y la fecha deben estar definidas");
 
   private final String reason;
 

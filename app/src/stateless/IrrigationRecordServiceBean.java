@@ -164,6 +164,28 @@ public class IrrigationRecordServiceBean {
   }
 
   /**
+   * Retorna los registros de riego de una parcela mediante
+   * el nombre de una parcela, una fecha y el ID del usuario
+   * al que pertenece una parcela
+   * 
+   * @param userId
+   * @param parcelName
+   * @param date
+   * @return referencia a un objeto de tipo Collection que
+   * contiene los registros de riego que tienen una fecha
+   * pertenecientes a una parcela que tiene un nombre, la
+   * cual pertenece a un usuario
+   */
+  public Collection<IrrigationRecord> findAllByParcelNameAndDate(int userId, String parcelName, Calendar date) {
+    Query query = getEntityManager().createQuery("SELECT i FROM IrrigationRecord i JOIN i.parcel p WHERE (i.date = :date AND p.name = :parcelName AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY i.id");
+    query.setParameter("userId", userId);
+    query.setParameter("parcelName", parcelName);
+    query.setParameter("date", date);
+
+    return (Collection) query.getResultList();
+  }
+
+  /**
    * @param parcelId
    * @param date
    * @return referencia a un objeto de tipo Collection que

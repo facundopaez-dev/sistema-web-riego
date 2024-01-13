@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -12,6 +13,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -38,6 +40,8 @@ import utilJwt.AuthHeaderManager;
 import utilJwt.JwtManager;
 import et.HargreavesEto;
 import et.Etc;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
 
 @Path("/irrigationRecords")
 public class IrrigationRecordRestServlet {
@@ -69,6 +73,9 @@ public class IrrigationRecordRestServlet {
 
   // mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
+
+  private final String UNDEFINED_VALUE = "undefined";
+  private final String NULL_VALUE = "null";
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
@@ -162,9 +169,10 @@ public class IrrigationRecordRestServlet {
   }
 
   @GET
-  @Path("/findAllByParcelName/{parcelName}")
+  @Path("/filter")
   @Produces(MediaType.APPLICATION_JSON)
-  public Response findAllByParcelName(@Context HttpHeaders request, @PathParam("parcelName") String givenParcelName) throws IOException {
+  public Response filter(@Context HttpHeaders request, @QueryParam("parcelName") String parcelName,
+      @QueryParam("date") String stringDate) throws IOException, ParseException {
     Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
 
     /*
@@ -244,13 +252,81 @@ public class IrrigationRecordRestServlet {
       return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
     }
 
+    SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+    Date date;
+
+    /*
+     * En la aplicacion del lado del navegador Web la variable
+     * correspondiente a la fecha puede tener el valor undefined
+     * o el valor null. Estos valores representan que una variable
+     * no tiene un valor asignado. En este caso indican que una
+     * variable no tiene asignada una fecha. Cuando esto ocurre
+     * y se realiza una peticion HTTP a este metodo con esta
+     * variable con uno de dichos dos valores, la variable de
+     * tipo String date tiene como contenido la cadena "undefined"
+     * o la cadena "null". En Java para representar adecuadamente
+     * que date NO tiene una fecha asignada, en caso de que
+     * provenga de la aplicacion del lado del navegador web con
+     * el valor undefined o el valor null, se debe asignar el
+     * valor null a la variable date.
+     */
+    if (stringDate != null && (stringDate.equals(UNDEFINED_VALUE) || stringDate.equals(NULL_VALUE))) {
+      stringDate = null;
+    }
+
+    /*
+     * Si el nombre de la parcela y la fecha NO estan definidos,
+     * la aplicacion del lado servidor retorna el mensaje HTTP
+     * 400 (Bad request) junto con el mensaje "La parcela y la
+     * fecha deben estar definidas" y no se realiza la operacion
+     * solicitada
+     */
+    if (parcelName == null && stringDate == null) {
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_PARCEL_NAME_AND_DATE)))
+          .build();
+    }
+
+    /*
+     * Si la fecha esta definida, pero no el nombre de la
+     * parcela, la aplicacion del lador servidor retorna el
+     * mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "La parcela debe estar definida" y no se realiza la
+     * operacion solicitada
+     */
+    if (parcelName == null && stringDate != null) {
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INDEFINITE_PARCEL)))
+          .build();
+    }
+
+    /*
+     * Si el nombre de la parcela esta definido y la fecha
+     * NO esta definida, la aplicacion del lado servidor
+     * retorna una coleccion de registros de riego
+     * pertenecientes a una parcela de un usuario
+     */
+    if (parcelName != null && stringDate == null) {
+      return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(irrigationRecordService.findAllByParcelName(userId, parcelName))).build();
+    }
+
+    /*
+     * Si la fecha esta definida, la aplicacion del lado servidor
+     * la convierte a un objeto de tipo Date que contiene la
+     * fecha ingresada por el usuario en el fitro de la pagina
+     * web de registros de riego
+     */
+    date = new Date(dateFormatter.parse(stringDate).getTime());
+
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
      * por el cliente
      */
-    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(irrigationRecordService.findAllByParcelName(userId, givenParcelName))).build();
+    return Response.status(Response.Status.OK)
+        .entity(mapper.writeValueAsString(irrigationRecordService.findAllByParcelNameAndDate(userId, parcelName, UtilDate.toCalendar(date))))
+        .build();
   }
 
   @GET
