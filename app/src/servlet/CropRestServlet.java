@@ -95,7 +95,7 @@ public class CropRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -124,7 +124,9 @@ public class CropRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /*
@@ -186,7 +188,7 @@ public class CropRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -215,7 +217,9 @@ public class CropRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /*
@@ -226,7 +230,7 @@ public class CropRestServlet {
      * la operacion solicitada
      */
     if (cropName == null || cropName.equals(UNDEFINED_VALUE)) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_CROP_NAME)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_CROP_NAME))).build();
     }
 
     /*
@@ -238,7 +242,9 @@ public class CropRestServlet {
      * la operacion solicitada
      */
     if (!cropService.checkExistence(cropName)) {
-      return Response.status(Response.Status.NOT_FOUND).entity(new ErrorResponse(ReasonError.CROP_NOT_FOUND, SourceUnsatisfiedResponse.CROP)).build();
+      return Response.status(Response.Status.NOT_FOUND)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.CROP_NOT_FOUND, SourceUnsatisfiedResponse.CROP)))
+          .build();
     }
 
     /*
@@ -307,7 +313,7 @@ public class CropRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -336,7 +342,9 @@ public class CropRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /*
@@ -347,7 +355,7 @@ public class CropRestServlet {
      * la operacion solicitada
      */
     if (cropName == null || cropName.equals(UNDEFINED_VALUE)) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_CROP_NAME)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_CROP_NAME))).build();
     }
 
     /*
@@ -414,7 +422,7 @@ public class CropRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -443,7 +451,9 @@ public class CropRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /*
@@ -506,7 +516,7 @@ public class CropRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -535,7 +545,9 @@ public class CropRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /*
@@ -608,7 +620,7 @@ public class CropRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -637,7 +649,9 @@ public class CropRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /*
@@ -800,11 +814,15 @@ public class CropRestServlet {
      * debe ser mayor a 0.0" y no se realiza la operacion solicitada
      */
     if (newCrop.getLowerLimitMaximumRootDepth() <= 0.0) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.LOWER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID))).build();      
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.LOWER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID)))
+          .build();
     }
 
     if (newCrop.getUpperLimitMaximumRootDepth() <= 0.0) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UPPER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID))).build();      
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UPPER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID)))
+          .build();
     }
 
     /*
@@ -968,7 +986,7 @@ public class CropRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -997,7 +1015,9 @@ public class CropRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /*
@@ -1082,7 +1102,7 @@ public class CropRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -1111,7 +1131,9 @@ public class CropRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /*
@@ -1287,11 +1309,15 @@ public class CropRestServlet {
      * debe ser mayor a 0.0" y no se realiza la operacion solicitada
      */
     if (modifiedCrop.getLowerLimitMaximumRootDepth() <= 0.0) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.LOWER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID))).build();      
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.LOWER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID)))
+          .build();
     }
 
     if (modifiedCrop.getUpperLimitMaximumRootDepth() <= 0.0) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UPPER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID))).build();      
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UPPER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID)))
+          .build();
     }
 
     /*

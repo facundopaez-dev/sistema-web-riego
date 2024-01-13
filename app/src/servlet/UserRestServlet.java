@@ -103,7 +103,7 @@ public class UserRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -132,7 +132,9 @@ public class UserRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /*
@@ -200,7 +202,7 @@ public class UserRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -229,7 +231,9 @@ public class UserRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /*
@@ -292,7 +296,7 @@ public class UserRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -321,7 +325,9 @@ public class UserRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /*
@@ -352,7 +358,7 @@ public class UserRestServlet {
      * definido" y no se realiza la operacion solicitada
      */
     if (myModifiedUser.getUsername() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_USERNAME)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_USERNAME))).build();
     }
 
     /*
@@ -362,7 +368,7 @@ public class UserRestServlet {
      * realiza la operacion solicitada
      */
     if (myModifiedUser.getName() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_NAME)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_NAME))).build();
     }
 
     /*
@@ -372,7 +378,7 @@ public class UserRestServlet {
      * y no se realiza la operacion solicitada
      */
     if (myModifiedUser.getLastName() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_LAST_NAME)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_LAST_NAME))).build();
     }
 
     /*
@@ -383,7 +389,7 @@ public class UserRestServlet {
      * la operacion solicitada
      */
     if (myModifiedUser.getEmail() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_EMAIL)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_EMAIL))).build();
     }
 
     /*
@@ -403,7 +409,7 @@ public class UserRestServlet {
      * bajos" y no se realiza la operacion solicitada
      */
     if (!myModifiedUser.getUsername().matches("^[A-Za-z][A-Za-z0-9_]{3,14}$")) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.MALFORMED_USERNAME)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MALFORMED_USERNAME))).build();
     }
 
     /*
@@ -436,7 +442,7 @@ public class UserRestServlet {
      * letras minusculas.
      */
     if (!myModifiedUser.getName().matches("^[A-Z](?=.{2,29}$)[a-z]+(?:\\h[A-Z][a-z]+)*$")) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.MALFORMED_NAME)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MALFORMED_NAME))).build();
     }
 
     /*
@@ -456,7 +462,7 @@ public class UserRestServlet {
      * solicitada.
      */
     if (!myModifiedUser.getLastName().matches("^[A-Z](?=.{2,29}$)[a-z]+(?:\\h[A-Z][a-z]+)*$")) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.MALFORMED_LAST_NAME)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MALFORMED_LAST_NAME))).build();
     }
 
     /*
@@ -466,7 +472,7 @@ public class UserRestServlet {
      * no se realiza la operacion solicitada
      */
     if (!myModifiedUser.getEmail().matches("^(?=.{1,64}@)[\\p{L}0-9_-]+(\\.[\\p{L}0-9_-]+)*@[^-][\\p{L}0-9-]+(\\.[\\p{L}0-9-]+)*(\\.[\\p{L}]{2,})$")) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.MALFORMED_EMAIL)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MALFORMED_EMAIL))).build();
     }
 
     /*
@@ -483,7 +489,7 @@ public class UserRestServlet {
      * operacion solicitada
      */
     if (userService.checkExistenceUsername(userId, myModifiedUser.getUsername())) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.USERNAME_ALREADY_USED)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.USERNAME_ALREADY_USED))).build();
     }
 
     /*
@@ -494,7 +500,7 @@ public class UserRestServlet {
      * realiza la operacion solicitada
      */
     if (userService.checkExistenceEmail(userId, myModifiedUser.getEmail())) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.EMAIL_ALREADY_USED)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EMAIL_ALREADY_USED))).build();
     }
 
     /*
@@ -559,7 +565,7 @@ public class UserRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -588,7 +594,9 @@ public class UserRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /*
@@ -619,7 +627,7 @@ public class UserRestServlet {
      * debe estar definida" y no se realiza la operacion solicitada
      */
     if (newPasswordData.getPassword() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_PASSWORD)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_PASSWORD))).build();
     }
 
     /*
@@ -630,7 +638,7 @@ public class UserRestServlet {
      * solicitada
      */
     if (newPasswordData.getNewPassword() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_NEW_PASSWORD)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_NEW_PASSWORD))).build();
     }
 
     /*
@@ -641,7 +649,7 @@ public class UserRestServlet {
      * estar definida" y no se realiza la operacion solicitada
      */
     if (newPasswordData.getNewPasswordConfirmed() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_CONFIRMED_NEW_PASSWORD)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_CONFIRMED_NEW_PASSWORD))).build();
     }
 
     /*
@@ -660,7 +668,7 @@ public class UserRestServlet {
      * la operacion solicitada
      */
     if (!(newPasswordData.getNewPassword().matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,}$"))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.MALFORMED_NEW_PASSWORD)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MALFORMED_NEW_PASSWORD))).build();
     }
 
     /*
@@ -676,7 +684,7 @@ public class UserRestServlet {
      * nueva contraseña no es igual a la nueva contraseña ingresada"
      */
     if (!(newPasswordData.getNewPassword().equals(newPasswordData.getNewPasswordConfirmed()))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INCORRECTLY_CONFIRMED_NEW_PASSWORD)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INCORRECTLY_CONFIRMED_NEW_PASSWORD))).build();
     }
 
     /*
@@ -699,7 +707,7 @@ public class UserRestServlet {
      * y no se realiza la operacion solicitada
      */
     if (!(passwordService.authenticateUser(givenUser.getUsername(), newPasswordData.getPassword()))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INCORRECT_PASSWORD)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INCORRECT_PASSWORD))).build();
     }
 
     /*
@@ -732,7 +740,7 @@ public class UserRestServlet {
      * definida" y no se realiza la operacion solicitada
      */
     if (json.isEmpty()) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_EMAIL)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_EMAIL))).build();
     }
 
     DataEmailFormPasswordReset dataEmailFormPasswordReset = mapper.readValue(json, DataEmailFormPasswordReset.class);
@@ -750,7 +758,7 @@ public class UserRestServlet {
      * no se realiza la operacion solicitada
      */
     if (!dataEmailFormPasswordReset.getEmail().matches("^(?=.{1,64}@)[\\p{L}0-9_-]+(\\.[\\p{L}0-9_-]+)*@[^-][\\p{L}0-9-]+(\\.[\\p{L}0-9-]+)*(\\.[\\p{L}]{2,})$")) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.MALFORMED_EMAIL)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MALFORMED_EMAIL))).build();
     }
 
     /*
@@ -766,7 +774,9 @@ public class UserRestServlet {
      * de correo electrónico ingresada" y no se realiza la operacion solicitada
      */
     if (!userService.checkExistenceEmail(dataEmailFormPasswordReset.getEmail())) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.THERE_IS_NO_ACCOUNT_WITH_EMAIL_ADDRESS_ENTERED)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.THERE_IS_NO_ACCOUNT_WITH_EMAIL_ADDRESS_ENTERED)))
+          .build();
     }
 
     /*
@@ -785,7 +795,7 @@ public class UserRestServlet {
      * la operacion solicitada
      */
     if (!userService.isActive(dataEmailFormPasswordReset.getEmail())) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INACTIVE_USER_TO_RECOVER_PASSWORD)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INACTIVE_USER_TO_RECOVER_PASSWORD))).build();
     }
 
     /*
@@ -810,7 +820,7 @@ public class UserRestServlet {
      * (Ok) junto con el mensaje "Correo electrónico de restablecimiento
      * de contraseña enviado a su casilla de correo electrónico"
      */
-    return Response.status(Response.Status.OK).entity(new SuccessfullyResponse(ReasonSuccess.PASSWORD_RESET_EMAIL_SENT)).build();
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(new SuccessfullyResponse(ReasonSuccess.PASSWORD_RESET_EMAIL_SENT))).build();
   }
 
   @PUT
@@ -832,7 +842,7 @@ public class UserRestServlet {
      * la operacion solicitada
      */
     if (jwt.isEmpty()) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_PASSWORD_RESET_LINK)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_PASSWORD_RESET_LINK))).build();
     }
 
     /*
@@ -844,7 +854,7 @@ public class UserRestServlet {
      * invalido" y no se realiza la operacion solicitada
      */
     if (!JwtManager.validateJwt(jwt, secretKeyService.find().getValue())) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_PASSWORD_RESET_LINK)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_PASSWORD_RESET_LINK))).build();
     }
 
     /*
@@ -875,7 +885,7 @@ public class UserRestServlet {
      * definida" y no se realiza la operacion solicitada
      */
     if (passwordResetFormData.getNewPassword() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_NEW_PASSWORD)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_NEW_PASSWORD))).build();
     }
 
     /*
@@ -886,7 +896,7 @@ public class UserRestServlet {
      * operacion solicitada
      */
     if (passwordResetFormData.getNewPasswordConfirmed() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_CONFIRMED_NEW_PASSWORD)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_CONFIRMED_NEW_PASSWORD))).build();
     }
 
     /*
@@ -905,7 +915,7 @@ public class UserRestServlet {
      * la operacion solicitada
      */
     if (!passwordResetFormData.getNewPassword().matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,}$")) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.MALFORMED_NEW_PASSWORD)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MALFORMED_NEW_PASSWORD))).build();
     }
 
     /*
@@ -921,7 +931,7 @@ public class UserRestServlet {
      * nueva contraseña no es igual a la nueva contraseña ingresada"
      */
     if (!(passwordResetFormData.getNewPassword().equals(passwordResetFormData.getNewPasswordConfirmed()))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INCORRECTLY_CONFIRMED_NEW_PASSWORD)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INCORRECTLY_CONFIRMED_NEW_PASSWORD))).build();
     }
 
     /*
@@ -942,7 +952,7 @@ public class UserRestServlet {
      * realiza la operacion solicitada
      */
     if (!passwordResetLinkService.checkExistence(passwordResetLinkId, userEmail)) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_PASSWORD_RESET_LINK)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_PASSWORD_RESET_LINK))).build();
     }
 
     /*
@@ -955,7 +965,7 @@ public class UserRestServlet {
      * la operacion solicitada
      */
     if (passwordResetLinkService.checkConsumed(passwordResetLinkId, userEmail)) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_PASSWORD_RESET_LINK)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_PASSWORD_RESET_LINK))).build();
     }
 
     /*
@@ -966,7 +976,7 @@ public class UserRestServlet {
      * contraseña expirado" y no se realiza la operacion solicitada
      */
     if (passwordResetLinkService.checkExpiration(passwordResetLinkId, userEmail)) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.PASSWORD_RESET_LINK_EXPIRED)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.PASSWORD_RESET_LINK_EXPIRED))).build();
     }
 
     /*
@@ -984,7 +994,7 @@ public class UserRestServlet {
      */
     passwordService.modify(userService.findByEmail(userEmail).getId(), passwordResetFormData.getNewPassword());
     passwordResetLinkService.setConsumed(passwordResetLinkId);
-    return Response.status(Response.Status.OK).entity(new SuccessfullyResponse(ReasonSuccess.PASSWORD_RESET_SUCCESSFULLY)).build();
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(new SuccessfullyResponse(ReasonSuccess.PASSWORD_RESET_SUCCESSFULLY))).build();
   }
 
   /*
@@ -1018,7 +1028,7 @@ public class UserRestServlet {
      * la operacion solicitada
      */
     if (jwt.isEmpty()) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_PASSWORD_RESET_LINK)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_PASSWORD_RESET_LINK))).build();
     }
 
     /*
@@ -1030,7 +1040,7 @@ public class UserRestServlet {
      * invalido" y no se realiza la operacion solicitada
      */
     if (!JwtManager.validateJwt(jwt, secretKeyService.find().getValue())) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_PASSWORD_RESET_LINK)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_PASSWORD_RESET_LINK))).build();
     }
 
     /*
@@ -1051,7 +1061,7 @@ public class UserRestServlet {
      * realiza la operacion solicitada
      */
     if (!passwordResetLinkService.checkExistence(passwordResetLinkId, userEmail)) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_PASSWORD_RESET_LINK)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_PASSWORD_RESET_LINK))).build();
     }
 
     /*
@@ -1064,7 +1074,7 @@ public class UserRestServlet {
      * la operacion solicitada
      */
     if (passwordResetLinkService.checkConsumed(passwordResetLinkId, userEmail)) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_PASSWORD_RESET_LINK)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_PASSWORD_RESET_LINK))).build();
     }
 
     /*
@@ -1075,7 +1085,7 @@ public class UserRestServlet {
      * contraseña expirado" y no se realiza la operacion solicitada
      */
     if (passwordResetLinkService.checkExpiration(passwordResetLinkId, userEmail)) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.PASSWORD_RESET_LINK_EXPIRED)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.PASSWORD_RESET_LINK_EXPIRED))).build();
     }
 
     /*

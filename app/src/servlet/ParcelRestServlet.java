@@ -106,7 +106,7 @@ public class ParcelRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -135,7 +135,9 @@ public class ParcelRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /*
@@ -197,7 +199,7 @@ public class ParcelRestServlet {
        * solicitada
        */
       if (!sessionService.checkActiveSession(userId)) {
-          return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+        return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
       }
 
       /*
@@ -226,7 +228,9 @@ public class ParcelRestServlet {
        * cerrada por el usuario.
        */
       if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-          return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+        return Response.status(Response.Status.BAD_REQUEST)
+            .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+            .build();
       }
 
       /*
@@ -237,7 +241,7 @@ public class ParcelRestServlet {
        * la operacion solicitada
        */
       if (parcelName == null || parcelName.equals(UNDEFINED_VALUE)) {
-          return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_PARCEL_NAME)).build();
+          return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_PARCEL_NAME))).build();
       }
 
       /*
@@ -249,7 +253,9 @@ public class ParcelRestServlet {
        * la operacion solicitada
        */
       if (!parcelService.checkExistenceForSearch(userId, parcelName)) {
-          return Response.status(Response.Status.NOT_FOUND).entity(new ErrorResponse(ReasonError.PARCEL_NOT_FOUND, SourceUnsatisfiedResponse.PARCEL)).build();
+        return Response.status(Response.Status.NOT_FOUND)
+            .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.PARCEL_NOT_FOUND, SourceUnsatisfiedResponse.PARCEL)))
+            .build();
       }
 
       /*
@@ -318,7 +324,7 @@ public class ParcelRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -347,7 +353,9 @@ public class ParcelRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /*
@@ -358,7 +366,7 @@ public class ParcelRestServlet {
      * la operacion solicitada
      */
     if (parcelName == null || parcelName.equals(UNDEFINED_VALUE)) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_PARCEL_NAME)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_PARCEL_NAME))).build();
     }
 
     /*
@@ -426,7 +434,7 @@ public class ParcelRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -455,7 +463,9 @@ public class ParcelRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /*
@@ -518,7 +528,7 @@ public class ParcelRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -547,7 +557,9 @@ public class ParcelRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /*
@@ -631,7 +643,7 @@ public class ParcelRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -660,7 +672,9 @@ public class ParcelRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /* 
@@ -686,7 +700,7 @@ public class ParcelRestServlet {
      * operacion solicitada
      */
     if (newParcel.getName() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_PARCEL_NAME)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_PARCEL_NAME))).build();
     }
 
     /*
@@ -701,7 +715,7 @@ public class ParcelRestServlet {
      * espacio en blanco." y no se realiza la operacion solicitada
      */
     if (!newParcel.getName().matches(NAME_REGULAR_EXPRESSION)) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_PARCEL_NAME)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_PARCEL_NAME))).build();
     }
 
     /*
@@ -712,7 +726,7 @@ public class ParcelRestServlet {
      * otro" y no se realiza la operacion solicitada
      */
     if (parcelService.checkExistence(userId, newParcel.getName())) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.PARCEL_NAME_ALREADY_USED)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.PARCEL_NAME_ALREADY_USED))).build();
     }
 
     /*
@@ -723,7 +737,7 @@ public class ParcelRestServlet {
      * la operacion solicitada
      */
     if (newParcel.getHectares() <= 0.0) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_NUMBER_OF_HECTARES)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_NUMBER_OF_HECTARES))).build();
     }
 
     /*
@@ -815,7 +829,7 @@ public class ParcelRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -844,7 +858,9 @@ public class ParcelRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION))))
+          .build();
     }
 
     /*
@@ -943,7 +959,7 @@ public class ParcelRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -972,7 +988,9 @@ public class ParcelRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /*
@@ -1022,7 +1040,7 @@ public class ParcelRestServlet {
      * operacion solicitada
      */
     if (modifiedParcel.getName() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_PARCEL_NAME)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_PARCEL_NAME))).build();
     }
 
     /*
@@ -1038,7 +1056,7 @@ public class ParcelRestServlet {
      * se realiza la operacion solicitada
      */
     if (!modifiedParcel.getName().matches(NAME_REGULAR_EXPRESSION)) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_PARCEL_NAME)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_PARCEL_NAME))).build();
     }
 
     /*
@@ -1050,7 +1068,7 @@ public class ParcelRestServlet {
      * solicitada
      */
     if (parcelService.checkRepeated(userId, parcelId, modifiedParcel.getName())) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.PARCEL_NAME_ALREADY_USED)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.PARCEL_NAME_ALREADY_USED))).build();
     }
 
     /*
@@ -1061,7 +1079,7 @@ public class ParcelRestServlet {
      * la operacion solicitada
      */
     if (modifiedParcel.getHectares() <= 0.0) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INVALID_NUMBER_OF_HECTARES)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_NUMBER_OF_HECTARES))).build();
     }
 
     /*

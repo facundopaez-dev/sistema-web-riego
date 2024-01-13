@@ -96,7 +96,7 @@ public class SoilRestServlet {
          * solicitada
          */
         if (!sessionService.checkActiveSession(userId)) {
-            return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+            return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
         }
 
         /*
@@ -125,7 +125,9 @@ public class SoilRestServlet {
          * cerrada por el usuario.
          */
         if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+                    .build();
         }
 
         /*
@@ -188,7 +190,7 @@ public class SoilRestServlet {
          * solicitada
          */
         if (!sessionService.checkActiveSession(userId)) {
-            return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+            return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
         }
 
         /*
@@ -217,7 +219,9 @@ public class SoilRestServlet {
          * cerrada por el usuario.
          */
         if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+                    .build();
         }
 
         /*
@@ -301,7 +305,7 @@ public class SoilRestServlet {
          * solicitada
          */
         if (!sessionService.checkActiveSession(userId)) {
-            return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+            return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
         }
 
         /*
@@ -330,7 +334,9 @@ public class SoilRestServlet {
          * cerrada por el usuario.
          */
         if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+                    .build();
         }
 
         /*
@@ -341,7 +347,7 @@ public class SoilRestServlet {
          * la operacion solicitada
          */
         if (soilName == null || soilName.equals(UNDEFINED_VALUE)) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_SOIL_NAME)).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_SOIL_NAME))).build();
         }
 
         /*
@@ -353,7 +359,9 @@ public class SoilRestServlet {
          * la operacion solicitada
          */
         if (!soilService.checkExistenceForSearch(soilName)) {
-            return Response.status(Response.Status.NOT_FOUND).entity(new ErrorResponse(ReasonError.SOIL_NOT_FOUND, SourceUnsatisfiedResponse.SOIL)).build();
+            return Response.status(Response.Status.NOT_FOUND).entity(mapper
+                    .writeValueAsString(new ErrorResponse(ReasonError.SOIL_NOT_FOUND, SourceUnsatisfiedResponse.SOIL)))
+                    .build();
         }
 
         /*
@@ -416,7 +424,7 @@ public class SoilRestServlet {
          * solicitada
          */
         if (!sessionService.checkActiveSession(userId)) {
-            return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+            return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
         }
 
         /*
@@ -445,7 +453,9 @@ public class SoilRestServlet {
          * cerrada por el usuario.
          */
         if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+                    .build();
         }
 
         /*
@@ -507,7 +517,7 @@ public class SoilRestServlet {
          * solicitada
          */
         if (!sessionService.checkActiveSession(userId)) {
-            return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+            return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
         }
 
         /*
@@ -536,7 +546,9 @@ public class SoilRestServlet {
          * cerrada por el usuario.
          */
         if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+                    .build();
         }
 
         /*
@@ -700,7 +712,7 @@ public class SoilRestServlet {
          * solicitada
          */
         if (!sessionService.checkActiveSession(userId)) {
-            return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+            return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
         }
 
         /*
@@ -729,7 +741,9 @@ public class SoilRestServlet {
          * cerrada por el usuario.
          */
         if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+                    .build();
         }
 
         /*
@@ -814,7 +828,7 @@ public class SoilRestServlet {
          * solicitada
          */
         if (!sessionService.checkActiveSession(userId)) {
-            return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+            return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
         }
 
         /*
@@ -843,7 +857,9 @@ public class SoilRestServlet {
          * cerrada por el usuario.
          */
         if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+                    .build();
         }
 
         /*

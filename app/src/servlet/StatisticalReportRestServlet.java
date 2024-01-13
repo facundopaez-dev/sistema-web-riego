@@ -109,7 +109,7 @@ public class StatisticalReportRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -138,7 +138,9 @@ public class StatisticalReportRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /*
@@ -202,7 +204,7 @@ public class StatisticalReportRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -231,7 +233,9 @@ public class StatisticalReportRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /*
@@ -242,8 +246,7 @@ public class StatisticalReportRestServlet {
      * solicitada
      */
     if (!statisticalReportService.checkExistence(statisticalReportId)) {
-      return Response.status(Response.Status.NOT_FOUND)
-          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
+      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
     }
 
     /*
@@ -254,8 +257,7 @@ public class StatisticalReportRestServlet {
      * ReasonError) y no se realiza la operacion solicitada
      */
     if (!statisticalReportService.checkUserOwnership(userId, statisticalReportId)) {
-      return Response.status(Response.Status.FORBIDDEN)
-          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
+      return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
     }
 
     /*
@@ -264,8 +266,7 @@ public class StatisticalReportRestServlet {
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
      * por el cliente
      */
-    return Response.status(Response.Status.OK)
-        .entity(mapper.writeValueAsString(statisticalReportService.find(userId, statisticalReportId))).build();
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(statisticalReportService.find(userId, statisticalReportId))).build();
   }
 
   @POST
@@ -318,7 +319,7 @@ public class StatisticalReportRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -347,7 +348,9 @@ public class StatisticalReportRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /*
@@ -589,7 +592,7 @@ public class StatisticalReportRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -618,7 +621,9 @@ public class StatisticalReportRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /*
@@ -705,7 +710,7 @@ public class StatisticalReportRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -734,7 +739,9 @@ public class StatisticalReportRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /*

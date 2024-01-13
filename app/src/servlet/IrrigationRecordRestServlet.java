@@ -127,7 +127,7 @@ public class IrrigationRecordRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -156,7 +156,9 @@ public class IrrigationRecordRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /*
@@ -220,7 +222,7 @@ public class IrrigationRecordRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -249,7 +251,9 @@ public class IrrigationRecordRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /*
@@ -379,7 +383,7 @@ public class IrrigationRecordRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -408,7 +412,9 @@ public class IrrigationRecordRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /*
@@ -492,7 +498,7 @@ public class IrrigationRecordRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -521,7 +527,9 @@ public class IrrigationRecordRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /*
@@ -569,7 +577,9 @@ public class IrrigationRecordRestServlet {
      * agua que se utilizara para el riego de una parcela o un cultivo.
      */
     if (UtilDate.compareTo(newIrrigationRecord.getDate(), UtilDate.getCurrentDate()) > 0) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.IRRIGATION_RECORD_OF_THE_FUTURE_NOT_ALLOWED))).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.IRRIGATION_RECORD_OF_THE_FUTURE_NOT_ALLOWED)))
+          .build();
     }
 
     /*
@@ -669,7 +679,7 @@ public class IrrigationRecordRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -698,7 +708,9 @@ public class IrrigationRecordRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /*
@@ -771,7 +783,9 @@ public class IrrigationRecordRestServlet {
      * para el riego de una parcela o un cultivo.
      */
     if (UtilDate.compareTo(modifiedIrrigationRecord.getDate(), UtilDate.getCurrentDate()) > 0) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.IRRIGATION_RECORD_OF_THE_FUTURE_NOT_ALLOWED))).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.IRRIGATION_RECORD_OF_THE_FUTURE_NOT_ALLOWED)))
+          .build();
     }
 
     /*
@@ -880,7 +894,7 @@ public class IrrigationRecordRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -909,7 +923,9 @@ public class IrrigationRecordRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /*
@@ -994,7 +1010,7 @@ public class IrrigationRecordRestServlet {
      * solicitada
      */
     if (!sessionService.checkActiveSession(userId)) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
     }
 
     /*
@@ -1023,7 +1039,9 @@ public class IrrigationRecordRestServlet {
      * cerrada por el usuario.
      */
     if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
     }
 
     /*

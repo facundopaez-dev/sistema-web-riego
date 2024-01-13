@@ -63,7 +63,7 @@ public class SignupRestServlet {
      * definido" y no se realiza la operacion solicitada
      */
     if (newUserData.getUsername() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_USERNAME)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_USERNAME))).build();
     }
 
     /*
@@ -73,7 +73,7 @@ public class SignupRestServlet {
      * realiza la operacion solicitada
      */
     if (newUserData.getName() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_NAME)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_NAME))).build();
     }
 
     /*
@@ -83,7 +83,7 @@ public class SignupRestServlet {
      * y no se realiza la operacion solicitada
      */
     if (newUserData.getLastName() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_LAST_NAME)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_LAST_NAME))).build();
     }
 
     /*
@@ -94,7 +94,7 @@ public class SignupRestServlet {
      * la operacion solicitada
      */
     if (newUserData.getEmail() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_EMAIL)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_EMAIL))).build();
     }
 
     /*
@@ -104,7 +104,7 @@ public class SignupRestServlet {
      * y no se realiza la operacion solicitada
      */
     if (newUserData.getPassword() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_PASSWORD)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_PASSWORD))).build();
     }
 
     /*
@@ -114,7 +114,7 @@ public class SignupRestServlet {
      * estar definida" y no se realiza la operacion solicitada
      */
     if (newUserData.getPasswordConfirmed() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.UNDEFINED_CONFIRMED_PASSWORD)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_CONFIRMED_PASSWORD))).build();
     }
 
     /*
@@ -134,7 +134,7 @@ public class SignupRestServlet {
      * guiones bajos" y no se realiza la operacion solicitada
      */
     if (!newUserData.getUsername().matches("^[A-Za-z][A-Za-z0-9_]{3,14}$")) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.MALFORMED_USERNAME)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MALFORMED_USERNAME))).build();
     }
 
     /*
@@ -167,7 +167,7 @@ public class SignupRestServlet {
      * letras minusculas.
      */
     if (!newUserData.getName().matches("^[A-Z](?=.{2,29}$)[a-z]+(?:\\h[A-Z][a-z]+)*$")) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.MALFORMED_NAME)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MALFORMED_NAME))).build();
     }
 
     /*
@@ -186,7 +186,7 @@ public class SignupRestServlet {
      * y no se realiza la operacion solicitada
      */
     if (!newUserData.getLastName().matches("^[A-Z](?=.{2,29}$)[a-z]+(?:\\h[A-Z][a-z]+)*$")) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.MALFORMED_LAST_NAME)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MALFORMED_LAST_NAME))).build();
     }
 
     /*
@@ -196,7 +196,7 @@ public class SignupRestServlet {
      * no se realiza la operacion solicitada
      */
     if (!newUserData.getEmail().matches("^(?=.{1,64}@)[\\p{L}0-9_-]+(\\.[\\p{L}0-9_-]+)*@[^-][\\p{L}0-9-]+(\\.[\\p{L}0-9-]+)*(\\.[\\p{L}]{2,})$")) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.MALFORMED_EMAIL)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MALFORMED_EMAIL))).build();
     }
 
     /*
@@ -209,7 +209,7 @@ public class SignupRestServlet {
      * la operacion solicitada
      */
     if (!newUserData.getPassword().matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{7,}$")) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.MALFORMED_PASSWORD)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MALFORMED_PASSWORD))).build();
     }
 
     /*
@@ -226,7 +226,7 @@ public class SignupRestServlet {
      * realiza la operacion solicitada
      */
     if (!newUserData.getPassword().equals(newUserData.getPasswordConfirmed())) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INCORRECTLY_CONFIRMED_PASSWORD)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INCORRECTLY_CONFIRMED_PASSWORD))).build();
     }
 
     /*
@@ -243,7 +243,7 @@ public class SignupRestServlet {
      * utilizado, elija otro" y no se realiza la operacion solicitada
      */
     if (userService.checkExistenceUsername(newUserData.getUsername())) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.USERNAME_ALREADY_USED)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.USERNAME_ALREADY_USED))).build();
     }
 
     /*
@@ -254,7 +254,7 @@ public class SignupRestServlet {
      * utilizado, elija otro" y no se realiza la operacion solicitada
      */
     if (userService.checkExistenceEmail(newUserData.getEmail())) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.EMAIL_ALREADY_USED)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EMAIL_ALREADY_USED))).build();
     }
 
     /*

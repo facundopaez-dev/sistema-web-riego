@@ -97,7 +97,7 @@ public class SoilWaterBalanceRestServlet {
          * solicitada
          */
         if (!sessionService.checkActiveSession(userId)) {
-            return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION)).build();
+            return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
         }
 
         /*
@@ -126,7 +126,9 @@ public class SoilWaterBalanceRestServlet {
          * cerrada por el usuario.
          */
         if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+                    .build();
         }
 
         Parcel parcel = parcelService.find(userId, parcelName);

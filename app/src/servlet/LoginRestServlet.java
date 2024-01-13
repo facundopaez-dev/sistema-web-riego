@@ -71,7 +71,7 @@ public class LoginRestServlet {
      * o contraseña incorrectos" y no se inicia la sesion solicitada
      */
     if (!passwordService.authenticateUser(accessCredential.getUsername(), accessCredential.getPassword())) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.USERNAME_OR_PASSWORD_INCORRECT)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.USERNAME_OR_PASSWORD_INCORRECT))).build();
     }
 
     /*
@@ -90,7 +90,7 @@ public class LoginRestServlet {
      * solicitada
      */
     if (!givenUser.getActive()) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.USERNAME_OR_PASSWORD_INCORRECT)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.USERNAME_OR_PASSWORD_INCORRECT))).build();
     }
 
     /*
@@ -117,7 +117,7 @@ public class LoginRestServlet {
      * no es lo que se busca con dicho control.
      */
     if (sessionService.checkActiveSession(givenUser.getId())) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.MULTIPLE_SESSIONS)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MULTIPLE_SESSIONS))).build();
     }
 
     /*
@@ -149,7 +149,7 @@ public class LoginRestServlet {
      * devuelve el mensaje HTTP 200 (Ok) junto con un JWT que tiene el ID y
      * el permiso del usuario, una fecha de emision y una fecha de expiracion
      */
-    return Response.status(Response.Status.OK).entity(newToken).build();
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(newToken)).build();
   }
 
   @POST
@@ -186,7 +186,7 @@ public class LoginRestServlet {
      * o contraseña incorrectos" y no se inicia la sesion solicitada
      */
     if (!passwordService.authenticateUser(accessCredential.getUsername(), accessCredential.getPassword())) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.USERNAME_OR_PASSWORD_INCORRECT)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.USERNAME_OR_PASSWORD_INCORRECT))).build();
     }
 
     /*
@@ -205,7 +205,7 @@ public class LoginRestServlet {
      * solicitada
      */
     if (!givenUser.getActive()) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.USERNAME_OR_PASSWORD_INCORRECT)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.USERNAME_OR_PASSWORD_INCORRECT))).build();
     }
 
     /*
@@ -219,7 +219,7 @@ public class LoginRestServlet {
      * nunca va a fallar en caso de que se ingrese un usuario inexistente.
      */
     if (!userServiceBean.checkSuperuserPermission(givenUser.getUsername())) {
-      return Response.status(Response.Status.FORBIDDEN).entity(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS)).build();
+      return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
     }
 
     /*
@@ -246,7 +246,7 @@ public class LoginRestServlet {
      * no es lo que se busca con dicho control.
      */
     if (sessionService.checkActiveSession(givenUser.getId())) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(new ErrorResponse(ReasonError.MULTIPLE_SESSIONS)).build();
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MULTIPLE_SESSIONS))).build();
     }
 
     /*
@@ -278,7 +278,7 @@ public class LoginRestServlet {
      * devuelve el mensaje HTTP 200 (Ok) junto con un JWT que tiene el ID y
      * el permiso del usuario, una fecha de emision y una fecha de expiracion
      */
-    return Response.status(Response.Status.OK).entity(newToken).build();
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(newToken)).build();
   }
 
 }
