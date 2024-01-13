@@ -123,6 +123,63 @@ public class StatisticalReportServiceBean {
    * @param userId
    * @param parcelId
    * @param dateFrom
+   * @return referencia a un objeto de tipo Collection que
+   * contiene todos los informes estadisticos de una parcela
+   * que tienen una fecha desde mayor o igual a la fecha
+   * desde elegida
+   */
+  public Collection<StatisticalReport> findAllByDateGreaterThanOrEqual(int userId, int parcelId, Calendar dateFrom) {
+    Query query = getEntityManager().createQuery("SELECT s FROM StatisticalReport s JOIN s.parcel p WHERE (s.dateFrom >= :dateFrom AND p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY s.dateFrom");
+    query.setParameter("userId", userId);
+    query.setParameter("parcelId", parcelId);
+    query.setParameter("dateFrom", dateFrom);
+
+    return (Collection) query.getResultList();
+  }
+
+  /**
+   * @param userId
+   * @param parcelId
+   * @param dateUntil
+   * @return referencia a un objeto de tipo Collection que
+   * contiene todos los informes estadisticos de una parcela
+   * que tienen una fecha menor o igual a la fecha hasta
+   * elegida
+   */
+  public Collection<StatisticalReport> findAllByDateLessThanOrEqual(int userId, int parcelId, Calendar dateUntil) {
+    Query query = getEntityManager().createQuery("SELECT s FROM StatisticalReport s JOIN s.parcel p WHERE (s.dateUntil <= :dateUntil AND p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY s.dateUntil");
+    query.setParameter("userId", userId);
+    query.setParameter("parcelId", parcelId);
+    query.setParameter("dateUntil", dateUntil);
+
+    return (Collection) query.getResultList();
+  }
+
+  /**
+   * @param userId
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo Collection que
+   * contiene todos los informes estadisticos de una parcela
+   * que tienen una fecha desde mayor o igual a la fecha
+   * desde elegida y una fecha hasta menor o igual a la
+   * fecha hasta elegida
+   */
+  public Collection<StatisticalReport> findByAllFilterParameters(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    Query query = getEntityManager().createQuery("SELECT s FROM StatisticalReport s JOIN s.parcel p WHERE (s.dateFrom >= :dateFrom AND s.dateUntil <= :dateUntil AND p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY s.dateFrom");
+    query.setParameter("userId", userId);
+    query.setParameter("parcelId", parcelId);
+    query.setParameter("dateFrom", dateFrom);
+    query.setParameter("dateUntil", dateUntil);
+
+    return (Collection) query.getResultList();
+  }
+
+  /**
+   * @param userId
+   * @param parcelId
+   * @param dateFrom
    * @param dateUntil
    * @return referencia a un objeto de tipo StatisticalReport
    * si en la base de datos subyacente existe un informe

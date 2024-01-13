@@ -45,8 +45,8 @@ app.service(
                         });
             }
 
-            this.findAllByParcelName = function (parcelName, callback) {
-                $http.get("rest/statisticalReports/findAllByParcelName/" + parcelName).then(
+            this.filter = function (parcelName, dateFrom, dateUntil, callback) {
+                $http.get("rest/statisticalReports/filter?parcelName=" + parcelName + "&dateFrom=" + dateFrom + "&dateUntil=" + dateUntil).then(
                     function (result) {
                         callback(false, result.data);
                     },
