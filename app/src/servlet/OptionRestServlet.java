@@ -70,17 +70,6 @@ public class OptionRestServlet {
         }
 
         /*
-         * Si el dato solicitado no existe en la base de datos
-         * subyacente, la aplicacion del lado servidor devuelve
-         * el mensaje HTTP 404 (Not found) junto con el mensaje
-         * "Recurso no encontrado" y no se realiza la operacion
-         * solicitada
-         */
-        if (!optionService.checkExistence(optionId)) {
-            return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
-        }
-
-        /*
          * Obtiene el JWT del valor del encabezado de autorizacion
          * de una peticion HTTP
          */
@@ -138,6 +127,17 @@ public class OptionRestServlet {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
                     .build();
+        }
+
+        /*
+         * Si el dato solicitado no existe en la base de datos
+         * subyacente, la aplicacion del lado servidor devuelve
+         * el mensaje HTTP 404 (Not found) junto con el mensaje
+         * "Recurso no encontrado" y no se realiza la operacion
+         * solicitada
+         */
+        if (!optionService.checkExistence(optionId)) {
+            return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
         }
 
         /*
@@ -187,17 +187,6 @@ public class OptionRestServlet {
         }
 
         /*
-         * Si el dato solicitado no existe en la base de datos
-         * subyacente, la aplicacion del lado servidor devuelve
-         * el mensaje HTTP 404 (Not found) junto con el mensaje
-         * "Recurso no encontrado" y no se realiza la operacion
-         * solicitada
-         */
-        if (!optionService.checkExistence(optionId)) {
-            return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
-        }
-
-        /*
          * Obtiene el JWT del valor del encabezado de autorizacion
          * de una peticion HTTP
          */
@@ -255,6 +244,17 @@ public class OptionRestServlet {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
                     .build();
+        }
+
+        /*
+         * Si el dato solicitado no existe en la base de datos
+         * subyacente, la aplicacion del lado servidor devuelve
+         * el mensaje HTTP 404 (Not found) junto con el mensaje
+         * "Recurso no encontrado" y no se realiza la operacion
+         * solicitada
+         */
+        if (!optionService.checkExistence(optionId)) {
+            return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
         }
 
         /*
