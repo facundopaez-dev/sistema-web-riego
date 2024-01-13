@@ -125,7 +125,7 @@ app.controller(
 				Si las propiedades parcel y date de $scope tienen el valor
 				undefined, significa que NO se eligio una parcela ni una
 				fecha para filtrar registros de riego. Por lo tanto, la
-				aplicacion muestra el mensaje dado y no ejecuta la instrccion
+				aplicacion muestra el mensaje dado y no ejecuta la instruccion
 				que realiza la peticion HTTP correspondiente a esta funcion.
 				*/
 				if ($scope.parcel == undefined && $scope.date == undefined) {
