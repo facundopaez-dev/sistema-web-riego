@@ -3,6 +3,7 @@ package servlet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Calendar;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
@@ -228,26 +229,43 @@ public class SoilWaterBalanceRestServlet {
         }
 
         /*
-         * Si la fecha desde, la fecha hasta, el nombre de la parcela
-         * y el nombre del cultivo estan definidos, la aplicacion del
-         * lado del servidor retorna una coleccion de balances hidricos
-         * de suelo asociados a un usuario que tienen una fecha mayor o
-         * igual a una fecha desde y menor o igual a una fecha hasta, un
-         * nombre de parcela y un nombre de cultivo
-         */
-
-        /*
-         * Si el valor del encabezado de autorizacion de la peticion HTTP
-         * dada, tiene un JWT valido, la aplicacion del lado servidor
-         * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
-         * por el cliente
+         * Si la fecha desde y la fecha hasta estan definidas, y la
+         * fecha desde NO es estrictamente mayor a la fecha hasta, y
+         * el nombre de la parcela y el nombre del cultivo estan definidos,
+         * la aplicacion del lado del servidor retorna una coleccion
+         * de balances hidricos de suelo asociados a un usuario que
+         * tienen una fecha mayor o igual a una fecha desde y menor
+         * o igual a una fecha hasta, un nombre de parcela y un nombre
+         * de cultivo
          */
         dateFrom = new Date(dateFormatter.parse(stringDateFrom).getTime());
         dateUntil = new Date(dateFormatter.parse(stringDateUntil).getTime());
 
+        Calendar dateFromCalendar = UtilDate.toCalendar(dateFrom);
+        Calendar dateUntilCalendar = UtilDate.toCalendar(dateUntil);
+
+        /*
+         * Si la fecha desde es estrictamente mayor a la fecha hasta, la
+         * aplicacion del lado servidor retorna el mensaje HTTP 400 (Bad
+         * request) junto con el mensaje "La fecha desde no debe ser
+         * estrictamente mayor a la fecha hasta" y no se realiza la
+         * operacion solicitada
+         */
+        if (UtilDate.compareTo(dateFromCalendar, dateUntilCalendar) > 0) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.DATE_FROM_STRICTLY_GREATER_THAN_DATE_UNTIL)))
+                    .build();
+        }
+
+        /*
+         * Si el valor del encabezado de autorizacion de la peticion
+         * HTTP dada, tiene un JWT valido, la aplicacion del lado
+         * servidor devuelve el mensaje HTTP 200 (Ok) junto con los
+         * datos solicitados por el cliente
+         */
         return Response.status(Response.Status.OK)
                 .entity(mapper.writeValueAsString(soilWaterBalanceService.findByAllFilterParameters(parcel.getId(),
-                        cropName, UtilDate.toCalendar(dateFrom), UtilDate.toCalendar(dateUntil))))
+                        cropName, dateFromCalendar, dateUntilCalendar)))
                 .build();
     }
 

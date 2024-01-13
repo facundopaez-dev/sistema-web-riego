@@ -95,6 +95,7 @@ app.controller(
                     });
             }
 
+            const DATE_FROM_STRICTLY_GREATER_THAN_DATE_UNTIL = "La fecha desde no debe ser estrictamente mayor a la fecha hasta";
             const UNDEFINED_PARCEL_NAME_AND_CROP_NAME = "La parcela y el cultivo deben estar definidos";
 
             /*
@@ -113,6 +114,16 @@ app.controller(
                 */
                 if ($scope.parcel == undefined || $scope.crop == undefined) {
                     alert(UNDEFINED_PARCEL_NAME_AND_CROP_NAME);
+                    return;
+                }
+
+                /*
+                Si la fecha desde es estrictamente mayor a la fecha hasta, la
+                aplicacion muestra el mensaje dado y no ejecuta la instruccion
+                que realiza la peticion HTTP correspondiente a esta funcion
+                */
+                if ($scope.dateFrom != undefined && $scope.dateUntil != undefined && $scope.dateFrom > $scope.dateUntil) {
+                    alert(DATE_FROM_STRICTLY_GREATER_THAN_DATE_UNTIL);
                     return;
                 }
 
