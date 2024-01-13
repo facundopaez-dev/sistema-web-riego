@@ -252,9 +252,6 @@ public class IrrigationRecordRestServlet {
       return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
     }
 
-    SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
-    Date date;
-
     /*
      * En la aplicacion del lado del navegador Web la variable
      * correspondiente a la fecha puede tener el valor undefined
@@ -310,13 +307,15 @@ public class IrrigationRecordRestServlet {
       return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(irrigationRecordService.findAllByParcelName(userId, parcelName))).build();
     }
 
+    SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+
     /*
      * Si la fecha esta definida, la aplicacion del lado servidor
      * la convierte a un objeto de tipo Date que contiene la
      * fecha ingresada por el usuario en el fitro de la pagina
      * web de registros de riego
      */
-    date = new Date(dateFormatter.parse(stringDate).getTime());
+    Date date = new Date(dateFormatter.parse(stringDate).getTime());
 
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
