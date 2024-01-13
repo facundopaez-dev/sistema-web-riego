@@ -92,9 +92,10 @@ app.controller(
       }
 
       const EMPTY_FORM = "Debe completar todos los campos del formulario";
-      const DATE_FROM_UNDEFINED = "La fecha desde debe estar definida";
+      const UNDEFINED_DATES = "Las fechas deben estar definidas";
       const INDEFINITE_PARCEL = "La parcela debe estar definida";
       const DATE_FROM_AND_DATE_UNTIL_OVERLAPPING = "La fecha desde no debe ser mayor o igual a la fecha hasta";
+      const DATE_UNTIL_FUTURE_NOT_ALLOWED = "La fecha hasta no debe ser estrictamente mayor (es decir, posterior) a la fecha actual (es decir, hoy)";
 
       function find(id) {
         statisticalReportService.find(id, function (error, data) {
@@ -117,8 +118,6 @@ app.controller(
         });
       }
 
-      const DATE_UNTIL_FUTURE_NOT_ALLOWED = "La fecha hasta no debe ser estrictamente mayor (es decir, posterior) a la fecha actual";
-
       $scope.create = function () {
         /*
         Si la propiedad data de $scope tiene el valor undefined,
@@ -133,12 +132,12 @@ app.controller(
         }
 
         /*
-        Si la fecha desde NO esta definida, la aplicacion muestra
+        Si una de las fechas NO esta definida, la aplicacion muestra
         el mensaje dado y no ejecuta la instruccion que realiza la
         peticion HTTP correspondiente a esta funcion
         */
-        if ($scope.data.dateFrom == undefined) {
-          alert(DATE_FROM_UNDEFINED);
+        if ($scope.data.dateFrom == undefined || $scope.data.dateUntil == undefined) {
+          alert(UNDEFINED_DATES);
           return;
         }
 
@@ -155,23 +154,21 @@ app.controller(
         var currentDate = new Date();
 
         /*
-        Si la fecha hasta esta definida, y es posterior a la fecha
-        actual, la aplicacion muestra el mensaje dado y no ejecuta
-        la instruccion que realiza la peticion HTTP correspondiente
-        a esta funcion
+        Si la fecha hasta es posterior a la fecha actual, la aplicacion
+        muestra el mensaje dado y no ejecuta la instruccion que realiza
+        la peticion HTTP correspondiente a esta funcion
         */
-        if (($scope.data.dateUntil != undefined) && ($scope.data.dateUntil > currentDate)) {
+        if ($scope.data.dateUntil > currentDate) {
           alert(DATE_UNTIL_FUTURE_NOT_ALLOWED);
           return;
         }
 
         /*
-        Si la fecha hasta esta definida, y la fecha desde es mayor
-        o igual a la fecha hasta, la aplicacion muestra el mensaje
-        dado y no ejecuta la instruccion que realiza la peticion
-        HTTP correspondiente a esta funcion
+        Si la fecha desde es mayor o igual a la fecha hasta, la aplicacion
+        muestra el mensaje dado y no ejecuta la instruccion que realiza la
+        peticion HTTP correspondiente a esta funcion
         */
-        if (($scope.data.dateUntil != undefined) && ($scope.data.dateFrom >= $scope.data.dateUntil)) {
+        if ($scope.data.dateFrom >= $scope.data.dateUntil) {
           alert(DATE_FROM_AND_DATE_UNTIL_OVERLAPPING);
           return;
         }

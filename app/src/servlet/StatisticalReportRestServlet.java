@@ -378,7 +378,8 @@ public class StatisticalReportRestServlet {
      * y no se realiza la operacion solicitada
      */
     if (newStatisticalReport.getParcel() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.INDEFINITE_PARCEL))
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INDEFINITE_PARCEL)))
           .build();
     }
 
@@ -403,8 +404,12 @@ public class StatisticalReportRestServlet {
     if (!(climateRecordService.hasClimateRecords(userId, newStatisticalReport.getParcel().getId()))
         && !(plantingRecordService.hasFinishedPlantingRecords(userId, newStatisticalReport.getParcel().getId()))) {
       return Response.status(Response.Status.BAD_REQUEST)
-          .entity(new ErrorResponse(ReasonError.CLIMATE_RECORDS_AND_PLANTING_RECORDS_DO_NOT_EXIST)).build();
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.CLIMATE_RECORDS_AND_PLANTING_RECORDS_DO_NOT_EXIST)))
+          .build();
     }
+
+    Calendar dateFrom = newStatisticalReport.getDateFrom();
+    Calendar dateUntil = newStatisticalReport.getDateUntil();
 
     /*
      * ***********************************************
@@ -413,100 +418,69 @@ public class StatisticalReportRestServlet {
      */
 
     /*
-     * Si la fecha desde de un registro climatico a generar
-     * y persistir NO esta definida, la aplicacion del lado
-     * servidor retorna el mensaje HTTP 400 (Bad request)
-     * junto con el mensaje "La fecha desde debe estar
-     * definida" y no se realiza la operacion solicitada
+     * Si la fecha desde o la fecha hasta de un informe
+     * estadistico a generar NO esta definida, la aplicacion
+     * del lado servidor retorna el mensaje HTTP 400 (Bad
+     * request) junto con el mensaje "Las fechas deben
+     * estar definidas" y no se realiza la operacion
+     * solicitada
      */
-    if (newStatisticalReport.getDateFrom() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.DATE_FROM_UNDEFINED))
+    if (dateFrom == null || dateUntil == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_DATES))).build();
+    }
+
+    /*
+     * Si la fecha desde es mayor o igual a la fecha hasta,
+     * la aplicacion del lado servidor retorna el mensaje
+     * HTTP 400 (Bad request) junto con el mensaje "La fecha
+     * desde no debe ser mayor o igual a la fecha hasta" y
+     * no se realiza la operacion solicitada
+     */
+    if (UtilDate.compareTo(dateFrom, dateUntil) >= 0) {
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.DATE_FROM_AND_DATE_UNTIL_OVERLAPPING)))
           .build();
     }
 
     /*
-     * Si la fecha hasta esta definida, y es futura, es decir,
-     * posterior a la fecha actual, la aplicacion del lado servidor
-     * retorna el mensaje HTTP 400 (Bad request) junto con el
-     * mensaje "La fecha hasta no debe ser estrictamente mayor
-     * (es decir, posterior) a la fecha actual" y no se realiza
-     * la operacion solicitada.
-     * 
-     * El metodo getInstance de la clase Calendar retorna la
-     * referencia a un objeto de tipo Calendar que contiene la
-     * fecha actual.
+     * Si la fecha hasta es futura, es decir, posterior a la
+     * fecha actual, la aplicacion del lado servidor retorna
+     * el mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "La fecha hasta no debe ser estrictamente mayor (es decir,
+     * posterior) a la fecha actual (es decir, hoy)" y no se
+     * realiza la operacion solicitada
      */
-    if ((newStatisticalReport.getDateUntil() != null) && (UtilDate.compareTo(newStatisticalReport.getDateUntil(), Calendar.getInstance()) > 0)) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.DATE_UNTIL_FUTURE_NOT_ALLOWED)).build();
+    if (UtilDate.compareTo(dateUntil, UtilDate.getCurrentDate()) > 0) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.DATE_UNTIL_FUTURE_NOT_ALLOWED))).build();
     }
 
     /*
-     * Si la fecha hasta esta definida, y la fecha desde es mayor
-     * o igual a la fecha hasta, la aplicacion del lado servidor
-     * retorna el mensaje HTTP 400 (Bad request) junto con el
-     * mensaje "La fecha desde no debe ser mayor o igual a la
-     * fecha hasta"
-     */
-    if ((newStatisticalReport.getDateUntil() != null)
-        && (UtilDate.compareTo(newStatisticalReport.getDateFrom(), newStatisticalReport.getDateUntil()) >= 0)) {
-      return Response.status(Response.Status.BAD_REQUEST)
-          .entity(new ErrorResponse(ReasonError.DATE_FROM_AND_DATE_UNTIL_OVERLAPPING)).build();
-    }
-
-    /*
-     * Si la diferencia entre la fecha hasta y la fecha desde
-     * elegidas, es estrictamente menor al menor ciclo de vida
+     * Si la cantidad de dias entre la fecha desde y la fecha
+     * hasta, es estrictamente menor al menor ciclo de vida
      * (medido en dias), la aplicacion del lado servidor retorna
      * el mensaje "La fecha hasta debe ser igual a <menor ciclo
-     * de vida> dias contando a partir de la fecha desde, en este
-     * caso la hasta debe ser <fecha hasta calculada>" y no se
-     * realiza la operacion solicitada.
+     * de vida> (ciclo de vida del cultivo con el menor ciclo
+     * de vida) dias contando a partir de la fecha desde. En
+     * este caso la hasta debe ser <fecha hasta calculada>."
+     * y no se realiza la operacion solicitada.
      * 
      * A la diferencia entre el numero de dia en el año de la
-     * fecha hasta y el numero de dia en el año de la fecha
-     * desde se le suma un uno para incluir la fecha desde,
+     * fecha desde y el numero de dia en el año de la fecha
+     * hasta se le suma un uno para incluir la fecha desde,
      * ya que esta incluida en el periodo formada entre ella
-     * y la fecha hasta, la cual, se genera sumando el menor
-     * ciclo de vida (medido en dias) a la fecha desde menos
-     * uno, el cual, es para que la cantidad de dias entre la
-     * fecha desde y la fecha hasta sea igual al menor ciclo
-     * de vida del ciclo de vida de los cultivos registrados
-     * en la base de datos subyacente.
+     * y la fecha hasta.
      */
-    if ((newStatisticalReport.getDateUntil() != null)
-        && ((UtilDate.calculateDifferenceBetweenDates(newStatisticalReport.getDateFrom(),
-            newStatisticalReport.getDateUntil()) + 1) < cropService.findShortestLifeCycle())) {
+    if ((UtilDate.calculateDifferenceBetweenDates(dateFrom, dateUntil) + 1) < cropService.findShortestLifeCycle()) {
       String message = "La fecha hasta debe ser como mínimo igual a " +
           cropService.findShortestLifeCycle()
-          + " días contando a partir de la fecha desde (incluida), en este caso la fecha hasta debe ser "
+          + " (ciclo de vida del cultivo con el menor ciclo de vida) días contando a partir de la fecha desde (incluida). "
+          + "En este caso la fecha hasta debe ser "
           + UtilDate.formatDate(statisticalReportService.calculateDateUntil(newStatisticalReport.getDateFrom(),
-              cropService.findShortestLifeCycle()));
+              cropService.findShortestLifeCycle()))
+          + ".";
       PersonalizedResponse newPersonalizedResponse = new PersonalizedResponse(message);
       return Response.status(Response.Status.BAD_REQUEST)
-          .entity(newPersonalizedResponse).build();
-    }
-
-    /*
-     * *******************************************************************
-     * Generacion automatica de la fecha hasta en caso de NO esta definida
-     * *******************************************************************
-     */
-
-    /*
-     * Si la fecha hasta NO esta definida, la aplicacion del
-     * lado servidor la genera de manera automatica como la
-     * suma entre el numero de dia en el año de la fecha desde
-     * y el menor ciclo de vida (medido en dias) del cultivo
-     * que tiene el menor ciclo de vida, menos uno.
-     * 
-     * El menos uno es para que la cantidad de dias entre la
-     * fecha desde y la fecha hasta sea igual al menor ciclo
-     * de vida del cultivo que tiene el menor ciclo de vida
-     * registrado en la base de datos subyacente.
-     */
-    if (newStatisticalReport.getDateUntil() == null) {
-      newStatisticalReport.setDateUntil(statisticalReportService.calculateDateUntil(newStatisticalReport.getDateFrom(),
-          cropService.findShortestLifeCycle()));
+          .entity(mapper.writeValueAsString(newPersonalizedResponse)).build();
     }
 
     /*
@@ -533,7 +507,23 @@ public class StatisticalReportRestServlet {
           + "] para generar un informe estadistico";
       PersonalizedResponse newPersonalizedResponse = new PersonalizedResponse(message);
       return Response.status(Response.Status.BAD_REQUEST)
-          .entity(newPersonalizedResponse)
+          .entity(mapper.writeValueAsString(newPersonalizedResponse))
+          .build();
+    }
+
+    /*
+     * Si en la base de datos subyacente existe un informe
+     * estadistico con la fecha desde y la fecha hasta
+     * elegidas asociado a una parcela de un usuario, la
+     * aplicacion del lado servidor retorna el mensaje
+     * HTTP 400 (Bad request) junto con el mensaje "Ya
+     * existe un informe estadistico con las fechas y
+     * la parcela elegidas" y no se realiza la operacion
+     * solicitada
+     */
+    if (statisticalReportService.checkExistence(userId, newStatisticalReport.getParcel().getId(), dateFrom, dateUntil)) {
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EXISTING_STATISTICAL_REPORT)))
           .build();
     }
 
@@ -545,8 +535,7 @@ public class StatisticalReportRestServlet {
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos que el
      * cliente solicito persistir
      */
-    return Response.status(Response.Status.OK)
-        .entity(mapper.writeValueAsString(statisticalReportService.create(newStatisticalReport))).build();
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(statisticalReportService.create(newStatisticalReport))).build();
   }
 
   @DELETE
@@ -641,7 +630,7 @@ public class StatisticalReportRestServlet {
      */
     if (!statisticalReportService.checkExistence(statisticalReportId)) {
       return Response.status(Response.Status.NOT_FOUND)
-          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
+          .entity(mapper.writeValueAsString(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND)))).build();
     }
 
     /*
@@ -653,7 +642,7 @@ public class StatisticalReportRestServlet {
      */
     if (!statisticalReportService.checkUserOwnership(userId, statisticalReportId)) {
       return Response.status(Response.Status.FORBIDDEN)
-          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
+          .entity(mapper.writeValueAsString(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS)))).build();
     }
 
     /*
@@ -662,8 +651,7 @@ public class StatisticalReportRestServlet {
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos que el
      * cliente solicito eliminar
      */
-    return Response.status(Response.Status.OK)
-        .entity(mapper.writeValueAsString(statisticalReportService.remove(userId, statisticalReportId))).build();
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(statisticalReportService.remove(userId, statisticalReportId))).build();
   }
 
   @GET

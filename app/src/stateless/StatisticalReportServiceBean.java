@@ -120,6 +120,73 @@ public class StatisticalReportServiceBean {
   }
 
   /**
+   * @param userId
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo StatisticalReport
+   * si en la base de datos subyacente existe un informe
+   * estadistico con una fecha desde y una fecha hasta
+   * asociado a una parcela de un usuario
+   */
+  public StatisticalReport findByDates(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    Query query = getEntityManager().createQuery("SELECT s FROM StatisticalReport s JOIN s.parcel p WHERE (s.dateFrom = :dateFrom AND s.dateUntil = :dateUntil AND p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY s.id");
+    query.setParameter("userId", userId);
+    query.setParameter("parcelId", parcelId);
+    query.setParameter("dateFrom", dateFrom);
+    query.setParameter("dateUntil", dateUntil);
+
+    StatisticalReport statisticalReport = null;
+
+    try {
+      statisticalReport = (StatisticalReport) query.getSingleResult();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return statisticalReport;
+  }
+
+  /**
+   * Retorna true si y solo si existe un informe estadistico
+   * con una fecha desde y una fecha hasta asociado a una
+   * parcela de un usuario
+   * 
+   * @param userId
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return true si en la base de datos subyacente existe un
+   * informe estadistico con una fecha desde y una fecha hasta
+   * asociado a una parcela de un usuario. En caso contrario,
+   * false.
+   */
+  public boolean checkExistence(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    /*
+     * Si una de las variables de tipo por referencia de tipo
+     * Calendar tiene el valor null, significa que una de las
+     * fechas NO esta definida. En este caso, se retorna false,
+     * ya que realizar la busqueda de un informe estadistico con
+     * una variable de tipo Calendar con el valor null es similar
+     * a buscar un informe estadistico inexistente en la base
+     * de datos subyacente.
+     * 
+     * Con este control se evita realizar una consulta a la base
+     * de datos comparando una o ambas fechas con el valor null.
+     * Si no se realiza este control y se realiza esta consulta
+     * a la base de datos, ocurre la excepcion SQLSyntaxErrorException,
+     * debido a que la comparacion de un atributo con el valor
+     * null incumple la sintaxis del proveedor del motor de base
+     * de datos.
+     */
+    if (dateFrom == null || dateUntil == null) {
+      return false;
+    }
+
+    return (findByDates(userId, parcelId, dateFrom, dateUntil)  != null);
+  }
+
+  /**
    * Comprueba si un informe estadistico pertenece a un usuario
    * dado, mediante la relacion muchos a uno que hay entre los
    * modelos de datos StatisticalReport y Parcel.

@@ -52,7 +52,7 @@ public enum ReasonError {
   INVALID_NUMBER_OF_HECTARES("La cantidad de hectáreas debe ser mayor a 0.0"),
   INVALID_PARCEL_NAME("El nombre de una parcela debe empezar con una palabra formada únicamente por caracteres alfabéticos. Puede haber más de una palabra formada únicamente por caracteres alfabéticos y puede haber palabras formadas únicamente por caracteres numéricos. Todas las palabras deben estar separadas por un espacio en blanco."),
   PARCEL_NAME_ALREADY_USED("Nombre de parcela ya utilizado, elija otro"),
-  DATE_FROM_UNDEFINED("La fecha desde debe estar definida"),
+  UNDEFINED_DATES("Las fechas deben estar definidas"),
   DATE_FROM_AND_DATE_UNTIL_OVERLAPPING("La fecha desde no debe ser mayor o igual a la fecha hasta"),
   CLIMATE_RECORDS_AND_PLANTING_RECORDS_DO_NOT_EXIST("La parcela seleccionada no tiene registros climáticos ni registros de plantación finalizados para generar un informe estadístico"),
   EXISTING_CROP("Ya existe un cultivo con el nombre, el mes de inicio de siembra, el mes de fin de siembra y la región elegidos"),
@@ -80,7 +80,7 @@ public enum ReasonError {
   MODIFIABILITY_PLANTING_RECORD_NOT_ALLOWED("No está permitido hacer que un registro de plantación que no tiene el estado finalizado sea no modificable"),
   IRRIGATION_RECORD_OF_THE_FUTURE_NOT_ALLOWED("No está permitido que un registro de riego tenga una fecha estrictamente mayor (es decir, posterior) a la fecha actual"),
   INVALID_REQUEST_CALCULATION_IRRIGATION_WATER_NEED("No está permitido calcular la necesidad de agua de riego de un cultivo finalizado, en espera o muerto"),
-  DATE_UNTIL_FUTURE_NOT_ALLOWED("La fecha hasta no debe ser estrictamente mayor (es decir, posterior) a la fecha actual"),
+  DATE_UNTIL_FUTURE_NOT_ALLOWED("La fecha hasta no debe ser estrictamente mayor (es decir, posterior) a la fecha actual (es decir, hoy)"),
   THERE_IS_NO_CROP_IN_DEVELOPMENT("No está permitido crear un registro de riego para una parcela que no tiene un cultivo en desarrollo"),
   UNDEFINED_REGION_NAME("El nombre de la región debe estar definido"),
   INVALID_REGION_NAME("El nombre de una región debe empezar con una palabra formada únicamente por caracteres alfabéticos y puede tener más de una palabra formada únicamente por caracteres alfabéticos. Se permite el uso del punto para abreviar nombres, y el uso de la coma, y el punto y coma como separadores."),
@@ -117,7 +117,8 @@ public enum ReasonError {
   REQUEST_LIMIT_EXCEEDED("La aplicación no puede calcular la necesidad de agua de riego de un cultivo porque se supero la cantidad de 1000 peticiones gratuitas por día del servicio meteorológico Visual Crossing Weather"),
   WEATHER_SERVICE_UNAVAILABLE("La aplicación no puede calcular la necesidad de agua de riego de un cultivo porque el servicio meteorológico Visual Crossing Weather no se encuentra en funcionamiento"),
   UNKNOW_ERROR_IN_IRRIGATION_WATER_NEED_CALCULATION("Se produjo un error al calcular la necesidad de agua de riego de un cultivo"),
-  UNDEFINED_PARCEL_NAME_AND_DATE("La parcela y la fecha deben estar definidas");
+  UNDEFINED_PARCEL_NAME_AND_DATE("La parcela y la fecha deben estar definidas"),
+  EXISTING_STATISTICAL_REPORT("Ya existe un informe estadístico para las fechas y la parcela elegidas");
 
   private final String reason;
 
