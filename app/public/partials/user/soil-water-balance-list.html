@@ -121,12 +121,6 @@
 
     <form class="form-inline">
         <div class="form-group">
-            <!-- Campo de la fecha desde -->
-            <input type="date" class="form-control" id="dateFrom" ng-model="dateFrom">
-
-            <!-- Campo de la fecha hasta -->
-            <input type="date" class="form-control" id="dateUntil" ng-model="dateUntil">
-
             <!-- Campo de la parcela -->
             <input name="parcel" type="text" ng-model="parcel" placeholder="Parcela"
                 uib-typeahead="parcel as parcel.name for parcel in findParcelByName($viewValue)"
@@ -138,6 +132,12 @@
                 uib-typeahead="crop as crop.name for crop in findCropByName($viewValue)"
                 typeahead-loading="loadingLocations" class="form-control" typeahead-editable="false"
                 typeahead-min-lenght="3">
+
+            <!-- Campo de la fecha desde -->
+            <input type="date" class="form-control" id="dateFrom" ng-model="dateFrom">
+
+            <!-- Campo de la fecha hasta -->
+            <input type="date" class="form-control" id="dateUntil" ng-model="dateUntil">
         </div>
         <button class="btn btn-default" ng-click="retrieve()">Recuperar</button>
         <button class="btn btn-default" ng-click="clearSearchFields()">Borrar campos</button>
