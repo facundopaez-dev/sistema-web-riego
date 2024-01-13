@@ -126,8 +126,11 @@
 				uib-typeahead="parcel as parcel.name for parcel in findParcelByName($viewValue)"
 				typeahead-loading="loadingLocations" class="form-control" typeahead-editable="false"
 				typeahead-min-lenght="3">
+
+			<!-- Campo de la fecha -->
+			<input type="date" class="form-control" id="date" ng-model="date">
 		</div>
-		<button class="btn btn-default" ng-click="findAllByParcelName()">Filtrar</button>
+		<button class="btn btn-default" ng-click="filter()">Filtrar</button>
 		<button class="btn btn-default" ng-click="reset()">Reiniciar listado</button>
 	</form>
 

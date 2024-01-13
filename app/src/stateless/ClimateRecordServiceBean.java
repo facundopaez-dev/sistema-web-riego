@@ -151,6 +151,28 @@ public class ClimateRecordServiceBean {
   }
 
   /**
+   * Retorna los registros climaticos de una parcela mediante
+   * el nombre de una parcela, una fecha y el ID del usuario
+   * al que pertenece una parcela
+   * 
+   * @param userId
+   * @param parcelName
+   * @param date
+   * @return referencia a un objeto de tipo Collection que
+   * contiene los registros climaticos que tienen una fecha
+   * pertenecientes a una parcela que tiene un nombre, la
+   * cual pertenece a un usuario
+   */
+  public Collection<ClimateRecord> findAllByParcelNameAndDate(int userId, String parcelName, Calendar date) {
+    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (c.date = :date AND p.name = :parcelName AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY c.id");
+    query.setParameter("userId", userId);
+    query.setParameter("parcelName", parcelName);
+    query.setParameter("date", date);
+
+    return (Collection) query.getResultList();
+  }
+
+  /**
    * Actualiza el estado de instancias de tipo ClimateRecord desde
    * la base de datos, sobrescribiendo los cambios realizados en
    * cada una de ellas, si los hubiere

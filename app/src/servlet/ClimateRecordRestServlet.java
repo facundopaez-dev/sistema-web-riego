@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Calendar;
+import java.util.Date;
 import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -19,8 +20,11 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import model.ClimateRecord;
 import model.PlantingRecord;
+import model.Parcel;
 import stateless.ClimateRecordServiceBean;
 import stateless.CropServiceBean;
 import stateless.SolarRadiationServiceBean;
@@ -33,12 +37,12 @@ import stateless.SessionServiceBean;
 import util.ErrorResponse;
 import util.ReasonError;
 import util.RequestManager;
+import util.UtilDate;
 import utilJwt.AuthHeaderManager;
 import utilJwt.JwtManager;
 import climate.ClimateClient;
 import et.Etc;
 import et.HargreavesEto;
-import model.Parcel;
 
 @Path("/climateRecords")
 public class ClimateRecordRestServlet {
@@ -56,6 +60,9 @@ public class ClimateRecordRestServlet {
 
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
+
+  private final String UNDEFINED_VALUE = "undefined";
+  private final String NULL_VALUE = "null";
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
@@ -149,9 +156,10 @@ public class ClimateRecordRestServlet {
   }
 
   @GET
-  @Path("/findAllByParcelName/{parcelName}")
+  @Path("/filter")
   @Produces(MediaType.APPLICATION_JSON)
-  public Response findAllByParcelName(@Context HttpHeaders request, @PathParam("parcelName") String givenParcelName) throws IOException {
+  public Response filter(@Context HttpHeaders request, @QueryParam("parcelName") String parcelName,
+      @QueryParam("date") String stringDate) throws IOException, ParseException {
     Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
 
     /*
@@ -231,7 +239,81 @@ public class ClimateRecordRestServlet {
       return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)).build();
     }
 
-    Collection<ClimateRecord> climateRecords = climateRecordService.findAllByParcelName(userId, givenParcelName);
+    /*
+     * En la aplicacion del lado del navegador Web la variable
+     * correspondiente a la fecha puede tener el valor undefined
+     * o el valor null. Estos valores representan que una variable
+     * no tiene un valor asignado. En este caso indican que una
+     * variable no tiene asignada una fecha. Cuando esto ocurre
+     * y se realiza una peticion HTTP a este metodo con esta
+     * variable con uno de dichos dos valores, la variable de
+     * tipo String date tiene como contenido la cadena "undefined"
+     * o la cadena "null". En Java para representar adecuadamente
+     * que date NO tiene una fecha asignada, en caso de que
+     * provenga de la aplicacion del lado del navegador web con
+     * el valor undefined o el valor null, se debe asignar el
+     * valor null a la variable date.
+     */
+    if (stringDate != null && (stringDate.equals(UNDEFINED_VALUE) || stringDate.equals(NULL_VALUE))) {
+      stringDate = null;
+    }
+
+    /*
+     * Si el nombre de la parcela y la fecha NO estan definidos,
+     * la aplicacion del lado servidor retorna el mensaje HTTP
+     * 400 (Bad request) junto con el mensaje "La parcela y la
+     * fecha deben estar definidas" y no se realiza la operacion
+     * solicitada
+     */
+    if (parcelName == null && stringDate == null) {
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_PARCEL_NAME_AND_DATE)))
+          .build();
+    }
+
+    /*
+     * Si la fecha esta definida, pero no el nombre de la
+     * parcela, la aplicacion del lador servidor retorna el
+     * mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "La parcela debe estar definida" y no se realiza la
+     * operacion solicitada
+     */
+    if (parcelName == null && stringDate != null) {
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INDEFINITE_PARCEL)))
+          .build();
+    }
+
+    Collection<ClimateRecord> climateRecords = null;
+
+    /*
+     * Si el nombre de la parcela esta definido y la fecha
+     * NO esta definida, la aplicacion del lado servidor
+     * retorna una coleccion de registros climaticos
+     * pertenecientes a una parcela de un usuario
+     */
+    if (parcelName != null && stringDate == null) {
+      climateRecords = climateRecordService.findAllByParcelName(userId, parcelName);
+
+      /*
+       * Actualiza instancias de tipo ClimateRecord desde la base de
+       * datos subyacente, sobrescribiendo los cambios realizados en
+       * ellas, si los hubiere
+       */
+      climateRecordService.refreshClimateRecords(climateRecords);
+      return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(climateRecords)).build();
+    }
+
+    SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+
+    /*
+     * Si la fecha esta definida, la aplicacion del lado servidor
+     * la convierte a un objeto de tipo Date que contiene la
+     * fecha ingresada por el usuario en el fitro de la pagina
+     * web de registros climaticos
+     */
+    Date date = new Date(dateFormatter.parse(stringDate).getTime());
+    climateRecords = climateRecordService.findAllByParcelNameAndDate(userId, parcelName, UtilDate.toCalendar(date));
 
     /*
      * Actualiza instancias de tipo ClimateRecord desde la base de

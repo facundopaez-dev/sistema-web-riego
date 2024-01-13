@@ -56,8 +56,8 @@ app.service(
                         });
             }
 
-            this.findAllByParcelName = function (parcelName, callback) {
-                $http.get("rest/climateRecords/findAllByParcelName/" + parcelName).then(
+            this.filter = function (parcelName, date, callback) {
+                $http.get("rest/climateRecords/filter?parcelName=" + parcelName + "&date=" + date).then(
                     function (result) {
                         callback(false, result.data);
                     },
