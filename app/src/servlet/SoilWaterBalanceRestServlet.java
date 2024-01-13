@@ -146,9 +146,9 @@ public class SoilWaterBalanceRestServlet {
          * o la cadena "null". En Java para representar adecuadamente
          * que la fecha desde y/o la fecha hasta NO tienen una fecha
          * asignada, en caso de que provengan de la aplicacion del
-         * lado del servidor con el valor undefined o el valor null,
-         * se debe asignar el valor null a las variables stringDateFrom
-         * y stringDateUntil.
+         * lado del navegador web con el valor undefined o el valor
+         * null, se debe asignar el valor null a las variables
+         * stringDateFrom y stringDateUntil.
          */
         if (stringDateFrom != null && (stringDateFrom.equals(UNDEFINED_VALUE) || stringDateFrom.equals(NULL_VALUE))) {
             stringDateFrom = null;
