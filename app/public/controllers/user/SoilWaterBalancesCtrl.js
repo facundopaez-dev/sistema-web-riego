@@ -126,7 +126,8 @@ app.controller(
                 que el metodo findByFilterParameters de la clase REST
                 SoilWaterBalanceRestServlet de la aplicacion del lado servidor,
                 utiliza la fecha desde y la fecha hasta en el formato yyyy-MM-dd
-                para recuperar balances hidricos de suelo.
+                para recuperar balances hidricos de suelo de la base de datos
+                subyacente.
                 */
                 if ($scope.dateFrom != undefined || $scope.dateFrom != null) {
                     newDateFrom = $scope.dateFrom.getFullYear() + "-" + ($scope.dateFrom.getMonth() + 1) + "-" + $scope.dateFrom.getDate();
