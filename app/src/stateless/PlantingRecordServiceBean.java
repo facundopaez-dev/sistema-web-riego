@@ -317,6 +317,63 @@ public class PlantingRecordServiceBean {
   }
 
   /**
+   * @param userId
+   * @param parcelId
+   * @param dateFrom
+   * @return referencia a un objeto de tipo Collection que
+   * contiene todos los registros de plantacion de una
+   * parcela que tienen una fecha de siembra mayor o igual
+   * a la fecha desde elegida
+   */
+  public Collection<PlantingRecord> findAllByDateGreaterThanOrEqual(int userId, int parcelId, Calendar dateFrom) {
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (r.seedDate >= :dateFrom AND p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY r.seedDate");
+    query.setParameter("userId", userId);
+    query.setParameter("parcelId", parcelId);
+    query.setParameter("dateFrom", dateFrom);
+
+    return (Collection) query.getResultList();
+  }
+
+  /**
+   * @param userId
+   * @param parcelId
+   * @param dateUntil
+   * @return referencia a un objeto de tipo Collection que
+   * contiene todos los registros de plantacion de una
+   * parcela que tienen una fecha de cosecha menor o igual
+   * a la fecha hasta elegida
+   */
+  public Collection<PlantingRecord> findAllByDateLessThanOrEqual(int userId, int parcelId, Calendar dateUntil) {
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (r.harvestDate <= :dateUntil AND p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY r.harvestDate");
+    query.setParameter("userId", userId);
+    query.setParameter("parcelId", parcelId);
+    query.setParameter("dateUntil", dateUntil);
+
+    return (Collection) query.getResultList();
+  }
+
+  /**
+   * @param userId
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo Collection que
+   * contiene todos los registros de plantacion de una parcela
+   * que tienen una fecha de siembra mayor o igual a la fecha
+   * desde elegida y una fecha de cosecha menor o igual a la
+   * fecha hasta elegida
+   */
+  public Collection<PlantingRecord> findByAllFilterParameters(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (r.seedDate >= :dateFrom AND r.harvestDate <= :dateUntil AND p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY r.seedDate");
+    query.setParameter("userId", userId);
+    query.setParameter("parcelId", parcelId);
+    query.setParameter("dateFrom", dateFrom);
+    query.setParameter("dateUntil", dateUntil);
+
+    return (Collection) query.getResultList();
+  }
+
+  /**
    * Retorna los registros de plantacion finalizados de una
    * parcela que estan dentro de un periodo definido por dos
    * fechas

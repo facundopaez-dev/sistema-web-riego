@@ -2,7 +2,10 @@ package servlet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Collection;
 import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
@@ -85,6 +88,8 @@ public class PlantingRecordRestServlet {
 
   private final int TOO_MANY_REQUESTS = 429;
   private final int SERVICE_UNAVAILABLE = 503;
+  private final String UNDEFINED_VALUE = "undefined";
+  private final String NULL_VALUE = "null";
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
@@ -180,9 +185,10 @@ public class PlantingRecordRestServlet {
   }
 
   @GET
-  @Path("/findAllByParcelName/{parcelName}")
+  @Path("/filter")
   @Produces(MediaType.APPLICATION_JSON)
-  public Response findAllByParcelName(@Context HttpHeaders request, @PathParam("parcelName") String givenParcelName) throws IOException {
+  public Response filter(@Context HttpHeaders request, @QueryParam("parcelName") String parcelName,
+      @QueryParam("dateFrom") String stringDateFrom, @QueryParam("dateUntil") String stringDateUntil) throws IOException, ParseException {
     Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
 
     /*
@@ -265,12 +271,137 @@ public class PlantingRecordRestServlet {
     }
 
     /*
-     * Si el valor del encabezado de autorizacion de la peticion HTTP
-     * dada, tiene un JWT valido, la aplicacion del lado servidor
-     * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
-     * por el cliente
+     * Si el nombre de la parcela NO esta definido, la aplicacion
+     * del lado servidor retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "La parcela debe estar definida" y no
+     * se realiza la operacion solicitada
      */
-    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(plantingRecordService.findAllByParcelName(userId, givenParcelName))).build();
+    if (parcelName == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INDEFINITE_PARCEL))).build();
+    }
+
+    /*
+     * Si el usuario que realiza esta peticion NO tiene una
+     * parcela con el nombre elegido, la aplicacion del lado
+     * servidor retorna el mensaje HTTP 404 (Resource not found)
+     * junto con el mensaje "La parcela seleccionada no existe"
+     * y no se realiza la peticion solicitada
+     */
+    if (!parcelService.checkExistence(userId, parcelName)) {
+      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NON_EXISTENT_PARCEL))).build();
+    }
+
+    /*
+     * En la aplicacion del lado del navegador Web las variables
+     * correspondientes a la fecha desde y a la fecha hasta pueden
+     * tener el valor undefined o el valor null. Estos valores
+     * representan que una variable no tiene un valor asignado.
+     * En este caso indican que una variable no tiene asignada
+     * una fecha. Cuando esto ocurre y se realiza una peticion
+     * HTTP a este metodo con una de estas variables con uno de
+     * dichos dos valores, las variables de tipo String stringDateFrom
+     * y stringDateUntil tienen como contenido la cadena "undefined"
+     * o la cadena "null". En Java para representar adecuadamente
+     * que la fecha desde y/o la fecha hasta NO tienen una fecha
+     * asignada, en caso de que provengan de la aplicacion del
+     * lado del navegador web con el valor undefined o el valor
+     * null, se debe asignar el valor null a las variables
+     * stringDateFrom y stringDateUntil.
+     */
+    if (stringDateFrom != null && (stringDateFrom.equals(UNDEFINED_VALUE) || stringDateFrom.equals(NULL_VALUE))) {
+      stringDateFrom = null;
+    }
+
+    if (stringDateUntil != null && (stringDateUntil.equals(UNDEFINED_VALUE) || stringDateUntil.equals(NULL_VALUE))) {
+      stringDateUntil = null;
+    }
+
+    /*
+     * Siempre y cuando no se elimine el control sobre el nombre
+     * de parcela, si la fecha desde y la fecha hasta NO estan
+     * definidas, la aplicacion del lado servidor retorna una
+     * coleccion de informes estadisticos pertenecientes a
+     * una parcela que tiene un nombre
+     */
+    if (stringDateFrom == null && stringDateUntil == null) {
+      return Response.status(Response.Status.OK)
+          .entity(mapper.writeValueAsString(plantingRecordService.findAllByParcelName(userId, parcelName)))
+          .build();
+    }
+
+    Parcel parcel = parcelService.find(userId, parcelName);
+    SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+    Date dateFrom;
+    Date dateUntil;
+
+    /*
+     * Siempre y cuando no se elimine el control sobre el nombre
+     * de parcela, si la fecha desde esta definida y la fecha
+     * hasta NO esta definida, la aplicacion del lado servidor
+     * retorna una coleccion de informes estadisticos pertenecientes
+     * a una parcela que tiene un nombre y una fecha desde mayor
+     * o igual a la fecha desde elegida
+     */
+    if (stringDateFrom != null && stringDateUntil == null) {
+      dateFrom = new Date(dateFormatter.parse(stringDateFrom).getTime());
+      return Response.status(Response.Status.OK)
+          .entity(mapper.writeValueAsString(plantingRecordService.findAllByDateGreaterThanOrEqual(userId, parcel.getId(), UtilDate.toCalendar(dateFrom))))
+          .build();
+    }
+
+    /*
+     * Siempre y cuando no se elimine el control sobre el nombre
+     * de parcela, si la fecha desde NO esta definida y la fecha
+     * hasta esta definida, la aplicacion del lado servidor retorna
+     * una coleccion de informes estadisticos pertenecientes a
+     * una parcela que tiene un nombre y una fecha hasta menor
+     * o igual a la fecha hasta elegida
+     */
+    if (stringDateFrom == null && stringDateUntil != null) {
+      dateUntil = new Date(dateFormatter.parse(stringDateUntil).getTime());
+      return Response.status(Response.Status.OK)
+          .entity(mapper.writeValueAsString(plantingRecordService.findAllByDateLessThanOrEqual(userId, parcel.getId(), UtilDate.toCalendar(dateUntil))))
+          .build();
+    }
+
+    /*
+     * Si la fecha desde y la fecha hasta estan definidas, y la
+     * fecha desde NO es estrictamente mayor a la fecha hasta, y
+     * el nombre de la parcela esta definido, la aplicacion del
+     * lado del servidor retorna una coleccion de informes
+     * estadistico pertenecientes a una parcela de un usuario
+     * que tienen una fecha desde mayor o igual a la fecha desde
+     * elegida y una fecha hasta menor o igual a la fecha hasta
+     * elegida
+     */
+    dateFrom = new Date(dateFormatter.parse(stringDateFrom).getTime());
+    dateUntil = new Date(dateFormatter.parse(stringDateUntil).getTime());
+
+    Calendar dateFromCalendar = UtilDate.toCalendar(dateFrom);
+    Calendar dateUntilCalendar = UtilDate.toCalendar(dateUntil);
+
+    /*
+     * Si la fecha desde es mayor o igual a la fecha hasta, la
+     * aplicacion del lado servidor retorna el mensaje HTTP 400
+     * (Bad request) junto con el mensaje "La fecha desde no debe
+     * ser mayor o igual a la fecha hasta" y no se realiza la
+     * operacion solicitada
+     */
+    if (UtilDate.compareTo(dateFromCalendar, dateUntilCalendar) >= 0) {
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.DATE_FROM_AND_DATE_UNTIL_OVERLAPPING)))
+          .build();
+    }
+
+    /*
+     * Si el valor del encabezado de autorizacion de la peticion
+     * HTTP dada, tiene un JWT valido, la aplicacion del lado
+     * servidor devuelve el mensaje HTTP 200 (Ok) junto con los
+     * datos solicitados por el cliente
+     */
+    return Response.status(Response.Status.OK)
+        .entity(mapper.writeValueAsString(plantingRecordService.findByAllFilterParameters(userId, parcel.getId(), dateFromCalendar, dateUntilCalendar)))
+        .build();
   }
 
   @GET

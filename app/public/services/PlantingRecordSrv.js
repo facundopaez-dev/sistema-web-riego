@@ -62,8 +62,8 @@ app.service("PlantingRecordSrv", ["$http", function ($http) {
       });
   }
 
-  this.findAllByParcelName = function (parcelName, callback) {
-    $http.get("rest/plantingRecords/findAllByParcelName/" + parcelName).then(
+  this.filter = function (parcelName, dateFrom, dateUntil, callback) {
+    $http.get("rest/plantingRecords/filter?parcelName=" + parcelName + "&dateFrom=" + dateFrom + "&dateUntil=" + dateUntil).then(
       function (result) {
         callback(false, result.data);
       },

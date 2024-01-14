@@ -123,12 +123,9 @@ app.controller(
 			}
 
 			const UNDEFINED_PARCEL = "La parcela debe estar definida";
+			const DATE_FROM_AND_DATE_UNTIL_OVERLAPPING = "La fecha desde no debe ser mayor o igual a la fecha hasta";
 
-			/*
-			Trae el listado de registros de plantacion pertenecientes
-			a la parcela con el nombre dado
-			*/
-			$scope.findAllByParcelName = function () {
+			$scope.filter = function () {
 				/*
 				Si la propiedad parcel de $scope tiene el valor undefined,
 				significa que NO se cargo una parcela en el campo del nombre
@@ -142,7 +139,38 @@ app.controller(
 					return;
 				}
 
-				plantingRecordSrv.findAllByParcelName($scope.parcel.name, function (error, data) {
+				/*
+				Si la fecha desde es mayor o igual a la fecha hasta, la aplicacion
+				muestra el mensaje dado y no ejecuta la instruccion que realiza la
+				peticion HTTP correspondiente a esta funcion
+				*/
+				if ($scope.dateFrom != undefined && $scope.dateUntil != undefined && $scope.dateFrom >= $scope.dateUntil) {
+					alert(DATE_FROM_AND_DATE_UNTIL_OVERLAPPING);
+					return;
+				}
+
+				var newDateFrom = null;
+				var newDateUntil = null;
+
+				/*
+				Si la fecha desde y/o la fecha hasta estan definidas (es decir,
+				tienen un valor asignado), se crean variables con las fechas
+				elegidas usando el formato yyyy-MM-dd. El motivo de esto es
+				que el metodo findByFilterParameters de la clase REST
+				PlantingRecordRestServlet de la aplicacion del lado servidor,
+				utiliza la fecha desde y la fecha hasta en el formato yyyy-MM-dd
+				para recuperar balances hidricos de suelo de la base de datos
+				subyacente.
+				*/
+				if ($scope.dateFrom != undefined || $scope.dateFrom != null) {
+					newDateFrom = $scope.dateFrom.getFullYear() + "-" + ($scope.dateFrom.getMonth() + 1) + "-" + $scope.dateFrom.getDate();
+				}
+
+				if ($scope.dateUntil != undefined || $scope.dateUntil != null) {
+					newDateUntil = $scope.dateUntil.getFullYear() + "-" + ($scope.dateUntil.getMonth() + 1) + "-" + $scope.dateUntil.getDate();
+				}
+
+				plantingRecordSrv.filter($scope.parcel.name, newDateFrom, newDateUntil, function (error, data) {
 					if (error) {
 						console.log(error);
 						errorResponseManager.checkResponse(error);
@@ -160,12 +188,12 @@ app.controller(
 			*/
 			$scope.reset = function () {
 				/*
-				Esta instruccion es para eliminar el contenido del campo
-				del nombre de parcela cuando el usuario presiona el boton
-				de reinicio del listado de los datos correspondientes a
-				este controller
+				Estas instrucciones son para eliminar el contenido de los
+				campos de filtracion
 				*/
 				$scope.parcel = undefined;
+				$scope.dateFrom = undefined;
+				$scope.dateUntil = undefined;
 				findAll();
 			}
 
