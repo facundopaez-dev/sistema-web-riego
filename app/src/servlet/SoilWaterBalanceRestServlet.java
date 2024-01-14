@@ -142,6 +142,17 @@ public class SoilWaterBalanceRestServlet {
         }
 
         /*
+         * Si el usuario que realiza esta peticion NO tiene una
+         * parcela con el nombre elegido, la aplicacion del lado
+         * servidor retorna el mensaje HTTP 404 (Resource not found)
+         * junto con el mensaje "La parcela seleccionada no existe"
+         * y no se realiza la peticion solicitada
+         */
+        if (!parcelService.checkExistence(userId, parcelName)) {
+            return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NON_EXISTENT_PARCEL))).build();
+        }
+
+        /*
          * En la aplicacion del lado del navegador Web las variables
          * correspondientes a la fecha desde y a la fecha hasta pueden
          * tener el valor undefined o el valor null. Estos valores

@@ -31,6 +31,7 @@ import stateless.SolarRadiationServiceBean;
 import stateless.LatitudeServiceBean;
 import stateless.MonthServiceBean;
 import stateless.PlantingRecordServiceBean;
+import stateless.ParcelServiceBean;
 import stateless.PlantingRecordStatusServiceBean;
 import stateless.SecretKeyServiceBean;
 import stateless.SessionServiceBean;
@@ -52,6 +53,7 @@ public class ClimateRecordRestServlet {
   @EJB PlantingRecordServiceBean plantingRecordService;
   @EJB CropServiceBean cropService;
   @EJB PlantingRecordStatusServiceBean plantingRecordStatusService;
+  @EJB ParcelServiceBean parcelService;
   @EJB SecretKeyServiceBean secretKeyService;
   @EJB SessionServiceBean sessionService;
   @EJB SolarRadiationServiceBean solarService;
@@ -286,6 +288,17 @@ public class ClimateRecordRestServlet {
       return Response.status(Response.Status.BAD_REQUEST)
           .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INDEFINITE_PARCEL)))
           .build();
+    }
+
+    /*
+     * Si el usuario que realiza esta peticion NO tiene una
+     * parcela con el nombre elegido, la aplicacion del lado
+     * servidor retorna el mensaje HTTP 404 (Resource not found)
+     * junto con el mensaje "La parcela seleccionada no existe"
+     * y no se realiza la peticion solicitada
+     */
+    if (!parcelService.checkExistence(userId, parcelName)) {
+      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NON_EXISTENT_PARCEL))).build();
     }
 
     Collection<ClimateRecord> climateRecords = null;
