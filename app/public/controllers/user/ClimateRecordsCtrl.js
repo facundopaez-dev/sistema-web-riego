@@ -151,7 +151,7 @@ app.controller(
 				Si la fecha esta definida (es decir, tiene un valor asignado),
 				se crea una variable con la fecha elegida usando el formato
 				yyyy-MM-dd. El motivo de esto es que el metodo filter de la
-				clase REST IrrigationRecordRestServlet de la aplicacion del lado
+				clase REST ClimateRecordRestServlet de la aplicacion del lado
 				servidor, utiliza la fecha en el formato yyyy-MM-dd para
 				recuperar datos de la base de datos subyacente.
 				*/
