@@ -329,6 +329,24 @@ public class IrrigationRecordRestServlet {
     SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
 
     /*
+     * Si la fecha elegida es estrictamente mayor al año maximo
+     * (9999), la aplicacion del lado servidor retorna el mensaje
+     * HTTP 400 (Bad request) junto con el mensaje "La fecha no
+     * debe ser estrictamente mayor a 9999" y no se realiza la
+     * operacion solicitada
+     */
+    if (stringDate != null) {
+      Date date = new Date(dateFormatter.parse(stringDate).getTime());
+
+      if (UtilDate.yearIsGreaterThanMaximum(UtilDate.toCalendar(date))) {
+        return Response.status(Response.Status.BAD_REQUEST)
+            .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.DATE_GREATEST_TO_MAXIMUM)))
+            .build();
+      }
+
+    }
+
+    /*
      * Si la fecha esta definida, la aplicacion del lado servidor
      * la convierte a un objeto de tipo Date que contiene la
      * fecha ingresada por el usuario en el fitro de la pagina

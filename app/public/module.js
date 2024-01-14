@@ -1011,6 +1011,7 @@ app.factory('UtilDate', function () {
 
 	const JANUARY = 0;
 	const DECEMBER = 11;
+	const MAXIMUM_YEAR = 9999;
 
 	return {
 		/**
@@ -1156,6 +1157,21 @@ app.factory('UtilDate', function () {
 		 */
 		formatDate: function (date) {
 			return date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear();
+		},
+
+		/**
+		 * @param {*} date 
+		 * @returns true si el año de una fecha es estrictamente
+		 * mayor al año maximo (9999). En caso contrario, retorna
+		 * false.
+		 */
+		yearIsGreaterThanMaximum: function (date) {
+
+			if (date.getFullYear() > MAXIMUM_YEAR) {
+				return true;
+			}
+
+			return false;
 		}
 
 	}
@@ -1338,4 +1354,32 @@ app.factory('WaterNeedFormManager', function () {
 		}
 
 	}
+});
+
+/*
+ReasonError es la factory que contiene las causas por las
+cuales no se puede realizar una peticion HTTTP
+*/
+app.factory('ReasonError', function () {
+
+	const DATE_FROM_GREATEST_TO_MAXIMUM = "La fecha desde no debe ser estrictamente mayor a 9999";
+	const DATE_UNTIL_GREATEST_TO_MAXIMUM = "La fecha hasta no debe ser estrictamente mayor a 9999";
+	const DATE_GREATEST_TO_MAXIMUM = "La fecha no debe ser estrictamente mayor a 9999";
+
+	return {
+
+		getCauseDateFromGreatestToMaximum: function () {
+			return DATE_FROM_GREATEST_TO_MAXIMUM;
+		},
+
+		getCauseDateUntilGreatestToMaximum: function () {
+			return DATE_UNTIL_GREATEST_TO_MAXIMUM;
+		},
+
+		getCauseDateGreatestToMaximum: function () {
+			return DATE_GREATEST_TO_MAXIMUM;
+		}
+
+	}
+
 });

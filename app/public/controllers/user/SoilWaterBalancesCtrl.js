@@ -1,7 +1,9 @@
 app.controller(
     "SoilWaterBalancesCtrl",
-    ["$scope", "$location", "SoilWaterBalanceSrv", "ParcelSrv", "CropSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
-        function ($scope, $location, soilWaterBalanceSrv, parcelSrv, cropSrv, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
+    ["$scope", "$location", "SoilWaterBalanceSrv", "ParcelSrv", "CropSrv", "ReasonError", "UtilDate", "AccessManager", "ErrorResponseManager", "AuthHeaderManager",
+        "LogoutManager",
+        function ($scope, $location, soilWaterBalanceSrv, parcelSrv, cropSrv, reasonError, utilDate, accessManager, errorResponseManager, authHeaderManager,
+            logoutManager) {
 
             console.log("SoilWaterBalancesCtrl loaded...")
 
@@ -114,6 +116,26 @@ app.controller(
                 */
                 if ($scope.parcel == undefined || $scope.crop == undefined) {
                     alert(UNDEFINED_PARCEL_NAME_AND_CROP_NAME);
+                    return;
+                }
+
+                /*
+                Si la fecha desde es estrictamente mayor a 9999, la aplicacion
+                muestra el mensaje dado y no se realiza la peticion HTTP
+                correspondiente a esta funcion
+                */
+                if ($scope.dateFrom != undefined && utilDate.yearIsGreaterThanMaximum($scope.dateFrom)) {
+                    alert(reasonError.getCauseDateFromGreatestToMaximum());
+                    return;
+                }
+
+                /*
+                Si la fecha hasta es estrictamente mayor a 9999, la aplicacion
+                muestra el mensaje dado y no se realiza la peticion HTTP
+                correspondiente a esta funcion
+                */
+                if ($scope.dateUntil != undefined && utilDate.yearIsGreaterThanMaximum($scope.dateUntil)) {
+                    alert(reasonError.getCauseDateUntilGreatestToMaximum());
                     return;
                 }
 

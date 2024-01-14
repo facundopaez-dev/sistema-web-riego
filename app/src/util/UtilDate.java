@@ -5,6 +5,8 @@ import java.util.Date;
 
 public class UtilDate {
 
+  private static final int MAXIMUM_YEAR = 9999;
+
   private UtilDate() {
 
   }
@@ -391,6 +393,21 @@ public class UtilDate {
     Calendar date = Calendar.getInstance();
     date.setTime(givenDate);
     return date;
+  }
+
+  /**
+   * @param date
+   * @return true si el año de una fecha es estrictamente
+   * mayor al año maximo (9999). En caso contrario, retorna
+   * false.
+   */
+  public static boolean yearIsGreaterThanMaximum(Calendar date) {
+
+    if (date.get(Calendar.YEAR) > MAXIMUM_YEAR) {
+      return true;
+    }
+
+    return false;
   }
 
 }

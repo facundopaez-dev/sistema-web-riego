@@ -821,6 +821,42 @@ public class StatisticalReportRestServlet {
     Date dateUntil;
 
     /*
+     * Si la fecha desde elegida es estrictamente mayor al año
+     * maximo (9999), la aplicacion del lado servidor retorna
+     * el mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "La fecha desde no debe ser estrictamente mayor a 9999"
+     * y no se realiza la operacion solicitada
+     */
+    if (stringDateFrom != null) {
+      dateFrom = new Date(dateFormatter.parse(stringDateFrom).getTime());
+
+      if (UtilDate.yearIsGreaterThanMaximum(UtilDate.toCalendar(dateFrom))) {
+        return Response.status(Response.Status.BAD_REQUEST)
+            .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.DATE_FROM_GREATEST_TO_MAXIMUM)))
+            .build();
+      }
+
+    }
+
+    /*
+     * Si la fecha desde elegida es estrictamente mayor al año
+     * maximo (9999), la aplicacion del lado servidor retorna
+     * el mensaje HTTP 400 (Bad request) junto con el mensaje
+     * "La fecha hasta no debe ser estrictamente mayor a 9999"
+     * y no se realiza la operacion solicitada
+     */
+    if (stringDateUntil != null) {
+      dateUntil = new Date(dateFormatter.parse(stringDateUntil).getTime());
+
+      if (UtilDate.yearIsGreaterThanMaximum(UtilDate.toCalendar(dateUntil))) {
+        return Response.status(Response.Status.BAD_REQUEST)
+            .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.DATE_UNTIL_GREATEST_TO_MAXIMUM)))
+            .build();
+      }
+
+    }
+
+    /*
      * Siempre y cuando no se elimine el control sobre el nombre
      * de parcela, si la fecha desde esta definida y la fecha
      * hasta NO esta definida, la aplicacion del lado servidor

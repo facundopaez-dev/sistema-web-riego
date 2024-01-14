@@ -1,7 +1,9 @@
 app.controller(
 	"StatisticalReportsCtrl",
-	["$scope", "$location", "$route", "StatisticalReportSrv", "ParcelSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
-		function ($scope, $location, $route, statisticalReportService, parcelSrv, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
+	["$scope", "$location", "$route", "StatisticalReportSrv", "ParcelSrv", "ReasonError", "UtilDate", "AccessManager", "ErrorResponseManager", "AuthHeaderManager",
+		"LogoutManager",
+		function ($scope, $location, $route, statisticalReportService, parcelSrv, reasonError, utilDate, accessManager, errorResponseManager, authHeaderManager,
+			logoutManager) {
 
 			console.log("StatisticalReportsCtrl loaded...")
 
@@ -124,6 +126,26 @@ app.controller(
 				*/
 				if ($scope.parcel == undefined) {
 					alert(UNDEFINED_PARCEL);
+					return;
+				}
+
+				/*
+				Si la fecha desde es estrictamente mayor a 9999, la aplicacion
+				muestra el mensaje dado y no se realiza la peticion HTTP
+				correspondiente a esta funcion
+				*/
+				if ($scope.dateFrom != undefined && utilDate.yearIsGreaterThanMaximum($scope.dateFrom)) {
+					alert(reasonError.getCauseDateFromGreatestToMaximum());
+					return;
+				}
+
+				/*
+				Si la fecha hasta es estrictamente mayor a 9999, la aplicacion
+				muestra el mensaje dado y no se realiza la peticion HTTP
+				correspondiente a esta funcion
+				*/
+				if ($scope.dateUntil != undefined && utilDate.yearIsGreaterThanMaximum($scope.dateUntil)) {
+					alert(reasonError.getCauseDateUntilGreatestToMaximum());
 					return;
 				}
 

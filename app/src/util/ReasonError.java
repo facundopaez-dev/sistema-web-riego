@@ -120,7 +120,10 @@ public enum ReasonError {
   UNDEFINED_PARCEL_NAME_AND_DATE("La parcela y la fecha deben estar definidas"),
   EXISTING_STATISTICAL_REPORT("Ya existe un informe estadístico para las fechas y la parcela elegidas"),
   DATE_FROM_STRICTLY_GREATER_THAN_DATE_UNTIL("La fecha desde no debe ser estrictamente mayor a la fecha hasta"),
-  NON_EXISTENT_PARCEL("La parcela seleccionada no existe");
+  NON_EXISTENT_PARCEL("La parcela seleccionada no existe"),
+  DATE_FROM_GREATEST_TO_MAXIMUM("La fecha desde no debe ser estrictamente mayor a 9999"),
+  DATE_UNTIL_GREATEST_TO_MAXIMUM("La fecha hasta no debe ser estrictamente mayor a 9999"),
+  DATE_GREATEST_TO_MAXIMUM("La fecha no debe ser estrictamente mayor a 9999");
 
   private final String reason;
 

@@ -1,7 +1,9 @@
 app.controller(
 	"ClimateRecordsCtrl",
-	["$scope", "$location", "$route", "ClimateRecordSrv", "ParcelSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
-		function ($scope, $location, $route, climateRecordSrv, parcelSrv, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
+	["$scope", "$location", "$route", "ClimateRecordSrv", "ParcelSrv", "ReasonError", "UtilDate", "AccessManager", "ErrorResponseManager", "AuthHeaderManager",
+		"LogoutManager",
+		function ($scope, $location, $route, climateRecordSrv, parcelSrv, reasonError, utilDate, accessManager, errorResponseManager, authHeaderManager,
+			logoutManager) {
 
 			console.log("ClimateRecordsCtrl loaded...")
 
@@ -120,7 +122,6 @@ app.controller(
 			const UNDEFINED_PARCEL = "La parcela debe estar definida";
 
 			$scope.filter = function () {
-
 				/*
 				Si las propiedades parcel y date de $scope tienen el valor
 				undefined, significa que NO se eligio una parcela ni una
@@ -142,6 +143,16 @@ app.controller(
 				*/
 				if ($scope.parcel == undefined && $scope.date != undefined) {
 					alert(UNDEFINED_PARCEL);
+					return;
+				}
+
+				/*
+				Si la fecha es estrictamente mayor a 9999, la aplicacion
+				muestra el mensaje dado y no se realiza la peticion HTTP
+				correspondiente a esta funcion
+				*/
+				if ($scope.date != undefined && utilDate.yearIsGreaterThanMaximum($scope.date)) {
+					alert(reasonError.getCauseDateGreatestToMaximum());
 					return;
 				}
 
