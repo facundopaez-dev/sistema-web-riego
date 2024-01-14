@@ -131,10 +131,15 @@ public class SoilWaterBalanceRestServlet {
                     .build();
         }
 
-        Parcel parcel = parcelService.find(userId, parcelName);
-        SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
-        Date dateFrom;
-        Date dateUntil;
+        /*
+         * Si el nombre de la parcela y el nombre del cultivo NO estan definidos,
+         * la aplicacion del lado servidor retorna el mensaje HTTP 400 (Bad request)
+         * junto con el mensaje "La parcela y el cultivo deben estar definidos" y
+         * no se realiza la operacion solicitada
+         */
+        if (parcelName == null || cropName == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_PARCEL_NAME_AND_CROP_NAME))).build();
+        }
 
         /*
          * En la aplicacion del lado del navegador Web las variables
@@ -161,15 +166,10 @@ public class SoilWaterBalanceRestServlet {
             stringDateUntil = null;
         }
 
-        /*
-         * Si el nombre de la parcela y el nombre del cultivo NO estan definidos,
-         * la aplicacion del lado servidor retorna el mensaje HTTP 400 (Bad request)
-         * junto con el mensaje "La parcela y el cultivo deben estar definidos" y
-         * no se realiza la operacion solicitada
-         */
-        if (parcelName == null || cropName == null) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_PARCEL_NAME_AND_CROP_NAME))).build();
-        }
+        Parcel parcel = parcelService.find(userId, parcelName);
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+        Date dateFrom;
+        Date dateUntil;
 
         Collection<SoilWaterBalance> soilWaterBalances = soilWaterBalanceService.findAllByParcelIdAndCropName(parcel.getId(), cropName);
 
@@ -187,7 +187,7 @@ public class SoilWaterBalanceRestServlet {
         /*
          * Siempre y cuando no se elimine el control por el nombre
          * de parcela y el nombre del cultivo indefinidos, si la
-         * fecha desde y la fecha hasta NO estan definidos, la
+         * fecha desde y la fecha hasta NO estan definidas, la
          * aplicacion del lado servidor retorna una coleccion de
          * balances hidricos de suelo asociados a un usuario que
          * tienen un nombre de parcela y un nombre de cultivo
