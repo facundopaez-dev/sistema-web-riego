@@ -121,9 +121,6 @@ app.controller(
       */
       const IN_DEVELOPMENT = "En desarrollo";
       const OPTIMAL_DEVELOPMENT_STATE = "Desarrollo óptimo";
-      const DEVELOPMENT_AT_RISK_WILTING_STATE = "Desarrollo en riesgo de marchitez";
-      const DEVELOPMENT_IN_WILTING_STATE = "Desarrollo en marchitez";
-      const ON_HOLD = "En espera";
       const DEAD_STATUS = "Muerto";
 
       /*
@@ -216,18 +213,19 @@ app.controller(
           }
 
           /*
-          Si el cultivo elegido tiene un estado en desarrollo (en desarrollo,
-          desarrollo optimo, desarrollo en riesgo de marchitez o desarrollo en
-          marchitez) o el estado "En espera" y la cantidad de dias entre la fecha
-          de siembra y la fecha de cosecha elegidas para el mismo es mayor a su
-          ciclo de vida, la aplicacion muestra un mensaje de advertencia sugiriendo
-          cual debe ser la fecha de cosecha
+          Si el cultivo elegido tiene el estado "En desarrollo" o el estado
+          "Desarrollo optimo" y la cantidad de dias entre la fecha de siembra
+          y la fecha de cosecha elegidas para el mismo es mayor a su ciclo de
+          vida, la aplicacion muestra un mensaje de advertencia sugiriendo
+          cual debe ser la fecha de cosecha.
+
+          En la creacion de un registro de plantacion, la aplicacion del lado
+          servidor crea y devuelve un registro de plantacion que puede tener
+          unicamente uno de los siguientes estados dependiendo de si la opcion
+          de la parcela a la que pertenece tiene la bandera suelo activa o no:
+          en desarrollo, desarrollo optimo.
           */
-          if (($scope.data.status.name === IN_DEVELOPMENT
-            || $scope.data.status.name === OPTIMAL_DEVELOPMENT_STATE
-            || $scope.data.status.name === DEVELOPMENT_AT_RISK_WILTING_STATE
-            || $scope.data.status.name === DEVELOPMENT_IN_WILTING_STATE
-            || $scope.data.status.name === ON_HOLD) &&
+          if (($scope.data.status.name === IN_DEVELOPMENT || $scope.data.status.name === OPTIMAL_DEVELOPMENT_STATE) &&
             cropManager.lifeCycleExceeded($scope.data.crop.lifeCycle, $scope.data.seedDate, $scope.data.harvestDate)) {
             var suggestedHarvestDate = cropManager.calculateSuggestedHarvestDate($scope.data.seedDate, $scope.data.crop.lifeCycle);
             alert(cropManager.getLifeCycleExceededWarning($scope.data.seedDate, $scope.data.harvestDate, $scope.data.crop.lifeCycle, suggestedHarvestDate));
@@ -313,18 +311,19 @@ app.controller(
           }
 
           /*
-          Si el cultivo elegido tiene un estado en desarrollo (en desarrollo,
-          desarrollo optimo, desarrollo en riesgo de marchitez o desarrollo en
-          marchitez) o el estado "En espera" y la cantidad de dias entre la fecha
-          de siembra y la fecha de cosecha elegidas para el mismo es mayor a su
-          ciclo de vida, la aplicacion muestra un mensaje de advertencia sugiriendo
-          cual debe ser la fecha de cosecha
+          Si el cultivo elegido tiene el estado "En desarrollo" o el estado
+          "Desarrollo optimo", y la cantidad de dias entre la fecha de siembra
+          y la fecha de cosecha elegidas para el mismo es mayor a su ciclo de
+          vida, la aplicacion muestra un mensaje de advertencia sugiriendo
+          cual debe ser la fecha de cosecha.
+
+          En la modificacion de un registro de plantacion, la aplicacion del
+          lado servidor modifica y devuelve un registro de plantacion que puede
+          tener unicamente uno de los siguientes estados dependiendo de si la
+          opcion de la parcela a la que pertenece tiene la bandera suelo activa
+          o no: en desarrollo, desarrollo optimo.
           */
-          if (($scope.data.status.name === IN_DEVELOPMENT
-            || $scope.data.status.name === OPTIMAL_DEVELOPMENT_STATE
-            || $scope.data.status.name === DEVELOPMENT_AT_RISK_WILTING_STATE
-            || $scope.data.status.name === DEVELOPMENT_IN_WILTING_STATE
-            || $scope.data.status.name === ON_HOLD) &&
+          if (($scope.data.status.name === IN_DEVELOPMENT || $scope.data.status.name === OPTIMAL_DEVELOPMENT_STATE) &&
             cropManager.lifeCycleExceeded($scope.data.crop.lifeCycle, $scope.data.seedDate, $scope.data.harvestDate)) {
             var suggestedHarvestDate = cropManager.calculateSuggestedHarvestDate($scope.data.seedDate, $scope.data.crop.lifeCycle);
             alert(cropManager.getLifeCycleExceededWarning($scope.data.seedDate, $scope.data.harvestDate, $scope.data.crop.lifeCycle, suggestedHarvestDate));
