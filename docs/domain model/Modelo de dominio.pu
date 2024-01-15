@@ -114,6 +114,7 @@ class Opcion {
 -diasPasadosReferencia
 -banderaSuelo
 -banderaUltimoRiegoTreintaDias
+-banderaMensajeCapacidadCampo
 }
 
 class Usuario {

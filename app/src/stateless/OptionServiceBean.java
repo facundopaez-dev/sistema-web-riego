@@ -54,6 +54,7 @@ public class OptionServiceBean {
     public Option create() {
         Option newOption = new Option();
         newOption.setPastDaysReference(UPPER_LIMIT_PAST_DAYS);
+        newOption.setFlagMessageFieldCapacity(true);
         entityManager.persist(newOption);
 
         return newOption;
@@ -74,6 +75,7 @@ public class OptionServiceBean {
             givenOption.setPastDaysReference(modifiedOption.getPastDaysReference());
             givenOption.setSoilFlag(modifiedOption.getSoilFlag());
             givenOption.setFlagLastIrrigationThirtyDays(modifiedOption.getFlagLastIrrigationThirtyDays());
+            givenOption.setFlagMessageFieldCapacity(modifiedOption.getFlagMessageFieldCapacity());
             return givenOption;
         }
 

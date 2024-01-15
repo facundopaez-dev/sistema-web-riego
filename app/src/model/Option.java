@@ -26,6 +26,9 @@ public class Option {
     @Column(name = "FLAG_LAST_IRRIGATION_THIRTY_DAYS", nullable = false)
     private boolean flagLastIrrigationThirtyDays;
 
+    @Column(name = "FLAG_MESSAGE_FIELD_CAPACITY", nullable = false)
+    private boolean flagMessageFieldCapacity;
+
     public Option() {
 
     }
@@ -60,6 +63,14 @@ public class Option {
 
     public void setFlagLastIrrigationThirtyDays(boolean flagLastIrrigationThirtyDays) {
         this.flagLastIrrigationThirtyDays = flagLastIrrigationThirtyDays;
+    }
+
+    public boolean getFlagMessageFieldCapacity() {
+        return flagMessageFieldCapacity;
+    }
+
+    public void setFlagMessageFieldCapacity(boolean flagMessageFieldCapacity) {
+        this.flagMessageFieldCapacity = flagMessageFieldCapacity;
     }
 
 }

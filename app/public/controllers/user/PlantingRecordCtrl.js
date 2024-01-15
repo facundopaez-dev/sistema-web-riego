@@ -189,6 +189,24 @@ app.controller(
 
           $scope.data = data;
 
+          /*
+          Si el registro de plantacion creado y devuelto por la aplicacion
+          del lado servidor tiene el estado "En desarrollo" o el estado
+          "Desarrollo optimo" y la opcion de la parcela a la que pertenece
+          tiene la bandera flagMessageFieldCapacity activa, la aplicacion
+          muestra el mensaje dado
+          */
+          if (($scope.data.status.name === IN_DEVELOPMENT || $scope.data.status.name === OPTIMAL_DEVELOPMENT_STATE) &&
+            $scope.data.parcel.option.flagMessageFieldCapacity) {
+            var advice = "Recuerde que un día antes de la fecha de siembra de un cultivo se debe llenar de agua el suelo, en el que realizará la "
+              + "siembra, para que en la fecha de siembra el nivel de humedad del suelo esté en capacidad de campo. Esto se debe a que la aplicación "
+              + "calcula la necesidad de agua de riego de un cultivo en la fecha actual como la cantidad de agua que se debe reponer para llevar el "
+              + "suelo, en el que está sembrado un cultivo, a capacidad de campo partiendo desde la condición de suelo a capacidad de campo en la "
+              + "fecha de siembra de un cultivo. Capacidad de campo es la condicion en la que un suelo está lleno de agua, pero no anegado. Puede "
+              + "deshabilitar este aviso en el formulario de opción de una parcela.";
+            alert(advice);
+          }
+
           if ($scope.data.seedDate != null) {
             $scope.data.seedDate = new Date($scope.data.seedDate);
           }
