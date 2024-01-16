@@ -1604,6 +1604,26 @@ public class PlantingRecordRestServlet {
     PlantingRecord developingPlantingRecord = plantingRecordService.find(plantingRecordId);
     String stringIrrigationWaterNeedCurrentDate = null;
 
+    /*
+     * El valor de esta constante se asigna a la necesidad de
+     * agua de riego [mm/dia] de un registro de plantacion
+     * para el que no se puede calcular dicha necesidad, lo
+     * cual, ocurre cuando no se tiene la evapotranspiracion
+     * del cultivo bajo condiciones estandar (ETc) [mm/dia]
+     * ni la precipitacion [mm/dia], siendo ambos valores de
+     * la fecha actual.
+     * 
+     * El valor de esta constante tambien se asigna a la
+     * necesidad de agua de riego de un registro de plantacion
+     * finalizado o en espera, ya que NO tiene ninguna utilidad
+     * que un registro de plantacion en uno de estos estados
+     * tenga un valor numerico mayor o igual a cero en la
+     * necesidad de agua de riego.
+     * 
+     * La abreviatura "n/a" significa "no disponible".
+     */
+    String notAvailable = plantingRecordService.getNotAvailable();
+
     try {
       /*
        * Ejecuta el proceso del calculo de la necesidad de agua
@@ -1615,6 +1635,30 @@ public class PlantingRecordRestServlet {
       stringIrrigationWaterNeedCurrentDate = runCalculationIrrigationWaterNeedCurrentDateTwo(developingPlantingRecord);
     } catch (Exception e) {
       e.printStackTrace();
+
+      /*
+       * La aplicacion del lado servidor requiere de un servicio
+       * meteorologico para obtener los datos climaticos de una
+       * ubicacion geografica (*) que se necesitan para calcular
+       * la necesidad de agua de riego de un cultivo en la fecha
+       * actual (es decir, hoy). Si el servicio meteorologico
+       * utilizado le devuelve a la aplicacion del lado servidor
+       * un mensaje HTTP de error, NO es posible calcular la
+       * necesidad de agua de riego de un cultivo en la fecha
+       * actual. Por lo tanto, se establece el valor "n/a" (no
+       * disponible) en el atributo de la necesidad de agua de
+       * riego de un cultivo del registro de plantacion en
+       * desarrollo para el que se solicito calcular la necesidad
+       * de agua de riego de un cultivo en la fecha actual.
+       * 
+       * (*) Un cultivo se siembra en una parcela y una parcela
+       * tiene una ubicacion geografica. Para calcular la
+       * necesidad de agua de riego de un cultivo en una fecha
+       * cualquiera se requieren los datos climaticos de la
+       * fecha y de la ubicacion geografica de la parcela en
+       * la que esta sembrado un cultivo.
+       */
+      plantingRecordService.updateCropIrrigationWaterNeed(plantingRecordId, notAvailable);
 
       /*
        * El mensaje de la excepcion contiene el codigo de respuesta
@@ -1722,26 +1766,6 @@ public class PlantingRecordRestServlet {
      * la capacidad de almacenamiento de agua del mismo.
      */
     String notCalculated = soilWaterBalanceService.getNotCalculated();
-
-    /*
-     * El valor de esta constante se asigna a la necesidad de
-     * agua de riego [mm/dia] de un registro de plantacion
-     * para el que no se puede calcular dicha necesidad, lo
-     * cual, ocurre cuando no se tiene la evapotranspiracion
-     * del cultivo bajo condiciones estandar (ETc) [mm/dia]
-     * ni la precipitacion [mm/dia], siendo ambos valores de
-     * la fecha actual.
-     * 
-     * El valor de esta constante tambien se asigna a la
-     * necesidad de agua de riego de un registro de plantacion
-     * finalizado o en espera, ya que NO tiene ninguna utilidad
-     * que un registro de plantacion en uno de estos estados
-     * tenga un valor numerico mayor o igual a cero en la
-     * necesidad de agua de riego.
-     * 
-     * La abreviatura "n/a" significa "no disponible".
-     */
-    String notAvailable = plantingRecordService.getNotAvailable();
 
     /*
      * Si la necesidad de agua de riego de un cultivo (en

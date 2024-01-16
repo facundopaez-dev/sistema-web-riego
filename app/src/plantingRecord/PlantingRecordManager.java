@@ -276,6 +276,30 @@ public class PlantingRecordManager {
                 stringIrrigationWaterNeedCurrentDate = runCalculationIrrigationWaterNeedCurrentDateTwo(developingPlantingRecord);
             } catch (Exception e) {
                 e.printStackTrace();
+
+                /*
+                 * La aplicacion del lado servidor requiere de un servicio
+                 * meteorologico para obtener los datos climaticos de una
+                 * ubicacion geografica (*) que se necesitan para calcular
+                 * la necesidad de agua de riego de un cultivo en la fecha
+                 * actual (es decir, hoy). Si el servicio meteorologico
+                 * utilizado le devuelve a la aplicacion del lado servidor
+                 * un mensaje HTTP de error, NO es posible calcular la
+                 * necesidad de agua de riego de un cultivo en la fecha
+                 * actual. Por lo tanto, se establece el valor "n/a" (no
+                 * disponible) en el atributo de la necesidad de agua de
+                 * riego de un cultivo del registro de plantacion en
+                 * desarrollo para el que se solicito calcular la necesidad
+                 * de agua de riego de un cultivo en la fecha actual.
+                 * 
+                 * (*) Un cultivo se siembra en una parcela y una parcela
+                 * tiene una ubicacion geografica. Para calcular la
+                 * necesidad de agua de riego de un cultivo en una fecha
+                 * cualquiera se requieren los datos climaticos de la
+                 * fecha y de la ubicacion geografica de la parcela en
+                 * la que esta sembrado un cultivo.
+                 */
+                plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(), notAvailable);
                 break;
             }
 
