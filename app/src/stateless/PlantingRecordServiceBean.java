@@ -1622,7 +1622,6 @@ public class PlantingRecordServiceBean {
   }
 
   /**
-   * 
    * @param plantingRecord
    * @return true si un registro de plantacion esta en desarrollo.
    * En caso contrario, false, lo cual puede indicar que un registro
@@ -1644,7 +1643,8 @@ public class PlantingRecordServiceBean {
   }
 
   /**
-   * Establece un estado en un registro de plantacion
+   * Establece un estado en un registro de plantacion en la
+   * base de datos subyacente
    * 
    * @param plantingRecordId
    * @param plantingRecordStatus
@@ -1657,8 +1657,8 @@ public class PlantingRecordServiceBean {
   }
 
   /**
-   * Actualiza la necesidad de agua de riego del registro
-   * de plantacion de una parcela
+   * Actualiza la necesidad de agua de riego de un registro
+   * de plantacion en la base de datos subyacente
    * 
    * @param plantingRecordId
    * @param cropIrrigationWaterNeed [mm/dia]
