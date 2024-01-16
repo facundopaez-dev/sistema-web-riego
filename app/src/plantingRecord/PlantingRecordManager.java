@@ -114,7 +114,7 @@ public class PlantingRecordManager {
              * datos.
              */
             if (plantingRecordService.isFinished(currentPlantingRecord)) {
-                plantingRecordService.updateCropIrrigationWaterNeed(currentPlantingRecord.getId(), currentPlantingRecord.getParcel(), notAvailable);
+                plantingRecordService.updateCropIrrigationWaterNeed(currentPlantingRecord.getId(), notAvailable);
                 plantingRecordService.updateTotalAmountWaterAvailable(currentPlantingRecord.getId(), 0);
                 plantingRecordService.updateOptimalIrrigationLayer(currentPlantingRecord.getId(), 0);
                 plantingRecordService.setStatus(currentPlantingRecord.getId(), statusService.findFinishedStatus());
@@ -178,8 +178,7 @@ public class PlantingRecordManager {
              * desarrollo.
              */
             if (plantingRecordService.isInDevelopment(currentPlantingRecord)) {
-                plantingRecordService.updateCropIrrigationWaterNeed(currentPlantingRecord.getId(),
-                        currentPlantingRecord.getParcel(), cropIrrigationWaterNeedNotAvailableButCalculable);
+                plantingRecordService.updateCropIrrigationWaterNeed(currentPlantingRecord.getId(), cropIrrigationWaterNeedNotAvailableButCalculable);
 
                 /*
                  * Si un registro de plantacion presuntamente en espera tiene
@@ -308,7 +307,7 @@ public class PlantingRecordManager {
              * de riego en la fecha actual [mm/dia], esta muerto.
              */
             if (stringIrrigationWaterNeedCurrentDate != null && stringIrrigationWaterNeedCurrentDate.equals(notCalculated)) {
-                plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(), developingPlantingRecord.getParcel(), notAvailable);
+                plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(), notAvailable);
                 plantingRecordService.updateDateDeath(developingPlantingRecord.getId(), UtilDate.getCurrentDate());
             }
 
@@ -330,8 +329,7 @@ public class PlantingRecordManager {
              * con el valor de de dicha necesidad de agua de riego
              * *****************************************************
              */
-            plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(),
-                    developingPlantingRecord.getParcel(), String.valueOf(cropIrrigationWaterNeedCurrentDate));
+            plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(), String.valueOf(cropIrrigationWaterNeedCurrentDate));
         } // End for
 
     }

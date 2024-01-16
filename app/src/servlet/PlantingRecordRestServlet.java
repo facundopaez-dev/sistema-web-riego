@@ -1739,7 +1739,7 @@ public class PlantingRecordRestServlet {
      * de riego en la fecha actual [mm/dia], esta muerto.
      */
     if (stringIrrigationWaterNeedCurrentDate != null && stringIrrigationWaterNeedCurrentDate.equals(notCalculated)) {
-      plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(), developingPlantingRecord.getParcel(), notAvailable);
+      plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(), notAvailable);
       plantingRecordService.updateDateDeath(developingPlantingRecord.getId(), UtilDate.getCurrentDate());
 
       String message = "El cultivo murió por ser el nivel de humedad del suelo, en el que está sembrado, estrictamente menor al doble"
@@ -1769,7 +1769,7 @@ public class PlantingRecordRestServlet {
      * con el valor de de dicha necesidad de agua de riego
      * *****************************************************
      */
-    plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(), developingPlantingRecord.getParcel(), String.valueOf(cropIrrigationWaterNeedCurrentDate));
+    plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(), String.valueOf(cropIrrigationWaterNeedCurrentDate));
 
     /*
      * Datos del formulario del calculo de la necesidad de

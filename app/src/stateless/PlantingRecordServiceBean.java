@@ -1660,14 +1660,12 @@ public class PlantingRecordServiceBean {
    * Actualiza la necesidad de agua de riego del registro
    * de plantacion de una parcela
    * 
-   * @param id
-   * @param givenParcel
+   * @param plantingRecordId
    * @param cropIrrigationWaterNeed [mm/dia]
    */
-  public void updateCropIrrigationWaterNeed(int id, Parcel givenParcel, String cropIrrigationWaterNeed) {
-    Query query = entityManager.createQuery("UPDATE PlantingRecord p SET p.cropIrrigationWaterNeed = :cropIrrigationWaterNeed WHERE (p.id = :givenId AND p.parcel = :givenParcel)");
-    query.setParameter("givenId", id);
-    query.setParameter("givenParcel", givenParcel);
+  public void updateCropIrrigationWaterNeed(int plantingRecordId, String cropIrrigationWaterNeed) {
+    Query query = entityManager.createQuery("UPDATE PlantingRecord p SET p.cropIrrigationWaterNeed = :cropIrrigationWaterNeed WHERE p.id = :plantingRecordId");
+    query.setParameter("plantingRecordId", plantingRecordId);
     query.setParameter("cropIrrigationWaterNeed", cropIrrigationWaterNeed);
     query.executeUpdate();
   }

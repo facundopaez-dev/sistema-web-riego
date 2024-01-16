@@ -1116,7 +1116,7 @@ public class ParcelRestServlet {
      */
     if (plantingRecordService.checkOneInDevelopment(parcelId) && !soilService.equals(modifiedSoil, currentSoil)) {
       PlantingRecord developingPlantingRecord = plantingRecordService.findInDevelopment(parcelId);
-      plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(), modifiedParcel, cropIrrigationWaterNeedNotAvailableButCalculable);
+      plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(), cropIrrigationWaterNeedNotAvailableButCalculable);
     }
 
     /*
