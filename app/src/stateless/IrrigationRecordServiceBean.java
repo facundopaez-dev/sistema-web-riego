@@ -435,22 +435,6 @@ public class IrrigationRecordServiceBean {
     return false;
   }
 
-  /**
-   * Actualiza la necesidad de agua de riego del registro
-   * de riego de una parcela
-   * 
-   * @param id
-   * @param givenParcel
-   * @param irrigationWaterNeed [mm/dia]
-   */
-  public void updateIrrigationWaterNeed(int id, Parcel givenParcel, String irrigationWaterNeed) {
-    Query query = entityManager.createQuery("UPDATE IrrigationRecord i SET i.irrigationWaterNeed = :irrigationWaterNeed WHERE (i.id = :givenId AND i.parcel = :givenParcel)");
-    query.setParameter("givenId", id);
-    query.setParameter("givenParcel", givenParcel);
-    query.setParameter("irrigationWaterNeed", irrigationWaterNeed);
-    query.executeUpdate();
-  }
-
   public Page<IrrigationRecord> findByPage(Integer page, Integer cantPerPage, Map<String, String> parameters) {
     // Genero el WHERE dinámicamente
     StringBuffer where = new StringBuffer(" WHERE 1=1");
