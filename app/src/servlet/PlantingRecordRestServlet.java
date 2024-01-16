@@ -86,6 +86,7 @@ public class PlantingRecordRestServlet {
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
 
+  private final int UNAUTHORIZED = 401;
   private final int TOO_MANY_REQUESTS = 429;
   private final int SERVICE_UNAVAILABLE = 503;
   private final String UNDEFINED_VALUE = "undefined";
@@ -1624,6 +1625,37 @@ public class PlantingRecordRestServlet {
       int responseCode = Integer.parseInt(e.getMessage());
 
       /*
+       * La aplicacion del lado servidor utiliza el servicio
+       * meteorologico Visual Crossing Weather para obtener los
+       * datos meteorologicos necesarios para calcular la necesidad
+       * de agua de riego de un cultivo en la fecha actual (es
+       * decir, hoy) [mm/dia]. Para obtener datos de este servicio
+       * se requiere una clave API. Si la clave NO es la correcta,
+       * dicho servicio devuelve el mensaje HTTP 401 (Unauthorized).
+       * Si la aplicacion del lado servidor recibe este mensaje
+       * HTTP de parte de dicho servicio, devuelve el mensaje HTTP
+       * 401 a la aplicacion del lado del navegador web junto con
+       * el mensaje "La clave para solicitar datos meteorologicos
+       * al servicio meteorológico Visual Crossing Weather, los
+       * cuales son necesarios para calcular la necesidad de agua
+       * de riego de un cultivo en la fecha actual (es decir, hoy),
+       * no es la correcta" y no se realiza la operacion solicitada.
+       * 
+       * La clave API es provista por Visual Crossing Weather y
+       * se encuentra en los detalles de la cuenta que uno debe
+       * crear para usar dicho servicio. Dicha clave es el valor
+       * de la constante API_KEY de la clase ClimateClient de la
+       * ruta app/src/climate. Por lo tanto, una vez obtenida
+       * la clave API, la misma debe ser asignada a la constante
+       * API_KEY.
+       */
+      if (responseCode == UNAUTHORIZED) {
+        return Response.status(Response.Status.UNAUTHORIZED)
+            .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_API_KEY, SourceUnsatisfiedResponse.WATER_NEED_CROP)))
+            .build();
+      }
+
+      /*
        * El servicio meteorologico Visual Crossing Wather brinda
        * 1000 peticiones gratuitas por dia. Si al intentar calcular
        * la necesidad de agua de riego de un cultivo en la fecha
@@ -1667,11 +1699,11 @@ public class PlantingRecordRestServlet {
        * Si al intentar calcular la necesidad de agua de riego
        * de un cultivo en la fecha actual [mm/dia], el servicio
        * meteorologico Visual Crossing Weather devuelve un
-       * mensaje HTTP distinto a 429 y 503, la aplicacion del
-       * lado devuelve el mensaje HTTP 500 (Internal server
-       * error) a la aplicacion del lado del navegador web junto
-       * con el mensaje "Se produjo un error al calcular la
-       * necesidad de agua de riego de un cultivo" y no se
+       * mensaje HTTP distinto a 401, 429 y 503, la aplicacion
+       * del lado servidor devuelve el mensaje HTTP 500 (Internal
+       * server error) a la aplicacion del lado del navegador web
+       * junto con el mensaje "Se produjo un error al calcular
+       * la necesidad de agua de riego de un cultivo" y no se
        * realiza la operacion solicitada
        */
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR)

@@ -114,6 +114,7 @@ public enum ReasonError {
   MONTH_START_PLANTING_NON_EXISTENT("El mes de inicio de siembra elegido no existe"),
   NON_EXISTENT_END_PLANTING_MONTH("El mes de fin de siembra elegido no existe"),
   OVERLAP_BETWEEN_MONTH_START_PLANTING_AND_MONTH_END_PLANTING("El mes de inicio de siembra no debe ser mayor al mes de fin de siembra"),
+  INVALID_API_KEY("La clave para solicitar datos meteorológicos al servicio meteorológico Visual Crossing Weather, los cuales son necesarios para calcular la necesidad de agua de riego de un cultivo en la fecha actual (es decir, hoy), no es la correcta"),
   REQUEST_LIMIT_EXCEEDED("La aplicación no puede calcular la necesidad de agua de riego de un cultivo porque se supero la cantidad de 1000 peticiones gratuitas por día del servicio meteorológico Visual Crossing Weather"),
   WEATHER_SERVICE_UNAVAILABLE("La aplicación no puede calcular la necesidad de agua de riego de un cultivo porque el servicio meteorológico Visual Crossing Weather no se encuentra en funcionamiento"),
   UNKNOW_ERROR_IN_IRRIGATION_WATER_NEED_CALCULATION("Se produjo un error al calcular la necesidad de agua de riego de un cultivo"),
