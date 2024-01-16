@@ -98,7 +98,7 @@ class RegistroPlantacion {
 -fechaSiembra
 -fechaCosecha
 -fechaMuerte
--necesidadAguaRiego
+-necesidadAguaRiegoCultivo
 -laminaTotalAguaDisponible
 -laminaRiegoOptima
 }

@@ -1,11 +1,11 @@
 app.controller(
-    "WaterNeedFormCtrl",
+    "IrrigationWaterNeedFormCtrl",
     ["$scope", "$location", "$routeParams", "PlantingRecordSrv", "IrrigationRecordSrv", "WaterNeedFormManager", "AccessManager", "ErrorResponseManager", "AuthHeaderManager",
         "LogoutManager",
         function ($scope, $location, $params, plantingRecordSrv, irrigationRecordService, waterNeedFormManager, accessManager, errorResponseManager, authHeaderManager,
             logoutManager) {
 
-            console.log("Cargando WaterNeedFormCtrl...")
+            console.log("Cargando IrrigationWaterNeedFormCtrl...")
 
             /*
             Si el usuario NO tiene una sesion abierta, se le impide el acceso a
@@ -67,8 +67,8 @@ app.controller(
                 return;
             }
 
-            function calculateIrrigationWaterNeed(id) {
-                plantingRecordSrv.calculateIrrigationWaterNeed(id, function (error, irrigationWaterNeedData) {
+            function calculateCropIrrigationWaterNeed(id) {
+                plantingRecordSrv.calculateCropIrrigationWaterNeed(id, function (error, cropIrrigationWaterNeedData) {
                     if (error) {
                         console.log(error);
                         errorResponseManager.checkResponse(error);
@@ -81,7 +81,7 @@ app.controller(
                     calculo de la necesidad de agua de riego de un
                     cultivo
                     */
-                    $scope.irrigationWaterNeedData = irrigationWaterNeedData;
+                    $scope.cropIrrigationWaterNeedData = cropIrrigationWaterNeedData;
                 });
             }
 
@@ -93,19 +93,19 @@ app.controller(
                 de agua de riego de un cultivo en la fecha actual con los
                 campos vacios
                 */
-                if ($scope.irrigationWaterNeedData == undefined) {
+                if ($scope.cropIrrigationWaterNeedData == undefined) {
                     return;
                 }
 
-                if ($scope.irrigationWaterNeedData.irrigationDone >= 0) {
-                    irrigationRecordService.saveIrrigationWaterNeedData($scope.irrigationWaterNeedData, function (error, irrigationWaterNeedData) {
+                if ($scope.cropIrrigationWaterNeedData.irrigationDone >= 0) {
+                    irrigationRecordService.saveIrrigationWaterNeedData($scope.cropIrrigationWaterNeedData, function (error, cropIrrigationWaterNeedData) {
                         if (error) {
                             console.log(error);
                             errorResponseManager.checkResponse(error);
                             return;
                         }
 
-                        $scope.irrigationWaterNeedData = irrigationWaterNeedData;
+                        $scope.cropIrrigationWaterNeedData = cropIrrigationWaterNeedData;
                         $location.path("/home/plantingRecords");
                     });
                 } else {
@@ -135,5 +135,5 @@ app.controller(
                 $location.path("/home/plantingRecords");
             }
 
-            calculateIrrigationWaterNeed($params.id);
+            calculateCropIrrigationWaterNeed($params.id);
         }]);

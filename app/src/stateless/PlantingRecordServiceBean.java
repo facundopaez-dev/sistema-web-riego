@@ -49,14 +49,14 @@ public class PlantingRecordServiceBean {
    * no esta disponible, pero se puede calcular. Esta situacion
    * ocurre unicamente para un registro de plantacion en desarrollo.
    */
-  private final String IRRIGATION_WATER_NEED_NOT_AVAILABLE_BUT_CALCULABLE = "-";
+  private final String CROP_IRRIGATION_WATER_NEED_NOT_AVAILABLE_BUT_CALCULABLE = "-";
 
   public String getNotAvailable() {
     return NOT_AVAILABLE;
   }
 
-  public String getIrrigationWaterNotAvailableButCalculable() {
-    return IRRIGATION_WATER_NEED_NOT_AVAILABLE_BUT_CALCULABLE;
+  public String getCropIrrigationWaterNotAvailableButCalculable() {
+    return CROP_IRRIGATION_WATER_NEED_NOT_AVAILABLE_BUT_CALCULABLE;
   }
 
   public void setEntityManager(EntityManager localEntityManager) {
@@ -130,7 +130,7 @@ public class PlantingRecordServiceBean {
     if (chosenPlantingRecord != null) {
       chosenPlantingRecord.setSeedDate(modifiedPlantingRecord.getSeedDate());
       chosenPlantingRecord.setHarvestDate(modifiedPlantingRecord.getHarvestDate());
-      chosenPlantingRecord.setIrrigationWaterNeed(modifiedPlantingRecord.getIrrigationWaterNeed());
+      chosenPlantingRecord.setCropIrrigationWaterNeed(modifiedPlantingRecord.getCropIrrigationWaterNeed());
       chosenPlantingRecord.setParcel(modifiedPlantingRecord.getParcel());
       chosenPlantingRecord.setCrop(modifiedPlantingRecord.getCrop());
       chosenPlantingRecord.setModifiable(modifiedPlantingRecord.getModifiable());
@@ -1662,13 +1662,13 @@ public class PlantingRecordServiceBean {
    * 
    * @param id
    * @param givenParcel
-   * @param irrigationWaterNeed [mm/dia]
+   * @param cropIrrigationWaterNeed [mm/dia]
    */
-  public void updateIrrigationWaterNeed(int id, Parcel givenParcel, String irrigationWaterNeed) {
-    Query query = entityManager.createQuery("UPDATE PlantingRecord p SET p.irrigationWaterNeed = :irrigationWaterNeed WHERE (p.id = :givenId AND p.parcel = :givenParcel)");
+  public void updateCropIrrigationWaterNeed(int id, Parcel givenParcel, String cropIrrigationWaterNeed) {
+    Query query = entityManager.createQuery("UPDATE PlantingRecord p SET p.cropIrrigationWaterNeed = :cropIrrigationWaterNeed WHERE (p.id = :givenId AND p.parcel = :givenParcel)");
     query.setParameter("givenId", id);
     query.setParameter("givenParcel", givenParcel);
-    query.setParameter("irrigationWaterNeed", irrigationWaterNeed);
+    query.setParameter("cropIrrigationWaterNeed", cropIrrigationWaterNeed);
     query.executeUpdate();
   }
 

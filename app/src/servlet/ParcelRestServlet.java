@@ -1102,7 +1102,7 @@ public class ParcelRestServlet {
      * no esta disponible, pero se puede calcular. Esta situacion
      * ocurre unicamente para un registro de plantacion en desarrollo.
      */
-    String irrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getIrrigationWaterNotAvailableButCalculable();
+    String cropIrrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getCropIrrigationWaterNotAvailableButCalculable();
 
     /*
      * Si la parcela modificada tiene un registro de plantacion en
@@ -1116,7 +1116,7 @@ public class ParcelRestServlet {
      */
     if (plantingRecordService.checkOneInDevelopment(parcelId) && !soilService.equals(modifiedSoil, currentSoil)) {
       PlantingRecord developingPlantingRecord = plantingRecordService.findInDevelopment(parcelId);
-      plantingRecordService.updateIrrigationWaterNeed(developingPlantingRecord.getId(), modifiedParcel, irrigationWaterNeedNotAvailableButCalculable);
+      plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(), modifiedParcel, cropIrrigationWaterNeedNotAvailableButCalculable);
     }
 
     /*

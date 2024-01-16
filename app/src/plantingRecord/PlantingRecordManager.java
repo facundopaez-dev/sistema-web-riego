@@ -114,7 +114,7 @@ public class PlantingRecordManager {
              * datos.
              */
             if (plantingRecordService.isFinished(currentPlantingRecord)) {
-                plantingRecordService.updateIrrigationWaterNeed(currentPlantingRecord.getId(), currentPlantingRecord.getParcel(), notAvailable);
+                plantingRecordService.updateCropIrrigationWaterNeed(currentPlantingRecord.getId(), currentPlantingRecord.getParcel(), notAvailable);
                 plantingRecordService.updateTotalAmountWaterAvailable(currentPlantingRecord.getId(), 0);
                 plantingRecordService.updateOptimalIrrigationLayer(currentPlantingRecord.getId(), 0);
                 plantingRecordService.setStatus(currentPlantingRecord.getId(), statusService.findFinishedStatus());
@@ -145,7 +145,7 @@ public class PlantingRecordManager {
          * no esta disponible, pero se puede calcular. Esta situacion
          * ocurre unicamente para un registro de plantacion en desarrollo.
          */
-        String irrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getIrrigationWaterNotAvailableButCalculable();
+        String cropIrrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getCropIrrigationWaterNotAvailableButCalculable();
 
         /*
          * Obtiene una coleccion que contiene el registro de
@@ -178,8 +178,8 @@ public class PlantingRecordManager {
              * desarrollo.
              */
             if (plantingRecordService.isInDevelopment(currentPlantingRecord)) {
-                plantingRecordService.updateIrrigationWaterNeed(currentPlantingRecord.getId(),
-                        currentPlantingRecord.getParcel(), irrigationWaterNeedNotAvailableButCalculable);
+                plantingRecordService.updateCropIrrigationWaterNeed(currentPlantingRecord.getId(),
+                        currentPlantingRecord.getParcel(), cropIrrigationWaterNeedNotAvailableButCalculable);
 
                 /*
                  * Si un registro de plantacion presuntamente en espera tiene
@@ -201,11 +201,11 @@ public class PlantingRecordManager {
 
     /**
      * Establece de manera automatica la necesidad de agua de riego [mm/dia]
-     * (atributo irrigationWaterNeed) de un registro de plantacion en desarrollo
+     * (atributo cropIrrigationWaterNeed) de un registro de plantacion en desarrollo
      * cada dos horas a partir de la hora 01.
      * 
      * La segunda anotacion @Schedule es para probar que este metodo se ejecuta
-     * correctamente, es decir, que asigna un valor al atributo irrigationWaterNeed
+     * correctamente, es decir, que asigna un valor al atributo cropIrrigationWaterNeed
      * de un registro de plantacion en desarrollo.
      * 
      * El archivo t125Inserts.sql de la ruta app/etc/sql tiene datos para probar que
@@ -214,7 +214,7 @@ public class PlantingRecordManager {
      */
     // @Schedule(second = "*", minute = "*", hour = "1/2", persistent = false)
     // @Schedule(second = "*/5", minute = "*", hour = "*", persistent = false)
-    private void setIrrigationWaterNeed() {
+    private void setCropIrrigationWaterNeed() {
         /*
          * El valor de esta variable se utiliza para representar
          * la situacion en la que NO se calcula el acumulado del
@@ -308,7 +308,7 @@ public class PlantingRecordManager {
              * de riego en la fecha actual [mm/dia], esta muerto.
              */
             if (stringIrrigationWaterNeedCurrentDate != null && stringIrrigationWaterNeedCurrentDate.equals(notCalculated)) {
-                plantingRecordService.updateIrrigationWaterNeed(developingPlantingRecord.getId(), developingPlantingRecord.getParcel(), notAvailable);
+                plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(), developingPlantingRecord.getParcel(), notAvailable);
                 plantingRecordService.updateDateDeath(developingPlantingRecord.getId(), UtilDate.getCurrentDate());
             }
 
@@ -319,19 +319,19 @@ public class PlantingRecordManager {
              * lo tanto, se lo convierte a double, ya que dicha
              * necesidad esta expresada como double.
              */
-            double irrigationWaterNeedCurrentDate = Math.abs(Double.parseDouble(stringIrrigationWaterNeedCurrentDate));
+            double cropIrrigationWaterNeedCurrentDate = Math.abs(Double.parseDouble(stringIrrigationWaterNeedCurrentDate));
 
             /*
              * *****************************************************
-             * Actualizacion del atributo "necesidad agua riego" del
-             * registro de plantacion en desarrollo, el cual tiene el
-             * cultivo para el que se solicita calcular su necesidad
-             * de agua de riego en la fecha actual [mm/dia], con el
-             * valor de de dicha necesidad de agua de riego
+             * Actualizacion del atributo "necesidad agua riego de
+             * cultivo" del registro de plantacion en desarrollo, el
+             * cual tiene el cultivo para el que se solicita calcular
+             * su necesidad de agua de riego en la fecha actual [mm/dia],
+             * con el valor de de dicha necesidad de agua de riego
              * *****************************************************
              */
-            plantingRecordService.updateIrrigationWaterNeed(developingPlantingRecord.getId(),
-                    developingPlantingRecord.getParcel(), String.valueOf(irrigationWaterNeedCurrentDate));
+            plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(),
+                    developingPlantingRecord.getParcel(), String.valueOf(cropIrrigationWaterNeedCurrentDate));
         } // End for
 
     }
@@ -1602,7 +1602,7 @@ public class PlantingRecordManager {
          */
         parcelService.merge(givenParcel);
 
-        double irrigationWaterNeedCurrentDate = 0.0;
+        double cropIrrigationWaterNeedCurrentDate = 0.0;
 
         /*
          * Si la bandera suelo NO esta activa se calcula la necesidad
@@ -1616,7 +1616,7 @@ public class PlantingRecordManager {
          * de si la parcela tiene o no asignado un suelo.
          */
         if (!parcelOption.getSoilFlag()) {
-            irrigationWaterNeedCurrentDate = WaterNeedWos.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, climateRecords, irrigationRecords);
+            cropIrrigationWaterNeedCurrentDate = WaterNeedWos.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, climateRecords, irrigationRecords);
         }
 
         /*
@@ -1636,11 +1636,11 @@ public class PlantingRecordManager {
          * ambiental sea saturada.
          */
         if (parcelOption.getSoilFlag()) {
-            irrigationWaterNeedCurrentDate = WaterNeedWs.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate,
+            cropIrrigationWaterNeedCurrentDate = WaterNeedWs.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate,
                     developingPlantingRecord.getCrop(), givenParcel.getSoil(), climateRecords, irrigationRecords);
         }
 
-        return irrigationWaterNeedCurrentDate;
+        return cropIrrigationWaterNeedCurrentDate;
     }
 
     /**

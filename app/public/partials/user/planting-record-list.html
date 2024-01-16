@@ -150,7 +150,7 @@
         <th>F. cosecha</th>
         <th>Cap. almac. agua suelo [mm]</th>
         <th>Umbral riego [mm]</th>
-        <th>Nec. agua riego [mm/día]</th>
+        <th>Nec. agua riego cult. [mm/día]</th>
         <th>Estado cultivo</th>
         <th class="text-right"></th>
       </tr>
@@ -164,11 +164,11 @@
         <td>{{p.harvestDate | date:'dd/MM/yyyy'}}</td>
         <td>{{p.totalAmountWaterAvailable > 0 ? p.totalAmountWaterAvailable : '-' }}</td>
         <td>{{p.optimalIrrigationLayer < 0 ? p.optimalIrrigationLayer : '-' }}</td>
-        <td>{{p.irrigationWaterNeed}}</td>
+        <td>{{p.cropIrrigationWaterNeed}}</td>
         <td>{{p.status.name}}</td>
         <td class="text-right">
           <div class="btn-group" role="group" aria-label="...">
-            <a href="#!/home/calculateIrrigationWaterNeed/{{p.id}}" class="btn btn-success" role="button"
+            <a href="#!/home/calculateCropIrrigationWaterNeed/{{p.id}}" class="btn btn-success" role="button"
               ng-show="{{p.status.name == 'En desarrollo' || p.status.name == 'Desarrollo óptimo' || p.status.name == 'Desarrollo en riesgo de marchitez' || p.status.name == 'Desarrollo en marchitez'}}">
               <span aria-hidden="true">Calcular</span>
             </a>

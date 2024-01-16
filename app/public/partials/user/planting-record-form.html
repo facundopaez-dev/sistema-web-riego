@@ -147,17 +147,17 @@
       <div class="form-group" ng-hide="action == 'new'">
         <label for="deathDate" class="col-md-2 control-label">Fecha de muerte</label>
         <div class="col-md-3">
-          <input type="date" class="form-control" id="deathDate" ng-model="data.deathDate"
-            value={{data.deathDate}} ng-disabled="true">
+          <input type="date" class="form-control" id="deathDate" ng-model="data.deathDate" value={{data.deathDate}}
+            ng-disabled="true">
         </div>
       </div>
 
       <div class="form-group" ng-hide="action == 'new'">
-        <label for="plantingRecord_irrigationWaterNeed" class="col-md-2 control-label">Necesidad de agua de riego
-          [mm/día]</label>
+        <label for="plantingRecord_cropIrrigationWaterNeed" class="col-md-2 control-label">Necesidad de agua de riego del
+          cultivo [mm/día]</label>
         <div class="col-md-3">
-          <input type="text" class="form-control" id="plantingRecord_irrigationWaterNeed"
-            ng-model="data.irrigationWaterNeed" ng-disabled="action == 'edit' || action == 'view'">
+          <input type="text" class="form-control" id="plantingRecord_cropIrrigationWaterNeed"
+            ng-model="data.cropIrrigationWaterNeed" ng-disabled="action == 'edit' || action == 'view'">
         </div>
       </div>
 

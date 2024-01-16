@@ -732,7 +732,7 @@ public class PlantingRecordRestServlet {
      * no esta disponible, pero se puede calcular. Esta situacion
      * ocurre unicamente para un registro de plantacion en desarrollo.
      */
-    String irrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getIrrigationWaterNotAvailableButCalculable();
+    String cropIrrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getCropIrrigationWaterNotAvailableButCalculable();
 
     /*
      * Se establece el estado del nuevo registro de plantacion
@@ -795,7 +795,7 @@ public class PlantingRecordRestServlet {
      * cultivo.
      */
     if (statusService.equals(statusNewPlantingRecord, finishedStatus) || (statusService.equals(statusNewPlantingRecord, waitingStatus))) {
-      newPlantingRecord.setIrrigationWaterNeed(notAvailable);
+      newPlantingRecord.setCropIrrigationWaterNeed(notAvailable);
     }
 
     /*
@@ -810,7 +810,7 @@ public class PlantingRecordRestServlet {
      */
     if (statusService.equals(statusNewPlantingRecord, inDevelopmentStatus)
         || statusService.equals(statusNewPlantingRecord, optimalDevelopmentStatus)) {
-      newPlantingRecord.setIrrigationWaterNeed(irrigationWaterNeedNotAvailableButCalculable);
+      newPlantingRecord.setCropIrrigationWaterNeed(cropIrrigationWaterNeedNotAvailableButCalculable);
     }
 
     /*
@@ -1097,7 +1097,7 @@ public class PlantingRecordRestServlet {
      * modificacion de la necesidad de agua de riego" y no se
      * realiza la operacion solicitada
      */
-    if (!modifiedPlantingRecord.getIrrigationWaterNeed().equals(currentPlantingRecord.getIrrigationWaterNeed())) {
+    if (!modifiedPlantingRecord.getCropIrrigationWaterNeed().equals(currentPlantingRecord.getCropIrrigationWaterNeed())) {
       return Response.status(Response.Status.BAD_REQUEST)
         .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_IRRIGATION_WATER_NEED_NOT_ALLOWED))).build();
     }
@@ -1134,7 +1134,7 @@ public class PlantingRecordRestServlet {
      * no esta disponible, pero se puede calcular. Esta situacion
      * ocurre unicamente para un registro de plantacion en desarrollo.
      */
-    String irrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getIrrigationWaterNotAvailableButCalculable();
+    String cropIrrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getCropIrrigationWaterNotAvailableButCalculable();
 
     /*
      * El valor de esta constante se asigna a la necesidad de
@@ -1188,7 +1188,7 @@ public class PlantingRecordRestServlet {
      * ningna utilidad tener tales datos.
      */
     if (statusService.equals(modifiedPlantingRecordStatus, finishedStatus) || (statusService.equals(modifiedPlantingRecordStatus, waitingStatus))) {
-      modifiedPlantingRecord.setIrrigationWaterNeed(notAvailable);
+      modifiedPlantingRecord.setCropIrrigationWaterNeed(notAvailable);
       plantingRecordService.updateTotalAmountWaterAvailable(plantingRecordId, 0);
       plantingRecordService.updateOptimalIrrigationLayer(plantingRecordId, 0);
     }
@@ -1230,7 +1230,7 @@ public class PlantingRecordRestServlet {
     if ((statusService.equals(modifiedPlantingRecordStatus, inDevelopmentStatus)
         || statusService.equals(modifiedPlantingRecordStatus, optimalDevelopmentStatus))
         && (!parcelService.equals(modifiedParcel, currentParcel) || !cropService.equals(modifiedCrop, currentCrop))) {
-      modifiedPlantingRecord.setIrrigationWaterNeed(irrigationWaterNeedNotAvailableButCalculable);
+      modifiedPlantingRecord.setCropIrrigationWaterNeed(cropIrrigationWaterNeedNotAvailableButCalculable);
       plantingRecordService.updateTotalAmountWaterAvailable(plantingRecordId, 0);
       plantingRecordService.updateOptimalIrrigationLayer(plantingRecordId, 0);
     }
@@ -1269,7 +1269,7 @@ public class PlantingRecordRestServlet {
     if (!statusService.equals(currentStatus, modifiedPlantingRecordStatus) &&
         (statusService.equals(modifiedPlantingRecordStatus, inDevelopmentStatus)
             || statusService.equals(modifiedPlantingRecordStatus, optimalDevelopmentStatus))) {
-      modifiedPlantingRecord.setIrrigationWaterNeed(irrigationWaterNeedNotAvailableButCalculable);
+      modifiedPlantingRecord.setCropIrrigationWaterNeed(cropIrrigationWaterNeedNotAvailableButCalculable);
     }
 
     /*
@@ -1291,7 +1291,7 @@ public class PlantingRecordRestServlet {
     if ((statusService.equals(modifiedPlantingRecordStatus, inDevelopmentStatus)
         || statusService.equals(modifiedPlantingRecordStatus, optimalDevelopmentStatus))
         && UtilDate.compareTo(modifiedSeedDate, currentSeedDate) != 0) {
-      modifiedPlantingRecord.setIrrigationWaterNeed(irrigationWaterNeedNotAvailableButCalculable);
+      modifiedPlantingRecord.setCropIrrigationWaterNeed(cropIrrigationWaterNeedNotAvailableButCalculable);
     }
 
     /*
@@ -1460,9 +1460,9 @@ public class PlantingRecordRestServlet {
    * @throws IOException
    */
   @GET
-  @Path("/irrigationWaterNeed/{id}")
+  @Path("/calculateCropIrrigationWaterNeed/{id}")
   @Produces(MediaType.APPLICATION_JSON)
-  public Response getIrrigationWaterNeed(@Context HttpHeaders request, @PathParam("id") int plantingRecordId) throws IOException {
+  public Response calculateCropIrrigationWaterNeed(@Context HttpHeaders request, @PathParam("id") int plantingRecordId) throws IOException {
     Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
 
     /*
@@ -1739,7 +1739,7 @@ public class PlantingRecordRestServlet {
      * de riego en la fecha actual [mm/dia], esta muerto.
      */
     if (stringIrrigationWaterNeedCurrentDate != null && stringIrrigationWaterNeedCurrentDate.equals(notCalculated)) {
-      plantingRecordService.updateIrrigationWaterNeed(developingPlantingRecord.getId(), developingPlantingRecord.getParcel(), notAvailable);
+      plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(), developingPlantingRecord.getParcel(), notAvailable);
       plantingRecordService.updateDateDeath(developingPlantingRecord.getId(), UtilDate.getCurrentDate());
 
       String message = "El cultivo murió por ser el nivel de humedad del suelo, en el que está sembrado, estrictamente menor al doble"
@@ -1758,18 +1758,18 @@ public class PlantingRecordRestServlet {
      * lo tanto, se lo convierte a double, ya que dicha
      * necesidad esta expresada como double.
      */
-    double irrigationWaterNeedCurrentDate = Math.abs(Double.parseDouble(stringIrrigationWaterNeedCurrentDate));
+    double cropIrrigationWaterNeedCurrentDate = Math.abs(Double.parseDouble(stringIrrigationWaterNeedCurrentDate));
 
     /*
      * *****************************************************
-     * Actualizacion del atributo "necesidad agua riego" del
-     * registro de plantacion en desarrollo, que tiene el
-     * cultivo para el que se solicita calcular su necesidad
-     * de agua de riego en la fecha actual [mm/dia], con el
-     * valor de de dicha necesidad de agua de riego
+     * Actualizacion del atributo "necesidad agua riego de
+     * cultivo" del registro de plantacion en desarrollo, que
+     * tiene el cultivo para el que se solicita calcular su
+     * necesidad de agua de riego en la fecha actual [mm/dia],
+     * con el valor de de dicha necesidad de agua de riego
      * *****************************************************
      */
-    plantingRecordService.updateIrrigationWaterNeed(developingPlantingRecord.getId(), developingPlantingRecord.getParcel(), String.valueOf(irrigationWaterNeedCurrentDate));
+    plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(), developingPlantingRecord.getParcel(), String.valueOf(cropIrrigationWaterNeedCurrentDate));
 
     /*
      * Datos del formulario del calculo de la necesidad de
@@ -1781,8 +1781,8 @@ public class PlantingRecordRestServlet {
     IrrigationWaterNeedFormData irrigationWaterNeedFormData = new IrrigationWaterNeedFormData();
     irrigationWaterNeedFormData.setParcel(developingPlantingRecord.getParcel());
     irrigationWaterNeedFormData.setCrop(developingPlantingRecord.getCrop());
-    irrigationWaterNeedFormData.setIrrigationWaterNeed(irrigationWaterNeedCurrentDate);
-    irrigationWaterNeedFormData.setIrrigationDone(irrigationWaterNeedCurrentDate);
+    irrigationWaterNeedFormData.setCropIrrigationWaterNeed(cropIrrigationWaterNeedCurrentDate);
+    irrigationWaterNeedFormData.setIrrigationDone(cropIrrigationWaterNeedCurrentDate);
 
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
@@ -3123,7 +3123,7 @@ public class PlantingRecordRestServlet {
      */
     parcelService.merge(givenParcel);
 
-    double irrigationWaterNeedCurrentDate = 0.0;
+    double cropIrrigationWaterNeedCurrentDate = 0.0;
 
     /*
      * Si la bandera suelo NO esta activa se calcula la necesidad
@@ -3137,7 +3137,7 @@ public class PlantingRecordRestServlet {
      * de si la parcela tiene o no asignado un suelo.
      */
     if (!parcelOption.getSoilFlag()) {
-      irrigationWaterNeedCurrentDate = WaterNeedWos.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, climateRecords, irrigationRecords);
+      cropIrrigationWaterNeedCurrentDate = WaterNeedWos.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, climateRecords, irrigationRecords);
     }
 
     /*
@@ -3157,11 +3157,11 @@ public class PlantingRecordRestServlet {
      * ambiental sea saturada.
      */
     if (parcelOption.getSoilFlag()) {
-      irrigationWaterNeedCurrentDate = WaterNeedWs.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate,
+      cropIrrigationWaterNeedCurrentDate = WaterNeedWs.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate,
           developingPlantingRecord.getCrop(), givenParcel.getSoil(), climateRecords, irrigationRecords);
     }
 
-    return irrigationWaterNeedCurrentDate;
+    return cropIrrigationWaterNeedCurrentDate;
   }
 
   /**

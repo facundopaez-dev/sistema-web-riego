@@ -123,7 +123,7 @@
       <div class="form-group">
         <label for="parcel_id" class="col-md-2 control-label">ID de la parcela</label>
         <div class="col-md-3">
-          <input type="number" class="form-control" id="parcel_id" ng-model="irrigationWaterNeedData.parcel.id"
+          <input type="number" class="form-control" id="parcel_id" ng-model="cropIrrigationWaterNeedData.parcel.id"
             ng-disabled="true">
         </div>
       </div>
@@ -131,7 +131,7 @@
       <div class="form-group">
         <label for="parcel_name" class="col-md-2 control-label">Nombre de la parcela</label>
         <div class="col-md-3">
-          <input type="text" class="form-control" id="parcel_name" ng-model="irrigationWaterNeedData.parcel.name"
+          <input type="text" class="form-control" id="parcel_name" ng-model="cropIrrigationWaterNeedData.parcel.name"
             ng-disabled="true">
         </div>
       </div>
@@ -140,24 +140,24 @@
         <label for="hectares_parcel" class="col-md-2 control-label">Hectáreas de la parcela</label>
         <div class="col-md-3">
           <input type="number" class="form-control" id="hectares_parcel"
-            ng-model="irrigationWaterNeedData.parcel.hectares" ng-disabled="true">
+            ng-model="cropIrrigationWaterNeedData.parcel.hectares" ng-disabled="true">
         </div>
       </div>
 
       <div class="form-group">
         <label for="crop_name" class="col-md-2 control-label">Cultivo</label>
         <div class="col-md-3">
-          <input type="text" class="form-control" id="crop_name" ng-model="irrigationWaterNeedData.crop.name"
+          <input type="text" class="form-control" id="crop_name" ng-model="cropIrrigationWaterNeedData.crop.name"
             ng-disabled="true">
         </div>
       </div>
 
       <div class="form-group">
-        <label for="irrigationWaterNeed" class="col-md-2 control-label">Necesidad de agua de riego de hoy
-          [mm/día]</label>
+        <label for="cropIrrigationWaterNeed" class="col-md-2 control-label">Necesidad de agua de riego del cultivo en la
+          fecha actual (hoy) [mm/día]</label>
         <div class="col-md-3">
-          <input step="any" type="number" class="form-control" id="irrigationWaterNeed"
-            ng-model="irrigationWaterNeedData.irrigationWaterNeed" ng-disabled="true">
+          <input step="any" type="number" class="form-control" id="cropIrrigationWaterNeed"
+            ng-model="cropIrrigationWaterNeedData.cropIrrigationWaterNeed" ng-disabled="true">
         </div>
       </div>
 
@@ -165,7 +165,7 @@
         <label for="irrigationDone" class="col-md-2 control-label">Riego realizado hoy [mm/día]</label>
         <div class="col-md-3">
           <input step="any" type="number" class="form-control" id="irrigationDone"
-            ng-model="irrigationWaterNeedData.irrigationDone" required>
+            ng-model="cropIrrigationWaterNeedData.irrigationDone" required>
         </div>
       </div>
 

@@ -5,13 +5,14 @@ import java.util.Calendar;
 /*
  * IrrigationWaterNeedFormData es la clase que se utiliza para mostrar
  * los datos resultantes del calculo de la cantidad (o necesidad) de
- * agua de riego de un cultivo en desarrollo
+ * agua de riego de un cultivo (en desarrollo) en la fecha actual
+ * [mm/dia]
  */
 public class IrrigationWaterNeedFormData {
 
 	private Parcel parcel;
 	private Crop crop;
-	private double irrigationWaterNeed;
+	private double cropIrrigationWaterNeed;
 	private double irrigationDone;
 
 	public IrrigationWaterNeedFormData() {
@@ -34,12 +35,12 @@ public class IrrigationWaterNeedFormData {
 		this.crop = crop;
 	}
 
-	public double getIrrigationWaterNeed() {
-		return irrigationWaterNeed;
+	public double getCropIrrigationWaterNeed() {
+		return cropIrrigationWaterNeed;
 	}
 
-	public void setIrrigationWaterNeed(double irrigationWaterNeed) {
-		this.irrigationWaterNeed = irrigationWaterNeed;
+	public void setCropIrrigationWaterNeed(double cropIrrigationWaterNeed) {
+		this.cropIrrigationWaterNeed = cropIrrigationWaterNeed;
 	}
 
 	public double getIrrigationDone() {
