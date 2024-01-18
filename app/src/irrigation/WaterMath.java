@@ -478,6 +478,47 @@ public class WaterMath {
   }
 
   /**
+   * A la lamina de riego optima (drop) se le asigna el signo
+   * negativo (-) para poder compararla con el acumulado del
+   * deficit de agua por dia [mm/dia], el cual es negativo y
+   * es calculado desde la fecha de siembra de un cultivo hasta
+   * la fecha inmediatamente anterior a la fecha actual. La
+   * lamina de riego optima representa la cantidad maxima de
+   * agua que puede perder un suelo para el cultivo que tiene
+   * sembrado, a partir de la cual NO conviene que pierda mas
+   * agua, sino que se le debe añadir agua hasta llevar su
+   * nivel de humedad a capacidad de campo. Capacidad de campo
+   * es la capacidad de almacenamiento de agua que tiene un
+   * suelo. Un suelo que esta en capacidad de campo es un
+   * suelo lleno de agua, pero no anegado. El motivo por el
+   * cual se habla de llevar el nivel de humedad del suelo,
+   * que tiene un cultivo sembrado, a capacidad de campo es
+   * que el objetivo de la aplicacion es informar al usuario
+   * la cantidad de agua que debe reponer en la fecha actual
+   * (es decir, hoy) para llevar el nivel de humedad del suelo,
+   * en el que tiene un cultivo sembrado, a capacidad de campo.
+   * Esto es la cantidad de agua de riego [mm] que debe usar
+   * el usuario para llenar el suelo en el que tiene un cultivo
+   * sembrado, pero sin anegarlo.
+   * 
+   * El suelo agricola tiene dos limites: capacidad de campo
+   * (limite superior) y punto de marchitez permanente (limite
+   * inferior). La lamina de riego optima tambien se la conoce
+   * como umbral de riego, debido a lo que representa.
+   * 
+   * @param crop
+   * @param soil
+   * @return double negativo de la cantidad maxima de agua que
+   * puede perder un suelo lleno de agua, pero no anegado (esto
+   * es que el nivel de humedad del suelo esta en capacidad de
+   * campo), que tiene un cultivo sembrado, medida en [mm]. Esto
+   * es la lamina de riego optima (drop).
+   */
+  public static double calculateNegativeOptimalIrrigationLayer(Crop crop, Soil soil) {
+    return -1 * calculateOptimalIrrigationLayer(crop, soil);
+  }
+
+  /**
    * @param crop
    * @return double que representa el promedio de la
    * profundidad radicular de un cultivo medida en

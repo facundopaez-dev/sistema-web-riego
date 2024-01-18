@@ -1173,7 +1173,7 @@ public class ParcelRestServlet {
 
       plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecordId, cropIrrigationWaterNeedNotAvailableButCalculable);
       plantingRecordService.updateTotalAmountWaterAvailable(developingPlantingRecordId, WaterMath.calculateTotalAmountWaterAvailable(developingCrop, modifiedSoil));
-      plantingRecordService.updateOptimalIrrigationLayer(developingPlantingRecordId, (-1 * WaterMath.calculateOptimalIrrigationLayer(developingCrop, modifiedSoil)));
+      plantingRecordService.updateOptimalIrrigationLayer(developingPlantingRecordId, WaterMath.calculateNegativeOptimalIrrigationLayer(developingCrop, modifiedSoil));
     }
 
     /*

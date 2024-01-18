@@ -1767,7 +1767,7 @@ public class PlantingRecordManager {
              * un cultivo sembrado, pero sin anegarlo.
              */
             plantingRecordService.updateOptimalIrrigationLayer(developingPlantingRecord.getId(),
-                    (-1 * WaterMath.calculateOptimalIrrigationLayer(givenCrop, givenParcel.getSoil())));
+                    WaterMath.calculateNegativeOptimalIrrigationLayer(givenCrop, givenParcel.getSoil()));
         }
 
     }

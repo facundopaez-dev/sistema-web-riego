@@ -1449,7 +1449,7 @@ public class PlantingRecordRestServlet {
     if ((statusService.equals(currentStatusModifiedPlantingRecord, finishedStatus) || statusService.equals(currentStatusModifiedPlantingRecord, waitingStatus))
         && statusService.equals(modifiedPlantingRecordStatus, optimalDevelopmentStatus)) {
       plantingRecordService.updateTotalAmountWaterAvailable(plantingRecordId, WaterMath.calculateTotalAmountWaterAvailable(modifiedCrop, modifiedParcel.getSoil()));
-      plantingRecordService.updateOptimalIrrigationLayer(plantingRecordId, (-1 * WaterMath.calculateOptimalIrrigationLayer(modifiedCrop, modifiedParcel.getSoil())));
+      plantingRecordService.updateOptimalIrrigationLayer(plantingRecordId, WaterMath.calculateNegativeOptimalIrrigationLayer(modifiedCrop, modifiedParcel.getSoil()));
     }
 
     /*
