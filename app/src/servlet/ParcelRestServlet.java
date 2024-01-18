@@ -20,6 +20,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import model.Crop;
 import model.Parcel;
 import model.PlantingRecord;
 import model.Soil;
@@ -37,6 +38,7 @@ import util.RequestManager;
 import util.SourceUnsatisfiedResponse;
 import utilJwt.AuthHeaderManager;
 import utilJwt.JwtManager;
+import irrigation.WaterMath;
 
 @Path("/parcels")
 public class ParcelRestServlet {
@@ -1106,17 +1108,72 @@ public class ParcelRestServlet {
 
     /*
      * Si la parcela modificada tiene un registro de plantacion en
-     * un estado en desarrollo y un suelo distinto al original, se
-     * asigna el caracter "-" a la necesidad de agua de riego de un
-     * cultivo en la fecha actual de dicho registro para hacer que
-     * el usuario ejecute el proceso del calculo de la necesidad de
-     * agua de riego de un cultivo en la fecha actual [mm/dia]. La
-     * manera en la que el usuario realiza esto es mediante el boton
-     * "Calcular" de la pagina de registros de plantacion.
+     * un estado de desarrollo relacionado al uso de datos de suelo
+     * (desarrollo optimo, desarrollo en riesgo de marchitez,
+     * desarrollo en marchitez) (*) y un suelo distinto al original:
+     * - se asigna el caracter "-" a la necesidad de agua de riego
+     * de un cultivo en la fecha actual de dicho registro por los
+     * siguientes dos motivos. Primero porque calcular la necesidad
+     * de agua de riego de un cultivo en la fecha actual (es decir,
+     * hoy) utilizando datos de suelo hace que dicho calculo este
+     * en funcion del suelo. Por lo tanto, si cambia el suelo se
+     * debe realizar el calculo de la necesidad de agua de riego
+     * de un cultivo en la fecha actual en funcion del nuevo suelo.
+     * Segundo para hacer que el usuario ejecute el proceso del
+     * calculo de la necesidad de agua de riego de un cultivo en
+     * la fecha actual (es decir, hoy) [mm/dia]. La manera en la
+     * que el usuario realiza esto es mediante el boton "Calcular"
+     * de la pagina de registros de plantacion.
+     * - se calculan y asignan la lamina total de agua disponible
+     * (dt) [mm] y la lamina de riego optima (drop) [mm], debido
+     * a que estan en funcion del suelo y el cultivo.
+     * 
+     * A la lamina de riego optima (drop) se le asigna el signo
+     * negativo (-) para poder compararla con el acumulado del
+     * deficit de agua por dia [mm/dia], el cual es negativo y
+     * es calculado desde la fecha de siembra de un cultivo hasta
+     * la fecha inmediatamente anterior a la fecha actual. La
+     * lamina de riego optima representa la cantidad maxima de
+     * agua que puede perder un suelo para el cultivo que tiene
+     * sembrado, a partir de la cual NO conviene que pierda mas
+     * agua, sino que se le debe añadir agua hasta llevar su
+     * nivel de humedad a capacidad de campo. Capacidad de campo
+     * es la capacidad de almacenamiento de agua que tiene un
+     * suelo. Un suelo que esta en capacidad de campo es un
+     * suelo lleno de agua, pero no anegado. El motivo por el
+     * cual se habla de llevar el nivel de humedad del suelo,
+     * que tiene un cultivo sembrado, a capacidad de campo es
+     * que el objetivo de la aplicacion es informar al usuario
+     * la cantidad de agua que debe reponer en la fecha actual
+     * (es decir, hoy) para llevar el nivel de humedad del suelo,
+     * en el que tiene un cultivo sembrado, a capacidad de campo.
+     * Esto es la cantidad de agua de riego [mm] que debe usar
+     * el usuario para llenar el suelo en el que tiene un cultivo
+     * sembrado, pero sin anegarlo.
+     * 
+     * La presencia de un suelo en una parcela significa que la
+     * bandera suelo de las opciones de una parcela, esta activa.
+     * Esto se debe a que la aplicacion tiene un control para
+     * evitar que dicha bandera sea activada para una parcela
+     * que NO tiene un suelo asignado. Este control esta
+     * implementado en el metodo modify() de la clase OptionRestServlet.
+     * Gracias a este control no es necesario implementar un control
+     * con la condición != null para el suelo de una parcela.
+     * 
+     * (*) Cuando se utiliza un suelo para calcular la necesidad
+     * de agua de riego de un cultivo en la fecha actual (es decir,
+     * hoy), los estados utilizados para un registro son "Desarrollo
+     * optimo", "Desarrollo en riesgo de marchitez", "Desarrollo
+     * en marchitez" y "Muerto", de los cuales los tres primeros
+     * son de desarrollo.
      */
     if (plantingRecordService.checkOneInDevelopment(parcelId) && !soilService.equals(modifiedSoil, currentSoil)) {
-      PlantingRecord developingPlantingRecord = plantingRecordService.findInDevelopment(parcelId);
-      plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(), cropIrrigationWaterNeedNotAvailableButCalculable);
+      int developingPlantingRecordId = plantingRecordService.findInDevelopment(parcelId).getId();
+      Crop developingCrop = plantingRecordService.findInDevelopment(parcelId).getCrop();
+
+      plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecordId, cropIrrigationWaterNeedNotAvailableButCalculable);
+      plantingRecordService.updateTotalAmountWaterAvailable(developingPlantingRecordId, WaterMath.calculateTotalAmountWaterAvailable(developingCrop, modifiedSoil));
+      plantingRecordService.updateOptimalIrrigationLayer(developingPlantingRecordId, (-1 * WaterMath.calculateOptimalIrrigationLayer(developingCrop, modifiedSoil)));
     }
 
     /*
