@@ -1765,6 +1765,11 @@ public class PlantingRecordManager {
              * de campo. Esto es la cantidad de agua de riego [mm] que
              * debe usar el usuario para llenar el suelo en el que tiene
              * un cultivo sembrado, pero sin anegarlo.
+             * 
+             * El suelo agricola tiene dos limites: capacidad de campo
+             * (limite superior) y punto de marchitez permanente (limite
+             * inferior). La lamina de riego optima tambien se la conoce
+             * como umbral de riego, debido a lo que representa.
              */
             plantingRecordService.updateOptimalIrrigationLayer(developingPlantingRecord.getId(),
                     WaterMath.calculateNegativeOptimalIrrigationLayer(givenCrop, givenParcel.getSoil()));

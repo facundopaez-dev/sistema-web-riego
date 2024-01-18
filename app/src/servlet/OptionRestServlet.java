@@ -355,11 +355,21 @@ public class OptionRestServlet {
             }
 
             /*
-             * Si la parcela de un registro de plantacion tiene la bandera
-             * suelo activa, se calcula la lamina de riego optima (drop)
-             * (umbral de riego) [mm] de la fecha actual y la lamina total
-             * de agua disponible (dt) [mm] y se las asigna al registro de
-             * plantacion en desarrollo
+             * Si la bandera suelo de las opciones de una parcela, que tiene
+             * un registro de plantacion que tiene un estado de desarrollo
+             * relacionado al uso de datos de suelo (desarrollo optimo,
+             * desarrollo en riesgo de marchitez, desarrollo en marchitez),
+             * esta activa, se calculan la lamina total de agua disponible
+             * (dt) [mm] y la lamina de riego optima (drop) [mm] y se las
+             * asigna al registro de plantacion en desarrollo. Si dicha
+             * bandera esta activa significa que la parcela, correspondiente
+             * a las opciones de dicha bandera, tiene un suelo asignado,
+             * ya que la aplicacion tiene un control para evitar que dicha
+             * bandera sea activada para una parcela que NO tiene un suelo
+             * asignado. Este control esta implementado en el metodo modify()
+             * de la clase OptionRestServlet. Gracias a este control no es
+             * necesario implementar un control con la condición != null
+             * para el suelo de una parcela.
              */
             if (modifiedOption.getSoilFlag()) {
                 /*
@@ -393,6 +403,11 @@ public class OptionRestServlet {
                  * de campo. Esto es la cantidad de agua de riego [mm] que
                  * debe usar el usuario para llenar el suelo en el que tiene
                  * un cultivo sembrado, pero sin anegarlo.
+                 * 
+                 * El suelo agricola tiene dos limites: capacidad de campo
+                 * (limite superior) y punto de marchitez permanente (limite
+                 * inferior). La lamina de riego optima tambien se la conoce
+                 * como umbral de riego, debido a lo que representa.
                  */
                 plantingRecordService.updateOptimalIrrigationLayer(developingPlantingRecord.getId(),
                         WaterMath.calculateNegativeOptimalIrrigationLayer(givenCrop, givenParcel.getSoil()));

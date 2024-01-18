@@ -1415,6 +1415,11 @@ public class PlantingRecordRestServlet {
      * el usuario para llenar el suelo en el que tiene un cultivo
      * sembrado, pero sin anegarlo.
      * 
+     * El suelo agricola tiene dos limites: capacidad de campo
+     * (limite superior) y punto de marchitez permanente (limite
+     * inferior). La lamina de riego optima tambien se la conoce
+     * como umbral de riego, debido a lo que representa.
+     * 
      * La lamina total de agua disponible (dt) [mm] y la lamina
      * de riego optima (drop) [mm] estan en funcion de un suelo
      * y un cultivo. La lamina total de agua disponible (dt)

@@ -1151,6 +1151,11 @@ public class ParcelRestServlet {
      * el usuario para llenar el suelo en el que tiene un cultivo
      * sembrado, pero sin anegarlo.
      * 
+     * El suelo agricola tiene dos limites: capacidad de campo
+     * (limite superior) y punto de marchitez permanente (limite
+     * inferior). La lamina de riego optima tambien se la conoce
+     * como umbral de riego, debido a lo que representa.
+     * 
      * La presencia de un suelo en una parcela significa que la
      * bandera suelo de las opciones de una parcela, esta activa.
      * Esto se debe a que la aplicacion tiene un control para
