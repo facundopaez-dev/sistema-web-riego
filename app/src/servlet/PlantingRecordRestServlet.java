@@ -1237,24 +1237,39 @@ public class PlantingRecordRestServlet {
      * que se le modifica el suelo. Esto esta programado en el
      * metodo modify de la clase ParcelRestServlet.
      * 
-     * El simbolo "-" (guion) se utiliza para representar que la
-     * necesidad de agua de riego de un cultivo en la fecha actual
-     * [mm/dia] no esta disponible, pero es calculable. Esta situacion
-     * ocurre unicamente para un registro de plantacion en desarrollo.
+     * El simbolo "-" (guion) se utiliza para representar que
+     * la necesidad de agua de riego de un cultivo en la fecha
+     * actual [mm/dia] no esta disponible, pero es calculable.
+     * Esta situacion ocurre unicamente para un registro de
+     * plantacion en desarrollo.
      * 
-     * La lamina total de agua disponible (dt) [mm] y la lamina de
-     * riego optima (drop) [mm] estan en funcion de un suelo y un
-     * cultivo. Una parcela tiene un suelo y un registro de plantacion
-     * tiene una parcela. Por lo tanto, si se modifica la parcela
-     * y/o el cultivo de un registro de plantacion en desarrollo,
-     * se establece el valor 0 en las laminas de dicho registro.
+     * La lamina total de agua disponible (dt) [mm] y la lamina
+     * de riego optima (drop) [mm] estan en funcion de un suelo
+     * y un cultivo. Una parcela tiene un suelo y un registro de
+     * plantacion tiene una parcela y un cultivo. Por lo tanto,
+     * si se modifica la parcela y/o el cultivo de un registro
+     * de plantacion en desarrollo, se establece el valor 0 en
+     * las laminas de dicho registro.
      * 
-     * La lamina total de agua disponible (dt) representa la capacidad
-     * de almacenamiento de agua que tiene un suelo para el cultivo
-     * que tiene sembrado. La lamina de riego optima (drop) representa
-     * la cantidad maxima que puede perder un suelo, que tiene un
-     * cultivo sembrado, a partir de la cual no conviene que pierda
-     * mas agua, sino que se le debe añadir agua.
+     * La lamina total de agua disponible (dt) representa la
+     * capacidad de almacenamiento de agua que tiene un suelo para
+     * el cultivo que tiene sembrado. La lamina de riego optima (drop)
+     * representa la cantidad maxima de agua que puede perder un
+     * suelo, que tiene un cultivo sembrado, a partir de la cual
+     * no conviene que pierda mas agua, sino que se le debe añadir
+     * agua hasta llevar su nivel de humedad a capacidad de campo.
+     * Capacidad de campo es la capacidad de almacenamiento de agua
+     * que tiene un suelo. Un suelo que esta en capacidad de campo
+     * es un suelo lleno de agua, pero no anegado. El motivo por
+     * el cual se habla de llevar el nivel de humedad del suelo,
+     * que tiene un cultivo sembrado, a capacidad de campo es
+     * que el objetivo de la aplicacion es informar al usuario
+     * la cantidad de agua que debe reponer en la fecha actual
+     * (es decir, hoy) para llevar el nivel de humedad del suelo,
+     * en el que tiene un cultivo sembrado, a capacidad de campo.
+     * Esto es la cantidad de agua de riego [mm] que debe usar
+     * el usuario para llenar el suelo en el que tiene un cultivo
+     * sembrado, pero sin anegarlo.
      */
     if ((statusService.equals(modifiedPlantingRecordStatus, inDevelopmentStatus)
         || statusService.equals(modifiedPlantingRecordStatus, optimalDevelopmentStatus))
@@ -1356,8 +1371,8 @@ public class PlantingRecordRestServlet {
      * la cantidad de agua que debe reponer en la fecha actual
      * (es decir, hoy) para llevar el nivel de humedad del suelo,
      * en el que tiene un cultivo sembrado, a capacidad de campo.
-     * Esto es la cantidad de agua de riego que debe usar el
-     * usuario para llenar el suelo, en el que tiene un cultivo
+     * Esto es la cantidad de agua de riego [mm] que debe usar
+     * el usuario para llenar el suelo en el que tiene un cultivo
      * sembrado, pero sin anegarlo.
      * 
      * La lamina total de agua disponible (dt) [mm] y la lamina
