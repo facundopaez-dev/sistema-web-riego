@@ -1223,19 +1223,19 @@ public class PlantingRecordRestServlet {
     }
 
     /*
-     * Si el registro de plantacion modificado tiene un estado en
-     * desarrollo (en desarrollo, desarrollo optimo) y tiene una
-     * parcela o un cultivo distinto a los originales, se asigna
-     * el caracter "-" a la necesidad de agua de riego de dicho
-     * registro para hacer que el usuario ejecute el proceso del
-     * calculo de la necesidad de agua de riego de un cultivo en
-     * la fecha actual [mm/dia]. La manera en la que el usuario
-     * realiza esto es mediante el boton "Calcular" de la pagina
-     * de registros de plantacion. Tambien se asigna el caracter
-     * "-" a la necesidad de agua de riego de un registro de
-     * plantacion en desarrollo perteneciente a una parcela a la
-     * que se le modifica el suelo. Esto esta programado en el
-     * metodo modify de la clase ParcelRestServlet.
+     * Si el registro de plantacion modificado tiene el estado
+     * "En desarrollo" o el estado "Desarrollo optimo" (*) y
+     * tiene una parcela o un cultivo distinto a los originales,
+     * se asigna el caracter "-" a la necesidad de agua de riego
+     * de dicho registro para hacer que el usuario ejecute el
+     * proceso del calculo de la necesidad de agua de riego de
+     * un cultivo en la fecha actual [mm/dia]. La manera en la
+     * que el usuario realiza esto es mediante el boton "Calcular"
+     * de la pagina de registros de plantacion. Tambien se asigna
+     * el caracter "-" a la necesidad de agua de riego de un
+     * registro de plantacion en desarrollo perteneciente a una
+     * parcela a la que se le modifica el suelo. Esto esta
+     * programado en el metodo modify de la clase ParcelRestServlet.
      * 
      * El simbolo "-" (guion) se utiliza para representar que
      * la necesidad de agua de riego de un cultivo en la fecha
@@ -1270,6 +1270,17 @@ public class PlantingRecordRestServlet {
      * Esto es la cantidad de agua de riego [mm] que debe usar
      * el usuario para llenar el suelo en el que tiene un cultivo
      * sembrado, pero sin anegarlo.
+     * 
+     * (*) El que un registro de plantacion tenga el estado
+     * "En desarrollo" o el estado "Desarrollo optimo" depende
+     * del valor de la bandera suelo de las opciones de la parcela
+     * a la que pertenece. Si un registro de plantacion tiene
+     * una fecha de siembra y una fecha de cosecha de tal manera
+     * que la fecha actual (es decir, hoy) esta dentro del periodo
+     * definido por ambas y la bandera suelo de las opciones de
+     * la parcela, a la que pertenece, NO esta activa, su estado
+     * sera "En desarrollo". En cambio, si esta activa su estado
+     * sera "Desarrollo optimo".
      */
     if ((statusService.equals(modifiedPlantingRecordStatus, inDevelopmentStatus)
         || statusService.equals(modifiedPlantingRecordStatus, optimalDevelopmentStatus))
@@ -1281,22 +1292,29 @@ public class PlantingRecordRestServlet {
 
     /*
      * Si el estado actual del registro de plantacion modificado
-     * es distinto del nuevo estado y este es un estado de desarrollo
-     * (en desarrollo, desarrollo optimo), se asigna el caracter
-     * "-" a la necesidad de agua de riego de dicho registro para
-     * hacer que el usuario ejecute el proceso del calculo de la
-     * necesidad de agua de riego de un cultivo en la fecha actual
-     * [mm/dia]. La manera en la que el usuario realiza esto es
-     * mediante el boton "Calcular" de la pagina de registros de
-     * plantacion. Tambien se asigna el caracter "-" a la necesidad
-     * de agua de riego de un cultivo en la fecha actual de un
-     * registro de plantacion en desarrollo perteneciente a una
-     * parcela a la que se le modifica el suelo. Esto esta
-     * programado en el metodo modify de la clase ParcelRestServlet.
+     * es distinto del nuevo estado y este es "En desarrollo" o
+     * "Desarrollo optimo" (*), se asigna el caracter "-" a la
+     * necesidad de agua de riego de dicho registro por los
+     * siguientes dos motivos. Primero porque calcular la necesidad
+     * de agua de riego de un cultivo en la fecha actual (es decir,
+     * hoy) utilizando datos de suelo hace que dicho calculo este
+     * en funcion del suelo. Por lo tanto, si cambia el suelo se
+     * debe realizar el calculo de la necesidad de agua de riego
+     * de un cultivo en la fecha actual en funcion del nuevo suelo.
+     * Segundo para hacer que el usuario ejecute el proceso del
+     * calculo de la necesidad de agua de riego de un cultivo en
+     * la fecha actual (es decir, hoy) [mm/dia]. La manera en la
+     * que el usuario realiza esto es mediante el boton "Calcular"
+     * de la pagina de registros de plantacion. Tambien se asigna
+     * el caracter "-" a la necesidad de agua de riego de un
+     * cultivo en la fecha actual de un registro de plantacion
+     * en desarrollo perteneciente a una parcela a la que se le
+     * modifica el suelo. Esto esta programado en el metodo modify()
+     * de la clase ParcelRestServlet.
      * 
      * Este control es para el caso en el que se modifica un
      * registro de plantacion que tiene la parcela y el cultivo
-     * originales y que originalmente NO tiene el estado en
+     * originales y que originalmente NO tiene un estado de
      * desarrollo, pero lo adquiere al calcular su proximo
      * estado. En esta situacion se asigna el caracter "-"
      * a la necesidad de agua de riego de un registro de
@@ -1309,6 +1327,17 @@ public class PlantingRecordRestServlet {
      * actual [mm/dia] no esta disponible, pero es calculable.
      * Esta situacion ocurre unicamente para un registro de
      * plantacion en desarrollo.
+     * 
+     * (*) El que un registro de plantacion tenga el estado
+     * "En desarrollo" o el estado "Desarrollo optimo" depende
+     * del valor de la bandera suelo de las opciones de la parcela
+     * a la que pertenece. Si un registro de plantacion tiene
+     * una fecha de siembra y una fecha de cosecha de tal manera
+     * que la fecha actual (es decir, hoy) esta dentro del periodo
+     * definido por ambas y la bandera suelo de las opciones de
+     * la parcela, a la que pertenece, NO esta activa, su estado
+     * sera "En desarrollo". En cambio, si esta activa su estado
+     * sera "Desarrollo optimo".
      */
     if (!statusService.equals(currentStatus, modifiedPlantingRecordStatus) &&
         (statusService.equals(modifiedPlantingRecordStatus, inDevelopmentStatus)
@@ -1317,20 +1346,31 @@ public class PlantingRecordRestServlet {
     }
 
     /*
-     * Si el estado del registro de plantacion modificado es un
-     * estado de desarrollo (en desarrollo, desarrollo optimo)
-     * y la fecha de siembra fue modificada, se asigna el caracter
-     * "-" (guion) a la necesidad de agua de riego de un cultivo
-     * en la fecha actual de un registro de plantacion en desarrollo.
-     * Esto se hace para que el usuario ejecute el proceso del
-     * calculo de la necesidad de agua de riego de un cultivo
-     * en la fecha actual [mm/dia].
+     * Si el estado del registro de plantacion modificado es "En
+     * desarrollo" o "Desarrollo optimo" (*) y la fecha de siembra
+     * es modificada, se asigna el caracter "-" (guion) a la necesidad
+     * de agua de riego de un cultivo en la fecha actual (es decir,
+     * hoy) de un registro de plantacion en desarrollo. Esto se
+     * hace para que el usuario ejecute el proceso del calculo de
+     * la necesidad de agua de riego de un cultivo en la fecha
+     * actual [mm/dia].
      * 
      * El simbolo "-" (guion) se utiliza para representar que
      * la necesidad de agua de riego de un cultivo en la fecha
      * actual [mm/dia] no esta disponible, pero es calculable.
      * Esta situacion ocurre unicamente para un registro de
      * plantacion en desarrollo.
+     * 
+     * (*) El que un registro de plantacion tenga el estado
+     * "En desarrollo" o el estado "Desarrollo optimo" depende
+     * del valor de la bandera suelo de las opciones de la parcela
+     * a la que pertenece. Si un registro de plantacion tiene
+     * una fecha de siembra y una fecha de cosecha de tal manera
+     * que la fecha actual (es decir, hoy) esta dentro del periodo
+     * definido por ambas y la bandera suelo de las opciones de
+     * la parcela, a la que pertenece, NO esta activa, su estado
+     * sera "En desarrollo". En cambio, si esta activa su estado
+     * sera "Desarrollo optimo".
      */
     if ((statusService.equals(modifiedPlantingRecordStatus, inDevelopmentStatus)
         || statusService.equals(modifiedPlantingRecordStatus, optimalDevelopmentStatus))
