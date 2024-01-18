@@ -978,8 +978,9 @@ public class PlantingRecordRestServlet {
     Crop currentCrop = currentPlantingRecord.getCrop();
 
     Calendar currentSeedDate = currentPlantingRecord.getSeedDate();
+    Calendar currentHarvestDate = currentPlantingRecord.getHarvestDate();
     Calendar modifiedSeedDate = modifiedPlantingRecord.getSeedDate();
-    Calendar harvestDate = modifiedPlantingRecord.getHarvestDate();
+    Calendar modifiedHarvestDate = modifiedPlantingRecord.getHarvestDate();
 
     PlantingRecordStatus currentStatus = currentPlantingRecord.getStatus();
     PlantingRecordStatus finishedStatus = statusService.findFinishedStatus();
@@ -1022,7 +1023,7 @@ public class PlantingRecordRestServlet {
      * "La fecha de cosecha debe estar definida" y no se realiza
      * la operacion solicitada
      */
-    if (harvestDate == null) {
+    if (modifiedHarvestDate == null) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_HARVEST_DATE))).build();
     }
 
@@ -1033,7 +1034,7 @@ public class PlantingRecordRestServlet {
      * "La fecha de siembra no debe ser mayor ni igual a la
      * fecha de cosecha" y no se realiza la operacion solicitada
      */
-    if (UtilDate.compareTo(modifiedSeedDate, harvestDate) >= 0) {
+    if (UtilDate.compareTo(modifiedSeedDate, modifiedHarvestDate) >= 0) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.OVERLAPPING_SEED_DATE_AND_HARVEST_DATE))).build();
     }
 
@@ -1103,7 +1104,18 @@ public class PlantingRecordRestServlet {
         .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_IRRIGATION_WATER_NEED_NOT_ALLOWED))).build();
     }
 
-    PlantingRecordStatus modifiedPlantingRecordStatus = modifiedPlantingRecord.getStatus();
+    PlantingRecordStatus currentStatusModifiedPlantingRecord = modifiedPlantingRecord.getStatus();
+
+    /*
+     * El estado actual del registro de plantacion a modificar
+     * puede cambiar dependiendo de:
+     * - si es "Muerto" y el usuario NO se desea que el registro
+     * mantenga este estado.
+     * - si NO es "Muerto" y si la fecha de siembra o la fecha
+     * de cosecha del registro es modificada o si ambas son
+     * modificadas.
+     */
+    PlantingRecordStatus modifiedPlantingRecordStatus = currentStatusModifiedPlantingRecord;
 
     /*
      * Si un registro de plantacion a modificar tiene el estado
@@ -1112,22 +1124,38 @@ public class PlantingRecordRestServlet {
      * estado de un registro de plantacion se calcula con base
      * en la fecha de siembra y la fecha de cosecha.
      */
-    if (statusService.equals(modifiedPlantingRecordStatus, deadStatus) && !maintainDeadStatus) {
-      modifiedPlantingRecord.setStatus(statusService.calculateStatus(modifiedPlantingRecord));
+    if (statusService.equals(currentStatusModifiedPlantingRecord, deadStatus) && !maintainDeadStatus) {
+      modifiedPlantingRecordStatus = statusService.calculateStatus(modifiedPlantingRecord);
       plantingRecordService.unsetDeathDate(plantingRecordId);
     }
 
     /*
-     * Si un registro de plantacion a modificar NO tiene el
-     * estado muerto, se establece su proximo estado. Esto
-     * se realiza independientemente del valor de la variable
-     * maintainDeadStatus. El estado de un registro de plantacion
-     * se calcula con base en la fecha de siembra y la fecha
-     * de cosecha.
+     * Si el registro de plantacion a modificar NO tiene el
+     * estado "Muerto" y su fecha de siembra o su fecha de
+     * cosecha es modificada o si ambas son modificadas, se
+     * calcula y asigna su proximo estado. El estado de un
+     * registro de plantacion se calcula con base en su fecha
+     * de siembra y su fecha de cosecha.
+     * 
+     * El estado de un registro de plantacion a modificar,
+     * que NO tiene el estado "Muerto", debe ser calculado
+     * y modificado si una de sus fechas es modificada o
+     * si sus dos fechas son modificadas.
      */
-    if (!statusService.equals(modifiedPlantingRecordStatus, deadStatus)) {
-      modifiedPlantingRecord.setStatus(statusService.calculateStatus(modifiedPlantingRecord));
+    if (!statusService.equals(currentStatusModifiedPlantingRecord, deadStatus)
+        && (UtilDate.compareTo(modifiedSeedDate, currentSeedDate) != 0
+            || UtilDate.compareTo(modifiedHarvestDate, currentHarvestDate) != 0)) {
+      modifiedPlantingRecordStatus = statusService.calculateStatus(modifiedPlantingRecord);
     }
+
+    /*
+     * Asignacion del posible nuevo estado del registro de
+     * plantacion a modificar. En caso de que el estado no
+     * sea nuevo, al registro de plantacion a modificar
+     * se le asigna el estado que tenia antes de la
+     * peticion de modificacion.
+     */
+    modifiedPlantingRecord.setStatus(modifiedPlantingRecordStatus);
 
     /*
      * El simbolo de esta variable se utiliza para representar que la
