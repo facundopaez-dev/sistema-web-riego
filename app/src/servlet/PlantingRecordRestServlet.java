@@ -1266,7 +1266,7 @@ public class PlantingRecordRestServlet {
 
     /*
      * Si el estado actual del registro de plantacion modificado
-     * es distinto del nuevo estado y este es un estado en desarrollo
+     * es distinto del nuevo estado y este es un estado de desarrollo
      * (en desarrollo, desarrollo optimo), se asigna el caracter
      * "-" a la necesidad de agua de riego de dicho registro para
      * hacer que el usuario ejecute el proceso del calculo de la
