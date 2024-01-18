@@ -442,9 +442,9 @@ public class WaterMath {
    * representa la cantidad maxima de agua que puede perder un suelo
    * lleno de agua, pero no anegado (esto es que el nivel de humedad
    * del suelo esta en capacidad de campo), que tiene un cultivo
-   * sembrado, a partir de la cual NO conviene perder mas agua, sino
-   * que se le debe añadir agua para llenarlo, pero sin anegarlo
-   * (esto es llevar el nivel de humedad a capacidad de campo).
+   * sembrado, a partir de la cual NO conviene que pierda mas agua,
+   * sino que se le debe añadir agua para llenarlo, pero sin anegarlo
+   * (esto es llevar el nivel de humedad del suelo a capacidad de campo).
    * El resultado de esta multiplicacion esta medido en milimetros.
    * 
    * Por ejemplo, si el resultado de esta multiplicacion es 10 [mm]
