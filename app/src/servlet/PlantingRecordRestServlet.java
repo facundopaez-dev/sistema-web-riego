@@ -2427,7 +2427,7 @@ public class PlantingRecordRestServlet {
 
     PlantingRecordStatus optimalDevelopmentStatus = statusService.findOptimalDevelopmentStatus();
     PlantingRecordStatus developmentAtRiskWiltingStatus = statusService.findDevelopmentAtRiskWiltingStatus();
-    PlantingRecordStatus developmentInWiltheringStatus = statusService.findDevelopmentInWitheringStatus();
+    PlantingRecordStatus developmentInWiltingStatus = statusService.findDevelopmentInWiltingStatus();
     PlantingRecordStatus deadStatus = statusService.findDeadStatus();
 
     /*
@@ -2615,7 +2615,7 @@ public class PlantingRecordRestServlet {
              */
             if ((accumulatedWaterDeficitPerDay + totalIrrigationWaterCurrentDate) <= -(totalAmountWaterAvailable)
                 && (accumulatedWaterDeficitPerDay + totalIrrigationWaterCurrentDate) > -(2 * totalAmountWaterAvailable)) {
-              plantingRecordService.setStatus(developingPlantingRecord.getId(), developmentInWiltheringStatus);
+              plantingRecordService.setStatus(developingPlantingRecord.getId(), developmentInWiltingStatus);
             }
 
           } // End if

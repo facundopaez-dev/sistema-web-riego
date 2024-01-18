@@ -73,7 +73,7 @@ public class PlantingRecordStatusServiceBean {
    * @return referencia a un objeto de tipo PlantingRecordStatus que
    * representa el estado "Desarrollo en marchitez"
    */
-  public PlantingRecordStatus findDevelopmentInWitheringStatus() {
+  public PlantingRecordStatus findDevelopmentInWiltingStatus() {
     Query query = getEntityManager().createQuery("SELECT p FROM PlantingRecordStatus p WHERE UPPER(p.name) = UPPER('Desarrollo en marchitez')");
     return (PlantingRecordStatus) query.getSingleResult();
   }

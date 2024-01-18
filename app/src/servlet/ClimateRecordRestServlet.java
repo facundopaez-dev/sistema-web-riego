@@ -739,7 +739,7 @@ public class ClimateRecordRestServlet {
       if (plantingRecordStatusService.equals(givenPlantingRecord.getStatus(), plantingRecordStatusService.findInDevelopmentStatus())
           || plantingRecordStatusService.equals(givenPlantingRecord.getStatus(), plantingRecordStatusService.findOptimalDevelopmentStatus())
           || plantingRecordStatusService.equals(givenPlantingRecord.getStatus(), plantingRecordStatusService.findDevelopmentAtRiskWiltingStatus())
-          || plantingRecordStatusService.equals(givenPlantingRecord.getStatus(), plantingRecordStatusService.findDevelopmentInWitheringStatus())) {
+          || plantingRecordStatusService.equals(givenPlantingRecord.getStatus(), plantingRecordStatusService.findDevelopmentInWiltingStatus())) {
         etc = Etc.calculateEtc(eto, cropService.getKc(givenPlantingRecord.getCrop(), givenPlantingRecord.getSeedDate()));
       }
 
@@ -1040,7 +1040,7 @@ public class ClimateRecordRestServlet {
       if (plantingRecordStatusService.equals(givenPlantingRecord.getStatus(), plantingRecordStatusService.findInDevelopmentStatus())
           || plantingRecordStatusService.equals(givenPlantingRecord.getStatus(), plantingRecordStatusService.findOptimalDevelopmentStatus())
           || plantingRecordStatusService.equals(givenPlantingRecord.getStatus(), plantingRecordStatusService.findDevelopmentAtRiskWiltingStatus())
-          || plantingRecordStatusService.equals(givenPlantingRecord.getStatus(), plantingRecordStatusService.findDevelopmentInWitheringStatus())) {
+          || plantingRecordStatusService.equals(givenPlantingRecord.getStatus(), plantingRecordStatusService.findDevelopmentInWiltingStatus())) {
         etc = Etc.calculateEtc(eto, cropService.getKc(givenPlantingRecord.getCrop(), givenPlantingRecord.getSeedDate()));
       }
 
