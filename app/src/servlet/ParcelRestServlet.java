@@ -1172,7 +1172,7 @@ public class ParcelRestServlet {
      * en marchitez" y "Muerto", de los cuales los tres primeros
      * son de desarrollo.
      */
-    if (plantingRecordService.checkOneInDevelopment(parcelId) && !soilService.equals(modifiedSoil, currentSoil)) {
+    if (modifiedSoil != null && plantingRecordService.checkOneInDevelopment(parcelId) && !soilService.equals(modifiedSoil, currentSoil)) {
       int developingPlantingRecordId = plantingRecordService.findInDevelopment(parcelId).getId();
       Crop developingCrop = plantingRecordService.findInDevelopment(parcelId).getCrop();
 
