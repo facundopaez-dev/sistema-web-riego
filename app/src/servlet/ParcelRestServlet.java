@@ -1084,13 +1084,13 @@ public class ParcelRestServlet {
 
     /*
      * Si en la modificacion de una parcela, el suelo NO esta
-     * definido, la bandera umbral de riego de la opcion asociada
-     * a dicha parcela es establecida en false, ya que para
-     * calcular, mediante un umbral de riego, la necesidad de
-     * agua de riego de un cultivo en la fecha actual se necesitan
-     * datos de suelo (capacidad de campo, punto de marchitez
-     * permanente y peso especifico aparente), los cuales
-     * estan presentes en un suelo
+     * definido, la bandera suelo de las opciones de la parcela
+     * es establecida en false, ya que para calcular la
+     * necesidad de agua de riego de un cultivo en la fecha
+     * actual (es decir, hoy) utilizando datos de suelo se
+     * necesitan datos de suelo (capacidad de campo, punto de
+     * marchitez permanente y peso especifico aparente), los
+     * cuales estan presentes en un suelo
      */
     if (modifiedParcel.getSoil() == null) {
       optionService.unsetSoilFlag(modifiedParcel.getOption().getId());
