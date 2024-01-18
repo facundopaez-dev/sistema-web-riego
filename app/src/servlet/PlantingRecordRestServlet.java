@@ -1324,6 +1324,80 @@ public class PlantingRecordRestServlet {
     }
 
     /*
+     * Si inicialmente el registro de plantacion a modificar
+     * tiene el estado "Finalizado" o el estado "En espera" y
+     * en su modificacion adquiere el estado "Desarrollo optimo",
+     * se deben calcular y asignar la lamina total de agua disponible
+     * (dt) [mm] y la lamina de riego optima (drop) [mm] porque
+     * la presencia de dicho estado en un registro de plantacion
+     * significa que la bandera suelo de las opciones de la
+     * parcela, a la que pertenece un registro de plantacion,
+     * esta activa (*) (**), y, por ende, significa que el
+     * usuario desea calcular la necesidad de agua de riego de
+     * un cultivo en la fecha actual (es decir, hoy) utilizando
+     * datos de suelo.
+     * 
+     * A la lamina de riego optima (drop) se le asigna el signo
+     * negativo (-) para poder compararla con el acumulado del
+     * deficit de agua por dia [mm/dia], el cual es negativo y
+     * es calculado desde la fecha de siembra de un cultivo hasta
+     * la fecha inmediatamente anterior a la fecha actual. La
+     * lamina de riego optima representa la cantidad maxima de
+     * agua que puede perder un suelo para el cultivo que tiene
+     * sembrado, a partir de la cual NO conviene que pierda mas
+     * agua, sino que se le debe añadir agua hasta llevar su
+     * nivel de humedad a capacidad de campo. Capacidad de campo
+     * es la capacidad de almacenamiento de agua que tiene un
+     * suelo. Un suelo que esta en capacidad de campo es un
+     * suelo lleno de agua, pero no anegado. El motivo por el
+     * cual se habla de llevar el nivel de humedad del suelo,
+     * que tiene un cultivo sembrado, a capacidad de campo es
+     * que el objetivo de la aplicacion es informar al usuario
+     * la cantidad de agua que debe reponer en la fecha actual
+     * (es decir, hoy) para llevar el nivel de humedad del suelo,
+     * en el que tiene un cultivo sembrado, a capacidad de campo.
+     * Esto es la cantidad de agua de riego que debe usar el
+     * usuario para llenar el suelo, en el que tiene un cultivo
+     * sembrado, pero sin anegarlo.
+     * 
+     * La lamina total de agua disponible (dt) [mm] y la lamina
+     * de riego optima (drop) [mm] estan en funcion de un suelo
+     * y un cultivo. La lamina total de agua disponible (dt)
+     * representa la capacidad de almacenamiento de agua que
+     * tiene un suelo para el cultivo que tiene sembrado. La
+     * lamina de riego optima (drop) representa la cantidad
+     * maxima de agua que puede perder un suelo para el cultivo
+     * que tiene sembrado, a partir de la cual no conviene
+     * que pierda mas agua, sino que se le debe añadir agua.
+     * 
+     * (*) La aplicacion tiene un control para evitar que la
+     * bandera suelo, perteneciente a las opciones de una
+     * parcela, sea activada para una parcela que no tiene un
+     * suelo asignado. Por lo tanto, si dicha bandera esta
+     * activa, la parcela correspondiente a las opciones de
+     * dicha bandera, tiene un suelo asignado. Gracias a este
+     * control no es necesario implementar un control con la
+     * condicion != null para el suelo de una parcela. Dicho
+     * control esta implementado en el metodo modify() de la
+     * clase OptionRestServlet.
+     * 
+     * (**) Este significado se debe a que el metodo calculateStatus()
+     * de la clase PlantingRecordStatusServiceBean calcula el
+     * estado de un registro de plantacion teniendo en cuenta
+     * la bandera suelo de las opciones de la parcela a la que
+     * pertenece un registro de plantacion. Si dicha bandera
+     * esta activa y la fecha actual (es decir, hoy) esta
+     * dentro del periodo definido por la fecha de siembra
+     * y la fecha de cosecha de un registro de plantacion,
+     * este adquiere el estado "Desarrollo optimo".
+     */
+    if ((statusService.equals(currentStatusModifiedPlantingRecord, finishedStatus) || statusService.equals(currentStatusModifiedPlantingRecord, waitingStatus))
+        && statusService.equals(modifiedPlantingRecordStatus, optimalDevelopmentStatus)) {
+      plantingRecordService.updateTotalAmountWaterAvailable(plantingRecordId, WaterMath.calculateTotalAmountWaterAvailable(modifiedCrop, modifiedParcel.getSoil()));
+      plantingRecordService.updateOptimalIrrigationLayer(plantingRecordId, (-1 * WaterMath.calculateOptimalIrrigationLayer(modifiedCrop, modifiedParcel.getSoil())));
+    }
+
+    /*
      * Se persisten los cambios realizados en el registro
      * de plantacion
      */
