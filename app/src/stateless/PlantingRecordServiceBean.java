@@ -47,7 +47,12 @@ public class PlantingRecordServiceBean {
    * Este simbolo se utiliza para representar que la necesidad
    * de agua de riego de un cultivo en la fecha actual [mm/dia]
    * no esta disponible, pero se puede calcular. Esta situacion
-   * ocurre unicamente para un registro de plantacion en desarrollo.
+   * ocurre unicamente para un registro de plantacion en desarrollo,
+   * esto es que tiene un estado de desarrollo (en desarrollo,
+   * desarrollo optimo, desarrollo en riesgo de marchitez, desarrollo
+   * en marchitez). Por lo tanto, cuando se dice "un registro
+   * de plantacion en desarrollo" se hace referencia a un
+   * registro de plantacion que tiene un estado de desarrollo.
    */
   private final String CROP_IRRIGATION_WATER_NEED_NOT_AVAILABLE_BUT_CALCULABLE = "-";
 
