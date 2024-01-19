@@ -1174,10 +1174,10 @@ public class ParcelRestServlet {
      * 
      * (*) Cuando se utiliza un suelo para calcular la necesidad
      * de agua de riego de un cultivo en la fecha actual (es decir,
-     * hoy), los estados utilizados para un registro son "Desarrollo
-     * optimo", "Desarrollo en riesgo de marchitez", "Desarrollo
-     * en marchitez" y "Muerto", de los cuales los tres primeros
-     * son de desarrollo.
+     * hoy), los estados utilizados para un registro de plantacion
+     * son "Desarrollo optimo", "Desarrollo en riesgo de marchitez",
+     * "Desarrollo en marchitez" y "Muerto", de los cuales los tres
+     * primeros son de desarrollo.
      */
     if (parcelOption.getSoilFlag() && modifiedSoil != null && plantingRecordService.checkOneInDevelopmentRelatedToSoil(parcelId)) {
       int developingPlantingRecordId = plantingRecordService.findInDevelopment(parcelId).getId();
