@@ -21,6 +21,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import model.Crop;
+import model.Option;
 import model.Parcel;
 import model.PlantingRecord;
 import model.Soil;
@@ -30,7 +31,6 @@ import stateless.SecretKeyServiceBean;
 import stateless.UserServiceBean;
 import stateless.PlantingRecordServiceBean;
 import stateless.SessionServiceBean;
-import stateless.SoilServiceBean;
 import stateless.OptionServiceBean;
 import util.ErrorResponse;
 import util.ReasonError;
@@ -50,7 +50,6 @@ public class ParcelRestServlet {
   @EJB PlantingRecordServiceBean plantingRecordService;
   @EJB SessionServiceBean sessionService;
   @EJB OptionServiceBean optionService;
-  @EJB SoilServiceBean soilService;
 
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
@@ -1032,7 +1031,6 @@ public class ParcelRestServlet {
 
     Parcel modifiedParcel = mapper.readValue(json, Parcel.class);
     Soil modifiedSoil = modifiedParcel.getSoil();
-    Soil currentSoil = parcelService.find(parcelId).getSoil();
 
     /*
      * Si el nombre de la parcela a modificar no esta definido,
@@ -1099,6 +1097,14 @@ public class ParcelRestServlet {
     }
 
     /*
+     * Obtiene las opciones actualizadas de la parcela a modificar,
+     * ya que si el suelo de la parcela a modificar NO esta definido,
+     * la bandera suelo de las opciones de una parcela es establecida
+     * en false
+     */
+    Option parcelOption = optionService.find(modifiedParcel.getOption().getId());
+
+    /*
      * El simbolo de esta variable se utiliza para representar que la
      * necesidad de agua de riego de un cultivo en la fecha actual [mm/dia]
      * no esta disponible, pero se puede calcular. Esta situacion
@@ -1107,10 +1113,11 @@ public class ParcelRestServlet {
     String cropIrrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getCropIrrigationWaterNotAvailableButCalculable();
 
     /*
-     * Si la parcela modificada tiene un registro de plantacion en
-     * un estado de desarrollo relacionado al uso de datos de suelo
-     * (desarrollo optimo, desarrollo en riesgo de marchitez,
-     * desarrollo en marchitez) (*) y un suelo distinto al original:
+     * Si la bandera suelo de las opciones de la parcela a modificar,
+     * esta activa, y si la parcela a modificar tiene un registro de
+     * plantacion en un estado de desarrollo relacionado al uso de datos
+     * de suelo (desarrollo optimo, desarrollo en riesgo de marchitez,
+     * desarrollo en marchitez) (*) y un suelo asignado:
      * - se asigna el caracter "-" a la necesidad de agua de riego
      * de un cultivo en la fecha actual de dicho registro por los
      * siguientes dos motivos. Primero porque calcular la necesidad
@@ -1172,7 +1179,7 @@ public class ParcelRestServlet {
      * en marchitez" y "Muerto", de los cuales los tres primeros
      * son de desarrollo.
      */
-    if (modifiedSoil != null && plantingRecordService.checkOneInDevelopment(parcelId) && !soilService.equals(modifiedSoil, currentSoil)) {
+    if (parcelOption.getSoilFlag() && modifiedSoil != null && plantingRecordService.checkOneInDevelopmentRelatedToSoil(parcelId)) {
       int developingPlantingRecordId = plantingRecordService.findInDevelopment(parcelId).getId();
       Crop developingCrop = plantingRecordService.findInDevelopment(parcelId).getCrop();
 

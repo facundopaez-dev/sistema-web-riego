@@ -634,6 +634,30 @@ public class PlantingRecordServiceBean {
   }
 
   /**
+   * @param parcelId
+   * @return referencia a un objeto de tipo PlantingRecord que
+   * representa un registro de plantacion que tiene un estado
+   * de desarrollo relacionado al uso de datos de suelo (desarrollo
+   * optimo, desarrollo en riesgo de marchitez, desarrollo en
+   * marchitez), si existe en la base de datos subyacente.
+   * En caso contrario, retorna null.
+   */
+  public PlantingRecord findInDevelopmentRelatedToSoil(int parcelId) {
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p JOIN r.status s WHERE (p.id = :parcelId AND (s.name = 'Desarrollo óptimo' OR s.name = 'Desarrollo en riesgo de marchitez' OR s.name = 'Desarrollo en marchitez'))");
+    query.setParameter("parcelId", parcelId);
+
+    PlantingRecord plantingRecord = null;
+
+    try {
+      plantingRecord = (PlantingRecord) query.getSingleResult();
+    } catch(NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return plantingRecord;
+  }
+
+  /**
    * Busca un registro de plantacion, correspondiente a una parcela
    * dada de un usuario dado, en el que una fecha dada este en el
    * periodo definido por su fecha de siembra y su fecha de cosecha
@@ -693,6 +717,18 @@ public class PlantingRecordServiceBean {
    */
   public boolean checkOneInDevelopment(int parcelId) {
     return (findInDevelopment(parcelId) != null);
+  }
+
+  /**
+   * @param parcelId
+   * @return true si una parcela tiene un registro de
+   * plantacion que tiene un estado de desarrollo
+   * relacionado al uso de datos de suelo (desarrollo
+   * optimo, desarrollo en riesgo de machitez, desarrollo
+   * en marchitez). En caso contrario, false.
+   */
+  public boolean checkOneInDevelopmentRelatedToSoil(int parcelId) {
+    return (findInDevelopmentRelatedToSoil(parcelId) != null);
   }
 
   /**
