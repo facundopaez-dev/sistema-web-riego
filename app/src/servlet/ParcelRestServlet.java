@@ -30,6 +30,7 @@ import stateless.ParcelServiceBean;
 import stateless.SecretKeyServiceBean;
 import stateless.UserServiceBean;
 import stateless.PlantingRecordServiceBean;
+import stateless.PlantingRecordStatusServiceBean;
 import stateless.SessionServiceBean;
 import stateless.OptionServiceBean;
 import util.ErrorResponse;
@@ -50,6 +51,7 @@ public class ParcelRestServlet {
   @EJB PlantingRecordServiceBean plantingRecordService;
   @EJB SessionServiceBean sessionService;
   @EJB OptionServiceBean optionService;
+  @EJB PlantingRecordStatusServiceBean statusService;
 
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
@@ -1083,17 +1085,70 @@ public class ParcelRestServlet {
     }
 
     /*
-     * Si en la modificacion de una parcela, el suelo NO esta
-     * definido, la bandera suelo de las opciones de la parcela
-     * es establecida en false, ya que para calcular la
-     * necesidad de agua de riego de un cultivo en la fecha
-     * actual (es decir, hoy) utilizando datos de suelo se
-     * necesitan datos de suelo (capacidad de campo, punto de
-     * marchitez permanente y peso especifico aparente), los
-     * cuales estan presentes en un suelo
+     * Si en la modifcacion de una parcela NO se asigna un
+     * suelo, se realizan las siguientes operaciones:
+     * - la bandera suelo de las opciones de la parcela
+     * se establece en false, ya que NO es posible calcular
+     * la necesidad de agua de riego de un cultivo en la
+     * fecha actual (es decir, hoy) sin un suelo asignado
+     * a la parcela, en la que hay un cultivo sembrado, y
+     * con dicha bandera activa.
+     * - si la parcela tiene un registro de plantacion que
+     * tiene un estado de desarrollo relacionado al uso de
+     * datos de suelo (desarrollo optimo, desarrollo en
+     * riesgo de marchitez, desarrollo en marchitez) se
+     * realizan las siguientes operaciones:
+     * -- se asigna el valor 0 a la lamina total de agua
+     * disponible (dt) [mm] y a la lamina de riego optima
+     * (drop) [mm] del registro, ya que estos datos estan
+     * en funcion del suelo y del cultivo sembrado, con
+     * lo cual si la parcela no tiene un suelo asignado,
+     * no es posible disponer de ellos.
+     * -- se establece el estado "En desarrollo" en el
+     * registro, ya que al no tener la parcela un suelo
+     * asignado NO es posible determinar en que punto se
+     * encuentra el nivel de humedad del suelo, en el que
+     * hay un cultivo sembrado, con respecto a la
+     * capacidad de campo, el umbral de riego (lamina de
+     * riego optima), la capacidad de almacenamiento de
+     * agua del suelo y el doble de la capacidad de
+     * almacenamiento de agua del suelo.
+     * 
+     * Con datos de suelo es posible determinar en que
+     * punto se encuentra el nivel de humedad del suelo,
+     * que tiene un cultivo sembrado, con respecto a la
+     * capacidad de campo, el umbral de riego (lamina de
+     * riego optima), la capacidad de almacenamiento de
+     * agua del suelo y el doble de la capacidad de
+     * almacenamiento de agua del suelo. Con base en esto
+     * se establece que si el nivel de humedad del suelo,
+     * que tiene un cultivo sembrado, es:
+     * - menor o igual a la capaciadad de campo y estrictamente
+     * mayor al umbral de riego, el estado del registro de
+     * plantacion correspondiente es "Desarrollo optimo".
+     * - es menor o igual al umbral de riego y estrictamente
+     * mayor a la capacidad de almacenamiento de agua del suelo,
+     * el estado del registro de plantacion correspondiente
+     * es "Desarrollo en riesgo de marchitez".
+     * - es menor o igual a la capacidad de almacenamiento
+     * de agua del suelo y estrictamente mayor al doble de
+     * la capacidad de almacenamiento de agua del suelo, el
+     * estado del registro de plantacion correspondiente es
+     * "Desarrollo en marchitez".
+     * - es estrictamente menor al doble de la capacidad
+     * de almacenamiento de agua del suelo, el estado del
+     * registro de plantacion correspondiente es "Muerto".
      */
     if (modifiedParcel.getSoil() == null) {
       optionService.unsetSoilFlag(modifiedParcel.getOption().getId());
+
+      if (plantingRecordService.checkOneInDevelopmentRelatedToSoil(parcelId)) {
+        int developingPlantingRecordId = plantingRecordService.findInDevelopment(parcelId).getId();
+        plantingRecordService.updateTotalAmountWaterAvailable(developingPlantingRecordId, 0);
+        plantingRecordService.updateOptimalIrrigationLayer(developingPlantingRecordId, 0);
+        plantingRecordService.setStatus(developingPlantingRecordId, statusService.findInDevelopmentStatus());
+      }
+
     }
 
     /*
