@@ -32,6 +32,7 @@ import stateless.UserServiceBean;
 import stateless.PlantingRecordServiceBean;
 import stateless.PlantingRecordStatusServiceBean;
 import stateless.SessionServiceBean;
+import stateless.SoilServiceBean;
 import stateless.OptionServiceBean;
 import util.ErrorResponse;
 import util.ReasonError;
@@ -51,6 +52,7 @@ public class ParcelRestServlet {
   @EJB PlantingRecordServiceBean plantingRecordService;
   @EJB SessionServiceBean sessionService;
   @EJB OptionServiceBean optionService;
+  @EJB SoilServiceBean soilService;
   @EJB PlantingRecordStatusServiceBean statusService;
 
   // Mapea lista de pojo a JSON
@@ -1032,6 +1034,7 @@ public class ParcelRestServlet {
     }
 
     Parcel modifiedParcel = mapper.readValue(json, Parcel.class);
+    Soil currentSoil = parcelService.find(parcelId).getSoil();
     Soil modifiedSoil = modifiedParcel.getSoil();
 
     /*
@@ -1170,25 +1173,21 @@ public class ParcelRestServlet {
     /*
      * Si la bandera suelo de las opciones de la parcela a modificar,
      * esta activa, y si la parcela a modificar tiene un registro de
-     * plantacion en un estado de desarrollo relacionado al uso de datos
-     * de suelo (desarrollo optimo, desarrollo en riesgo de marchitez,
-     * desarrollo en marchitez) (*) y un suelo asignado:
-     * - se asigna el caracter "-" a la necesidad de agua de riego
-     * de un cultivo en la fecha actual de dicho registro por los
-     * siguientes dos motivos. Primero porque calcular la necesidad
-     * de agua de riego de un cultivo en la fecha actual (es decir,
-     * hoy) utilizando datos de suelo hace que dicho calculo este
-     * en funcion del suelo. Por lo tanto, si cambia el suelo se
-     * debe realizar el calculo de la necesidad de agua de riego
-     * de un cultivo en la fecha actual en funcion del nuevo suelo.
-     * Segundo para hacer que el usuario ejecute el proceso del
-     * calculo de la necesidad de agua de riego de un cultivo en
-     * la fecha actual (es decir, hoy) [mm/dia]. La manera en la
-     * que el usuario realiza esto es mediante el boton "Calcular"
-     * de la pagina de registros de plantacion.
+     * plantacion en un estado de desarrollo relacionado al uso de
+     * datos de suelo (desarrollo optimo, desarrollo en riesgo de
+     * marchitez, desarrollo en marchitez) (*) y tiene un suelo
+     * asignado, el cual es distinto al actual:
+     * - se asigna el caracter "-" (**) al atributo "necesidad de agua
+     * de riego de un cultivo" (***) de dicho registro, ya que calcular
+     * la necesidad de agua de riego de un cultivo en la fecha actual
+     * (es decir, hoy) utilizando datos de suelo hace que dicho calculo
+     * este en funcion del suelo. Por lo tanto, si se modifica el
+     * suelo se debe realizar el calculo de la necesidad de agua de
+     * riego de un cultivo en la fecha actual en funcion del nuevo
+     * suelo.
      * - se calculan y asignan la lamina total de agua disponible
      * (dt) [mm] y la lamina de riego optima (drop) [mm], debido
-     * a que estan en funcion del suelo y el cultivo.
+     * a que estan en funcion del suelo y del cultivo.
      * 
      * A la lamina de riego optima (drop) se le asigna el signo
      * negativo (-) para poder compararla con el acumulado del
@@ -1233,8 +1232,21 @@ public class ParcelRestServlet {
      * son "Desarrollo optimo", "Desarrollo en riesgo de marchitez",
      * "Desarrollo en marchitez" y "Muerto", de los cuales los tres
      * primeros son de desarrollo.
+     * 
+     * (**) El caracter "-" (guion) se utiliza para representar
+     * que la necesidad de agua de riego de un cultivo en la fecha
+     * actual (es decir, hoy) [mm/dia] NO esta disponible, pero se
+     * puede calcular. Esta situacion ocurre unicamente para un
+     * registro de plantacion que tiene un estado de desarrollo
+     * (en desarrollo, desarrollo optimo, desarrollo en riesgo de
+     * marchitez, desarrollo en marchitez).
+     * 
+     * (***) El atributo "necesidad de agua de riego de un cultivo"
+     * de un registro de plantacion es la necesidad de agua de riego
+     * de un cultivo en la fecha actual (es decir, hoy).
      */
-    if (parcelOption.getSoilFlag() && modifiedSoil != null && plantingRecordService.checkOneInDevelopmentRelatedToSoil(parcelId)) {
+    if (parcelOption.getSoilFlag() && plantingRecordService.checkOneInDevelopmentRelatedToSoil(parcelId)
+        && modifiedSoil != null && !soilService.equals(modifiedSoil, currentSoil)) {
       int developingPlantingRecordId = plantingRecordService.findInDevelopment(parcelId).getId();
       Crop developingCrop = plantingRecordService.findInDevelopment(parcelId).getCrop();
 
