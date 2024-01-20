@@ -391,10 +391,27 @@ public class WaterMath {
   }
 
   /**
-   * La formula ((Wc - Wm) / 100) * pea * D representa la capacidad
-   * de almacenamiento de agua que tiene un suelo, la cual esta
-   * en funcion de la profundidad de las raices del cultivo que
-   * se siembra en un suelo.
+   * La formula ((Wc - Wm) / 100) * pea * D (lamina total de agua
+   * disponible (dt) [mm]) representa la capacidad de almacenamiento
+   * de agua que tiene un suelo, la cual esta en funcion del suelo
+   * (capacidad de campo, punto de marchitez permanente, peso
+   * especifico aparente) y de la profundidad de las raices del
+   * cultivo.
+   * 
+   * Wc = Capacidad de campo [gr/gr]
+   * Wm = Punto de marchitez permanente [gr/gr]
+   * pea = Peso especifico aparente [gr/cm3]
+   * D = Profundidad radicular [m]
+   * 
+   * La unidad de medida [gr/gr] representa la cantidad de gramos
+   * de agua que hay cada 100 gramos de suelo. Por ejemplo, un
+   * suelo arenoso tiene una capacidad de campo de 9 [gr/gr], lo
+   * cual indica que en capacidad de campo un suelo arenoso tiene
+   * 9 gramos de agua cada 100 gramos de suelo. Esto indica que
+   * un suelo arenoso tiene poca retencion de agua. Lo que indica
+   * la textura del suelo es capacidad de retencion de agua que
+   * tiene un suelo. La textura de un suelo se determina mediante
+   * el triangulo textural.
    * 
    * @param crop
    * @param soil
@@ -436,34 +453,51 @@ public class WaterMath {
   }
 
   /**
-   * La multiplicacion entre la lamina total de agua disponible (dt),
-   * calculada por el metodo calculateTotalAmountWaterAvailable de
-   * esta clase, y el factor de agotamiento (depletionFactor)
-   * representa la cantidad maxima de agua que puede perder un suelo
-   * lleno de agua, pero no anegado (esto es que el nivel de humedad
-   * del suelo esta en capacidad de campo), que tiene un cultivo
-   * sembrado, a partir de la cual NO conviene que pierda mas agua,
-   * sino que se le debe añadir agua para llenarlo, pero sin anegarlo
-   * (esto es llevar el nivel de humedad del suelo a capacidad de campo).
-   * El resultado de esta multiplicacion esta medido en milimetros.
-   * 
-   * Por ejemplo, si el resultado de esta multiplicacion es 10 [mm]
-   * significa que un suelo lleno de agua, pero no anegado (esto es
+   * La formula ((Wc - Wm) / 100) * pea * D * p (lamina de riego
+   * optima (drop) [mm]) representa la cantidad maxima de agua que
+   * puede perder un suelo lleno de agua, pero no anegado (esto es
    * que el nivel de humedad del suelo esta en capacidad de campo),
-   * que tiene un cultivo sembrado, puede perder como maximo 10 [mm]
-   * de agua y NO conviene que pierda mas de esa cantidad. Por lo
-   * tanto, cuando el nivel de humedad del suelo descienda (perdida
-   * de humedad) a los 10 [mm] se le debe añadir agua para llevar el
-   * nivel de humedad a capacidad de campo, es decir, se le debe
-   * añadir agua al suelo hasta la capacidad de campo.
+   * que tiene un cultivo sembrado, a partir de la cual NO conviene
+   * que pierda mas agua, sino que se le debe añadir agua para llenarlo,
+   * pero sin anegarlo (esto es llevar el nivel de humedad del suelo
+   * a capacidad de campo). Debido a lo que representa la lamina
+   * de riego optima, tambien se la denomina umbral de riego.
+   * 
+   * La lamina de riego optima esta en funcion del suelo (capacidad
+   * de campo, punto de marchitez permanente, peso especifico aparente)
+   * y de la naturaleza del cultivo (profundidad de las raices, factor
+   * de agotamiento).
+   * 
+   * Wc = Capacidad de campo [gr/gr]
+   * Wm = Punto de marchitez permanente [gr/gr]
+   * pea = Peso especifico aparente [gr/cm3]
+   * D = Profundidad radicular [m]
+   * p = Factor de agotamiento
+   * 
+   * La unidad de medida [gr/gr] representa la cantidad de gramos
+   * de agua que hay cada 100 gramos de suelo. Por ejemplo, un
+   * suelo arenoso tiene una capacidad de campo de 9 [gr/gr], lo
+   * cual indica que en capacidad de campo un suelo arenoso tiene
+   * 9 gramos de agua cada 100 gramos de suelo. Esto indica que
+   * un suelo arenoso tiene poca retencion de agua. Lo que indica
+   * la textura del suelo es capacidad de retencion de agua que
+   * tiene un suelo. La textura de un suelo se determina mediante
+   * el triangulo textural.
    * 
    * Un valor de 0,50 para el factor de agotamiento (depletionFactor),
    * representado con la letra p en la formula de la lamina de riego
    * optima (drop), es utilizado comunmente para una gran variedad
    * de cultivos.
    * 
-   * Formula de la lamina de riego optima (drop):
-   * ((Wc - Wm) / 100) * pea * D * p
+   * Por ejemplo, si el resultado de aplicar dicha formula es 10 [mm]
+   * significa que un suelo lleno de agua, pero no anegado (esto es
+   * que el nivel de humedad del suelo esta en capacidad de campo),
+   * que tiene un cultivo sembrado, puede perder como maximo 10 [mm]
+   * de agua y NO conviene que pierda mas de esa cantidad. Por lo
+   * tanto, cuando el nivel de humedad del suelo descienda (perdida
+   * de humedad) a los 10 [mm] se le debe añadir agua para llevar su
+   * nivel de humedad a capacidad de campo, es decir, se le debe
+   * añadir agua al suelo hasta la capacidad de campo.
    * 
    * @param crop
    * @param soil
@@ -471,7 +505,7 @@ public class WaterMath {
    * puede perder un suelo lleno de agua, pero no anegado (esto es
    * que el nivel de humedad del suelo esta en capacidad de campo),
    * que tiene un cultivo sembrado, medida en [mm]. Esto es la lamina
-   * de riego optima (drop).
+   * de riego optima (drop) [mm].
    */
   public static double calculateOptimalIrrigationLayer(Crop crop, Soil soil) {
     return calculateTotalAmountWaterAvailable(crop, soil) * crop.getDepletionFactor();
