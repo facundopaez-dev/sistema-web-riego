@@ -1214,7 +1214,7 @@ public class PlantingRecordRestServlet {
      * [mm] y a la lamina de riego optima (drop) [mm] de un registro
      * de plantacion modificado que tiene el estado finalizado o el
      * estado en espera, ya que en uno de estos estados NO tiene
-     * ningna utilidad tener tales datos.
+     * ninguna utilidad tener tales datos.
      */
     if (statusService.equals(modifiedPlantingRecordStatus, finishedStatus) || (statusService.equals(modifiedPlantingRecordStatus, waitingStatus))) {
       modifiedPlantingRecord.setCropIrrigationWaterNeed(notAvailable);
