@@ -359,19 +359,50 @@ public class OptionRestServlet {
              * un registro de plantacion que tiene un estado de desarrollo
              * relacionado al uso de datos de suelo (desarrollo optimo,
              * desarrollo en riesgo de marchitez, desarrollo en marchitez),
-             * esta activa, se calculan la lamina total de agua disponible
-             * (dt) [mm] y la lamina de riego optima (drop) [mm] y se las
-             * asigna al registro de plantacion en desarrollo. Si dicha
-             * bandera esta activa significa que la parcela, correspondiente
-             * a las opciones de dicha bandera, tiene un suelo asignado,
+             * esta activa, se realizan las siguientes operaciones:
+             * - se asigna el caracter "-" (guion) al atributo "necesidad
+             * de agua de riego de un cultivo" del registro de plantacion.
+             * El motivo de esto es eliminar la necesidad de agua de riego
+             * de un cultivo en la fecha actual (es decir, hoy) [mm/dia]
+             * que haya sido calculada con la bandera suelo inactiva, ya
+             * que el que este inactiva indica que dicho calculo se realizo
+             * sin tener en cuenta en que punto se encuentra el nivel de
+             * humedad del suelo [mm] con respecto a la capacidad de campo,
+             * el umbral de riego [mm], la capacidad de almacenamiento de
+             * agua del suelo [mm] y el doble de la capacidad de almacenamiento
+             * de agua del suelo [mm]. En cambio, ahora con la bandera suelo
+             * activa, el calculo de la necesidad de agua de riego de un
+             * cultivo en la fecha actual (es decir, hoy) [mm/dia] se realiza
+             * teniendo en cuenta en que punto se encuentra el nivel de
+             * humedad del suelo [mm] con respecto a la capacidad de campo,
+             * el umbral de riego [mm], la capacidad de almacenamiento de
+             * agua del suelo [mm] y el doble de la capacidad de almacenamiento
+             * de agua del suelo [mm].
+             * - se calculan la lamina total de agua disponible (dt) [mm]
+             * y la lamina de riego optima (drop) [mm] y se las asigna al
+             * registro de plantacion en desarrollo.
+             * 
+             * Si la bandera suelo de las opciones de una parcela, esta
+             * activa, significa que una parcela tiene un suelo asignado,
              * ya que la aplicacion tiene un control para evitar que dicha
              * bandera sea activada para una parcela que NO tiene un suelo
              * asignado. Este control esta implementado en el metodo modify()
              * de la clase OptionRestServlet. Gracias a este control no es
              * necesario implementar un control con la condición != null
              * para el suelo de una parcela.
+             * 
+             * El caracter "-" (guion) se utiliza para representar que la
+             * necesidad de agua de riego de un cultivo en la fecha actual
+             * (es decir, hoy) [mm/dia] NO esta disponible, pero se puede
+             * calcular. Esta situacion ocurre unicamente para un registro
+             * de plantacion que tiene un estado de desarrollo (en desarrollo,
+             * desarrollo optimo, desarrollo en riesgo de marchitez, desarrollo
+             * en marchitez).
              */
             if (modifiedOption.getSoilFlag()) {
+                plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(),
+                        plantingRecordService.getCropIrrigationWaterNotAvailableButCalculable());
+
                 /*
                  * Actualizacion de la lamina total de agua disponible (dt) [mm]
                  * de un registro de plantacion en la base de datos subyacente
