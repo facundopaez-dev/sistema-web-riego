@@ -1188,6 +1188,22 @@ public class ParcelRestServlet {
      * - se calculan y asignan la lamina total de agua disponible
      * (dt) [mm] y la lamina de riego optima (drop) [mm], debido
      * a que estan en funcion del suelo y del cultivo.
+     * - se establece el estado "Desarrollo optimo" en dicho registro
+     * por los siguientes motivos. Primero porque "Desarrollo
+     * optimo" es el estado inicial cuando se calcula la necesidad
+     * de agua de riego de un cultivo en la fecha actual (es decir,
+     * hoy) [mm] utilizando datos de suelo. Segundo porque al cambiar
+     * el suelo cambian la capacidad de almacenamiento de agua del
+     * suelo (lamina total de agua disponible (dt) [mm]) y el umbral
+     * de riego (lamina de riego optima (drop) [mm]), debido a que
+     * estan en funcion del suelo y del cultivo. Por lo tanto, se
+     * debe calcular la necesidad de agua de riego de un cultivo en
+     * la fecha actual (es decir, hoy) en funcion del nuevo suelo,
+     * lo cual puede producir un cambio de estado de un registro de
+     * plantacion desde el estado inicial "Desarrollo optimo" a uno
+     * de los demas estados relacionados al uso de datos de suelo
+     * (desarrollo en riesgo de marchitez, desarrollo en marchitez,
+     * muerto).
      * 
      * A la lamina de riego optima (drop) se le asigna el signo
      * negativo (-) para poder compararla con el acumulado del
@@ -1253,6 +1269,7 @@ public class ParcelRestServlet {
       plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecordId, cropIrrigationWaterNeedNotAvailableButCalculable);
       plantingRecordService.updateTotalAmountWaterAvailable(developingPlantingRecordId, WaterMath.calculateTotalAmountWaterAvailable(developingCrop, modifiedSoil));
       plantingRecordService.updateOptimalIrrigationLayer(developingPlantingRecordId, WaterMath.calculateNegativeOptimalIrrigationLayer(developingCrop, modifiedSoil));
+      plantingRecordService.setStatus(developingPlantingRecordId, statusService.findOptimalDevelopmentStatus());
     }
 
     /*
