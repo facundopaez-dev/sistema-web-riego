@@ -988,6 +988,8 @@ public class PlantingRecordRestServlet {
     PlantingRecordStatus deadStatus = statusService.findDeadStatus();
     PlantingRecordStatus inDevelopmentStatus = statusService.findInDevelopmentStatus();
     PlantingRecordStatus optimalDevelopmentStatus = statusService.findOptimalDevelopmentStatus();
+    PlantingRecordStatus developmentAtRiskWiltingStatus = statusService.findDevelopmentAtRiskWiltingStatus();
+    PlantingRecordStatus developmentInWiltingStatus = statusService.findDevelopmentInWiltingStatus();
 
     /*
      * Si el registro de plantacion modificado tiene el atributo
@@ -1223,238 +1225,429 @@ public class PlantingRecordRestServlet {
     }
 
     /*
-     * Si el registro de plantacion modificado tiene el estado
-     * "En desarrollo" o el estado "Desarrollo optimo" (*) y
-     * tiene una parcela o un cultivo distinto a los originales,
-     * se asigna el caracter "-" a la necesidad de agua de riego
-     * de dicho registro para hacer que el usuario ejecute el
-     * proceso del calculo de la necesidad de agua de riego de
-     * un cultivo en la fecha actual [mm/dia]. La manera en la
-     * que el usuario realiza esto es mediante el boton "Calcular"
-     * de la pagina de registros de plantacion. Tambien se asigna
-     * el caracter "-" a la necesidad de agua de riego de un
-     * registro de plantacion en desarrollo perteneciente a una
-     * parcela a la que se le modifica el suelo. Esto esta
-     * programado en el metodo modify de la clase ParcelRestServlet.
+     * Si el estado del registro de plantacion a modificar es "En
+     * desarrollo" y:
+     * - su fecha de siembra es diferente a su fecha de siembra
+     * actual (*) o
+     * - su parcela es diferente a su parcela actual o
+     * - su cultivo es diferente a su cultivo actual o
+     * - su estado actual es "Finalizado" o
+     * - su estado actual es "En espera" o
+     * - su estado actual es "Muerto",
      * 
-     * El simbolo "-" (guion) se utiliza para representar que
+     * se asigna el caracter "-" (guion) al atributo "necesidad
+     * de agua de riego de un cultivo" (**) del registro de plantacion
+     * a modificar. Dicho caracter se utiliza para representar que
      * la necesidad de agua de riego de un cultivo en la fecha
-     * actual [mm/dia] no esta disponible, pero es calculable.
+     * actual [mm/dia] no esta disponible, pero se puede calcular.
      * Esta situacion ocurre unicamente para un registro de
-     * plantacion en desarrollo.
+     * plantacion que tiene un estado de desarrollo (en desarrollo,
+     * desarrollo optimo, desarrollo en riesgo de marchitez,
+     * desarrollo en marchitez).
      * 
-     * La lamina total de agua disponible (dt) [mm] y la lamina
-     * de riego optima (drop) [mm] estan en funcion de un suelo
-     * y un cultivo. Una parcela tiene un suelo y un registro de
-     * plantacion tiene una parcela y un cultivo. Por lo tanto,
-     * si se modifica la parcela y/o el cultivo de un registro
-     * de plantacion en desarrollo, se establece el valor 0 en
-     * las laminas de dicho registro.
+     * La necesidad de agua de riego de un cultivo en la fecha
+     * actual (es decir, hoy) [mm/dia] se calcula con base en el
+     * acumulado del deficit de agua por dia [mm/dia] del dia
+     * inmediatamente anterior a la fecha actual. Este valor
+     * acumulado es el resultado de acumular el deficit de agua
+     * por dia [mm/dia] de cada uno de los balances hidricos de
+     * suelo calculados desde la fecha de siembra de un cultivo
+     * hasta la fecha inmediatamente anterior a la fecha actual.
+     * El deficit de agua por dia [mm/dia] es calculado como
+     * la diferencia entre la precipitacion [mm/dia] y la ETc
+     * (evapotranspiracion del cultivo bajo condiciones estandar)
+     * [mm/dia] o la ETo (evapotranspiracion del cultivo de
+     * referencia) [mm/dia] si la ETc = 0. La ETc se calcula
+     * con base en la ETo y un Kc (coeficiente de cultivo). La
+     * ETo se calcula con base en los datos meteorologicos de
+     * una fecha y una ubicacion geografica. Por lo tanto, la
+     * ETc es calculada con base en datos meteorologicos de
+     * una ubicacion geografica y una fecha. La precipitacion
+     * se obtiene de los datos meteorologicos de una ubicacion
+     * geografica y una fecha.
      * 
-     * La lamina total de agua disponible (dt) representa la
-     * capacidad de almacenamiento de agua que tiene un suelo para
-     * el cultivo que tiene sembrado. La lamina de riego optima (drop)
-     * representa la cantidad maxima de agua que puede perder un
-     * suelo, que tiene un cultivo sembrado, a partir de la cual
-     * no conviene que pierda mas agua, sino que se le debe añadir
-     * agua hasta llevar su nivel de humedad a capacidad de campo.
-     * Capacidad de campo es la capacidad de almacenamiento de agua
-     * que tiene un suelo. Un suelo que esta en capacidad de campo
-     * es un suelo lleno de agua, pero no anegado. El motivo por
-     * el cual se habla de llevar el nivel de humedad del suelo,
-     * que tiene un cultivo sembrado, a capacidad de campo es
-     * que el objetivo de la aplicacion es informar al usuario
-     * la cantidad de agua que debe reponer en la fecha actual
-     * (es decir, hoy) para llevar el nivel de humedad del suelo,
-     * en el que tiene un cultivo sembrado, a capacidad de campo.
-     * Esto es la cantidad de agua de riego [mm] que debe usar
-     * el usuario para llenar el suelo en el que tiene un cultivo
-     * sembrado, pero sin anegarlo.
+     * Con lo anterior en mente se realizan las siguientes
+     * justificaciones.
      * 
-     * (*) El que un registro de plantacion tenga el estado
-     * "En desarrollo" o el estado "Desarrollo optimo" depende
-     * del valor de la bandera suelo de las opciones de la parcela
-     * a la que pertenece. Si un registro de plantacion tiene
-     * una fecha de siembra y una fecha de cosecha de tal manera
-     * que la fecha actual (es decir, hoy) esta dentro del periodo
-     * definido por ambas y la bandera suelo de las opciones de
-     * la parcela, a la que pertenece, NO esta activa, su estado
-     * sera "En desarrollo". En cambio, si esta activa su estado
-     * sera "Desarrollo optimo".
+     * Cuando se modifica la fecha de un registro de plantacion,
+     * se asigna el carater "-" (guion) al atributo "necesidad de
+     * agua de riego de un cultivo" (**) del registro porque al
+     * cambiar la fecha de siembra cambia la fecha a partir de
+     * la cual se calculan los balances hidricos de suelo. Por
+     * lo tanto, cambia el acumulado del deficit de agua por dia
+     * [mm/dia] del dia inmediatamente anterior a la fecha actual.
+     * Por ende, cambia la necesidad de agua de riego de un cultivo
+     * en la fecha actual (es decir, hoy) [mm/dia].
+     * 
+     * Cuando se modifica la parcela de un registro de plantacion,
+     * se asigna el caracter "-" (guion) al atributo "necesidad de
+     * agua de riego de un cultivo" (**) del registro porque al
+     * cambiar la parcela cambia la cambia la ubicacion geografica,
+     * y al cambiar la ubicacion geografica cambian los datos meteorologicos
+     * a partir de los cuales se obtiene la precipitacion [mm/dia]
+     * y se calcula la ETo [mm/dia], con lo cual cambian la prepcipitacion
+     * y la ETo, y al cambiar la ETo cambia la ETc [mm/dia]. Por
+     * lo tanto, cambia el deficit de agua por dia [mm/dia] de cada
+     * uno de los balances hidricos de suelo calculados desde la
+     * fecha de siembra de un cultivo hasta la fecha inmediatamente
+     * anterior a la fecha actual. En consecuencia, cambia el
+     * acumulado del deficit de agua por dia [mm/dia] de la fecha
+     * inmediatamente anterior a la fecha actual. Por ende, cambia
+     * la necesidad de agua de riego de un cultivo en la fecha actual
+     * (es decir, hoy) [mm/dia].
+     * 
+     * Cuando se modifica el cultivo de un registro de plantacion,
+     * se asigna el caracter "-" (guion) al atributo "necesidad de
+     * agua de riego de un cultivo" (**) del registro porque al cambiar
+     * el cultivo cambia el Kc (coeficiente de cultivo) y al
+     * cambiar el Kc cambia la ETc (evapotranspiracion del cultivo
+     * bajo condiciones estandar) [mm/dia]. Por lo tanto, cambia el
+     * deficit de agua por dia [mm/dia] de cada uno de los balances
+     * hidricos de suelo calculados desde la fecha de siembra de un
+     * cultivo hasta la fecha inmediatamente anterior a la fecha
+     * actual. En consecuencia, cambia el acumulado del deficit de
+     * agua por dia [mm/dia] de la fecha inmediatamente anterior a
+     * la fecha actual. Por ende, cambia la necesidad de agua de
+     * riego de un cultivo en la fecha actual (es decir, hoy)
+     * [mm/dia].
+     * 
+     * Si el estado actual (*) del registro de plantacion a modificar
+     * es "Finalizado", "En espera" o "Muerto" y su nuevo estado es
+     * "Desarrollo optimo", se asigna el caracter "-" (guion) al
+     * atributo "necesidad de agua de riego de un cultivo" (**) del
+     * registro para representar que la necesidad de agua de riego
+     * de un cultivo en la fecha actual (es decir, hoy) [mm/dia] NO
+     * esta disponible, pero se puede calcular. Esto se realiza porque
+     * en los estados "Finalizado", "En espera" y "Muerto" la necesidad
+     * de agua de riego de un cultivo en la fecha actual (es decir,
+     * hoy) no esta disponible ni se puede calcular, lo cual se
+     * representa mediante la asignacion de la abreviatura "n/a"
+     * (no disponible) al atributo "necesidad de agua de riego de
+     * un cultivo" de un registro de plantacion.
+     * 
+     * El caracter "-" (guion) se utiliza para representar que la
+     * necesidad de agua de riego de un cultivo en la fecha actual
+     * (es decir, hoy) [mm/dia] NO esta disponible, pero se puede
+     * calcular. Esta situacion ocurre unicamente para un registro
+     * de plantacion que tiene un estado de desarrollo (en desarrollo,
+     * desarrollo optimo, desarrollo en riesgo de marchitez, desarrollo
+     * en marchitez).
+     * 
+     * (*) Por "actual" se hace referencia al dato existente antes
+     * de la modificacion de un registro de plantacion.
+     * 
+     * (**) El atributo "necesidad de agua de riego de un cultivo"
+     * de un registro de plantacion es la necesidad de agua de riego
+     * de un cultivo en la fecha actual (es decir, hoy) [mm/dia].
      */
-    if ((statusService.equals(modifiedPlantingRecordStatus, inDevelopmentStatus)
-        || statusService.equals(modifiedPlantingRecordStatus, optimalDevelopmentStatus))
-        && (!parcelService.equals(modifiedParcel, currentParcel) || !cropService.equals(modifiedCrop, currentCrop))) {
-      modifiedPlantingRecord.setCropIrrigationWaterNeed(cropIrrigationWaterNeedNotAvailableButCalculable);
+    if (statusService.equals(modifiedPlantingRecordStatus, inDevelopmentStatus)) {
+
+      if (UtilDate.compareTo(modifiedSeedDate, currentSeedDate) != 0
+          || !parcelService.equals(modifiedParcel, currentParcel)
+          || !cropService.equals(modifiedCrop, currentCrop)
+          || statusService.equals(currentStatusModifiedPlantingRecord, finishedStatus)
+          || statusService.equals(currentStatusModifiedPlantingRecord, waitingStatus)
+          || statusService.equals(currentStatusModifiedPlantingRecord, deadStatus)) {
+        modifiedPlantingRecord.setCropIrrigationWaterNeed(cropIrrigationWaterNeedNotAvailableButCalculable);
+      }
+
+    }
+
+    /*
+     * Si el estado actual (*) del registro de plantacion
+     * a modificar es "Muerto" y su nuevo estado es "En
+     * desarrollo", se asigna el valor 0 a la lamina
+     * total de agua disponible (dt) [mm] (capacidad de
+     * almacenamiento de agua del suelo) y a la lamina
+     * de riego optima (drop) [mm] (umbral de riego) del
+     * mismo.
+     * 
+     * La lamina total de agua disponible y la lamina de
+     * riego optima estan en funcion del suelo y del cultivo
+     * sembrado. El estado "En desarrollo" se utiliza cuando
+     * se calcula la necesidad de agua de riego de un cultivo
+     * en la fecha actual (es decir, hoy) [mm] sin hacer
+     * uso de datos de suelo. Por lo tanto, al no utilizarse
+     * datos de suelo NO es posible calcular ambas laminas.
+     * Por este motivo se les asigna el valor 0 en el registro
+     * de plantacion a modificar.
+     * 
+     * (*) Por "actual" se hace referencia al estado existente
+     * antes de la modificacion de un registro de plantacion.
+     */
+    if (statusService.equals(currentStatusModifiedPlantingRecord, deadStatus) && statusService.equals(modifiedPlantingRecordStatus, inDevelopmentStatus)) {
       plantingRecordService.updateTotalAmountWaterAvailable(plantingRecordId, 0);
       plantingRecordService.updateOptimalIrrigationLayer(plantingRecordId, 0);
     }
 
     /*
-     * Si el estado actual del registro de plantacion modificado
-     * es distinto del nuevo estado y este es "En desarrollo" o
-     * "Desarrollo optimo" (*), se asigna el caracter "-" a la
-     * necesidad de agua de riego de dicho registro por los
-     * siguientes dos motivos. Primero porque calcular la necesidad
-     * de agua de riego de un cultivo en la fecha actual (es decir,
-     * hoy) utilizando datos de suelo hace que dicho calculo este
-     * en funcion del suelo. Por lo tanto, si cambia el suelo se
-     * debe realizar el calculo de la necesidad de agua de riego
-     * de un cultivo en la fecha actual en funcion del nuevo suelo.
-     * Segundo para hacer que el usuario ejecute el proceso del
-     * calculo de la necesidad de agua de riego de un cultivo en
-     * la fecha actual (es decir, hoy) [mm/dia]. La manera en la
-     * que el usuario realiza esto es mediante el boton "Calcular"
-     * de la pagina de registros de plantacion. Tambien se asigna
-     * el caracter "-" a la necesidad de agua de riego de un
-     * cultivo en la fecha actual de un registro de plantacion
-     * en desarrollo perteneciente a una parcela a la que se le
-     * modifica el suelo. Esto esta programado en el metodo modify()
-     * de la clase ParcelRestServlet.
+     * Si el estado del registro de plantacion a modificar es
+     * "Desarrollo optimo" y:
+     * - su fecha de siembra es diferente a su fecha de siembra
+     * actual (*) o
+     * - su parcela es diferente a su parcela actual o
+     * - su cultivo es diferente a su cultivo actual o
+     * - su estado actual es "Finalizado" o
+     * - su estado actual es "En espera" o
+     * - su estado actual es "Muerto",
      * 
-     * Este control es para el caso en el que se modifica un
-     * registro de plantacion que tiene la parcela y el cultivo
-     * originales y que originalmente NO tiene un estado de
-     * desarrollo, pero lo adquiere al calcular su proximo
-     * estado. En esta situacion se asigna el caracter "-"
-     * a la necesidad de agua de riego de un registro de
-     * plantacion en desarrollo, ya que un registro de
-     * plantacion en dicho estado NO tiene la necesidad de
-     * agua de riego calculada.
-     * 
-     * El simbolo "-" (guion) se utiliza para representar que
+     * se asigna el caracter "-" (guion) al atributo "necesidad
+     * de agua de riego de un cultivo" del registro de plantacion
+     * a modificar. Dicho caracter se utiliza para representar que
      * la necesidad de agua de riego de un cultivo en la fecha
-     * actual [mm/dia] no esta disponible, pero es calculable.
+     * actual [mm/dia] no esta disponible, pero se puede calcular.
      * Esta situacion ocurre unicamente para un registro de
-     * plantacion en desarrollo.
+     * plantacion que tiene un estado de desarrollo (en desarrollo,
+     * desarrollo optimo, desarrollo en riesgo de marchitez,
+     * desarrollo en marchitez).
      * 
-     * (*) El que un registro de plantacion tenga el estado
-     * "En desarrollo" o el estado "Desarrollo optimo" depende
-     * del valor de la bandera suelo de las opciones de la parcela
-     * a la que pertenece. Si un registro de plantacion tiene
-     * una fecha de siembra y una fecha de cosecha de tal manera
-     * que la fecha actual (es decir, hoy) esta dentro del periodo
-     * definido por ambas y la bandera suelo de las opciones de
-     * la parcela, a la que pertenece, NO esta activa, su estado
-     * sera "En desarrollo". En cambio, si esta activa su estado
-     * sera "Desarrollo optimo".
+     * La necesidad de agua de riego de un cultivo en la fecha
+     * actual (es decir, hoy) [mm/dia] se calcula con base en el
+     * acumulado del deficit de agua por dia [mm/dia] del dia
+     * inmediatamente anterior a la fecha actual. Este valor
+     * acumulado es el resultado de acumular el deficit de agua
+     * por dia [mm/dia] de cada uno de los balances hidricos de
+     * suelo calculados desde la fecha de siembra de un cultivo
+     * hasta la fecha inmediatamente anterior a la fecha actual.
+     * El deficit de agua por dia [mm/dia] es calculado como
+     * la diferencia entre la precipitacion [mm/dia] y la ETc
+     * (evapotranspiracion del cultivo bajo condiciones estandar)
+     * [mm/dia] o la ETo (evapotranspiracion del cultivo de
+     * referencia) [mm/dia] si la ETc = 0. La ETc se calcula
+     * con base en la ETo y un Kc (coeficiente de cultivo). La
+     * ETo se calcula con base en los datos meteorologicos de
+     * una fecha y una ubicacion geografica. Por lo tanto, la
+     * ETc es calculada con base en datos meteorologicos de
+     * una ubicacion geografica y una fecha. La precipitacion
+     * se obtiene de los datos meteorologicos de una ubicacion
+     * geografica y una fecha.
+     * 
+     * Con lo anterior en mente se realizan las siguientes
+     * justificaciones.
+     * 
+     * Cuando se modifica la fecha de un registro de plantacion,
+     * se asigna el carater "-" (guion) al atributo "necesidad de
+     * agua de riego de un cultivo" (**) del registro porque al
+     * cambiar la fecha de siembra cambia la fecha a partir de
+     * la cual se calculan los balances hidricos de suelo. Por
+     * lo tanto, cambia el acumulado del deficit de agua por dia
+     * [mm/dia] del dia inmediatamente anterior a la fecha actual.
+     * Por ende, cambia la necesidad de agua de riego de un cultivo
+     * en la fecha actual (es decir, hoy) [mm/dia].
+     * 
+     * Cuando se modifica la parcela de un registro de plantacion,
+     * se asigna el caracter "-" (guion) al atributo "necesidad de
+     * agua de riego de un cultivo" (**) del registro porque al
+     * cambiar la parcela cambia la cambia la ubicacion geografica,
+     * y al cambiar la ubicacion geografica cambian los datos meteorologicos
+     * a partir de los cuales se obtiene la precipitacion [mm/dia]
+     * y se calcula la ETo [mm/dia], con lo cual cambian la prepcipitacion
+     * y la ETo, y al cambiar la ETo cambia la ETc [mm/dia]. Por
+     * lo tanto, cambia el deficit de agua por dia [mm/dia] de cada
+     * uno de los balances hidricos de suelo calculados desde la
+     * fecha de siembra de un cultivo hasta la fecha inmediatamente
+     * anterior a la fecha actual. En consecuencia, cambia el
+     * acumulado del deficit de agua por dia [mm/dia] de la fecha
+     * inmediatamente anterior a la fecha actual. Por ende, cambia
+     * la necesidad de agua de riego de un cultivo en la fecha actual
+     * (es decir, hoy) [mm/dia].
+     * 
+     * Cuando se modifica el cultivo de un registro de plantacion,
+     * se asigna el caracter "-" (guion) al atributo "necesidad de
+     * agua de riego de un cultivo" (**) del registro porque al cambiar
+     * el cultivo cambia el Kc (coeficiente de cultivo) y al
+     * cambiar el Kc cambia la ETc (evapotranspiracion del cultivo
+     * bajo condiciones estandar) [mm/dia]. Por lo tanto, cambia el
+     * deficit de agua por dia [mm/dia] de cada uno de los balances
+     * hidricos de suelo calculados desde la fecha de siembra de un
+     * cultivo hasta la fecha inmediatamente anterior a la fecha
+     * actual. En consecuencia, cambia el acumulado del deficit de
+     * agua por dia [mm/dia] de la fecha inmediatamente anterior a
+     * la fecha actual. Por ende, cambia la necesidad de agua de
+     * riego de un cultivo en la fecha actual (es decir, hoy)
+     * [mm/dia].
+     * 
+     * Si el estado actual (*) del registro de plantacion a modificar
+     * es "Finalizado", "En espera" o "Muerto" y su nuevo estado es
+     * "Desarrollo optimo", se asigna el caracter "-" (guion) al
+     * atributo "necesidad de agua de riego de un cultivo" (**) del
+     * registro para representar que la necesidad de agua de riego
+     * de un cultivo en la fecha actual (es decir, hoy) [mm/dia] NO
+     * esta disponible, pero se puede calcular. Esto se realiza porque
+     * en los estados "Finalizado", "En espera" y "Muerto" la necesidad
+     * de agua de riego de un cultivo en la fecha actual (es decir,
+     * hoy) no esta disponible ni se puede calcular, lo cual se
+     * representa mediante la asignacion de la abreviatura "n/a"
+     * (no disponible) al atributo "necesidad de agua de riego de
+     * un cultivo" de un registro de plantacion.
+     * 
+     * El caracter "-" (guion) se utiliza para representar que la
+     * necesidad de agua de riego de un cultivo en la fecha actual
+     * (es decir, hoy) [mm/dia] NO esta disponible, pero se puede
+     * calcular. Esta situacion ocurre unicamente para un registro
+     * de plantacion que tiene un estado de desarrollo (en desarrollo,
+     * desarrollo optimo, desarrollo en riesgo de marchitez, desarrollo
+     * en marchitez).
+     * 
+     * (*) Por "actual" se hace referencia al dato existente antes
+     * de la modificacion de un registro de plantacion.
+     * 
+     * (**) El atributo "necesidad de agua de riego de un cultivo"
+     * de un registro de plantacion es la necesidad de agua de riego
+     * de un cultivo en la fecha actual (es decir, hoy) [mm/dia].
      */
-    if (!statusService.equals(currentStatus, modifiedPlantingRecordStatus) &&
-        (statusService.equals(modifiedPlantingRecordStatus, inDevelopmentStatus)
-            || statusService.equals(modifiedPlantingRecordStatus, optimalDevelopmentStatus))) {
-      modifiedPlantingRecord.setCropIrrigationWaterNeed(cropIrrigationWaterNeedNotAvailableButCalculable);
+    if (statusService.equals(modifiedPlantingRecordStatus, optimalDevelopmentStatus)) {
+
+      if (UtilDate.compareTo(modifiedSeedDate, currentSeedDate) != 0
+          || !parcelService.equals(modifiedParcel, currentParcel)
+          || !cropService.equals(modifiedCrop, currentCrop)
+          || statusService.equals(currentStatusModifiedPlantingRecord, finishedStatus)
+          || statusService.equals(currentStatusModifiedPlantingRecord, waitingStatus)
+          || statusService.equals(currentStatusModifiedPlantingRecord, deadStatus)) {
+        modifiedPlantingRecord.setCropIrrigationWaterNeed(cropIrrigationWaterNeedNotAvailableButCalculable);
+      }
+
     }
 
     /*
-     * Si el estado del registro de plantacion modificado es "En
-     * desarrollo" o "Desarrollo optimo" (*) y la fecha de siembra
-     * es modificada, se asigna el caracter "-" (guion) a la necesidad
-     * de agua de riego de un cultivo en la fecha actual (es decir,
-     * hoy) de un registro de plantacion en desarrollo. Esto se
-     * hace para que el usuario ejecute el proceso del calculo de
-     * la necesidad de agua de riego de un cultivo en la fecha
-     * actual [mm/dia].
+     * Si el estado actual del registro de plantacion a modificar
+     * es "Finalizado" o "En espera" y su nuevo estado es "Desarrollo
+     * optimo", se calculan la lamina total de agua disponible (dt)
+     * [mm] (capacidad de almacenamiento de agua del suelo) y la
+     * lamina de riego optima (drop) [mm] (umbral de riego) del
+     * mismo.
      * 
-     * El simbolo "-" (guion) se utiliza para representar que
-     * la necesidad de agua de riego de un cultivo en la fecha
-     * actual [mm/dia] no esta disponible, pero es calculable.
-     * Esta situacion ocurre unicamente para un registro de
-     * plantacion en desarrollo.
+     * La lamina total de agua disponible y la lamina de riego
+     * optima estan en funcion del suelo y del cultivo sembrado.
+     * El estado "Desarrollo optimo", junto con los estados
+     * "Desarrollo en riesgo de marchitez" y "Desarrollo en marchitez",
+     * se utiliza cuando se calcula la necesidad de agua de riego
+     * de un cultivo en la fecha actual (es decir, hoy) [mm] con
+     * datos de suelo. Por lo tanto, al utilizar datos de suelo
+     * se deben calcular ambas laminas. Por este motivo se calculan
+     * y asignan la lamina total de agua disponible y la lamina
+     * de riego optima en el registro de plantacion a modificar.
      * 
-     * (*) El que un registro de plantacion tenga el estado
-     * "En desarrollo" o el estado "Desarrollo optimo" depende
-     * del valor de la bandera suelo de las opciones de la parcela
-     * a la que pertenece. Si un registro de plantacion tiene
-     * una fecha de siembra y una fecha de cosecha de tal manera
-     * que la fecha actual (es decir, hoy) esta dentro del periodo
-     * definido por ambas y la bandera suelo de las opciones de
-     * la parcela, a la que pertenece, NO esta activa, su estado
-     * sera "En desarrollo". En cambio, si esta activa su estado
-     * sera "Desarrollo optimo".
+     * (*) Por "actual" se hace referencia al dato existente antes
+     * de la modificacion de un registro de plantacion.
      */
-    if ((statusService.equals(modifiedPlantingRecordStatus, inDevelopmentStatus)
-        || statusService.equals(modifiedPlantingRecordStatus, optimalDevelopmentStatus))
-        && UtilDate.compareTo(modifiedSeedDate, currentSeedDate) != 0) {
-      modifiedPlantingRecord.setCropIrrigationWaterNeed(cropIrrigationWaterNeedNotAvailableButCalculable);
-    }
-
-    /*
-     * Si inicialmente el registro de plantacion a modificar
-     * tiene el estado "Finalizado" o el estado "En espera" y
-     * en su modificacion adquiere el estado "Desarrollo optimo",
-     * se deben calcular y asignar la lamina total de agua disponible
-     * (dt) [mm] y la lamina de riego optima (drop) [mm] porque
-     * la presencia de dicho estado en un registro de plantacion
-     * significa que la bandera suelo de las opciones de la
-     * parcela, a la que pertenece un registro de plantacion,
-     * esta activa (*) (**), y, por ende, significa que el
-     * usuario desea calcular la necesidad de agua de riego de
-     * un cultivo en la fecha actual (es decir, hoy) utilizando
-     * datos de suelo.
-     * 
-     * A la lamina de riego optima (drop) se le asigna el signo
-     * negativo (-) para poder compararla con el acumulado del
-     * deficit de agua por dia [mm/dia], el cual es negativo y
-     * es calculado desde la fecha de siembra de un cultivo hasta
-     * la fecha inmediatamente anterior a la fecha actual. La
-     * lamina de riego optima representa la cantidad maxima de
-     * agua que puede perder un suelo para el cultivo que tiene
-     * sembrado, a partir de la cual NO conviene que pierda mas
-     * agua, sino que se le debe añadir agua hasta llevar su
-     * nivel de humedad a capacidad de campo. Capacidad de campo
-     * es la capacidad de almacenamiento de agua que tiene un
-     * suelo. Un suelo que esta en capacidad de campo es un
-     * suelo lleno de agua, pero no anegado. El motivo por el
-     * cual se habla de llevar el nivel de humedad del suelo,
-     * que tiene un cultivo sembrado, a capacidad de campo es
-     * que el objetivo de la aplicacion es informar al usuario
-     * la cantidad de agua que debe reponer en la fecha actual
-     * (es decir, hoy) para llevar el nivel de humedad del suelo,
-     * en el que tiene un cultivo sembrado, a capacidad de campo.
-     * Esto es la cantidad de agua de riego [mm] que debe usar
-     * el usuario para llenar el suelo en el que tiene un cultivo
-     * sembrado, pero sin anegarlo.
-     * 
-     * El suelo agricola tiene dos limites: capacidad de campo
-     * (limite superior) y punto de marchitez permanente (limite
-     * inferior). La lamina de riego optima tambien se la conoce
-     * como umbral de riego, debido a lo que representa.
-     * 
-     * La lamina total de agua disponible (dt) [mm] y la lamina
-     * de riego optima (drop) [mm] estan en funcion de un suelo
-     * y un cultivo. La lamina total de agua disponible (dt)
-     * representa la capacidad de almacenamiento de agua que
-     * tiene un suelo para el cultivo que tiene sembrado. La
-     * lamina de riego optima (drop) representa la cantidad
-     * maxima de agua que puede perder un suelo para el cultivo
-     * que tiene sembrado, a partir de la cual no conviene
-     * que pierda mas agua, sino que se le debe añadir agua.
-     * 
-     * (*) La aplicacion tiene un control para evitar que la
-     * bandera suelo, perteneciente a las opciones de una
-     * parcela, sea activada para una parcela que no tiene un
-     * suelo asignado. Por lo tanto, si dicha bandera esta
-     * activa, la parcela correspondiente a las opciones de
-     * dicha bandera, tiene un suelo asignado. Gracias a este
-     * control no es necesario implementar un control con la
-     * condicion != null para el suelo de una parcela. Dicho
-     * control esta implementado en el metodo modify() de la
-     * clase OptionRestServlet.
-     * 
-     * (**) Este significado se debe a que el metodo calculateStatus()
-     * de la clase PlantingRecordStatusServiceBean calcula el
-     * estado de un registro de plantacion teniendo en cuenta
-     * la bandera suelo de las opciones de la parcela a la que
-     * pertenece un registro de plantacion. Si dicha bandera
-     * esta activa y la fecha actual (es decir, hoy) esta
-     * dentro del periodo definido por la fecha de siembra
-     * y la fecha de cosecha de un registro de plantacion,
-     * este adquiere el estado "Desarrollo optimo".
-     */
-    if ((statusService.equals(currentStatusModifiedPlantingRecord, finishedStatus) || statusService.equals(currentStatusModifiedPlantingRecord, waitingStatus))
+    if ((statusService.equals(currentStatusModifiedPlantingRecord, finishedStatus)
+        || statusService.equals(currentStatusModifiedPlantingRecord, waitingStatus))
         && statusService.equals(modifiedPlantingRecordStatus, optimalDevelopmentStatus)) {
       plantingRecordService.updateTotalAmountWaterAvailable(plantingRecordId, WaterMath.calculateTotalAmountWaterAvailable(modifiedCrop, modifiedParcel.getSoil()));
       plantingRecordService.updateOptimalIrrigationLayer(plantingRecordId, WaterMath.calculateNegativeOptimalIrrigationLayer(modifiedCrop, modifiedParcel.getSoil()));
+    }
+
+    /*
+     * Si el estado del registro de plantacion a modificar es
+     * "Desarrollo en riesgo de marchitez" o "Desarrollo en
+     * marchitez" y:
+     * - su parcela es diferente a la parcela actual (*) o
+     * - su cultivo es diferente a su cultivo actual
+     * 
+     * se asigna el caracter "-" (guion) al atributo "necesidad
+     * de agua de riego de un cultivo" del registro de plantacion
+     * a modificar. Dicho caracter se utiliza para representar que
+     * la necesidad de agua de riego de un cultivo en la fecha
+     * actual [mm/dia] no esta disponible, pero se puede calcular.
+     * Esta situacion ocurre unicamente para un registro de
+     * plantacion que tiene un estado de desarrollo (en desarrollo,
+     * desarrollo optimo, desarrollo en riesgo de marchitez,
+     * desarrollo en marchitez).
+     * 
+     * La necesidad de agua de riego de un cultivo en la fecha
+     * actual (es decir, hoy) [mm/dia] se calcula con base en el
+     * acumulado del deficit de agua por dia [mm/dia] del dia
+     * inmediatamente anterior a la fecha actual. Este valor
+     * acumulado es el resultado de acumular el deficit de agua
+     * por dia [mm/dia] de cada uno de los balances hidricos de
+     * suelo calculados desde la fecha de siembra de un cultivo
+     * hasta la fecha inmediatamente anterior a la fecha actual.
+     * El deficit de agua por dia [mm/dia] es calculado como
+     * la diferencia entre la precipitacion [mm/dia] y la ETc
+     * (evapotranspiracion del cultivo bajo condiciones estandar)
+     * [mm/dia] o la ETo (evapotranspiracion del cultivo de
+     * referencia) [mm/dia] si la ETc = 0. La ETc se calcula
+     * con base en la ETo y un Kc (coeficiente de cultivo). La
+     * ETo se calcula con base en los datos meteorologicos de
+     * una fecha y una ubicacion geografica. Por lo tanto, la
+     * ETc es calculada con base en datos meteorologicos de
+     * una ubicacion geografica y una fecha. La precipitacion
+     * se obtiene de los datos meteorologicos de una ubicacion
+     * geografica y una fecha.
+     * 
+     * Con lo anterior en mente se realizan las siguientes
+     * justificaciones.
+     * 
+     * Cuando se modifica la parcela de un registro de plantacion,
+     * se asigna el caracter "-" (guion) al atributo "necesidad de
+     * agua de riego de un cultivo" (**) del registro porque al
+     * cambiar la parcela cambia la cambia la ubicacion geografica,
+     * y al cambiar la ubicacion geografica cambian los datos meteorologicos
+     * a partir de los cuales se obtiene la precipitacion [mm/dia]
+     * y se calcula la ETo [mm/dia], con lo cual cambian la prepcipitacion
+     * y la ETo, y al cambiar la ETo cambia la ETc [mm/dia]. Por
+     * lo tanto, cambia el deficit de agua por dia [mm/dia] de cada
+     * uno de los balances hidricos de suelo calculados desde la
+     * fecha de siembra de un cultivo hasta la fecha inmediatamente
+     * anterior a la fecha actual. En consecuencia, cambia el
+     * acumulado del deficit de agua por dia [mm/dia] de la fecha
+     * inmediatamente anterior a la fecha actual. Por ende, cambia
+     * la necesidad de agua de riego de un cultivo en la fecha actual
+     * (es decir, hoy) [mm/dia].
+     * 
+     * Cuando se modifica el cultivo de un registro de plantacion,
+     * se asigna el caracter "-" (guion) al atributo "necesidad de
+     * agua de riego de un cultivo" (**) del registro porque al cambiar
+     * el cultivo cambia el Kc (coeficiente de cultivo) y al
+     * cambiar el Kc cambia la ETc (evapotranspiracion del cultivo
+     * bajo condiciones estandar) [mm/dia]. Por lo tanto, cambia el
+     * deficit de agua por dia [mm/dia] de cada uno de los balances
+     * hidricos de suelo calculados desde la fecha de siembra de un
+     * cultivo hasta la fecha inmediatamente anterior a la fecha
+     * actual. En consecuencia, cambia el acumulado del deficit de
+     * agua por dia [mm/dia] de la fecha inmediatamente anterior a
+     * la fecha actual. Por ende, cambia la necesidad de agua de
+     * riego de un cultivo en la fecha actual (es decir, hoy)
+     * [mm/dia].
+     * 
+     * El motivo por el cual el segundo if NO tiene una condicion
+     * para comprobar si la fecha de siembra de un registro de
+     * plantacion a modificar es distinta de la fecha de siembra
+     * actual es que si se modifica la fecha de siembra de un
+     * registro de plantacion se calcula nuevamente su estado,
+     * el cual puede ser "En desarrollo" o "Desarrollo optimo",
+     * ya que estos son los estados iniciales dependiendo del
+     * valor de la bandera suelo de las opciones de la parcela
+     * a la que pertenece un registro de plantacion.
+     * 
+     * El motivo por el cual el segundo if NO tiene condiciones
+     * para comprobar si el estado actual de un registro de
+     * plantacion a modificar es "Finalizado", "En espera" o
+     * "Muerto" es que de estos estados se evoluciona al estado
+     * "En desarrollo" o "Desarrollo optimo" dependiendo de
+     * la fecha de siembra, la fecha de cosecha, la parcela
+     * y el cultivo de un registro de plantacion, y del valor
+     * la bandera suelo de las opciones de la parcela a la que
+     * pertenece. Para las condiciones de comprobar si el
+     * estado actual de un registro de plantacion a modificar
+     * es "Finalizado", "En espera" o "Muerto" estan dos de
+     * las tres instrucciones if anteriores.
+     * 
+     * (*) Por "actual" se hace referencia al dato existente antes
+     * de la modificacion de un registro de plantacion.
+     * 
+     * (**) El atributo "necesidad de agua de riego de un cultivo"
+     * de un registro de plantacion es la necesidad de agua de riego
+     * de un cultivo en la fecha actual (es decir, hoy) [mm/dia].
+     */
+    if (statusService.equals(modifiedPlantingRecordStatus, developmentAtRiskWiltingStatus)
+        || statusService.equals(modifiedPlantingRecordStatus, developmentInWiltingStatus)) {
+
+      if (!parcelService.equals(modifiedParcel, currentParcel) || !cropService.equals(modifiedCrop, currentCrop)) {
+        modifiedPlantingRecord.setCropIrrigationWaterNeed(cropIrrigationWaterNeedNotAvailableButCalculable);
+      }
+
     }
 
     /*
