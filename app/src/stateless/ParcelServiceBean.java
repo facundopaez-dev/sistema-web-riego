@@ -156,6 +156,15 @@ public class ParcelServiceBean {
    * la parcela dos, en caso contrario false
    */
   public boolean equals(Parcel parcelOne, Parcel parcelTwo) {
+
+    if (parcelOne == null || parcelTwo == null) {
+      return false;
+    }
+
+    if (parcelOne.getName() == null || parcelTwo.getName() == null) {
+      return false;
+    }
+
     return parcelOne.getName().equals(parcelTwo.getName());
   }
 
