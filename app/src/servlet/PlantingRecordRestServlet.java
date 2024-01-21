@@ -1218,7 +1218,7 @@ public class PlantingRecordRestServlet {
      * estado en espera, ya que en uno de estos estados NO tiene
      * ninguna utilidad tener tales datos.
      */
-    if (statusService.equals(modifiedPlantingRecordStatus, finishedStatus) || (statusService.equals(modifiedPlantingRecordStatus, waitingStatus))) {
+    if (statusService.equals(modifiedPlantingRecordStatus, finishedStatus) || statusService.equals(modifiedPlantingRecordStatus, waitingStatus)) {
       modifiedPlantingRecord.setCropIrrigationWaterNeed(notAvailable);
       plantingRecordService.updateTotalAmountWaterAvailable(plantingRecordId, 0);
       plantingRecordService.updateOptimalIrrigationLayer(plantingRecordId, 0);
