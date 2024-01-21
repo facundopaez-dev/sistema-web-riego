@@ -800,14 +800,13 @@ public class PlantingRecordRestServlet {
     }
 
     /*
-     * Inicialmente un registro de plantacion que tiene el estado
-     * "En desarrollo" o el estado "Desarrollo optimo" NO tiene la
+     * El caracter "-" (guion) se utiliza para representar que la
      * necesidad de agua de riego de un cultivo en la fecha actual
-     * [mm/dia], lo cual se realiza para hacer que el usuario ejecute
-     * el proceso del calculo de la necesidad de agua de riego de
-     * un cultivo en la fecha actual [mm/dia]. La manera en la que
-     * el usuario realiza esto es mediante el boton "Calcular" de
-     * la pagina de registros de plantacion.
+     * (es decir, hoy) [mm/dia] NO esta disponible, pero se puede
+     * calcular. Esta situacion ocurre unicamente para un registro
+     * de plantacion que tiene un estado de desarrollo (en desarrollo,
+     * desarrollo optimo, desarrollo en riesgo de marchitez, desarrollo
+     * en marchitez).
      */
     if (statusService.equals(statusNewPlantingRecord, inDevelopmentStatus)
         || statusService.equals(statusNewPlantingRecord, optimalDevelopmentStatus)) {
@@ -1121,10 +1120,12 @@ public class PlantingRecordRestServlet {
 
     /*
      * Si un registro de plantacion a modificar tiene el estado
-     * muerto y NO se desea que mantenga ese estado luego
-     * de su modificacion, se establece su proximo estado. El
-     * estado de un registro de plantacion se calcula con base
-     * en la fecha de siembra y la fecha de cosecha.
+     * muerto y NO se desea que mantenga ese estado luego de su
+     * modificacion, se establece su proximo estado. El estado
+     * de un registro de plantacion se calcula con base en la
+     * fecha de siembra, la fecha de cosecha y el valor de la
+     * bandera suelo de las opciones de la parcela a la que
+     * pertenece.
      */
     if (statusService.equals(currentStatusModifiedPlantingRecord, deadStatus) && !maintainDeadStatus) {
       modifiedPlantingRecordStatus = statusService.calculateStatus(modifiedPlantingRecord);
