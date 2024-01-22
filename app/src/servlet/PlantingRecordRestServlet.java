@@ -2398,10 +2398,33 @@ public class PlantingRecordRestServlet {
     ClimateRecord newClimateRecord = null;
 
     /*
-     * A partir de la fecha inmediatamente siguiente a la fecha
-     * de siembra de un cultivo se solicitan y persisten los
-     * registros climaticos de una parcela que tiene un cultivo
-     * en desarrollo en la fecha actual (es decir, hoy)
+     * Los balances hidricos de suelo se calculan a partir de la
+     * fecha inmediatamente siguiente a la fecha de siembra de un
+     * cultivo hasta la fecha inmediatamente anterior a la fecha
+     * actual (es decir, hoy). Por este motivo se solicitan (al
+     * servicio meteorologico utilizado por la aplicacion) y persisten
+     * los registros climaticos (contienen datos meteorologicos)
+     * de una parcela, que tiene un cultivo sembrado, desde la
+     * fecha inmediatamente siguiente a la fecha de siembra de
+     * un cultivo hasta la fecha inmediatamente anterior a la
+     * fecha actual (es decir, hoy). Los datos meteorologicos de
+     * cada uno de los dias perteneciente al periodo definido por
+     * ambas fechas, son necesarios para calcular la ETo (evapotranspiracion
+     * del cultivo de referencia) [mm/dia] y la ETc (evapotranspiracion
+     * del cultivo bajo condiciones estandar) [mm/dia] de cada
+     * uno de los dias de dicho periodo. La ETo y la ETc de cada
+     * uno de los dias de dicho periodo son necesarias para calcular
+     * el balance hidrico de suelo de cada uno de los dias pertencientes
+     * al periodo, lo cual da como resultado un conjunto de balances
+     * hidricos de suelo calculados desde la fecha inmediatamente
+     * siguiente a la fecha de siembra de un cultivo hasta la
+     * fecha inmediatamente anterior a la fecha actual (es decir,
+     * hoy). Estos son necesarios para determinar el acumulado
+     * del deficit agua por dia [mm/dia] del dia inmediatamente
+     * anterior a la fecha actual en la que esta sembrado un
+     * cultivo. Este valor acumulado es necesario porque en base
+     * a el se determina la necesidad de agua de riego de un
+     * cultivo en la fecha actual (es decir, hoy) [mm/dia].
      */
     Calendar dateFollowingSeedDate = UtilDate.getNextDateFromDate(seedDate);
     Calendar pastDate = Calendar.getInstance();
@@ -2506,10 +2529,32 @@ public class PlantingRecordRestServlet {
     ClimateRecord climateRecord = null;
 
     /*
-     * A partir de la fecha inmediatamente siguiente a la fecha
-     * de siembra de un cultivo se calculan los balances hidricos
-     * de suelo de una parcela que tiene un cultivo en desarrollo
-     * en la fecha actual (es decir, hoy)
+     * Los balances hidricos de suelo se calculan a partir de la
+     * fecha inmediatamente siguiente a la fecha de siembra de un
+     * cultivo hasta la fecha inmediatamente anterior a la fecha
+     * actual (es decir, hoy). Por este motivo se calculan la ETo
+     * (evapotranspiracion del cultivo de referencia) [mm/dia] y
+     * la ETc (evapotranspiracion del cultivo bajo condiciones
+     * estandar) [mm/dia] de los registros climaticos (contienen
+     * datos meteorologicos), pertenecientes a una parcela que
+     * tiene un cultivo sembrado, a partir de la fecha inmediatamente
+     * siguiente a la fecha de siembra de un cultivo hasta la fecha
+     * inmediatamente anterior a la fecha actual. La ETo y la ETc
+     * de cada uno de los dias pertenecientes al periodo definido
+     * por la fecha inemdiatamente siguiente a la fecha de siembra
+     * de un cultivo y la fecha inmediatamente anterior a la
+     * fecha actual, son necesarias para el calculo del balance
+     * hidrico de suelo de cada uno de esos dias. Esto da como
+     * resultado un conjunto de balances hidricos de suelo
+     * calculados desde la fecha inmediatamente siguiente a la
+     * fecha de siembra de un cultivo hasta la fecha inmediatamente
+     * anterior a la fecha actual, los cuales son necesarios para
+     * determinar el acumulado del deficit agua por dia [mm/dia]
+     * del dia inmediatamente anterior a la fecha actual en la
+     * que esta sembrado un cultivo. Este valor acumulado es
+     * necesario porque en base a el se determina la necesidad de
+     * agua de riego de un cultivo en la fecha actual (es decir,
+     * hoy) [mm/dia].
      */
     Calendar dateFollowingSeedDate = UtilDate.getNextDateFromDate(seedDate);
     Calendar pastDate = Calendar.getInstance();
