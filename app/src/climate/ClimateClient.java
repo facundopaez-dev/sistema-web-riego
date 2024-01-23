@@ -21,20 +21,22 @@ import javax.net.ssl.HttpsURLConnection;
 
 /*
  * ClimateCliente es la clase que se utiliza para obtener datos
- * meteorologicos. Esto se hace mediante una peticion a la API
- * Visual Crossing Weather.
+ * meteorologicos. Esto se hace mediante una peticion HTTP a la
+ * API Visual Crossing Weather.
  * 
- * Los datos meteorologicos se obtienen en base a una ubicacion
- * geografica dada por latitud y longitud, y a una fecha dada.
- * Estos datos son necesarios para calcular la evapotranspiracion
- * del cultivo de referencia (*) [ETo], la cual, nos indica la cantidad
- * de agua que va a evaporar un cultivo dado, y al saber esto
- * sabremos la cantidad de agua que tendremos que reponer al
- * cultivo mediante el riego.
+ * Los datos meteorologicos se obtienen en base a una fecha y a
+ * una ubicacion geografica dada por latitud y longitud. Estos
+ * datos son necesarios para calcular la ETo (evapotranspiracion
+ * del cultivo de referencia (*)) [mm/dia], la cual es necesaria
+ * para calcular la ETc (evapotranspiracion del cultivo bajo
+ * condiciones estandar) [mm/dia], la cual indica la cantidad
+ * de agua que evapotranspira un cultivo dado. Gracias a la ETc
+ * se sabe la cantidad de agua que se debe reponer a un cultivo
+ * mediante precipitacion artificial o natural.
  * 
- * (*) El cultivo de referencia es el pasto, segun la pagina
- * 6 del libro Evapotranspiracion del cultivo, estudio FAO
- * riego y drenaje 56.
+ * (*) El cultivo de referencia es el pasto, segun la pagina 6
+ * del libro Evapotranspiracion del cultivo, estudio FAO riego
+ * y drenaje 56.
  */
 public class ClimateClient {
 
@@ -70,28 +72,28 @@ public class ClimateClient {
    * Retorna los datos meteorologicos para una ubicacion
    * geografica en una fecha dada.
    * 
-   * @param givenParcel
+   * @param parcel
    * @param datetimeEpoch [tiempo UNIX]
    * @return referencia a un objeto de tipo ClimateRecord que
-   *         contiene los datos meteorologicos obtenidos en base a una
-   *         coordenada geografica y una fecha en tiempo UNIX
+   * contiene los datos meteorologicos obtenidos en base a una
+   * coordenada geografica y una fecha en tiempo UNIX
    */
-  public static ClimateRecord getForecast(Parcel givenParcel, long datetimeEpoch) throws IOException {
+  public static ClimateRecord getForecast(Parcel parcel, long datetimeEpoch) throws IOException {
     ClimateRecord newClimateRecord = new ClimateRecord();
-    newClimateRecord.setParcel(givenParcel);
+    newClimateRecord.setParcel(parcel);
 
     /*
      * Obtiene los datos meteorologicos para una parcela
      * mediante su latitud y longitud, en una fecha dada
      */
-    Forecast newForecast = requestWeatherData(givenParcel.getLatitude(), givenParcel.getLongitude(), datetimeEpoch);
+    Forecast newForecast = requestWeatherData(parcel.getLatitude(), parcel.getLongitude(), datetimeEpoch);
 
     /*
      * Asigna los datos meteorologicos contenidos en el objeto
-     * referenciado por la referencia de givenForecast al objeto
-     * referenciado por la referencia de givenClimateRecord
+     * referenciado por la referencia de forecast al objeto
+     * referenciado por la referencia de climateRecord
      */
-    setClimateRecord(newClimateRecord, newForecast);
+    assignClimateData(newClimateRecord, newForecast);
     return newClimateRecord;
   }
 
@@ -103,8 +105,8 @@ public class ClimateClient {
    * @param longitude     [grados decimales]
    * @param datetimeEpoch [tiempo UNIX]
    * @return referencia a un objeto de tipo Forecast que
-   *         contiene los datos meteorologicos obtenidos para una
-   *         latitud y una longitud, en una fecha en tiempo UNIX
+   * contiene los datos meteorologicos obtenidos para una
+   * latitud y una longitud, en una fecha en tiempo UNIX
    */
   private static Forecast requestWeatherData(double latitude, double longitude, long datetimeEpoch) throws IOException {
     /*
@@ -245,30 +247,29 @@ public class ClimateClient {
 
   /**
    * Asigna los datos meteorologicos contenidos en el objeto
-   * referenciado por la referencia de givenForecast al objeto
-   * referenciado por la referencia de givenClimateRecord
+   * referenciado por la referencia de forecast al objeto
+   * referenciado por la referencia de climateRecord
    * 
-   * @param givenClimateRecord
-   * @param givenForecast
+   * @param climateRecord
+   * @param forecast
    */
-  private static void setClimateRecord(ClimateRecord givenClimateRecord, Forecast givenForecast) {
+  private static void assignClimateData(ClimateRecord climateRecord, Forecast forecast) {
     /*
      * Obtencion de los datos meteorologicos solicitados
      * en un dia (una fecha) para una ubicacion geografica
      */
-    Day givenDay = givenForecast.getDays().get(0);
-
+    Day day = forecast.getDays().get(0);
     Calendar date = Calendar.getInstance();
 
     /*
      * El tiempo UNIX esta en segundos, con lo cual, se lo
      * debe multiplicar por 1000 para convetirlo en milisegundos
      */
-    date.setTimeInMillis(givenDay.getDatetimeEpoch() * 1000);
+    date.setTimeInMillis(day.getDatetimeEpoch() * 1000);
 
-    givenClimateRecord.setDate(date);
-    givenClimateRecord.setDewPoint(givenDay.getDew());
-    givenClimateRecord.setAtmosphericPressure(givenDay.getPressure());
+    climateRecord.setDate(date);
+    climateRecord.setDewPoint(day.getDew());
+    climateRecord.setAtmosphericPressure(day.getPressure());
 
     /*
      * Los datos meteorologicos obtenidos de una llamada a la API
@@ -291,10 +292,10 @@ public class ClimateClient {
      * meteorologico en el metodo que calcula la ETo, el cual,
      * se llama getEto y pertenece a la clase Eto.
      */
-    givenClimateRecord.setWindSpeed(givenDay.getWindspeed());
-    givenClimateRecord.setCloudCover(givenDay.getCloudcover());
-    givenClimateRecord.setMinimumTemperature(givenDay.getTempmin());
-    givenClimateRecord.setMaximumTemperature(givenDay.getTempmax());
+    climateRecord.setWindSpeed(day.getWindspeed());
+    climateRecord.setCloudCover(day.getCloudcover());
+    climateRecord.setMinimumTemperature(day.getTempmin());
+    climateRecord.setMaximumTemperature(day.getTempmax());
 
     /*
      * Visual Crossing Weather retorna cuatro tipos de precipitaciones:
@@ -310,7 +311,7 @@ public class ClimateClient {
      * sobre el tipo de precipitacion verificando si tiene el valor
      * null.
      */
-    if ((givenDay.getPreciptype() != null)) {
+    if ((day.getPreciptype() != null)) {
       /*
        * Segun la documentacion de Visual Crossing Weather del siguiente
        * enlace:
@@ -342,9 +343,9 @@ public class ClimateClient {
        * precipitacion en una llamada a dicha API es nieve, no es necesario
        * realizar la conversion de nieve a agua liquida.
        */
-      givenClimateRecord.setPrecip(givenDay.getPrecip());
-      givenClimateRecord.setPrecipTypes(setPrecipTypes(givenClimateRecord, givenDay.getPreciptype()));
-      givenClimateRecord.setPrecipProbability(givenDay.getPrecipprob());
+      climateRecord.setPrecip(day.getPrecip());
+      climateRecord.setPrecipTypes(assignPrecipTypes(climateRecord, day.getPreciptype()));
+      climateRecord.setPrecipProbability(day.getPrecipprob());
     }
 
     /*
@@ -358,21 +359,21 @@ public class ClimateClient {
   }
 
   /**
-   * @param givenClimateRecord
-   * @param givenPrecipTypes
+   * @param climateRecord
+   * @param precipTypesData
    * @return referencia a un objeto de tipo Collection que
    * contiene los tipos de precipitacion del conjunto de
    * datos meteorologicos devuelto por una llamada a
    * Visual Crossing Weather
    */
-  private static Collection<TypePrecipitation> setPrecipTypes(ClimateRecord givenClimateRecord, Collection<String> givenPrecipTypes) {
+  private static Collection<TypePrecipitation> assignPrecipTypes(ClimateRecord climateRecord, Collection<String> precipTypesData) {
     Collection<TypePrecipitation> precipTypes = new ArrayList();
     TypePrecipitation newPrecipType;
 
-    for (String currentPrecipType : givenPrecipTypes) {
+    for (String currentPrecipType : precipTypesData) {
       newPrecipType = new TypePrecipitation();
       newPrecipType.setName(currentPrecipType);
-      newPrecipType.setClimateRecord(givenClimateRecord);
+      newPrecipType.setClimateRecord(climateRecord);
       precipTypes.add(newPrecipType);
     }
 
