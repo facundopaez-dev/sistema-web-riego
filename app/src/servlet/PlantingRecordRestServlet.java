@@ -2565,7 +2565,7 @@ public class PlantingRecordRestServlet {
     double accumulatedWaterDeficitPerDay = 0.0;
     double accumulatedWaterDeficitPerPreviousDay = 0.0;
     double totalAmountWaterAvailable = 0.0;
-    double optimalIrrigationLayer = WaterMath.calculateOptimalIrrigationLayer(crop, parcel.getSoil());
+    double optimalIrrigationLayer = 0.0;
 
     String stringAccumulatedWaterDeficitPerPreviousDay = null;
     String stringAccumulatedWaterDeficitPerDay = null;
@@ -2641,10 +2641,21 @@ public class PlantingRecordRestServlet {
          * comprueba el nivel de humedad del suelo para establecer
          * el estado del registro de plantacion en desarrollo para
          * el que se calcula la necesidad de agua de riego de su
-         * cultivo en la fecha actual [mm/dia]
+         * cultivo en la fecha actual (es decir, hoy) [mm/dia]
          */
         if (parcel.getOption().getSoilFlag()) {
+
+          /*
+           * El suelo de una parcela debe ser obtenido unicamente
+           * si la bandera suelo de las opciones de una parcela
+           * esta activa. Esto se debe a que la aplicacion
+           * permite que la bandera suelo de las opciones de una
+           * parcela sea activada si y solo si una parcela tiene
+           * un suelo asignado. Esto esta implementado como un
+           * control en el metodo modify() de la clase OptionRestServlet.
+           */
           totalAmountWaterAvailable = WaterMath.calculateTotalAmountWaterAvailable(crop, parcel.getSoil());
+          optimalIrrigationLayer = WaterMath.calculateOptimalIrrigationLayer(crop, parcel.getSoil());
 
           /*
            * Si el acumulado del deficit de agua por dia [mm/dia] de
