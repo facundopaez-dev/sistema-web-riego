@@ -310,9 +310,9 @@ public class OptionRestServlet {
          * a la opcion de esta bandera, NO tiene asignado un suelo, la
          * aplicacion del lado servidor retorna el mensaje HTTP 400 (Bad
          * request) junto con el mensaje "Para calcular la necesidad de
-         * agua de riego de un cultivo en la fecha actual con datos de
-         * suelo es necesario asignar un suelo a la parcela" y no se
-         * realiza la operacion solicitada
+         * agua de riego de un cultivo en la fecha actual (es decir, hoy)
+         * con datos de suelo es necesario asignar un suelo a la parcela"
+         * y no se realiza la operacion solicitada
          */
         if (modifiedOption.getSoilFlag() && !parcelService.checkSoil(optionId)) {
             return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_SOIL))).build();

@@ -992,7 +992,7 @@ public class PlantingRecordManager {
                  * comprueba el nivel de humedad del suelo para establecer
                  * el estado del registro de plantacion en desarrollo para
                  * el que se calcula la necesidad de agua de riego de su
-                 * cultivo en la fecha actual [mm/dia]
+                 * cultivo en la fecha actual (es decir, hoy) [mm/dia]
                  */
                 if (parcel.getOption().getSoilFlag()) {
 
