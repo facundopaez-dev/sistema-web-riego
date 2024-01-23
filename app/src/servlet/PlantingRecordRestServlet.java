@@ -804,9 +804,17 @@ public class PlantingRecordRestServlet {
      * necesidad de agua de riego de un cultivo en la fecha actual
      * (es decir, hoy) [mm/dia] NO esta disponible, pero se puede
      * calcular. Esta situacion ocurre unicamente para un registro
-     * de plantacion que tiene un estado de desarrollo (en desarrollo,
-     * desarrollo optimo, desarrollo en riesgo de marchitez, desarrollo
-     * en marchitez).
+     * de plantacion que tiene el estado "En desarrollo" o el estado
+     * "Desarrollo optimo". El que un registro de plantacion tenga
+     * el estado "En desarrollo" o el estado "Desarrollo optimo"
+     * depende de la fecha de siembra, la fecha de cosecha y la
+     * bandera suelo de las opciones de la parcela a la que
+     * pertenece. Si la fecha de siembra y la fecha de cosecha se
+     * eligen de tal manera que la fecha actual (es decir, hoy)
+     * esta dentro del periodo definido por ambas y la bandera
+     * suelo esta activa, el registro adquiere el estado "En
+     * desarrollo". En caso contrario, adquiere el estado "Desarrollo
+     * optimo".
      */
     if (statusService.equals(statusNewPlantingRecord, inDevelopmentStatus)
         || statusService.equals(statusNewPlantingRecord, optimalDevelopmentStatus)) {
@@ -1256,11 +1264,20 @@ public class PlantingRecordRestServlet {
      * asignacion.
      * 
      * El caracter "-" (guion) se utiliza para representar que la
-     * necesidad de agua de riego de un cultivo en la fecha actual (es
-     * decir, hoy) [mm/dia] no esta disponible, pero se puede calcular.
-     * Esta situacion ocurre unicamente para un registro de plantacion
-     * que tiene un estado de desarrollo (en desarrollo, desarrollo optimo,
-     * desarrollo en riesgo de marchitez, desarrollo en marchitez).
+     * necesidad de agua de riego de un cultivo en la fecha actual
+     * (es decir, hoy) [mm/dia] NO esta disponible, pero se puede
+     * calcular. Esta situacion ocurre unicamente para un registro
+     * de plantacion que tiene el estado "En desarrollo" o el estado
+     * "Desarrollo optimo". El que un registro de plantacion tenga
+     * el estado "En desarrollo" o el estado "Desarrollo optimo"
+     * depende de la fecha de siembra, la fecha de cosecha y la
+     * bandera suelo de las opciones de la parcela a la que
+     * pertenece. Si la fecha de siembra y la fecha de cosecha se
+     * eligen de tal manera que la fecha actual (es decir, hoy)
+     * esta dentro del periodo definido por ambas y la bandera
+     * suelo esta activa, el registro adquiere el estado "En
+     * desarrollo". En caso contrario, adquiere el estado "Desarrollo
+     * optimo".
      * 
      * (*) Por "actual" se hace referencia al estado existente antes de
      * la modificacion de un registro de plantacion.
@@ -1355,9 +1372,17 @@ public class PlantingRecordRestServlet {
        * necesidad de agua de riego de un cultivo en la fecha actual
        * (es decir, hoy) [mm/dia] NO esta disponible, pero se puede
        * calcular. Esta situacion ocurre unicamente para un registro
-       * de plantacion que tiene un estado de desarrollo (en desarrollo,
-       * desarrollo optimo, desarrollo en riesgo de marchitez, desarrollo
-       * en marchitez).
+       * de plantacion que tiene el estado "En desarrollo" o el estado
+       * "Desarrollo optimo". El que un registro de plantacion tenga
+       * el estado "En desarrollo" o el estado "Desarrollo optimo"
+       * depende de la fecha de siembra, la fecha de cosecha y la
+       * bandera suelo de las opciones de la parcela a la que
+       * pertenece. Si la fecha de siembra y la fecha de cosecha se
+       * eligen de tal manera que la fecha actual (es decir, hoy)
+       * esta dentro del periodo definido por ambas y la bandera
+       * suelo esta activa, el registro adquiere el estado "En
+       * desarrollo". En caso contrario, adquiere el estado "Desarrollo
+       * optimo".
        * 
        * (*) Por "actual" se hace referencia al dato existente antes
        * de la modificacion de un registro de plantacion.
@@ -1413,9 +1438,17 @@ public class PlantingRecordRestServlet {
      * necesidad de agua de riego de un cultivo en la fecha actual
      * (es decir, hoy) [mm/dia] NO esta disponible, pero se puede
      * calcular. Esta situacion ocurre unicamente para un registro
-     * de plantacion que tiene un estado de desarrollo (en desarrollo,
-     * desarrollo optimo, desarrollo en riesgo de marchitez, desarrollo
-     * en marchitez).
+     * de plantacion que tiene el estado "En desarrollo" o el estado
+     * "Desarrollo optimo". El que un registro de plantacion tenga
+     * el estado "En desarrollo" o el estado "Desarrollo optimo"
+     * depende de la fecha de siembra, la fecha de cosecha y la
+     * bandera suelo de las opciones de la parcela a la que
+     * pertenece. Si la fecha de siembra y la fecha de cosecha se
+     * eligen de tal manera que la fecha actual (es decir, hoy)
+     * esta dentro del periodo definido por ambas y la bandera
+     * suelo esta activa, el registro adquiere el estado "En
+     * desarrollo". En caso contrario, adquiere el estado "Desarrollo
+     * optimo".
      * 
      * (*) Por "actual" se hace referencia al dato existente antes
      * de la modificacion de un registro de plantacion.
