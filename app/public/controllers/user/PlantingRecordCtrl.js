@@ -119,8 +119,10 @@ app.controller(
       Algunos de los estados que puede tener un registro
       de plantacion
       */
-      const IN_DEVELOPMENT = "En desarrollo";
+      const IN_DEVELOPMENT_STATUS = "En desarrollo";
       const OPTIMAL_DEVELOPMENT_STATE = "Desarrollo óptimo";
+      const DEVELOPMENT_AT_RISK_WILTING_STATUS = "Desarrollo en riesgo de marchitez";
+      const DEVELOPMENT_IN_WILTING_STATUS = "Desarrollo en marchitez";
       const DEAD_STATUS = "Muerto";
 
       /*
@@ -193,7 +195,7 @@ app.controller(
           tiene la bandera flagMessageFieldCapacity activa, la aplicacion
           muestra el mensaje dado
           */
-          if (($scope.data.status.name === IN_DEVELOPMENT || $scope.data.status.name === OPTIMAL_DEVELOPMENT_STATE) &&
+          if (($scope.data.status.name === IN_DEVELOPMENT_STATUS || $scope.data.status.name === OPTIMAL_DEVELOPMENT_STATE) &&
             $scope.data.parcel.option.flagMessageFieldCapacity) {
             var advice = "Recuerde que un día antes de la fecha de siembra de un cultivo se debe llenar de agua el suelo, en el que realizará la "
               + "siembra, para que en la fecha de siembra el nivel de humedad del suelo esté en capacidad de campo. Esto se debe a que la aplicación "
@@ -219,13 +221,17 @@ app.controller(
           vida, la aplicacion muestra un mensaje de advertencia sugiriendo
           cual debe ser la fecha de cosecha.
 
-          En la creacion de un registro de plantacion, la aplicacion del lado
-          servidor crea y devuelve un registro de plantacion que puede tener
-          unicamente uno de los siguientes estados dependiendo de si la opcion
-          de la parcela a la que pertenece tiene la bandera suelo activa o no:
-          en desarrollo, desarrollo optimo.
+          El que un registro de plantacion tenga el estado "En desarrollo" o
+          el estado "Desarrollo optimo" no solo depende del periodo definido
+          por su fecha de siembra y su fecha de cosecha, sino que tambien
+          depende de la bandera suelo de las opciones de la parcela a la que
+          pertenece. Si la fecha de siembra y la fecha de cosecha se eligen
+          de tal manera que la fecha actual (es decir, hoy) esta dentro del
+          periodo definido por ambas y la bandera suelo esta activa, el registro
+          adquiere el estado "En desarrollo". En caso contrario, adquiere el
+          estado "Desarrollo optimo".
           */
-          if (($scope.data.status.name === IN_DEVELOPMENT || $scope.data.status.name === OPTIMAL_DEVELOPMENT_STATE) &&
+          if (($scope.data.status.name === IN_DEVELOPMENT_STATUS || $scope.data.status.name === OPTIMAL_DEVELOPMENT_STATE) &&
             cropManager.lifeCycleExceeded($scope.data.crop.lifeCycle, $scope.data.seedDate, $scope.data.harvestDate)) {
             var suggestedHarvestDate = cropManager.calculateSuggestedHarvestDate($scope.data.seedDate, $scope.data.crop.lifeCycle);
             alert(cropManager.getLifeCycleExceededWarning($scope.data.seedDate, $scope.data.harvestDate, $scope.data.crop.lifeCycle, suggestedHarvestDate));
@@ -272,15 +278,25 @@ app.controller(
         let maintainDeadStatus = false;
 
         /*
-        Si el registro de plantacion a modificar tiene el estado muerto y
+        Si el registro de plantacion a modificar tiene el estado "Muerto" y
         existe la posibilidad de que adquiera al estado "Finalizado" (si la
-        fecha de cosecha elegida es anterior a la fecha actual) o un estado
-        en desarrollo (si la fecha actual es mayor o igual a la fecha de
-        siembra elegida y menor o igual a la fecha de cosecha elegida, es
-        decir, si la fecha actual esta entre la fecha de siembra y la fecha
-        de cosecha elegidas), se pide al usuario que confirme si desea que
-        el registro de plantacion mantenga el estado muerto luego de la
-        modificacion
+        fecha de cosecha elegida es anterior a la fecha actual) o el estado
+        "En desarrollo" o el estado "Desarrollo optimo" (si la fecha actual
+        es mayor o igual a la fecha de siembra elegida y menor o igual a la
+        fecha de cosecha elegida, es decir, si la fecha actual esta entre la
+        fecha de siembra y la fecha de cosecha elegidas), se pide al usuario
+        que confirme si desea que el registro de plantacion mantenga el estado
+        "Muerto" luego de la modificacion.
+
+        El que un registro de plantacion tenga el estado "En desarrollo" o
+        el estado "Desarrollo optimo" no solo depende del periodo definido
+        por su fecha de siembra y su fecha de cosecha, sino que tambien
+        depende de la bandera suelo de las opciones de la parcela a la que
+        pertenece. Si la fecha de siembra y la fecha de cosecha se eligen
+        de tal manera que la fecha actual (es decir, hoy) esta dentro del
+        periodo definido por ambas y la bandera suelo esta activa, el registro
+        adquiere el estado "En desarrollo". En caso contrario, adquiere el
+        estado "Desarrollo optimo".
         */
         if (($scope.data.status.name == DEAD_STATUS)
           && (utilDate.compareTo($scope.data.harvestDate, currentDate) < 0
@@ -311,19 +327,15 @@ app.controller(
           }
 
           /*
-          Si el cultivo elegido tiene el estado "En desarrollo" o el estado
-          "Desarrollo optimo", y la cantidad de dias entre la fecha de siembra
+          Si el cultivo elegido tiene el estado "En desarrollo", "Desarrollo
+          optimo", "Desarrollo en riesgo de marchitez" o el estado "Desarrollo
+          en marchitez", y la cantidad de dias entre la fecha de siembra
           y la fecha de cosecha elegidas para el mismo es mayor a su ciclo de
           vida, la aplicacion muestra un mensaje de advertencia sugiriendo
-          cual debe ser la fecha de cosecha.
-
-          En la modificacion de un registro de plantacion, la aplicacion del
-          lado servidor modifica y devuelve un registro de plantacion que puede
-          tener unicamente uno de los siguientes estados dependiendo de si la
-          opcion de la parcela a la que pertenece tiene la bandera suelo activa
-          o no: en desarrollo, desarrollo optimo.
+          cual debe ser la fecha de cosecha
           */
-          if (($scope.data.status.name === IN_DEVELOPMENT || $scope.data.status.name === OPTIMAL_DEVELOPMENT_STATE) &&
+          if (($scope.data.status.name === IN_DEVELOPMENT_STATUS || $scope.data.status.name === OPTIMAL_DEVELOPMENT_STATE
+            || $scope.data.status.name === DEVELOPMENT_AT_RISK_WILTING_STATUS || $scope.data.status.name === DEVELOPMENT_IN_WILTING_STATUS) &&
             cropManager.lifeCycleExceeded($scope.data.crop.lifeCycle, $scope.data.seedDate, $scope.data.harvestDate)) {
             var suggestedHarvestDate = cropManager.calculateSuggestedHarvestDate($scope.data.seedDate, $scope.data.crop.lifeCycle);
             alert(cropManager.getLifeCycleExceededWarning($scope.data.seedDate, $scope.data.harvestDate, $scope.data.crop.lifeCycle, suggestedHarvestDate));
