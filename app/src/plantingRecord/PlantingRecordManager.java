@@ -612,7 +612,7 @@ public class PlantingRecordManager {
              * meteorologico utilizado y se lo persiste
              */
             if (!climateRecordService.checkExistence(pastDate, parcel)) {
-                newClimateRecord = ClimateClient.getForecast(parcel, pastDate.getTimeInMillis() / 1000);
+                newClimateRecord = ClimateClient.getForecast(parcel, pastDate);
                 climateRecordService.create(newClimateRecord);
             }
 
@@ -1312,7 +1312,7 @@ public class PlantingRecordManager {
              * al servicio meteorologico utilizado y se lo persiste
              */
             if (!climateRecordService.checkExistence(givenPastDate, givenParcel)) {
-                newClimateRecord = ClimateClient.getForecast(givenParcel, givenPastDate.getTimeInMillis() / 1000);
+                newClimateRecord = ClimateClient.getForecast(givenParcel, givenPastDate);
                 climateRecordService.create(newClimateRecord);
             }
 

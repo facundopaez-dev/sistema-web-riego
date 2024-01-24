@@ -90,14 +90,6 @@ public class ClimateRecordManager {
     ClimateRecord currentClimateRecord = null;
     PlantingRecord developingPlantingRecord = null;
 
-    /*
-     * Convierte el tiempo en milisegundos a segundos
-     * porque el formato UNIX utiliza el tiempo en segundos
-     * y se realiza esta conversion porque la API climatica
-     * Visual Crossing Weather puede recibir solicitudes con
-     * fechas en este formato
-     */
-    long unixTime = currentDate.getTimeInMillis() / 1000;
     double eto = 0.0;
     double etc = 0.0;
 
@@ -122,7 +114,7 @@ public class ClimateRecordManager {
            * en formato UNIX y las coordenadas geograficas de la
            * parcela dada
            */
-          currentClimateRecord = ClimateClient.getForecast(givenParcel, unixTime);
+          currentClimateRecord = ClimateClient.getForecast(givenParcel, currentDate);
         } catch (Exception e) {
           e.printStackTrace();
           break;

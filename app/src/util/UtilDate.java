@@ -410,4 +410,36 @@ public class UtilDate {
     return false;
   }
 
+  /**
+   * @param date
+   * @return referencia a un objeto String que contiene
+   * una fecha en el formato yyyy-MM-dd
+   */
+  public static String convertDateToYyyyMmDdFormat(Calendar date) {
+    /*
+     * El motivo por el cual se suma un uno al numero del
+     * mes es que Calendar enumera los meses comenzando
+     * desde el 0. Enero tiene el numero 0, febrero tiene
+     * el numero 1, y asi sucesivamente hasta diciembre
+     * que tiene el numero 11.
+     */
+    return date.get(Calendar.YEAR) + "-" + (date.get(Calendar.MONTH) + 1) + "-" + date.get(Calendar.DAY_OF_MONTH);
+  }
+
+  /**
+   * @param date
+   * @return referencia a un objeto String que contiene
+   * una fecha en el formato dd-MM-yyyy
+   */
+  public static String convertDateToDdMmYyyy(Calendar date) {
+    /*
+     * El motivo por el cual se suma un uno al numero del
+     * mes es que Calendar enumera los meses comenzando
+     * desde el 0. Enero tiene el numero 0, febrero tiene
+     * el numero 1, y asi sucesivamente hasta diciembre
+     * que tiene el numero 11.
+     */
+    return date.get(Calendar.DAY_OF_MONTH) + "-" + (date.get(Calendar.MONTH) + 1) + "-" + date.get(Calendar.YEAR);
+  }
+
 }

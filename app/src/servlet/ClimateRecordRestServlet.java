@@ -1191,11 +1191,12 @@ public class ClimateRecordRestServlet {
   @GET
   @Path("/apiCallTest")
   @Produces(MediaType.APPLICATION_JSON)
-	public String getForecast(@QueryParam("latitude") double latitude, @QueryParam("longitude") double longitude, @QueryParam("time") long time) throws IOException {
-    Parcel givenParcel = new Parcel();
-    givenParcel.setLatitude(latitude);
-    givenParcel.setLongitude(longitude);
-    return mapper.writeValueAsString(ClimateClient.getForecast(givenParcel, time));
-	}
+  public String getForecast(@QueryParam("latitude") double latitude, @QueryParam("longitude") double longitude,
+      @QueryParam("date") String stringDate) throws IOException, ParseException {
+    SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+    Date date = new Date(dateFormatter.parse(stringDate).getTime());
+
+    return mapper.writeValueAsString(ClimateClient.getForecast(latitude, longitude, UtilDate.toCalendar(date)));
+  }
 
 }

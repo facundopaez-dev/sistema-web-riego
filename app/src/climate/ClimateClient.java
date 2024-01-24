@@ -1,23 +1,24 @@
 package climate;
 
-import com.google.gson.Gson;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.HttpsURLConnection;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.ArrayList;
+import com.google.gson.Gson;
 import model.ClimateRecord;
 import model.Parcel;
 import model.TypePrecipitation;
 import weatherApiClasses.Day;
 import weatherApiClasses.Forecast;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.X509TrustManager;
-import javax.net.ssl.HttpsURLConnection;
+import util.UtilDate;
 
 /*
  * ClimateCliente es la clase que se utiliza para obtener datos
@@ -64,21 +65,21 @@ public class ClimateClient {
 
   /*
    * Biblioteca creada por Google para convertir formato
-   * JSON a POJO y viceversa
+   * JSON a POJO (Plain Old Java Object) y viceversa
    */
   private static Gson gson = new Gson();
 
   /**
-   * Retorna los datos meteorologicos para una ubicacion
-   * geografica en una fecha dada.
+   * Retorna los datos meteorologicos de una fecha y una
+   * ubicacion geografica.
    * 
    * @param parcel
-   * @param datetimeEpoch [tiempo UNIX]
+   * @param date
    * @return referencia a un objeto de tipo ClimateRecord que
-   * contiene los datos meteorologicos obtenidos en base a una
-   * coordenada geografica y una fecha en tiempo UNIX
+   * contiene los datos meteorologicos obtenidos en funcion
+   * de una fecha y una coordenada geografica
    */
-  public static ClimateRecord getForecast(Parcel parcel, long datetimeEpoch) throws IOException {
+  public static ClimateRecord getForecast(Parcel parcel, Calendar date) throws IOException {
     ClimateRecord newClimateRecord = new ClimateRecord();
     newClimateRecord.setParcel(parcel);
 
@@ -86,7 +87,7 @@ public class ClimateClient {
      * Obtiene los datos meteorologicos para una parcela
      * mediante su latitud y longitud, en una fecha dada
      */
-    Forecast newForecast = requestWeatherData(parcel.getLatitude(), parcel.getLongitude(), datetimeEpoch);
+    Forecast newForecast = requestWeatherData(parcel.getLatitude(), parcel.getLongitude(), date);
 
     /*
      * Asigna los datos meteorologicos contenidos en el objeto
@@ -98,17 +99,52 @@ public class ClimateClient {
   }
 
   /**
-   * Obtiene los datos meteorologicos para una ubicacion geografica
-   * en una fecha dada
+   * Retorna los datos meteorologicos de una fecha y una
+   * ubicacion geografica.
+   * 
+   * ATENCION: Este metodo es implementado para ser utilizado
+   * por el metodo getForecast() de prueba de la clase
+   * ClimateRecordRestServlet. El getForecast() es unicamente
+   * para probar que la invocacion a la API climatica Visual
+   * Crossing Weather funciona correctamente.
+   * 
+   * @param latitude
+   * @param longitude
+   * @param date
+   * @return referencia a un objeto de tipo ClimateRecord que
+   * contiene los datos meteorologicos obtenidos en funcion
+   * de una fecha y una coordenada geografica
+   */
+  public static ClimateRecord getForecast(double latitude, double longitude, Calendar date) throws IOException {
+    ClimateRecord newClimateRecord = new ClimateRecord();
+
+    /*
+     * Obtiene los datos meteorologicos para una parcela
+     * mediante su latitud y longitud, en una fecha dada
+     */
+    Forecast newForecast = requestWeatherData(latitude, longitude, date);
+
+    /*
+     * Asigna los datos meteorologicos contenidos en el objeto
+     * referenciado por la referencia de forecast al objeto
+     * referenciado por la referencia de climateRecord
+     */
+    assignClimateData(newClimateRecord, newForecast);
+    return newClimateRecord;
+  }
+
+  /**
+   * Obtiene los datos meteorologicos de una fecha y una
+   * ubicacion geografica
    * 
    * @param latitude      [grados decimales]
    * @param longitude     [grados decimales]
-   * @param datetimeEpoch [tiempo UNIX]
+   * @param date
    * @return referencia a un objeto de tipo Forecast que
    * contiene los datos meteorologicos obtenidos para una
    * latitud y una longitud, en una fecha en tiempo UNIX
    */
-  private static Forecast requestWeatherData(double latitude, double longitude, long datetimeEpoch) throws IOException {
+  private static Forecast requestWeatherData(double latitude, double longitude, Calendar date) throws IOException {
     /*
      * Si no se agrega este bloque de codigo antes del bloque de
      * codigo que realiza la invocacion a la API climatica Visual
@@ -175,7 +211,7 @@ public class ClimateClient {
     HttpURLConnection httpUrlConnection = null;
 
     try {
-      URL url = new URL(getCompleteWeatherUrl(latitude, longitude, datetimeEpoch));
+      URL url = new URL(getCompleteWeatherUrl(latitude, longitude, date));
 
       httpUrlConnection = (HttpURLConnection) url.openConnection();
       httpUrlConnection.setRequestMethod("GET");
@@ -224,25 +260,33 @@ public class ClimateClient {
   }
 
   /**
-   * Retorna el URL completo con la latitud, la longitud, la fecha en
-   * tiempo UNIX, la clave proporcionada por la API Visual Crossing
-   * Weather, el grupo de unidades de medida metric y el parametro de
-   * consulta include para obtener los siguientes datos meteorologicos
-   * de un dia, incluido su fecha: el tiempo desde la epoca (1 de enero
-   * de 1970), la temperatura maxima, la temperatura minima, el punto de
-   * rocio, la humedad, la precipitacion, la probabilidad de precipitacion,
-   * el tipo de precipitacion, la velocidad del viento, la presion atmosferica
-   * y la nubosidad
+   * Retorna el URL completo con la latitud, la longitud, la fecha
+   * en formato yyyy-MM-dd, la clave proporcionada por la API Visual
+   * Crossing Weather, el grupo de unidades de medida metric y el
+   * parametro de consulta include para obtener los siguientes datos
+   * meteorologicos correspondientes a una fecha y una ubicacion
+   * geografica:
+   * - tiempo desde la epoca (1 de enero de 1970)
+   * - temperatura maxima
+   * - temperatura minima
+   * - punto de rocio
+   * - humedad
+   * - precipitacion
+   * - probabilidad de precipitacion
+   * - tipo de precipitacion
+   * - velocidad del viento
+   * - presion atmosferica
+   * - nubosidad
    * 
    * @param latitude      [grados decimales]
    * @param longitude     [grados decimales]
-   * @param datetimeEpoch [tiempo UNIX]
-   * @return referencia a un objeto de tipo String que contiene el URL necesario
-   *         para realizar una solicitud a la API meteorologica Visual Crossing
-   *         Weather
+   * @param date
+   * @return referencia a un objeto de tipo String que contiene el URL
+   * necesario para realizar una solicitud HTTP a la API meteorologica
+   * Visual Crossing Weather
    */
-  private static String getCompleteWeatherUrl(double latitude, double longitude, long datetimeEpoch) {
-    return INCOMPLETE_WEATHER_URL + latitude + "," + longitude + "/" + datetimeEpoch + "?" + API_KEY + QUERY_STRING;
+  private static String getCompleteWeatherUrl(double latitude, double longitude, Calendar date) {
+    return INCOMPLETE_WEATHER_URL + latitude + "," + longitude + "/" + UtilDate.convertDateToYyyyMmDdFormat(date) + "?" + API_KEY + QUERY_STRING;
   }
 
   /**
@@ -262,8 +306,11 @@ public class ClimateClient {
     Calendar date = Calendar.getInstance();
 
     /*
-     * El tiempo UNIX esta en segundos, con lo cual, se lo
-     * debe multiplicar por 1000 para convetirlo en milisegundos
+     * El tiempo devuelto por Visual Crossing Weather es el
+     * numero de segundos desde la epoca (1 de enero de 1970)
+     * en formato UTC. Esto es que esta en tiempo UNIX. Para
+     * convertirlo a milisegundos se lo debe multiplicar por
+     * 1000.
      */
     date.setTimeInMillis(day.getDatetimeEpoch() * 1000);
 
