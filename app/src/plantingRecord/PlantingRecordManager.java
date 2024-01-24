@@ -1210,7 +1210,7 @@ public class PlantingRecordManager {
          * Parcela que tiene un cultivo plantado y en desarrollo en
          * la fecha actual
          */
-        Parcel givenParcel = developingPlantingRecord.getParcel();
+        Parcel parcel = developingPlantingRecord.getParcel();
 
         /*
          * Estas fechas son utilizadas para comprobar si existe el
@@ -1233,7 +1233,7 @@ public class PlantingRecordManager {
          * que tiene un cultivo sembrado y en desarrollo en la
          * fecha actual
          */
-        Calendar givenPastDate = null;
+        Calendar pastDate = null;
         ClimateRecord newClimateRecord;
 
         /*
@@ -1250,18 +1250,18 @@ public class PlantingRecordManager {
          * de dia en el año de la fecha inmediatamente anterior a
          * la fecha actual
          */
-        if (parcelOption.getFlagLastIrrigationThirtyDays() && irrigationRecordService.checkExistenceLastBetweenDates(userId, givenParcel.getId(), minorDate, majorDate)) {
+        if (parcelOption.getFlagLastIrrigationThirtyDays() && irrigationRecordService.checkExistenceLastBetweenDates(userId, parcel.getId(), minorDate, majorDate)) {
             /*
              * La fecha a partir de la que se deben recuperar los registros
              * climaticos del pasado (es decir, anteriores a la fecha actual)
              * para una parcela es la fecha del ultimo riego registrado de una
              * parcela
              */
-            Calendar dateLastIrrigationRecord = irrigationRecordService.findLastBetweenDates(userId, givenParcel.getId(), minorDate, majorDate).getDate();
-            givenPastDate = Calendar.getInstance();
-            givenPastDate.set(Calendar.YEAR, dateLastIrrigationRecord.get(Calendar.YEAR));
-            givenPastDate.set(Calendar.MONTH, dateLastIrrigationRecord.get(Calendar.MONTH));
-            givenPastDate.set(Calendar.DAY_OF_YEAR, dateLastIrrigationRecord.get(Calendar.DAY_OF_YEAR));
+            Calendar dateLastIrrigationRecord = irrigationRecordService.findLastBetweenDates(userId, parcel.getId(), minorDate, majorDate).getDate();
+            pastDate = Calendar.getInstance();
+            pastDate.set(Calendar.YEAR, dateLastIrrigationRecord.get(Calendar.YEAR));
+            pastDate.set(Calendar.MONTH, dateLastIrrigationRecord.get(Calendar.MONTH));
+            pastDate.set(Calendar.DAY_OF_YEAR, dateLastIrrigationRecord.get(Calendar.DAY_OF_YEAR));
 
             /*
              * A la resta entre estas dos fechas se le suma un uno para
@@ -1272,7 +1272,7 @@ public class PlantingRecordManager {
              * a un objeto de tipo Calendar que contiene la fecha
              * inmediatamente anterior a la fecha actual.
              */
-            pastDaysReference = UtilDate.calculateDifferenceBetweenDates(givenPastDate, majorDate) + 1;
+            pastDaysReference = UtilDate.calculateDifferenceBetweenDates(pastDate, majorDate) + 1;
         }
 
         /*
@@ -1288,9 +1288,9 @@ public class PlantingRecordManager {
          * fecha actual) a partir de la cual obtener los registros
          * climaticos mediante dicha cantidad
          */
-        if (!parcelOption.getFlagLastIrrigationThirtyDays() || !irrigationRecordService.checkExistenceLastBetweenDates(userId, givenParcel.getId(), minorDate, majorDate)) {
+        if (!parcelOption.getFlagLastIrrigationThirtyDays() || !irrigationRecordService.checkExistenceLastBetweenDates(userId, parcel.getId(), minorDate, majorDate)) {
             pastDaysReference = parcelOption.getPastDaysReference();
-            givenPastDate = UtilDate.getPastDateFromOffset(pastDaysReference);
+            pastDate = UtilDate.getPastDateFromOffset(pastDaysReference);
         }
 
         /*
@@ -1299,10 +1299,10 @@ public class PlantingRecordManager {
          * tiene un cultivo plantado y en desarrollo en la fecha actual.
          * Estos registros climaticos van desde la fecha contenida en el
          * objeto de tipo Calendar referenciado por la variable de tipo
-         * por referencia givenPastDate, hasta la fecha inmediatamente
+         * por referencia pastDate, hasta la fecha inmediatamente
          * anterior a la fecha actual. Las dos sentencias if anteriores
          * contienen la manera en la que se calcula la fecha referenciada
-         * por givenPastDate.
+         * por pastDate.
          */
         for (int i = 0; i < pastDaysReference; i++) {
 
@@ -1311,8 +1311,8 @@ public class PlantingRecordManager {
              * de una fecha anterior a la fecha actual, se lo solicita
              * al servicio meteorologico utilizado y se lo persiste
              */
-            if (!climateRecordService.checkExistence(givenPastDate, givenParcel)) {
-                newClimateRecord = ClimateClient.getForecast(givenParcel, givenPastDate);
+            if (!climateRecordService.checkExistence(pastDate, parcel)) {
+                newClimateRecord = ClimateClient.getForecast(parcel, pastDate);
                 climateRecordService.create(newClimateRecord);
             }
 
@@ -1321,7 +1321,7 @@ public class PlantingRecordManager {
              * pasada dada para obtener el siguiente registro climatico
              * correspondiente a una fecha pasada
              */
-            givenPastDate.set(Calendar.DAY_OF_YEAR, givenPastDate.get(Calendar.DAY_OF_YEAR) + 1);
+            pastDate.set(Calendar.DAY_OF_YEAR, pastDate.get(Calendar.DAY_OF_YEAR) + 1);
         }
 
     }
@@ -1354,7 +1354,7 @@ public class PlantingRecordManager {
          * Parcela que tiene un cultivo plantado y en desarrollo en
          * la fecha actual
          */
-        Parcel givenParcel = developingPlantingRecord.getParcel();
+        Parcel parcel = developingPlantingRecord.getParcel();
 
         /*
          * Estas fechas son utilizadas para comprobar si existe el
@@ -1377,7 +1377,7 @@ public class PlantingRecordManager {
          * que tiene un cultivo sembrado y en desarrollo en la
          * fecha actual
          */
-        Calendar givenPastDate = null;
+        Calendar pastDate = null;
         ClimateRecord givenClimateRecord;
         PlantingRecord givenPlantingRecord;
 
@@ -1398,18 +1398,18 @@ public class PlantingRecordManager {
          * de dia en el año de la fecha inmediatamente anterior a
          * la fecha actual
          */
-        if (parcelOption.getFlagLastIrrigationThirtyDays() && irrigationRecordService.checkExistenceLastBetweenDates(userId, givenParcel.getId(), minorDate, majorDate)) {
+        if (parcelOption.getFlagLastIrrigationThirtyDays() && irrigationRecordService.checkExistenceLastBetweenDates(userId, parcel.getId(), minorDate, majorDate)) {
             /*
              * La fecha a partir de la que se deben recuperar los registros
              * climaticos del pasado (es decir, anteriores a la fecha actual)
              * para una parcela es la fecha del ultimo riego registrado de una
              * parcela
              */
-            Calendar dateLastIrrigationRecord = irrigationRecordService.findLastBetweenDates(userId, givenParcel.getId(), minorDate, majorDate).getDate();
-            givenPastDate = Calendar.getInstance();
-            givenPastDate.set(Calendar.YEAR, dateLastIrrigationRecord.get(Calendar.YEAR));
-            givenPastDate.set(Calendar.MONTH, dateLastIrrigationRecord.get(Calendar.MONTH));
-            givenPastDate.set(Calendar.DAY_OF_YEAR, dateLastIrrigationRecord.get(Calendar.DAY_OF_YEAR));
+            Calendar dateLastIrrigationRecord = irrigationRecordService.findLastBetweenDates(userId, parcel.getId(), minorDate, majorDate).getDate();
+            pastDate = Calendar.getInstance();
+            pastDate.set(Calendar.YEAR, dateLastIrrigationRecord.get(Calendar.YEAR));
+            pastDate.set(Calendar.MONTH, dateLastIrrigationRecord.get(Calendar.MONTH));
+            pastDate.set(Calendar.DAY_OF_YEAR, dateLastIrrigationRecord.get(Calendar.DAY_OF_YEAR));
 
             /*
              * A la resta entre estas dos fechas se le suma un uno para
@@ -1420,7 +1420,7 @@ public class PlantingRecordManager {
              * a un objeto de tipo Calendar que contiene la fecha
              * inmediatamente anterior a la fecha actual.
              */
-            pastDaysReference = UtilDate.calculateDifferenceBetweenDates(givenPastDate, majorDate) + 1;
+            pastDaysReference = UtilDate.calculateDifferenceBetweenDates(pastDate, majorDate) + 1;
         }
 
         /*
@@ -1436,9 +1436,9 @@ public class PlantingRecordManager {
          * fecha actual) a partir de la cual obtener los registros
          * climaticos mediante dicha cantidad
          */
-        if (!parcelOption.getFlagLastIrrigationThirtyDays() || !irrigationRecordService.checkExistenceLastBetweenDates(userId, givenParcel.getId(), minorDate, majorDate)) {
+        if (!parcelOption.getFlagLastIrrigationThirtyDays() || !irrigationRecordService.checkExistenceLastBetweenDates(userId, parcel.getId(), minorDate, majorDate)) {
             pastDaysReference = parcelOption.getPastDaysReference();
-            givenPastDate = UtilDate.getPastDateFromOffset(pastDaysReference);
+            pastDate = UtilDate.getPastDateFromOffset(pastDaysReference);
         }
 
         /*
@@ -1457,8 +1457,8 @@ public class PlantingRecordManager {
              * fecha anterior a la fecha actual, calcula la ETo y la
              * ETc del mismo
              */
-            if (climateRecordService.checkExistence(givenPastDate, givenParcel)) {
-                givenClimateRecord = climateRecordService.find(givenPastDate, givenParcel);
+            if (climateRecordService.checkExistence(pastDate, parcel)) {
+                givenClimateRecord = climateRecordService.find(pastDate, parcel);
 
                 eto = calculateEtoForClimateRecord(givenClimateRecord);
 
@@ -1476,12 +1476,12 @@ public class PlantingRecordManager {
                  * obtiene el kc del cultivo para calcular su ETc, la
                  * cual se asignara al correspondiente registro climatico.
                  */
-                if (plantingRecordService.checkExistence(givenParcel, givenPastDate)) {
-                    givenPlantingRecord = plantingRecordService.find(givenParcel, givenPastDate);
-                    etc = calculateEtcForClimateRecord(eto, givenPlantingRecord, givenPastDate);
+                if (plantingRecordService.checkExistence(parcel, pastDate)) {
+                    givenPlantingRecord = plantingRecordService.find(parcel, pastDate);
+                    etc = calculateEtcForClimateRecord(eto, givenPlantingRecord, pastDate);
                 }
 
-                climateRecordService.updateEtoAndEtc(givenPastDate, givenParcel, eto, etc);
+                climateRecordService.updateEtoAndEtc(pastDate, parcel, eto, etc);
 
                 /*
                  * Luego de calcular la ETc de un registro climatico, se debe
@@ -1497,7 +1497,7 @@ public class PlantingRecordManager {
              * pasada dada para obtener el siguiente registro climatico
              * correspondiente a una fecha pasada
              */
-            givenPastDate.set(Calendar.DAY_OF_YEAR, givenPastDate.get(Calendar.DAY_OF_YEAR) + 1);
+            pastDate.set(Calendar.DAY_OF_YEAR, pastDate.get(Calendar.DAY_OF_YEAR) + 1);
         } // End for
 
     }
@@ -1568,8 +1568,8 @@ public class PlantingRecordManager {
         Calendar dateFrom = null;
         Calendar dateUntil = UtilDate.getYesterdayDate();
 
-        Parcel givenParcel = developingPlantingRecord.getParcel();
-        Option parcelOption = givenParcel.getOption();
+        Parcel parcel = developingPlantingRecord.getParcel();
+        Option parcelOption = parcel.getOption();
 
         /*
          * Estas fechas son utilizadas para comprobar si existe el
@@ -1598,7 +1598,7 @@ public class PlantingRecordManager {
          * con este metodo es calcular la necesidad de agua de riego
          * de un cultivo en la fecha actual [mm/dia]
          */
-        if (parcelOption.getFlagLastIrrigationThirtyDays() && irrigationRecordService.checkExistenceLastBetweenDates(userId, givenParcel.getId(), minorDate, majorDate)) {
+        if (parcelOption.getFlagLastIrrigationThirtyDays() && irrigationRecordService.checkExistenceLastBetweenDates(userId, parcel.getId(), minorDate, majorDate)) {
             /*
              * La fecha a partir de la que se deben obtener los registros
              * climaticos y los registros de riego previos a la fecha
@@ -1606,7 +1606,7 @@ public class PlantingRecordManager {
              * parcela, es la fecha del ultimo riego registrado de una
              * parcela
              */
-            Calendar dateLastIrrigationRecord = irrigationRecordService.findLastBetweenDates(userId, givenParcel.getId(), minorDate, majorDate).getDate();
+            Calendar dateLastIrrigationRecord = irrigationRecordService.findLastBetweenDates(userId, parcel.getId(), minorDate, majorDate).getDate();
             dateFrom = Calendar.getInstance();
             dateFrom.set(Calendar.YEAR, dateLastIrrigationRecord.get(Calendar.YEAR));
             dateFrom.set(Calendar.MONTH, dateLastIrrigationRecord.get(Calendar.MONTH));
@@ -1628,11 +1628,11 @@ public class PlantingRecordManager {
          * que se busca con este metodo es calcular la necesidad de
          * agua de riego de un cultivo en la fecha actual [mm/dia]
          */
-        if (!parcelOption.getFlagLastIrrigationThirtyDays() || !irrigationRecordService.checkExistenceLastBetweenDates(userId, givenParcel.getId(), minorDate, majorDate)) {
+        if (!parcelOption.getFlagLastIrrigationThirtyDays() || !irrigationRecordService.checkExistenceLastBetweenDates(userId, parcel.getId(), minorDate, majorDate)) {
             dateFrom = UtilDate.getPastDateFromOffset(parcelOption.getPastDaysReference());
         }
 
-        double totalIrrigationWaterCurrentDate = irrigationRecordService.calculateTotalIrrigationWaterCurrentDate(givenParcel.getId());
+        double totalIrrigationWaterCurrentDate = irrigationRecordService.calculateTotalIrrigationWaterCurrentDate(parcel.getId());
 
         /*
          * Obtiene de la base de datos subyacente los registros
@@ -1649,8 +1649,8 @@ public class PlantingRecordManager {
          * climaticos y los registros de riego de una parcela previos
          * a la fecha actual.
          */
-        Collection<ClimateRecord> climateRecords = climateRecordService.findAllByParcelIdAndPeriod(userId, givenParcel.getId(), dateFrom, dateUntil);
-        Collection<IrrigationRecord> irrigationRecords = irrigationRecordService.findAllByParcelIdAndPeriod(userId, givenParcel.getId(), dateFrom, dateUntil);
+        Collection<ClimateRecord> climateRecords = climateRecordService.findAllByParcelIdAndPeriod(userId, parcel.getId(), dateFrom, dateUntil);
+        Collection<IrrigationRecord> irrigationRecords = irrigationRecordService.findAllByParcelIdAndPeriod(userId, parcel.getId(), dateFrom, dateUntil);
 
         /*
          * Genera los balances hidricos de suelo asociados al cultivo
@@ -1678,7 +1678,7 @@ public class PlantingRecordManager {
          * la base de datos subyacente quedara en un estado
          * inconsistente.
          */
-        parcelService.merge(givenParcel);
+        parcelService.merge(parcel);
 
         double cropIrrigationWaterNeedCurrentDate = 0.0;
 
@@ -1715,7 +1715,7 @@ public class PlantingRecordManager {
          */
         if (parcelOption.getSoilFlag()) {
             cropIrrigationWaterNeedCurrentDate = WaterNeedWs.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate,
-                    developingPlantingRecord.getCrop(), givenParcel.getSoil(), climateRecords, irrigationRecords);
+                    developingPlantingRecord.getCrop(), parcel.getSoil(), climateRecords, irrigationRecords);
         }
 
         return cropIrrigationWaterNeedCurrentDate;
@@ -1734,12 +1734,12 @@ public class PlantingRecordManager {
      * y pertenece a una parcela
      */
     private double calculateEtoForClimateRecord(ClimateRecord givenClimateRecord) {
-        Parcel givenParcel = givenClimateRecord.getParcel();
-        double extraterrestrialSolarRadiation = solarService.getRadiation(givenParcel.getLatitude(),
+        Parcel parcel = givenClimateRecord.getParcel();
+        double extraterrestrialSolarRadiation = solarService.getRadiation(parcel.getLatitude(),
                 monthService.getMonth(givenClimateRecord.getDate().get(Calendar.MONTH)),
-                latitudeService.find(givenParcel.getLatitude()),
-                latitudeService.findPreviousLatitude(givenParcel.getLatitude()),
-                latitudeService.findNextLatitude(givenParcel.getLatitude()));
+                latitudeService.find(parcel.getLatitude()),
+                latitudeService.findPreviousLatitude(parcel.getLatitude()),
+                latitudeService.findNextLatitude(parcel.getLatitude()));
 
         /*
          * Calculo de la evapotranspiracion del cultivo de
@@ -1777,8 +1777,8 @@ public class PlantingRecordManager {
      * @param developingPlantingRecord
      */
     private void updateIrrigationSheets(PlantingRecord developingPlantingRecord) throws IOException {
-        Parcel givenParcel = developingPlantingRecord.getParcel();
-        Option parcelOption = givenParcel.getOption();
+        Parcel parcel = developingPlantingRecord.getParcel();
+        Option parcelOption = parcel.getOption();
 
         /*
          * Si la parcela de un registro de plantacion tiene la bandera
@@ -1795,7 +1795,7 @@ public class PlantingRecordManager {
              * de un registro de plantacion en la base de datos subyacente
              */
             plantingRecordService.updateTotalAmountWaterAvailable(developingPlantingRecord.getId(),
-                    WaterMath.calculateTotalAmountWaterAvailable(givenCrop, givenParcel.getSoil()));
+                    WaterMath.calculateTotalAmountWaterAvailable(givenCrop, parcel.getSoil()));
 
             /*
              * Actualizacion de la lamina de riego optima (drop) [mm] de
@@ -1828,7 +1828,7 @@ public class PlantingRecordManager {
              * como umbral de riego, debido a lo que representa.
              */
             plantingRecordService.updateOptimalIrrigationLayer(developingPlantingRecord.getId(),
-                    WaterMath.calculateNegativeOptimalIrrigationLayer(givenCrop, givenParcel.getSoil()));
+                    WaterMath.calculateNegativeOptimalIrrigationLayer(givenCrop, parcel.getSoil()));
         }
 
     }
