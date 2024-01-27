@@ -225,6 +225,7 @@ public class PlantingRecordManager {
          * la capacidad de almacenamiento de agua del mismo.
          */
         String notCalculated = soilWaterBalanceService.getNotCalculated();
+        String stringIrrigationWaterNeedCurrentDate = soilWaterBalanceService.getNotCalculated();
 
         /*
          * El valor de esta constante se asigna a la necesidad de
@@ -245,7 +246,6 @@ public class PlantingRecordManager {
          * La abreviatura "n/a" significa "no disponible".
          */
         String notAvailable = plantingRecordService.getNotAvailable();
-        String stringIrrigationWaterNeedCurrentDate = null;
 
         Collection<PlantingRecord> developingPlantingRecords = plantingRecordService.findAllInDevelopment();
 
@@ -304,56 +304,78 @@ public class PlantingRecordManager {
             }
 
             /*
-             * Si la necesidad de agua de riego de un cultivo (en
-             * desarrollo) en la fecha actual [mm/dia] es "NC"
-             * (valor de la variable notCalculated) significa que
-             * el algoritmo utilizado para calcular dicha necesidad
-             * es el que utiliza el suelo para ello, ya que al
-             * utilizar este algoritmo se retorna el valor "NC"
-             * para representar la situacion en la que NO se
-             * calcula el acumulado del deficit de agua por dia
-             * del balance hidrico de una parcela que tiene un
-             * cultivo sembrado y en desarrollo. Esta situacion
-             * ocurre cuando el nivel de humedad de un suelo, que
-             * tiene un cultivo sembrado, es estrictamente menor
-             * al doble de la capacidad de almacenamiento de agua
-             * de un suelo que tiene un cultivo sembrado.
+             * Si la necesidad de agua de riego de un cultivo (en desarrollo)
+             * en la fecha actual (es decir, hoy) [mm/dia] NO es "NC" (no
+             * calculado) entonces es un numero, ya que el metodo
+             * runCalculationIrrigationWaterNeedCurrentDateTwo() retorna
+             * unicamente uno de los siguientes valores: un numero o "NC".
+             * En el caso en el que dicha necesidad es un numero, se utiliza
+             * dicho numero para actualizar el atributo "necesidad de agua
+             * de riego de un cultivo" (*) del registro de plantacion
+             * correspondiente que tiene un estado de desarrollo (en
+             * desarrollo, desarrollo optimo, desarrollo en riesgo de marchitez,
+             * desarrollo en marchitez).
              * 
-             * Por lo tanto, la aplicacion del lado servidor asigna
-             * la abreviatura "n/a" (no disponible) a la necesidad de
-             * agua de riego de un cultivo en la fecha actual [mm/dia]
-             * de un registro de plantacion en desarrollo y no se
-             * realiza la operacion solicitada.
-             * 
-             * En esta situacion, la aplicacion retorna el mensaje
-             * HTTP 400 (Bad request) informando de que el cultivo
-             * para el que se deseo calcular su necesidad de agua
-             * de riego en la fecha actual [mm/dia], esta muerto.
+             * (*) El atributo "necesidad de agua de riego de un cultivo" de
+             * un registro de plantacion es la necesidad de agua de riego de
+             * un cultivo en la fecha actual (es decir, hoy) [mm/dia].
              */
-            if (stringIrrigationWaterNeedCurrentDate != null && stringIrrigationWaterNeedCurrentDate.equals(notCalculated)) {
+            if (!stringIrrigationWaterNeedCurrentDate.equals(notCalculated)) {
+                /*
+                 * Si el valor de la necesidad de agua de riego de un
+                 * cultivo en la fecha actual [mm/dia] NO es igual al
+                 * valor "NC", significa que es un valor numerico. Por
+                 * lo tanto, se lo convierte a double, ya que dicha
+                 * necesidad esta expresada como double.
+                 */
+                double cropIrrigationWaterNeedCurrentDate = Math.abs(Double.parseDouble(stringIrrigationWaterNeedCurrentDate));
+
+                /*
+                 * *****************************************************
+                 * Actualizacion del atributo "necesidad agua riego de
+                 * cultivo" del registro de plantacion en desarrollo, el
+                 * cual tiene el cultivo para el que se solicita calcular
+                 * su necesidad de agua de riego en la fecha actual [mm/dia],
+                 * con el valor de de dicha necesidad de agua de riego
+                 * *****************************************************
+                 */
+                plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(), String.valueOf(cropIrrigationWaterNeedCurrentDate));
+            }
+
+            /*
+             * Si la necesidad de agua de riego de un cultivo (en desarrollo)
+             * en la fecha actual (es decir, hoy) [mm/dia] es "NC" ("no
+             * calculado") significa que el algoritmo utilizado para calcular
+             * dicha necesidad es el que utiliza el suelo para ello, ya que al
+             * utilizar este algoritmo se retorna el valor "NC" para representar
+             * la situacion en la que NO se calcula el acumulado del deficit
+             * de agua por dia [mm/dia] del balance hidrico de un dia y de una
+             * parcela que tiene un cultivo sembrado y en desarrollo. Esta
+             * situacion ocurre cuando el nivel de humedad de un suelo, que
+             * tiene un cultivo sembrado, es estrictamente menor al doble de
+             * la capacidad de almacenamiento de agua del mismo. Cuando ocurre
+             * esto con el nivel de humedad del suelo, el cultivo esta muerto
+             * y la aplicacion establece:
+             * 1. el estado "Muerto",
+             * 2. el valor "n/a" (no disponible) en el atributo "necesidad de
+             * agua de riego de un cultivo" (*) y
+             * 3. la fecha de muerte
+             * 
+             * de un registro de plantacion correspondiente que tiene un estado
+             * de desarrollo (en desarrollo, desarrollo optimo, desarrollo en
+             * riesgo de marchitez, desarrollo en marchitez). El establecimiento
+             * del estado "Muerto" se realiza en el metodo calculateSoilWaterBalances()
+             * de esta clase.
+             * 
+             * (*) El atributo "necesidad de agua de riego de un cultivo" de
+             * un registro de plantacion es la necesidad de agua de riego de
+             * un cultivo en la fecha actual (es decir, hoy) [mm/dia].
+             */
+            if (stringIrrigationWaterNeedCurrentDate.equals(notCalculated)) {
                 plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(), notAvailable);
                 plantingRecordService.updateDateDeath(developingPlantingRecord.getId(), UtilDate.getCurrentDate());
             }
 
-            /*
-             * Si el valor de la necesidad de agua de riego de un
-             * cultivo en la fecha actual [mm/dia] NO es igual al
-             * valor "NC", significa que es un valor numerico. Por
-             * lo tanto, se lo convierte a double, ya que dicha
-             * necesidad esta expresada como double.
-             */
-            double cropIrrigationWaterNeedCurrentDate = Math.abs(Double.parseDouble(stringIrrigationWaterNeedCurrentDate));
-
-            /*
-             * *****************************************************
-             * Actualizacion del atributo "necesidad agua riego de
-             * cultivo" del registro de plantacion en desarrollo, el
-             * cual tiene el cultivo para el que se solicita calcular
-             * su necesidad de agua de riego en la fecha actual [mm/dia],
-             * con el valor de de dicha necesidad de agua de riego
-             * *****************************************************
-             */
-            plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(), String.valueOf(cropIrrigationWaterNeedCurrentDate));
         } // End for
 
     }
@@ -1165,6 +1187,17 @@ public class PlantingRecordManager {
                  */
                 parcel.getSoilWaterBalances().add(soilWaterBalance);
                 parcelService.merge(parcel);
+
+                /*
+                 * Sincroniza el contexto de persistencia con la base
+                 * de datos subyacente. Esto es que sincroniza el
+                 * contexto de persistencia con el contenido de la
+                 * base de datos subyacente. El motivo por el cual
+                 * es necesario ejecutar esta instruccion es que
+                 * de no hacerlo, NO se persisten los balances
+                 * hidricos de suelo inexistentes.
+                 */
+                soilWaterBalanceService.getEntityManager().flush();
             } else {
                 soilWaterBalance = soilWaterBalanceService.find(parcel.getId(), pastDate);
                 soilWaterBalanceService.update(soilWaterBalance.getId(), crop.getName(), evaporatedWater,
