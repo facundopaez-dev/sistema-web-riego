@@ -931,6 +931,7 @@ public class PlantingRecordManager {
          */
         int days = UtilDate.calculateDifferenceBetweenDates(pastDate, yesterday) + 1;
 
+        double fieldCapacity = 0.0;
         double totalIrrigationWaterCurrentDate = 0.0;
         double evaporatedWater = 0.0;
         double waterProvidedPerDay = 0.0;
@@ -1097,7 +1098,7 @@ public class PlantingRecordManager {
                          * lamina de riego optima es que el acumulado del deficit
                          * de agua por dia [mm/dia] es menor o igual a cero.
                          */
-                        if ((accumulatedWaterDeficitPerDay + totalIrrigationWaterCurrentDate) <= 0
+                        if ((accumulatedWaterDeficitPerDay + totalIrrigationWaterCurrentDate) <= fieldCapacity
                                 && (accumulatedWaterDeficitPerDay + totalIrrigationWaterCurrentDate) > -(optimalIrrigationLayer)) {
                             plantingRecordService.setStatus(developingPlantingRecord.getId(), optimalDevelopmentStatus);
                         }
