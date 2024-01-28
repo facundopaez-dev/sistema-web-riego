@@ -514,16 +514,16 @@ public class WaterMath {
   /**
    * A la lamina de riego optima (drop) se le asigna el signo
    * negativo (-) para poder compararla con el acumulado del
-   * deficit de agua por dia [mm/dia], el cual es negativo y
-   * es calculado desde la fecha de siembra de un cultivo hasta
-   * la fecha inmediatamente anterior a la fecha actual. La
-   * lamina de riego optima representa la cantidad maxima de
-   * agua que puede perder un suelo para el cultivo que tiene
-   * sembrado, a partir de la cual NO conviene que pierda mas
-   * agua, sino que se le debe añadir agua hasta llevar su
-   * nivel de humedad a capacidad de campo. Capacidad de campo
-   * es la capacidad de almacenamiento de agua que tiene un
-   * suelo. Un suelo que esta en capacidad de campo es un
+   * deficit de agua por dia [mm/dia] (*), el cual es negativo
+   * y es calculado desde la fecha de siembra de un cultivo
+   * hasta la fecha inmediatamente anterior a la fecha actual.
+   * La lamina de riego optima representa la cantidad maxima
+   * de agua que puede perder un suelo para el cultivo que
+   * tiene sembrado, a partir de la cual NO conviene que pierda
+   * mas agua, sino que se le debe añadir agua hasta llevar
+   * su nivel de humedad a capacidad de campo. Capacidad de
+   * campo es la capacidad de almacenamiento de agua que tiene
+   * un suelo. Un suelo que esta en capacidad de campo es un
    * suelo lleno de agua, pero no anegado. El motivo por el
    * cual se habla de llevar el nivel de humedad del suelo,
    * que tiene un cultivo sembrado, a capacidad de campo es
@@ -539,6 +539,21 @@ public class WaterMath {
    * (limite superior) y punto de marchitez permanente (limite
    * inferior). La lamina de riego optima tambien se la conoce
    * como umbral de riego, debido a lo que representa.
+   * 
+   * (*) El motivo de esta comparacion es determinar la necesidad
+   * de agua de riego de un cultivo en la fecha actual (es decir,
+   * hoy) [mm/dia]. El acumulado del deficit de agua por dia
+   * [mm/dia] no se compara unicamente con la lamina de riego
+   * optima (drop) [mm] a la hora de calcular dicha necesidad.
+   * Para calcular la necesidad de agua de riego de un cultivo
+   * en la fecha actual (es decir, hoy) [mm/dia] se compara el
+   * acumulado del deficit de agua por dia [mm/dia], calculado
+   * desde la fecha de siembra de un cultivo hasta la fecha
+   * inmediatamente anterior a la fecha actual, con la capacidad
+   * de campo [mm], la lamina de riego optima (umbral de riego)
+   * [mm], la capacidad de almacenamiento de agua del suelo (lamina
+   * total de agua disponible (dt) [mm]) y el doble de la capacidad
+   * de almacenamiento de agua del suelo [mm].
    * 
    * @param crop
    * @param soil
