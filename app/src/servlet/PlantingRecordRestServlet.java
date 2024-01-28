@@ -1545,6 +1545,23 @@ public class PlantingRecordRestServlet {
      * Por este motivo se calculan y asignan la lamina total de agua
      * disponible y la lamina de riego optima en el registro de
      * plantacion a modificar.
+     * 
+     * El metodo calculateStatus() de la clase PlantingRecordStatusServiceBean
+     * calcula el estado de un registro de plantacion con base en la
+     * fecha de siembra, la fecha de cosecha y la bandera suelo de las
+     * opciones de la parcela a la que pertenece un registro de plantacion.
+     * Si la fecha de siembra y la fecha de cosecha se eligen de tal
+     * manera que la fecha actual (es decir, hoy) esta dentro del periodo
+     * definido por ambas y la bandera suelo esta activa, un registro
+     * adquiere el estado "En desarrollo". En caso contrario, adquiere
+     * el estado "Desarrollo optimo".
+     * 
+     * Por lo tanto, si un registro de plantacion tiene el estado
+     * "Desarrollo optimo" significa que la bandera suelo de la parcela
+     * a la que pertenece, esta activa. Por este motivo no es necesario
+     * utilizar una condicion para verificar el valor de dicha bandera
+     * a la hora de calcular la lamina total de agua disponible y
+     * la lamina de riego optima.
      */
     if (statusService.equals(newStatusPlantingRecord, optimalDevelopmentStatus)) {
       plantingRecordService.updateTotalAmountWaterAvailable(plantingRecordId, WaterMath.calculateTotalAmountWaterAvailable(modifiedCrop, modifiedParcel.getSoil()));
