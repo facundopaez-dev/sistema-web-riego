@@ -821,6 +821,42 @@ public class PlantingRecordRestServlet {
       newPlantingRecord.setCropIrrigationWaterNeed(cropIrrigationWaterNeedNotAvailableButCalculable);
     }
 
+    Parcel parcel = newPlantingRecord.getParcel();
+    Crop crop = newPlantingRecord.getCrop();
+
+    /*
+     * Si el estado del nuevo registro de plantacion es "Desarrollo
+     * optimo" se calculan y asignan la lamina total de agua disponible
+     * (dt) [mm] (capacidad de almacenamiento de agua de un suelo [mm])
+     * y la lamina de riego optima (drop) [mm] (umbral de riego [mm])
+     * al mismo.
+     * 
+     * El metodo calculateStatus() de la clase PlantingRecordStatusServiceBean
+     * calcula el estado de un registro de plantacion con base en la
+     * fecha de siembra, la fecha de cosecha y la bandera suelo de las
+     * opciones de la parcela a la que pertenece un registro de plantacion.
+     * Si la fecha de siembra y la fecha de cosecha se eligen de tal
+     * manera que la fecha actual (es decir, hoy) esta dentro del periodo
+     * definido por ambas y la bandera suelo esta activa, un registro
+     * adquiere el estado "En desarrollo". En caso contrario, adquiere
+     * el estado "Desarrollo optimo".
+     * 
+     * Por lo tanto, si un registro de plantacion tiene el estado
+     * "Desarrollo optimo" significa que la bandera suelo de la parcela
+     * a la que pertenece, esta activa. Por este motivo no es necesario
+     * utilizar una condicion para verificar el valor de dicha bandera
+     * a la hora de calcular la lamina total de agua disponible y la
+     * lamina de riego optima.
+     * 
+     * El comentario JavaDoc del metodo calculateNegativeOptimalIrrigationLayer()
+     * de la clase WaterMath describe el motivo por el cual se asigna
+     * el signo negativo (-) a la lamina de riego optima (drop) [mm].
+     */
+    if (statusService.equals(statusNewPlantingRecord, optimalDevelopmentStatus)) {
+      newPlantingRecord.setTotalAmountWaterAvailable(WaterMath.calculateTotalAmountWaterAvailable(crop, parcel.getSoil()));
+      newPlantingRecord.setOptimalIrrigationLayer(WaterMath.calculateNegativeOptimalIrrigationLayer(crop, parcel.getSoil()));
+    }
+
     /*
      * Un registro de plantacion nuevo debe poder ser modificado
      */
