@@ -343,7 +343,10 @@ public class WaterMath {
        * a una fecha, en una parcela en una fecha o de un cultivo
        * en una fecha [mm/dia], si se invoca este metodo para una
        * parcela que tiene un cultivo sembrado en una fecha, es 0
-       * [mm/dia].
+       * [mm/dia]. Todo esto significa que en el dia correspondiente
+       * al deficit de agua por dia calculado, el nivel de humedad
+       * del suelo esta en capacidad de campo, esto es que el
+       * suelo esta en capacidad de campo.
        */
       if (accumulatedWaterDeficitPerDay > 0) {
         accumulatedWaterDeficitPerDay = 0;
