@@ -347,6 +347,18 @@ public class WaterMath {
        * al deficit de agua por dia calculado, el nivel de humedad
        * del suelo esta en capacidad de campo, esto es que el
        * suelo esta en capacidad de campo.
+       * 
+       * Si el acumulado del deficit de agua por dia de dias previos
+       * a una fecha [mm/dia] es igual a cero despues de sumarle una
+       * cantidad extra de agua [mm/dia], se esta en la misma
+       * situacion. Por lo tanto, en el dia correspondiente al
+       * deficit de agua por dia calculado, el nivel de humedad del
+       * suelo esta en capacidad de campo, esto es que el suelo
+       * esta en capacidad de campo.
+       * 
+       * El metodo calculateNegativeOptimalIrrigationLayer(),
+       * escrito en esta clase, tiene una explicacion de lo que
+       * es la capacidad de campo.
        */
       if (accumulatedWaterDeficitPerDay > 0) {
         accumulatedWaterDeficitPerDay = 0;
