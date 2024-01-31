@@ -2812,12 +2812,12 @@ public class PlantingRecordRestServlet {
              * [mm/dia] de dias previos a la fecha actual y la cantidad
              * total de agua de riego de la fecha actual (es decir, hoy)
              * [mm/dia] es menor o igual al negativo de la capacidad de
-             * almacenamiento de agua del suelo [mm] y estrictamente
-             * mayor al doble del negativo de la capacidad de almacenamiento
-             * de agua del suelo [mm], significa que el nivel de humedad
+             * almacenamiento de agua del suelo [mm] y mayor o igual al
+             * doble del negativo de la capacidad de almacenamiento de
+             * agua del suelo [mm], significa que el nivel de humedad
              * del suelo en la fecha actual es menor o igual a la capacidad
-             * de almacenamiento de agua del suelo y estrictamente mayor
-             * al doble de la capacidad de almacenamiento de agua del
+             * de almacenamiento de agua del suelo y mayor o igual al
+             * doble de la capacidad de almacenamiento de agua del
              * suelo. En esta situacion, el registro de plantacion en
              * desarrollo adquiere el estado "Desarrollo en marchitez".
              * 
@@ -2827,7 +2827,7 @@ public class PlantingRecordRestServlet {
              * es menor o igual a cero.
              */
             if ((accumulatedWaterDeficitPerDay + totalIrrigationWaterCurrentDate) <= -(totalAmountWaterAvailable)
-                && (accumulatedWaterDeficitPerDay + totalIrrigationWaterCurrentDate) > -(2 * totalAmountWaterAvailable)) {
+                && (accumulatedWaterDeficitPerDay + totalIrrigationWaterCurrentDate) >= -(2 * totalAmountWaterAvailable)) {
               plantingRecordService.setStatus(developingPlantingRecord.getId(), developmentInWiltingStatus);
             }
 
