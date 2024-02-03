@@ -73,13 +73,13 @@
         <strong>Listado de regiones</strong>
     </div>
 
-    <form class="form-inline">
+    <!-- <form class="form-inline">
         <div class="form-group">
             <input name="region" type="text" ng-model="regionName" placeholder="Nombre" class="form-control">
         </div>
         <button class="btn btn-default" ng-click="searchRegion()">Buscar</button>
         <button class="btn btn-default" ng-click="reset()">Reiniciar listado</button>
-    </form>
+    </form> -->
 
     <div class="panel-body">
         <a href="#!/adminHome/regions/new" class="btn btn-success" role="button">Nueva región</a>
@@ -93,7 +93,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr ng-repeat="r in data">
+            <tr ng-repeat="r in listElement">
                 <td>{{r.id}}</td>
                 <td>{{r.name}}</td>
                 <td>{{r.active ? 'Sí' : 'No'}}</td>
@@ -109,5 +109,12 @@
                 </td>
             </tr>
         </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="4">
+                    <pagination></pagination>
+                </td>
+            </tr>
+        </tfoot>
     </table>
 </div>

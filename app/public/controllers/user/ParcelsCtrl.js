@@ -64,14 +64,6 @@ app.controller(
         })
       }
 
-      /* Esto ess necesario para la paginacion */
-      var $ctrl = this;
-
-      $scope.parcelService = parcelService;
-      $scope.listElement = []
-      $scope.cantPerPage = 20
-      /* Esto ess necesario para la paginacion */
-
       $scope.delete = function (id) {
         console.log("Deleting: " + id)
 
@@ -132,6 +124,14 @@ app.controller(
         })
       }
 
+      /* Esto es necesario para la paginacion */
+      var $ctrl = this;
+
+      $scope.service = parcelService;
+      $scope.listElement = []
+      $scope.cantPerPage = 20
+      /* Esto es necesario para la paginacion */
+
       /*
       Reinicia el listado de los datos correspondientes a este controller
       cuando se presiona el boton "Reiniciar listado". Esto significa que
@@ -147,5 +147,5 @@ app.controller(
         findAll();
       }
 
-      findAll();
+      // findAll();
     }]);

@@ -203,6 +203,14 @@ app.controller(
 				})
 			}
 
+			/* Esto es necesario para la paginacion */
+			var $ctrl = this;
+
+			$scope.service = plantingRecordSrv;
+			$scope.listElement = []
+			$scope.cantPerPage = 20
+			/* Esto es necesario para la paginacion */
+
 			/*
 			Trae el listado de todos los registros de plantacion de
 			todas las parcelas del usuario cuando este presiona el
@@ -219,5 +227,5 @@ app.controller(
 				findAll();
 			}
 
-			findAll();
+			// findAll();
 		}]);

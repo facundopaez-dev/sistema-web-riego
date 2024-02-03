@@ -190,6 +190,14 @@ app.controller(
 				})
 			}
 
+			/* Esto es necesario para la paginacion */
+			var $ctrl = this;
+
+			$scope.service = statisticalReportService;
+			$scope.listElement = []
+			$scope.cantPerPage = 20
+			/* Esto es necesario para la paginacion */
+
 			/*
 			Trae el listado de todos los datos correspondientes a
 			este controller cuando el usuario presiona el boton
@@ -206,5 +214,5 @@ app.controller(
 				findAll();
 			}
 
-			findAll();
+			// findAll();
 		}]);

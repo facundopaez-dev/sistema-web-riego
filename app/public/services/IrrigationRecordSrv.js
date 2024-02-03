@@ -13,6 +13,19 @@ app.service(
           });
       }
 
+      this.searchByPage = function (search, page, cant, callback) {
+        $http
+          .get('rest/irrigationRecords/findAllPagination?page=' + page + '&cant=' + cant)
+          .then(
+            function (res) {
+              return callback(false, res.data)
+            },
+            function (err) {
+              return callback(err.data)
+            }
+          )
+      }
+
       this.find = function (id, callback) {
         $http.get("rest/irrigationRecords/" + id).then(
           function (result) {

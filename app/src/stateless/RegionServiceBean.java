@@ -1,7 +1,9 @@
 package stateless;
 
-import java.util.Calendar;
+import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Map;
+import java.util.Calendar;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -301,6 +303,68 @@ public class RegionServiceBean {
      */
     public boolean checkRepeated(int id, String name) {
         return (findRepeated(id, name) != null);
+    }
+
+    public Page<Region> findAllPagination(Integer page, Integer cantPerPage, Map<String, String> parameters) {
+        // Genera el WHERE dinamicante
+        StringBuffer where = new StringBuffer(" WHERE 1=1");
+
+        if (parameters != null) {
+
+            for (String param : parameters.keySet()) {
+                Method method;
+
+                try {
+                    method = Region.class.getMethod("get" + capitalize(param));
+
+                    if (method == null) {
+                        continue;
+                    }
+
+                    switch (method.getReturnType().getSimpleName()) {
+                        case "String":
+                            where.append(" AND UPPER(");
+                            where.append(param);
+                            where.append(") LIKE UPPER(");
+                            where.append(parameters.get(param));
+                            where.append(")");
+                            break;
+                        default:
+                            where.append(" AND ");
+                            where.append(param);
+                            where.append(" = ");
+                            where.append(parameters.get(param));
+                            break;
+                    }
+
+                } catch (NoSuchMethodException | SecurityException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+            }
+
+        }
+
+        // Cuenta la cantidad total de resultados
+        Query countQuery = entityManager
+                .createQuery("SELECT COUNT(u.id) FROM " + Region.class.getSimpleName() + " u" + where.toString());
+
+        // Realiza la paginacion
+        Query query = entityManager.createQuery("FROM " + Region.class.getSimpleName() + " u" + where.toString());
+        query.setMaxResults(cantPerPage);
+        query.setFirstResult((page - 1) * cantPerPage);
+        Integer count = ((Long) countQuery.getSingleResult()).intValue();
+        Integer lastPage = (int) Math.ceil((double) count / (double) cantPerPage);
+
+        // Arma la respuesta
+        Page<Region> resultPage = new Page<Region>(page, count, page > 1 ? page - 1 : page,
+                page > lastPage ? lastPage : page + 1, lastPage, query.getResultList());
+        return resultPage;
+    }
+
+    private String capitalize(final String line) {
+        return Character.toUpperCase(line.charAt(0)) + line.substring(1);
     }
 
 }

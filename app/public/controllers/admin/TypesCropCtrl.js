@@ -121,6 +121,12 @@ app.controller(
 				})
 			}
 
+			var $ctrl = this;
+
+			$scope.service = typeCropService;
+			$scope.listElement = []
+			$scope.cantPerPage = 20
+
 			/*
 			Reinicia el listado de los datos correspondientes a este controller
 			cuando se presiona el boton "Reiniciar listado". Esto significa que
@@ -136,5 +142,5 @@ app.controller(
 				findAll();
 			}
 
-			findAll();
+			// findAll();
 		}]);

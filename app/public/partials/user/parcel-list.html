@@ -119,13 +119,13 @@
 		<strong>Listado de parcelas</strong>
 	</div>
 
-	<form class="form-inline">
+	<!-- <form class="form-inline">
 		<div class="form-group">
 			<input name="parcel" type="text" ng-model="parcelName" placeholder="Nombre" class="form-control">
 		</div>
 		<button class="btn btn-default" ng-click="searchParcel()">Buscar</button>
 		<button class="btn btn-default" ng-click="reset()">Reiniciar listado</button>
-	</form>
+	</form> -->
 
 	<div class="panel-body">
 		<a href="#!/home/parcels/new" class="btn btn-success" role="button">Nueva parcela</a>
@@ -142,7 +142,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			<tr ng-repeat="p in data">
+			<tr ng-repeat="p in listElement">
 				<td>{{p.id}}</td>
 				<td>{{p.name}}</td>
 				<td>{{p.hectares}}</td>
@@ -166,5 +166,12 @@
 				</td>
 			</tr>
 		</tbody>
+		<tfoot>
+			<tr>
+				<td colspan="4">
+					<pagination></pagination>
+				</td>
+			</tr>
+		</tfoot>
 	</table>
 </div>

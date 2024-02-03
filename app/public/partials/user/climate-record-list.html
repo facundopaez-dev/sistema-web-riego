@@ -119,20 +119,20 @@
 		<strong>Listado de registros climáticos</strong>
 	</div>
 
-	<form class="form-inline">
-		<div class="form-group">
-			<!-- Campo de parcela -->
-			<input name="parcel" type="text" ng-model="parcel" placeholder="Parcela"
+	<!-- <form class="form-inline"> -->
+	<!-- <div class="form-group"> -->
+	<!-- Campo de parcela -->
+	<!-- <input name="parcel" type="text" ng-model="parcel" placeholder="Parcela"
 				uib-typeahead="parcel as parcel.name for parcel in findParcelByName($viewValue)"
 				typeahead-loading="loadingLocations" class="form-control" typeahead-editable="false"
-				typeahead-min-lenght="3">
+				typeahead-min-lenght="3"> -->
 
-			<!-- Campo de la fecha -->
-			<input type="date" class="form-control" id="date" ng-model="date">
+	<!-- Campo de la fecha -->
+	<!-- <input type="date" class="form-control" id="date" ng-model="date">
 		</div>
 		<button class="btn btn-default" ng-click="filter()">Filtrar</button>
 		<button class="btn btn-default" ng-click="reset()">Reiniciar listado</button>
-	</form>
+	</form> -->
 
 	<div class="panel-body">
 		<a href="#!/home/climateRecords/new" class="btn btn-success" role="button">Nuevo registro climático</a>
@@ -149,7 +149,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			<tr ng-repeat="c in data">
+			<tr ng-repeat="c in listElement">
 				<td>{{c.id}}</td>
 				<td>{{c.date | date:'dd/MM/yyyy'}}</td>
 				<td>{{c.precip}}</td>
@@ -171,6 +171,12 @@
 				</td>
 			</tr>
 		</tbody>
-
+		<tfoot>
+			<tr>
+				<td colspan="4">
+					<pagination></pagination>
+				</td>
+			</tr>
+		</tfoot>
 	</table>
 </div>

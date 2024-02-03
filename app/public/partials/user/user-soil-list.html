@@ -119,13 +119,13 @@
 		<strong>Listado de suelos</strong>
 	</div>
 
-	<form class="form-inline">
+	<!-- <form class="form-inline">
 		<div class="form-group">
 			<input name="soil" type="text" ng-model="soilName" placeholder="Nombre" class="form-control">
 		</div>
 		<button class="btn btn-default" ng-click="searchSoil()">Buscar</button>
 		<button class="btn btn-default" ng-click="reset()">Reiniciar listado</button>
-	</form>
+	</form> -->
 
 	<table class="table table-condensed table-hover">
 		<thead>
@@ -139,7 +139,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			<tr ng-repeat="s in data">
+			<tr ng-repeat="s in listElement">
 				<td>{{s.id}}</td>
 				<td>{{s.name}}</td>
 				<td>{{s.apparentSpecificWeight}}</td>
@@ -148,5 +148,12 @@
 				<td>{{s.active ? 'Sí' : 'No'}}</td>
 			</tr>
 		</tbody>
+		<tfoot>
+			<tr>
+				<td colspan="4">
+					<pagination></pagination>
+				</td>
+			</tr>
+		</tfoot>
 	</table>
 </div>

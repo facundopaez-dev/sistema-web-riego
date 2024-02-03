@@ -73,13 +73,13 @@
 		<strong>Listado de tipos de cultivo</strong>
 	</div>
 
-	<form class="form-inline">
+	<!-- <form class="form-inline">
 		<div class="form-group">
 			<input name="typeCrop" type="text" ng-model="typeCropName" placeholder="Nombre" class="form-control">
 		</div>
 		<button class="btn btn-default" ng-click="searchTypeCrop()">Buscar</button>
 		<button class="btn btn-default" ng-click="reset()">Reiniciar listado</button>
-	</form>
+	</form> -->
 
 	<div class="panel-body">
 		<a href="#!/adminHome/typesCrop/new" class="btn btn-success" role="button">Nuevo tipo de cultivo</a>
@@ -93,7 +93,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			<tr ng-repeat="t in data">
+			<tr ng-repeat="t in listElement">
 				<td>{{t.id}}</td>
 				<td>{{t.name}}</td>
 				<td>{{t.active ? 'Sí' : 'No'}}</td>
@@ -109,5 +109,12 @@
 				</td>
 			</tr>
 		</tbody>
+		<tfoot>
+			<tr>
+				<td colspan="4">
+					<pagination></pagination>
+				</td>
+			</tr>
+		</tfoot>
 	</table>
 </div>

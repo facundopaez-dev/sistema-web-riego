@@ -530,52 +530,63 @@ public class ParcelServiceBean {
     return parcelName.trim().replaceAll("\\s{2,}", " ");
   }
 
-  public Page<Parcel> findByPage(Integer page, Integer cantPerPage, Map<String, String> parameters) {
-    // Genero el WHERE dinamicamente
-    StringBuffer where = new StringBuffer(" WHERE 1=1");
+  public Page<Parcel> findAllPagination(int userId, Integer page, Integer cantPerPage, Map<String, String> parameters) {
+    // Genera el WHERE dinamicante
+    StringBuffer where = new StringBuffer(" WHERE 1=1 AND u IN (SELECT p FROM User i JOIN i.parcels p WHERE i.id = :userId)");
 
-    if (parameters != null)
-    for (String param : parameters.keySet()) {
-      Method method;
-      try {
-        method = Parcel.class.getMethod("get" + capitalize(param));
-        if (method == null || parameters.get(param) == null || parameters.get(param).isEmpty()) {
-          continue;
+    if (parameters != null) {
+
+      for (String param : parameters.keySet()) {
+        Method method;
+
+        try {
+          method = Parcel.class.getMethod("get" + capitalize(param));
+
+          if (method == null) {
+            continue;
+          }
+
+          switch (method.getReturnType().getSimpleName()) {
+            case "String":
+              where.append(" AND UPPER(");
+              where.append(param);
+              where.append(") LIKE UPPER(");
+              where.append(parameters.get(param));
+              where.append(")");
+              break;
+            default:
+              where.append(" AND ");
+              where.append(param);
+              where.append(" = ");
+              where.append(parameters.get(param));
+              break;
+          }
+
+        } catch (NoSuchMethodException | SecurityException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
         }
-        switch (method.getReturnType().getSimpleName()) {
-          case "String":
-          where.append(" AND UPPER(e.");
-          where.append(param);
-          where.append(") LIKE UPPER('%");
-          where.append(parameters.get(param));
-          where.append("%')");
-          break;
-          default:
-          where.append(" AND e.");
-          where.append(param);
-          where.append(" = ");
-          where.append(parameters.get(param));
-          break;
-        }
-      } catch (NoSuchMethodException | SecurityException e) {
-        e.printStackTrace();
+
       }
+
     }
 
-    // Cuento el total de resultados
-    Query countQuery = getEntityManager()
-        .createQuery("SELECT COUNT(e.id) FROM " + Parcel.class.getSimpleName() + " e" + where.toString());
+    // Cuenta la cantidad total de resultados
+    Query countQuery = entityManager
+        .createQuery("SELECT COUNT(u.id) FROM " + Parcel.class.getSimpleName() + " u" + where.toString());
+    countQuery.setParameter("userId", userId);
 
-    // Pagino
-    Query query = getEntityManager().createQuery("FROM " + Parcel.class.getSimpleName() + " e" + where.toString());
+    // Realiza la paginacion
+    Query query = entityManager.createQuery("FROM " + Parcel.class.getSimpleName() + " u" + where.toString());
     query.setMaxResults(cantPerPage);
     query.setFirstResult((page - 1) * cantPerPage);
+    query.setParameter("userId", userId);
     Integer count = ((Long) countQuery.getSingleResult()).intValue();
     Integer lastPage = (int) Math.ceil((double) count / (double) cantPerPage);
 
-    // Armo respuesta
+    // Arma la respuesta
     Page<Parcel> resultPage = new Page<Parcel>(page, count, page > 1 ? page - 1 : page,
-        page > lastPage ? page + 1 : lastPage, lastPage, query.getResultList());
+        page > lastPage ? lastPage : page + 1, lastPage, query.getResultList());
     return resultPage;
   }
 

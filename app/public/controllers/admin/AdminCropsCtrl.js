@@ -93,6 +93,12 @@ app.controller(
 				logoutManager.logout();
 			}
 
+			var $ctrl = this;
+
+			$scope.service = cropService;
+			$scope.listElement = []
+			$scope.cantPerPage = 20
+
 			const UNDEFINED_CROP_NAME = "El nombre del cultivo debe estar definido";
 
 			$scope.searchCrop = function () {
@@ -136,5 +142,5 @@ app.controller(
 				findAll();
 			}
 
-			findAll();
+			// findAll();
 		}]);

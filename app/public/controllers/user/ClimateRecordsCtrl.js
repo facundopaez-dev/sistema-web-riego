@@ -181,6 +181,14 @@ app.controller(
 				})
 			}
 
+			/* Esto es necesario para la paginacion */
+			var $ctrl = this;
+
+			$scope.service = climateRecordSrv;
+			$scope.listElement = []
+			$scope.cantPerPage = 20
+			/* Esto es necesario para la paginacion */
+
 			/*
 			Trae el listado de todos los datos correspondientes a
 			este controller que pertenecen a todas las parcelas del
@@ -197,5 +205,5 @@ app.controller(
 				findAll();
 			}
 
-			findAll();
+			// findAll();
 		}]);

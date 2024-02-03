@@ -2,9 +2,9 @@ package stateless;
 
 import java.lang.NullPointerException;
 import java.lang.reflect.Method;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Calendar;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -435,51 +435,63 @@ public class IrrigationRecordServiceBean {
     return false;
   }
 
-  public Page<IrrigationRecord> findByPage(Integer page, Integer cantPerPage, Map<String, String> parameters) {
-    // Genero el WHERE dinámicamente
-    StringBuffer where = new StringBuffer(" WHERE 1=1");
-    if (parameters != null)
+  public Page<IrrigationRecord> findAllPagination(int userId, Integer page, Integer cantPerPage, Map<String, String> parameters) {
+    // Genera el WHERE dinamicante
+    StringBuffer where = new StringBuffer(" WHERE 1=1 AND u IN (SELECT r FROM IrrigationRecord r JOIN r.parcel p WHERE p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId))");
+
+    if (parameters != null) {
+
       for (String param : parameters.keySet()) {
         Method method;
+
         try {
           method = IrrigationRecord.class.getMethod("get" + capitalize(param));
-          if (method == null || parameters.get(param) == null || parameters.get(param).isEmpty()) {
+
+          if (method == null) {
             continue;
           }
+
           switch (method.getReturnType().getSimpleName()) {
-          case "String":
-            where.append(" AND UPPER(e.");
-            where.append(param);
-            where.append(") LIKE UPPER('%");
-            where.append(parameters.get(param));
-            where.append("%')");
-            break;
-          default:
-            where.append(" AND e.");
-            where.append(param);
-            where.append(" = ");
-            where.append(parameters.get(param));
-            break;
+            case "String":
+              where.append(" AND UPPER(");
+              where.append(param);
+              where.append(") LIKE UPPER(");
+              where.append(parameters.get(param));
+              where.append(")");
+              break;
+            default:
+              where.append(" AND ");
+              where.append(param);
+              where.append(" = ");
+              where.append(parameters.get(param));
+              break;
           }
+
         } catch (NoSuchMethodException | SecurityException e) {
+          // TODO Auto-generated catch block
           e.printStackTrace();
         }
+
       }
 
-    // Cuento el total de resultados
-    Query countQuery = getEntityManager()
-        .createQuery("SELECT COUNT(e.id) FROM " + IrrigationRecord.class.getSimpleName() + " e" + where.toString());
+    }
 
-    // Pagino
-    Query query = getEntityManager().createQuery("FROM " + IrrigationRecord.class.getSimpleName() + " e" + where.toString());
+    // Cuenta la cantidad total de resultados
+    Query countQuery = entityManager
+        .createQuery("SELECT COUNT(u.id) FROM " + IrrigationRecord.class.getSimpleName() + " u" + where.toString());
+    countQuery.setParameter("userId", userId);
+
+    // Realiza la paginacion
+    Query query = entityManager.createQuery("FROM " + IrrigationRecord.class.getSimpleName() + " u" + where.toString());
     query.setMaxResults(cantPerPage);
     query.setFirstResult((page - 1) * cantPerPage);
+    query.setParameter("userId", userId);
     Integer count = ((Long) countQuery.getSingleResult()).intValue();
     Integer lastPage = (int) Math.ceil((double) count / (double) cantPerPage);
 
-    // Armo respuesta
+    // Arma la respuesta
     Page<IrrigationRecord> resultPage = new Page<IrrigationRecord>(page, count, page > 1 ? page - 1 : page,
-        page > lastPage ? page + 1 : lastPage, lastPage, query.getResultList());
+        page > lastPage ? lastPage : page + 1, lastPage, query.getResultList());
     return resultPage;
   }
 

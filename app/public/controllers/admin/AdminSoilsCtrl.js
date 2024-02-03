@@ -121,6 +121,12 @@ app.controller(
 				})
 			}
 
+			var $ctrl = this;
+
+			$scope.service = soilService;
+			$scope.listElement = []
+			$scope.cantPerPage = 20
+
 			/*
 			Reinicia el listado de los datos correspondientes a este controller
 			cuando se presiona el boton "Reiniciar listado"
@@ -135,5 +141,5 @@ app.controller(
 				findAll();
 			}
 
-			findAll();
+			// findAll();
 		}]);

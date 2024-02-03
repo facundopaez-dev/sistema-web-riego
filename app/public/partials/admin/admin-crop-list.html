@@ -73,13 +73,13 @@
         <strong>Listado de cultivos</strong>
     </div>
 
-    <form class="form-inline">
+    <!-- <form class="form-inline">
         <div class="form-group">
             <input name="crop" type="text" ng-model="cropName" placeholder="Nombre" class="form-control">
         </div>
         <button class="btn btn-default" ng-click="searchCrop()">Buscar</button>
         <button class="btn btn-default" ng-click="reset()">Reiniciar listado</button>
-    </form>
+    </form> -->
 
     <div class="panel-body">
         <a href="#!/adminHome/crops/new" class="btn btn-success" role="button">Nuevo cultivo</a>
@@ -101,7 +101,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr ng-repeat="c in data">
+            <tr ng-repeat="c in listElement">
                 <td>{{c.id}}</td>
                 <td>{{c.name}}</td>
                 <td>{{c.initialStage}}</td>
@@ -128,5 +128,12 @@
                 </td>
             </tr>
         </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="4">
+                    <pagination></pagination>
+                </td>
+            </tr>
+        </tfoot>
     </table>
 </div>

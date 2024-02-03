@@ -6,8 +6,10 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.lang.NullPointerException;
-import java.util.Calendar;
+import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Map;
+import java.util.Calendar;
 import model.ClimateRecord;
 import model.Parcel;
 import util.UtilDate;
@@ -558,6 +560,70 @@ public class ClimateRecordServiceBean {
    */
   public boolean isFromPast(ClimateRecord climateRecord) {
     return (UtilDate.compareTo(climateRecord.getDate(), UtilDate.getCurrentDate()) < 0);
+  }
+
+  public Page<ClimateRecord> findAllPagination(int userId, Integer page, Integer cantPerPage, Map<String, String> parameters) {
+    // Genera el WHERE dinamicante
+    StringBuffer where = new StringBuffer(" WHERE 1=1 AND u IN (SELECT r FROM ClimateRecord r JOIN r.parcel p WHERE p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId))");
+
+    if (parameters != null) {
+
+      for (String param : parameters.keySet()) {
+        Method method;
+
+        try {
+          method = ClimateRecord.class.getMethod("get" + capitalize(param));
+
+          if (method == null) {
+            continue;
+          }
+
+          switch (method.getReturnType().getSimpleName()) {
+            case "String":
+              where.append(" AND UPPER(");
+              where.append(param);
+              where.append(") LIKE UPPER(");
+              where.append(parameters.get(param));
+              where.append(")");
+              break;
+            default:
+              where.append(" AND ");
+              where.append(param);
+              where.append(" = ");
+              where.append(parameters.get(param));
+              break;
+          }
+
+        } catch (NoSuchMethodException | SecurityException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+
+      }
+
+    }
+
+    // Cuenta la cantidad total de resultados
+    Query countQuery = entityManager
+        .createQuery("SELECT COUNT(u.id) FROM " + ClimateRecord.class.getSimpleName() + " u" + where.toString());
+    countQuery.setParameter("userId", userId);
+
+    // Realiza la paginacion
+    Query query = entityManager.createQuery("FROM " + ClimateRecord.class.getSimpleName() + " u" + where.toString());
+    query.setMaxResults(cantPerPage);
+    query.setFirstResult((page - 1) * cantPerPage);
+    query.setParameter("userId", userId);
+    Integer count = ((Long) countQuery.getSingleResult()).intValue();
+    Integer lastPage = (int) Math.ceil((double) count / (double) cantPerPage);
+
+    // Arma la respuesta
+    Page<ClimateRecord> resultPage = new Page<ClimateRecord>(page, count, page > 1 ? page - 1 : page,
+        page > lastPage ? lastPage : page + 1, lastPage, query.getResultList());
+    return resultPage;
+  }
+
+  private String capitalize(final String line) {
+    return Character.toUpperCase(line.charAt(0)) + line.substring(1);
   }
 
 }

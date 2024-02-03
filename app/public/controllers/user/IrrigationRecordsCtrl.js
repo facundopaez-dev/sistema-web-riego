@@ -181,6 +181,14 @@ app.controller(
 				})
 			}
 
+			/* Esto es necesario para la paginacion */
+			var $ctrl = this;
+
+			$scope.service = irrigationRecordService;
+			$scope.listElement = []
+			$scope.cantPerPage = 20
+			/* Esto es necesario para la paginacion */
+
 			/*
 			Trae el listado de todos los registros de riego de todas
 			las parcelas del usuario cuando este presiona el boton
@@ -197,5 +205,5 @@ app.controller(
 				findAll();
 			}
 
-			findAll();
+			// findAll();
 		}]);
