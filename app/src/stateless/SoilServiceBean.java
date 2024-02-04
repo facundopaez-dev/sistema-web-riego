@@ -307,7 +307,7 @@ public class SoilServiceBean {
     }
 
     public Page<Soil> findAllPagination(Integer page, Integer cantPerPage, Map<String, String> parameters) {
-        // Genera el WHERE dinamicante
+        // Genera el WHERE dinámicamente
         StringBuffer where = new StringBuffer(" WHERE 1=1");
 
         if (parameters != null) {
@@ -318,49 +318,46 @@ public class SoilServiceBean {
                 try {
                     method = Soil.class.getMethod("get" + capitalize(param));
 
-                    if (method == null) {
+                    if (method == null || parameters.get(param) == null || parameters.get(param).isEmpty()) {
                         continue;
                     }
 
                     switch (method.getReturnType().getSimpleName()) {
                         case "String":
-                            where.append(" AND UPPER(");
+                            where.append(" AND UPPER(e.");
                             where.append(param);
-                            where.append(") LIKE UPPER(");
+                            where.append(") LIKE UPPER('%");
                             where.append(parameters.get(param));
-                            where.append(")");
+                            where.append("%')");
                             break;
                         default:
-                            where.append(" AND ");
+                            where.append(" AND e.");
                             where.append(param);
                             where.append(" = ");
                             where.append(parameters.get(param));
                             break;
                     }
-
                 } catch (NoSuchMethodException | SecurityException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
 
-            }
+            } // End for
 
-        }
+        } // End if
 
-        // Cuenta la cantidad total de resultados
-        Query countQuery = entityManager
-                .createQuery("SELECT COUNT(u.id) FROM " + Soil.class.getSimpleName() + " u" + where.toString());
+        // Cuenta el total de resultados
+        Query countQuery = entityManager.createQuery("SELECT COUNT(e.id) FROM " + Soil.class.getSimpleName() + " e" + where.toString());
 
-        // Realiza la paginacion
-        Query query = entityManager.createQuery("FROM " + Soil.class.getSimpleName() + " u" + where.toString());
+        // Pagina
+        Query query = entityManager.createQuery("FROM " + Soil.class.getSimpleName() + " e" + where.toString());
         query.setMaxResults(cantPerPage);
         query.setFirstResult((page - 1) * cantPerPage);
         Integer count = ((Long) countQuery.getSingleResult()).intValue();
         Integer lastPage = (int) Math.ceil((double) count / (double) cantPerPage);
 
         // Arma la respuesta
-        Page<Soil> resultPage = new Page<Soil>(page, count, page > 1 ? page - 1 : page,
-                page > lastPage ? lastPage : page + 1, lastPage, query.getResultList());
+        Page<Soil> resultPage = new Page<Soil>(page, count, page > 1 ? page - 1 : page, page < lastPage ? page + 1 : lastPage, lastPage, query.getResultList());
         return resultPage;
     }
 

@@ -1,8 +1,11 @@
 package servlet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Map;
+import java.util.HashMap;
 import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -143,7 +146,7 @@ public class SoilRestServlet {
     @GET
     @Path("/findAllPagination")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response findAllPagination(@Context HttpHeaders request, @QueryParam("page") Integer page, @QueryParam("cant") Integer cant) throws IOException {
+    public Response findAllPagination(@Context HttpHeaders request, @QueryParam("page") Integer page, @QueryParam("cant") Integer cant, @QueryParam("search") String search) throws IOException {
         Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
 
         /*
@@ -226,13 +229,18 @@ public class SoilRestServlet {
                     .build();
         }
 
+        Map<String, String> map = new HashMap<String, String>();
+
+        // Convert JSON string to Map
+        map = mapper.readValue(search, new TypeReference<Map<String, String>>(){});
+
         /*
          * Si el valor del encabezado de autorizacion de la peticion HTTP
          * dada, tiene un JWT valido, la aplicacion del lado servidor
          * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
          * por el cliente
          */
-        Page<Soil> soils = soilService.findAllPagination(page, cant, null);
+        Page<Soil> soils = soilService.findAllPagination(page, cant, map);
         return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(soils)).build();
     }
 
