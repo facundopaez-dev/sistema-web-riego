@@ -14,16 +14,12 @@ app.service(
 			}
 
 			this.searchByPage = function (search, page, cant, callback) {
-				$http
-					.get('rest/crops/findAllPagination?page=' + page + '&cant=' + cant)
-					.then(
-						function (res) {
-							return callback(false, res.data)
-						},
-						function (err) {
-							return callback(err.data)
-						}
-					)
+				$http.get('rest/crops/findAllPagination?page=' + page + '&cant=' + cant + "&search=" + JSON.stringify(search))
+					.then(function (res) {
+						return callback(false, res.data)
+					}, function (err) {
+						return callback(err.data)
+					})
 			}
 
 			this.find = function (id, callback) {
