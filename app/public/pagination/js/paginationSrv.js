@@ -44,7 +44,7 @@
 				if (pageId == '-4') { // Last
 					page = _this.last;
 				}
-				if (pageId > 1 && _this.range.length >= pageId) { // Number
+				if (pageId > 0 && _this.range.length >= pageId) { // Number
 					page = _this.range[pageId - 1];
 				}
 				if (!page || parseInt(page) < 0) {
@@ -60,7 +60,6 @@
 							for (var i = 0; i < results.length; i++)
 								_this.results.push(results[i]);
 						}
-
 						_this.currentPage = result.current;
 						_this.count = result.count;
 						_this.prev = result.prev;
@@ -81,7 +80,7 @@
 						_this.end = 0;
 					}
 					if ($event) {
-						angular.element($event.target).parent().removeClass('active');
+						angular.element($event.target).parent().parent.removeClass('active');
 						angular.element($event.target).parent().addClass('active');
 					}
 					_this.loading = false;
