@@ -95,11 +95,13 @@ app.controller(
 				logoutManager.logout();
 			}
 
+			// Esto es necesarios para la paginacion
 			var $ctrl = this;
 
 			$scope.service = cropService;
 			$scope.listElement = []
 			$scope.cantPerPage = 20
+			// Esto es necesarios para la paginacion
 
 			const UNDEFINED_CROP_NAME = "El nombre del cultivo debe estar definido";
 
