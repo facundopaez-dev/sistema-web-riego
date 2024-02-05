@@ -73,13 +73,15 @@
 		<strong>Listado de tipos de cultivo</strong>
 	</div>
 
-	<!-- <form class="form-inline">
+	<form class="form-inline">
 		<div class="form-group">
-			<input name="typeCrop" type="text" ng-model="typeCropName" placeholder="Nombre" class="form-control">
+			<input type="text" ng-model="pagination.search.name" class="form-control" placeholder="Nombre">
 		</div>
-		<button class="btn btn-default" ng-click="searchTypeCrop()">Buscar</button>
-		<button class="btn btn-default" ng-click="reset()">Reiniciar listado</button>
-	</form> -->
+		<button class="btn btn-primary btn-sm" ng-click="pagination.showPage(1)"><i
+				class="glyphicon glyphicon-search"></i></button>
+		<button class="btn btn-danger btn-sm" ng-click="pagination.search = {}; pagination.showPage(1)"><i
+				class="glyphicon glyphicon-erase"></i></button>
+	</form>
 
 	<div class="panel-body">
 		<a href="#!/adminHome/typesCrop/new" class="btn btn-success" role="button">Nuevo tipo de cultivo</a>

@@ -121,11 +121,13 @@ app.controller(
 				})
 			}
 
+			// Esto es necesarios para la paginacion
 			var $ctrl = this;
 
 			$scope.service = typeCropService;
 			$scope.listElement = []
 			$scope.cantPerPage = 20
+			// Esto es necesarios para la paginacion
 
 			/*
 			Reinicia el listado de los datos correspondientes a este controller
