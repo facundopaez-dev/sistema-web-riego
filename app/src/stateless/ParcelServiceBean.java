@@ -531,8 +531,8 @@ public class ParcelServiceBean {
   }
 
   public Page<Parcel> findAllPagination(int userId, Integer page, Integer cantPerPage, Map<String, String> parameters) {
-    // Genera el WHERE dinamicante
-    StringBuffer where = new StringBuffer(" WHERE 1=1 AND u IN (SELECT p FROM User i JOIN i.parcels p WHERE i.id = :userId)");
+    // Genera el WHERE dinámicamente
+    StringBuffer where = new StringBuffer(" WHERE 1=1 AND e IN (SELECT p FROM User u JOIN u.parcels p WHERE u.id = :userId)");
 
     if (parameters != null) {
 
@@ -542,20 +542,20 @@ public class ParcelServiceBean {
         try {
           method = Parcel.class.getMethod("get" + capitalize(param));
 
-          if (method == null) {
+          if (method == null || parameters.get(param) == null || parameters.get(param).isEmpty()) {
             continue;
           }
 
           switch (method.getReturnType().getSimpleName()) {
             case "String":
-              where.append(" AND UPPER(");
+              where.append(" AND UPPER(e.");
               where.append(param);
-              where.append(") LIKE UPPER(");
+              where.append(") LIKE UPPER('%");
               where.append(parameters.get(param));
-              where.append(")");
+              where.append("%')");
               break;
             default:
-              where.append(" AND ");
+              where.append(" AND e.");
               where.append(param);
               where.append(" = ");
               where.append(parameters.get(param));
@@ -567,26 +567,25 @@ public class ParcelServiceBean {
           e.printStackTrace();
         }
 
-      }
+      } // End for
 
-    }
+    } // End if
 
-    // Cuenta la cantidad total de resultados
-    Query countQuery = entityManager
-        .createQuery("SELECT COUNT(u.id) FROM " + Parcel.class.getSimpleName() + " u" + where.toString());
+    // Cuenta el total de resultados
+    Query countQuery = entityManager.createQuery("SELECT COUNT(e.id) FROM " + Parcel.class.getSimpleName() + " e" + where.toString());
     countQuery.setParameter("userId", userId);
 
-    // Realiza la paginacion
-    Query query = entityManager.createQuery("FROM " + Parcel.class.getSimpleName() + " u" + where.toString());
+    // Pagina
+    Query query = entityManager.createQuery("FROM " + Parcel.class.getSimpleName() + " e" + where.toString());
     query.setMaxResults(cantPerPage);
     query.setFirstResult((page - 1) * cantPerPage);
     query.setParameter("userId", userId);
+
     Integer count = ((Long) countQuery.getSingleResult()).intValue();
     Integer lastPage = (int) Math.ceil((double) count / (double) cantPerPage);
 
     // Arma la respuesta
-    Page<Parcel> resultPage = new Page<Parcel>(page, count, page > 1 ? page - 1 : page,
-        page > lastPage ? lastPage : page + 1, lastPage, query.getResultList());
+    Page<Parcel> resultPage = new Page<Parcel>(page, count, page > 1 ? page - 1 : page, page < lastPage ? page + 1 : lastPage, lastPage, query.getResultList());
     return resultPage;
   }
 
