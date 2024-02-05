@@ -69,7 +69,8 @@ public class PlantingRecord {
 
   /*
    * Lamina de riego optima (drop) [mm]. Esta es el umbral de
-   * riego.
+   * riego. En la clase WaterMath se explica lo que representa
+   * esta lamina.
    */
   @Column(name = "OPTIMAL_IRRIGATION_LAYER")
   private double optimalIrrigationLayer;
