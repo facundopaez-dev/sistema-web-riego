@@ -1266,9 +1266,10 @@ app.factory('CropManager', ['UtilDate', function (utilDate) {
 			*/
 			var difference = utilDate.calculateDifferenceBetweenDates(seedDate, harvestDate) + 1;
 			var warningMessage = "La cantidad de días (" + difference + ") que hay entre la fecha de siembra y la fecha de cosecha elegidas es mayor al ciclo de vida (" +
-				lifeCycle + " días) del cultivo elegido. Esto hará que la aplicación utilice la ETo para calcular la necesidad de agua de riego en la fecha actual (es decir, hoy) " +
-				"luego de que el cultivo haya alcanzado su ciclo de vida. Se sugiere modificar la fecha de cosecha a la fecha " + utilDate.formatDate(suggestedHarvestDate) + " porque " +
-				"entre la fecha de siembra elegida y la fecha de cosecha sugerida hay una cantidad de días igual al ciclo de vida (" + lifeCycle + " días) del cultivo elegido.";
+				lifeCycle + " días) del cultivo elegido. Esto hará que la aplicación utilice la ETo para calcular la necesidad de agua de riego del cultivo en la fecha actual " +
+				"(es decir, hoy) luego de que el cultivo haya alcanzado su ciclo de vida. Si se desea que la aplicación utilice la ETc para calcular la necesidad de agua de " +
+				"riego del cultivo en la fecha actual, se sugiere modificar la fecha de cosecha a la fecha " + utilDate.formatDate(suggestedHarvestDate) + " porque entre la " +
+				"fecha de siembra elegida y la fecha de cosecha sugerida hay una cantidad de días igual al ciclo de vida (" + lifeCycle + " días) del cultivo elegido.";
 
 			return warningMessage;
 		}
