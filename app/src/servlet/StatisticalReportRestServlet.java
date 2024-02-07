@@ -1068,8 +1068,8 @@ public class StatisticalReportRestServlet {
      * motivo se realiza este control a la hora de calcular
      * la cantidad de veces que se planto el cultivo mas
      * plantado en una parcela durante un periodo definido por
-     * dos fechas. El comentario de dicho metodo explica cuando
-     * el mismo retorna la cadena "Cultivo inexistente".
+     * dos fechas. En los comentarios de dicho metodo se explica
+     * caundo el mismo retorna la cadena "Cultivo inexistente".
      */
     if (!mostPlantedCrop.equals(nonExistentCrop)) {
       quantityMostPlantedCrop = plantingRecordService.quantityMostPlantedCrop(parcelId, dateFrom, dateUntil);
@@ -1087,8 +1087,8 @@ public class StatisticalReportRestServlet {
      * motivo se realiza este control a la hora de calcular
      * la cantidad de veces que se planto el cultivo menos
      * plantado en una parcela durante un periodo definido por
-     * dos fechas. El comentario de dicho metodo explica cuando
-     * el mismo retorna la cadena "Cultivo inexistente".
+     * dos fechas. En los comentarios de dicho metodo se explica
+     * cuando el mismo retorna la cadena "Cultivo inexistente".
      */
     if (!leastPlantedCrop.equals(nonExistentCrop)) {
       quantityLesstPlantedCrop = plantingRecordService.quantityLessPlantedCrop(parcelId, dateFrom, dateUntil);
