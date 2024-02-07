@@ -1044,6 +1044,8 @@ public class StatisticalReportRestServlet {
 
     int quantityMostPlantedCrop = 0;
     int quantityLesstPlantedCrop = 0;
+    int lifeCycleCropLongestLifeCyclePlanted = 0;
+    int lifeCycleCropShortestLifeCyclePlanted = 0;
     String nonExistentCrop = plantingRecordService.getNonExistentCrop();
 
     String mostPlantedCrop = plantingRecordService.findMostPlantedCrop(parcelId, dateFrom, dateUntil);
@@ -1092,12 +1094,54 @@ public class StatisticalReportRestServlet {
       quantityLesstPlantedCrop = plantingRecordService.quantityLessPlantedCrop(parcelId, dateFrom, dateUntil);
     }
 
+    /*
+     * Si existe el cultivo plantado con el mayor ciclo de vida
+     * en una parcela en un periodo definido por dos fechas, se
+     * obtiene su ciclo de vida.
+     * 
+     * Cuando NO existe el cultivo plantado con el mayor ciclo
+     * de vida en una parcela durante un periodo definido por
+     * dos fechas, el metodo findCropWithLongestLifeCycle()
+     * de la clase PlantingRecordServiceBean retorna la
+     * cadena "Cultivo inexistente". Por este motivos se
+     * realiza este control a la hora de obtener el ciclo de
+     * vida del cultivo plantado con el mayor ciclo de vida
+     * en una parcela durante un periodo definido por dos
+     * fechas. En los comentarios de dicho metodo se explica
+     * cuando el mismo retorna la cadena "Cultivo inexistente".
+     */
+    if (!cropLongestLifeCyclePlanted.equals(nonExistentCrop)) {
+      lifeCycleCropLongestLifeCyclePlanted = cropService.findOneByName(cropLongestLifeCyclePlanted).getLifeCycle();
+    }
+
+    /*
+     * Si existe el cultivo plantado con el menor ciclo de vida
+     * en una parcela en un periodo definido por dos fechas, se
+     * obtiene su ciclo de vida.
+     * 
+     * Cuando NO existe el cultivo plantado con el menor ciclo
+     * de vida en una parcela durante un periodo definido por
+     * dos fechas, el metodo findCropWithShortestLifeCycle()
+     * de la clase PlantingRecordServiceBean retorna la
+     * cadena "Cultivo inexistente". Por este motivos se
+     * realiza este control a la hora de obtener el ciclo de
+     * vida del cultivo plantado con el menor ciclo de vida
+     * en una parcela durante un periodo definido por dos
+     * fechas. En los comentarios de dicho metodo se explica
+     * cuando el mismo retorna la cadena "Cultivo inexistente".
+     */
+    if (!cropShortestLifeCyclePlanted.equals(nonExistentCrop)) {
+      lifeCycleCropShortestLifeCyclePlanted = cropService.findOneByName(cropShortestLifeCyclePlanted).getLifeCycle();
+    }
+
     statisticalReport.setMostPlantedCrop(mostPlantedCrop);
     statisticalReport.setQuantityMostPlantedCrop(quantityMostPlantedCrop);
     statisticalReport.setLesstPlantedCrop(leastPlantedCrop);
     statisticalReport.setQuantityLessPlantedCrop(quantityLesstPlantedCrop);
     statisticalReport.setCropLongestLifeCyclePlanted(cropLongestLifeCyclePlanted);
+    statisticalReport.setLifeCycleCropLongestLifeCyclePlanted(lifeCycleCropLongestLifeCyclePlanted);
     statisticalReport.setCropShortestLifeCyclePlanted(cropShortestLifeCyclePlanted);
+    statisticalReport.setLifeCycleCropShortestLifeCyclePlanted(lifeCycleCropShortestLifeCyclePlanted);
 
     /*
      * El metodo calculateDaysWithoutCrops retorna el valor

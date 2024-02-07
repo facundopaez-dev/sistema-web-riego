@@ -317,6 +317,26 @@ public class CropServiceBean {
   }
 
   /**
+   * @param name
+   * @return referencia a un objeto de tipo Crop que
+   * contiene el cultivo que tiene el nombre dado
+   */
+  public Crop findOneByName(String name) {
+    Query query = getEntityManager().createQuery("SELECT c FROM Crop c WHERE UPPER(c.name) = UPPER(:name)");
+    query.setParameter("name", name);
+
+    Crop crop = null;
+
+    try {
+      crop = (Crop) query.getSingleResult();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return crop;
+  }
+
+  /**
    * Retorna los cultivos que tienen un nombre que coincide con el
    * nombre dado, esten activos o inactivos (eliminados logicamente).
    * Este metodo es para el filtro implementado en las paginas web

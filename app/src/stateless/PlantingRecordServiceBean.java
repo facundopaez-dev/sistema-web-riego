@@ -1419,7 +1419,10 @@ public class PlantingRecordServiceBean {
      * Si la coleccion devuelta por el metodo searchCropWithLongestLifeCycle,
      * esta vacia o su tamaño es mayor a 1 significa que no se encontro
      * el cultivo que tiene el mayor ciclo de vida de los cultivos plantados
-     * en una parcela durante un periodo dado por dos fechas.
+     * en una parcela durante un periodo dado por dos fechas. Si el
+     * tamaño de la coleccion es estrictamente mayor a 1 significa que
+     * hubo mas de un cultivo con el mayor ciclo de vida plantado en una
+     * parcela durante un periodo definido por dos fechas.
      * 
      * En ambos casos se retorna la cadena "Cultivo no existente". En
      * el segundo caso se retorna dicha cadena porque el cultivo que
@@ -1578,7 +1581,10 @@ public class PlantingRecordServiceBean {
      * Si la coleccion devuelta por el metodo searchCropWithShortestLifeCycle,
      * esta vacia o su tamaño es mayor a 1 significa que no se encontro
      * el cultivo que tiene el menor ciclo de vida de los cultivos plantados
-     * en una parcela durante un periodo dado por dos fechas.
+     * en una parcela durante un periodo dado por dos fechas. Si el
+     * tamaño de la coleccion es estrictamente mayor a 1 significa que
+     * hubo mas de un cultivo con el menor ciclo de vida plantado en una
+     * parcela durante un periodo definido por dos fechas.
      * 
      * En ambos casos se retorna la cadena "Cultivo no existente". En
      * el segundo caso se retorna dicha cadena porque el cultivo que

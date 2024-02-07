@@ -45,8 +45,14 @@ public class StatisticalReport {
   @Column(name = "CROP_LONGEST_LIFE_CYCLE_PLANTED", nullable = false)
   private String cropLongestLifeCyclePlanted;
 
+  @Column(name = "LIFE_CYCLE_CROP_LONGEST_LIFE_CYCLE_PLANTED")
+  private int lifeCycleCropLongestLifeCyclePlanted;
+
   @Column(name = "CROP_SHORTEST_LIFE_CYCLE_PLANTED", nullable = false)
   private String cropShortestLifeCyclePlanted;
+
+  @Column(name = "LIFE_CYCLE_CROP_SHORTEST_LIFE_CYCLE_PLANTED")
+  private int lifeCycleCropShortestLifeCyclePlanted;
 
   @Column(name = "DAYS_WITHOUT_CROPS", nullable = false)
   private String daysWithoutCrops;
@@ -122,12 +128,28 @@ public class StatisticalReport {
     this.cropLongestLifeCyclePlanted = cropLongestLifeCyclePlanted;
   }
 
+  public int getLifeCycleCropLongestLifeCyclePlanted() {
+    return lifeCycleCropLongestLifeCyclePlanted;
+  }
+
+  public void setLifeCycleCropLongestLifeCyclePlanted(int lifeCycleCropLongestLifeCyclePlanted) {
+    this.lifeCycleCropLongestLifeCyclePlanted = lifeCycleCropLongestLifeCyclePlanted;
+  }
+
   public String getCropShortestLifeCyclePlanted() {
     return cropShortestLifeCyclePlanted;
   }
 
   public void setCropShortestLifeCyclePlanted(String cropShortestLifeCyclePlanted) {
     this.cropShortestLifeCyclePlanted = cropShortestLifeCyclePlanted;
+  }
+
+  public int getLifeCycleCropShortestLifeCyclePlanted() {
+    return lifeCycleCropShortestLifeCyclePlanted;
+  }
+
+  public void setLifeCycleCropShortestLifeCyclePlanted(int lifeCycleCropShortestLifeCyclePlanted) {
+    this.lifeCycleCropShortestLifeCyclePlanted = lifeCycleCropShortestLifeCyclePlanted;
   }
 
   public String getDaysWithoutCrops() {

@@ -202,12 +202,32 @@
 			</div>
 
 			<div class="form-group" ng-hide="action == 'new'">
+				<label for="statisticalReport_lifeCycleCropLongestLifeCyclePlanted" class="col-md-2 control-label">Ciclo
+					de vida del cultivo plantado con el mayor ciclo de vida [días]
+				</label>
+				<div class="col-md-3">
+					<input type="text" class="form-control" id="statisticalReport_lifeCycleCropLongestLifeCyclePlanted"
+						ng-model="data.lifeCycleCropLongestLifeCyclePlanted" ng-disabled="action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group" ng-hide="action == 'new'">
 				<label for="statisticalReport_cropShortestLifeCyclePlanted" class="col-md-2 control-label">Cultivo
 					plantado con el menor ciclo de vida
 				</label>
 				<div class="col-md-3">
 					<input type="text" class="form-control" id="statisticalReport_cropShortestLifeCyclePlanted"
 						ng-model="data.cropShortestLifeCyclePlanted" ng-disabled="action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group" ng-hide="action == 'new'">
+				<label for="statisticalReport_lifeCycleCropShortestLifeCyclePlanted"
+					class="col-md-2 control-label">Ciclo de vida del cultivo plantado con el menor ciclo de vida [días]
+				</label>
+				<div class="col-md-3">
+					<input type="text" class="form-control" id="statisticalReport_lifeCycleCropShortestLifeCyclePlanted"
+						ng-model="data.lifeCycleCropShortestLifeCyclePlanted" ng-disabled="action == 'view'">
 				</div>
 			</div>
 
