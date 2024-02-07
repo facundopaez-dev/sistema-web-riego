@@ -33,8 +33,14 @@ public class StatisticalReport {
   @Column(name = "MOST_PLANTED_CROP", nullable = false)
   private String mostPlantedCrop;
 
+  @Column(name = "QUANTITY_MOST_PLANTED_CROP")
+  private int quantityMostPlantedCrop;
+
   @Column(name = "LESS_PLANTED_CROP", nullable = false)
   private String lessPlantedCrop;
+
+  @Column(name = "QUANTITY_LESS_PLANTED_CROP")
+  private int quantityLessPlantedCrop;
 
   @Column(name = "CROP_LONGEST_LIFE_CYCLE_PLANTED", nullable = false)
   private String cropLongestLifeCyclePlanted;
@@ -84,12 +90,28 @@ public class StatisticalReport {
     this.mostPlantedCrop = mostPlantedCrop;
   }
 
+  public int getQuantityMostPlantedCrop() {
+    return quantityMostPlantedCrop;
+  }
+
+  public void setQuantityMostPlantedCrop(int quantityMostPlantedCrop) {
+    this.quantityMostPlantedCrop = quantityMostPlantedCrop;
+  }
+
   public String getLessPlantedCrop() {
     return lessPlantedCrop;
   }
 
   public void setLesstPlantedCrop(String lessPlantedCrop) {
     this.lessPlantedCrop = lessPlantedCrop;
+  }
+
+  public int getQuantityLessPlantedCrop() {
+    return quantityLessPlantedCrop;
+  }
+
+  public void setQuantityLessPlantedCrop(int quantityLessPlantedCrop) {
+    this.quantityLessPlantedCrop = quantityLessPlantedCrop;
   }
 
   public String getCropLongestLifeCyclePlanted() {

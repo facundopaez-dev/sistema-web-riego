@@ -129,6 +129,17 @@
 			</div>
 
 			<div class="form-group">
+				<label for="statisticalReport_parcel" class="col-md-2 control-label">Parcela</label>
+				<div class="col-md-3">
+					<input name="parcel" type="text" ng-model="data.parcel" placeholder="Ej.: Parcela Sierra Grande 1"
+						uib-typeahead="parcel as parcel.name for parcel in findActiveParcelByName($viewValue)"
+						typeahead-loading="loadingLocations" class="form-control" typeahead-editable="false"
+						typeahead-min-lenght="3" ng-disabled="action == 'view'">
+					<i ng-show="loadingLocations" class="glyphicon glyphicon-refresh"></i>
+				</div>
+			</div>
+
+			<div class="form-group">
 				<label for="statisticalReport_dateFrom" class="col-md-2 control-label">Fecha desde</label>
 				<div class="col-md-3">
 					<input type="date" class="form-control" id="statisticalReport_dateFrom" ng-model="data.dateFrom"
@@ -154,11 +165,29 @@
 			</div>
 
 			<div class="form-group" ng-hide="action == 'new'">
+				<label for="statisticalReport_quantityMostPlantedCrop" class="col-md-2 control-label">Cantidad de veces
+					que se plantó el cultivo más plantado</label>
+				<div class="col-md-3">
+					<input type="number" class="form-control" id="statisticalReport_quantityMostPlantedCrop"
+						ng-model="data.quantityMostPlantedCrop" ng-disabled="action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group" ng-hide="action == 'new'">
 				<label for="statisticalReport_lestPlantedCrop" class="col-md-2 control-label">Cultivo menos
 					plantado</label>
 				<div class="col-md-3">
 					<input type="text" class="form-control" id="statisticalReport_lestPlantedCrop"
 						ng-model="data.lessPlantedCrop" ng-disabled="action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group" ng-hide="action == 'new'">
+				<label for="statisticalReport_quantityLessPlantedCrop" class="col-md-2 control-label">Cantidad de veces
+					que se plantó el cultivo menos plantado</label>
+				<div class="col-md-3">
+					<input type="number" class="form-control" id="statisticalReport_quantityLessPlantedCrop"
+						ng-model="data.quantityLessPlantedCrop" ng-disabled="action == 'view'">
 				</div>
 			</div>
 
@@ -179,36 +208,6 @@
 				<div class="col-md-3">
 					<input type="text" class="form-control" id="statisticalReport_cropShortestLifeCyclePlanted"
 						ng-model="data.cropShortestLifeCyclePlanted" ng-disabled="action == 'view'">
-				</div>
-			</div>
-
-			<div class="form-group" ng-hide="action == 'new'">
-				<label for="statisticalReport_daysWithoutCrops" class="col-md-2 control-label">Cantidad de
-					días sin ningún cultivo plantado</label>
-				<div class="col-md-3">
-					<input type="text" class="form-control" id="statisticalReport_daysWithoutCrops"
-						ng-model="data.daysWithoutCrops" ng-disabled="action == 'view'">
-				</div>
-			</div>
-
-			<div class="form-group" ng-hide="action == 'new'">
-				<label for="statisticalReport_totalAmountRainwater" class="col-md-2 control-label">Cantidad total de
-					agua de lluvia [mm/período]
-				</label>
-				<div class="col-md-3">
-					<input type="text" class="form-control" id="statisticalReport_totalAmountRainwater"
-						ng-model="data.totalAmountRainwater" ng-disabled="action == 'view'">
-				</div>
-			</div>
-
-			<div class="form-group">
-				<label for="statisticalReport_parcel" class="col-md-2 control-label">Parcela</label>
-				<div class="col-md-3">
-					<input name="parcel" type="text" ng-model="data.parcel" placeholder="Ej.: Parcela Sierra Grande 1"
-						uib-typeahead="parcel as parcel.name for parcel in findActiveParcelByName($viewValue)"
-						typeahead-loading="loadingLocations" class="form-control" typeahead-editable="false"
-						typeahead-min-lenght="3" ng-disabled="action == 'view'">
-					<i ng-show="loadingLocations" class="glyphicon glyphicon-refresh"></i>
 				</div>
 			</div>
 

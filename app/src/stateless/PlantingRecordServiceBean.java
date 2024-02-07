@@ -66,6 +66,10 @@ public class PlantingRecordServiceBean {
     return NOT_AVAILABLE;
   }
 
+  public String getNonExistentCrop() {
+    return NON_EXISTENT_CROP;
+  }
+
   public String getCropIrrigationWaterNotAvailableButCalculable() {
     return CROP_IRRIGATION_WATER_NEED_NOT_AVAILABLE_BUT_CALCULABLE;
   }
@@ -983,6 +987,49 @@ public class PlantingRecordServiceBean {
   }
 
   /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return entero que representa la cantidad de veces
+   * que se planto el cultivo mas plantado en una parcela
+   * en un periodo definido por dos fechas
+   */
+  public int quantityMostPlantedCrop(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    /*
+     * Cuenta la cantidad de veces que fue plantado cada uno de
+     * los cultivos que se plantaron en una parcela en un periodo
+     * dado por dos fechas, y selecciona la cantidad mas grande.
+     * 
+     * Hay que tener en cuenta que puede haber mas de un cultivo
+     * que haya sido plantado en mayor medida y la misma cantidad
+     * de veces en una parcela durante un periodo definido por dos
+     * fechas. Por lo tanto, la consulta (queryString) puede retornar
+     * un numero que represente la existencia de mas un cultivo plantado
+     * en mayor medida y la misma cantidad de veces en una parcela
+     * durante un periodo definido por dos fechas.
+     */
+    String queryString = "SELECT MAX(SUBQUERY.AMOUNT_CROP) FROM (SELECT FK_CROP, COUNT(FK_CROP) AS AMOUNT_CROP FROM PLANTING_RECORD "
+        + "WHERE (((?1 > SEED_DATE AND ?1 <= HARVEST_DATE AND HARVEST_DATE <= ?2) OR "
+        + "(SEED_DATE >= ?1 AND HARVEST_DATE <= ?2) OR "
+        + "(?2 < HARVEST_DATE AND ?1 <= SEED_DATE AND SEED_DATE <= ?2)) AND FK_PARCEL = ?3 AND FK_STATUS = 1) GROUP BY FK_CROP) AS SUBQUERY";
+
+    Query query = getEntityManager().createNativeQuery(queryString);
+    query.setParameter(1, dateFrom);
+    query.setParameter(2, dateUntil);
+    query.setParameter(3, parcelId);
+
+    int quantityMostPlantedCrop = 0;
+
+    try {
+      quantityMostPlantedCrop = (int) query.getSingleResult();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return quantityMostPlantedCrop;
+  }
+
+  /**
    * Retorna el nombre del cultivo que mas veces fue plantado de los
    * cultivos plantados en una parcela durante un periodo dado por
    * dos fechas si y solo si existe tal cultivo
@@ -1145,6 +1192,49 @@ public class PlantingRecordServiceBean {
     }
 
     return cropNames;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return entero que representa la cantidad de veces
+   * que se planto el cultivo menos plantado en una parcela
+   * en un periodo definido por dos fechas
+   */
+  public int quantityLessPlantedCrop(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    /*
+     * Cuenta la cantidad de veces que fue plantado cada uno de
+     * los cultivos que se plantaron en una parcela en un periodo
+     * dado por dos fechas, y selecciona la cantidad mas pequeña.
+     * 
+     * Hay que tener en cuenta que puede haber mas de un cultivo
+     * que haya sido plantado en menor medida y la misma cantidad
+     * de veces en una parcela durante un periodo definido por dos
+     * fechas. Por lo tanto, la consulta (queryString) puede retornar
+     * un numero que represente la existencia de mas un cultivo plantado
+     * en menor medida y la misma cantidad de veces en una parcela
+     * durante un periodo definido por dos fechas.
+     */
+    String queryString = "SELECT MIN(SUBQUERY.AMOUNT_CROP) FROM (SELECT FK_CROP, COUNT(FK_CROP) AS AMOUNT_CROP FROM PLANTING_RECORD "
+        + "WHERE (((?1 > SEED_DATE AND ?1 <= HARVEST_DATE AND HARVEST_DATE <= ?2) OR "
+        + "(SEED_DATE >= ?1 AND HARVEST_DATE <= ?2) OR "
+        + "(?2 < HARVEST_DATE AND ?1 <= SEED_DATE AND SEED_DATE <= ?2)) AND FK_PARCEL = ?3 AND FK_STATUS = 1) GROUP BY FK_CROP) AS SUBQUERY";
+
+    Query query = getEntityManager().createNativeQuery(queryString);
+    query.setParameter(1, dateFrom);
+    query.setParameter(2, dateUntil);
+    query.setParameter(3, parcelId);
+
+    int quantityLessPlantedCrop = 0;
+
+    try {
+      quantityLessPlantedCrop = (int) query.getSingleResult();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return quantityLessPlantedCrop;
   }
 
   /**

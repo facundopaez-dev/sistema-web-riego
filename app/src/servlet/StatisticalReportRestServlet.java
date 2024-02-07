@@ -1042,17 +1042,60 @@ public class StatisticalReportRestServlet {
     Calendar dateFrom = statisticalReport.getDateFrom();
     Calendar dateUntil = statisticalReport.getDateUntil();
 
+    int quantityMostPlantedCrop = 0;
+    int quantityLesstPlantedCrop = 0;
+    String nonExistentCrop = plantingRecordService.getNonExistentCrop();
+
     String mostPlantedCrop = plantingRecordService.findMostPlantedCrop(parcelId, dateFrom, dateUntil);
     String leastPlantedCrop = plantingRecordService.findLeastPlantedCrop(parcelId, dateFrom, dateUntil);
-    String cropLongestLifeCyclePlanted = plantingRecordService.findCropWithLongestLifeCycle(parcelId, dateFrom,
-        dateUntil);
-    String cropShortestLifeCyclePlanted = plantingRecordService.findCropWithShortestLifeCycle(parcelId, dateFrom,
-        dateUntil);
+    String cropLongestLifeCyclePlanted = plantingRecordService.findCropWithLongestLifeCycle(parcelId, dateFrom, dateUntil);
+    String cropShortestLifeCyclePlanted = plantingRecordService.findCropWithShortestLifeCycle(parcelId, dateFrom, dateUntil);
+
     int daysWithoutCrops = plantingRecordService.calculateDaysWithoutCrops(parcelId, dateFrom, dateUntil);
     double totalAmountRainwter = climateRecordService.calculateAmountRainwaterByPeriod(parcelId, dateFrom, dateUntil);
 
+    /*
+     * Si existe el cultivo mas plantado en una parcela en un
+     * periodo definido por dos fechas, se calcula la cantidad
+     * de veces que fue plantado.
+     * 
+     * Cuando NO existe el cultivo mas plantado en una parcela
+     * durante un periodo definido por dos fechas, el metodo
+     * findMostPlantedCrop() de la clase PlantingRecordServiceBean
+     * retorna la cadena "Cultivo inexistente". Por este
+     * motivo se realiza este control a la hora de calcular
+     * la cantidad de veces que se planto el cultivo mas
+     * plantado en una parcela durante un periodo definido por
+     * dos fechas. El comentario de dicho metodo explica cuando
+     * el mismo retorna la cadena "Cultivo inexistente".
+     */
+    if (!mostPlantedCrop.equals(nonExistentCrop)) {
+      quantityMostPlantedCrop = plantingRecordService.quantityMostPlantedCrop(parcelId, dateFrom, dateUntil);
+    }
+
+    /*
+     * Si existe el cultivo menos plantado en una parcela en un
+     * periodo definido por dos fechas, se calcula la cantidad
+     * de veces que fue plantado.
+     * 
+     * Cuando NO existe el cultivo menos plantado en una parcela
+     * durante un periodo definido por dos fechas, el metodo
+     * findLeastPlantedCrop() de la clase PlantingRecordServiceBean
+     * retorna la cadena "Cultivo inexistente". Por este
+     * motivo se realiza este control a la hora de calcular
+     * la cantidad de veces que se planto el cultivo menos
+     * plantado en una parcela durante un periodo definido por
+     * dos fechas. El comentario de dicho metodo explica cuando
+     * el mismo retorna la cadena "Cultivo inexistente".
+     */
+    if (!leastPlantedCrop.equals(nonExistentCrop)) {
+      quantityLesstPlantedCrop = plantingRecordService.quantityLessPlantedCrop(parcelId, dateFrom, dateUntil);
+    }
+
     statisticalReport.setMostPlantedCrop(mostPlantedCrop);
+    statisticalReport.setQuantityMostPlantedCrop(quantityMostPlantedCrop);
     statisticalReport.setLesstPlantedCrop(leastPlantedCrop);
+    statisticalReport.setQuantityLessPlantedCrop(quantityLesstPlantedCrop);
     statisticalReport.setCropLongestLifeCyclePlanted(cropLongestLifeCyclePlanted);
     statisticalReport.setCropShortestLifeCyclePlanted(cropShortestLifeCyclePlanted);
 
