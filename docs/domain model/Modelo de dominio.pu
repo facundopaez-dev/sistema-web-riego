@@ -23,6 +23,8 @@ Cultivo "*" --> "0..2" Mes
 Parcela "*" --> "0..1" Suelo
 Contraseña "1" --> "1" Usuario
 Parcela "1" --> "*" BalanceHidricoSuelo
+Cosecha "*" --> "1" Parcela
+Cosecha "*" --> "1" Cultivo
 
 class Parcela {
 -id
@@ -31,6 +33,12 @@ class Parcela {
 -latitud
 -longitud
 -activa
+}
+
+class Cosecha {
+-id
+-fecha
+-cantidadCosecha
 }
 
 class InformeEstadistico {

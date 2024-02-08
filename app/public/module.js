@@ -142,6 +142,19 @@ app.config(['$routeProvider', function (routeprovider) {
 			controller: 'StatisticalReportCtrl'
 		})
 
+		.when('/home/harvests', {
+			templateUrl: 'partials/user/harvest-list.html',
+			controller: 'HarvestsCtrl'
+		})
+		.when('/home/harvests/:action', {
+			templateUrl: 'partials/user/harvest-form.html',
+			controller: 'HarvestCtrl'
+		})
+		.when('/home/harvests/:action/:id', {
+			templateUrl: 'partials/user/harvest-form.html',
+			controller: 'HarvestCtrl'
+		})
+
 		.when('/home/soilWaterBalances', {
 			templateUrl: 'partials/user/soil-water-balance-list.html',
 			controller: 'SoilWaterBalancesCtrl'

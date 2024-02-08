@@ -124,7 +124,12 @@ public enum ReasonError {
   NON_EXISTENT_PARCEL("La parcela seleccionada no existe"),
   DATE_FROM_GREATEST_TO_MAXIMUM("La fecha desde no debe ser estrictamente mayor a 9999"),
   DATE_UNTIL_GREATEST_TO_MAXIMUM("La fecha hasta no debe ser estrictamente mayor a 9999"),
-  DATE_GREATEST_TO_MAXIMUM("La fecha no debe ser estrictamente mayor a 9999");
+  DATE_GREATEST_TO_MAXIMUM("La fecha no debe ser estrictamente mayor a 9999"),
+  UNDEFINED_PARCEL("La parcela debe estar definida"),
+  INVALID_HARVEST_QUANTITY("La cantidad cosechada debe ser estrictamente mayor a cero"),
+  PARCEL_WITHOUT_FINISHED_PLANTING_RECORDS("La parcela elegida no tiene registros de plantación finalizados"),
+  INVALID_HARVEST_RECORD_DATE("La fecha elegida no corresponde a una fecha de cosecha de un registro de plantación finalizado de la parcela elegida"),
+  MODIFICATION_CROP_OF_A_HARVEST_NOT_ALLOWED("No está permitido modificar el cultivo de una cosecha");
 
   private final String reason;
 

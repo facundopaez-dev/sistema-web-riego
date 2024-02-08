@@ -255,6 +255,29 @@ public class PlantingRecordServiceBean {
   }
 
   /**
+   * @param userId
+   * @param harvestDate
+   * @return referencia a un objeto de tipo PlantingRecord que
+   * representa el registro de plantacion que tiene una fecha
+   * de cosecha
+   */
+  public PlantingRecord findOneByHarvestDate(int userId, Calendar harvestDate) {
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (r.harvestDate = :harvestDate AND p IN (SELECT p FROM User u JOIN u.parcels p WHERE u.id = :userId))");
+    query.setParameter("userId", userId);
+    query.setParameter("harvestDate", harvestDate);
+
+    PlantingRecord plantingRecord = null;
+
+    try {
+      plantingRecord = (PlantingRecord) query.getSingleResult();
+    } catch(NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return plantingRecord;
+  }
+
+  /**
    * Retorna los registros de plantacion de las parcelas
    * de un usuario
    * 
