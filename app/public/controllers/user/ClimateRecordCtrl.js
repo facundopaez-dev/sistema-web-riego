@@ -126,7 +126,7 @@ app.controller(
 
       $scope.create = function () {
         /*
-        Si la propeidad data de $scope tiene el valor undefined,
+        Si la propiedad data de $scope tiene el valor undefined,
         significa que el formulario correspondiente a esta funcion
         esta totalmente vacio. Por lo tanto, la aplicacion muestra
         el mensaje dado y no realiza la operacion solicitada.

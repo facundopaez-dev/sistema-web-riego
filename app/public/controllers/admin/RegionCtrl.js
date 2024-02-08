@@ -107,7 +107,7 @@ app.controller(
                 var nameRegexp = /^[A-Za-zÀ-ÿ]+[.]{0,1}[,]{0,1}[;]{0,1}(\s[A-Za-zÀ-ÿ]+[.]{0,1}[,]{0,1}[;]{0,1})*$/g;
 
                 /*
-                Si la propeidad data de $scope tiene el valor undefined,
+                Si la propiedad data de $scope tiene el valor undefined,
                 significa que el formulario correspondiente a esta funcion
                 esta totalmente vacio. Por lo tanto, la aplicacion muestra
                 el mensaje dado y no realiza la operacion solicitada.
