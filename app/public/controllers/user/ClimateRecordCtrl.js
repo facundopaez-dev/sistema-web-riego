@@ -1,9 +1,9 @@
 app.controller(
   "ClimateRecordCtrl",
   ["$scope", "$location", "$routeParams", "ClimateRecordSrv", "ParcelSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
-    "ExpirationManager", "RedirectManager", "UtilDate",
+    "ExpirationManager", "RedirectManager",
     function ($scope, $location, $params, climateRecordService, parcelService, accessManager, errorResponseManager, authHeaderManager, logoutManager, expirationManager,
-      redirectManager, utilDate) {
+      redirectManager) {
 
       console.log("ClimateRecordCtrl loaded with action: " + $params.action)
 
