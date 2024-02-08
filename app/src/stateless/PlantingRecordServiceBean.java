@@ -470,8 +470,8 @@ public class PlantingRecordServiceBean {
    * contiene los registros de plantacion finalizados de una
    * parcela de un usuario
    */
-  public Collection<PlantingRecord> findAllByParcelId(int userId, int parcelId) {
-    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY r.id");
+  public Collection<PlantingRecord> findAllFinishedByParcelId(int userId, int parcelId) {
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (UPPER(r.status.name) = UPPER('Finalizado') AND p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY r.id");
     query.setParameter("userId", userId);
     query.setParameter("parcelId", parcelId);
 
@@ -756,7 +756,7 @@ public class PlantingRecordServiceBean {
    * de plantacion finalizados, en caso contrario false
    */
   public boolean hasFinishedPlantingRecords(int userId, int parcelId) {
-    return !findAllByParcelId(userId, parcelId).isEmpty();
+    return !findAllFinishedByParcelId(userId, parcelId).isEmpty();
   }
 
   /**
