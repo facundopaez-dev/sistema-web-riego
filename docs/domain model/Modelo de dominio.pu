@@ -46,9 +46,13 @@ class InformeEstadistico {
 -fechaDesde
 -fechaHasta
 -cultivoMasPlantado
+-cantidadVecesPlantadoCultivoMasPlantado
 -cultivoMenosPlantado
+-cantidadVecesPlantadoCultivoMenosPlantado
 -cultivoPlantadoMayorCicloVida
+-cicloVidaCultivoPlantadoMayorCicloVida
 -cultivoPlantadoMenorCicloVida
+-cicloVidaCultivoPlantadoMenorCicloVida
 -diasSinCultivoPlantado
 -cantidadTotalAguaLluvia
 }
