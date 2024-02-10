@@ -66,10 +66,10 @@ public class StatisticalReport {
   @Column(name = "LIFE_CYCLE_CROP_SHORTEST_LIFE_CYCLE_PLANTED")
   private int lifeCycleCropShortestLifeCyclePlanted;
 
-  @Column(name = "DAYS_WITHOUT_CROPS", nullable = false)
+  @Column(name = "DAYS_WITHOUT_CROPS")
   private String daysWithoutCrops;
 
-  @Column(name = "TOTAL_AMOUNT_RAINWATER", nullable = false)
+  @Column(name = "TOTAL_AMOUNT_RAINWATER")
   private String totalAmountRainwater;
 
   @ManyToOne
