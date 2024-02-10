@@ -143,7 +143,7 @@ public class PlantingRecordGeneratorTest {
       newPlantingRecord = new PlantingRecord();
       newPlantingRecord.setSeedDate(seedDate);
       newPlantingRecord.setHarvestDate(harvestDate);
-      newPlantingRecord.setIrrigationWaterNeed("n/a");
+      newPlantingRecord.setCropIrrigationWaterNeed("n/a");
       newPlantingRecord.setParcel(givenParcel);
       newPlantingRecord.setCrop(givenCrop);
       newPlantingRecord.setStatus(finishedStatus);
