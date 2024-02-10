@@ -170,7 +170,7 @@
       <tr ng-repeat="p in listElement">
         <td>{{p.id}}</td>
         <td>{{p.parcel.name}}</td>
-        <td>{{p.crop.name}}</td>
+        <td>{{p.crop.name + ' (ID: ' + p.crop.id + ')'}}</td>
         <td>{{p.seedDate | date:'dd/MM/yyyy'}}</td>
         <td>{{p.harvestDate | date:'dd/MM/yyyy'}}</td>
         <td>{{p.totalAmountWaterAvailable > 0 ? p.totalAmountWaterAvailable : '-' }}</td>

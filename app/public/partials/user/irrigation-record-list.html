@@ -165,7 +165,7 @@
 				<td>{{i.date | date:'dd/MM/yyyy'}}</td>
 				<td>{{i.irrigationDone}}</td>
 				<td>{{i.parcel.name}}</td>
-				<td>{{i.crop.name ? i.crop.name : '-'}}</td>
+				<td>{{i.crop.name ? i.crop.name + ' (ID: ' + i.crop.id + ')' : '-'}}</td>
 				<td class="text-right">
 					<div class="btn-group" role="group" aria-label="...">
 						<a href="#!/home/irrigationRecords/edit/{{i.id}}" class="btn btn-success" role="button">
