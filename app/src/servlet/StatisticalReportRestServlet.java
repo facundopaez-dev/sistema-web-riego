@@ -33,6 +33,7 @@ import stateless.ParcelServiceBean;
 import stateless.PlantingRecordServiceBean;
 import stateless.SessionServiceBean;
 import stateless.CropServiceBean;
+import stateless.HarvestServiceBean;
 import stateless.Page;
 import util.PersonalizedResponse;
 import util.ErrorResponse;
@@ -63,6 +64,9 @@ public class StatisticalReportRestServlet {
 
   @EJB
   CropServiceBean cropService;
+
+  @EJB
+  HarvestServiceBean harvestServiceBean;
 
   @EJB
   SessionServiceBean sessionService;
@@ -1042,12 +1046,16 @@ public class StatisticalReportRestServlet {
     Calendar dateFrom = statisticalReport.getDateFrom();
     Calendar dateUntil = statisticalReport.getDateUntil();
 
+    double higherHarvest = 0;
+    double lowerHarvest = 0;
     int quantityMostPlantedCrop = 0;
     int quantityLesstPlantedCrop = 0;
     int lifeCycleCropLongestLifeCyclePlanted = 0;
     int lifeCycleCropShortestLifeCyclePlanted = 0;
     String nonExistentCrop = plantingRecordService.getNonExistentCrop();
 
+    String cropHighestHarvest = harvestServiceBean.findCropHighestHarvest(parcelId, dateFrom, dateUntil);
+    String cropLowerHarvest = harvestServiceBean.findCropLowerHarvest(parcelId, dateFrom, dateUntil);
     String mostPlantedCrop = plantingRecordService.findMostPlantedCrop(parcelId, dateFrom, dateUntil);
     String leastPlantedCrop = plantingRecordService.findLeastPlantedCrop(parcelId, dateFrom, dateUntil);
     String cropLongestLifeCyclePlanted = plantingRecordService.findCropWithLongestLifeCycle(parcelId, dateFrom, dateUntil);
@@ -1055,6 +1063,46 @@ public class StatisticalReportRestServlet {
 
     int daysWithoutCrops = plantingRecordService.calculateDaysWithoutCrops(parcelId, dateFrom, dateUntil);
     double totalAmountRainwter = climateRecordService.calculateAmountRainwaterByPeriod(parcelId, dateFrom, dateUntil);
+
+    /*
+     * Si existe el cultivo con mayor rendimiento (mayor cantidad
+     * de kilogramos cosechados) en una parcela durante un periodo
+     * definido por dos fechas, se calcula el rendimiento de dicho
+     * cultivo.
+     * 
+     * Cuando NO existe el cultivo con mayor rendimiento en una
+     * parcela durante un periodo definido por dos fechas, el metodo
+     * higherHarvest() de la clase HarvestServiceBean retorna la
+     * cadena "Cultivo inexistente". Por este motivo se realiza
+     * este control a la hora de calcular el rendimiento del
+     * cultivo que tuvo el mayor rendimiento en una parcela en
+     * un periodo definido por dos fechas. En los comentarios
+     * de dicho metodo se explica cuando el mismo retorna la
+     * cadena "Cultivo inexistente".
+     */
+    if (!cropHighestHarvest.equals(nonExistentCrop)) {
+      higherHarvest = harvestServiceBean.higherHarvest(parcelId, dateFrom, dateUntil);
+    }
+
+    /*
+     * Si existe el cultivo con menor rendimiento (menor cantidad
+     * de kilogramos cosechados) en una parcela durante un periodo
+     * definido por dos fechas, se calcula el rendimiento de dicho
+     * cultivo.
+     * 
+     * Cuando NO existe el cultivo con menor rendimiento en una
+     * parcela durante un periodo definido por dos fechas, el metodo
+     * lowerHarvest() de la clase HarvestServiceBean retorna la
+     * cadena "Cultivo inexistente". Por este motivo se realiza
+     * este control a la hora de calcular el rendimiento del
+     * cultivo que tuvo el menor rendimiento en una parcela en
+     * un periodo definido por dos fechas. En los comentarios
+     * de dicho metodo se explica cuando el mismo retorna la
+     * cadena "Cultivo inexistente".
+     */
+    if (!cropLowerHarvest.equals(nonExistentCrop)) {
+      lowerHarvest = harvestServiceBean.lowerHarvest(parcelId, dateFrom, dateUntil);
+    }
 
     /*
      * Si existe el cultivo mas plantado en una parcela en un
@@ -1134,6 +1182,10 @@ public class StatisticalReportRestServlet {
       lifeCycleCropShortestLifeCyclePlanted = cropService.findOneByName(cropShortestLifeCyclePlanted).getLifeCycle();
     }
 
+    statisticalReport.setCropHigherHarvest(cropHighestHarvest);
+    statisticalReport.setHarvestAmountCropHighestHarvest(higherHarvest);
+    statisticalReport.setCropLowerHarvest(cropLowerHarvest);
+    statisticalReport.setHarvestAmountCropLowestHarvest(lowerHarvest);
     statisticalReport.setMostPlantedCrop(mostPlantedCrop);
     statisticalReport.setQuantityMostPlantedCrop(quantityMostPlantedCrop);
     statisticalReport.setLesstPlantedCrop(leastPlantedCrop);

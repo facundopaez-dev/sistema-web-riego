@@ -45,6 +45,10 @@ class InformeEstadistico {
 -id
 -fechaDesde
 -fechaHasta
+-cultivoMayorCosecha
+-cantidadCosechaCultivoMayorCosecha
+-cultivoMenorCosecha
+-cantidadCosechaCultivoMenorCosecha
 -cultivoMasPlantado
 -cantidadVecesPlantadoCultivoMasPlantado
 -cultivoMenosPlantado

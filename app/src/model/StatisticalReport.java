@@ -30,6 +30,18 @@ public class StatisticalReport {
   @Temporal(TemporalType.DATE)
   private Calendar dateUntil;
 
+  @Column(name = "CROP_HIGHER_HARVEST", nullable = false)
+  private String cropHigherHarvest;
+
+  @Column(name = "HARVEST_AMOUNT_CROP_HIGHEST_HARVEST", nullable = false)
+  private double harvestAmountCropHighestHarvest;
+
+  @Column(name = "CROP_LOWER_HARVEST", nullable = false)
+  private String cropLowerHarvest;
+
+  @Column(name = "HARVEST_AMOUNT_CROP_LOWEST_HARVEST", nullable = false)
+  private double harvestAmountCropLowestHarvest;
+
   @Column(name = "MOST_PLANTED_CROP", nullable = false)
   private String mostPlantedCrop;
 
@@ -86,6 +98,38 @@ public class StatisticalReport {
 
   public void setDateUntil(Calendar dateUntil) {
     this.dateUntil = dateUntil;
+  }
+
+  public String getCropHigherHarvest() {
+    return cropHigherHarvest;
+  }
+
+  public void setCropHigherHarvest(String cropHigherHarvest) {
+    this.cropHigherHarvest = cropHigherHarvest;
+  }
+
+  public double getHarvestAmountCropHighestHarvest() {
+    return harvestAmountCropHighestHarvest;
+  }
+
+  public void setHarvestAmountCropHighestHarvest(double harvestAmountCropHighestHarvest) {
+    this.harvestAmountCropHighestHarvest = harvestAmountCropHighestHarvest;
+  }
+
+  public String getCropLowerHarvest() {
+    return cropLowerHarvest;
+  }
+
+  public void setCropLowerHarvest(String cropLowerHarvest) {
+    this.cropLowerHarvest = cropLowerHarvest;
+  }
+
+  public double getHarvestAmountCropLowestHarvest() {
+    return harvestAmountCropLowestHarvest;
+  }
+
+  public void setHarvestAmountCropLowestHarvest(double harvestAmountCropLowestHarvest) {
+    this.harvestAmountCropLowestHarvest = harvestAmountCropLowestHarvest;
   }
 
   public String getMostPlantedCrop() {

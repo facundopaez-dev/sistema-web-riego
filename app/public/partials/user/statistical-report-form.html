@@ -167,6 +167,42 @@
 			</div>
 
 			<div class="form-group" ng-hide="action == 'new'">
+				<label for="statisticalReport_cropHigherHarvest" class="col-md-2 control-label">Cultivo con mayor
+					rendimiento (mayor cosecha)</label>
+				<div class="col-md-3">
+					<input type="text" class="form-control" id="statisticalReport_cropHigherHarvest"
+						ng-model="data.cropHigherHarvest" ng-disabled="action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group" ng-hide="action == 'new'">
+				<label for="statisticalReport_harvestAmountCropHighestHarvest" class="col-md-2 control-label">Cantidad
+					total cosechada del cultivo con mayor rendimiento [kg]</label>
+				<div class="col-md-3">
+					<input type="number" class="form-control" id="statisticalReport_harvestAmountCropHighestHarvest"
+						ng-model="data.harvestAmountCropHighestHarvest" ng-disabled="action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group" ng-hide="action == 'new'">
+				<label for="statisticalReport_cropLowerHarvest" class="col-md-2 control-label">Cultivo con menor
+					rendimiento (menor cosecha)</label>
+				<div class="col-md-3">
+					<input type="text" class="form-control" id="statisticalReport_cropLowerHarvest"
+						ng-model="data.cropLowerHarvest" ng-disabled="action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group" ng-hide="action == 'new'">
+				<label for="statisticalReport_harvestAmountCropLowestHarvest" class="col-md-2 control-label">Cantidad
+					total cosechada del cultivo con menor rendimiento [kg]</label>
+				<div class="col-md-3">
+					<input type="number" class="form-control" id="statisticalReport_harvestAmountCropLowestHarvest"
+						ng-model="data.harvestAmountCropLowestHarvest" ng-disabled="action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group" ng-hide="action == 'new'">
 				<label for="statisticalReport_mostPlantedCrop" class="col-md-2 control-label">Cultivo más
 					plantado</label>
 				<div class="col-md-3">

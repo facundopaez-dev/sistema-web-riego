@@ -82,6 +82,10 @@
   125 de la pila del producto -->
   <target name="t125" depends="init, run_t125_sql" />
 
+  <!-- Comando para cargar la base de datos subyacente con los datos necesarios para probar la tarea
+  338 de GitHub -->
+  <target name="tgh338" depends="init, run_tgh338_sql" />
+
   <!-- Comando para cargar la base de datos subyacente con los cultivos, las radiaciones solares,
   las insolaciones maximas, los estados de un registro de plantacion, un usuario administrador y
   una clave secreta -->
