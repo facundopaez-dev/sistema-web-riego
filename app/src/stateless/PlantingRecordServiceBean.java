@@ -866,10 +866,10 @@ public class PlantingRecordServiceBean {
 
   /**
    * Retorna true si y solo si la fecha de siembra de un registro
-   * de plantacion es estrictamente mayor (posterior) que la fecha actual,
-   * la cual esta contenida en la referencia al objeto de tipo
-   * Calendar devuelta por el metodo getCurrentDate() de la clase
-   * UtilDate de la aplicacion.
+   * de plantacion es estrictamente mayor (posterior) que la fecha
+   * actual, la cual esta contenida en la referencia al objeto de
+   * tipo Calendar devuelta por el metodo getCurrentDate() de la
+   * clase UtilDate de la aplicacion.
    * 
    * @param givenPlantingRecord
    * @return true si la fecha de siembra del objeto de tipo PlantingRecord
@@ -1025,11 +1025,12 @@ public class PlantingRecordServiceBean {
      * 
      * Hay que tener en cuenta que puede haber mas de un cultivo
      * que haya sido plantado en mayor medida y la misma cantidad
-     * de veces en una parcela durante un periodo definido por dos
-     * fechas. Por lo tanto, la consulta (queryString) puede retornar
-     * un numero que represente la existencia de mas un cultivo plantado
-     * en mayor medida y la misma cantidad de veces en una parcela
-     * durante un periodo definido por dos fechas.
+     * de veces en una parcela durante un periodo definido por
+     * dos fechas. Por lo tanto, la consulta (queryString) puede
+     * retornar un numero que represente la existencia de mas un
+     * cultivo plantado en mayor medida y la misma cantidad de
+     * veces en una parcela durante un periodo definido por dos
+     * fechas.
      */
     String queryString = "SELECT MAX(SUBQUERY.AMOUNT_CROP) FROM (SELECT FK_CROP, COUNT(FK_CROP) AS AMOUNT_CROP FROM PLANTING_RECORD "
         + "WHERE (((?1 > SEED_DATE AND ?1 <= HARVEST_DATE AND HARVEST_DATE <= ?2) OR "
@@ -1053,9 +1054,9 @@ public class PlantingRecordServiceBean {
   }
 
   /**
-   * Retorna el nombre del cultivo que mas veces fue plantado de los
-   * cultivos plantados en una parcela durante un periodo dado por
-   * dos fechas si y solo si existe tal cultivo
+   * Retorna el nombre del cultivo que mas veces fue plantado de
+   * los cultivos plantados en una parcela durante un periodo dado
+   * por dos fechas si y solo si existe tal cultivo
    * 
    * @param parcelId
    * @param dateFrom
@@ -1073,9 +1074,9 @@ public class PlantingRecordServiceBean {
     /*
      * Si la coleccion devuelta por el metodo searchMostPlantedCrop,
      * esta vacia o su tamaño es mayor a 1 significa que no se encontro
-     * el cultivo que mas veces fue plantado o que existe mas de un cultivo
-     * plantado en mayor medida de los cultivos plantados en una parcela
-     * durante un periodo dado por dos fechas.
+     * el cultivo que mas veces fue plantado o que existe mas de un
+     * cultivo plantado en mayor medida de los cultivos plantados en
+     * una parcela durante un periodo dado por dos fechas.
      * 
      * En ambos casos se retorna la cadena "Cultivo no existente". En
      * el segundo caso se retorna dicha cadena porque el cultivo que
@@ -1235,9 +1236,9 @@ public class PlantingRecordServiceBean {
      * que haya sido plantado en menor medida y la misma cantidad
      * de veces en una parcela durante un periodo definido por dos
      * fechas. Por lo tanto, la consulta (queryString) puede retornar
-     * un numero que represente la existencia de mas un cultivo plantado
-     * en menor medida y la misma cantidad de veces en una parcela
-     * durante un periodo definido por dos fechas.
+     * un numero que represente la existencia de mas un cultivo
+     * plantado en menor medida y la misma cantidad de veces en
+     * una parcela durante un periodo definido por dos fechas.
      */
     String queryString = "SELECT MIN(SUBQUERY.AMOUNT_CROP) FROM (SELECT FK_CROP, COUNT(FK_CROP) AS AMOUNT_CROP FROM PLANTING_RECORD "
         + "WHERE (((?1 > SEED_DATE AND ?1 <= HARVEST_DATE AND HARVEST_DATE <= ?2) OR "
@@ -1281,9 +1282,9 @@ public class PlantingRecordServiceBean {
     /*
      * Si la coleccion devuelta por el metodo searchLeastPlantedCrop,
      * esta vacia o su tamaño es mayor a 1 significa que no se encontro
-     * el cultivo que menos veces fue plantado o que existe mas de un cultivo
-     * plantado en menor medida de los cultivos plantados en una parcela
-     * durante un periodo dado por dos fechas.
+     * el cultivo que menos veces fue plantado o que existe mas de un
+     * cultivo plantado en menor medida de los cultivos plantados en
+     * una parcela durante un periodo dado por dos fechas.
      * 
      * En ambos casos se retorna la cadena "Cultivo no existente". En
      * el segundo caso se retorna dicha cadena porque el cultivo que
@@ -1465,11 +1466,11 @@ public class PlantingRecordServiceBean {
    * @param dateUntil
    * @return referencia a un objeto de tipo Collection que contiene
    * referencias a objetos de tipo String que contienen los nombres
-   * de los cultivos plantados en una parcela durante un periodo dado
-   * por dos fechas, que tienen el menor ciclo de vida.
-   * En el caso en el que no existen tales cultivos, retorna una
-   * referencia a un objeto de tipo Collection vacio, es decir, que
-   * no tiene ninguna referencia a un objeto de tipo String.
+   * de los cultivos plantados en una parcela durante un periodo
+   * dado por dos fechas, que tienen el menor ciclo de vida. En el
+   * caso en el que no existen tales cultivos, retorna una referencia
+   * a un objeto de tipo Collection vacio, es decir, que no tiene
+   * ninguna referencia a un objeto de tipo String.
    */
   private Collection<String> searchCropWithShortestLifeCycle(int parcelId, Calendar dateFrom, Calendar dateUntil) {
     /*
