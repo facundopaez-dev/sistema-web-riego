@@ -278,6 +278,16 @@
 				</div>
 			</div>
 
+			<div class="form-group" ng-hide="action == 'new'">
+				<label for="statisticalReport_totalAmountCropIrrigationWater" class="col-md-2 control-label">Cantidad
+					total de agua utilizada para el riego de cultivos [mm/período]
+				</label>
+				<div class="col-md-3">
+					<input type="text" class="form-control" id="statisticalReport_totalAmountCropIrrigationWater"
+						ng-model="data.totalAmountCropIrrigationWater" ng-disabled="action == 'view'">
+				</div>
+			</div>
+
 			<div class="form-group">
 				<div class="col-md-offset-2 col-md-3">
 					<button type="submit" class="btn btn-success" ng-click="create()"

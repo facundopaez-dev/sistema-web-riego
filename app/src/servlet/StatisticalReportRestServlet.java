@@ -34,6 +34,7 @@ import stateless.PlantingRecordServiceBean;
 import stateless.SessionServiceBean;
 import stateless.CropServiceBean;
 import stateless.HarvestServiceBean;
+import stateless.IrrigationRecordServiceBean;
 import stateless.Page;
 import util.PersonalizedResponse;
 import util.ErrorResponse;
@@ -61,6 +62,9 @@ public class StatisticalReportRestServlet {
 
   @EJB
   PlantingRecordServiceBean plantingRecordService;
+
+  @EJB
+  IrrigationRecordServiceBean irrigationRecordService;
 
   @EJB
   CropServiceBean cropService;
@@ -1045,14 +1049,16 @@ public class StatisticalReportRestServlet {
     int parcelId = statisticalReport.getParcel().getId();
     Calendar dateFrom = statisticalReport.getDateFrom();
     Calendar dateUntil = statisticalReport.getDateUntil();
+    String nonExistentCrop = plantingRecordService.getNonExistentCrop();
 
     double higherHarvest = 0;
     double lowerHarvest = 0;
+    double totalAmountCropIrrigationWater = irrigationRecordService.calculateTotalAmountCropIrrigationWater(parcelId, dateFrom, dateUntil);
+
     int quantityMostPlantedCrop = 0;
     int quantityLesstPlantedCrop = 0;
     int lifeCycleCropLongestLifeCyclePlanted = 0;
     int lifeCycleCropShortestLifeCyclePlanted = 0;
-    String nonExistentCrop = plantingRecordService.getNonExistentCrop();
 
     String cropHighestHarvest = harvestServiceBean.findCropHighestHarvest(parcelId, dateFrom, dateUntil);
     String cropLowerHarvest = harvestServiceBean.findCropLowerHarvest(parcelId, dateFrom, dateUntil);
@@ -1194,6 +1200,7 @@ public class StatisticalReportRestServlet {
     statisticalReport.setLifeCycleCropLongestLifeCyclePlanted(lifeCycleCropLongestLifeCyclePlanted);
     statisticalReport.setCropShortestLifeCyclePlanted(cropShortestLifeCyclePlanted);
     statisticalReport.setLifeCycleCropShortestLifeCyclePlanted(lifeCycleCropShortestLifeCyclePlanted);
+    statisticalReport.setTotalAmountCropIrrigationWater(totalAmountCropIrrigationWater);
 
     /*
      * El metodo calculateDaysWithoutCrops retorna el valor

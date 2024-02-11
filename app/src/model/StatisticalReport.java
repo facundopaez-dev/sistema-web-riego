@@ -72,6 +72,9 @@ public class StatisticalReport {
   @Column(name = "TOTAL_AMOUNT_RAINWATER")
   private String totalAmountRainwater;
 
+  @Column(name = "TOTAL_AMOUNT_CROP_IRRIGATION_WATER")
+  private double totalAmountCropIrrigationWater;
+
   @ManyToOne
   @JoinColumn(name = "FK_PARCEL", nullable = false)
   private Parcel parcel;
@@ -210,6 +213,14 @@ public class StatisticalReport {
 
   public void setTotalAmountRainwater(String totalAmountRainwater) {
     this.totalAmountRainwater = totalAmountRainwater;
+  }
+
+  public double getTotalAmountCropIrrigationWater() {
+    return totalAmountCropIrrigationWater;
+  }
+
+  public void setTotalAmountCropIrrigationWater(double totalAmountCropIrrigationWater) {
+    this.totalAmountCropIrrigationWater = totalAmountCropIrrigationWater;
   }
 
   public Parcel getParcel() {

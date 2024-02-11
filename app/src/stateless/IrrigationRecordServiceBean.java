@@ -435,6 +435,69 @@ public class IrrigationRecordServiceBean {
     return false;
   }
 
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return double que representa la cantidad total de agua
+   * utilizada para el riego de cultivos sembrados y cosechados
+   * en una parcela durante un periodo definido por dos fechas
+   */
+  public double calculateTotalAmountCropIrrigationWater(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    /*
+     * Selecciona la fecha de siembra y la fecha de cosecha de
+     * un conjunto de registros de plantacion finalizados de una
+     * parcela que cumplen con una de las siguientes condiciones:
+     * - la fecha desde es mayor o igual a la fecha de siembra y
+     * menor o igual a la fecha de cosecha, y la fecha hasta es
+     * estrictamente mayor a la fecha de cosecha.
+     * - la fecha de siembra es mayor o igual a la fecha desde y
+     * la fecha de cosecha es menor o igual a la fecha hasta.
+     * - la fecha hasta es mayor o igual a la fecha de siembra y
+     * menor o igual a la fecha de cosecha, y la fecha desde es
+     * estrictamente menor a la fecha de siembra.
+     */
+    String dateSelectionQuery = "SELECT FK_PARCEL, SEED_DATE, HARVEST_DATE FROM PLANTING_RECORD "
+        + "WHERE FK_PARCEL = ?1 AND FK_STATUS = 1 AND "
+        + "((SEED_DATE <= ?2 AND ?2 <= HARVEST_DATE AND ?3 > HARVEST_DATE) "
+        + "OR (SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) "
+        + "OR (SEED_DATE <= ?3 AND ?3 <= HARVEST_DATE AND ?2 < SEED_DATE)) "
+        + "ORDER BY SEED_DATE";
+
+    /*
+     * Calcula la cantidad total de agua utilizada para el riego
+     * de cultivos sembrados y cosechados en una parcela durante un
+     * periodo definido por dos fechas. Hay que tener en cuenta que
+     * esta consulta calcula dicha cantidad unicamente para cultivos
+     * cosechados (finalizados), ya que la consulta de seleccion de
+     * fechas de registros de plantacion selecciona las fechas de
+     * registros de plantacion que tiene el estado "Finalizado", el
+     * cual tiene el ID 1 siempre y cuando no se modifique el orden
+     * de su sentencia INSERT en el archivo plantingRecordStatusInserts.sql
+     * de la ruta app/etc/sql.
+     */
+    String queryString = "SELECT SUM(IRRIGATION_DONE) FROM IRRIGATION_RECORD "
+        + "WHERE FK_PARCEL = ?1 AND ?2 <= DATE AND DATE <= ?3 "
+        + "AND DATE IN (SELECT DISTINCT DATE FROM IRRIGATION_RECORD JOIN (" + dateSelectionQuery + ") AS DATES ON "
+        + "IRRIGATION_RECORD.FK_PARCEL = DATES.FK_PARCEL WHERE "
+        + "IRRIGATION_RECORD.FK_PARCEL = ?1 AND DATES.SEED_DATE <= DATE AND DATE <= DATES.HARVEST_DATE)";
+
+    Query query = getEntityManager().createNativeQuery(queryString);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    double totalAmountCropIrrigationWater = 0.0;
+
+    try {
+      totalAmountCropIrrigationWater = (double) query.getSingleResult();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return totalAmountCropIrrigationWater;
+  }
+
   public Page<IrrigationRecord> findAllPagination(int userId, Integer page, Integer cantPerPage, Map<String, String> parameters) {
     // Genera el WHERE dinámicamente
     StringBuffer where = new StringBuffer(" WHERE 1=1 AND e IN (SELECT t FROM IrrigationRecord t JOIN t.parcel p WHERE p IN (SELECT x FROM User u JOIN u.parcels x WHERE u.id = :userId))");
