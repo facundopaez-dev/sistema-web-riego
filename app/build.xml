@@ -67,14 +67,6 @@
   <target name="t106" depends="init, run_t106_sql" />
 
   <!-- Comando para cargar la base de datos subyacente con los datos necesarios para probar la tarea
-  107 de la pila del producto -->
-  <target name="t107" depends="init, run_t107_sql" />
-
-  <!-- Comando para cargar la base de datos subyacente con los datos necesarios para probar la tarea
-  108 de la pila del producto -->
-  <target name="t108" depends="init, run_t108_sql" />
-
-  <!-- Comando para cargar la base de datos subyacente con los datos necesarios para probar la tarea
   110 de la pila del producto -->
   <target name="t110" depends="init, run_t110_sql" />
 
