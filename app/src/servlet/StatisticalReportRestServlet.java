@@ -1203,7 +1203,7 @@ public class StatisticalReportRestServlet {
     statisticalReport.setTotalAmountCropIrrigationWater(totalAmountCropIrrigationWater);
 
     /*
-     * El metodo calculateDaysWithoutCrops retorna el valor
+     * El metodo calculateDaysWithoutCrops() retorna el valor
      * -1 cuando una parcela no tiene registros de plantacion
      * finalizados en el periodo definido por dos fechas en
      * el que se quiere generar un informe estadistico para
