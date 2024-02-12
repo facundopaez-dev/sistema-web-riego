@@ -1068,7 +1068,7 @@ public class StatisticalReportRestServlet {
     String cropShortestLifeCyclePlanted = plantingRecordService.findCropWithShortestLifeCycle(parcelId, dateFrom, dateUntil);
 
     int daysWithoutCrops = plantingRecordService.calculateDaysWithoutCrops(parcelId, dateFrom, dateUntil);
-    double totalAmountRainwter = climateRecordService.calculateAmountRainwaterByPeriod(parcelId, dateFrom, dateUntil);
+    double totalAmountRainwater = climateRecordService.calculateAmountRainwaterByPeriod(parcelId, dateFrom, dateUntil);
 
     /*
      * Si existe el cultivo con mayor rendimiento (mayor cantidad
@@ -1224,8 +1224,8 @@ public class StatisticalReportRestServlet {
      * la misma. Dicho valor representa informacion no
      * disponible.
      */
-    if (totalAmountRainwter >= 0.0) {
-      statisticalReport.setTotalAmountRainwater(String.valueOf(totalAmountRainwter));
+    if (totalAmountRainwater >= 0.0) {
+      statisticalReport.setTotalAmountRainwater(String.valueOf(totalAmountRainwater));
     } else {
       statisticalReport.setTotalAmountRainwater(DATA_NOT_AVAILABLE);
     }
