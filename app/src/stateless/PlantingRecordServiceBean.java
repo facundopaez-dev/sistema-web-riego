@@ -1043,7 +1043,7 @@ public class PlantingRecordServiceBean {
 
     try {
       quantityMostPlantedCrop = (int) query.getSingleResult();
-    } catch (NoResultException e) {
+    } catch (NullPointerException e) {
       e.printStackTrace();
     }
 
@@ -1251,7 +1251,7 @@ public class PlantingRecordServiceBean {
 
     try {
       quantityLessPlantedCrop = (int) query.getSingleResult();
-    } catch (NoResultException e) {
+    } catch (NullPointerException e) {
       e.printStackTrace();
     }
 

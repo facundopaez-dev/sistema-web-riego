@@ -275,7 +275,7 @@ public class HarvestServiceBean {
 
     try {
       quantityMostPlantedCrop = (double) query.getSingleResult();
-    } catch (NoResultException e) {
+    } catch (NullPointerException e) {
       e.printStackTrace();
     }
 
@@ -418,7 +418,7 @@ public class HarvestServiceBean {
 
     try {
       quantityMostPlantedCrop = (double) query.getSingleResult();
-    } catch (NoResultException e) {
+    } catch (NullPointerException e) {
       e.printStackTrace();
     }
 

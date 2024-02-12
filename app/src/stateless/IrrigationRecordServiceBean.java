@@ -491,7 +491,7 @@ public class IrrigationRecordServiceBean {
 
     try {
       totalAmountCropIrrigationWater = (double) query.getSingleResult();
-    } catch (NoResultException e) {
+    } catch (NullPointerException e) {
       e.printStackTrace();
     }
 
