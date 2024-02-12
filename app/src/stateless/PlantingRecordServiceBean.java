@@ -907,44 +907,41 @@ public class PlantingRecordServiceBean {
      * los cultivos que mas veces fueron plantados de los cultivos
      * plantados en una parcela en un periodo dado por dos fechas.
      */
-    String conditionHaving = "(SELECT MAX(SUBQUERY.AMOUNT_CROP) FROM (SELECT FK_CROP, COUNT(FK_CROP) AS AMOUNT_CROP FROM PLANTING_RECORD "
-        + "WHERE (((?1 > SEED_DATE AND ?1 <= HARVEST_DATE AND HARVEST_DATE <= ?2) OR "
-        + "(SEED_DATE >= ?1 AND HARVEST_DATE <= ?2) OR "
-        + "(?2 < HARVEST_DATE AND ?1 <= SEED_DATE AND SEED_DATE <= ?2)) AND FK_PARCEL = ?3 AND FK_STATUS = 1) GROUP BY FK_CROP) AS SUBQUERY))";
+    String conditionHaving = "SELECT MAX(SUBQUERY.AMOUNT_CROP) FROM (SELECT FK_CROP, COUNT(FK_CROP) AS AMOUNT_CROP FROM PLANTING_RECORD "
+        + "WHERE (FK_PARCEL = ?1 AND FK_STATUS = 1 AND ((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) OR "
+        + "(SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR "
+        + "(?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2))) GROUP BY FK_CROP) AS SUBQUERY";
 
     /*
      * Con esta condicion se seleccionan todos los registros de
      * plantacion finalizados (*) de una parcela que estan entre
-     * la fecha desde y la fecha hasta dadas.
+     * una fecha desde y una fecha hasta.
      * 
      * Con la primera condicion se selecciona el registro de
      * plantacion finalizado (*) de una parcela que tiene su fecha
-     * de siembra estrictamente menor (esta antes) que la fecha
-     * desde (1), y su fecha de cosecha mayor o igual que la fecha
-     * desde (1) y menor o igual que la fecha hasta (2). Es decir,
-     * se selecciona el registro de plantacion finalizado de una
-     * parcela que tiene unicamente su fecha de cosecha dentro
-     * del periodo que va desde la fecha desde (1) a la fecha hasta
-     * (2) dadas.
+     * de siembra mayor o igual a la fecha desde y menor o igual a
+     * la fecha hasta, y su fecha de cosecha estrictamente mayor a
+     * la fecha hasta. Es decir, se selecciona el registro de
+     * plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de siembra dentro del periodo definido por la fecha
+     * desde y la fecha hasta.
      * 
-     * Con la segunda condicion se seleccionan los registros de
-     * plantacion finalizados (*) de una parcela que tienen su
-     * fecha de siembra mayor o igual que la fecha desde (1) y
-     * su fecha de cosecha menor o igual que la fecha hasta (2).
-     * Es decir, se seleccionan los registros de plantacion que
-     * tienen su fecha de siembra y su fecha de cosecha dentro
-     * del periodo que va desde la fecha desde (1) a la fecha
-     * hasta (2).
+     * Con la segunda condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y y su fecha
+     * de cosecha menor o igual a la fecha hasta. Es decir, se
+     * selecciona el registro de plantacion que tiene su fecha
+     * de siembra y su fecha de cosecha dentro del periodo
+     * definido por la fecha desde y la fecha hasta.
      * 
      * Con la tercera conidicon se selecciona el registro de
      * plantacion finalizado (*) de una parcela que tiene su
-     * fecha de cosecha estrictamente mayor (esta despues) que
-     * la fecha hasta (2), y su fecha de siembra mayor o igual
-     * que la fecha desde (1) y menor o igual que la fecha hasta
-     * (2). Es decir, se selecciona el registro de plantacion
-     * finalizado de una parcela que tiene unicamente su fecha
-     * de siembra dentro del periodo que va desde la fecha desde
-     * (1) a la fecha hasta (2).
+     * fecha de cosecha mayor o igual a la fecha desde y menor
+     * igual a la fecha hasta, y su fecha de siembra estrictamente
+     * menor a la fecha desde. Es decir, se selecciona el registro
+     * de plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de siembra dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
      * 
      * (*) El ID para el estado finalizado de un registro de
      * plantacion es el 1, siempre y cuando no se modifique el
@@ -952,9 +949,9 @@ public class PlantingRecordServiceBean {
      * del archivo plantingRecordStatusInserts.sql de la ruta
      * app/etc/sql.
      */
-    String conditionWhere = "((?1 > SEED_DATE AND ?1 <= HARVEST_DATE AND HARVEST_DATE <= ?2) OR "
-        + "(SEED_DATE >= ?1 AND HARVEST_DATE <= ?2) OR "
-        + "(?2 < HARVEST_DATE AND ?1 <= SEED_DATE AND SEED_DATE <= ?2)) AND FK_PARCEL = ?3 AND FK_STATUS = 1 ";
+    String conditionWhere = "FK_PARCEL = ?1 AND FK_STATUS = 1 AND ((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) OR "
+        + "(SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR "
+        + "(?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2)) ";
 
     /*
      * Selecciona el ID del cultivo que mas veces fue plantado de
@@ -969,8 +966,8 @@ public class PlantingRecordServiceBean {
      * plantados de los cultivos plantados en una parcela durante un
      * periodo dado por dos fechas.
      */
-    String subQuery = "(SELECT FK_CROP FROM PLANTING_RECORD WHERE " + conditionWhere
-        + "GROUP BY FK_CROP HAVING COUNT(FK_CROP) = " + conditionHaving;
+    String subQuery = "SELECT FK_CROP FROM PLANTING_RECORD WHERE " + conditionWhere
+        + "GROUP BY FK_CROP HAVING COUNT(FK_CROP) = (" + conditionHaving + ")";
 
     /*
      * Selecciona el nombre del cultivo que mas veces fue plantado
@@ -991,12 +988,12 @@ public class PlantingRecordServiceBean {
      * cultivo como los nombres de los cultivos que mas veces fueron
      * plantados en una parcela durante un periodo dado por dos fechas.
      */
-    String queryString = "SELECT NAME FROM CROP WHERE ID IN " + subQuery;
+    String queryString = "SELECT NAME FROM CROP WHERE ID IN (" + subQuery + ")";
 
     Query query = getEntityManager().createNativeQuery(queryString);
-    query.setParameter(1, dateFrom);
-    query.setParameter(2, dateUntil);
-    query.setParameter(3, parcelId);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
 
     Collection<String> cropNames = null;
 
