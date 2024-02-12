@@ -1121,7 +1121,7 @@ public class PlantingRecordServiceBean {
     /*
      * Con esta condicion se seleccionan todos los registros de
      * plantacion finalizados (*) de una parcela que estan entre
-     * la fecha desde y la fecha hasta dadas.
+     * una fecha desde y una fecha hasta.
      * 
      * Con la primera condicion se selecciona el registro de
      * plantacion finalizado (*) de una parcela que tiene su fecha
