@@ -1235,14 +1235,14 @@ public class PlantingRecordServiceBean {
      * una parcela durante un periodo definido por dos fechas.
      */
     String queryString = "SELECT MIN(SUBQUERY.AMOUNT_CROP) FROM (SELECT FK_CROP, COUNT(FK_CROP) AS AMOUNT_CROP FROM PLANTING_RECORD "
-        + "WHERE (((?1 > SEED_DATE AND ?1 <= HARVEST_DATE AND HARVEST_DATE <= ?2) OR "
-        + "(SEED_DATE >= ?1 AND HARVEST_DATE <= ?2) OR "
-        + "(?2 < HARVEST_DATE AND ?1 <= SEED_DATE AND SEED_DATE <= ?2)) AND FK_PARCEL = ?3 AND FK_STATUS = 1) GROUP BY FK_CROP) AS SUBQUERY";
+        + "WHERE (FK_PARCEL = ?1 AND FK_STATUS = 1 AND ((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) OR "
+        + "(SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR "
+        + "(?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2))) GROUP BY FK_CROP) AS SUBQUERY";
 
     Query query = getEntityManager().createNativeQuery(queryString);
-    query.setParameter(1, dateFrom);
-    query.setParameter(2, dateUntil);
-    query.setParameter(3, parcelId);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
 
     int quantityLessPlantedCrop = 0;
 
