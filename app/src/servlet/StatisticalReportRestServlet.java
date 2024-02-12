@@ -1217,7 +1217,7 @@ public class StatisticalReportRestServlet {
     }
 
     /*
-     * El metodo calculateAmountRainwaterByPeriod retorna el
+     * El metodo calculateAmountRainwaterByPeriod() retorna el
      * valor -1.0 cuando una parcela no tiene registros
      * climaticos en el periodo definido por dos fechas en
      * el que se quiere generar un informe estadistico para
