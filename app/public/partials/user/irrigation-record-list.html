@@ -130,20 +130,22 @@
 		<strong>Listado de registros de riego</strong>
 	</div>
 
-	<!-- <form class="form-inline">
-		<div class="form-group"> -->
-	<!-- Campo de parcela -->
-	<!-- <input name="parcel" type="text" ng-model="parcel" placeholder="Parcela"
+	<form class="form-inline">
+		<div class="form-group">
+			<!-- Campo de parcela -->
+			<input name="parcel" type="text" ng-model="pagination.search.parcel" placeholder="Parcela"
 				uib-typeahead="parcel as parcel.name for parcel in findParcelByName($viewValue)"
 				typeahead-loading="loadingLocations" class="form-control" typeahead-editable="false"
-				typeahead-min-lenght="3"> -->
+				typeahead-min-lenght="3">
 
-	<!-- Campo de la fecha -->
-	<!-- <input type="date" class="form-control" id="date" ng-model="date">
+			<!-- Campo de la fecha -->
+			<input type="date" class="form-control" id="date" ng-model="pagination.search.date">
 		</div>
-		<button class="btn btn-default" ng-click="filter()">Filtrar</button>
-		<button class="btn btn-default" ng-click="reset()">Reiniciar listado</button>
-	</form> -->
+		<button class="btn btn-primary btn-sm" ng-click="pagination.showPage(1)"><i
+				class="glyphicon glyphicon-search"></i></button>
+		<button class="btn btn-danger btn-sm" ng-click="pagination.search = {}; pagination.showPage(1)"><i
+				class="glyphicon glyphicon-erase"></i></button>
+	</form>
 
 	<div class="panel-body">
 		<a href="#!/home/irrigationRecords/new" class="btn btn-success" role="button">Nuevo registro de riego</a>

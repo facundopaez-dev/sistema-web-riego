@@ -182,7 +182,7 @@ public class IrrigationRecordRestServlet {
   @Path("/findAllPagination")
   @Produces(MediaType.APPLICATION_JSON)
   public Response findAllPagination(@Context HttpHeaders request, @QueryParam("page") Integer page,
-      @QueryParam("cant") Integer cant, @QueryParam("search") String search) throws IOException {
+      @QueryParam("cant") Integer cant, @QueryParam("search") String search) throws IOException, ParseException {
     Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
 
     /*
