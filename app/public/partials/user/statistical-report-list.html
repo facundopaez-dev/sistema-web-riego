@@ -130,22 +130,24 @@
     <strong>Listado de informes estadísticos</strong>
   </div>
 
-  <!-- <form class="form-inline"> -->
-  <!-- <div class="form-group"> -->
-  <!-- Campo de parcela -->
-  <!-- <input name="parcel" type="text" ng-model="parcel" placeholder="Parcela"
+  <form class="form-inline">
+    <div class="form-group">
+      <!-- Campo de parcela -->
+      <input name="parcel" type="text" ng-model="pagination.search.parcel" placeholder="Parcela"
         uib-typeahead="parcel as parcel.name for parcel in findParcelByName($viewValue)"
-        typeahead-loading="loadingLocations" class="form-control" typeahead-editable="false" typeahead-min-lenght="3"> -->
+        typeahead-loading="loadingLocations" class="form-control" typeahead-editable="false" typeahead-min-lenght="3">
 
-  <!-- Campo de la fecha desde -->
-  <!-- <input type="date" class="form-control" id="dateFrom" ng-model="dateFrom"> -->
+      <!-- Campo de la fecha desde -->
+      <input type="date" class="form-control" id="dateFrom" ng-model="pagination.search.dateFrom">
 
-  <!-- Campo de la fecha hasta -->
-  <!-- <input type="date" class="form-control" id="dateUntil" ng-model="dateUntil">
+      <!-- Campo de la fecha hasta -->
+      <input type="date" class="form-control" id="dateUntil" ng-model="pagination.search.dateUntil">
     </div>
-    <button class="btn btn-default" ng-click="filter()">Filtrar</button>
-    <button class="btn btn-default" ng-click="reset()">Reiniciar listado</button>
-  </form> -->
+    <button class="btn btn-primary btn-sm" ng-click="pagination.showPage(1)"><i
+        class="glyphicon glyphicon-search"></i></button>
+    <button class="btn btn-danger btn-sm" ng-click="pagination.search = {}; pagination.showPage(1)"><i
+        class="glyphicon glyphicon-erase"></i></button>
+  </form>
 
   <div class="panel-body">
     <a href="#!/home/statisticalReports/new" class="btn btn-success" role="button">Generar informe estadístico</a>

@@ -1,9 +1,12 @@
 package stateless;
 
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.Map;
 import java.util.Collection;
 import java.util.Calendar;
+import java.util.Date;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -355,7 +358,11 @@ public class StatisticalReportServiceBean {
     return dateUntil;
   }
 
-  public Page<StatisticalReport> findAllPagination(int userId, Integer page, Integer cantPerPage, Map<String, String> parameters) {
+  public Page<StatisticalReport> findAllPagination(int userId, Integer page, Integer cantPerPage, Map<String, String> parameters) throws ParseException {
+    SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+    Date date;
+    Calendar calendarDate;
+
     // Genera el WHERE dinámicamente
     StringBuffer where = new StringBuffer(" WHERE 1=1 AND e IN (SELECT t FROM StatisticalReport t JOIN t.parcel p WHERE p IN (SELECT x FROM User u JOIN u.parcels x WHERE u.id = :userId))");
 
@@ -378,6 +385,35 @@ public class StatisticalReportServiceBean {
               where.append(") LIKE UPPER('%");
               where.append(parameters.get(param));
               where.append("%')");
+              break;
+            case "Parcel":
+              where.append(" AND UPPER(e.");
+              where.append(param);
+              where.append(".name");
+              where.append(") LIKE UPPER('%");
+              where.append(parameters.get(param));
+              where.append("%')");
+              break;
+            case "Calendar":
+
+              if (param.equals("dateFrom")) {
+                date = new Date(dateFormatter.parse(parameters.get(param)).getTime());
+                calendarDate = UtilDate.toCalendar(date);
+                where.append(" AND e.");
+                where.append(param);
+                where.append(" >= ");
+                where.append("'" + UtilDate.convertDateToYyyyMmDdFormat(calendarDate) + "'");
+              }
+
+              if (param.equals("dateUntil")) {
+                date = new Date(dateFormatter.parse(parameters.get(param)).getTime());
+                calendarDate = UtilDate.toCalendar(date);
+                where.append(" AND e.");
+                where.append(param);
+                where.append(" <= ");
+                where.append("'" + UtilDate.convertDateToYyyyMmDdFormat(calendarDate) + "'");
+              }
+
               break;
             default:
               where.append(" AND e.");
