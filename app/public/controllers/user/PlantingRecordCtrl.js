@@ -85,7 +85,7 @@ app.controller(
         authHeaderManager.setJwtAuthHeader();
       }
 
-      if (['new', 'edit', 'view'].indexOf($params.action) == -1) {
+      if (['new', 'edit', 'view', 'calculate'].indexOf($params.action) == -1) {
         alert("Acción inválida: " + $params.action);
         $location.path("/home/plantingRecords");
       }
@@ -393,10 +393,32 @@ app.controller(
         logoutManager.logout();
       }
 
+      function calculateCropIrrigationWaterNeed(id) {
+        plantingRecordService.calculateCropIrrigationWaterNeed(id, function (error, cropIrrigationWaterNeedData) {
+          if (error) {
+            console.log(error);
+            errorResponseManager.checkResponse(error);
+            return;
+          }
+
+          /*
+          Si esta instruccion no esta, no se puede ver la
+          necesidad de agua de riego en el formulario del
+          calculo de la necesidad de agua de riego de un
+          cultivo
+          */
+          $scope.cropIrrigationWaterNeedData = cropIrrigationWaterNeedData;
+        });
+      }
+
       $scope.action = $params.action;
 
       if ($scope.action == 'edit' || $scope.action == 'view') {
         find($params.id);
+      }
+
+      if ($scope.action == 'calculate') {
+        calculateCropIrrigationWaterNeed($params.id);
       }
 
     }]);
