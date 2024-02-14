@@ -3,6 +3,7 @@ package servlet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Collection;
@@ -55,8 +56,9 @@ public class HarvestRestServlet {
   @GET
   @Path("/findAllPagination")
   @Produces(MediaType.APPLICATION_JSON)
-  public Response findAllPagination(@Context HttpHeaders request, @QueryParam("page") Integer page, @QueryParam("cant") Integer cant, @QueryParam("search") String search) throws IOException {
-      Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
+  public Response findAllPagination(@Context HttpHeaders request, @QueryParam("page") Integer page,
+      @QueryParam("cant") Integer cant, @QueryParam("search") String search) throws IOException, ParseException {
+    Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
 
       /*
        * Si el estado de la respuesta obtenida de validar el

@@ -130,15 +130,22 @@
 		<strong>Listado de rendimientos</strong>
 	</div>
 
-	<!-- <form class="form-inline">
+	<form class="form-inline">
 		<div class="form-group">
-			<input type="text" ng-model="pagination.search.name" class="form-control" placeholder="Nombre">
+			<!-- Campo de parcela -->
+			<input name="parcel" type="text" ng-model="pagination.search.parcel" placeholder="Parcela"
+				uib-typeahead="parcel as parcel.name for parcel in findParcelByName($viewValue)"
+				typeahead-loading="loadingLocations" class="form-control" typeahead-editable="false"
+				typeahead-min-lenght="3">
+
+			<!-- Campo de la fecha -->
+			<input type="date" class="form-control" id="date" ng-model="pagination.search.date">
 		</div>
 		<button class="btn btn-primary btn-sm" ng-click="pagination.showPage(1)"><i
 				class="glyphicon glyphicon-search"></i></button>
 		<button class="btn btn-danger btn-sm" ng-click="pagination.search = {}; pagination.showPage(1)"><i
 				class="glyphicon glyphicon-erase"></i></button>
-	</form> -->
+	</form>
 
 	<div class="panel-body">
 		<a href="#!/home/harvests/new" class="btn btn-success" role="button">Nueva rendimiento</a>

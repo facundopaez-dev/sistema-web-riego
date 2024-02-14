@@ -1,7 +1,10 @@
 package stateless;
 
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Collection;
 import java.util.Map;
 import javax.ejb.Stateless;
@@ -462,7 +465,11 @@ public class HarvestServiceBean {
     return false;
   }
 
-  public Page<Harvest> findAllPagination(int userId, Integer page, Integer cantPerPage, Map<String, String> parameters) {
+  public Page<Harvest> findAllPagination(int userId, Integer page, Integer cantPerPage, Map<String, String> parameters) throws ParseException {
+    SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+    Date date;
+    Calendar calendarDate;
+
     // Genera el WHERE dinámicamente
     StringBuffer where = new StringBuffer(" WHERE 1=1 AND e IN (SELECT h FROM Harvest h JOIN h.parcel p WHERE p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId))");
 
@@ -485,6 +492,25 @@ public class HarvestServiceBean {
               where.append(") LIKE UPPER('%");
               where.append(parameters.get(param));
               where.append("%')");
+              break;
+            case "Parcel":
+              where.append(" AND UPPER(e.");
+              where.append(param);
+              where.append(".name");
+              where.append(") LIKE UPPER('%");
+              where.append(parameters.get(param));
+              where.append("%')");
+              break;
+            case "Calendar":
+
+              if (param.equals("date")) {
+                date = new Date(dateFormatter.parse(parameters.get(param)).getTime());
+                calendarDate = UtilDate.toCalendar(date);
+                where.append(" AND e.date");
+                where.append(" >= ");
+                where.append("'" + UtilDate.convertDateToYyyyMmDdFormat(calendarDate) + "'");
+              }
+
               break;
             default:
               where.append(" AND e.");
