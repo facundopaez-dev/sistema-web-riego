@@ -608,7 +608,7 @@ public class ClimateRecordServiceBean {
                 calendarDate = UtilDate.toCalendar(date);
                 where.append(" AND e.");
                 where.append(param);
-                where.append(" = ");
+                where.append(" >= ");
                 where.append("'" + UtilDate.convertDateToYyyyMmDdFormat(calendarDate) + "'");
               }
 
