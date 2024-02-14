@@ -133,25 +133,24 @@
     <form class="form-inline">
         <div class="form-group">
             <!-- Campo de la parcela -->
-            <input name="parcel" type="text" ng-model="parcel" placeholder="Parcela"
+            <input name="parcel" type="text" ng-model="pagination.search.parcel" placeholder="Parcela"
                 uib-typeahead="parcel as parcel.name for parcel in findParcelByName($viewValue)"
                 typeahead-loading="loadingLocations" class="form-control" typeahead-editable="false"
                 typeahead-min-lenght="3">
 
             <!-- Campo del cultivo -->
-            <input name="crop" type="text" ng-model="crop" placeholder="Cultivo"
+            <input name="crop" type="text" ng-model="pagination.search.crop" placeholder="Cultivo"
                 uib-typeahead="crop as crop.name for crop in findCropByName($viewValue)"
                 typeahead-loading="loadingLocations" class="form-control" typeahead-editable="false"
                 typeahead-min-lenght="3">
 
-            <!-- Campo de la fecha desde -->
-            <input type="date" class="form-control" id="dateFrom" ng-model="dateFrom">
-
-            <!-- Campo de la fecha hasta -->
-            <input type="date" class="form-control" id="dateUntil" ng-model="dateUntil">
+            <!-- Campo de la fecha -->
+            <input type="date" class="form-control" id="date" ng-model="pagination.search.date">
         </div>
-        <button class="btn btn-default" ng-click="retrieve()">Recuperar</button>
-        <button class="btn btn-default" ng-click="clearSearchFields()">Borrar campos</button>
+        <button class="btn btn-primary btn-sm" ng-click="pagination.showPage(1)"><i
+                class="glyphicon glyphicon-search"></i></button>
+        <button class="btn btn-danger btn-sm" ng-click="pagination.search = {}; pagination.showPage(1)"><i
+                class="glyphicon glyphicon-erase"></i></button>
     </form>
 
     <table class="table table-condensed table-hover table-fixed-top">
@@ -168,7 +167,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr ng-repeat="a in data">
+            <tr ng-repeat="a in listElement">
                 <td>{{a.id}}</td>
                 <td>{{a.date | date:'dd/MM/yyyy'}}</td>
                 <td>{{a.parcelName}}</td>
@@ -181,5 +180,12 @@
                 </td>
             </tr>
         </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="4">
+                    <pagination></pagination>
+                </td>
+            </tr>
+        </tfoot>
     </table>
 </div>

@@ -72,6 +72,14 @@ app.controller(
                 logoutManager.logout();
             }
 
+            /* Esto es necesario para la paginacion */
+            var $ctrl = this;
+
+            $scope.service = soilWaterBalanceSrv;
+            $scope.listElement = []
+            $scope.cantPerPage = 20
+            /* Esto es necesario para la paginacion */
+
             // Esto es necesario para la busqueda que se hace cuando se ingresan caracteres
             $scope.findParcelByName = function (parcelName) {
                 return parcelSrv.findByName(parcelName).

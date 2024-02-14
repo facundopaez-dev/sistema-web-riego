@@ -1,5 +1,10 @@
 package stateless;
 
+import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.Map;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
@@ -13,6 +18,7 @@ import model.ClimateRecord;
 import model.IrrigationRecord;
 import model.Parcel;
 import irrigation.WaterMath;
+import util.UtilDate;
 
 @Stateless
 public class SoilWaterBalanceServiceBean {
@@ -356,6 +362,96 @@ public class SoilWaterBalanceServiceBean {
         }
 
         return climateRecord.getEtc();
+    }
+
+    public Page<SoilWaterBalance> findAllPagination(int userId, Integer page, Integer cantPerPage, Map<String, String> parameters) throws ParseException {
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+        Date date;
+        Calendar calendarDate;
+
+        // Genera el WHERE dinámicamente
+        StringBuffer where = new StringBuffer(" WHERE 1=1 AND e IN (SELECT t FROM Parcel p JOIN p.soilWaterBalances t WHERE p IN (SELECT x FROM User u JOIN u.parcels x WHERE u.id = :userId))");
+
+        if (parameters != null) {
+
+            for (String param : parameters.keySet()) {
+                Method method;
+
+                try {
+                    method = SoilWaterBalance.class.getMethod("get" + capitalize(param));
+
+                    if (method == null || parameters.get(param) == null || parameters.get(param).isEmpty()) {
+                        continue;
+                    }
+
+                    switch (method.getReturnType().getSimpleName()) {
+                        case "String":
+
+                            if (param.equals("parcelName")) {
+                                where.append(" AND UPPER(e.");
+                                where.append(param);
+                                where.append(") LIKE UPPER('%");
+                                where.append(parameters.get(param));
+                                where.append("%')");
+                            }
+
+                            if (param.equals("cropName")) {
+                                where.append(" AND UPPER(e.");
+                                where.append(param);
+                                where.append(") LIKE UPPER('%");
+                                where.append(parameters.get(param));
+                                where.append("%')");
+                            }
+
+                            break;
+                        case "Calendar":
+
+                            if (param.equals("date")) {
+                                date = new Date(dateFormatter.parse(parameters.get(param)).getTime());
+                                calendarDate = UtilDate.toCalendar(date);
+                                where.append(" AND e.");
+                                where.append(param);
+                                where.append(" >= ");
+                                where.append("'" + UtilDate.convertDateToYyyyMmDdFormat(calendarDate) + "'");
+                            }
+
+                            break;
+                        default:
+                            where.append(" AND e.");
+                            where.append(param);
+                            where.append(" = ");
+                            where.append(parameters.get(param));
+                            break;
+                    }
+
+                } catch (NoSuchMethodException | SecurityException e) {
+                    e.printStackTrace();
+                }
+
+            } // End for
+
+        } // End if
+
+        // Cuenta el total de resultados
+        Query countQuery = entityManager.createQuery("SELECT COUNT(e.id) FROM " + SoilWaterBalance.class.getSimpleName() + " e" + where.toString());
+        countQuery.setParameter("userId", userId);
+
+        // Pagina
+        Query query = entityManager.createQuery("FROM " + SoilWaterBalance.class.getSimpleName() + " e" + where.toString());
+        query.setMaxResults(cantPerPage);
+        query.setFirstResult((page - 1) * cantPerPage);
+        query.setParameter("userId", userId);
+
+        Integer count = ((Long) countQuery.getSingleResult()).intValue();
+        Integer lastPage = (int) Math.ceil((double) count / (double) cantPerPage);
+
+        // Arma la respuesta
+        Page<SoilWaterBalance> resultPage = new Page<SoilWaterBalance>(page, count, page > 1 ? page - 1 : page, page < lastPage ? page + 1 : lastPage, lastPage, query.getResultList());
+        return resultPage;
+    }
+
+    private String capitalize(final String line) {
+        return Character.toUpperCase(line.charAt(0)) + line.substring(1);
     }
 
 }
