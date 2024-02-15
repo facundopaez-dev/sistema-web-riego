@@ -36,11 +36,17 @@ public class StatisticalReport {
   @Column(name = "HARVEST_AMOUNT_CROP_HIGHEST_HARVEST", nullable = false)
   private double harvestAmountCropHighestHarvest;
 
+  @Column(name = "TOTAL_AMOUNT_IRRIGATION_WATER_CROP_HIGHEST_HARVEST")
+  private double totalAmountIrrigationWaterCropHighestHarvest;
+
   @Column(name = "CROP_LOWER_HARVEST", nullable = false)
   private String cropLowerHarvest;
 
   @Column(name = "HARVEST_AMOUNT_CROP_LOWEST_HARVEST", nullable = false)
   private double harvestAmountCropLowestHarvest;
+
+  @Column(name = "TOTAL_AMOUNT_IRRIGATION_WATER_CROP_LOWEST_HARVEST")
+  private double totalAmountIrrigationWaterCropLowestHarvest;
 
   @Column(name = "MOST_PLANTED_CROP", nullable = false)
   private String mostPlantedCrop;
@@ -48,11 +54,17 @@ public class StatisticalReport {
   @Column(name = "QUANTITY_MOST_PLANTED_CROP")
   private int quantityMostPlantedCrop;
 
+  @Column(name = "TOTAL_AMOUNT_IRRIGATION_WATER_MOST_PLANTED_CROP")
+  private double totalAmountIrrigationWaterMostPlantedCrop;
+
   @Column(name = "LESS_PLANTED_CROP", nullable = false)
   private String lessPlantedCrop;
 
   @Column(name = "QUANTITY_LESS_PLANTED_CROP")
   private int quantityLessPlantedCrop;
+
+  @Column(name = "TOTAL_AMOUNT_IRRIGATION_WATER_LESS_PLANTED_CROP")
+  private double totalAmountIrrigationWaterLessPlantedCrop;
 
   @Column(name = "CROP_LONGEST_LIFE_CYCLE_PLANTED", nullable = false)
   private String cropLongestLifeCyclePlanted;
@@ -60,11 +72,17 @@ public class StatisticalReport {
   @Column(name = "LIFE_CYCLE_CROP_LONGEST_LIFE_CYCLE_PLANTED")
   private int lifeCycleCropLongestLifeCyclePlanted;
 
+  @Column(name = "TOTAL_AMOUNT_IRRIGATION_WATER_CROP_LONGEST_LIFE_CYCLE")
+  private double totalAmountIrrigationWaterCropLongestLifeCycle;
+
   @Column(name = "CROP_SHORTEST_LIFE_CYCLE_PLANTED", nullable = false)
   private String cropShortestLifeCyclePlanted;
 
   @Column(name = "LIFE_CYCLE_CROP_SHORTEST_LIFE_CYCLE_PLANTED")
   private int lifeCycleCropShortestLifeCyclePlanted;
+
+  @Column(name = "TOTAL_AMOUNT_IRRIGATION_WATER_CROP_SHORTEST_LIFE_CYCLE")
+  private double totalAmountIrrigationWaterCropShortestLifeCycle;
 
   @Column(name = "DAYS_WITHOUT_CROPS")
   private String daysWithoutCrops;
@@ -119,6 +137,14 @@ public class StatisticalReport {
     this.harvestAmountCropHighestHarvest = harvestAmountCropHighestHarvest;
   }
 
+  public double getTotalAmountIrrigationWaterCropHighestHarvest() {
+    return totalAmountIrrigationWaterCropHighestHarvest;
+  }
+
+  public void setTotalAmountIrrigationWaterCropHighestHarvest(double totalAmountIrrigationWaterCropHighestHarvest) {
+    this.totalAmountIrrigationWaterCropHighestHarvest = totalAmountIrrigationWaterCropHighestHarvest;
+  }
+
   public String getCropLowerHarvest() {
     return cropLowerHarvest;
   }
@@ -133,6 +159,14 @@ public class StatisticalReport {
 
   public void setHarvestAmountCropLowestHarvest(double harvestAmountCropLowestHarvest) {
     this.harvestAmountCropLowestHarvest = harvestAmountCropLowestHarvest;
+  }
+
+  public double getTotalAmountIrrigationWaterCropLowestHarvest() {
+    return totalAmountIrrigationWaterCropLowestHarvest;
+  }
+
+  public void setTotalAmountIrrigationWaterCropLowestHarvest(double totalAmountIrrigationWaterCropLowestHarvest) {
+    this.totalAmountIrrigationWaterCropLowestHarvest = totalAmountIrrigationWaterCropLowestHarvest;
   }
 
   public String getMostPlantedCrop() {
@@ -151,6 +185,14 @@ public class StatisticalReport {
     this.quantityMostPlantedCrop = quantityMostPlantedCrop;
   }
 
+  public double getTotalAmountIrrigationWaterMostPlantedCrop() {
+    return totalAmountIrrigationWaterMostPlantedCrop;
+  }
+
+  public void setTotalAmountIrrigationWaterMostPlantedCrop(double totalAmountIrrigationWaterMostPlantedCrop) {
+    this.totalAmountIrrigationWaterMostPlantedCrop = totalAmountIrrigationWaterMostPlantedCrop;
+  }
+
   public String getLessPlantedCrop() {
     return lessPlantedCrop;
   }
@@ -165,6 +207,14 @@ public class StatisticalReport {
 
   public void setQuantityLessPlantedCrop(int quantityLessPlantedCrop) {
     this.quantityLessPlantedCrop = quantityLessPlantedCrop;
+  }
+
+  public double getTotalAmountIrrigationWaterLessPlantedCrop() {
+    return totalAmountIrrigationWaterLessPlantedCrop;
+  }
+
+  public void setTotalAmountIrrigationWaterLessPlantedCrop(double totalAmountIrrigationWaterLessPlantedCrop) {
+    this.totalAmountIrrigationWaterLessPlantedCrop = totalAmountIrrigationWaterLessPlantedCrop;
   }
 
   public String getCropLongestLifeCyclePlanted() {
@@ -183,6 +233,14 @@ public class StatisticalReport {
     this.lifeCycleCropLongestLifeCyclePlanted = lifeCycleCropLongestLifeCyclePlanted;
   }
 
+  public double getTotalAmountIrrigationWaterCropLongestLifeCycle() {
+    return totalAmountIrrigationWaterCropLongestLifeCycle;
+  }
+
+  public void setTotalAmountIrrigationWaterCropLongestLifeCycle(double totalAmountIrrigationWaterCropLongestLifeCycle) {
+    this.totalAmountIrrigationWaterCropLongestLifeCycle = totalAmountIrrigationWaterCropLongestLifeCycle;
+  }
+
   public String getCropShortestLifeCyclePlanted() {
     return cropShortestLifeCyclePlanted;
   }
@@ -197,6 +255,14 @@ public class StatisticalReport {
 
   public void setLifeCycleCropShortestLifeCyclePlanted(int lifeCycleCropShortestLifeCyclePlanted) {
     this.lifeCycleCropShortestLifeCyclePlanted = lifeCycleCropShortestLifeCyclePlanted;
+  }
+
+  public double getTotalAmountIrrigationWaterCropShortestLifeCycle() {
+    return totalAmountIrrigationWaterCropShortestLifeCycle;
+  }
+
+  public void setTotalAmountIrrigationWaterCropShortestLifeCycle(double totalAmountIrrigationWaterCropShortestLifeCycle) {
+    this.totalAmountIrrigationWaterCropShortestLifeCycle = totalAmountIrrigationWaterCropShortestLifeCycle;
   }
 
   public String getDaysWithoutCrops() {

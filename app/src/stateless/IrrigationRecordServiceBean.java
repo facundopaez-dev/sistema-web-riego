@@ -501,6 +501,33 @@ public class IrrigationRecordServiceBean {
     return totalAmountCropIrrigationWater;
   }
 
+  /**
+   * @param parcelId
+   * @param cropId
+   * @param dateFrom
+   * @param dateUntil
+   * @return double que representa la cantidad total de agua
+   * utilizada para el riego de un cultivo en un periodo definido
+   * por dos fechas
+   */
+  public double calculateAmounIrrigationWaterForCrop(int parcelId, int cropId, Calendar dateFrom, Calendar dateUntil) {
+    Query query = entityManager.createQuery("SELECT SUM(i.irrigationDone) FROM IrrigationRecord i WHERE i.parcel.id = :parcelId AND i.crop.id = :cropId AND i.date >= :dateFrom AND i.date <= :dateUntil");
+    query.setParameter("parcelId", parcelId);
+    query.setParameter("cropId", cropId);
+    query.setParameter("dateFrom", dateFrom);
+    query.setParameter("dateUntil", dateUntil);
+
+    double result = 0.0;
+
+    try {
+      result = (double) query.getSingleResult();
+    } catch (NullPointerException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
   public Page<IrrigationRecord> findAllPagination(int userId, Integer page, Integer cantPerPage, Map<String, String> parameters) throws ParseException {
     SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
     Date date;

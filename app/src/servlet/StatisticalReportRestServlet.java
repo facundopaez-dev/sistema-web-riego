@@ -1053,6 +1053,12 @@ public class StatisticalReportRestServlet {
 
     double higherHarvest = 0;
     double lowerHarvest = 0;
+    double totalAmountIrrigationWaterCropHighestHarvest = 0;
+    double totalAmountIrrigationWaterCropLowestHarvest = 0;
+    double totalAmountIrrigationWaterMostPlantedCrop = 0;
+    double totalAmountIrrigationWaterLessPlantedCrop = 0;
+    double totalAmountIrrigationWaterCropLongestLifeCycle = 0;
+    double totalAmountIrrigationWaterCropShortestLifeCycle = 0;
     double totalAmountCropIrrigationWater = irrigationRecordService.calculateTotalAmountCropIrrigationWater(parcelId, dateFrom, dateUntil);
 
     int quantityMostPlantedCrop = 0;
@@ -1073,133 +1079,153 @@ public class StatisticalReportRestServlet {
     /*
      * Si existe el cultivo con mayor rendimiento (mayor cantidad
      * de kilogramos cosechados) en una parcela durante un periodo
-     * definido por dos fechas, se calcula el rendimiento de dicho
-     * cultivo.
+     * definido por dos fechas, se realizan calculos relacionados
+     * a dicho cultivo.
      * 
      * Cuando NO existe el cultivo con mayor rendimiento en una
      * parcela durante un periodo definido por dos fechas, el metodo
      * higherHarvest() de la clase HarvestServiceBean retorna la
      * cadena "Cultivo inexistente". Por este motivo se realiza
-     * este control a la hora de calcular el rendimiento del
-     * cultivo que tuvo el mayor rendimiento en una parcela en
-     * un periodo definido por dos fechas. En los comentarios
-     * de dicho metodo se explica cuando el mismo retorna la
-     * cadena "Cultivo inexistente".
+     * este control a la hora de realizar calculos relacionados
+     * al cultivo que tuvo el mayor rendimiento durante un
+     * periodo definido por dos fechas. En los comentarios de
+     * dicho metodo se explica cuando el mismo retorna la cadena
+     * "Cultivo inexistente".
      */
     if (!cropHighestHarvest.equals(nonExistentCrop)) {
       higherHarvest = harvestServiceBean.higherHarvest(parcelId, dateFrom, dateUntil);
+      totalAmountIrrigationWaterCropHighestHarvest = irrigationRecordService.calculateAmounIrrigationWaterForCrop(
+          parcelId, harvestServiceBean.findIdCropHighestHarvest(parcelId, dateFrom, dateUntil), dateFrom, dateUntil);
     }
 
     /*
      * Si existe el cultivo con menor rendimiento (menor cantidad
      * de kilogramos cosechados) en una parcela durante un periodo
-     * definido por dos fechas, se calcula el rendimiento de dicho
-     * cultivo.
+     * definido por dos fechas, se realizan calculos relacionados
+     * a dicho cultivo.
      * 
      * Cuando NO existe el cultivo con menor rendimiento en una
      * parcela durante un periodo definido por dos fechas, el metodo
      * lowerHarvest() de la clase HarvestServiceBean retorna la
      * cadena "Cultivo inexistente". Por este motivo se realiza
-     * este control a la hora de calcular el rendimiento del
-     * cultivo que tuvo el menor rendimiento en una parcela en
-     * un periodo definido por dos fechas. En los comentarios
-     * de dicho metodo se explica cuando el mismo retorna la
-     * cadena "Cultivo inexistente".
+     * este control a la hora de realizar calculos relacionados
+     * al cultivo que tuvo el menor rendimiento en una parcela
+     * durante un periodo definido por dos fechas. En los
+     * comentarios de dicho metodo se explica cuando el mismo
+     * retorna la cadena "Cultivo inexistente".
      */
     if (!cropLowerHarvest.equals(nonExistentCrop)) {
       lowerHarvest = harvestServiceBean.lowerHarvest(parcelId, dateFrom, dateUntil);
+      totalAmountIrrigationWaterCropLowestHarvest = irrigationRecordService.calculateAmounIrrigationWaterForCrop(
+          parcelId, harvestServiceBean.findIdCropLowestHarvest(parcelId, dateFrom, dateUntil), dateFrom, dateUntil);
     }
 
     /*
      * Si existe el cultivo mas plantado en una parcela en un
-     * periodo definido por dos fechas, se calcula la cantidad
-     * de veces que fue plantado.
+     * periodo definido por dos fechas, se realizan calculos
+     * relacionados a dicho cultivo.
      * 
      * Cuando NO existe el cultivo mas plantado en una parcela
      * durante un periodo definido por dos fechas, el metodo
      * findMostPlantedCrop() de la clase PlantingRecordServiceBean
      * retorna la cadena "Cultivo inexistente". Por este
-     * motivo se realiza este control a la hora de calcular
-     * la cantidad de veces que se planto el cultivo mas
-     * plantado en una parcela durante un periodo definido por
-     * dos fechas. En los comentarios de dicho metodo se explica
-     * caundo el mismo retorna la cadena "Cultivo inexistente".
+     * motivo se realiza este control a la hora de realizar
+     * calculos relacionados al cultivo mas plantado en una
+     * parcela durante un periodo definido por dos fechas.
+     * En los comentarios de dicho metodo se explica cuando
+     * el mismo retorna la cadena "Cultivo inexistente".
      */
     if (!mostPlantedCrop.equals(nonExistentCrop)) {
       quantityMostPlantedCrop = plantingRecordService.quantityMostPlantedCrop(parcelId, dateFrom, dateUntil);
+      totalAmountIrrigationWaterMostPlantedCrop = irrigationRecordService.calculateAmounIrrigationWaterForCrop(parcelId,
+          plantingRecordService.findIdMostPlantedCrop(parcelId, dateFrom, dateUntil), dateFrom, dateUntil);
     }
 
     /*
      * Si existe el cultivo menos plantado en una parcela en un
-     * periodo definido por dos fechas, se calcula la cantidad
-     * de veces que fue plantado.
+     * periodo definido por dos fechas, se realizan calculos
+     * relacionados a dicho cultivo.
      * 
      * Cuando NO existe el cultivo menos plantado en una parcela
      * durante un periodo definido por dos fechas, el metodo
      * findLeastPlantedCrop() de la clase PlantingRecordServiceBean
      * retorna la cadena "Cultivo inexistente". Por este
-     * motivo se realiza este control a la hora de calcular
-     * la cantidad de veces que se planto el cultivo menos
-     * plantado en una parcela durante un periodo definido por
-     * dos fechas. En los comentarios de dicho metodo se explica
-     * cuando el mismo retorna la cadena "Cultivo inexistente".
+     * motivo se realiza este control a la hora de realizar
+     * calculos relacionados al cultivo menos plantado en una
+     * parcela durante un periodo definido por dos fechas.
+     * En los comentarios de dicho metodo se explica cuando el
+     * mismo retorna la cadena "Cultivo inexistente".
      */
     if (!leastPlantedCrop.equals(nonExistentCrop)) {
       quantityLesstPlantedCrop = plantingRecordService.quantityLessPlantedCrop(parcelId, dateFrom, dateUntil);
+      totalAmountIrrigationWaterLessPlantedCrop = irrigationRecordService.calculateAmounIrrigationWaterForCrop(parcelId,
+          plantingRecordService.findIdLessPlantedCrop(parcelId, dateFrom, dateUntil), dateFrom, dateUntil);
     }
 
     /*
      * Si existe el cultivo plantado con el mayor ciclo de vida
      * en una parcela en un periodo definido por dos fechas, se
-     * obtiene su ciclo de vida.
+     * realizan calculos relacionados a dicho cultivo.
      * 
      * Cuando NO existe el cultivo plantado con el mayor ciclo
      * de vida en una parcela durante un periodo definido por
      * dos fechas, el metodo findCropWithLongestLifeCycle()
      * de la clase PlantingRecordServiceBean retorna la
      * cadena "Cultivo inexistente". Por este motivos se
-     * realiza este control a la hora de obtener el ciclo de
-     * vida del cultivo plantado con el mayor ciclo de vida
-     * en una parcela durante un periodo definido por dos
+     * realiza este control a la hora de realizar calculos
+     * relacionados al cultivo plantado con el mayor ciclo de
+     * vida en una parcela durante un periodo definid por dos
      * fechas. En los comentarios de dicho metodo se explica
      * cuando el mismo retorna la cadena "Cultivo inexistente".
      */
     if (!cropLongestLifeCyclePlanted.equals(nonExistentCrop)) {
       lifeCycleCropLongestLifeCyclePlanted = cropService.findOneByName(cropLongestLifeCyclePlanted).getLifeCycle();
+      totalAmountIrrigationWaterCropLongestLifeCycle = irrigationRecordService.calculateAmounIrrigationWaterForCrop(
+          parcelId, plantingRecordService.findIdCropWithLongestLifeCycle(parcelId, dateFrom, dateUntil), dateFrom,
+          dateUntil);
     }
 
     /*
      * Si existe el cultivo plantado con el menor ciclo de vida
      * en una parcela en un periodo definido por dos fechas, se
-     * obtiene su ciclo de vida.
+     * realizan calculos relacionados a dicho cultivo.
      * 
      * Cuando NO existe el cultivo plantado con el menor ciclo
      * de vida en una parcela durante un periodo definido por
      * dos fechas, el metodo findCropWithShortestLifeCycle()
      * de la clase PlantingRecordServiceBean retorna la
      * cadena "Cultivo inexistente". Por este motivos se
-     * realiza este control a la hora de obtener el ciclo de
-     * vida del cultivo plantado con el menor ciclo de vida
-     * en una parcela durante un periodo definido por dos
+     * realiza este control a la hora de realizar calculos
+     * relacionados al cultivo plantado con el menor ciclo de
+     * vida en una parcela durante un periodo definido por dos
      * fechas. En los comentarios de dicho metodo se explica
      * cuando el mismo retorna la cadena "Cultivo inexistente".
      */
     if (!cropShortestLifeCyclePlanted.equals(nonExistentCrop)) {
       lifeCycleCropShortestLifeCyclePlanted = cropService.findOneByName(cropShortestLifeCyclePlanted).getLifeCycle();
+      totalAmountIrrigationWaterCropShortestLifeCycle = irrigationRecordService.calculateAmounIrrigationWaterForCrop(
+          parcelId, plantingRecordService.findIdCropWithShortestLifeCycle(parcelId, dateFrom, dateUntil), dateFrom,
+          dateUntil);
     }
 
     statisticalReport.setCropHigherHarvest(cropHighestHarvest);
     statisticalReport.setHarvestAmountCropHighestHarvest(higherHarvest);
+    statisticalReport.setTotalAmountIrrigationWaterCropHighestHarvest(totalAmountIrrigationWaterCropHighestHarvest);
     statisticalReport.setCropLowerHarvest(cropLowerHarvest);
     statisticalReport.setHarvestAmountCropLowestHarvest(lowerHarvest);
+    statisticalReport.setTotalAmountIrrigationWaterCropLowestHarvest(totalAmountIrrigationWaterCropLowestHarvest);
     statisticalReport.setMostPlantedCrop(mostPlantedCrop);
     statisticalReport.setQuantityMostPlantedCrop(quantityMostPlantedCrop);
+    statisticalReport.setTotalAmountIrrigationWaterMostPlantedCrop(totalAmountIrrigationWaterMostPlantedCrop);
     statisticalReport.setLesstPlantedCrop(leastPlantedCrop);
     statisticalReport.setQuantityLessPlantedCrop(quantityLesstPlantedCrop);
+    statisticalReport.setTotalAmountIrrigationWaterLessPlantedCrop(totalAmountIrrigationWaterLessPlantedCrop);
     statisticalReport.setCropLongestLifeCyclePlanted(cropLongestLifeCyclePlanted);
     statisticalReport.setLifeCycleCropLongestLifeCyclePlanted(lifeCycleCropLongestLifeCyclePlanted);
+    statisticalReport.setTotalAmountIrrigationWaterCropLongestLifeCycle(totalAmountIrrigationWaterCropLongestLifeCycle);
     statisticalReport.setCropShortestLifeCyclePlanted(cropShortestLifeCyclePlanted);
     statisticalReport.setLifeCycleCropShortestLifeCyclePlanted(lifeCycleCropShortestLifeCyclePlanted);
+    statisticalReport.setTotalAmountIrrigationWaterCropShortestLifeCycle(totalAmountIrrigationWaterCropShortestLifeCycle);
     statisticalReport.setTotalAmountCropIrrigationWater(totalAmountCropIrrigationWater);
 
     /*

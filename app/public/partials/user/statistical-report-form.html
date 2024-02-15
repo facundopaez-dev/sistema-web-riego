@@ -185,6 +185,17 @@
 			</div>
 
 			<div class="form-group" ng-hide="action == 'new'">
+				<label for="statisticalReport_totalAmountIrrigationWaterCropHighestHarvest"
+					class="col-md-2 control-label">Cantidad
+					total de agua utilizada para el riego del cultivo con mayor rendimiento [mm/período]</label>
+				<div class="col-md-3">
+					<input type="number" class="form-control"
+						id="statisticalReport_totalAmountIrrigationWaterCropHighestHarvest"
+						ng-model="data.totalAmountIrrigationWaterCropHighestHarvest" ng-disabled="action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group" ng-hide="action == 'new'">
 				<label for="statisticalReport_cropLowerHarvest" class="col-md-2 control-label">Cultivo con menor
 					rendimiento (menor cosecha)</label>
 				<div class="col-md-3">
@@ -199,6 +210,17 @@
 				<div class="col-md-3">
 					<input type="number" class="form-control" id="statisticalReport_harvestAmountCropLowestHarvest"
 						ng-model="data.harvestAmountCropLowestHarvest" ng-disabled="action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group" ng-hide="action == 'new'">
+				<label for="statisticalReport_totalAmountIrrigationWaterCropLowestHarvest"
+					class="col-md-2 control-label">Cantidad
+					total de agua utilizada para el riego del cultivo con menor rendimiento [mm/período]</label>
+				<div class="col-md-3">
+					<input type="number" class="form-control"
+						id="statisticalReport_totalAmountIrrigationWaterCropLowestHarvest"
+						ng-model="data.totalAmountIrrigationWaterCropLowestHarvest" ng-disabled="action == 'view'">
 				</div>
 			</div>
 
@@ -221,6 +243,17 @@
 			</div>
 
 			<div class="form-group" ng-hide="action == 'new'">
+				<label for="statisticalReport_totalAmountIrrigationWaterMostPlantedCrop"
+					class="col-md-2 control-label">Cantidad
+					total de agua utilizada para el riego del cultivo más plantado [mm/período]</label>
+				<div class="col-md-3">
+					<input type="number" class="form-control"
+						id="statisticalReport_totalAmountIrrigationWaterMostPlantedCrop"
+						ng-model="data.totalAmountIrrigationWaterMostPlantedCrop" ng-disabled="action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group" ng-hide="action == 'new'">
 				<label for="statisticalReport_lestPlantedCrop" class="col-md-2 control-label">Cultivo menos
 					plantado</label>
 				<div class="col-md-3">
@@ -235,6 +268,17 @@
 				<div class="col-md-3">
 					<input type="number" class="form-control" id="statisticalReport_quantityLessPlantedCrop"
 						ng-model="data.quantityLessPlantedCrop" ng-disabled="action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group" ng-hide="action == 'new'">
+				<label for="statisticalReport_totalAmountIrrigationWaterLessPlantedCrop"
+					class="col-md-2 control-label">Cantidad
+					total de agua utilizada para el riego del cultivo menos plantado [mm/período]</label>
+				<div class="col-md-3">
+					<input type="number" class="form-control"
+						id="statisticalReport_totalAmountIrrigationWaterLessPlantedCrop"
+						ng-model="data.totalAmountIrrigationWaterLessPlantedCrop" ng-disabled="action == 'view'">
 				</div>
 			</div>
 
@@ -259,6 +303,18 @@
 			</div>
 
 			<div class="form-group" ng-hide="action == 'new'">
+				<label for="statisticalReport_totalAmountIrrigationWaterCropLongestLifeCycle"
+					class="col-md-2 control-label">Cantidad
+					total de agua utilizada para el riego del cultivo plantado con el mayor ciclo de vida
+					[mm/período]</label>
+				<div class="col-md-3">
+					<input type="number" class="form-control"
+						id="statisticalReport_totalAmountIrrigationWaterCropLongestLifeCycle"
+						ng-model="data.totalAmountIrrigationWaterCropLongestLifeCycle" ng-disabled="action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group" ng-hide="action == 'new'">
 				<label for="statisticalReport_cropShortestLifeCyclePlanted" class="col-md-2 control-label">Cultivo
 					plantado con el menor ciclo de vida
 				</label>
@@ -275,6 +331,18 @@
 				<div class="col-md-3">
 					<input type="text" class="form-control" id="statisticalReport_lifeCycleCropShortestLifeCyclePlanted"
 						ng-model="data.lifeCycleCropShortestLifeCyclePlanted" ng-disabled="action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group" ng-hide="action == 'new'">
+				<label for="statisticalReport_totalAmountIrrigationWaterCropShortestLifeCycle"
+					class="col-md-2 control-label">Cantidad
+					total de agua utilizada para el riego del cultivo plantado con el menor ciclo de vida
+					[mm/período]</label>
+				<div class="col-md-3">
+					<input type="number" class="form-control"
+						id="statisticalReport_totalAmountIrrigationWaterCropShortestLifeCycle"
+						ng-model="data.totalAmountIrrigationWaterCropShortestLifeCycle" ng-disabled="action == 'view'">
 				</div>
 			</div>
 

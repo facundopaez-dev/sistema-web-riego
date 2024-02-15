@@ -1053,6 +1053,105 @@ public class PlantingRecordServiceBean {
   }
 
   /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return entero que representa el ID del cultivo mas plantado
+   * en una parcela durante un periodo definido por dos fechas
+   */
+  public int findIdMostPlantedCrop(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    /*
+     * Cuenta la cantidad de veces que fue plantado cada uno de
+     * los cultivos que se plantaron en una parcela en un periodo
+     * dado por dos fechas, y selecciona la cantidad mas grande.
+     * 
+     * Hay que tener en cuenta que puede haber mas de un cultivo
+     * que haya sido plantado en mayor medida y la misma cantidad
+     * de veces en una parcela durante un periodo dado por dos fechas.
+     * Por lo tanto, la consulta (queryString) correspondiente a esta
+     * condicion puede retornar mas de un nombre de cultivo como
+     * los cultivos que mas veces fueron plantados de los cultivos
+     * plantados en una parcela en un periodo dado por dos fechas.
+     */
+    String conditionHaving = "SELECT MAX(SUBQUERY.AMOUNT_CROP) FROM (SELECT FK_CROP, COUNT(FK_CROP) AS AMOUNT_CROP FROM PLANTING_RECORD "
+        + "WHERE (FK_PARCEL = ?1 AND FK_STATUS = 1 AND ((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) OR "
+        + "(SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR "
+        + "(?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2))) GROUP BY FK_CROP) AS SUBQUERY";
+
+    /*
+     * Con esta condicion se seleccionan todos los registros de
+     * plantacion finalizados (*) de una parcela que estan entre
+     * una fecha desde y una fecha hasta.
+     * 
+     * Con la primera condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y menor o igual a
+     * la fecha hasta, y su fecha de cosecha estrictamente mayor a
+     * la fecha hasta. Es decir, se selecciona el registro de
+     * plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de siembra dentro del periodo definido por la fecha
+     * desde y la fecha hasta.
+     * 
+     * Con la segunda condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y y su fecha
+     * de cosecha menor o igual a la fecha hasta. Es decir, se
+     * selecciona el registro de plantacion que tiene su fecha
+     * de siembra y su fecha de cosecha dentro del periodo
+     * definido por la fecha desde y la fecha hasta.
+     * 
+     * Con la tercera conidicon se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su
+     * fecha de cosecha mayor o igual a la fecha desde y menor
+     * igual a la fecha hasta, y su fecha de siembra estrictamente
+     * menor a la fecha desde. Es decir, se selecciona el registro
+     * de plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de siembra dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
+     * 
+     * (*) El ID para el estado finalizado de un registro de
+     * plantacion es el 1, siempre y cuando no se modifique el
+     * orden en el que se ejecutan las instrucciones de insercion
+     * del archivo plantingRecordStatusInserts.sql de la ruta
+     * app/etc/sql.
+     */
+    String conditionWhere = "FK_PARCEL = ?1 AND FK_STATUS = 1 AND ((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) OR "
+        + "(SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR "
+        + "(?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2)) ";
+
+    /*
+     * Selecciona el ID del cultivo que mas veces fue plantado de
+     * los cultivos plantados en una parcela durante un periodo
+     * dado por dos fechas.
+     * 
+     * Hay que tener en cuenta que puede haber mas de un cultivo que
+     * haya sido plantado en mayor medida y la misma cantidad de veces
+     * en una parcela durante un periodo dado por dos fechas. Por lo
+     * tanto, esta subconsulta puede seleccionar el ID de mas de un
+     * cultivo como los IDs de los cultivos que mas veces fueron
+     * plantados de los cultivos plantados en una parcela durante un
+     * periodo dado por dos fechas.
+     */
+    String queryString = "SELECT FK_CROP FROM PLANTING_RECORD WHERE " + conditionWhere
+        + "GROUP BY FK_CROP HAVING COUNT(FK_CROP) = (" + conditionHaving + ")";
+
+    Query query = getEntityManager().createNativeQuery(queryString);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    int cropId = 0;
+
+    try {
+      cropId = (int) query.getSingleResult();
+    } catch (NullPointerException e) {
+      e.printStackTrace();
+    }
+
+    return cropId;
+  }
+
+  /**
    * Retorna el nombre del cultivo que mas veces fue plantado de
    * los cultivos plantados en una parcela durante un periodo dado
    * por dos fechas si y solo si existe tal cultivo
@@ -1258,6 +1357,106 @@ public class PlantingRecordServiceBean {
   }
 
   /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return entero que representa el ID del cultivo menos
+   * plantado en una parcela durante un periodo definido
+   * por dos fechas
+   */
+  public int findIdLessPlantedCrop(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    /*
+     * Cuenta la cantidad de veces que fue plantado cada uno de
+     * los cultivos que se plantaron en una parcela en un periodo
+     * dado por dos fechas, y selecciona la cantidad mas pequeña.
+     * 
+     * Hay que tener en cuenta que puede haber mas de un cultivo
+     * que haya sido plantado en menor medida y la misma cantidad
+     * de veces en una parcela durante un periodo dado por dos fechas.
+     * Por lo tanto, la consulta (queryString) correspondiente a esta
+     * condicion puede retornar mas de un nombre de cultivo como
+     * los cultivos que menos veces fueron plantados de los cultivos
+     * plantados en una parcela en un periodo dado por dos fechas.
+     */
+    String conditionHaving = "SELECT MIN(SUBQUERY.AMOUNT_CROP) FROM (SELECT FK_CROP, COUNT(FK_CROP) AS AMOUNT_CROP FROM PLANTING_RECORD "
+        + "WHERE (FK_PARCEL = ?1 AND FK_STATUS = 1 AND ((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) OR "
+        + "(SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR "
+        + "(?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2))) GROUP BY FK_CROP) AS SUBQUERY";
+
+    /*
+     * Con esta condicion se seleccionan todos los registros de
+     * plantacion finalizados (*) de una parcela que estan entre
+     * una fecha desde y una fecha hasta.
+     * 
+     * Con la primera condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y menor o igual a
+     * la fecha hasta, y su fecha de cosecha estrictamente mayor a
+     * la fecha hasta. Es decir, se selecciona el registro de
+     * plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de siembra dentro del periodo definido por la fecha
+     * desde y la fecha hasta.
+     * 
+     * Con la segunda condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y y su fecha
+     * de cosecha menor o igual a la fecha hasta. Es decir, se
+     * selecciona el registro de plantacion que tiene su fecha
+     * de siembra y su fecha de cosecha dentro del periodo
+     * definido por la fecha desde y la fecha hasta.
+     * 
+     * Con la tercera conidicon se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su
+     * fecha de cosecha mayor o igual a la fecha desde y menor
+     * igual a la fecha hasta, y su fecha de siembra estrictamente
+     * menor a la fecha desde. Es decir, se selecciona el registro
+     * de plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de siembra dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
+     * 
+     * (*) El ID para el estado finalizado de un registro de
+     * plantacion es el 1, siempre y cuando no se modifique el
+     * orden en el que se ejecutan las instrucciones de insercion
+     * del archivo plantingRecordStatusInserts.sql de la ruta
+     * app/etc/sql.
+     */
+    String conditionWhere = "FK_PARCEL = ?1 AND FK_STATUS = 1 AND ((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) OR "
+        + "(SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR "
+        + "(?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2)) ";
+
+    /*
+     * Selecciona el ID del cultivo que menos veces fue plantado de
+     * los cultivos plantados en una parcela durante un periodo
+     * dado por dos fechas.
+     * 
+     * Hay que tener en cuenta que puede haber mas de un cultivo que
+     * haya sido plantado en menor medida y la misma cantidad de veces
+     * en una parcela durante un periodo dado por dos fechas. Por lo
+     * tanto, esta subconsulta puede seleccionar el ID de mas de un
+     * cultivo como los IDs de los cultivos que menos veces fueron
+     * plantados de los cultivos plantados en una parcela durante un
+     * periodo dado por dos fechas.
+     */
+    String queryString = "SELECT FK_CROP FROM PLANTING_RECORD WHERE " + conditionWhere
+        + "GROUP BY FK_CROP HAVING COUNT(FK_CROP) = (" + conditionHaving + ")";
+
+    Query query = getEntityManager().createNativeQuery(queryString);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    int cropId = 0;
+
+    try {
+      cropId = (int) query.getSingleResult();
+    } catch (NullPointerException e) {
+      e.printStackTrace();
+    }
+
+    return cropId;
+  }
+
+  /**
    * Retorna el nombre del cultivo que menos veces fue plantado de los
    * cultivos plantados en una parcela durante un periodo dado por
    * dos fechas si y solo si existe tal cultivo
@@ -1457,6 +1656,122 @@ public class PlantingRecordServiceBean {
    * @param parcelId
    * @param dateFrom
    * @param dateUntil
+   * @return entero que representa el ID del cultivo plantado
+   * con el mayor ciclo de vida en un periodo definido por
+   * dos fechas
+   */
+  public int findIdCropWithLongestLifeCycle(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    /*
+     * Selecciona el ciclo de vida mas grande de los cultivos
+     * plantados y finalizados en una parcela durante un
+     * periodo dado por dos fechas.
+     * 
+     * La manera en la que realiza esto es mediante los
+     * registros de plantacion finalizados de una parcela
+     * que estan comprendidos en un periodo dado por dos
+     * fechas.
+     */
+    String subQuery = "SELECT MAX(LIFE_CYCLE) FROM PLANTING_RECORD JOIN CROP ON PLANTING_RECORD.FK_CROP = CROP.ID WHERE "
+        + "FK_PARCEL = ?1 AND FK_STATUS = 1 AND ((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND SEED_DATE > ?3) OR "
+        + "(SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR "
+        + "(?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2))";
+
+    /*
+     * Con esta condicion se seleccionan todos los registros de
+     * plantacion finalizados (*) de una parcela que estan entre
+     * una fecha desde y una fecha hasta.
+     * 
+     * Con la primera condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y menor o igual a
+     * la fecha hasta, y su fecha de cosecha estrictamente mayor a
+     * la fecha hasta. Es decir, se selecciona el registro de
+     * plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de siembra dentro del periodo definido por la fecha
+     * desde y la fecha hasta.
+     * 
+     * Con la segunda condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y y su fecha
+     * de cosecha menor o igual a la fecha hasta. Es decir, se
+     * selecciona el registro de plantacion que tiene su fecha
+     * de siembra y su fecha de cosecha dentro del periodo
+     * definido por la fecha desde y la fecha hasta.
+     * 
+     * Con la tercera conidicon se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su
+     * fecha de cosecha mayor o igual a la fecha desde y menor
+     * igual a la fecha hasta, y su fecha de siembra estrictamente
+     * menor a la fecha desde. Es decir, se selecciona el registro
+     * de plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de siembra dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
+     * 
+     * (*) El ID para el estado finalizado de un registro de
+     * plantacion es el 1, siempre y cuando no se modifique el
+     * orden en el que se ejecutan las instrucciones de insercion
+     * del archivo plantingRecordStatusInserts.sql de la ruta
+     * app/etc/sql.
+     * 
+     * Sin las condiciones de las fechas, la consulta (queryString)
+     * correspondiente a estas seleccionaria el nombre de un
+     * cultivo que tiene un ciclo de vida igual al obtenido por
+     * la subconsulta, pero perteneciente a registros de plantacion
+     * que no estan dentro del periodo dado por dos fechas, si
+     * existen dichos registros. En consecuencia, erroneamente se
+     * entenderia esto como que hubo mas de un cultivo plantado y
+     * finalizado con el mayor ciclo de vida en una parcela durante
+     * un periodo dado por dos fechas.
+     */
+    String conditionWhere = "FK_PARCEL = ?1 AND FK_STATUS = 1 AND "
+        + "((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) OR "
+        + "(SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR  "
+        + "(?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2)) AND "
+        + "LIFE_CYCLE = (" + subQuery + ")";
+
+    /*
+     * Selecciona el nombre del cultivo que tiene el mayor ciclo de
+     * vida de los cultivos plantados en una parcela durante el periodo
+     * dado por dos fechas.
+     * 
+     * Esta consulta SQL opera unicamente con los registros de
+     * plantacion de una parcela que estan en el estado "Finalizado".
+     * Por lo tanto, selecciona el nombre del cultivo que tiene el
+     * mayor ciclo de vida de los cultivos plantados en una parcela
+     * durante el periodo dado por dos fechas haciendo uso unicamente
+     * de los registros de plantacion finalizados de una parcela.
+     * 
+     * Hay que tener en cuenta que puede haber mas de un cultivo que
+     * haya sido plantado en una parcela durante un periodo dado por
+     * dos fechas y que tenga un ciclo de vida igual al ciclo de vida
+     * mas grande. Por lo tanto, esta consulta puede seleccionar el
+     * nombre de mas de un cultivo como los nombres de los cultivos
+     * que tienen el mayor ciclo de vida de los cultivos plantados
+     * en una parcela durante un periodo dado por dos fechas.
+     */
+    String queryString = "SELECT DISTINCT CROP.ID FROM PLANTING_RECORD JOIN CROP ON PLANTING_RECORD.FK_CROP = CROP.ID WHERE "
+        + conditionWhere;
+
+    Query query = getEntityManager().createNativeQuery(queryString);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    int cropId = 0;
+
+    try {
+      cropId = (int) query.getSingleResult();
+    } catch (NullPointerException e) {
+      e.printStackTrace();
+    }
+
+    return cropId;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
    * @return referencia a un objeto de tipo Collection que contiene
    * referencias a objetos de tipo String que contienen los nombres
    * de los cultivos plantados en una parcela durante un periodo
@@ -1610,6 +1925,121 @@ public class PlantingRecordServiceBean {
     }
 
     return (String) cropNames.toArray()[0];
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return entero que representa el ID del cultivo plantado con
+   * el menor ciclo de vida en un periodo definido por dos fechas
+   */
+  public int findIdCropWithShortestLifeCycle(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    /*
+     * Selecciona el ciclo de vida mas pequeño de los cultivos
+     * plantados y finalizados en una parcela durante un
+     * periodo dado por dos fechas.
+     * 
+     * La manera en la que realiza esto es mediante los
+     * registros de plantacion finalizados de una parcela
+     * que estan comprendidos en un periodo dado por dos
+     * fechas.
+     */
+    String subQuery = "SELECT MIN(LIFE_CYCLE) FROM PLANTING_RECORD JOIN CROP ON PLANTING_RECORD.FK_CROP = CROP.ID WHERE "
+        + "FK_PARCEL = ?1 AND FK_STATUS = 1 AND ((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND SEED_DATE > ?3) OR "
+        + "(SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR "
+        + "(?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2))";
+
+    /*
+     * Con esta condicion se seleccionan todos los registros de
+     * plantacion finalizados (*) de una parcela que estan entre
+     * una fecha desde y una fecha hasta.
+     * 
+     * Con la primera condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y menor o igual a
+     * la fecha hasta, y su fecha de cosecha estrictamente mayor a
+     * la fecha hasta. Es decir, se selecciona el registro de
+     * plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de siembra dentro del periodo definido por la fecha
+     * desde y la fecha hasta.
+     * 
+     * Con la segunda condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y y su fecha
+     * de cosecha menor o igual a la fecha hasta. Es decir, se
+     * selecciona el registro de plantacion que tiene su fecha
+     * de siembra y su fecha de cosecha dentro del periodo
+     * definido por la fecha desde y la fecha hasta.
+     * 
+     * Con la tercera conidicon se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su
+     * fecha de cosecha mayor o igual a la fecha desde y menor
+     * igual a la fecha hasta, y su fecha de siembra estrictamente
+     * menor a la fecha desde. Es decir, se selecciona el registro
+     * de plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de siembra dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
+     * 
+     * (*) El ID para el estado finalizado de un registro de
+     * plantacion es el 1, siempre y cuando no se modifique el
+     * orden en el que se ejecutan las instrucciones de insercion
+     * del archivo plantingRecordStatusInserts.sql de la ruta
+     * app/etc/sql.
+     * 
+     * Sin las condiciones de las fechas, la consulta (queryString)
+     * correspondiente a estas seleccionaria el nombre de un
+     * cultivo que tiene un ciclo de vida igual al obtenido por
+     * la subconsulta, pero perteneciente a registros de plantacion
+     * que no estan dentro del periodo dado por dos fechas, si
+     * existen dichos registros. En consecuencia, erroneamente se
+     * entenderia esto como que hubo mas de un cultivo plantado y
+     * finalizado con el menor ciclo de vida en una parcela durante
+     * un periodo dado por dos fechas.
+     */
+    String conditionWhere = "FK_PARCEL = ?1 AND FK_STATUS = 1 AND "
+        + "((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) OR "
+        + "(SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR  "
+        + "(?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2)) AND "
+        + "LIFE_CYCLE = (" + subQuery + ")";
+
+    /*
+     * Selecciona el nombre del cultivo que tiene el menor ciclo de
+     * vida de los cultivos plantados en una parcela durante el periodo
+     * dado por dos fechas.
+     * 
+     * Esta consulta SQL opera unicamente con los registros de
+     * plantacion de una parcela que estan en el estado "Finalizado".
+     * Por lo tanto, selecciona el nombre del cultivo que tiene el
+     * menor ciclo de vida de los cultivos plantados en una parcela
+     * durante el periodo dado por dos fechas haciendo uso unicamente
+     * de los registros de plantacion finalizados de una parcela.
+     * 
+     * Hay que tener en cuenta que puede haber mas de un cultivo que
+     * haya sido plantado en una parcela durante un periodo dado por
+     * dos fechas y que tenga un ciclo de vida igual al ciclo de vida
+     * mas pequeño. Por lo tanto, esta consulta puede seleccionar el
+     * nombre de mas de un cultivo como los nombres de los cultivos
+     * que tienen el menor ciclo de vida de los cultivos plantados
+     * en una parcela durante un periodo dado por dos fechas.
+     */
+    String queryString = "SELECT DISTINCT CROP.ID FROM PLANTING_RECORD JOIN CROP ON PLANTING_RECORD.FK_CROP = CROP.ID WHERE "
+        + conditionWhere;
+
+    Query query = getEntityManager().createNativeQuery(queryString);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    int cropId = 0;
+
+    try {
+      cropId = (int) query.getSingleResult();
+    } catch (NullPointerException e) {
+      e.printStackTrace();
+    }
+
+    return cropId;
   }
 
   /**

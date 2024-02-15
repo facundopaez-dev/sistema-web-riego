@@ -47,19 +47,25 @@ class InformeEstadistico {
 -fechaHasta
 -cultivoMayorCosecha
 -cantidadCosechaCultivoMayorCosecha
+-cantidadTotalAguaRiegoCultivoMayorCosecha
 -cultivoMenorCosecha
 -cantidadCosechaCultivoMenorCosecha
+-cantidadTotalAguaRiegoCultivoMenorCosecha
 -cultivoMasPlantado
 -cantidadVecesPlantadoCultivoMasPlantado
+-cantidadTotalAguaRiegoCultivoMasPlantado
 -cultivoMenosPlantado
 -cantidadVecesPlantadoCultivoMenosPlantado
+-cantidadTotalAguaRiegoCultivoMenosPlantado
 -cultivoPlantadoMayorCicloVida
 -cicloVidaCultivoPlantadoMayorCicloVida
+-cantidadTotalAguaRiegoCultivoMayorCicloVida
 -cultivoPlantadoMenorCicloVida
 -cicloVidaCultivoPlantadoMenorCicloVida
+-cantidadTotalAguaRiegoCultivoMenorCicloVida
 -diasSinCultivoPlantado
--cantidadTotalAguaLluvia
 -cantidadTotalAguaRiegoCultivo
+-cantidadTotalAguaLluvia
 }
 
 class Cultivo {

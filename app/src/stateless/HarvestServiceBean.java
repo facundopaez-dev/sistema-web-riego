@@ -251,6 +251,58 @@ public class HarvestServiceBean {
    * @param parcelId
    * @param dateFrom
    * @param dateUntil
+   * @return entero que representa el ID del cultivo que tuvo
+   * el mayor rendimiento (mayor cantidad de kilogramos
+   * cosechados) en un periodo definido por dos fechas
+   */
+  public int findIdCropHighestHarvest(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    /*
+     * Calcula la cantidad total de los kilogramos cosechados
+     * de cada uno de los cultivos cosechados en una parcela
+     * durante un periodo definido por dos fechas y selecciona
+     * la cantidad maxima. De esta manera, se obtiene la cantidad
+     * maxima de kilogramos cosechados de un cultivo sembrado
+     * en una parcela durante un periodo definido por dos fechas.
+     */
+    String queryToCalculateHighestHarvest = "SELECT MAX(TOTALS.TOTAL) FROM "
+        + "(SELECT FK_CROP, SUM(HARVEST_AMOUNT) AS TOTAL FROM HARVEST WHERE ?1 <= HARVEST.DATE AND HARVEST.DATE <= ?2 AND "
+        + "FK_PARCEL = ?3 GROUP BY FK_CROP) AS TOTALS";
+
+    /*
+     * Selecciona el ID del cultivo que tuvo el mayor rendimiento
+     * (mayor cantidad de kilogramos cosechados) de los cultivos
+     * cosechados en una parcela durante un periodo definido por
+     * dos fechas. Hay que tener en cuenta que esta consulta puede
+     * retornar mas de un ID de cultivo, ya que puede ocurrir que
+     * haya mas de un cultivo con un mayor rendimiento con respecto
+     * a los cultivos cosechados en una parcela durante un periodo
+     * definido por dos fechas.
+     */
+    String queryString = "SELECT FK_CROP FROM "
+        + "HARVEST WHERE ?1 <= HARVEST.DATE AND HARVEST.DATE <= ?2 AND FK_PARCEL = ?3 GROUP BY FK_CROP "
+        + "HAVING SUM(HARVEST_AMOUNT) = (" + queryToCalculateHighestHarvest + ")";
+
+    Query query = getEntityManager().createNativeQuery(queryString);
+    query.setParameter(1, dateFrom);
+    query.setParameter(2, dateUntil);
+    query.setParameter(3, parcelId);
+
+    int cropId = 0;
+
+    try {
+      cropId = (int) query.getSingleResult();
+    } catch (NullPointerException e) {
+      e.printStackTrace();
+    }
+
+    return cropId;
+  }
+
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
    * @return double que representa la cantidad de kilogramos
    * del cultivo cosechado en una parcela durante un periodo
    * definido por dos fechas que tuvo la mayor cantidad de
@@ -388,6 +440,57 @@ public class HarvestServiceBean {
     }
 
     return cropNames;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return entero que representa el ID del cultivo que tuvo
+   * el mayor rendimiento (mayor cantidad de kilogramos
+   * cosechados) en un periodo definido por dos fechas
+   */
+  public int findIdCropLowestHarvest(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    /*
+     * Calcula la cantidad total de los kilogramos cosechados
+     * de cada uno de los cultivos cosechados en una parcela
+     * durante un periodo definido por dos fechas y selecciona
+     * la cantidad minima. De esta manera, se obtiene la cantidad
+     * minima de kilogramos cosechados de un cultivo sembrado
+     * en una parcela durante un periodo definido por dos fechas.
+     */
+    String queryToCalculateHighestHarvest = "SELECT MIN(TOTALS.TOTAL) FROM "
+        + "(SELECT FK_CROP, SUM(HARVEST_AMOUNT) AS TOTAL FROM HARVEST WHERE ?1 <= HARVEST.DATE AND HARVEST.DATE <= ?2 AND "
+        + "FK_PARCEL = ?3 GROUP BY FK_CROP) AS TOTALS";
+
+    /*
+     * Selecciona el ID del cultivo que tuvo el menor rendimiento
+     * (menor cantidad de kilogramos cosechados) de los cultivos
+     * cosechados en una parcela durante un periodo definido por
+     * dos fechas. Hay que tener en cuenta que esta consulta puede
+     * retornar mas de un ID de cultivo, ya que puede ocurrir que
+     * haya mas de un cultivo con un menor rendimiento con respecto
+     * a los cultivos cosechados en una parcela durante un periodo
+     * definido por dos fechas.
+     */
+    String queryString = "SELECT FK_CROP FROM "
+        + "HARVEST WHERE ?1 <= HARVEST.DATE AND HARVEST.DATE <= ?2 AND FK_PARCEL = ?3 GROUP BY FK_CROP "
+        + "HAVING SUM(HARVEST_AMOUNT) = (" + queryToCalculateHighestHarvest + ")";
+
+    Query query = getEntityManager().createNativeQuery(queryString);
+    query.setParameter(1, dateFrom);
+    query.setParameter(2, dateUntil);
+    query.setParameter(3, parcelId);
+
+    int cropId = 0;
+
+    try {
+      cropId = (int) query.getSingleResult();
+    } catch (NullPointerException e) {
+      e.printStackTrace();
+    }
+
+    return cropId;
   }
 
   /**
