@@ -572,36 +572,33 @@ public class PlantingRecordServiceBean {
     /*
      * Con esta condicion se seleccionan todos los registros de
      * plantacion finalizados (*) de una parcela que estan entre
-     * la fecha desde y la fecha hasta dadas.
+     * una fecha desde y una fecha hasta.
      * 
      * Con la primera condicion se selecciona el registro de
      * plantacion finalizado (*) de una parcela que tiene su fecha
-     * de siembra estrictamente menor (esta antes) que la fecha
-     * desde (1), y su fecha de cosecha mayor o igual que la fecha
-     * desde (1) y menor o igual que la fecha hasta (2). Es decir,
-     * se selecciona el registro de plantacion finalizado de una
-     * parcela que tiene unicamente su fecha de cosecha dentro
-     * del periodo que va desde la fecha desde (1) a la fecha hasta
-     * (2) dadas.
+     * de siembra mayor o igual a la fecha desde y menor o igual a
+     * la fecha hasta, y su fecha de cosecha estrictamente mayor a
+     * la fecha hasta. Es decir, se selecciona el registro de
+     * plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de siembra dentro del periodo definido por la fecha
+     * desde y la fecha hasta.
      * 
-     * Con la segunda condicion se seleccionan los registros de
-     * plantacion finalizados (*) de una parcela que tienen su
-     * fecha de siembra mayor o igual que la fecha desde (1) y
-     * su fecha de cosecha menor o igual que la fecha hasta (2).
-     * Es decir, se seleccionan los registros de plantacion que
-     * tienen su fecha de siembra y su fecha de cosecha dentro
-     * del periodo que va desde la fecha desde (1) a la fecha
-     * hasta (2).
+     * Con la segunda condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y y su fecha
+     * de cosecha menor o igual a la fecha hasta. Es decir, se
+     * selecciona el registro de plantacion que tiene su fecha
+     * de siembra y su fecha de cosecha dentro del periodo
+     * definido por la fecha desde y la fecha hasta.
      * 
      * Con la tercera conidicon se selecciona el registro de
      * plantacion finalizado (*) de una parcela que tiene su
-     * fecha de cosecha estrictamente mayor (esta despues) que
-     * la fecha hasta (2), y su fecha de siembra mayor o igual
-     * que la fecha desde (1) y menor o igual que la fecha hasta
-     * (2). Es decir, se selecciona el registro de plantacion
-     * finalizado de una parcela que tiene unicamente su fecha
-     * de siembra dentro del periodo que va desde la fecha desde
-     * (1) a la fecha hasta (2).
+     * fecha de cosecha mayor o igual a la fecha desde y menor
+     * igual a la fecha hasta, y su fecha de siembra estrictamente
+     * menor a la fecha desde. Es decir, se selecciona el registro
+     * de plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de siembra dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
      * 
      * (*) El ID para el estado finalizado de un registro de
      * plantacion es el 1, siempre y cuando no se modifique el
@@ -610,34 +607,34 @@ public class PlantingRecordServiceBean {
      * app/etc/sql.
      * 
      * El motivo por el cual esta condicion esta en este metodo
-     * es que se la usa para obtener los siguientes datos de
+     * es que se la usa para calcular los siguientes datos de
      * una parcela:
      * - el cultivo que mas veces se planto,
      * - el cultivo que menos veces se planto,
      * - el cultivo plantado con el mayor ciclo de vida,
-     * - el cultivo plantado con el menor ciclo de vida, y
+     * - el cultivo plantado con el menor ciclo de vida y
      * - la cantidad de dias en los que una parcela no tuvo
      * ningun cultivo plantado.
      * 
      * Estos datos son parte del informe estadistico de una
      * parcela.
      */
-    String dateCondition = "(:givenDateFrom > r.seedDate AND :givenDateFrom <= r.harvestDate AND r.harvestDate <= :givenDateUntil) OR "
-        + "(r.seedDate >= :givenDateFrom AND r.harvestDate <= :givenDateUntil) OR "
-        + "(:givenDateUntil < r.harvestDate AND :givenDateFrom <= r.seedDate AND r.seedDate <= :givenDateUntil)";
+    String dateCondition = "(:dateFrom <= r.seedDate AND r.seedDate <= :dateUntil AND r.harvestDate > :dateUntil) OR "
+        + "(r.seedDate >= :dateFrom AND r.harvestDate <= :dateUntil) OR "
+        + "(:dateFrom <= r.harvestDate AND r.harvestDate <= :dateUntil AND r.seedDate < :dateFrom)";
 
-    String conditionWhere = "(p.id = :givenParcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :givenUserId) AND r.status.name = 'Finalizado' AND (" + dateCondition + "))";
+    String conditionWhere = "p.id = :parcelId AND UPPER(r.status.name) = UPPER('Finalizado') AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId) AND (" + dateCondition + ")";
 
     /*
      * Selecciona los registros de plantacion finalizados
      * de una parcela de un usuario que estan en un periodo
      * definido por dos fechas
      */
-    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE " + conditionWhere + " ORDER BY r.id");
-    query.setParameter("givenUserId", userId);
-    query.setParameter("givenParcelId", parcelId);
-    query.setParameter("givenDateFrom", dateFrom);
-    query.setParameter("givenDateUntil", dateUntil);
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE " + conditionWhere + " ORDER BY r.seedDate");
+    query.setParameter("userId", userId);
+    query.setParameter("parcelId", parcelId);
+    query.setParameter("dateFrom", dateFrom);
+    query.setParameter("dateUntil", dateUntil);
 
     return (Collection) query.getResultList();
   }
