@@ -464,7 +464,7 @@ public class PlantingRecordServiceBean {
      * del archivo plantingRecordStatusInserts.sql de la ruta
      * app/etc/sql.
      */
-    String conditionWhere = "r.parcel.id = :parcelId AND r.status.name = 'Finalizado' AND "
+    String conditionWhere = "r.parcel.id = :parcelId AND UPPER(r.status.name) = UPPER('Finalizado') AND "
         + "((:dateFrom <= r.seedDate AND r.seedDate <= :dateUntil AND r.harvestDate > :dateUntil) OR "
         + "(r.seedDate >= :dateFrom AND r.harvestDate <= :dateUntil) OR "
         + "(:dateFrom <= r.harvestDate AND r.harvestDate <= :dateUntil AND r.seedDate < :dateFrom))";
