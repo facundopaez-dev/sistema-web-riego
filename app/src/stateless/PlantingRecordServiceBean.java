@@ -1506,7 +1506,7 @@ public class PlantingRecordServiceBean {
      * fechas.
      */
     String subQuery = "SELECT MAX(LIFE_CYCLE) FROM PLANTING_RECORD JOIN CROP ON PLANTING_RECORD.FK_CROP = CROP.ID WHERE "
-        + "FK_PARCEL = ?1 AND FK_STATUS = 1 AND ((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND SEED_DATE > ?3) OR "
+        + "FK_PARCEL = ?1 AND FK_STATUS = 1 AND ((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) OR "
         + "(SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR "
         + "(?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2))";
 
@@ -1661,7 +1661,7 @@ public class PlantingRecordServiceBean {
      * fechas.
      */
     String subQuery = "SELECT MAX(LIFE_CYCLE) FROM PLANTING_RECORD JOIN CROP ON PLANTING_RECORD.FK_CROP = CROP.ID WHERE "
-        + "FK_PARCEL = ?1 AND FK_STATUS = 1 AND ((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND SEED_DATE > ?3) OR "
+        + "FK_PARCEL = ?1 AND FK_STATUS = 1 AND ((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) OR "
         + "(SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR "
         + "(?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2))";
 
@@ -1781,7 +1781,7 @@ public class PlantingRecordServiceBean {
      * fechas.
      */
     String subQuery = "SELECT MIN(LIFE_CYCLE) FROM PLANTING_RECORD JOIN CROP ON PLANTING_RECORD.FK_CROP = CROP.ID WHERE "
-        + "FK_PARCEL = ?1 AND FK_STATUS = 1 AND ((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND SEED_DATE > ?3) OR "
+        + "FK_PARCEL = ?1 AND FK_STATUS = 1 AND ((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) OR "
         + "(SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR "
         + "(?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2))";
 
@@ -1935,7 +1935,7 @@ public class PlantingRecordServiceBean {
      * fechas.
      */
     String subQuery = "SELECT MIN(LIFE_CYCLE) FROM PLANTING_RECORD JOIN CROP ON PLANTING_RECORD.FK_CROP = CROP.ID WHERE "
-        + "FK_PARCEL = ?1 AND FK_STATUS = 1 AND ((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND SEED_DATE > ?3) OR "
+        + "FK_PARCEL = ?1 AND FK_STATUS = 1 AND ((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) OR "
         + "(SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR "
         + "(?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2))";
 
