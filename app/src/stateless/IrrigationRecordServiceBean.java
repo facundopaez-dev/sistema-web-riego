@@ -572,7 +572,6 @@ public class IrrigationRecordServiceBean {
               where.append(parameters.get(param));
               where.append("%')");
               break;
-
             case "Calendar":
 
               if (param.equals("date")) {
