@@ -1,8 +1,8 @@
 app.controller(
 	"HarvestsCtrl",
-	["$scope", "$location", "$route", "HarvestSrv", "ParcelSrv", "ReasonError", "UtilDate", "AccessManager", "ErrorResponseManager", "AuthHeaderManager",
+	["$scope", "$location", "$route", "HarvestSrv", "ParcelSrv", "CropSrv", "ReasonError", "UtilDate", "AccessManager", "ErrorResponseManager", "AuthHeaderManager",
 		"LogoutManager",
-		function ($scope, $location, $route, harvestSrv, parcelSrv, reasonError, utilDate, accessManager, errorResponseManager, authHeaderManager,
+		function ($scope, $location, $route, harvestSrv, parcelSrv, cropSrv, reasonError, utilDate, accessManager, errorResponseManager, authHeaderManager,
 			logoutManager) {
 
 			console.log("HarvestsCtrl loaded...")
@@ -115,6 +115,18 @@ app.controller(
 						}
 
 						return parcels;
+					});
+			}
+
+			$scope.findCropByName = function (cropName) {
+				return cropSrv.findByName(cropName).
+					then(function (response) {
+						var crops = [];
+						for (var i = 0; i < response.data.length; i++) {
+							crops.push(response.data[i]);
+						}
+
+						return crops;
 					});
 			}
 

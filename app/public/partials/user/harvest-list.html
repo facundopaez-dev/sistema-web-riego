@@ -138,6 +138,12 @@
 				typeahead-loading="loadingLocations" class="form-control" typeahead-editable="false"
 				typeahead-min-lenght="3">
 
+			<!-- Campo del cultivo -->
+			<input name="crop" type="text" ng-model="pagination.search.crop" placeholder="Cultivo"
+				uib-typeahead="crop as crop.name for crop in findCropByName($viewValue)"
+				typeahead-loading="loadingLocations" class="form-control" typeahead-editable="false"
+				typeahead-min-lenght="3">
+
 			<!-- Campo de la fecha -->
 			<input type="date" class="form-control" id="date" ng-model="pagination.search.date">
 		</div>
