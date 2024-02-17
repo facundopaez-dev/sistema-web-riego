@@ -428,42 +428,35 @@ public class PlantingRecordServiceBean {
    */
   public List<PlantingRecord> findAllByPeriod(int parcelId, Calendar dateFrom, Calendar dateUntil) {
     /*
-     * Con la primera condicion de las fechas se seleccionan los
-     * registros de plantacion finalizados (*) de una parcela
-     * que tienen su fecha de siembra mayor o igual a la fecha
-     * desde y menor estricto a la fecha hasta o que tienen su
-     * fecha de siembra mayor estricto a la fecha desde y menor
-     * o igual a la fecha hasta, y que tienen su fecha de
-     * cosecha mayor o igual a la fecha hasta. En otras palabras,
-     * con la primera condicion de las fechas se seleccionan
-     * los registros de plantacion finalizados en los que la
-     * fecha desde y la fecha hasta estan dentro del periodo
-     * definido por la fecha de siembra y la fecha de cosecha o
-     * en los que solo la fecha hasta esta dentro del periodo
-     * definido por la fecha de siembra y la fecha de cosecha.
+     * Con esta condicion se seleccionan todos los registros de
+     * plantacion finalizados (*) de una parcela que estan entre
+     * una fecha desde y una fecha hasta.
      * 
-     * Con la segunda condicion de las fechas se seleccionan los
-     * registros de plantacion finalizados (*) de una parcela que
-     * tienen su fecha de siembra mayor o igual a la fecha desde
-     * y su fecha de cosecha menor o igual a la fecha hasta. En
-     * otras palabras, con la segunda condicion de las fechas se
-     * seleccionan los registros de plantacion finalizados en los
-     * que la fecha de siembra y la fecha de cosecha estan dentro
-     * del periodo definido por la fecha desde y la fecha hasta.
+     * Con la primera condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y menor o igual a
+     * la fecha hasta, y su fecha de cosecha estrictamente mayor a
+     * la fecha hasta. Es decir, se selecciona el registro de
+     * plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de siembra dentro del periodo definido por la fecha
+     * desde y la fecha hasta.
      * 
-     * Con la tercera condicion de las fechas se seleccionan los
-     * registros de plantacion finalizados (*) de una parcela que
-     * tienen su fecha de cosecha mayor estricto que la fecha desde
-     * y menor o igual que la fecha hasta o que tienen su fecha de
-     * cosecha mayor o igual que la fecha desde y menor estricto
-     * que la fecha hasta, y que tienen su fecha de siembra menor
-     * o igual que la fecha desde. En otras palabras, con la tercera
-     * condicion de las fechas se seleccionan los registros de
-     * plantacion finalizados en los que la fecha desde y la fecha
-     * hasta estan dentro del periodo definido por la fecha de
-     * siembra y la fecha de cosecha o en los que solo la fecha
-     * desde esta dentro del periodo definido por la fecha de
-     * siembra y la fecha de cosecha.
+     * Con la segunda condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y y su fecha
+     * de cosecha menor o igual a la fecha hasta. Es decir, se
+     * selecciona el registro de plantacion que tiene su fecha
+     * de siembra y su fecha de cosecha dentro del periodo
+     * definido por la fecha desde y la fecha hasta.
+     * 
+     * Con la tercera conidicon se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su
+     * fecha de cosecha mayor o igual a la fecha desde y menor
+     * igual a la fecha hasta, y su fecha de siembra estrictamente
+     * menor a la fecha desde. Es decir, se selecciona el registro
+     * de plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de siembra dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
      * 
      * (*) El ID para el estado finalizado de un registro de
      * plantacion es el 1, siempre y cuando no se modifique el
@@ -471,16 +464,15 @@ public class PlantingRecordServiceBean {
      * del archivo plantingRecordStatusInserts.sql de la ruta
      * app/etc/sql.
      */
-    String conditionWhere = "(r.parcel.id = :givenParcelId AND r.status.id = 1 AND "
-        + "((((r.seedDate >= :givenDateFrom AND :givenDateUntil > r.seedDate) OR (r.seedDate > :givenDateFrom AND :givenDateUntil >= r.seedDate)) AND :givenDateUntil <= r.harvestDate) OR "
-        + "(r.seedDate >= :givenDateFrom AND r.harvestDate <= :givenDateUntil) OR "
-        + "(:givenDateFrom >= r.seedDate AND ((:givenDateFrom < r.harvestDate AND :givenDateUntil >= r.harvestDate) OR (:givenDateFrom <= r.harvestDate AND :givenDateUntil > r.harvestDate)))))";
+    String conditionWhere = "r.parcel.id = :parcelId AND r.status.name = 'Finalizado' AND "
+        + "((:dateFrom <= r.seedDate AND r.seedDate <= :dateUntil AND r.harvestDate > :dateUntil) OR "
+        + "(r.seedDate >= :dateFrom AND r.harvestDate <= :dateUntil) OR "
+        + "(:dateFrom <= r.harvestDate AND r.harvestDate <= :dateUntil AND r.seedDate < :dateFrom))";
 
-    Query query = getEntityManager()
-        .createQuery("SELECT r FROM PlantingRecord r WHERE " + conditionWhere + " ORDER BY r.id");
-    query.setParameter("givenParcelId", parcelId);
-    query.setParameter("givenDateFrom", dateFrom);
-    query.setParameter("givenDateUntil", dateUntil);
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r WHERE " + conditionWhere + " ORDER BY r.seedDate");
+    query.setParameter("parcelId", parcelId);
+    query.setParameter("dateFrom", dateFrom);
+    query.setParameter("dateUntil", dateUntil);
 
     return (List) query.getResultList();
   }
