@@ -71,7 +71,6 @@ public enum ReasonError {
   DELETION_PARCEL_WITH_PLANTING_RECORD_IN_DEVELOPMENT_NOT_ALLOWED("No está permitido eliminar (lógicamente) una parcela que tiene un registro de plantación en desarrollo"),
   MODIFICATION_IRRIGATION_WATER_NEED_NOT_ALLOWED("No está permitida la modificación de la necesidad de agua de riego"),
   MODIFICATION_WITH_PARCEL_HAS_PLANTING_RECORD_IN_DEVELOPMENT_NOT_ALLOWED("La parcela seleccionada ya tiene un registro de plantación en desarrollo"),
-  DELETE_FINISHED_PLANTING_RECORD_NOT_ALLOWED("No está permitido eliminar un registro de plantación finalizado"),
   UNDEFINED_SEED_DATE("La fecha de siembra debe estar definida"),
   UNDEFINED_HARVEST_DATE("La fecha de cosecha debe estar definida"),
   OVERLAPPING_SEED_DATE_AND_HARVEST_DATE("La fecha de siembra no debe ser mayor ni igual a la fecha de cosecha"),

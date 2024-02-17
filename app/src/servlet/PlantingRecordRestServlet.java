@@ -1799,19 +1799,6 @@ public class PlantingRecordRestServlet {
     PlantingRecordStatus finishedStatus = statusService.findFinishedStatus();
 
     /*
-     * Si el estado del registro de plantacion a eliminar es el
-     * estado "Finalizado", la aplicacion retorna el mensaje HTTP
-     * 400 (Bad request) junto con el mensaje "No esta permitido
-     * eliminar un registro de plantacion finalizado" y no se
-     * realiza la operacion solicitada
-     */
-    if (statusService.equals(statusGivenPlantingRecord, finishedStatus)) {
-      return Response.status(Response.Status.BAD_REQUEST)
-          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.DELETE_FINISHED_PLANTING_RECORD_NOT_ALLOWED)))
-          .build();
-    }
-
-    /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos que el
