@@ -227,11 +227,11 @@ public class ClimateRecordServiceBean {
    * referencia a un objeto de tipo Collection vacio (0 elementos).
    */
   public Collection<ClimateRecord> findAllByParcelIdAndPeriod(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
-    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId) AND :givenDateFrom <= c.date AND c.date <= :givenDateUntil) ORDER BY c.date");
+    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId) AND :dateFrom <= c.date AND c.date <= :dateUntil) ORDER BY c.date");
     query.setParameter("userId", userId);
     query.setParameter("parcelId", parcelId);
-    query.setParameter("givenDateFrom", dateFrom);
-    query.setParameter("givenDateUntil", dateUntil);
+    query.setParameter("dateFrom", dateFrom);
+    query.setParameter("dateUntil", dateUntil);
 
     return (Collection) query.getResultList();
   }
