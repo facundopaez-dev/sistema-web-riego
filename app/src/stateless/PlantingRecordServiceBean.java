@@ -426,7 +426,7 @@ public class PlantingRecordServiceBean {
    * una parcela que se encuentran dentro de un periodo
    * definido por dos fechas
    */
-  public List<PlantingRecord> findAllByPeriod(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+  public List<PlantingRecord> findAllFinishedByPeriod(int parcelId, Calendar dateFrom, Calendar dateUntil) {
     /*
      * Con esta condicion se seleccionan todos los registros de
      * plantacion finalizados (*) de una parcela que estan entre
@@ -2054,7 +2054,7 @@ public class PlantingRecordServiceBean {
      * de una parcela que estan dentro de un periodo definido
      * por dos fechas
      */
-    List<PlantingRecord> plantingRecords = findAllByPeriod(parcelId, dateFrom, dateUntil);
+    List<PlantingRecord> plantingRecords = findAllFinishedByPeriod(parcelId, dateFrom, dateUntil);
 
     /*
      * Si la parcela correspondiente al ID dado no tiene ningun
@@ -2164,7 +2164,7 @@ public class PlantingRecordServiceBean {
      * de una parcela que estan dentro de un periodo definido
      * por dos fechas
      */
-    List<PlantingRecord> plantingRecords = findAllByPeriod(parcelId, dateFrom, dateUntil);
+    List<PlantingRecord> plantingRecords = findAllFinishedByPeriod(parcelId, dateFrom, dateUntil);
 
     /*
      * Si la parcela correspondiente al ID dado no tiene ningun
