@@ -366,6 +366,33 @@
 				</div>
 			</div>
 
+			<div class="form-group" ng-hide="action == 'new'">
+				<label for="statisticalReport_daysWithCrops" class="col-md-2 control-label">Cantidad de
+					días en los que la parcela tuvo un cultivo plantado</label>
+				<div class="col-md-3">
+					<input type="text" class="form-control" id="statisticalReport_daysWithCrops"
+						ng-model="data.daysWithCrops" ng-disabled="action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group" ng-hide="action == 'new'">
+				<label for="statisticalReport_daysWithoutCrops" class="col-md-2 control-label">Cantidad de
+					días en los que la parcela no tuvo ningún cultivo plantado</label>
+				<div class="col-md-3">
+					<input type="text" class="form-control" id="statisticalReport_daysWithoutCrops"
+						ng-model="data.daysWithoutCrops" ng-disabled="action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group" ng-hide="action == 'new'">
+				<label for="statisticalReport_daysPeriod" class="col-md-2 control-label">Cantidad de días del
+					período</label>
+				<div class="col-md-3">
+					<input type="text" class="form-control" id="statisticalReport_daysPeriod" ng-model="data.daysPeriod"
+						ng-disabled="action == 'view'">
+				</div>
+			</div>
+
 			<div class="form-group">
 				<div class="col-md-offset-2 col-md-3">
 					<button type="submit" class="btn btn-success" ng-click="create()"

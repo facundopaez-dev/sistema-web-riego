@@ -1073,7 +1073,15 @@ public class StatisticalReportRestServlet {
     String cropLongestLifeCyclePlanted = plantingRecordService.findCropWithLongestLifeCycle(parcelId, dateFrom, dateUntil);
     String cropShortestLifeCyclePlanted = plantingRecordService.findCropWithShortestLifeCycle(parcelId, dateFrom, dateUntil);
 
+    int daysWithCrops = plantingRecordService.calculateDaysWithCrops(parcelId, dateFrom, dateUntil);
     int daysWithoutCrops = plantingRecordService.calculateDaysWithoutCrops(parcelId, dateFrom, dateUntil);
+
+    /*
+     * Se suma un uno a la diferencia de dias entre la fecha
+     * desde y la fecha hasta para incluir a la fecha desde
+     * en el resultado
+     */
+    int daysPeriod = UtilDate.calculateDifferenceBetweenDates(dateFrom, dateUntil) + 1;
     double totalAmountRainwater = climateRecordService.calculateAmountRainwaterByPeriod(parcelId, dateFrom, dateUntil);
 
     /*
@@ -1227,14 +1235,35 @@ public class StatisticalReportRestServlet {
     statisticalReport.setLifeCycleCropShortestLifeCyclePlanted(lifeCycleCropShortestLifeCyclePlanted);
     statisticalReport.setTotalAmountIrrigationWaterCropShortestLifeCycle(totalAmountIrrigationWaterCropShortestLifeCycle);
     statisticalReport.setTotalAmountCropIrrigationWater(totalAmountCropIrrigationWater);
+    statisticalReport.setDaysPeriod(daysPeriod);
+
+    /*
+     * El metodo calculateDaysWithCrops() retorna el valor -1
+     * cuando una parcela no tiene registros de plantacion
+     * finalizados en el periodo definido por dos fechas en
+     * el que se quiere generar un informe estadistico para
+     * la misma. Sin registros de plantacion finalizados no
+     * se puede calcular la cantidad de dias en los que una
+     * parcela tuvo un cultivo plantado en un periodo definido
+     * por dos fechas. Esto es informacion no disponible y se
+     * utiliza el valor -1 para representarla.
+     */
+    if (daysWithCrops >= 0) {
+      statisticalReport.setDaysWithCrops(String.valueOf(daysWithCrops));
+    } else {
+      statisticalReport.setDaysWithCrops(DATA_NOT_AVAILABLE);
+    }
 
     /*
      * El metodo calculateDaysWithoutCrops() retorna el valor
      * -1 cuando una parcela no tiene registros de plantacion
      * finalizados en el periodo definido por dos fechas en
      * el que se quiere generar un informe estadistico para
-     * la misma. Dicho valor representa informacion no
-     * disponible.
+     * la misma. Sin registros de plantacion finalizado no
+     * se puede calcular la cantidad de dias en los que una
+     * parcela NO tuvo ningun cultivo plantado en un periodo
+     * definido por dos fechas. Esto es informacion no disponible
+     * y se utiliza el valor -1 para representarla.
      */
     if (daysWithoutCrops >= 0) {
       statisticalReport.setDaysWithoutCrops(String.valueOf(daysWithoutCrops));
@@ -1247,8 +1276,10 @@ public class StatisticalReportRestServlet {
      * valor -1.0 cuando una parcela no tiene registros
      * climaticos en el periodo definido por dos fechas en
      * el que se quiere generar un informe estadistico para
-     * la misma. Dicho valor representa informacion no
-     * disponible.
+     * la misma. Sin registros climaticos no se puede calcular
+     * la cantidad total de agua de lluvia de un periodo
+     * definido por dos fechas. Esto es informacion no disponible
+     * y se utiliza el valor -1 para representarla.
      */
     if (totalAmountRainwater >= 0.0) {
       statisticalReport.setTotalAmountRainwater(String.valueOf(totalAmountRainwater));

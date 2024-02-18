@@ -2036,6 +2036,118 @@ public class PlantingRecordServiceBean {
    * @param dateFrom
    * @param dateUntil
    * @return entero que representa la cantidad de dias en los que
+   * una parcela tuvo un cultivo plantado dentro de un periodo
+   * definido por dos fechas, contemplando los años bisiestos y
+   * no bisiestos que pueden haber en dicho periodo, si una parcela
+   * tiene registros de plantacion finalizados en el periodo en
+   * el que se quiere obtener dicha cantidad. En caso contrario,
+   * -1, valor que se utiliza para representar informacion no
+   * disponible.
+   */
+  public int calculateDaysWithCrops(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    Calendar seedDate;
+    Calendar harvestDate;
+    int daysWithCrops = 0;
+
+    /*
+     * Obtiene todos los registros de plantacion finalizados
+     * de una parcela que estan dentro de un periodo definido
+     * por dos fechas
+     */
+    List<PlantingRecord> plantingRecords = findAllByPeriod(parcelId, dateFrom, dateUntil);
+
+    /*
+     * Si la parcela correspondiente al ID dado no tiene ningun
+     * registro de plantacion finalizado en un periodo definido
+     * por dos fechas, se retorna -1 como valor indicativo de
+     * que la cantidad de dias en los que una parcela tuvo un
+     * cultivo plantado en un periodo dado, no esta disponible
+     */
+    if (plantingRecords.size() == 0) {
+      return -1;
+    }
+
+    for (PlantingRecord currentPlantingRecord : plantingRecords) {
+      seedDate = currentPlantingRecord.getSeedDate();
+      harvestDate = currentPlantingRecord.getHarvestDate();
+
+      /*
+       * Si la fecha de siembra mayor o igual a la fecha desde y
+       * menor o igual a la fecha hasta, y la fecha de cosecha es
+       * estrictamente mayor a la fecha hasta, la cantidad de dias
+       * en los que una parcela tuvo un cultivo plantado se calcula
+       * como la diferencia entre la fecha de siembra y la fecha
+       * hasta mas uno. A esta diferencia se le suma un uno para
+       * incluir a la fecha de siembra en el resultado, ya que la
+       * misma cuenta como un dia en el que una parcela tuvo un
+       * cultivo plantado.
+       * 
+       * El motivo por el cual se realiza este calculo es que la
+       * fecha hasta esta dentro del periodo definido por la fecha
+       * de siembra y la fecha de cosecha.
+       * 
+       *              fecha siembra                 fecha cosecha
+       *<------------------[-----------------------------]------>
+       *
+       *    fecha desde                  fecha hasta
+       *<-------[----------------------------]------------------>
+       */
+      if (UtilDate.compareTo(seedDate, dateFrom) >= 0 && UtilDate.compareTo(seedDate, dateUntil) <= 0 && UtilDate.compareTo(harvestDate, dateUntil) > 0) {
+        daysWithCrops = daysWithCrops + UtilDate.calculateDifferenceBetweenDates(seedDate, dateUntil) + 1;
+      }
+
+      /*
+       * Si la fecha de siembra es mayor o igual a la fecha desde
+       * y la fecha de cosecha es menor o igual a la fecha hasta,
+       * la cantidad de dias en los que una parcela tuvo un cultivo
+       * plantado se calcula como la diferencia entre la fecha de
+       * siembra y la fecha de cosecha mas uno. A esta diferencia
+       * se le suma un uno para incluir a la fecha de siembra en
+       * el resultado, ya que la misma cuenta como un dia en el que
+       * una parcela tuvo un cultivo plantado.
+       * 
+       *        fecha siembra                 fecha cosecha
+       *<------------[-----------------------------]------------>
+       *
+       *    fecha desde                           fecha hasta
+       *<-----[-------------------------------------------]----->
+       */
+      if (UtilDate.compareTo(seedDate, dateFrom) >= 0 && UtilDate.compareTo(harvestDate, dateUntil) <= 0) {
+        daysWithCrops = daysWithCrops + UtilDate.calculateDifferenceBetweenDates(currentPlantingRecord.getSeedDate(), currentPlantingRecord.getHarvestDate()) + 1;
+      }
+
+      /*
+       * Si la fecha de cosecha es mayor o igual a la fecha desde
+       * y menor o igual a la fecha hasta, y la fecha de siembra
+       * es estrictamente menor a la fecha desde, la cantidad de
+       * dias en los que una parcela tuvo un cultivo plantado se
+       * calcula como la diferencia entre la fecha desde y la
+       * fecha de cosecha mas uno. A esta diferencia se le suma
+       * un uno para incluir a la fecha desde en el resultado,
+       * ya que la misma cuenta como un dia en el que una parcela
+       * tuvo un cultivo plantado porque esta dentro del periodo
+       * definido por la fecha de siembra y la fecha de cosecha.
+       * 
+       *  fecha siembra             fecha cosecha
+       *<------[-------------------------]----------------------->
+       *
+       *            fecha desde                  fecha hasta
+       *<----------------[----------------------------]---------->
+       */
+      if (UtilDate.compareTo(harvestDate, dateFrom) >= 0 && UtilDate.compareTo(harvestDate, dateUntil) <= 0 && UtilDate.compareTo(seedDate, dateFrom) < 0) {
+        daysWithCrops = daysWithCrops + UtilDate.calculateDifferenceBetweenDates(dateFrom, harvestDate) + 1;
+      }
+
+    }
+
+    return daysWithCrops;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return entero que representa la cantidad de dias en los que
    * una parcela no tuvo ningun cultivo plantado dentro de un periodo
    * definido por dos fechas, contemplando los años bisiestos y no
    * bisiestos que pueden haber en dicho periodo, si una parcela

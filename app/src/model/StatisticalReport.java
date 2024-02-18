@@ -84,8 +84,14 @@ public class StatisticalReport {
   @Column(name = "TOTAL_AMOUNT_IRRIGATION_WATER_CROP_SHORTEST_LIFE_CYCLE")
   private double totalAmountIrrigationWaterCropShortestLifeCycle;
 
+  @Column(name = "DAYS_WITH_CROPS")
+  private String daysWithCrops;
+
   @Column(name = "DAYS_WITHOUT_CROPS")
   private String daysWithoutCrops;
+
+  @Column(name = "DAYS_PERIOD")
+  private int daysPeriod;
 
   @Column(name = "TOTAL_AMOUNT_RAINWATER")
   private String totalAmountRainwater;
@@ -265,12 +271,28 @@ public class StatisticalReport {
     this.totalAmountIrrigationWaterCropShortestLifeCycle = totalAmountIrrigationWaterCropShortestLifeCycle;
   }
 
+  public String getDaysWithCrops() {
+    return daysWithCrops;
+  }
+
+  public void setDaysWithCrops(String daysWithCrops) {
+    this.daysWithCrops = daysWithCrops;
+  }
+
   public String getDaysWithoutCrops() {
     return daysWithoutCrops;
   }
 
   public void setDaysWithoutCrops(String daysWithoutCrops) {
     this.daysWithoutCrops = daysWithoutCrops;
+  }
+
+  public int getDaysPeriod() {
+    return daysPeriod;
+  }
+
+  public void setDaysPeriod(int daysPeriod) {
+    this.daysPeriod = daysPeriod;
   }
 
   public String getTotalAmountRainwater() {
