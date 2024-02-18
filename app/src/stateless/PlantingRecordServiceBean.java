@@ -2674,6 +2674,14 @@ public class PlantingRecordServiceBean {
               where.append(parameters.get(param));
               where.append("%')");
               break;
+            case "Crop":
+              where.append(" AND UPPER(e.");
+              where.append(param);
+              where.append(".name");
+              where.append(") LIKE UPPER('%");
+              where.append(parameters.get(param));
+              where.append("%')");
+              break;
             case "Calendar":
 
               if (param.equals("seedDate")) {

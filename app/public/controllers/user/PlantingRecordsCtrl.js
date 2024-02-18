@@ -1,8 +1,8 @@
 app.controller(
 	"PlantingRecordsCtrl",
-	["$scope", "$location", "$route", "PlantingRecordSrv", "ParcelSrv", "ReasonError", "UtilDate", "WaterNeedFormManager", "AccessManager", "ErrorResponseManager",
+	["$scope", "$location", "$route", "PlantingRecordSrv", "ParcelSrv", "CropSrv", "ReasonError", "UtilDate", "WaterNeedFormManager", "AccessManager", "ErrorResponseManager",
 		"AuthHeaderManager", "LogoutManager",
-		function ($scope, $location, $route, plantingRecordSrv, parcelSrv, reasonError, utilDate, waterNeedFormManager, accessManager, errorResponseManager,
+		function ($scope, $location, $route, plantingRecordSrv, parcelSrv, cropSrv, reasonError, utilDate, waterNeedFormManager, accessManager, errorResponseManager,
 			authHeaderManager, logoutManager) {
 
 			console.log("Cargando PlantingRecordsCtrl...")
@@ -122,6 +122,18 @@ app.controller(
 
 						return parcels;
 					});;
+			}
+
+			$scope.findCropByName = function (cropName) {
+				return cropSrv.findByName(cropName).
+					then(function (response) {
+						var crops = [];
+						for (var i = 0; i < response.data.length; i++) {
+							crops.push(response.data[i]);
+						}
+
+						return crops;
+					});
 			}
 
 			const UNDEFINED_PARCEL = "La parcela debe estar definida";
