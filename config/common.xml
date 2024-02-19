@@ -2189,6 +2189,70 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
+    <!-- Carga la tabla LATITUDE -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/latitudeInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla SOLAR_RADIATION con los valores de la radiacion extraterrestre
+    diaria del hemisferio norte -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/northernSolarRadiationInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla SOLAR_RADIATION con los valores de la radiacion extraterrestre
+    diaria del hemisferio sur -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/southernSolarRadiationInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla MAXIMUM_INSOLATION con los valores de la insolacion maxima diaria
+    del hemisferio norte -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/northernMaximumInsolationInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla MAXIMUM_INSOLATION con los valores de la insolacion maxima diaria
+    del hemisferio sur -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/southernMaximumInsolationInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
     <!-- Carga la tabla SECRET_KEY -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
@@ -2201,7 +2265,7 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
-    <!-- Carga las tablas PLANTING_RECORD, CLIMATE_RECORD y TYPE_PRECIPITATION -->
+    <!-- Carga las tablas de la base de datos que se necesitan para probar la tarea 338 de GitHub -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
       userid="${DERBY_USER}"
