@@ -42,9 +42,10 @@ public class SoilWaterBalance {
     /*
      * El agua evaporada [mm/dia] puede estar indicada por la
      * ETc (evapotranspiracion del cultivo bajo condiciones
-     * estandar) o la ETo (evapotranspiracion del cultivo de
-     * referencia) en caso de que la ETc = 0, lo cual ocurre
-     * cuando no hay un cultivo sembrado en una parcela dada
+     * estandar) [mm/dia] o la ETo (evapotranspiracion del
+     * cultivo de referencia) [mm/dia] en caso de que la
+     * ETc = 0, lo cual ocurre cuando no hay un cultivo sembrado
+     * en una parcela
      */
     @Column(name = "EVAPORATED_WATER", nullable = false)
     private double evaporatedWater;
