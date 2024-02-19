@@ -817,8 +817,8 @@ public class PlantingRecordManager {
             soilWaterBalance.setDate(seedDate);
             soilWaterBalance.setParcelName(parcel.getName());
             soilWaterBalance.setCropName(developingPlantingRecord.getCrop().getName());
-            soilWaterBalance.setWaterProvided(0);
-            soilWaterBalance.setEvaporatedWater(0);
+            soilWaterBalance.setWaterProvidedPerDay(0);
+            soilWaterBalance.setEvaporatedWaterPerDay(0);
             soilWaterBalance.setWaterDeficitPerDay(0);
             soilWaterBalance.setAccumulatedWaterDeficitPerDay(String.valueOf(0));
 
@@ -840,8 +840,8 @@ public class PlantingRecordManager {
             soilWaterBalance = soilWaterBalanceService.find(parcel.getId(), seedDate);
             soilWaterBalance.setParcelName(parcel.getName());
             soilWaterBalance.setCropName(developingPlantingRecord.getCrop().getName());
-            soilWaterBalance.setWaterProvided(0);
-            soilWaterBalance.setEvaporatedWater(0);
+            soilWaterBalance.setWaterProvidedPerDay(0);
+            soilWaterBalance.setEvaporatedWaterPerDay(0);
             soilWaterBalance.setWaterDeficitPerDay(0);
             soilWaterBalance.setAccumulatedWaterDeficitPerDay(String.valueOf(0));
 
@@ -972,7 +972,7 @@ public class PlantingRecordManager {
 
             waterProvidedPerDay = climateRecord.getPrecip() + WaterMath.sumTotalAmountIrrigationWaterGivenDate(climateRecord.getDate(), irrigationRecords);
             waterDeficitPerDay = WaterMath.calculateWaterDeficitPerDay(climateRecord, irrigationRecords);
-            evaporatedWater = soilWaterBalanceService.getEvaporatedWater(climateRecord);
+            evaporatedWater = soilWaterBalanceService.getEvaporatedWaterFromClimateRecord(climateRecord);
 
             /*
              * Obtiene el acumulado del deficit de agua por dia del
@@ -1169,8 +1169,8 @@ public class PlantingRecordManager {
                 soilWaterBalance.setDate(pastDate);
                 soilWaterBalance.setParcelName(parcel.getName());
                 soilWaterBalance.setCropName(crop.getName());
-                soilWaterBalance.setWaterProvided(waterProvidedPerDay);
-                soilWaterBalance.setEvaporatedWater(evaporatedWater);
+                soilWaterBalance.setWaterProvidedPerDay(waterProvidedPerDay);
+                soilWaterBalance.setEvaporatedWaterPerDay(evaporatedWater);
                 soilWaterBalance.setWaterDeficitPerDay(waterDeficitPerDay);
                 soilWaterBalance.setAccumulatedWaterDeficitPerDay(stringAccumulatedWaterDeficitPerDay);
 

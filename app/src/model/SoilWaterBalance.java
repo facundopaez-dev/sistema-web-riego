@@ -36,8 +36,8 @@ public class SoilWaterBalance {
      * artificial (agua de riego) por dia [mm/día] o
      * la suma de ambas [mm/dia]
      */
-    @Column(name = "WATER_PROVIDED", nullable = false)
-    private double waterProvided;
+    @Column(name = "WATER_PROVIDED_PER_DAY", nullable = false)
+    private double waterProvidedPerDay;
 
     /*
      * El agua evaporada [mm/dia] puede estar indicada por la
@@ -47,8 +47,8 @@ public class SoilWaterBalance {
      * ETc = 0, lo cual ocurre cuando no hay un cultivo sembrado
      * en una parcela
      */
-    @Column(name = "EVAPORATED_WATER", nullable = false)
-    private double evaporatedWater;
+    @Column(name = "EVAPORATED_WATER_PER_DAY", nullable = false)
+    private double evaporatedWaterPerDay;
 
     @Column(name = "WATER_DEFICIT_PER_DAY", nullable = false)
     private double waterDeficitPerDay;
@@ -88,20 +88,20 @@ public class SoilWaterBalance {
         this.cropName = cropName;
     }
 
-    public double getWaterProvided() {
-        return waterProvided;
+    public double getWaterProvidedPerDay() {
+        return waterProvidedPerDay;
     }
 
-    public void setWaterProvided(double waterProvided) {
-        this.waterProvided = waterProvided;
+    public void setWaterProvidedPerDay(double waterProvidedPerDay) {
+        this.waterProvidedPerDay = waterProvidedPerDay;
     }
 
-    public double getEvaporatedWater() {
-        return evaporatedWater;
+    public double getEvaporatedWaterPerDay() {
+        return evaporatedWaterPerDay;
     }
 
-    public void setEvaporatedWater(double evaporatedWater) {
-        this.evaporatedWater = evaporatedWater;
+    public void setEvaporatedWaterPerDay(double evaporatedWaterPerDay) {
+        this.evaporatedWaterPerDay = evaporatedWaterPerDay;
     }
 
     public double getWaterDeficitPerDay() {

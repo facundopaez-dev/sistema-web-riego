@@ -77,8 +77,8 @@ public class SoilWaterBalanceServiceBean {
         if (chosenSoilWaterBalanace != null) {
             chosenSoilWaterBalanace.setParcelName(modifiedSoilWaterBalance.getParcelName());
             chosenSoilWaterBalanace.setCropName(modifiedSoilWaterBalance.getCropName());
-            chosenSoilWaterBalanace.setWaterProvided(modifiedSoilWaterBalance.getWaterProvided());
-            chosenSoilWaterBalanace.setEvaporatedWater(modifiedSoilWaterBalance.getEvaporatedWater());
+            chosenSoilWaterBalanace.setWaterProvidedPerDay(modifiedSoilWaterBalance.getWaterProvidedPerDay());
+            chosenSoilWaterBalanace.setEvaporatedWaterPerDay(modifiedSoilWaterBalance.getEvaporatedWaterPerDay());
             chosenSoilWaterBalanace.setWaterDeficitPerDay(modifiedSoilWaterBalance.getWaterDeficitPerDay());
             chosenSoilWaterBalanace.setAccumulatedWaterDeficitPerDay(modifiedSoilWaterBalance.getAccumulatedWaterDeficitPerDay());
             return chosenSoilWaterBalanace;
@@ -308,8 +308,8 @@ public class SoilWaterBalanceServiceBean {
                 newSoilWaterBalance.setDate(currentClimateRecord.getDate());
                 newSoilWaterBalance.setParcelName(parcel.getName());
                 newSoilWaterBalance.setCropName(cropName);
-                newSoilWaterBalance.setEvaporatedWater(getEvaporatedWater(currentClimateRecord));
-                newSoilWaterBalance.setWaterProvided(waterProvidedPerDay);
+                newSoilWaterBalance.setEvaporatedWaterPerDay(getEvaporatedWaterFromClimateRecord(currentClimateRecord));
+                newSoilWaterBalance.setWaterProvidedPerDay(waterProvidedPerDay);
                 newSoilWaterBalance.setWaterDeficitPerDay(waterDeficitPerDay);
                 newSoilWaterBalance.setAccumulatedWaterDeficitPerDay(String.valueOf(accumulatedWaterDeficitPerDay));
 
@@ -326,7 +326,7 @@ public class SoilWaterBalanceServiceBean {
                 listSoilWaterBalances.add(newSoilWaterBalance);
             } else {
                 givenSoilWaterBalance = find(parcel.getId(), currentClimateRecord.getDate());
-                update(givenSoilWaterBalance.getId(), cropName, getEvaporatedWater(currentClimateRecord), waterProvidedPerDay, waterDeficitPerDay, String.valueOf(accumulatedWaterDeficitPerDay));
+                update(givenSoilWaterBalance.getId(), cropName, getEvaporatedWaterFromClimateRecord(currentClimateRecord), waterProvidedPerDay, waterDeficitPerDay, String.valueOf(accumulatedWaterDeficitPerDay));
             }
 
         } // End for
@@ -335,21 +335,27 @@ public class SoilWaterBalanceServiceBean {
 
     /**
      * @param climateRecord
-     * @return double que representa el agua evaporada, la cual
-     * puede ser la ETc o la ETo en caso de que la ETc = 0
+     * @return double que representa el agua evaporada [mm/dia] de
+     * una ubicacion geografica y de una fecha porque un registro
+     * climatico tiene una fecha y pertenece a una parcela, la
+     * cual tiene una ubicacion geografica. El agua agua evaporada
+     * puede ser la ETc [mm/dia] o la ETo [mm/dia] en caso de que
+     * la ETc = 0, lo cual ocurre cuando no hay un cultivo sembrado
+     * en una parcela.
      */
-    public double getEvaporatedWater(ClimateRecord climateRecord) {
+    public double getEvaporatedWaterFromClimateRecord(ClimateRecord climateRecord) {
         /*
          * Cuando una parcela NO tuvo un cultivo sembrado en una fecha,
-         * la ETc [mm/dia] del registro climatico correspondiente a
-         * dicha fecha y perteneciente a una parcela, tiene el valor
-         * 0.0. Esto se debe a que si NO hubo un cultivo sembrado en
-         * una parcela en una fecha, NO es posible calcular la ETc
-         * (evapotranspiracion del cultivo bajo condiciones estandar)
-         * del mismo. Por lo tanto, en este caso se debe utilizar la ETo
-         * [mm/dia] (evapotranspiracion del cultivo de referencia) para
-         * calcular la diferencia entre la cantidad de agua provista
-         * (lluvia o riego, o lluvia mas riego) [mm/dia] y la cantidad
+         * la ETc (evapotranspiracion del cultivo bajo condiciones estandar)
+         * [mm/dia] del registro climatico correspondiente a dicha fecha
+         * y perteneciente a una parcela, tiene el valor 0.0. Esto se
+         * debe a que si NO hubo un cultivo sembrado en una parcela en
+         * una fecha, NO es posible calcular la ETc del mismo. Por lo
+         * tanto, en este caso se debe utilizar la ETo [mm/dia] (evapotranspiracion
+         * del cultivo de referencia) para calcular la diferencia entre
+         * la cantidad de agua provista (precipitacion natural o
+         * precipitacion artificial, esto es riego, o precipitacion
+         * natural mas precipitacion artificial) [mm/dia] y la cantidad
          * de agua evaporada [mm/dia] en una fecha en una parcela. En
          * caso contrario, se debe utilizar la ETc.
          * 
