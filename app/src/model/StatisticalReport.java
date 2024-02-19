@@ -87,8 +87,14 @@ public class StatisticalReport {
   @Column(name = "DAYS_WITH_CROPS")
   private String daysWithCrops;
 
+  @Column(name = "PERCENTAGE_DAYS_WITH_CROPS")
+  private String percentageDaysWithCrops;
+
   @Column(name = "DAYS_WITHOUT_CROPS")
   private String daysWithoutCrops;
+
+  @Column(name = "PERCENTAGE_DAYS_WITHOUT_CROPS")
+  private String percentageDaysWithoutCrops;
 
   @Column(name = "DAYS_PERIOD")
   private int daysPeriod;
@@ -279,12 +285,28 @@ public class StatisticalReport {
     this.daysWithCrops = daysWithCrops;
   }
 
+  public String getPercentageDaysWithCrops() {
+    return percentageDaysWithCrops;
+  }
+
+  public void setPercentageDaysWithCrops(String percentageDaysWithCrops) {
+    this.percentageDaysWithCrops = percentageDaysWithCrops;
+  }
+
   public String getDaysWithoutCrops() {
     return daysWithoutCrops;
   }
 
   public void setDaysWithoutCrops(String daysWithoutCrops) {
     this.daysWithoutCrops = daysWithoutCrops;
+  }
+
+  public String getPercentageDaysWithoutCrops() {
+    return percentageDaysWithoutCrops;
+  }
+
+  public void setPercentageDaysWithoutCrops(String percentageDaysWithoutCrops) {
+    this.percentageDaysWithoutCrops = percentageDaysWithoutCrops;
   }
 
   public int getDaysPeriod() {

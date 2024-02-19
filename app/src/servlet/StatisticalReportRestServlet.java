@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
@@ -1060,6 +1061,7 @@ public class StatisticalReportRestServlet {
     double totalAmountIrrigationWaterCropLongestLifeCycle = 0;
     double totalAmountIrrigationWaterCropShortestLifeCycle = 0;
     double totalAmountCropIrrigationWater = irrigationRecordService.calculateTotalAmountCropIrrigationWater(parcelId, dateFrom, dateUntil);
+    double totalAmountRainwater = climateRecordService.calculateAmountRainwaterByPeriod(parcelId, dateFrom, dateUntil);
 
     int quantityMostPlantedCrop = 0;
     int quantityLesstPlantedCrop = 0;
@@ -1073,16 +1075,23 @@ public class StatisticalReportRestServlet {
     String cropLongestLifeCyclePlanted = plantingRecordService.findCropWithLongestLifeCycle(parcelId, dateFrom, dateUntil);
     String cropShortestLifeCyclePlanted = plantingRecordService.findCropWithShortestLifeCycle(parcelId, dateFrom, dateUntil);
 
-    int daysWithCrops = plantingRecordService.calculateDaysWithCrops(parcelId, dateFrom, dateUntil);
-    int daysWithoutCrops = plantingRecordService.calculateDaysWithoutCrops(parcelId, dateFrom, dateUntil);
-
     /*
      * Se suma un uno a la diferencia de dias entre la fecha
      * desde y la fecha hasta para incluir a la fecha desde
      * en el resultado
      */
     int daysPeriod = UtilDate.calculateDifferenceBetweenDates(dateFrom, dateUntil) + 1;
-    double totalAmountRainwater = climateRecordService.calculateAmountRainwaterByPeriod(parcelId, dateFrom, dateUntil);
+    int daysWithCrops = plantingRecordService.calculateDaysWithCrops(parcelId, dateFrom, dateUntil);
+    int daysWithoutCrops = plantingRecordService.calculateDaysWithoutCrops(parcelId, dateFrom, dateUntil);
+
+    /*
+     * Es necesario hacer una conversion explicita (cast) de
+     * int a double, ya que de lo contrario se toma la parte
+     * entera del numero resultante de la division entre
+     * numeros int
+     */
+    double percentageDaysWithCrops = (double) daysWithCrops / (double) daysPeriod * 100;
+    double percentageDaysWithoutCrops = (double) daysWithoutCrops / (double) daysPeriod * 100;
 
     /*
      * Si existe el cultivo con mayor rendimiento (mayor cantidad
@@ -1250,8 +1259,10 @@ public class StatisticalReportRestServlet {
      */
     if (daysWithCrops >= 0) {
       statisticalReport.setDaysWithCrops(String.valueOf(daysWithCrops));
+      statisticalReport.setPercentageDaysWithCrops(new DecimalFormat("#.##").format(percentageDaysWithCrops) + "%");
     } else {
       statisticalReport.setDaysWithCrops(DATA_NOT_AVAILABLE);
+      statisticalReport.setPercentageDaysWithCrops(DATA_NOT_AVAILABLE);
     }
 
     /*
@@ -1267,8 +1278,10 @@ public class StatisticalReportRestServlet {
      */
     if (daysWithoutCrops >= 0) {
       statisticalReport.setDaysWithoutCrops(String.valueOf(daysWithoutCrops));
+      statisticalReport.setPercentageDaysWithoutCrops(new DecimalFormat("#.##").format(percentageDaysWithoutCrops) + "%");
     } else {
       statisticalReport.setDaysWithoutCrops(DATA_NOT_AVAILABLE);
+      statisticalReport.setPercentageDaysWithoutCrops(DATA_NOT_AVAILABLE);
     }
 
     /*

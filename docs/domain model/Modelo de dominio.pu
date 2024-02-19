@@ -63,9 +63,13 @@ class InformeEstadistico {
 -cultivoPlantadoMenorCicloVida
 -cicloVidaCultivoPlantadoMenorCicloVida
 -cantidadTotalAguaRiegoCultivoMenorCicloVida
+-diasConCultivoPlantado
+-porcentajeDiasConCultivoPlantado
 -diasSinCultivoPlantado
--cantidadTotalAguaRiegoCultivo
+-porcentajeDiasSinCultivoPlantado
+-diasPeriodo
 -cantidadTotalAguaLluvia
+-cantidadTotalAguaRiegoCultivo
 }
 
 class Cultivo {
