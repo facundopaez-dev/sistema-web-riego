@@ -2706,6 +2706,13 @@ public class PlantingRecordRestServlet {
     double fieldCapacity = 0.0;
     double totalIrrigationWaterCurrentDate = 0.0;
     double evaporatedWater = 0.0;
+
+    /*
+     * El valor de esta variable es la precipitacion
+     * natural por dia [mm/dia] o la precipitacion
+     * artificial (agua de riego) por dia [mm/día] o
+     * la suma de ambas [mm/dia]
+     */
     double waterProvidedPerDay = 0.0;
     double waterDeficitPerDay = 0.0;
     double accumulatedWaterDeficitPerDay = 0.0;
