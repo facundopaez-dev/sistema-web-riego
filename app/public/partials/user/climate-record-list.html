@@ -155,20 +155,20 @@
 			<tr>
 				<th>ID</th>
 				<th>Fecha</th>
+				<th>Parcela</th>
 				<th>Precip. [mm/día]</th>
 				<th>ETc [mm/día]</th>
 				<th>ETo [mm/día]</th>
-				<th>Parcela</th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr ng-repeat="c in listElement">
 				<td>{{c.id}}</td>
 				<td>{{c.date | date:'dd/MM/yyyy'}}</td>
+				<td>{{c.parcel.name}}</td>
 				<td>{{c.precip}}</td>
 				<td>{{c.etc}}</td>
 				<td>{{c.eto}}</td>
-				<td>{{c.parcel.name}}</td>
 				<td class="text-right">
 					<div class="btn-group" role="group" aria-label="...">
 						<a href="#!/home/climateRecords/view/{{c.id}}" class="btn btn-success" role="button">
