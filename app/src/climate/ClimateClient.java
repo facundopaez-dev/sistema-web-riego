@@ -368,12 +368,12 @@ public class ClimateClient {
        * 
        * hay cuatro tipos de precipitaciones: rain, freezing rain, snow e ice.
        * 
-       * El ingeniero agronomo que me asesora me dijo que se debe usar todo
-       * tipo de precipitacion. Me dijo que tanto la nieve como el granizo
-       * (debe ser ice) aportan agua cuando se derriten. No menciono a la
-       * lluvia helada (freezing rain), pero por lo que me dijo de la nieve
-       * y el granizo, se entiende que la lluvia helada tambien aporta agua
-       * cuando se derrite.
+       * El ingeniero agronomo que me asesora me dijo que se debe utilizar
+       * todo tipo de precipitacion. Me dijo que tanto la nieve como el
+       * granizo (debe ser ice) aportan agua cuando se derriten. No menciono
+       * a la lluvia helada (freezing rain), pero por lo que me dijo de la
+       * nieve y el granizo, se entiende que la lluvia helada tambien aporta
+       * agua cuando se derrite, por lo tanto, tambien se la debe utilizar.
        * 
        * En cuanto a la nieve me dijo que 1 centimetro de nieve NO son 10
        * milimetros de agua, sino que es 1 milimetro de agua. Por lo tanto,
