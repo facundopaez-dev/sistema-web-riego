@@ -161,9 +161,9 @@
 			<tr>
 				<th>ID</th>
 				<th>Fecha</th>
-				<th>Riego realizado [mm/día]</th>
 				<th>Parcela</th>
 				<th>Cultivo</th>
+				<th>Riego realizado [mm/día]</th>
 				<th class="text-right"></th>
 			</tr>
 		</thead>
@@ -171,9 +171,9 @@
 			<tr ng-repeat="i in listElement">
 				<td>{{i.id}}</td>
 				<td>{{i.date | date:'dd/MM/yyyy'}}</td>
-				<td>{{i.irrigationDone}}</td>
 				<td>{{i.parcel.name}}</td>
 				<td>{{i.crop.name ? i.crop.name + ' (ID: ' + i.crop.id + ')' : '-'}}</td>
+				<td>{{i.irrigationDone}}</td>
 				<td class="text-right">
 					<div class="btn-group" role="group" aria-label="...">
 						<a href="#!/home/irrigationRecords/edit/{{i.id}}" class="btn btn-success" role="button">
