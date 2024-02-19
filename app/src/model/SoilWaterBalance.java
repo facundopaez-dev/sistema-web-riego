@@ -31,8 +31,9 @@ public class SoilWaterBalance {
     private String cropName;
 
     /*
-     * El valor de esta variable es el agua de lluvia por
-     * dia [mm/dia] o el agua de riego por dia [mm/dia] o
+     * El valor de esta variable es la precipitacion
+     * natural por dia [mm/dia] o la precipitacion
+     * artificial (agua de riego) por dia [mm/día] o
      * la suma de ambas [mm/dia]
      */
     @Column(name = "WATER_PROVIDED", nullable = false)
