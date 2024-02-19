@@ -147,14 +147,6 @@
 			</div>
 
 			<div class="form-group">
-				<label for="irrigationDone" class="col-md-2 control-label">Riego realizado [mm/día]</label>
-				<div class="col-md-3">
-					<input step="any" type="number" class="form-control" id="irrigationDone"
-						ng-model="data.irrigationDone" required>
-				</div>
-			</div>
-
-			<div class="form-group">
 				<label for="irrigationRecord_parcel" class="col-md-2 control-label">Parcela</label>
 				<div class="col-md-3">
 					<input name="parcel" type="text" ng-model="data.parcel" placeholder="Ej.: Parcela TX 1"
@@ -162,6 +154,14 @@
 						typeahead-loading="loadingLocations" class="form-control" typeahead-editable="false"
 						typeahead-min-lenght="3">
 					<i ng-show="loadingLocations" class="glyphicon glyphicon-refresh"></i>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="irrigationDone" class="col-md-2 control-label">Riego realizado [mm/día]</label>
+				<div class="col-md-3">
+					<input step="any" type="number" class="form-control" id="irrigationDone"
+						ng-model="data.irrigationDone" required>
 				</div>
 			</div>
 
