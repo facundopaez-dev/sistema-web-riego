@@ -80,7 +80,7 @@ public class ClimateRecord {
    * En la cadena de consulta para la llamada a la API
    * del clima en la clase ClimateClient, esta establecido
    * que el grupo de unidades en la cual deben ser devueltos
-   * los datos meteorologicos es metric, el cual, especifica
+   * los datos meteorologicos es metric, el cual especifica
    * que la precipitacion esta medida en milimetros, segun
    * la documentacion de Visual Crossing Weather en el
    * siguiente enlace:
