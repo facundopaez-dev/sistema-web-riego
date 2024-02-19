@@ -513,6 +513,39 @@ public class StatisticalReportRestServlet {
     }
 
     /*
+     * Si la parcela elegida no existe en la base de datos
+     * subyacente, la aplicacion del lado servidor devuelve
+     * el mensaje HTTP 404 (Not found) junto con el mensaje
+     * "Recurso no encontrado" y no se realiza la operacion
+     * solicitada
+     */
+    if (!parcelService.checkExistence(newStatisticalReport.getParcel().getId())) {
+      return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
+    }
+
+    /*
+     * Si al usuario que hizo esta peticion HTTP, no le pertenece
+     * la parcela elegida, la aplicacion del lado servidor
+     * devuelve el mensaje HTTP 403 (Forbidden) junto con el
+     * mensaje "Acceso no autorizado" (contenido en el enum
+     * ReasonError) y no se realiza la operacion solicitada
+     */
+    if (!parcelService.checkUserOwnership(userId, newStatisticalReport.getParcel().getId())) {
+      return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
+    }
+
+    /*
+     * Si al usuario que hizo esta peticion HTTP, no le pertenece
+     * la parcela elegida, la aplicacion del lado servidor
+     * devuelve el mensaje HTTP 403 (Forbidden) junto con el
+     * mensaje "Acceso no autorizado" (contenido en el enum
+     * ReasonError) y no se realiza la operacion solicitada
+     */
+    if (!parcelService.checkUserOwnership(userId, newStatisticalReport.getParcel().getName())) {
+      return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
+    }
+
+    /*
      * ***********************************************************
      * Control sobre la existencia de registros climaticos y
      * registros de plantacion finalizados de la parcela para

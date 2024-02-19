@@ -392,6 +392,19 @@ public class ParcelServiceBean {
   }
 
   /**
+   * Retorna true si y solo si una parcela con un nombre dado
+   * pertenece a un usuario
+   * 
+   * @param userId
+   * @param parcelName
+   * @return true si una parcela con un nombre dado pertenece
+   * al usuario con el ID dado, en caso contrario false
+   */
+  public boolean checkUserOwnership(int userId, String parcelName) {
+    return (find(userId, parcelName) != null);
+  }
+
+  /**
    * Retorna todas las parcelas registradas en la base de
    * datos subyacente, por lo tanto, retorna todas las
    * parcelas de todos los usuarios registrados en dicha
