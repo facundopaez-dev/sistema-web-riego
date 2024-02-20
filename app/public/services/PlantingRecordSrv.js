@@ -228,6 +228,7 @@ app.service("PlantingRecordSrv", ["$http", function ($http) {
     Controles para los filtros por combinacion de propiedades:
     - filtro por parcela, cultivo y fecha de siembra
     - filtro por parcela, cultivo y fecha de cosecha
+    - filtro por parcela, fecha de siembra y fecha de cosecha
     - filtro por cultivo, fecha de siembra y fecha de cosecha
     - filtro por parcela, cultivo, fecha de siembra y fecha
     de cosecha
@@ -262,6 +263,23 @@ app.service("PlantingRecordSrv", ["$http", function ($http) {
 
       if (!objectSearch.hasOwnProperty(propertySeedDate) || (objectSearch.hasOwnProperty(propertySeedDate) && objectSearch.seedDate == null)) {
         jsonSearch = "\{\"parcel\": \"" + objectSearch.parcel.name + "\"" + ", " + "\"crop\": \"" + objectSearch.crop.name + "\"" + ", " + "\"harvestDate\": \"" + objectSearch.harvestDate + "\"}";
+      }
+
+    }
+
+    /*
+    Si en el objeto de busqueda estan presentes unicamente las propiedades
+    parcel, seedDate y harvestDate significa que se desea filtrar los registros
+    de plantacion unicamente por la parcela, la fecha de siembra y la fecha de
+    cosecha. Por lo tanto, para realizar la filtracion se crea una cadena JSON
+    con las propiedades parcel, seedDate y harvestDate junto con sus respectivos
+    valores.
+    */
+    if (objectSearch.hasOwnProperty(propertyParcel) && objectSearch.hasOwnProperty(propertySeedDate) && objectSearch.hasOwnProperty(propertyHarvestDate)
+      && objectSearch.parcel != null && objectSearch.seedDate != null && objectSearch.harvestDate != null) {
+
+      if (!objectSearch.hasOwnProperty(propertyCrop) || (objectSearch.hasOwnProperty(propertyCrop) && objectSearch.crop == null)) {
+        jsonSearch = "\{\"parcel\": \"" + objectSearch.parcel.name + "\"" + ", " + "\"seedDate\": \"" + objectSearch.seedDate + "\"" + ", " + "\"harvestDate\": \"" + objectSearch.harvestDate + "\"}";
       }
 
     }
