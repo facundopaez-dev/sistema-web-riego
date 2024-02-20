@@ -1192,6 +1192,43 @@ public class ParcelRestServlet {
     }
 
     /*
+     * El simbolo de esta variable se utiliza para representar que la
+     * necesidad de agua de riego de un cultivo en la fecha actual
+     * [mm/dia] no esta disponible, pero se puede calcular. Esta situacion
+     * ocurre unicamente para un registro de plantacion en desarrollo.
+     */
+    String cropIrrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getCropIrrigationWaterNotAvailableButCalculable();
+
+    double currentLatitude = parcelService.find(parcelId).getLatitude();
+    double currentLongitude = parcelService.find(parcelId).getLongitude();
+
+    /*
+     * Si una parcela tiene un registro de plantacion que tiene un
+     * estado de desarrollo (en desarrollo, desarrollo optimo,
+     * desarrollo en riesgo de marchitez, desarrollo en marchitez)
+     * y si se modifica la latitud y/o la longitud de una parcela,
+     * se establece el valor "-" (no disponible, pero calculable)
+     * en el atributo "necesidad de agua de riego de un cultivo
+     * en la fecha actual" de dicho registro de plantacion, ya
+     * que al cambiar la ubicacion geografica de una parcela
+     * cambian las condiciones climaticas y la radiacion solar
+     * extraterrestre a los que esta expuesto un cultivo sembrado
+     * en una parcela. Estos datos son necesarios para calcular la
+     * necesidad de agua de riego de un cultivo en la fecha actual.
+     * Por lo tanto, al cambiar la ubicacion geografica de una
+     * parcela cambia el valor de la necesidad de agua de riego de
+     * un cultivo en la fecha actual. Por este motivo se asigna
+     * el caracter "-" al atributo "necesidad de agua de riego
+     * de un cultivo en la fecha actual" del registro de
+     * plantacion en desarrollo de una parcela.
+     */
+    if ((modifiedParcel.getLatitude() != currentLatitude || modifiedParcel.getLongitude() != currentLongitude)
+        && plantingRecordService.checkOneInDevelopment(parcelId)) {
+      int developingPlantingRecordId = plantingRecordService.findInDevelopment(parcelId).getId();
+      plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecordId, cropIrrigationWaterNeedNotAvailableButCalculable);
+    }
+
+    /*
      * Si en la modifcacion de una parcela NO se asigna un
      * suelo, se realizan las siguientes operaciones:
      * - la bandera suelo de las opciones de la parcela
@@ -1265,14 +1302,6 @@ public class ParcelRestServlet {
      * en false
      */
     Option parcelOption = optionService.find(modifiedParcel.getOption().getId());
-
-    /*
-     * El simbolo de esta variable se utiliza para representar que la
-     * necesidad de agua de riego de un cultivo en la fecha actual [mm/dia]
-     * no esta disponible, pero se puede calcular. Esta situacion
-     * ocurre unicamente para un registro de plantacion en desarrollo.
-     */
-    String cropIrrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getCropIrrigationWaterNotAvailableButCalculable();
 
     /*
      * Si la bandera suelo de las opciones de la parcela a modificar,

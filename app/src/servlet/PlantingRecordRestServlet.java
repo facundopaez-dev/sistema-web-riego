@@ -2407,6 +2407,7 @@ public class PlantingRecordRestServlet {
 
     Parcel parcel = developingPlantingRecord.getParcel();
     ClimateRecord newClimateRecord = null;
+    ClimateRecord climateRecord = null;
 
     /*
      * Los balances hidricos de suelo se calculan a partir de la
@@ -2465,13 +2466,25 @@ public class PlantingRecordRestServlet {
     for (int i = 0; i < days; i++) {
 
       /*
-       * Si una parcela dada NO tiene un registro climatico
-       * perteneciente a una fecha, se lo solicita al servicio
-       * meteorologico utilizado y se lo persiste
+       * Si una parcela NO tiene un registro climatico perteneciente
+       * a una fecha, se lo solicita al servicio meteorologico utilizado
+       * y se lo persiste. En cambio, si lo tiene, se solicitan
+       * nuevamente los datos meteorologicos correspondientes a una
+       * fecha y a la ubicacion geografica de una parcela, los cuales
+       * se utilizan para actualizar el registro climatico correspondiente
+       * a una fecha y a una parcela. Este paso es necesario por si
+       * se modifican las coordenadas geograficas de una parcela. Si
+       * una parcela tiene registros climaticos que fueron obtenidos
+       * cuando tenia determinadas coordenadas geograficas y luego estas
+       * se modifican, se deben actualizar los datos de los registros
+       * climaticos de una parcela.
        */
       if (!climateRecordService.checkExistence(pastDate, parcel)) {
         newClimateRecord = ClimateClient.getForecast(parcel, pastDate, typePrecip.findAll());
         climateRecordService.create(newClimateRecord);
+      } else {
+        climateRecord = climateRecordService.find(pastDate, parcel);
+        climateRecordService.modify(climateRecord.getId(), ClimateClient.getForecast(parcel, pastDate, typePrecip.findAll()));
       }
 
       /*
