@@ -2707,7 +2707,7 @@ public class PlantingRecordRestServlet {
 
     double fieldCapacity = 0.0;
     double totalIrrigationWaterCurrentDate = 0.0;
-    double evaporatedWater = 0.0;
+    double evaporatedWaterPerDay = 0.0;
 
     /*
      * El valor de esta variable es la precipitacion
@@ -2753,7 +2753,7 @@ public class PlantingRecordRestServlet {
 
       waterProvidedPerDay = climateRecord.getPrecip() + WaterMath.sumTotalAmountIrrigationWaterGivenDate(climateRecord.getDate(), irrigationRecords);
       waterDeficitPerDay = WaterMath.calculateWaterDeficitPerDay(climateRecord, irrigationRecords);
-      evaporatedWater = soilWaterBalanceService.getEvaporatedWaterFromClimateRecord(climateRecord);
+      evaporatedWaterPerDay = soilWaterBalanceService.getEvaporatedWaterFromClimateRecord(climateRecord);
 
       /*
        * Obtiene el acumulado del deficit de agua por dia del
@@ -2951,7 +2951,7 @@ public class PlantingRecordRestServlet {
         soilWaterBalance.setParcelName(parcel.getName());
         soilWaterBalance.setCropName(crop.getName());
         soilWaterBalance.setWaterProvidedPerDay(waterProvidedPerDay);
-        soilWaterBalance.setEvaporatedWaterPerDay(evaporatedWater);
+        soilWaterBalance.setEvaporatedWaterPerDay(evaporatedWaterPerDay);
         soilWaterBalance.setWaterDeficitPerDay(waterDeficitPerDay);
         soilWaterBalance.setAccumulatedWaterDeficitPerDay(stringAccumulatedWaterDeficitPerDay);
 
@@ -2971,7 +2971,7 @@ public class PlantingRecordRestServlet {
         parcelService.merge(parcel);
       } else {
         soilWaterBalance = soilWaterBalanceService.find(parcel.getId(), pastDate);
-        soilWaterBalanceService.update(soilWaterBalance.getId(), crop.getName(), evaporatedWater,
+        soilWaterBalanceService.update(soilWaterBalance.getId(), crop.getName(), evaporatedWaterPerDay,
             waterProvidedPerDay, waterDeficitPerDay, stringAccumulatedWaterDeficitPerDay);
       }
 

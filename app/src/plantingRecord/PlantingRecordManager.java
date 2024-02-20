@@ -935,7 +935,7 @@ public class PlantingRecordManager {
 
         double fieldCapacity = 0.0;
         double totalIrrigationWaterCurrentDate = 0.0;
-        double evaporatedWater = 0.0;
+        double evaporatedWaterPerDay = 0.0;
         double waterProvidedPerDay = 0.0;
         double waterDeficitPerDay = 0.0;
         double accumulatedWaterDeficitPerDay = 0.0;
@@ -974,7 +974,7 @@ public class PlantingRecordManager {
 
             waterProvidedPerDay = climateRecord.getPrecip() + WaterMath.sumTotalAmountIrrigationWaterGivenDate(climateRecord.getDate(), irrigationRecords);
             waterDeficitPerDay = WaterMath.calculateWaterDeficitPerDay(climateRecord, irrigationRecords);
-            evaporatedWater = soilWaterBalanceService.getEvaporatedWaterFromClimateRecord(climateRecord);
+            evaporatedWaterPerDay = soilWaterBalanceService.getEvaporatedWaterFromClimateRecord(climateRecord);
 
             /*
              * Obtiene el acumulado del deficit de agua por dia del
@@ -1172,7 +1172,7 @@ public class PlantingRecordManager {
                 soilWaterBalance.setParcelName(parcel.getName());
                 soilWaterBalance.setCropName(crop.getName());
                 soilWaterBalance.setWaterProvidedPerDay(waterProvidedPerDay);
-                soilWaterBalance.setEvaporatedWaterPerDay(evaporatedWater);
+                soilWaterBalance.setEvaporatedWaterPerDay(evaporatedWaterPerDay);
                 soilWaterBalance.setWaterDeficitPerDay(waterDeficitPerDay);
                 soilWaterBalance.setAccumulatedWaterDeficitPerDay(stringAccumulatedWaterDeficitPerDay);
 
@@ -1203,7 +1203,7 @@ public class PlantingRecordManager {
                 soilWaterBalanceService.getEntityManager().flush();
             } else {
                 soilWaterBalance = soilWaterBalanceService.find(parcel.getId(), pastDate);
-                soilWaterBalanceService.update(soilWaterBalance.getId(), crop.getName(), evaporatedWater,
+                soilWaterBalanceService.update(soilWaterBalance.getId(), crop.getName(), evaporatedWaterPerDay,
                         waterProvidedPerDay, waterDeficitPerDay, stringAccumulatedWaterDeficitPerDay);
             }
 
