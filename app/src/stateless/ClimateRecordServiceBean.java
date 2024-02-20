@@ -676,6 +676,7 @@ public class ClimateRecordServiceBean {
    * en el periodo en el que se quiere calcular dicha cantidad.
    * 
    * @param parcelId
+   * @param rainId
    * @param dateFrom
    * @param dateUntil
    * @return cantidad total de agua de lluvia que cayo sobre
@@ -684,15 +685,7 @@ public class ClimateRecordServiceBean {
    * el que se quiere obtener dicha cantidad. En caso contrario,
    * -1.0, valor que representa informacion no disponible.
    */
-  public double calculateAmountRainwaterByPeriod(int parcelId, Calendar dateFrom, Calendar dateUntil) {
-    /*
-     * Con esta condicion, la consulta selecciona todos los
-     * registros climaticos de una parcela que estan
-     * comprendidos en un periodo definido por dos fechas en
-     * los que esta la lluvia como una de las precipitaciones
-     */
-    String conditionWhere = "(c.parcel.id = :givenParcelId AND :givenDateFrom <= c.date AND c.date <= :givenDateUntil AND t.name = 'rain')";
-
+  public double calculateAmountRainwaterByPeriod(int parcelId, int rainId, Calendar dateFrom, Calendar dateUntil) {
     /*
      * Suma la cantidad de agua de lluvia de cada uno de los
      * registros climaticos de una parcela que estan comprendidos
@@ -700,17 +693,22 @@ public class ClimateRecordServiceBean {
      * cantidad total de agua de lluvia que cayo sobre una
      * parcela en un periodo dado
      */
-    Query query = entityManager.createQuery("SELECT SUM(c.precip) FROM TypePrecipitation t JOIN t.climateRecord c WHERE " + conditionWhere);
-    query.setParameter("givenParcelId", parcelId);
-    query.setParameter("givenDateFrom", dateFrom);
-    query.setParameter("givenDateUntil", dateUntil);
+    String stringQuery = "SELECT SUM(PRECIP) FROM CLIMATE_RECORD WHERE " +
+        "FK_PARCEL = ?1 AND ?2 <= DATE AND DATE <= ?3  AND " +
+        "(TYPE_PRECIP_ONE = ?4 OR TYPE_PRECIP_TWO = ?4 OR TYPE_PRECIP_THREE = ?4 OR TYPE_PRECIP_FOUR = ?4)";
+
+    Query query = entityManager.createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+    query.setParameter(4, rainId);
 
     double amountRainwater = -1.0;
 
     try {
       /*
-       * Si se realiza la consulta JPQL de este metodo en SQL
-       * con una parcela que no tiene ningun registro climatico
+       * Si se realiza la consulta de este metodo con una
+       * parcela que no tiene ningun registro climatico
        * asociado en un periodo definido por dos fechas, se
        * observara que el valor devuelto es NULL. Por lo tanto,
        * es necesario contemplar este caso en el codigo fuente

@@ -28,6 +28,7 @@ import javax.ws.rs.core.Response.Status;
 import model.Parcel;
 import model.StatisticalReport;
 import stateless.StatisticalReportServiceBean;
+import stateless.TypePrecipitationServiceBean;
 import stateless.SecretKeyServiceBean;
 import stateless.ClimateRecordServiceBean;
 import stateless.ParcelServiceBean;
@@ -60,6 +61,9 @@ public class StatisticalReportRestServlet {
 
   @EJB
   ClimateRecordServiceBean climateRecordService;
+
+  @EJB
+  TypePrecipitationServiceBean typePrecipService;
 
   @EJB
   PlantingRecordServiceBean plantingRecordService;
@@ -1094,7 +1098,7 @@ public class StatisticalReportRestServlet {
     double totalAmountIrrigationWaterCropLongestLifeCycle = 0;
     double totalAmountIrrigationWaterCropShortestLifeCycle = 0;
     double totalAmountCropIrrigationWater = irrigationRecordService.calculateTotalAmountCropIrrigationWater(parcelId, dateFrom, dateUntil);
-    double totalAmountRainwater = climateRecordService.calculateAmountRainwaterByPeriod(parcelId, dateFrom, dateUntil);
+    double totalAmountRainwater = climateRecordService.calculateAmountRainwaterByPeriod(parcelId, typePrecipService.findRainId(), dateFrom, dateUntil);
 
     int quantityMostPlantedCrop = 0;
     int quantityLesstPlantedCrop = 0;

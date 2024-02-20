@@ -46,6 +46,15 @@ public class TypePrecipitationServiceBean {
   }
 
   /**
+   * @return entero que representa el ID del tipo de precipitacion
+   * lluvia
+   */
+  public int findRainId() {
+    Query query = entityManager.createQuery("SELECT t.id FROM TypePrecipitation t WHERE UPPER(t.name) = UPPER('rain')");
+    return (int) query.getSingleResult();
+  }
+
+  /**
    * @return referencia a un objeto de tipo Collection que
    * contiene todos los tipos de precipitacion registrados
    * en la base de datos subyacente
