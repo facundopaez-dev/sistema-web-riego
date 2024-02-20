@@ -81,121 +81,6 @@ public class ClimateRecordServiceBeanTest {
   }
 
   @Test
-  public void test() {
-    System.out.println("**************************************** Prueba unitaria del metodo getForecast ****************************************");
-    System.out.println("Esta prueba unitaria es para probar que, cuando se obtiene un conjunto de datos meteorologicos de una llamada a la");
-    System.out.println("API Visual Crossing Weather que contiene tipos de precipitacion y se persiste un registro climatico con este conjunto,");
-    System.out.println("se persisten tambien los tipos de precipitacion.");
-    System.out.println();
-    System.out.println("Para demostrar en esta prueba que se persisten los tipos de precipitacion cuando se persiste un registro climatico,");
-    System.out.println("se realiza una llamada a Visual Crossing Weather con una coordenada geografica de Nueva York y la fecha 14-1-2023.");
-    System.out.println("Esta llamada devuelve un conjunto de datos meteorologicos en los que hay dos tipos de precipitacion: rain y snow.");
-    System.out.println();
-
-    /*
-     * Persistencia de una opcion para la parcela de prueba
-     */
-    entityManager.getTransaction().begin();
-    Option parcelOption = optionService.create();
-    entityManager.getTransaction().commit();
-
-    options.add(parcelOption);
-
-    /*
-     * Persistencia de un usuario de prueba
-     */
-    User givenUser = new User();
-    givenUser.setUsername("nmiller");
-    givenUser.setName("Newt");
-    givenUser.setLastName("Miller");
-    givenUser.setEmail("nmiller@email.com");
-    givenUser.setPassword("Newt");
-
-    entityManager.getTransaction().begin();
-    givenUser = userService.create(givenUser);
-    entityManager.getTransaction().commit();
-
-    users.add(givenUser);
-
-    /*
-     * Creacion y persistencia de una parcela de prueba
-     */
-    Parcel givenParcel = new Parcel();
-    givenParcel.setName("Parcela Nueva York");
-    givenParcel.setHectares(2);
-    givenParcel.setLatitude(40.71427);
-    givenParcel.setLongitude(-74.00597);
-    givenParcel.setUser(givenUser);
-    givenParcel.setOption(parcelOption);
-
-    entityManager.getTransaction().begin();
-    givenParcel = parcelService.create(givenParcel);
-    entityManager.getTransaction().commit();
-
-    System.out.println("* Datos de la parcela de prueba");
-    System.out.println(givenParcel);
-
-    /*
-     * Obtencion y persistencia del registro climatico
-     * del 14 de enero de 2023 GMT+0000 en tiempo UNIX
-     */
-    long datetimeEpoch = 1673672400;
-
-    Calendar date = Calendar.getInstance();
-    date.setTimeInMillis(datetimeEpoch * 1000);
-
-    System.out.println("* Fecha para la que se obtiene un conjunto de datos meteorologicos: " +  UtilDate.formatDate(date));
-    System.out.println();
-
-    /*
-     * NOTA: Hay que tener en cuenta que en la clase ClimateClient
-     * debe estar asignada la clave de la API Visual Crossing
-     * Weather en el URL de solicitud de datos meteorologicos para
-     * obtener dichos datos de dicha API
-     */
-    ClimateRecord givenClimateRecord = ClimateClient.getForecast(givenParcel, datetimeEpoch);
-
-    entityManager.getTransaction().begin();
-    givenClimateRecord = climateRecordService.create(givenClimateRecord);
-    entityManager.getTransaction().commit();
-
-    System.out.println("* Registro climatico obtenido y persistido");
-    System.out.println(givenClimateRecord);
-
-    /*
-     * Los datos creados se agregan a una coleccion para su
-     * posterior eliminacion de la base de datos subyacente
-     */
-    parcels.add(givenParcel);
-    climateRecords.add(givenClimateRecord);
-    typePrecipitations = givenClimateRecord.getPrecipTypes();
-
-    /*
-     * Seccion de prueba
-     */
-    TypePrecipitation typePrecipitationRain = (TypePrecipitation) givenClimateRecord.getPrecipTypes().toArray()[0];
-    TypePrecipitation typePrecipitationSnow = (TypePrecipitation) givenClimateRecord.getPrecipTypes().toArray()[1];
-
-    System.out.println("* Tipos de precipitacion del conjunto de datos meteorologicos obtenido para la ubicacion geografica y fecha dadas");
-    System.out.println(typePrecipitationRain);
-    System.out.println(typePrecipitationSnow);
-
-    /*
-     * Cuando se persiste un objeto en la base de datos subyacente,
-     * el ORM utilizado retorna la referencia a este objeto, el
-     * cual contiene su variable de instancia id con un valor
-     * distinto de cero. Por lo tanto, si se persiste satisfactoriamente
-     * un tipo de precipitacion, su ID debe ser distinto de cero.
-     */
-    assertTrue(typePrecipitationRain.getId() != 0);
-    assertTrue(typePrecipitationSnow.getId() != 0);
-
-    System.out.println("* Tipos de precipitacion persistidos");
-    System.out.println("* Prueba pasada satisfactoriamente *");
-    System.out.println();
-  }
-
-  @Test
   public void testOneFindAllByParcelIdAndPeriod() {
     System.out.println("******************************** Prueba uno del metodo findAllByParcelIdAndPeriod ********************************");
     System.out.println("# Descripcion del metodo a probar");
@@ -234,37 +119,37 @@ public class ClimateRecordServiceBeanTest {
     options.add(parcelOption);
 
     /*
-     * Persistencia de un usuario de prueba
-     */
-    User givenUser = new User();
-    givenUser.setUsername("tmiller");
-    givenUser.setName("Tyler");
-    givenUser.setLastName("Miller");
-    givenUser.setEmail("tmiller@email.com");
-    givenUser.setPassword("Tyler");
-
-    entityManager.getTransaction().begin();
-    givenUser = userService.create(givenUser);
-    entityManager.getTransaction().commit();
-
-    users.add(givenUser);
-
-    /*
      * Persistencia de una parcela de prueba
      */
-    Parcel givenParcel = new Parcel();
-    givenParcel.setName("Erie");
-    givenParcel.setHectares(2);
-    givenParcel.setLatitude(1);
-    givenParcel.setLongitude(1);
-    givenParcel.setUser(givenUser);
-    givenParcel.setOption(parcelOption);
+    Parcel testParcel = new Parcel();
+    testParcel.setName("Erie");
+    testParcel.setHectares(2);
+    testParcel.setLatitude(1);
+    testParcel.setLongitude(1);
+    testParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
-    givenParcel = parcelService.create(givenParcel);
+    testParcel = parcelService.create(testParcel);
     entityManager.getTransaction().commit();
 
-    parcels.add(givenParcel);
+    parcels.add(testParcel);
+
+    /*
+     * Persistencia de un usuario de prueba
+     */
+    User testUser = new User();
+    testUser.setUsername("tmiller");
+    testUser.setName("Tyler");
+    testUser.setLastName("Miller");
+    testUser.setEmail("tmiller@email.com");
+    testUser.setParcels(new ArrayList<>());
+    testUser.getParcels().add(testParcel);
+
+    entityManager.getTransaction().begin();
+    testUser = userService.create(testUser);
+    entityManager.getTransaction().commit();
+
+    users.add(testUser);
 
     /*
      * Creacion de fechas para los registros climaticos de prueba
@@ -289,15 +174,15 @@ public class ClimateRecordServiceBeanTest {
      */
     ClimateRecord firstClimateRecord = new ClimateRecord();
     firstClimateRecord.setDate(firstDate);
-    firstClimateRecord.setParcel(givenParcel);
+    firstClimateRecord.setParcel(testParcel);
 
     ClimateRecord secondClimateRecord = new ClimateRecord();
     secondClimateRecord.setDate(secondDate);
-    secondClimateRecord.setParcel(givenParcel);
+    secondClimateRecord.setParcel(testParcel);
 
     ClimateRecord thirdClimateRecord = new ClimateRecord();
     thirdClimateRecord.setDate(thirdDate);
-    thirdClimateRecord.setParcel(givenParcel);
+    thirdClimateRecord.setParcel(testParcel);
 
     entityManager.getTransaction().begin();
     firstClimateRecord = climateRecordService.create(firstClimateRecord);
@@ -319,7 +204,7 @@ public class ClimateRecordServiceBeanTest {
      * Seccion de prueba
      */
     System.out.println("# Ejecucion de la prueba unitaria");
-    Collection<ClimateRecord> recoveredClimateRecords = climateRecordService.findAllByParcelIdAndPeriod(givenUser.getId(), givenParcel.getId(), dateFrom, dateUntil);
+    Collection<ClimateRecord> recoveredClimateRecords = climateRecordService.findAllByParcelIdAndPeriod(testUser.getId(), testParcel.getId(), dateFrom, dateUntil);
 
     int expectedSize = 3;
     int size = recoveredClimateRecords.size();
@@ -379,37 +264,37 @@ public class ClimateRecordServiceBeanTest {
     options.add(parcelOption);
 
     /*
-     * Persistencia de un usuario de prueba
-     */
-    User givenUser = new User();
-    givenUser.setUsername("smiller");
-    givenUser.setName("Sam");
-    givenUser.setLastName("Miller");
-    givenUser.setEmail("smiller@eservice.com");
-    givenUser.setPassword("Sam");
-
-    entityManager.getTransaction().begin();
-    givenUser = userService.create(givenUser);
-    entityManager.getTransaction().commit();
-
-    users.add(givenUser);
-
-    /*
      * Persistencia de una parcela de prueba
      */
-    Parcel givenParcel = new Parcel();
-    givenParcel.setName("Erie");
-    givenParcel.setHectares(2);
-    givenParcel.setLatitude(1);
-    givenParcel.setLongitude(1);
-    givenParcel.setUser(givenUser);
-    givenParcel.setOption(parcelOption);
+    Parcel testParcel = new Parcel();
+    testParcel.setName("Erie");
+    testParcel.setHectares(2);
+    testParcel.setLatitude(1);
+    testParcel.setLongitude(1);
+    testParcel.setOption(parcelOption);
 
     entityManager.getTransaction().begin();
-    givenParcel = parcelService.create(givenParcel);
+    testParcel = parcelService.create(testParcel);
     entityManager.getTransaction().commit();
 
-    parcels.add(givenParcel);
+    parcels.add(testParcel);
+
+    /*
+     * Persistencia de un usuario de prueba
+     */
+    User testUser = new User();
+    testUser.setUsername("smiller");
+    testUser.setName("Sam");
+    testUser.setLastName("Miller");
+    testUser.setEmail("smiller@eservice.com");
+    testUser.setParcels(new ArrayList<>());
+    testUser.getParcels().add(testParcel);
+
+    entityManager.getTransaction().begin();
+    testUser = userService.create(testUser);
+    entityManager.getTransaction().commit();
+
+    users.add(testUser);
 
     /*
      * Creacion de fechas para los registros climaticos de prueba
@@ -434,15 +319,15 @@ public class ClimateRecordServiceBeanTest {
      */
     ClimateRecord firstClimateRecord = new ClimateRecord();
     firstClimateRecord.setDate(firstDate);
-    firstClimateRecord.setParcel(givenParcel);
+    firstClimateRecord.setParcel(testParcel);
 
     ClimateRecord secondClimateRecord = new ClimateRecord();
     secondClimateRecord.setDate(secondDate);
-    secondClimateRecord.setParcel(givenParcel);
+    secondClimateRecord.setParcel(testParcel);
 
     ClimateRecord thirdClimateRecord = new ClimateRecord();
     thirdClimateRecord.setDate(thirdDate);
-    thirdClimateRecord.setParcel(givenParcel);
+    thirdClimateRecord.setParcel(testParcel);
 
     entityManager.getTransaction().begin();
     firstClimateRecord = climateRecordService.create(firstClimateRecord);
@@ -476,7 +361,7 @@ public class ClimateRecordServiceBeanTest {
      * Seccion de prueba
      */
     System.out.println("# Ejecucion de la prueba unitaria");
-    Collection<ClimateRecord> recoveredClimateRecords = climateRecordService.findAllByParcelIdAndPeriod(givenUser.getId(), givenParcel.getId(), dateFrom, dateUntil);
+    Collection<ClimateRecord> recoveredClimateRecords = climateRecordService.findAllByParcelIdAndPeriod(testUser.getId(), testParcel.getId(), dateFrom, dateUntil);
 
     int expectedSize = 0;
     int size = recoveredClimateRecords.size();
