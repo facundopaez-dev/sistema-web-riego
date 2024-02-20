@@ -204,7 +204,11 @@ app.controller(
           return;
         }
 
-        if ($scope.data.precip > 0) {
+        if ($scope.data.precip > 0
+          && ($scope.data.typePrecipOne == undefined || $scope.data.typePrecipOne == null)
+          && ($scope.data.typePrecipTwo == undefined || $scope.data.typePrecipTwo == null)
+          && ($scope.data.typePrecipThree == undefined || $scope.data.typePrecipThree == null)
+          && ($scope.data.typePrecipFour == undefined || $scope.data.typePrecipFour == null)) {
           alert(NO_TYPE_OF_PRECIPITATION);
           return;
         }
@@ -308,7 +312,11 @@ app.controller(
           return;
         }
 
-        if ($scope.data.precip > 0) {
+        if ($scope.data.precip > 0
+          && ($scope.data.typePrecipOne == undefined || $scope.data.typePrecipOne == null)
+          && ($scope.data.typePrecipTwo == undefined || $scope.data.typePrecipTwo == null)
+          && ($scope.data.typePrecipThree == undefined || $scope.data.typePrecipThree == null)
+          && ($scope.data.typePrecipFour == undefined || $scope.data.typePrecipFour == null)) {
           alert(NO_TYPE_OF_PRECIPITATION);
           return;
         }
