@@ -131,16 +131,16 @@ public class SoilWaterBalanceServiceBean {
      * 
      * @param id
      * @param cropName
-     * @param evaporatedWater
-     * @param waterProvided
+     * @param evaporatedWaterPerDay
+     * @param waterProvidedPerDay
      * @param waterDeficitPerDay
      * @param accumulatedWaterDeficitPerDay
      */
-    public void update(int id, String cropName, double evaporatedWater, double waterProvided, double waterDeficitPerDay, String accumulatedWaterDeficitPerDay) {
-        Query query = getEntityManager().createQuery("UPDATE SoilWaterBalance s SET s.cropName = :cropName, s.evaporatedWater = :evaporatedWater, s.waterProvided = :waterProvided, s.waterDeficitPerDay = :waterDeficitPerDay, s.accumulatedWaterDeficitPerDay = :accumulatedWaterDeficitPerDay WHERE s.id = :id");
+    public void update(int id, String cropName, double evaporatedWaterPerDay, double waterProvidedPerDay, double waterDeficitPerDay, String accumulatedWaterDeficitPerDay) {
+        Query query = getEntityManager().createQuery("UPDATE SoilWaterBalance s SET s.cropName = :cropName, s.evaporatedWaterPerDay = :evaporatedWaterPerDay, s.waterProvidedPerDay = :waterProvidedPerDay, s.waterDeficitPerDay = :waterDeficitPerDay, s.accumulatedWaterDeficitPerDay = :accumulatedWaterDeficitPerDay WHERE s.id = :id");
         query.setParameter("cropName", cropName);
-        query.setParameter("evaporatedWater", evaporatedWater);
-        query.setParameter("waterProvided", waterProvided);
+        query.setParameter("evaporatedWaterPerDay", evaporatedWaterPerDay);
+        query.setParameter("waterProvidedPerDay", waterProvidedPerDay);
         query.setParameter("waterDeficitPerDay", waterDeficitPerDay);
         query.setParameter("accumulatedWaterDeficitPerDay", accumulatedWaterDeficitPerDay);
         query.setParameter("id", id);
