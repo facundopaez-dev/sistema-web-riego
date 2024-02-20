@@ -31,6 +31,7 @@ import model.Parcel;
 import stateless.ClimateRecordServiceBean;
 import stateless.CropServiceBean;
 import stateless.SolarRadiationServiceBean;
+import stateless.TypePrecipitationServiceBean;
 import stateless.LatitudeServiceBean;
 import stateless.MonthServiceBean;
 import stateless.PlantingRecordServiceBean;
@@ -63,6 +64,7 @@ public class ClimateRecordRestServlet {
   @EJB SolarRadiationServiceBean solarService;
   @EJB LatitudeServiceBean latitudeService;
   @EJB MonthServiceBean monthService;
+  @EJB TypePrecipitationServiceBean typePrecipService;
 
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
@@ -733,6 +735,41 @@ public class ClimateRecordRestServlet {
     }
 
     /*
+     * Si la precipitacion de un registro climatico es
+     * estrictamente mayor a 0.0, se realizan los
+     * siguientes controles:
+     * - que haya como minimo un tipo de precipitacion asginado y
+     * - que no haya repeticion de tipos de precipitacion
+     */
+    if (newClimateRecord.getPrecip() > 0) {
+
+      /*
+       * Si no hay ningun tipo de precipitacion en un registro
+       * climatico, la aplicacion del lado servidor reotrna el
+       * mensaje HTTP 400 (Bad request) junto con el mensaje
+       * "Al ser la precipitacion estrictamente mayor a 0 debe
+       * seleccionar como minimo un tipo de precipitacion" y no
+       * se realiza la operacion solicitada
+       */
+      if (newClimateRecord.getTypePrecipOne() == null && newClimateRecord.getTypePrecipTwo() == null
+          && newClimateRecord.getTypePrecipThree() == null && newClimateRecord.getTypePrecipFour() == null) {
+        return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_TYPE_OF_PRECIPITATION))).build();
+      }
+
+      /*
+       * Si en un registro climatico se repiten los tipos de
+       * precipitacion, la aplicacion del lado servidor retorna
+       * el mensaje HTTP 400 (Bad request) junto con el mensaje
+       * "No se deben repetir los tipos de precipitacion" y no
+       * se realiza la operacion solicitada
+       */
+      if (climateRecordService.checkRepeatedPrecipTypes(newClimateRecord)) {
+        return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.REPETITION_OF_PRECIPITATION_TYPES))).build();
+      }
+
+    }
+
+    /*
      * Si la nubosidad tiene un valor menor a 0.0 o mayor
      * a 100, la aplicacion del lado servidor retorna el
      * mensaje HTTP 400 (Bad request) junto con el mensaje
@@ -1034,6 +1071,52 @@ public class ClimateRecordRestServlet {
     }
 
     /*
+     * Si la precipitacion de un registro climatico es igual
+     * a 0, se elimina todos sus tipos de precipitacion
+     */
+    if (modifiedClimateRecord.getPrecip() == 0) {
+      modifiedClimateRecord.setTypePrecipOne(null);
+      modifiedClimateRecord.setTypePrecipTwo(null);
+      modifiedClimateRecord.setTypePrecipThree(null);
+      modifiedClimateRecord.setTypePrecipFour(null);
+    }
+
+    /*
+     * Si la precipitacion de un registro climatico es
+     * estrictamente mayor a 0, se realizan los
+     * siguientes controles:
+     * - que haya como minimo un tipo de precipitacion asginado y
+     * - que no haya repeticion de tipos de precipitacion
+     */
+    if (modifiedClimateRecord.getPrecip() > 0) {
+
+      /*
+       * Si no hay ningun tipo de precipitacion en un registro
+       * climatico, la aplicacion del lado servidor reotrna el
+       * mensaje HTTP 400 (Bad request) junto con el mensaje
+       * "Al ser la precipitacion estrictamente mayor a 0 debe
+       * seleccionar como minimo un tipo de precipitacion" y no
+       * se realiza la operacion solicitada
+       */
+      if (modifiedClimateRecord.getTypePrecipOne() == null && modifiedClimateRecord.getTypePrecipTwo() == null
+          && modifiedClimateRecord.getTypePrecipThree() == null && modifiedClimateRecord.getTypePrecipFour() == null) {
+        return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_TYPE_OF_PRECIPITATION))).build();
+      }
+
+      /*
+       * Si en un registro climatico se repiten los tipos de
+       * precipitacion, la aplicacion del lado servidor retorna
+       * el mensaje HTTP 400 (Bad request) junto con el mensaje
+       * "No se deben repetir los tipos de precipitacion" y no
+       * se realiza la operacion solicitada
+       */
+      if (climateRecordService.checkRepeatedPrecipTypes(modifiedClimateRecord)) {
+        return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.REPETITION_OF_PRECIPITATION_TYPES))).build();
+      }
+
+    }
+
+    /*
      * Si la nubosidad tiene un valor menor a 0.0 o mayor
      * a 100, la aplicacion del lado servidor retorna el
      * mensaje HTTP 400 (Bad request) junto con el mensaje
@@ -1301,7 +1384,7 @@ public class ClimateRecordRestServlet {
     SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
     Date date = new Date(dateFormatter.parse(stringDate).getTime());
 
-    return mapper.writeValueAsString(ClimateClient.getForecast(latitude, longitude, UtilDate.toCalendar(date)));
+    return mapper.writeValueAsString(ClimateClient.getForecast(latitude, longitude, UtilDate.toCalendar(date), typePrecipService.findAll()));
   }
 
 }

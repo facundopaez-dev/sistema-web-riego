@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.List;
 import java.util.ArrayList;
 import com.google.gson.Gson;
 import model.ClimateRecord;
@@ -75,11 +76,12 @@ public class ClimateClient {
    * 
    * @param parcel
    * @param date
+   * @param typesPrecip
    * @return referencia a un objeto de tipo ClimateRecord que
    * contiene los datos meteorologicos obtenidos en funcion
    * de una fecha y una coordenada geografica
    */
-  public static ClimateRecord getForecast(Parcel parcel, Calendar date) throws IOException {
+  public static ClimateRecord getForecast(Parcel parcel, Calendar date, Collection<TypePrecipitation> typesPrecip) throws IOException {
     ClimateRecord newClimateRecord = new ClimateRecord();
     newClimateRecord.setParcel(parcel);
 
@@ -94,7 +96,7 @@ public class ClimateClient {
      * referenciado por la referencia de forecast al objeto
      * referenciado por la referencia de climateRecord
      */
-    assignClimateData(newClimateRecord, newForecast);
+    assignClimateData(newClimateRecord, newForecast, typesPrecip);
     return newClimateRecord;
   }
 
@@ -111,11 +113,12 @@ public class ClimateClient {
    * @param latitude
    * @param longitude
    * @param date
+   * @param typesPrecip
    * @return referencia a un objeto de tipo ClimateRecord que
    * contiene los datos meteorologicos obtenidos en funcion
    * de una fecha y una coordenada geografica
    */
-  public static ClimateRecord getForecast(double latitude, double longitude, Calendar date) throws IOException {
+  public static ClimateRecord getForecast(double latitude, double longitude, Calendar date, Collection<TypePrecipitation> typesPrecip) throws IOException {
     ClimateRecord newClimateRecord = new ClimateRecord();
 
     /*
@@ -129,7 +132,7 @@ public class ClimateClient {
      * referenciado por la referencia de forecast al objeto
      * referenciado por la referencia de climateRecord
      */
-    assignClimateData(newClimateRecord, newForecast);
+    assignClimateData(newClimateRecord, newForecast, typesPrecip);
     return newClimateRecord;
   }
 
@@ -297,8 +300,9 @@ public class ClimateClient {
    * 
    * @param climateRecord
    * @param forecast
+   * @param typesPrecip
    */
-  private static void assignClimateData(ClimateRecord climateRecord, Forecast forecast) {
+  private static void assignClimateData(ClimateRecord climateRecord, Forecast forecast, Collection<TypePrecipitation> typesPrecip) {
     /*
      * Obtencion de los datos meteorologicos solicitados
      * en un dia (una fecha) para una ubicacion geografica
@@ -392,7 +396,7 @@ public class ClimateClient {
        * realizar la conversion de nieve a agua liquida.
        */
       climateRecord.setPrecip(day.getPrecip());
-      climateRecord.setPrecipTypes(assignPrecipTypes(climateRecord, day.getPreciptype()));
+      assignPrecipTypes(day.getPrecip(), climateRecord, typesPrecip, day.getPreciptype());
       climateRecord.setPrecipProbability(day.getPrecipprob());
     }
 
@@ -407,25 +411,67 @@ public class ClimateClient {
   }
 
   /**
+   * Asigna los tipos de precipitacion a un registro climatico
+   * 
+   * @param precip
    * @param climateRecord
+   * @param typesPrecip
    * @param precipTypesData
-   * @return referencia a un objeto de tipo Collection que
-   * contiene los tipos de precipitacion del conjunto de
-   * datos meteorologicos devuelto por una llamada a
-   * Visual Crossing Weather
    */
-  private static Collection<TypePrecipitation> assignPrecipTypes(ClimateRecord climateRecord, Collection<String> precipTypesData) {
-    Collection<TypePrecipitation> precipTypes = new ArrayList();
-    TypePrecipitation newPrecipType;
+  private static void assignPrecipTypes(double precip, ClimateRecord climateRecord, Collection<TypePrecipitation> typesPrecip, Collection<String> precipTypesData) {
+    List<TypePrecipitation> listTypesPrecip = (List) typesPrecip;
 
-    for (String currentPrecipType : precipTypesData) {
-      newPrecipType = new TypePrecipitation();
-      newPrecipType.setName(currentPrecipType);
-      newPrecipType.setClimateRecord(climateRecord);
-      precipTypes.add(newPrecipType);
-    }
+    /*
+     * La API climate Visual Crossing Weather tiene cuatro
+     * tipos de precipitacion: rain, freezing rain, snow e ice.
+     * Por lo tanto, en base a esta cantidad de precipitaciones
+     * se asignan las precipitaciones de un registro climatico.
+     */
+    TypePrecipitation typePrecipOne = listTypesPrecip.get(0);
+    TypePrecipitation typePrecipTwo = listTypesPrecip.get(1);
+    TypePrecipitation typePrecipThree = listTypesPrecip.get(2);
+    TypePrecipitation typePrecipFour = listTypesPrecip.get(3);
 
-    return precipTypes;
+    /*
+     * Si la precipitacion es estrictamente mayor a 0.0, se
+     * asignan los tipos de precipitacion a un registro
+     * climatico
+     */
+    if (precip > 0.0) {
+
+      /*
+       * Si uno de los tipos de precipitacion devueltos por
+       * la API climatica Visual Crossing Weather es igual
+       * a los tipos de precipitacion almacenados en la
+       * base de datos subyacente, se asigna a un registro
+       * climatico.
+       * 
+       * La coleccion typesPrecip contiene los tipos de
+       * precipitacion almacenados en la base de datos
+       * subyacente.
+       */
+      for (String currentPrecipTypeData : precipTypesData) {
+
+        if (currentPrecipTypeData.equals(typePrecipOne.getName())) {
+          climateRecord.setTypePrecipOne(typePrecipOne);
+        }
+
+        if (currentPrecipTypeData.equals(typePrecipTwo.getName())) {
+          climateRecord.setTypePrecipTwo(typePrecipTwo);
+        }
+
+        if (currentPrecipTypeData.equals(typePrecipThree.getName())) {
+          climateRecord.setTypePrecipThree(typePrecipThree);
+        }
+
+        if (currentPrecipTypeData.equals(typePrecipFour.getName())) {
+          climateRecord.setTypePrecipFour(typePrecipFour);
+        }
+
+      } // End for
+
+    } // End if
+
   }
 
 }

@@ -35,6 +35,7 @@ import stateless.PlantingRecordServiceBean;
 import stateless.PlantingRecordStatusServiceBean;
 import stateless.SecretKeyServiceBean;
 import stateless.SolarRadiationServiceBean;
+import stateless.TypePrecipitationServiceBean;
 import stateless.MonthServiceBean;
 import stateless.UserServiceBean;
 import stateless.OptionServiceBean;
@@ -86,6 +87,7 @@ public class PlantingRecordRestServlet {
   @EJB OptionServiceBean optionService;
   @EJB SoilWaterBalanceServiceBean soilWaterBalanceService;
   @EJB SessionServiceBean sessionService;
+  @EJB TypePrecipitationServiceBean typePrecip;
 
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
@@ -2468,7 +2470,7 @@ public class PlantingRecordRestServlet {
        * meteorologico utilizado y se lo persiste
        */
       if (!climateRecordService.checkExistence(pastDate, parcel)) {
-        newClimateRecord = ClimateClient.getForecast(parcel, pastDate);
+        newClimateRecord = ClimateClient.getForecast(parcel, pastDate, typePrecip.findAll());
         climateRecordService.create(newClimateRecord);
       }
 
@@ -3239,7 +3241,7 @@ public class PlantingRecordRestServlet {
        * al servicio meteorologico utilizado y se lo persiste
        */
       if (!climateRecordService.checkExistence(pastDate, parcel)) {
-        newClimateRecord = ClimateClient.getForecast(parcel, pastDate);
+        newClimateRecord = ClimateClient.getForecast(parcel, pastDate, typePrecip.findAll());
         climateRecordService.create(newClimateRecord);
       }
 

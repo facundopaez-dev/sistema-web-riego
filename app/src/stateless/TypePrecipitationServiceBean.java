@@ -3,6 +3,8 @@ package stateless;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import java.util.Collection;
 import model.TypePrecipitation;
 
 @Stateless
@@ -41,6 +43,16 @@ public class TypePrecipitationServiceBean {
 
   public TypePrecipitation find(int id) {
     return getEntityManager().find(TypePrecipitation.class, id);
+  }
+
+  /**
+   * @return referencia a un objeto de tipo Collection que
+   * contiene todos los tipos de precipitacion registrados
+   * en la base de datos subyacente
+   */
+  public Collection<TypePrecipitation> findAll() {
+    Query query = entityManager.createQuery("SELECT t FROM TypePrecipitation t");
+    return (Collection) query.getResultList();
   }
 
 }

@@ -121,8 +121,21 @@ public class ClimateRecord {
    * null. Una cantidad cero de precipitacion se indicara con el
    * valor cero.
    */
-  @OneToMany(mappedBy = "climateRecord", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
-  private Collection<TypePrecipitation> precipTypes;
+  @ManyToOne
+  @JoinColumn(name = "TYPE_PRECIP_ONE")
+  private TypePrecipitation typePrecipOne;
+
+  @ManyToOne
+  @JoinColumn(name = "TYPE_PRECIP_TWO")
+  private TypePrecipitation typePrecipTwo;
+
+  @ManyToOne
+  @JoinColumn(name = "TYPE_PRECIP_THREE")
+  private TypePrecipitation typePrecipThree;
+
+  @ManyToOne
+  @JoinColumn(name = "TYPE_PRECIP_FOUR")
+  private TypePrecipitation typePrecipFour;
 
   /*
    * Punto de rocio [°C]
@@ -270,22 +283,36 @@ public class ClimateRecord {
     this.precipProbability = precipProbability;
   }
 
-  /**
-   * Returns value of precipTypes
-   * 
-   * @return
-   */
-  public Collection<TypePrecipitation> getPrecipTypes() {
-    return precipTypes;
+  public TypePrecipitation getTypePrecipOne() {
+    return typePrecipOne;
   }
 
-  /**
-   * Sets new value of precipTypes
-   * 
-   * @param
-   */
-  public void setPrecipTypes(Collection<TypePrecipitation> precipTypes) {
-    this.precipTypes = precipTypes;
+  public void setTypePrecipOne(TypePrecipitation typePrecipOne) {
+    this.typePrecipOne = typePrecipOne;
+  }
+
+  public TypePrecipitation getTypePrecipTwo() {
+    return typePrecipTwo;
+  }
+
+  public void setTypePrecipTwo(TypePrecipitation typePrecipTwo) {
+    this.typePrecipTwo = typePrecipTwo;
+  }
+
+  public TypePrecipitation getTypePrecipThree() {
+    return typePrecipThree;
+  }
+
+  public void setTypePrecipThree(TypePrecipitation typePrecipThree) {
+    this.typePrecipThree = typePrecipThree;
+  }
+
+  public TypePrecipitation getTypePrecipFour() {
+    return typePrecipFour;
+  }
+
+  public void setTypePrecipFour(TypePrecipitation typePrecipFour) {
+    this.typePrecipFour = typePrecipFour;
   }
 
   /**
@@ -453,7 +480,7 @@ public class ClimateRecord {
   @Override
   public String toString() {
     return String.format(
-        "ID: %d\nLatitud: %f (grados decimales) Longitud: %f (grados decimales)\nFecha: %s\nPrecipitación del día: %f milímetros/día\nProbabilidad de precipitación: %f [porcentaje 0 - 100]\nPunto de rocío: %f °C\nPresión atmosférica: %f hectopascales (milibares)\nVelocidad del viento: %f kilómetros/por hora\nNubosidad: %f [porcentaje 0 - 100]\nTemperatura mínima: %f °C\nTemperatura máxima: %f °C\nTipos de precipitacion: %s\n",
+        "ID: %d\nLatitud: %f (grados decimales) Longitud: %f (grados decimales)\nFecha: %s\nPrecipitación del día: %f milímetros/día\nProbabilidad de precipitación: %f [porcentaje 0 - 100]\nPunto de rocío: %f °C\nPresión atmosférica: %f hectopascales (milibares)\nVelocidad del viento: %f kilómetros/por hora\nNubosidad: %f [porcentaje 0 - 100]\nTemperatura mínima: %f °C\nTemperatura máxima: %f °C\n",
         id,
         parcel.getLatitude(),
         parcel.getLongitude(),
@@ -465,8 +492,7 @@ public class ClimateRecord {
         windSpeed,
         cloudCover,
         minimumTemperature,
-        maximumTemperature,
-        precipTypes);
+        maximumTemperature);
   }
 
 }

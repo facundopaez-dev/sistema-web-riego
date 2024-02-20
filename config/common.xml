@@ -380,6 +380,18 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
+    <!-- Carga la tabla TYPE_PRECIPITATION -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/typePrecipInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
     <!-- Carga la tabla CLIMATE_RECORD -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
@@ -560,6 +572,18 @@ Comandos para detener el server y la base de datos.
       userid="${DERBY_USER}"
       password="${DERBY_PWD}"
       src="etc/sql/passwordInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla TYPE_PRECIPITATION -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/typePrecipInserts.sql"
       onerror="continue">
       <classpath>
         <pathelement path="${DERBY_CLASSPATH}" />
@@ -1500,7 +1524,6 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
-
     <!-- Carga la tabla PASSWORD -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
@@ -1513,7 +1536,19 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
-    <!-- Carga las tablas CLIMATE_RECORD y TYPE_PRECIPITATION -->
+    <!-- Carga la tabla TYPE_PRECIPITATION -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/typePrecipInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga las tablas CLIMATE_RECORD -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
       userid="${DERBY_USER}"
@@ -1685,7 +1720,19 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
-    <!-- Carga las tablas PLANTING_RECORD, CLIMATE_RECORD y TYPE_PRECIPITATION -->
+    <!-- Carga la tabla TYPE_PRECIPITATION -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/typePrecipInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga las tablas PLANTING_RECORD, CLIMATE_RECORD -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
       userid="${DERBY_USER}"
@@ -2017,6 +2064,18 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
+    <!-- Carga la tabla TYPE_PRECIPITATION -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/typePrecipInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
     <!-- Carga las tablas PLANTING_RECORD y CLIMATE_RECORD -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
@@ -2265,6 +2324,18 @@ Comandos para detener el server y la base de datos.
       </classpath>
     </sql>
 
+    <!-- Carga la tabla TYPE_PRECIPITATION -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/typePrecipInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
     <!-- Carga las tablas de la base de datos que se necesitan para probar la tarea 338 de GitHub -->
     <sql driver="org.apache.derby.jdbc.ClientDriver"
       url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
@@ -2436,6 +2507,18 @@ Comandos para detener el server y la base de datos.
       userid="${DERBY_USER}"
       password="${DERBY_PWD}"
       src="etc/sql/southernMaximumInsolationInserts.sql"
+      onerror="continue">
+      <classpath>
+        <pathelement path="${DERBY_CLASSPATH}" />
+      </classpath>
+    </sql>
+
+    <!-- Carga la tabla TYPE_PRECIPITATION -->
+    <sql driver="org.apache.derby.jdbc.ClientDriver"
+      url="jdbc:derby://${DERBY_HOST}:${DERBY_PORT}/${DB_NAME};create=true"
+      userid="${DERBY_USER}"
+      password="${DERBY_PWD}"
+      src="etc/sql/typePrecipInserts.sql"
       onerror="continue">
       <classpath>
         <pathelement path="${DERBY_CLASSPATH}" />

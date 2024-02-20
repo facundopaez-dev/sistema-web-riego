@@ -21,9 +21,9 @@ public class TypePrecipitation {
   @Column(name = "NAME", nullable = false)
   private String name;
 
-  @ManyToOne
-  @JoinColumn(name = "FK_CLIMATE_RECORD")
-  private ClimateRecord climateRecord;
+  @Column(name = "SPANISH_NAME", nullable = false)
+  private String spanishName;
+
 
   public TypePrecipitation() {
 
@@ -41,17 +41,20 @@ public class TypePrecipitation {
     this.name = name;
   }
 
-  public void setClimateRecord(ClimateRecord climateRecord) {
-    this.climateRecord = climateRecord;
+  public String getSpanishName() {
+    return spanishName;
+  }
+
+  public void setSpanishName(String spanishName) {
+    this.spanishName = spanishName;
   }
 
   @Override
   public String toString() {
     return String.format(
-        "ID: %d\nTipo de precipitacion: %s\nID de registro climatico: %d\n",
+        "ID: %d\nTipo de precipitacion: %s\nNombre: %s\n",
         id,
-        name,
-        climateRecord.getId());
+        name);
   }
 
 }

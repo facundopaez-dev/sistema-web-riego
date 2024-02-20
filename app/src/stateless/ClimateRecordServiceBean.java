@@ -15,6 +15,7 @@ import java.util.Calendar;
 import java.util.Date;
 import model.ClimateRecord;
 import model.Parcel;
+import model.TypePrecipitation;
 import util.UtilDate;
 import climate.ClimateClient;
 
@@ -270,6 +271,10 @@ public class ClimateRecordServiceBean {
       chosenClimateRecord.setDate(modifiedClimateRecord.getDate());
       chosenClimateRecord.setPrecip(modifiedClimateRecord.getPrecip());
       chosenClimateRecord.setPrecipProbability(modifiedClimateRecord.getPrecipProbability());
+      chosenClimateRecord.setTypePrecipOne(modifiedClimateRecord.getTypePrecipOne());
+      chosenClimateRecord.setTypePrecipTwo(modifiedClimateRecord.getTypePrecipTwo());
+      chosenClimateRecord.setTypePrecipThree(modifiedClimateRecord.getTypePrecipThree());
+      chosenClimateRecord.setTypePrecipFour(modifiedClimateRecord.getTypePrecipFour());
       chosenClimateRecord.setDewPoint(modifiedClimateRecord.getDewPoint());
       chosenClimateRecord.setAtmosphericPressure(modifiedClimateRecord.getAtmosphericPressure());
       chosenClimateRecord.setWindSpeed(modifiedClimateRecord.getWindSpeed());
@@ -300,6 +305,10 @@ public class ClimateRecordServiceBean {
       chosenClimateRecord.setDate(modifiedClimateRecord.getDate());
       chosenClimateRecord.setPrecip(modifiedClimateRecord.getPrecip());
       chosenClimateRecord.setPrecipProbability(modifiedClimateRecord.getPrecipProbability());
+      chosenClimateRecord.setTypePrecipOne(modifiedClimateRecord.getTypePrecipOne());
+      chosenClimateRecord.setTypePrecipTwo(modifiedClimateRecord.getTypePrecipTwo());
+      chosenClimateRecord.setTypePrecipThree(modifiedClimateRecord.getTypePrecipThree());
+      chosenClimateRecord.setTypePrecipFour(modifiedClimateRecord.getTypePrecipFour());
       chosenClimateRecord.setDewPoint(modifiedClimateRecord.getDewPoint());
       chosenClimateRecord.setAtmosphericPressure(modifiedClimateRecord.getAtmosphericPressure());
       chosenClimateRecord.setWindSpeed(modifiedClimateRecord.getWindSpeed());
@@ -387,6 +396,204 @@ public class ClimateRecordServiceBean {
    */
   public boolean checkExistence(Calendar givenDate, Parcel givenParcel) {
     return (find(givenDate, givenParcel) != null);
+  }
+
+  /**
+   * @param climateRecord
+   * @return true si se repiten los tipos de precipitaciones en
+   * una registro climatico, en caso contrario false
+   */
+  public boolean checkRepeatedPrecipTypes(ClimateRecord climateRecord) {
+    TypePrecipitation typePrecipOne = climateRecord.getTypePrecipOne();
+    TypePrecipitation typePrecipTwo = climateRecord.getTypePrecipTwo();
+    TypePrecipitation typePrecipThree = climateRecord.getTypePrecipThree();
+    TypePrecipitation typePrecipFour = climateRecord.getTypePrecipFour();
+
+    String typePrecipNameOne;
+    String typePrecipNameTwo;
+    String typePrecipNameThree;
+    String typePrecipNameFour;
+
+    /*
+     * Si solo uno de los tipos de precipitacion de un registro
+     * climatico esta definido, NO hay repeticion de tipos de
+     * precipitacion
+     */
+    if (typePrecipOne != null && typePrecipTwo == null && typePrecipThree == null && typePrecipFour == null) {
+      return false;
+    }
+
+    if (typePrecipOne == null && typePrecipTwo != null && typePrecipThree == null && typePrecipFour == null) {
+      return false;
+    }
+
+    if (typePrecipOne == null && typePrecipTwo == null && typePrecipThree != null && typePrecipFour == null) {
+      return false;
+    }
+
+    if (typePrecipOne == null && typePrecipTwo == null && typePrecipThree == null && typePrecipFour != null) {
+      return false;
+    }
+
+    /*
+     * Casos de comparacion:
+     * - tipo de precipitacion uno con tipo de precitacion dos
+     * - tipo de precipitacion uno con tipo de precitacion tres
+     * - tipo de precipitacion uno con tipo de precitacion cuatro
+     */
+    if (typePrecipOne != null && typePrecipTwo != null && typePrecipThree == null && typePrecipFour == null) {
+      typePrecipNameOne = typePrecipOne.getName();
+      typePrecipNameTwo = typePrecipTwo.getName();
+
+      if (typePrecipNameOne.equals(typePrecipNameTwo)) {
+        return true;
+      }
+
+    }
+
+    if (typePrecipOne != null && typePrecipTwo == null && typePrecipThree != null && typePrecipFour == null) {
+      typePrecipNameOne = typePrecipOne.getName();
+      typePrecipNameThree = typePrecipThree.getName();
+
+      if (typePrecipNameOne.equals(typePrecipNameThree)) {
+        return true;
+      }
+
+    }
+
+    if (typePrecipOne != null && typePrecipTwo == null && typePrecipThree == null && typePrecipFour != null) {
+      typePrecipNameOne = typePrecipOne.getName();
+      typePrecipNameFour = typePrecipFour.getName();
+
+      if (typePrecipNameOne.equals(typePrecipNameFour)) {
+        return true;
+      }
+
+    }
+
+    /*
+     * Casos de comparacion:
+     * - tipo de precipitacion dos con tipo de precipitacion tres
+     * - tipo de precipitacion dos con tipo de precipitacion cuatro
+     */
+    if (typePrecipOne == null && typePrecipTwo != null && typePrecipThree != null && typePrecipFour == null) {
+      typePrecipNameTwo = typePrecipTwo.getName();
+      typePrecipNameThree = typePrecipThree.getName();
+
+      if (typePrecipNameTwo.equals(typePrecipNameThree)) {
+        return true;
+      }
+
+    }
+
+    if (typePrecipOne == null && typePrecipTwo != null && typePrecipThree == null && typePrecipFour != null) {
+      typePrecipNameTwo = typePrecipTwo.getName();
+      typePrecipNameFour = typePrecipFour.getName();
+
+      if (typePrecipNameTwo.equals(typePrecipNameFour)) {
+        return true;
+      }
+
+    }
+
+    /*
+     * Caso de comparacion:
+     * - tipo de precipitacion tres con tipo de precipitacion cuatro
+     */
+    if (typePrecipOne == null && typePrecipTwo == null && typePrecipThree != null && typePrecipFour != null) {
+      typePrecipNameThree = typePrecipThree.getName();
+      typePrecipNameFour = typePrecipFour.getName();
+
+      if (typePrecipNameThree.equals(typePrecipNameFour)) {
+        return true;
+      }
+
+    }
+
+    /*
+     * Casos de comparacion:
+     * - tipo de precipitacion uno con tipo de precipitacion dos y tres
+     * - tipo de precipitacion uno con tipo de precipitacion dos y cuatro
+     * - tipo de precipitacion uno con tipo de precipitacion tres y cuatro
+     */
+    if (typePrecipOne != null && typePrecipTwo != null && typePrecipThree != null && typePrecipFour == null) {
+      typePrecipNameOne = typePrecipOne.getName();
+      typePrecipNameTwo = typePrecipTwo.getName();
+      typePrecipNameThree = typePrecipThree.getName();
+
+      if (typePrecipNameOne.equals(typePrecipNameTwo) || typePrecipNameOne.equals(typePrecipNameThree)
+          || typePrecipNameTwo.equals(typePrecipNameThree)) {
+        return true;
+      }
+
+    }
+
+    if (typePrecipOne != null && typePrecipTwo != null && typePrecipThree == null && typePrecipFour != null) {
+      typePrecipNameOne = typePrecipOne.getName();
+      typePrecipNameTwo = typePrecipTwo.getName();
+      typePrecipNameFour = typePrecipFour.getName();
+
+      if (typePrecipNameOne.equals(typePrecipNameTwo) || typePrecipNameOne.equals(typePrecipNameFour)
+          || typePrecipNameTwo.equals(typePrecipNameFour)) {
+        return true;
+      }
+
+    }
+
+    if (typePrecipOne != null && typePrecipTwo == null && typePrecipThree != null && typePrecipFour != null) {
+      typePrecipNameOne = typePrecipOne.getName();
+      typePrecipNameThree = typePrecipThree.getName();
+      typePrecipNameFour = typePrecipFour.getName();
+
+      if (typePrecipNameOne.equals(typePrecipNameThree) || typePrecipNameOne.equals(typePrecipNameFour)
+          || typePrecipNameThree.equals(typePrecipNameFour)) {
+        return true;
+      }
+
+    }
+
+    /*
+     * Casos de comparacion:
+     * - tipo de precipitacion dos con tipo de precipitacion tres y cuatro
+     */
+    if (typePrecipOne == null && typePrecipTwo != null && typePrecipThree != null && typePrecipFour != null) {
+      typePrecipNameTwo = typePrecipTwo.getName();
+      typePrecipNameThree = typePrecipThree.getName();
+      typePrecipNameFour = typePrecipFour.getName();
+
+      if (typePrecipNameTwo.equals(typePrecipNameThree) || typePrecipNameTwo.equals(typePrecipNameFour)
+          || typePrecipNameThree.equals(typePrecipNameFour)) {
+        return true;
+      }
+
+    }
+
+    /*
+     * Caso de comparacion en el que todos los tipos de
+     * precipitacion de un registro climatico estan
+     * definidos
+     */
+    if (typePrecipOne != null && typePrecipTwo != null && typePrecipThree != null && typePrecipFour != null) {
+      typePrecipNameOne = typePrecipOne.getName();
+      typePrecipNameTwo = typePrecipTwo.getName();
+      typePrecipNameThree = typePrecipThree.getName();
+      typePrecipNameFour = typePrecipFour.getName();
+
+      if (typePrecipNameOne.equals(typePrecipNameTwo) || typePrecipNameOne.equals(typePrecipNameThree) || typePrecipNameOne.equals(typePrecipNameFour)) {
+        return true;
+      }
+
+      if (typePrecipNameTwo.equals(typePrecipNameThree) || typePrecipNameTwo.equals(typePrecipNameFour)) {
+        return true;
+      }
+
+      if (typePrecipNameThree.equals(typePrecipNameFour)) {
+        return true;
+      }
+
+    }
+
+    return false;
   }
 
   /**

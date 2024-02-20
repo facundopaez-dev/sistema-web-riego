@@ -12,6 +12,7 @@ import stateless.CropServiceBean;
 import stateless.IrrigationRecordServiceBean;
 import stateless.ClimateRecordServiceBean;
 import stateless.SolarRadiationServiceBean;
+import stateless.TypePrecipitationServiceBean;
 import stateless.UserServiceBean;
 import stateless.ParcelServiceBean;
 import stateless.MonthServiceBean;
@@ -50,6 +51,7 @@ public class PlantingRecordManager {
     @EJB SoilWaterBalanceServiceBean soilWaterBalanceService;
     @EJB ParcelServiceBean parcelService;
     @EJB UserServiceBean userService;
+    @EJB TypePrecipitationServiceBean typePrecipService;
 
     /*
      * Establece de manera automatica el estado finalizado de un registro de
@@ -634,7 +636,7 @@ public class PlantingRecordManager {
              * meteorologico utilizado y se lo persiste
              */
             if (!climateRecordService.checkExistence(pastDate, parcel)) {
-                newClimateRecord = ClimateClient.getForecast(parcel, pastDate);
+                newClimateRecord = ClimateClient.getForecast(parcel, pastDate, typePrecipService.findAll());
                 climateRecordService.create(newClimateRecord);
             }
 
@@ -1346,7 +1348,7 @@ public class PlantingRecordManager {
              * al servicio meteorologico utilizado y se lo persiste
              */
             if (!climateRecordService.checkExistence(pastDate, parcel)) {
-                newClimateRecord = ClimateClient.getForecast(parcel, pastDate);
+                newClimateRecord = ClimateClient.getForecast(parcel, pastDate, typePrecipService.findAll());
                 climateRecordService.create(newClimateRecord);
             }
 

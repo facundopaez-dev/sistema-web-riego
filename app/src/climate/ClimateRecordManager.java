@@ -10,6 +10,8 @@ import stateless.CropServiceBean;
 import stateless.PlantingRecordServiceBean;
 import stateless.ParcelServiceBean;
 import stateless.SolarRadiationServiceBean;
+import stateless.TypePrecipitationServiceBean;
+import stateless.TypePrecipitationServiceBean;
 import stateless.MonthServiceBean;
 import stateless.LatitudeServiceBean;
 import model.ClimateRecord;
@@ -50,6 +52,9 @@ public class ClimateRecordManager {
   // inject a reference to the LatitudeServiceBean
   @EJB
   LatitudeServiceBean latitudeService;
+
+  @EJB
+  TypePrecipitationServiceBean typePrecipService;
 
   /**
    * Obtiene y persiste de manera automatica los datos
@@ -114,7 +119,7 @@ public class ClimateRecordManager {
            * en formato UNIX y las coordenadas geograficas de la
            * parcela dada
            */
-          currentClimateRecord = ClimateClient.getForecast(givenParcel, currentDate);
+          currentClimateRecord = ClimateClient.getForecast(givenParcel, currentDate, typePrecipService.findAll());
         } catch (Exception e) {
           e.printStackTrace();
           break;

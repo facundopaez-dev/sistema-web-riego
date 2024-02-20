@@ -1,8 +1,8 @@
 app.controller(
   "ClimateRecordCtrl",
-  ["$scope", "$location", "$routeParams", "ClimateRecordSrv", "ParcelSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
+  ["$scope", "$location", "$routeParams", "ClimateRecordSrv", "ParcelSrv", "TypePrecipSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
     "ExpirationManager", "RedirectManager",
-    function ($scope, $location, $params, climateRecordService, parcelService, accessManager, errorResponseManager, authHeaderManager, logoutManager, expirationManager,
+    function ($scope, $location, $params, climateRecordService, parcelService, typePrecipService, accessManager, errorResponseManager, authHeaderManager, logoutManager, expirationManager,
       redirectManager) {
 
       console.log("ClimateRecordCtrl loaded with action: " + $params.action)
@@ -91,6 +91,17 @@ app.controller(
         $location.path("/home/climateRecords");
       }
 
+      function findAllTypesPrecip() {
+        typePrecipService.findAll(function (error, data) {
+          if (error) {
+            console.log(error);
+            return;
+          }
+
+          $scope.typesPrecip = data;
+        })
+      }
+
       function find(id) {
         climateRecordService.find(id, function (error, data) {
           if (error) {
@@ -123,6 +134,7 @@ app.controller(
       const INVALID_PRECIPITATION = "La precipitación debe ser un valor mayor o igual 0.0";
       const INVALID_CLOUDINESS = "La nubosidad debe ser un valor entre 0.0 y 100, incluido";
       const INVALID_ATMOSPHERIC_PRESSURE = "La presión atmosférica debe ser un valor mayor a 0.0";
+      const NO_TYPE_OF_PRECIPITATION = "Al ser la precipitación estrictamente mayor a 0 debe seleccionar como mínimo un tipo de precipitación";
 
       $scope.create = function () {
         /*
@@ -189,6 +201,11 @@ app.controller(
 
         if ($scope.data.precip < 0.0) {
           alert(INVALID_PRECIPITATION);
+          return;
+        }
+
+        if ($scope.data.precip > 0) {
+          alert(NO_TYPE_OF_PRECIPITATION);
           return;
         }
 
@@ -291,6 +308,11 @@ app.controller(
           return;
         }
 
+        if ($scope.data.precip > 0) {
+          alert(NO_TYPE_OF_PRECIPITATION);
+          return;
+        }
+
         if ($scope.data.cloudCover == undefined) {
           alert(UNDEFINED_CLOUDINESS);
           return;
@@ -373,4 +395,5 @@ app.controller(
         find($params.id);
       }
 
+      findAllTypesPrecip();
     }]);
