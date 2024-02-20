@@ -70,6 +70,12 @@ app.controller(
 			$scope.delete = function (id) {
 				console.log("Deleting: " + id)
 
+				var result = window.confirm("¿Desea eliminar el elemento seleccionado?");
+
+				if (result === false) {
+					return;
+				}
+
 				statisticalReportService.delete(id, function (error) {
 					if (error) {
 						console.log(error);
