@@ -87,7 +87,7 @@ public class PlantingRecordRestServlet {
   @EJB OptionServiceBean optionService;
   @EJB SoilWaterBalanceServiceBean soilWaterBalanceService;
   @EJB SessionServiceBean sessionService;
-  @EJB TypePrecipitationServiceBean typePrecip;
+  @EJB TypePrecipitationServiceBean typePrecipService;
 
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
@@ -2480,11 +2480,11 @@ public class PlantingRecordRestServlet {
        * climaticos de una parcela.
        */
       if (!climateRecordService.checkExistence(pastDate, parcel)) {
-        newClimateRecord = ClimateClient.getForecast(parcel, pastDate, typePrecip.findAll());
+        newClimateRecord = ClimateClient.getForecast(parcel, pastDate, typePrecipService.findAll());
         climateRecordService.create(newClimateRecord);
       } else {
         climateRecord = climateRecordService.find(pastDate, parcel);
-        climateRecordService.modify(climateRecord.getId(), ClimateClient.getForecast(parcel, pastDate, typePrecip.findAll()));
+        climateRecordService.modify(climateRecord.getId(), ClimateClient.getForecast(parcel, pastDate, typePrecipService.findAll()));
       }
 
       /*
@@ -3254,7 +3254,7 @@ public class PlantingRecordRestServlet {
        * al servicio meteorologico utilizado y se lo persiste
        */
       if (!climateRecordService.checkExistence(pastDate, parcel)) {
-        newClimateRecord = ClimateClient.getForecast(parcel, pastDate, typePrecip.findAll());
+        newClimateRecord = ClimateClient.getForecast(parcel, pastDate, typePrecipService.findAll());
         climateRecordService.create(newClimateRecord);
       }
 
