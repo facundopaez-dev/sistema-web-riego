@@ -128,7 +128,7 @@ app.controller(
 
 			$scope.service = soilService;
 			$scope.listElement = []
-			$scope.cantPerPage = 20
+			$scope.cantPerPage = 10
 			// Esto es necesarios para la paginacion
 
 			/*

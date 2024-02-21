@@ -198,7 +198,7 @@ app.controller(
 
 			$scope.service = irrigationRecordService;
 			$scope.listElement = []
-			$scope.cantPerPage = 20
+			$scope.cantPerPage = 10
 			/* Esto es necesario para la paginacion */
 
 			/*

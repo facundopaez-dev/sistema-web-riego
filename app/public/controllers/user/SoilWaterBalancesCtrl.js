@@ -77,7 +77,7 @@ app.controller(
 
             $scope.service = soilWaterBalanceSrv;
             $scope.listElement = []
-            $scope.cantPerPage = 20
+            $scope.cantPerPage = 10
             /* Esto es necesario para la paginacion */
 
             // Esto es necesario para la busqueda que se hace cuando se ingresan caracteres

@@ -100,7 +100,7 @@ app.controller(
 
 			$scope.service = cropService;
 			$scope.listElement = []
-			$scope.cantPerPage = 20
+			$scope.cantPerPage = 10
 			// Esto es necesarios para la paginacion
 
 			const UNDEFINED_CROP_NAME = "El nombre del cultivo debe estar definido";

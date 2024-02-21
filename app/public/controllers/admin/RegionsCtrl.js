@@ -126,7 +126,7 @@ app.controller(
 
 			$scope.service = regionService;
 			$scope.listElement = []
-			$scope.cantPerPage = 20
+			$scope.cantPerPage = 10
 			// Esto es necesarios para la paginacion
 
 			/*
