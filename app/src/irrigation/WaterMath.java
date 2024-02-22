@@ -420,14 +420,14 @@ public class WaterMath {
    * D = Profundidad radicular [m]
    * 
    * La unidad de medida [gr/gr] representa la cantidad de gramos
-   * de agua que hay cada 100 gramos de suelo. Por ejemplo, un
-   * suelo arenoso tiene una capacidad de campo de 9 [gr/gr], lo
+   * de agua que hay cada 100 gramos de tierra seca. Por ejemplo,
+   * un suelo arenoso tiene una capacidad de campo de 9 [gr/gr], lo
    * cual indica que en capacidad de campo un suelo arenoso tiene
-   * 9 gramos de agua cada 100 gramos de suelo. Esto indica que
-   * un suelo arenoso tiene poca retencion de agua. Lo que indica
-   * la textura del suelo es capacidad de retencion de agua que
-   * tiene un suelo. La textura de un suelo se determina mediante
-   * el triangulo textural.
+   * 9 gramos de agua cada 100 gramos de tierra seca. Esto indica
+   * que un suelo arenoso tiene poca retencion de agua. Lo que
+   * indica la textura del suelo es capacidad de retencion de agua
+   * que tiene un suelo. La textura de un suelo se determina
+   * mediante el triangulo textural.
    * 
    * @param crop
    * @param soil
@@ -491,13 +491,13 @@ public class WaterMath {
    * p = Factor de agotamiento
    * 
    * La unidad de medida [gr/gr] representa la cantidad de gramos
-   * de agua que hay cada 100 gramos de suelo. Por ejemplo, un
+   * de agua que hay cada 100 de tierra seca. Por ejemplo, un
    * suelo arenoso tiene una capacidad de campo de 9 [gr/gr], lo
    * cual indica que en capacidad de campo un suelo arenoso tiene
-   * 9 gramos de agua cada 100 gramos de suelo. Esto indica que
-   * un suelo arenoso tiene poca retencion de agua. Lo que indica
-   * la textura del suelo es capacidad de retencion de agua que
-   * tiene un suelo. La textura de un suelo se determina mediante
+   * 9 gramos de agua cada 100 gramos de tierra seca. Esto indica
+   * que un suelo arenoso tiene poca retencion de agua. Lo que
+   * indica la textura del suelo es capacidad de retencion de agua
+   * que tiene un suelo. La textura de un suelo se determina mediante
    * el triangulo textural.
    * 
    * Un valor de 0,50 para el factor de agotamiento (depletionFactor),
