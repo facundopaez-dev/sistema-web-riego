@@ -146,6 +146,17 @@ public class SoilWaterBalanceRestServlet {
          * por el cliente
          */
         Page<SoilWaterBalance> soilWaterBalances = soilWaterBalanceService.findAllPagination(userId, page, cant, map);
+
+        /*
+         * Actualiza instancias de tipo SoilWaterBalance desde la base
+         * de datos subyacente, sobrescribiendo los cambios realizados
+         * en ellas, si los hubiere. Esto se realiza para recuperar
+         * los balances hidricos de suelo con los datos con las fechas
+         * con las que estan almacenados en la base de datos subyacente.
+         * De lo contrario, se los obtiene con fechas distintas a las
+         * fechas con las que estan almacenados.
+         */
+        soilWaterBalanceService.refreshSoilWaterBalances(soilWaterBalances.getResults());
         return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(soilWaterBalances)).build();
     }
 
