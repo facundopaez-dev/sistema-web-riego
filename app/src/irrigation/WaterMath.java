@@ -433,7 +433,7 @@ public class WaterMath {
    * @param soil
    * @return double que representa la cantidad de agua que puede
    * retener un suelo en el volumen determinado por los valores
-   * de suelo (capacidad de campo, punto de marchitez permanente,
+   * de un suelo (capacidad de campo, punto de marchitez permanente,
    * peso especifico aparente) y la profundidad de las raices de
    * un cultivo. Esto es la lamina total de agua disponible (dt)
    * [mm].
