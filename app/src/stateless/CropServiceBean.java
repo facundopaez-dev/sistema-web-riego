@@ -22,20 +22,20 @@ public class CropServiceBean {
   protected EntityManager entityManager;
 
   /*
-   * ¿De donde proviene esta limitacion del factor de agotamiento
-   * (p)? La establece el libro "Evapotranspiracion del cultivo,
-   * estudio FAO riego y drenaje 56" en el primer parrafo de la
-   * pagina 163. 
+   * ¿De donde proviene esta limitacion de la fraccion de agotamiento
+   * de la humedad en el suelo para un cultivo (p)? La establece el
+   * libro "Evapotranspiracion del cultivo, estudio FAO riego y drenaje
+   * 56" en el primer parrafo de la pagina 163.
    */
-  private final double LOWER_LIMIT_DEPLETION_FACTOR = 0.1;
-  private final double UPPER_LIMIT_DEPLETION_FACTOR = 0.8;
+  private final double LOWER_LIMIT_DEPLETION_FRACTION = 0.1;
+  private final double UPPER_LIMIT_DEPLETION_FRACTION = 0.8;
 
-  public double getLowerLimitDepletionFactor() {
-    return LOWER_LIMIT_DEPLETION_FACTOR;
+  public double getLowerLimitDepletionFraction() {
+    return LOWER_LIMIT_DEPLETION_FRACTION;
   }
 
-  public double getUpperLimitDepletionFactor() {
-    return UPPER_LIMIT_DEPLETION_FACTOR;
+  public double getUpperLimitDepletionFraction() {
+    return UPPER_LIMIT_DEPLETION_FRACTION;
   }
 
   public void setEntityManager(EntityManager localEntityManager) {
@@ -123,7 +123,7 @@ public class CropServiceBean {
       givenCrop.setActive(modifiedCrop.getActive());
       givenCrop.setLowerLimitMaximumRootDepth(modifiedCrop.getLowerLimitMaximumRootDepth());
       givenCrop.setUpperLimitMaximumRootDepth(modifiedCrop.getUpperLimitMaximumRootDepth());
-      givenCrop.setDepletionFactor(modifiedCrop.getDepletionFactor());
+      givenCrop.setDepletionFraction(modifiedCrop.getDepletionFraction());
       givenCrop.setPlantingStartMonth(modifiedCrop.getPlantingStartMonth());
       givenCrop.setEndPlantingMonth(modifiedCrop.getEndPlantingMonth());
       givenCrop.setTypeCrop(modifiedCrop.getTypeCrop());

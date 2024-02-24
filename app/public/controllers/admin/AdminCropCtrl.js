@@ -119,12 +119,12 @@ app.controller(
       const UNDEFINED_UPPER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID = "El límite superior de la profundidad radicular máxima debe estar definido";
       const LOWER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID = "El límite inferior de la profundidad radicular máxima debe ser mayor a 0.0";
       const UPPER_LIMIT_MAXIMUM_ROOT_DEPTH_INVALID = "El límite superior de la profundidad radicular máxima debe ser mayor a 0.0";
-      const UNDEFINED_DEPLETION_FACTOR = "El factor de agotamiento debe estar definido";
-      const INVALID_DEPLETION_FACTOR = "El factor de agotamiento debe tener un valor entre 0.1 y 0.8";
+      const UNDEFINED_DEPLETION_FRACTION = "La fracción de agotamiento de la humedad en el suelo debe estar definida";
+      const INVALID_DEPLETION_FRACTION = "La fracción de agotamiento de la humedad en el suelo para un cultivo debe tener un valor entre 0.1 y 0.8";
       const OVERLAPPING_ROOT_DEPTH_LIMITS = "El límite inferior de la profundidad radicular máxima no debe ser mayor o igual al límite superior de la profundidad radicular máxima";
 
-      const LOWER_LIMIT_DEPLETION_FACTOR = 0.1;
-      const UPPER_LIMIT_DEPLETION_FACTOR = 0.8;
+      const LOWER_LIMIT_DEPLETION_FRACTION = 0.1;
+      const UPPER_LIMIT_DEPLETION_FRACTION = 0.8;
 
       $scope.create = function () {
         // Expresion regular para validar el nombre del cultivo
@@ -379,27 +379,29 @@ app.controller(
         }
 
         /*
-        **************************************************
-        Controles sobre el valor del factor de agotamiento
-        **************************************************
+        ******************************************************
+        Controles sobre el valor de la fraccion de agotamiento
+        de la humedad en el suelo para un cultivo
+        ******************************************************
         */
 
         /*
-        Si el factor de agotamiento NO esta definido, la aplicacion
-        muestra el mensaje dado y no realiza la operacion solicitada
+        Si la fraccion de agotamiento de la humedad en el suelo para
+        un cultivo NO esta definida, la aplicacion muestra el mensaje
+        dado y no realiza la operacion solicitada
         */
-        if ($scope.data.depletionFactor == undefined) {
-          alert(UNDEFINED_DEPLETION_FACTOR);
+        if ($scope.data.depletionFraction == undefined) {
+          alert(UNDEFINED_DEPLETION_FRACTION);
           return;
         }
 
         /*
-        Si el factor de agotamiento es menor a 0.1 o mayor a 0.8,
-        la aplicacion muestra el mensaje dado y no realiza la
-        operacion solicitada
+        Si la fraccion de agotamiento de la humedad en el suelo para
+        un cultivo es menor a 0.1 o mayor a 0.8, la aplicacion muestra
+        el mensaje dado y no realiza la operacion solicitada
         */
-        if ($scope.data.depletionFactor < LOWER_LIMIT_DEPLETION_FACTOR || $scope.data.depletionFactor > UPPER_LIMIT_DEPLETION_FACTOR) {
-          alert(INVALID_DEPLETION_FACTOR);
+        if ($scope.data.depletionFraction < LOWER_LIMIT_DEPLETION_FRACTION || $scope.data.depletionFraction > UPPER_LIMIT_DEPLETION_FRACTION) {
+          alert(INVALID_DEPLETION_FRACTION);
           return;
         }
 
@@ -564,18 +566,19 @@ app.controller(
         }
 
         /*
-        **************************************************
-        Controles sobre el valor del factor de agotamiento
-        **************************************************
+        ******************************************************
+        Controles sobre el valor de la fraccion de agotamiento
+        de la humedad en el suelo para un cultivo
+        ******************************************************
         */
 
         /*
-        Si el factor de agotamiento es menor a 0.1 o mayor a 0.8,
-        la aplicacion muestra el mensaje dado y no realiza la
-        operacion solicitada
+        Si la fraccion de agotamiento de la humedad en el suelo
+        para un cultivo es menor a 0.1 o mayor a 0.8, la aplicacion
+        muestra el mensaje dado y no realiza la operacion solicitada
         */
-        if ($scope.data.depletionFactor < LOWER_LIMIT_DEPLETION_FACTOR || $scope.data.depletionFactor > UPPER_LIMIT_DEPLETION_FACTOR) {
-          alert(INVALID_DEPLETION_FACTOR);
+        if ($scope.data.depletionFraction < LOWER_LIMIT_DEPLETION_FRACTION || $scope.data.depletionFraction > UPPER_LIMIT_DEPLETION_FRACTION) {
+          alert(INVALID_DEPLETION_FRACTION);
           return;
         }
 

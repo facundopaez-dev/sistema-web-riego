@@ -83,9 +83,10 @@ class Cultivo {
 -kcMedio
 -kcFinal
 -cicloVida
--activo
 -limiteInferiorProfundidadRadicularMaxima
 -limiteSuperiorProfundidadRadicularMaxima
+-fraccionAgotamientoHumedadSueloCultivo
+-activo
 }
 
 class TipoCultivo {

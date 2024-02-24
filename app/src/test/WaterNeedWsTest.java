@@ -1112,7 +1112,7 @@ public class WaterNeedWsTest {
     System.out.println("Datos del cultivo de prueba");
     System.out.println("Nombre: " + testCrop.getName());
     System.out.println("Profundidad radicular [m]: " + testCrop.getLowerLimitMaximumRootDepth() + "-" + testCrop.getUpperLimitMaximumRootDepth());
-    System.out.println("Factor de agotamiento (p): " + testCrop.getDepletionFactor());
+    System.out.println("Fraccion de agotamiento de la humedad en el suelo para un cultivo (p): " + testCrop.getDepletionFactor());
   }
 
   /**
@@ -1178,11 +1178,11 @@ public class WaterNeedWsTest {
        * es igual a la presunta fecha actual, solo se imprime
        * la ETc del mismo. Esto se debe a que quiero mostrar
        * la ETc de la presunta fecha actual, con base a la cual
-       * se ajusta el factor de agotamiento (p) para calcular
-       * la lamina de riego optima (drop) de la presunta fecha
-       * actual, la cual se utiliza para calcular la necesidad
-       * de agua de riego de un cultivo en la presunta fecha
-       * actual
+       * se ajusta la fraccion de agotamiento de la humedad en
+       * el suelo para un cultivo (p) para calcular la lamina de
+       * riego optima (drop) de la presunta fecha actual, la cual
+       * se utiliza para calcular la necesidad de agua de riego
+       * de un cultivo en la presunta fecha actual
        */
       if (UtilDate.compareTo(currentClimateRecord.getDate(), presumedCurrentDate) == 0) {
         System.out.print("  |");

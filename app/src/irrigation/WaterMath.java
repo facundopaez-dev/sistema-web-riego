@@ -488,7 +488,8 @@ public class WaterMath {
    * Wm = Punto de marchitez permanente [gr/gr]
    * pea = Peso especifico aparente [gr/cm3]
    * D = Profundidad radicular [m]
-   * p = Factor de agotamiento
+   * p = Fraccion agotamiento de la humedad en el suelo para un cultivo
+   * (adimensional)
    * 
    * La unidad de medida [gr/gr] representa la cantidad de gramos
    * de agua que hay cada 100 de tierra seca. Por ejemplo, un
@@ -500,10 +501,10 @@ public class WaterMath {
    * que tiene un suelo. La textura de un suelo se determina mediante
    * el triangulo textural.
    * 
-   * Un valor de 0,50 para el factor de agotamiento (depletionFactor),
-   * representado con la letra p en la formula de la lamina de riego
-   * optima (drop), es utilizado comunmente para una gran variedad
-   * de cultivos.
+   * Un valor de 0,50 para el fraccion de agotamiento de la humedad en
+   * el suelo para un cultivo (depletionFactor), representado con la
+   * letra p en la formula de la lamina de riego optima (drop), es
+   * utilizado comunmente para una gran variedad de cultivos.
    * 
    * Por ejemplo, si el resultado de aplicar dicha formula es 10 [mm]
    * significa que un suelo lleno de agua, pero no anegado (esto es
@@ -524,7 +525,7 @@ public class WaterMath {
    * de riego optima (drop) [mm].
    */
   public static double calculateOptimalIrrigationLayer(Crop crop, Soil soil) {
-    return calculateTotalAmountWaterAvailable(crop, soil) * crop.getDepletionFactor();
+    return calculateTotalAmountWaterAvailable(crop, soil) * crop.getDepletionFraction();
   }
 
   /**

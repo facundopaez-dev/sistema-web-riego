@@ -944,27 +944,28 @@ public class CropRestServlet {
     }
 
     /*
-     * **************************************************
-     * Controles sobre el valor del factor de agotamiento
-     * **************************************************
+     * ******************************************************
+     * Controles sobre el valor de la fraccipn de agotamiento
+     * de la humedad en el suelo para un cultivo
+     * ******************************************************
      */
 
     /*
-     * Si el factor de agotamiento (p) es menor al limite inferior
+     * Si la fraccion de agotamiento (p) es menor al limite inferior
      * (0.1) o mayor al limite superior (0.8), la aplicacion del
      * lado servidor retorna el mensaje HTTP 400 (Bad request)
-     * junto con el mensaje "El factor de agotamiento debe tener
-     * un valor entre 0.1 y 0.8" y no se realiza la operacion
-     * solicitada.
+     * junto con el mensaje "La fraccion de agotamiento de la
+     * humedad en el suelo para un cultivo debe tener un valor
+     * entre 0.1 y 0.8" y no se realiza la operacion solicitada.
      * 
-     * ¿De donde proviene esta limitacion del factor de agotamiento
-     * (p)? La establece el libro "Evapotranspiracion del cultivo,
-     * estudio FAO riego y drenaje 56" en el primer parrafo de la
-     * pagina 163.
+     * ¿De donde proviene esta limitacion de la fraccion de agotamiento
+     * de la humedad en el suelo para un cultivo (p)? La establece el
+     * libro "Evapotranspiracion del cultivo, estudio FAO riego y drenaje
+     * 56" en el primer parrafo de la pagina 163.
      */
-    if (newCrop.getDepletionFactor() < cropService.getLowerLimitDepletionFactor()
-        || newCrop.getDepletionFactor() > cropService.getUpperLimitDepletionFactor()) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_DEPLETION_FACTOR))).build();
+    if (newCrop.getDepletionFraction() < cropService.getLowerLimitDepletionFraction()
+        || newCrop.getDepletionFraction() > cropService.getUpperLimitDepletionFraction()) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_DEPLETION_FRACTION))).build();
     }
 
     /*
@@ -1439,27 +1440,28 @@ public class CropRestServlet {
     }
 
     /*
-     * **************************************************
-     * Controles sobre el valor del factor de agotamiento
-     * **************************************************
+     * ******************************************************
+     * Controles sobre el valor de la fraccipn de agotamiento
+     * de la humedad en el suelo para un cultivo
+     * ******************************************************
      */
 
     /*
-     * Si el factor de agotamiento (p) es menor al limite inferior
+     * Si la fraccion de agotamiento (p) es menor al limite inferior
      * (0.1) o mayor al limite superior (0.8), la aplicacion del
      * lado servidor retorna el mensaje HTTP 400 (Bad request)
-     * junto con el mensaje "El factor de agotamiento debe tener
-     * un valor entre 0.1 y 0.8" y no se realiza la operacion
-     * solicitada.
+     * junto con el mensaje "La fraccion de agotamiento de la
+     * humedad en el suelo para un cultivo debe tener un valor
+     * entre 0.1 y 0.8" y no se realiza la operacion solicitada.
      * 
-     * ¿De donde proviene esta limitacion del factor de agotamiento
-     * (p)? La establece el libro "Evapotranspiracion del cultivo,
-     * estudio FAO riego y drenaje 56" en el primer parrafo de la
-     * pagina 163.
+     * ¿De donde proviene esta limitacion de la fraccion de agotamiento
+     * de la humedad en el suelo para un cultivo (p)? La establece el
+     * libro "Evapotranspiracion del cultivo, estudio FAO riego y drenaje
+     * 56" en el primer parrafo de la pagina 163.
      */
-    if (modifiedCrop.getDepletionFactor() < cropService.getLowerLimitDepletionFactor()
-        || modifiedCrop.getDepletionFactor() > cropService.getUpperLimitDepletionFactor()) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_DEPLETION_FACTOR))).build();
+    if (modifiedCrop.getDepletionFraction() < cropService.getLowerLimitDepletionFraction()
+        || modifiedCrop.getDepletionFraction() > cropService.getUpperLimitDepletionFraction()) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_DEPLETION_FRACTION))).build();
     }
 
     /*

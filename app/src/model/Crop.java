@@ -52,8 +52,8 @@ public class Crop {
   @Column(name = "UPPER_LIMIT_MAXIMUM_ROOT_DEPTH", nullable = false)
   private double upperLimitMaximumRootDepth;
 
-  @Column(name = "DEPLETION_FACTOR", nullable = false)
-  private double depletionFactor;
+  @Column(name = "DEPLETION_FRACTION", nullable = false)
+  private double depletionFraction;
 
   @Column(name = "ACTIVE", nullable = false)
   private boolean active;
@@ -170,12 +170,12 @@ public class Crop {
     this.upperLimitMaximumRootDepth = upperLimitMaximumRootDepth;
   }
 
-  public double getDepletionFactor() {
-    return depletionFactor;
+  public double getDepletionFraction() {
+    return depletionFraction;
   }
 
-  public void setDepletionFactor(double depletionFactor) {
-    this.depletionFactor = depletionFactor;
+  public void setDepletionFraction(double depletionFraction) {
+    this.depletionFraction = depletionFraction;
   }
 
   public boolean getActive() {
