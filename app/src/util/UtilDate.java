@@ -442,4 +442,60 @@ public class UtilDate {
     return date.get(Calendar.DAY_OF_MONTH) + "-" + (date.get(Calendar.MONTH) + 1) + "-" + date.get(Calendar.YEAR);
   }
 
+  /**
+   * Calcula una fecha hasta a partir de una fecha desde
+   * mas una cantidad de dias
+   * 
+   * @param dateFrom
+   * @param amountDays
+   * @return referencia a un objeto de tipo Calendar que
+   * contiene la fecha hasta calculada a partir de la
+   * fecha desde y una cantidad de dias
+   */
+  public static Calendar calculateDateUntil(Calendar dateFrom, int amountDays) {
+    Calendar dateUntil = Calendar.getInstance();
+
+    int numberDayYearDateUntil = dateFrom.get(Calendar.DAY_OF_YEAR) + amountDays;
+    int daysYear = 365;
+
+    /*
+     * Si el año de la fecha desde es bisiesto, la cantidad de
+     * dias en el año utilizada para calcular la fecha hasta
+     * es 366
+     */
+    if (UtilDate.isLeapYear(dateFrom.get(Calendar.YEAR))) {
+      daysYear = 366;
+    }
+
+    /*
+     * Si el numero de dia en el año de la fecha hasta calculado
+     * a partir del numero de dia en el año de la fecha desde
+     * y una cantidad de dias, es menor o igual a la cantidad
+     * de dias que hay en el año de la fecha desde, la fecha
+     * hasta esta en el mismo año que la fecha desde
+     */
+    if (numberDayYearDateUntil <= daysYear) {
+      dateUntil.set(Calendar.YEAR, dateFrom.get(Calendar.YEAR));
+      dateUntil.set(Calendar.DAY_OF_YEAR, numberDayYearDateUntil);
+      return dateUntil;
+    }
+
+    /*
+     * Si el numero de dia en el año de la fecha hasta calculado
+     * de la suma entre el numero de dia en el año de la fecha
+     * desde y una cantidad de dias, es estrictamente mayor a la
+     * cantidad de dias que hay en el año, la fecha hasta esta en
+     * el año siguiente al año de la fecha desde y su numero de
+     * dia en el año se calcula de la siguiente manera:
+     * 
+     * numero de dia de la fecha hasta = cantidad de dias
+     * - (numero de dias del año - numero de dia en el año de
+     * la fecha desde)
+     */
+    numberDayYearDateUntil = amountDays - (daysYear - dateFrom.get(Calendar.DAY_OF_YEAR));
+    dateUntil.set(Calendar.YEAR, (dateFrom.get(Calendar.YEAR) + 1));
+    dateUntil.set(Calendar.DAY_OF_YEAR, numberDayYearDateUntil);
+    return dateUntil;
+  }
+
 }

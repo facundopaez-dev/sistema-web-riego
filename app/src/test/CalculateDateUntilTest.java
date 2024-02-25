@@ -1,29 +1,11 @@
 import static org.junit.Assert.*;
 
 import java.util.Calendar;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import stateless.CropServiceBean;
-import stateless.StatisticalReportServiceBean;
 import util.UtilDate;
 
-/*
- * Para ejecutar correctamente las pruebas unitarias de esta
- * clase es necesario ejecutar el comando "ant all" (sin las
- * comillas), el cual, carga la base de datos subyacente con
- * los datos necesarios para la ejecucion de dichas pruebas
- */
 public class CalculateDateUntilTest {
-
-  private static EntityManager entityManager;
-  private static EntityManagerFactory entityManagerFactory;
-  private static CropServiceBean cropService;
-  private static StatisticalReportServiceBean statisticalReportService;
 
   private static final int JANUARY = 0;
   private static final int FEBRUARY = 1;
@@ -38,60 +20,43 @@ public class CalculateDateUntilTest {
   private static final int NOVEMBER = 10;
   private static final int DECEMBER = 11;
 
-  @BeforeClass
-  public static void preTest() {
-    entityManagerFactory = Persistence.createEntityManagerFactory("swcar");
-    entityManager = entityManagerFactory.createEntityManager();
-
-    cropService = new CropServiceBean();
-    cropService.setEntityManager(entityManager);
-
-    statisticalReportService = new StatisticalReportServiceBean();
-    statisticalReportService.setEntityManager(entityManager);
-  }
-
   @Test
   public void testOneCalculatDateUntil() {
-    System.out.println("**************************** Prueba uno del metodo calculateDateUntil ****************************");
-    System.out.println("El metodo calculateDateUntil de la clase StatisticalReportServiceBean calcula la fecha hasta de un");
-    System.out.println("informe estadistico en base a una fecha desde (incluida) y el menor ciclo de vida del ciclo de vida");
-    System.out.println("de los cultivos registros en la base de datos subyacente.");
-    System.out.println();
-    System.out.println("Este metodo es para cuando NO se define la fecha hasta de un informe estadistico en el formulario de");
-    System.out.println("generacion de un informe estadistico de una parcela.");
-    System.out.println();
-    System.out.println("En esta prueba unitaria se prueba que el metodo calculateDateUntil calcula correctamente la fecha");
-    System.out.println("hasta dentro del año de la fecha desde.");
-    System.out.println();
-
     /*
-     * Fecha desde a partir de la cual se calcula
-     * la fecha hasta
+     * Datos a partir de los cuales se calcula la
+     * fecha hasta
      */
+    int amountDays = 5;
     Calendar dateFrom = Calendar.getInstance();
     dateFrom.set(Calendar.YEAR, 2023);
-    dateFrom.set(Calendar.MONTH, JANUARY);
-    dateFrom.set(Calendar.DAY_OF_MONTH, 1);
-
-    System.out.println("Fecha desde " + UtilDate.formatDate(dateFrom));
-    System.out
-        .println("Menor ciclo de vida del ciclo de vida de los cultivos registrados en la base de datos subyacente: "
-            + cropService.findShortestLifeCycle());
-    System.out.println();
+    dateFrom.set(Calendar.MONTH, DECEMBER);
+    dateFrom.set(Calendar.DAY_OF_MONTH, 25);
 
     Calendar expectedDate = Calendar.getInstance();
     expectedDate.set(Calendar.YEAR, 2023);
-    expectedDate.set(Calendar.MONTH, FEBRUARY);
-    expectedDate.set(Calendar.DAY_OF_MONTH, 4);
+    expectedDate.set(Calendar.MONTH, DECEMBER);
+    expectedDate.set(Calendar.DAY_OF_MONTH, 30);
+
+    System.out.println("**************************** Prueba uno del metodo calculateDateUntil ****************************");
+    printDescriptionMethodToTest();
+    System.out.println();
+    System.out.println("# Descripcion de la prueba unitaria");
+    System.out.println("Para demostrar el correcto funcionamiento del metodo calculateDateUntil() en esta prueba se utiliza");
+    System.out.print("la fecha desde " + UtilDate.formatDate(dateFrom) + " y la cantidad " + amountDays + ". Por lo tanto, el ");
+    System.out.println("metodo calculateDateUntil() debe retornar");
+    System.out.println("la fecha " + UtilDate.formatDate(expectedDate) + ".");
+    System.out.println();
 
     /*
      * Seccion de prueba
      */
-    Calendar dateUntil = statisticalReportService.calculateDateUntil(dateFrom, cropService.findShortestLifeCycle());
+    Calendar dateUntil = UtilDate.calculateDateUntil(dateFrom, amountDays);
 
     System.out.println("* Seccion de prueba *");
+    System.out.println("Fecha desde: " + UtilDate.formatDate(dateFrom));
+    System.out.println("Cantidad (dias): " + amountDays);
     System.out.println("Fecha hasta esperada: " + UtilDate.formatDate(expectedDate));
-    System.out.println("Fecha hasta calculada por el metodo calculateDateUntil: " + UtilDate.formatDate(dateUntil));
+    System.out.println("Fecha hasta calculada por el metodo calculateDateUntil(): " + UtilDate.formatDate(dateUntil));
     System.out.println();
 
     assertTrue((expectedDate.get(Calendar.YEAR) == dateUntil.get(Calendar.YEAR))
@@ -104,46 +69,41 @@ public class CalculateDateUntilTest {
 
   @Test
   public void testTwoCalculatDateUntil() {
-    System.out.println("**************************** Prueba dos del metodo calculateDateUntil ****************************");
-    System.out.println("El metodo calculateDateUntil de la clase StatisticalReportServiceBean calcula la fecha hasta de un");
-    System.out.println("informe estadistico en base a una fecha desde (incluida) y el menor ciclo de vida del ciclo de vida");
-    System.out.println("de los cultivos registros en la base de datos subyacente.");
-    System.out.println();
-    System.out.println("Este metodo es para cuando NO se define la fecha hasta de un informe estadistico en el formulario de");
-    System.out.println("generacion de un informe estadistico de una parcela.");
-    System.out.println();
-    System.out.println("En esta prueba unitaria se prueba que el metodo calculateDateUntil calcula correctamente la fecha");
-    System.out.println("hasta con un año distinto al año de la fecha desde.");
-    System.out.println();
-
     /*
-     * Fecha desde a partir de la cual se calcula
-     * la fecha hasta
+     * Datos a partir de los cuales se calcula la
+     * fecha hasta
      */
+    int amountDays = 15;
     Calendar dateFrom = Calendar.getInstance();
     dateFrom.set(Calendar.YEAR, 2023);
     dateFrom.set(Calendar.MONTH, DECEMBER);
-    dateFrom.set(Calendar.DAY_OF_MONTH, 30);
-
-    System.out.println("Fecha desde " + UtilDate.formatDate(dateFrom));
-    System.out
-        .println("Menor ciclo de vida del ciclo de vida de los cultivos registrados en la base de datos subyacente: "
-            + cropService.findShortestLifeCycle());
-    System.out.println();
+    dateFrom.set(Calendar.DAY_OF_MONTH, 25);
 
     Calendar expectedDate = Calendar.getInstance();
     expectedDate.set(Calendar.YEAR, 2024);
-    expectedDate.set(Calendar.MONTH, FEBRUARY);
-    expectedDate.set(Calendar.DAY_OF_MONTH, 2);
+    expectedDate.set(Calendar.MONTH, JANUARY);
+    expectedDate.set(Calendar.DAY_OF_MONTH, 9);
+
+    System.out.println("**************************** Prueba dos del metodo calculateDateUntil ****************************");
+    printDescriptionMethodToTest();
+    System.out.println();
+    System.out.println("# Descripcion de la prueba unitaria");
+    System.out.println("Para demostrar el correcto funcionamiento del metodo calculateDateUntil() en esta prueba se utiliza");
+    System.out.print("la fecha desde " + UtilDate.formatDate(dateFrom) + " y la cantidad " + amountDays + ". Por lo tanto, el ");
+    System.out.println("metodo calculateDateUntil() debe retornar");
+    System.out.println("la fecha " + UtilDate.formatDate(expectedDate) + ".");
+    System.out.println();
 
     /*
      * Seccion de prueba
      */
-    Calendar dateUntil = statisticalReportService.calculateDateUntil(dateFrom, cropService.findShortestLifeCycle());
+    Calendar dateUntil = UtilDate.calculateDateUntil(dateFrom, amountDays);
 
     System.out.println("* Seccion de prueba *");
+    System.out.println("Fecha desde: " + UtilDate.formatDate(dateFrom));
+    System.out.println("Cantidad (dias): " + amountDays);
     System.out.println("Fecha hasta esperada: " + UtilDate.formatDate(expectedDate));
-    System.out.println("Fecha hasta calculada por el metodo calculateDateUntil: " + UtilDate.formatDate(dateUntil));
+    System.out.println("Fecha hasta calculada por el metodo calculateDateUntil(): " + UtilDate.formatDate(dateUntil));
     System.out.println();
 
     assertTrue((expectedDate.get(Calendar.YEAR) == dateUntil.get(Calendar.YEAR))
@@ -154,11 +114,108 @@ public class CalculateDateUntilTest {
     System.out.println();
   }
 
-  @AfterClass
-  public static void postTest() {
-    // Cierra las conexiones
-    entityManager.close();
-    entityManagerFactory.close();
+  @Test
+  public void testThreeCalculatDateUntil() {
+    /*
+     * Datos a partir de los cuales se calcula la
+     * fecha hasta
+     */
+    int amountDays = 28;
+    Calendar dateFrom = Calendar.getInstance();
+    dateFrom.set(Calendar.YEAR, 2020);
+    dateFrom.set(Calendar.MONTH, FEBRUARY);
+    dateFrom.set(Calendar.DAY_OF_MONTH, 1);
+
+    Calendar expectedDate = Calendar.getInstance();
+    expectedDate.set(Calendar.YEAR, 2020);
+    expectedDate.set(Calendar.MONTH, FEBRUARY);
+    expectedDate.set(Calendar.DAY_OF_MONTH, 29);
+
+    System.out.println("**************************** Prueba tres del metodo calculateDateUntil ****************************");
+    printDescriptionMethodToTest();
+    System.out.println();
+    System.out.println("# Descripcion de la prueba unitaria");
+    System.out.println("Para demostrar el correcto funcionamiento del metodo calculateDateUntil() en esta prueba se utiliza");
+    System.out.print("la fecha desde " + UtilDate.formatDate(dateFrom) + " y la cantidad " + amountDays + ". Por lo tanto, el ");
+    System.out.println("metodo calculateDateUntil() debe retornar");
+    System.out.println("la fecha " + UtilDate.formatDate(expectedDate) + ".");
+    System.out.println();
+
+    /*
+     * Seccion de prueba
+     */
+    Calendar dateUntil = UtilDate.calculateDateUntil(dateFrom, amountDays);
+
+    System.out.println("* Seccion de prueba *");
+    System.out.println("Fecha desde: " + UtilDate.formatDate(dateFrom));
+    System.out.println("Cantidad (dias): " + amountDays);
+    System.out.println("Fecha hasta esperada: " + UtilDate.formatDate(expectedDate));
+    System.out.println("Fecha hasta calculada por el metodo calculateDateUntil(): " + UtilDate.formatDate(dateUntil));
+    System.out.println();
+
+    assertTrue((expectedDate.get(Calendar.YEAR) == dateUntil.get(Calendar.YEAR))
+        && (expectedDate.get(Calendar.MONTH) == dateUntil.get(Calendar.MONTH))
+        && (expectedDate.get(Calendar.DAY_OF_YEAR) == dateUntil.get(Calendar.DAY_OF_YEAR)));
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+    System.out.println();
+  }
+
+  @Test
+  public void testFourCalculatDateUntil() {
+    /*
+     * Datos a partir de los cuales se calcula la
+     * fecha hasta
+     */
+    int amountDays = 90;
+    Calendar dateFrom = Calendar.getInstance();
+    dateFrom.set(Calendar.YEAR, 2019);
+    dateFrom.set(Calendar.MONTH, DECEMBER);
+    dateFrom.set(Calendar.DAY_OF_MONTH, 1);
+
+    Calendar expectedDate = Calendar.getInstance();
+    expectedDate.set(Calendar.YEAR, 2020);
+    expectedDate.set(Calendar.MONTH, FEBRUARY);
+    expectedDate.set(Calendar.DAY_OF_MONTH, 29);
+
+    System.out.println("**************************** Prueba cuatro del metodo calculateDateUntil ****************************");
+    printDescriptionMethodToTest();
+    System.out.println();
+    System.out.println("# Descripcion de la prueba unitaria");
+    System.out.println("Para demostrar el correcto funcionamiento del metodo calculateDateUntil() en esta prueba se utiliza");
+    System.out.print("la fecha desde " + UtilDate.formatDate(dateFrom) + " y la cantidad " + amountDays + ". Por lo tanto, el ");
+    System.out.println("metodo calculateDateUntil() debe retornar");
+    System.out.println("la fecha " + UtilDate.formatDate(expectedDate) + ".");
+    System.out.println();
+
+    /*
+     * Seccion de prueba
+     */
+    Calendar dateUntil = UtilDate.calculateDateUntil(dateFrom, amountDays);
+
+    System.out.println("* Seccion de prueba *");
+    System.out.println("Fecha desde: " + UtilDate.formatDate(dateFrom));
+    System.out.println("Cantidad (dias): " + amountDays);
+    System.out.println("Fecha hasta esperada: " + UtilDate.formatDate(expectedDate));
+    System.out.println("Fecha hasta calculada por el metodo calculateDateUntil(): " + UtilDate.formatDate(dateUntil));
+    System.out.println();
+
+    assertTrue((expectedDate.get(Calendar.YEAR) == dateUntil.get(Calendar.YEAR))
+        && (expectedDate.get(Calendar.MONTH) == dateUntil.get(Calendar.MONTH))
+        && (expectedDate.get(Calendar.DAY_OF_YEAR) == dateUntil.get(Calendar.DAY_OF_YEAR)));
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+    System.out.println();
+  }
+
+  /**
+   * Imprime por pantalla la descripcion del metodo a probar
+   */
+  public void printDescriptionMethodToTest() {
+    System.out.println("# Descripcion del metodo a probar");
+    System.out.println("El metodo calculateDateUntil() de la clase UtilDate calcula una fecha a partir de la suma entre el");
+    System.out.println("numero de dia en el año de una fecha y una cantidad (dias). A la fecha calculada se la conoce como");
+    System.out.println("fecha hasta y a la fecha a partir de la cual se la calcula se conoce como fecha desde.");
   }
 
 }

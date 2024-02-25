@@ -86,6 +86,7 @@ public class StatisticalReportRestServlet {
   private final String DATA_NOT_AVAILABLE = "Dato no disponible";
   private final String UNDEFINED_VALUE = "undefined";
   private final String NULL_VALUE = "null";
+  private final int DAYS_YEAR = 365;
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
@@ -621,32 +622,20 @@ public class StatisticalReportRestServlet {
     }
 
     /*
-     * Si la cantidad de dias entre la fecha desde y la fecha
-     * hasta, es estrictamente menor al menor ciclo de vida
-     * (medido en dias), la aplicacion del lado servidor retorna
-     * el mensaje "La fecha hasta debe ser igual a <menor ciclo
-     * de vida> (ciclo de vida del cultivo con el menor ciclo
-     * de vida) dias contando a partir de la fecha desde. En
-     * este caso la hasta debe ser <fecha hasta calculada>."
-     * y no se realiza la operacion solicitada.
-     * 
-     * A la diferencia entre el numero de dia en el año de la
-     * fecha desde y el numero de dia en el año de la fecha
-     * hasta se le suma un uno para incluir la fecha desde,
-     * ya que esta incluida en el periodo formada entre ella
-     * y la fecha hasta.
+     * Si la cantidad de dias que hay entre la fecha desde y la
+     * fecha hasta es estrictamente menor a la cantidad de dias
+     * que hay en un año no bisiesto, la aplicacion del lado
+     * servidor retorna el mensaje HTTP 400 (Bad request) junto
+     * con el mensaje "La cantidad de dias que debe haber entre
+     * la fecha desde y la fecha hasta debe ser mayor o igual
+     * a 365 dias. En este caso, la fecha hasta debe ser <fecha
+     * hasta calculada>." y no se realiza la operaicon solicitada
      */
-    if ((UtilDate.calculateDifferenceBetweenDates(dateFrom, dateUntil) + 1) < cropService.findShortestLifeCycle()) {
-      String message = "La fecha hasta debe ser como mínimo igual a " +
-          cropService.findShortestLifeCycle()
-          + " (ciclo de vida del cultivo con el menor ciclo de vida) días contando a partir de la fecha desde (incluida). "
-          + "En este caso la fecha hasta debe ser "
-          + UtilDate.formatDate(statisticalReportService.calculateDateUntil(newStatisticalReport.getDateFrom(),
-              cropService.findShortestLifeCycle()))
-          + ".";
+    if (UtilDate.calculateDifferenceBetweenDates(dateFrom, dateUntil) < DAYS_YEAR) {
+      String message = "La cantidad de días que debe haber entre la fecha desde y la fecha hasta debe ser mayor o igual a 365 días. "
+          + "En este caso, la fecha hasta debe ser " + UtilDate.formatDate(UtilDate.calculateDateUntil(newStatisticalReport.getDateFrom(), DAYS_YEAR)) + ".";
       PersonalizedResponse newPersonalizedResponse = new PersonalizedResponse(message);
-      return Response.status(Response.Status.BAD_REQUEST)
-          .entity(mapper.writeValueAsString(newPersonalizedResponse)).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(newPersonalizedResponse)).build();
     }
 
     /*
