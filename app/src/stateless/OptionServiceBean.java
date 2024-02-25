@@ -212,12 +212,8 @@ public class OptionServiceBean {
     }
 
     /**
-     * Comprueba si una opcion pertenece a una parcela de un usuario,
-     * mediante la relacion muchos a uno que hay entre los modelos
-     * de datos User y Parcel.
-     * 
      * Retorna true si y solo si una opcion pertenece a una parcela
-     * de un usuario.
+     * de un usuario
      * 
      * @param userId
      * @param optionId
