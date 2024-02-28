@@ -1,4 +1,4 @@
-var app = angular.module('app', ['ngRoute', 'Pagination', 'ui.bootstrap', 'leaflet-directive']);
+var app = angular.module('app', ['ngRoute', 'Pagination', 'ui.bootstrap', 'leaflet-directive', 'chart.js']);
 
 // ui.bootstrap es necesario para la busqueda que se hace cuando se ingresan caracteres
 // Pagination es necesario para la paginacion
