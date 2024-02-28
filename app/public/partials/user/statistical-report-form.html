@@ -125,7 +125,71 @@
 	</div>
 </nav>
 
-<div class="panel panel-info">
+<div class="panel panel-info" ng-show="action == 'new'">
+	<div class="panel-heading">
+		<strong>Informe estadístico</strong>
+	</div>
+	<div class="panel-body">
+		<form class="form-horizontal">
+			<div class="form-group">
+				<label for="statisticalReport_dateFrom" class="col-md-2 control-label">Fecha desde</label>
+				<div class="col-md-3">
+					<input type="date" class="form-control" id="statisticalReport_dateFrom" ng-model="data.dateFrom"
+						value={{data.dateFrom}} ng-disabled="action == 'view'" required>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="statisticalReport_dateUntil" class="col-md-2 control-label">Fecha hasta</label>
+				<div class="col-md-3">
+					<input type="date" class="form-control" id="statisticalReport_dateUntil" ng-model="data.dateUntil"
+						value={{data.dateUntil}} ng-disabled="action == 'view'">
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="statisticalReport_parcel" class="col-md-2 control-label">Parcela</label>
+				<div class="col-md-3">
+					<input name="parcel" type="text" ng-model="data.parcel" placeholder="Ej.: Parcela TX 1"
+						uib-typeahead="parcel as parcel.name for parcel in findActiveParcelByName($viewValue)"
+						typeahead-loading="loadingLocations" class="form-control" typeahead-editable="false"
+						typeahead-min-lenght="3" ng-disabled="action == 'view'">
+					<i ng-show="loadingLocations" class="glyphicon glyphicon-refresh"></i>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="statisticalData" class="col-md-2 control-label">Dato estadístico</label>
+				<div class="col-md-6">
+					<select name="statisticalData" class="form-control" ng-model="data.statisticalData"
+						ng-disabled="action == 'view'"
+						ng-options="statisticalData.description for statisticalData in statisticsData track by statisticalData.id">
+					</select>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<div class="col-md-offset-2 col-md-3">
+					<button type="submit" class="btn btn-success" ng-click="create()"
+						ng-show="action == 'new'">Generar</button>
+					<button class="btn btn-success" ng-click="goBack()" ng-show="action == 'new'">Cancelar</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+
+<canvas ng-show="action == 'view'" id="bar" class="chart chart-bar" chart-data="data" chart-labels="labels"
+	chart-options="options">
+</canvas>
+
+<div class="form-group" ng-show="action == 'view'">
+	<div class="col-md-offset-2 col-md-3">
+		<button class="btn btn-success" ng-click="goBack()">Atrás</button>
+	</div>
+</div>
+
+<!-- <div class="panel panel-info">
 	<div class="panel-heading">
 		<strong>Informe estadístico</strong>
 	</div>
@@ -415,10 +479,10 @@
 				<div class="col-md-offset-2 col-md-3">
 					<button type="submit" class="btn btn-success" ng-click="create()"
 						ng-show="action == 'new'">Generar</button>
-					<button class="btn btn-success" ng-click="cancel()" ng-show="action == 'new'">Cancelar</button>
-					<button class="btn btn-success" ng-click="cancel()" ng-show="action == 'view'">Atrás</button>
+					<button class="btn btn-success" ng-click="goBack()" ng-show="action == 'new'">Cancelar</button>
+						<button class="btn btn-success" ng-click="goBack()" ng-show="action == 'view'">Atrás</button>
 				</div>
 			</div>
 		</form>
 	</div>
-</div>
+</div> -->

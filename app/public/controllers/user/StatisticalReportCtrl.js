@@ -1,9 +1,9 @@
 app.controller(
   "StatisticalReportCtrl",
-  ["$scope", "$location", "$routeParams", "StatisticalReportSrv", "ParcelSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
-    "ExpirationManager", "RedirectManager",
-    function ($scope, $location, $params, statisticalReportService, parcelService, accessManager, errorResponseManager, authHeaderManager, logoutManager, expirationManager,
-      redirectManager) {
+  ["$scope", "$location", "$routeParams", "StatisticalReportSrv", "ParcelSrv", "StatisticalDataSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager",
+    "LogoutManager", "ExpirationManager", "RedirectManager",
+    function ($scope, $location, $params, statisticalReportService, parcelService, statisticalDataService, accessManager, errorResponseManager, authHeaderManager,
+      logoutManager, expirationManager, redirectManager) {
 
       console.log("StatisticalReportCtrl loaded with action: " + $params.action)
 
@@ -96,6 +96,20 @@ app.controller(
       const INDEFINITE_PARCEL = "La parcela debe estar definida";
       const DATE_FROM_AND_DATE_UNTIL_OVERLAPPING = "La fecha desde no debe ser mayor o igual a la fecha hasta";
       const DATE_UNTIL_FUTURE_NOT_ALLOWED = "La fecha hasta no debe ser estrictamente mayor (es decir, posterior) a la fecha actual (es decir, hoy)";
+      const UNDEFINED_STATISTICAL_DATA = "El dato estadístico a calcular debe estar definido";
+
+      /* Recupera de la aplicacion del lado servidor los datos
+      estadisticos que se pueden calcular para una parcela */
+      function findAllStatisticalData() {
+        statisticalDataService.findAll(function (error, data) {
+          if (error) {
+            console.log(error);
+            return;
+          }
+
+          $scope.statisticsData = data;
+        })
+      }
 
       function find(id) {
         statisticalReportService.find(id, function (error, data) {
@@ -105,20 +119,42 @@ app.controller(
             return;
           }
 
-          $scope.data = data;
+          $scope.data = data.data;
+          $scope.labels = data.labels;
 
-          if ($scope.data.dateFrom != null) {
-            $scope.data.dateFrom = new Date($scope.data.dateFrom);
-          }
+          $scope.options = {
+            title: {
+              display: true,
+              text: data.text
+            }
 
-          if ($scope.data.dateUntil != null) {
-            $scope.data.dateUntil = new Date($scope.data.dateUntil);
-          }
+            // Este codigo fuente es para crear una linea que marque el promedio de un conjunto de valores
+            // Fuente: https://github.com/chartjs/chartjs-plugin-annotation/tree/1ab782afce943456f958cac33f67edc5d6eab278
+            // annotation: {
+            //   annotations: [{
+            //     type: 'line',
+            //     mode: 'horizontal',
+            //     scaleID: 'y-axis-0',
+            //     value: '25',
+            //     borderColor: 'black',
+            //     borderDash: [6, 6],
+            //     borderDashOffset: 0,
+            //     borderWidth: 3,
+            //     label: {
+            //       enabled: true,
+            //       content: 'Promedio: ' + '25'
+            //     }
+            //   }]
+            // }
+
+          };
 
         });
       }
 
       $scope.create = function () {
+        var currentDate = new Date();
+
         /*
         Si la propiedad data de $scope tiene el valor undefined,
         significa que los campos del formulario correspondiente
@@ -142,16 +178,14 @@ app.controller(
         }
 
         /*
-        Si la parcela NO esta definida, la aplicacion muestra el
-        mensaje dado y no ejecuta la instruccion que realiza la
+        Si la fecha desde es mayor o igual a la fecha hasta, la aplicacion
+        muestra el mensaje dado y no ejecuta la instruccion que realiza la
         peticion HTTP correspondiente a esta funcion
         */
-        if ($scope.data.parcel == undefined) {
-          alert(INDEFINITE_PARCEL);
+        if ($scope.data.dateFrom >= $scope.data.dateUntil) {
+          alert(DATE_FROM_AND_DATE_UNTIL_OVERLAPPING);
           return;
         }
-
-        var currentDate = new Date();
 
         /*
         Si la fecha hasta es posterior a la fecha actual, la aplicacion
@@ -164,12 +198,20 @@ app.controller(
         }
 
         /*
-        Si la fecha desde es mayor o igual a la fecha hasta, la aplicacion
-        muestra el mensaje dado y no ejecuta la instruccion que realiza la
+        Si la parcela NO esta definida, la aplicacion muestra el
+        mensaje dado y no ejecuta la instruccion que realiza la
         peticion HTTP correspondiente a esta funcion
         */
-        if ($scope.data.dateFrom >= $scope.data.dateUntil) {
-          alert(DATE_FROM_AND_DATE_UNTIL_OVERLAPPING);
+        if ($scope.data.parcel == undefined) {
+          alert(INDEFINITE_PARCEL);
+          return;
+        }
+
+        /* Si el dato estadistico a calcular NO esta definido, la
+        aplicacion muestra el mensaje dado y no ejecuta la instruccion
+        que realiza la peticion HTTP correspondiente a esta funcion */
+        if ($scope.data.statisticalData == undefined) {
+          alert(UNDEFINED_STATISTICAL_DATA);
           return;
         }
 
@@ -194,7 +236,7 @@ app.controller(
         });
       }
 
-      $scope.cancel = function () {
+      $scope.goBack = function () {
         $location.path("/home/statisticalReports");
       }
 
@@ -234,4 +276,5 @@ app.controller(
         find($params.id);
       }
 
+      findAllStatisticalData();
     }]);

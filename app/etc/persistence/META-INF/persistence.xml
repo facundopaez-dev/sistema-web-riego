@@ -18,6 +18,8 @@
     <class>model.PasswordResetLink</class>
     <class>model.Region</class>
     <class>model.Session</class>
+    <class>model.StatisticalData</class>
+    <class>model.StatisticalGraph</class>
     <class>model.SolarRadiation</class>
     <class>model.StatisticalReport</class>
     <class>model.TypeCrop</class>

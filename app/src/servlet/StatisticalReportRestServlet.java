@@ -46,7 +46,7 @@ import util.UtilDate;
 import utilJwt.AuthHeaderManager;
 import utilJwt.JwtManager;
 
-@Path("/statisticalReports")
+@Path("/deprecatedStatisticalReports")
 public class StatisticalReportRestServlet {
 
   // inject a reference to the SecretKeyServiceBean slsb

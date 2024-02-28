@@ -12,8 +12,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import model.PlantingRecord;
 import model.StatisticalReport;
 import util.UtilDate;
+import java.util.List;
 
 @Stateless
 public class StatisticalReportServiceBean {
@@ -276,6 +278,71 @@ public class StatisticalReportServiceBean {
    */
   public boolean checkExistence(int id) {
     return (getEntityManager().find(StatisticalReport.class, id) != null);
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List que contiene
+   * los numeros que representan la cantidad total de veces
+   * que se plantaron los cultivos en una parcela en un periodo
+   * definido por dos fechas
+   */
+  public List<Integer> calculateTotalNumberPlantationsPerCrop(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String stringQuery = "SELECT COUNT(FK_CROP) FROM PLANTING_RECORD WHERE FK_PARCEL = ?1 "
+        + "AND FK_STATUS = 1 AND ((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) "
+        + "OR (SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR (?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 "
+        + "AND SEED_DATE < ?2)) GROUP BY FK_CROP";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<Integer> result = null;
+
+    try {
+      result = query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List que contiene
+   * los nombres de los cultivos para los que se calcula la
+   * cantidad total de veces que se plantaron en una parcela
+   * en un periodo definido por dos fechas
+   */
+  public List<String> findCropNamesCalculatedPerTotalNumberPlantationsPerCrop(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String subQuery = "SELECT FK_CROP, COUNT(FK_CROP) AS NUMBER_PLANTATIONS FROM PLANTING_RECORD WHERE "
+        + "FK_PARCEL = ?1 AND FK_STATUS = 1 AND ((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND "
+        + "HARVEST_DATE > ?3) OR (SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR (?2 <= HARVEST_DATE "
+        + "AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2)) GROUP BY FK_CROP";
+
+    String stringQuery = "SELECT NAME FROM CROP JOIN (" + subQuery
+        + ") AS RESULT_TABLE ON CROP.ID = RESULT_TABLE.FK_CROP";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<String> result = null;
+
+    try {
+      result = query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
   }
 
   public Page<StatisticalReport> findAllPagination(int userId, Integer page, Integer cantPerPage, Map<String, String> parameters) throws ParseException {

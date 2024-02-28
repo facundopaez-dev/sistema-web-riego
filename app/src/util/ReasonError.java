@@ -130,7 +130,8 @@ public enum ReasonError {
   INVALID_HARVEST_RECORD_DATE("La fecha elegida no corresponde a una fecha de cosecha de un registro de plantación finalizado de la parcela elegida"),
   MODIFICATION_CROP_OF_A_HARVEST_NOT_ALLOWED("No está permitido modificar el cultivo de una cosecha"),
   NO_TYPE_OF_PRECIPITATION("Al ser la precipitación estrictamente mayor a 0 debe seleccionar como mínimo un tipo de precipitación"),
-  REPETITION_OF_PRECIPITATION_TYPES("No se deben repetir los tipos de precipitación");
+  REPETITION_OF_PRECIPITATION_TYPES("No se deben repetir los tipos de precipitación"),
+  UNDEFINED_STATISTICAL_DATA("El dato estadístico a calcular debe estar definido");
 
   private final String reason;
 

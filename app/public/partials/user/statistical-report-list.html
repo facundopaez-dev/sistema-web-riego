@@ -159,6 +159,7 @@
         <th>Parcela</th>
         <th>Fecha desde</th>
         <th>Fecha hasta</th>
+        <th>Dato estadístico</th>
         <th class="text-right"></th>
       </tr>
     </thead>
@@ -168,6 +169,7 @@
         <td>{{s.parcel.name}}</td>
         <td>{{s.dateFrom | date:'dd/MM/yyyy'}}</td>
         <td>{{s.dateUntil | date:'dd/MM/yyyy'}}</td>
+        <td>{{s.statisticalData.description}}</td>
         <td class="text-right">
           <div class="btn-group" role="group" aria-label="...">
             <a href="#!/home/statisticalReports/view/{{s.id}}" class="btn btn-success" role="button">
