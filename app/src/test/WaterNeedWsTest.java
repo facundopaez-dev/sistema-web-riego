@@ -198,7 +198,7 @@ public class WaterNeedWsTest {
     testCrop.setName("Lechuga");
     testCrop.setLowerLimitMaximumRootDepth(0.3);
     testCrop.setUpperLimitMaximumRootDepth(0.5);
-    testCrop.setDepletionFactor(0.30);
+    testCrop.setDepletionFraction(0.30);
 
     testSoil = new Soil();
     testSoil.setName("Arenoso");
@@ -266,7 +266,7 @@ public class WaterNeedWsTest {
 
     double totalIrrigationWaterCurrentDate = 0.0;
     double accumulatedWaterDeficitPerDay = WaterMath.calculateAccumulatedWaterDeficitPerDay(testClimateRecords, zeroIrrigationRecords);
-    double optimalIrrigationLayer = WaterMath.calculateOptimalIrrigationLayer(climateRecordSeven.getEtc(), testCrop, testSoil);
+    double optimalIrrigationLayer = WaterMath.calculateOptimalIrrigationLayer(testCrop, testSoil);
     double totalAmountWaterAvailable = WaterMath.calculateTotalAmountWaterAvailable(testCrop, testSoil);
 
     printAccumulatedAmountRainWater(presumedCurrentDate, testClimateRecords);
@@ -324,7 +324,7 @@ public class WaterNeedWsTest {
 
     double totalIrrigationWaterCurrentDate = 0.0;
     double accumulatedWaterDeficitPerDay = WaterMath.calculateAccumulatedWaterDeficitPerDay(testClimateRecords, zeroIrrigationRecords);
-    double optimalIrrigationLayer = WaterMath.calculateOptimalIrrigationLayer(climateRecordSeven.getEtc(), testCrop, testSoil);
+    double optimalIrrigationLayer = WaterMath.calculateOptimalIrrigationLayer(testCrop, testSoil);
     double totalAmountWaterAvailable = WaterMath.calculateTotalAmountWaterAvailable(testCrop, testSoil);
 
     printAccumulatedAmountRainWater(presumedCurrentDate, testClimateRecords);
@@ -382,7 +382,7 @@ public class WaterNeedWsTest {
 
     double totalIrrigationWaterCurrentDate = 0.0;
     double accumulatedWaterDeficitPerDay = WaterMath.calculateAccumulatedWaterDeficitPerDay(testClimateRecords, zeroIrrigationRecords);
-    double optimalIrrigationLayer = WaterMath.calculateOptimalIrrigationLayer(climateRecordSeven.getEtc(), testCrop, testSoil);
+    double optimalIrrigationLayer = WaterMath.calculateOptimalIrrigationLayer(testCrop, testSoil);
     double totalAmountWaterAvailable = WaterMath.calculateTotalAmountWaterAvailable(testCrop, testSoil);
 
     printAccumulatedAmountRainWater(presumedCurrentDate, testClimateRecords);
@@ -440,7 +440,7 @@ public class WaterNeedWsTest {
 
     double totalIrrigationWaterCurrentDate = 0.0;
     double accumulatedWaterDeficitPerDay = WaterMath.calculateAccumulatedWaterDeficitPerDay(testClimateRecords, zeroIrrigationRecords);
-    double optimalIrrigationLayer = WaterMath.calculateOptimalIrrigationLayer(climateRecordSeven.getEtc(), testCrop, testSoil);
+    double optimalIrrigationLayer = WaterMath.calculateOptimalIrrigationLayer(testCrop, testSoil);
     double totalAmountWaterAvailable = WaterMath.calculateTotalAmountWaterAvailable(testCrop, testSoil);
 
     printAccumulatedAmountRainWater(presumedCurrentDate, testClimateRecords);
@@ -498,7 +498,7 @@ public class WaterNeedWsTest {
 
     double totalIrrigationWaterCurrentDate = 0.0;
     double accumulatedWaterDeficitPerDay = WaterMath.calculateAccumulatedWaterDeficitPerDay(testClimateRecords, zeroIrrigationRecords);
-    double optimalIrrigationLayer = WaterMath.calculateOptimalIrrigationLayer(climateRecordSeven.getEtc(), testCrop, testSoil);
+    double optimalIrrigationLayer = WaterMath.calculateOptimalIrrigationLayer(testCrop, testSoil);
     double totalAmountWaterAvailable = WaterMath.calculateTotalAmountWaterAvailable(testCrop, testSoil);
 
     printAccumulatedAmountRainWater(presumedCurrentDate, testClimateRecords);
@@ -556,7 +556,7 @@ public class WaterNeedWsTest {
 
     double totalIrrigationWaterCurrentDate = 0;
     double accumulatedWaterDeficitPerDay = WaterMath.calculateAccumulatedWaterDeficitPerDay(testClimateRecords, testIrrigationRecords);
-    double optimalIrrigationLayer = WaterMath.calculateOptimalIrrigationLayer(climateRecordSeven.getEtc(), testCrop, testSoil);
+    double optimalIrrigationLayer = WaterMath.calculateOptimalIrrigationLayer(testCrop, testSoil);
     double totalAmountWaterAvailable = WaterMath.calculateTotalAmountWaterAvailable(testCrop, testSoil);
 
     printAccumulatedAmountRainWater(presumedCurrentDate, testClimateRecords);
@@ -614,7 +614,7 @@ public class WaterNeedWsTest {
 
     double totalIrrigationWaterCurrentDate = 5;
     double accumulatedWaterDeficitPerDay = WaterMath.calculateAccumulatedWaterDeficitPerDay(testClimateRecords, zeroIrrigationRecords);
-    double optimalIrrigationLayer = WaterMath.calculateOptimalIrrigationLayer(climateRecordSeven.getEtc(), testCrop, testSoil);
+    double optimalIrrigationLayer = WaterMath.calculateOptimalIrrigationLayer(testCrop, testSoil);
     double totalAmountWaterAvailable = WaterMath.calculateTotalAmountWaterAvailable(testCrop, testSoil);
 
     printAccumulatedAmountRainWater(presumedCurrentDate, testClimateRecords);
@@ -672,7 +672,7 @@ public class WaterNeedWsTest {
 
     double totalIrrigationWaterCurrentDate = 3.9;
     double accumulatedWaterDeficitPerDay = WaterMath.calculateAccumulatedWaterDeficitPerDay(testClimateRecords, zeroIrrigationRecords);
-    double optimalIrrigationLayer = WaterMath.calculateOptimalIrrigationLayer(climateRecordSeven.getEtc(), testCrop, testSoil);
+    double optimalIrrigationLayer = WaterMath.calculateOptimalIrrigationLayer(testCrop, testSoil);
     double totalAmountWaterAvailable = WaterMath.calculateTotalAmountWaterAvailable(testCrop, testSoil);
 
     printAccumulatedAmountRainWater(presumedCurrentDate, testClimateRecords);
@@ -730,7 +730,7 @@ public class WaterNeedWsTest {
 
     double totalIrrigationWaterCurrentDate = 2;
     double accumulatedWaterDeficitPerDay = WaterMath.calculateAccumulatedWaterDeficitPerDay(testClimateRecords, zeroIrrigationRecords);
-    double optimalIrrigationLayer = WaterMath.calculateOptimalIrrigationLayer(climateRecordSeven.getEtc(), testCrop, testSoil);
+    double optimalIrrigationLayer = WaterMath.calculateOptimalIrrigationLayer(testCrop, testSoil);
     double totalAmountWaterAvailable = WaterMath.calculateTotalAmountWaterAvailable(testCrop, testSoil);
 
     printAccumulatedAmountRainWater(presumedCurrentDate, testClimateRecords);
@@ -788,7 +788,7 @@ public class WaterNeedWsTest {
 
     double totalIrrigationWaterCurrentDate = 5;
     double accumulatedWaterDeficitPerDay = WaterMath.calculateAccumulatedWaterDeficitPerDay(testClimateRecords, zeroIrrigationRecords);
-    double optimalIrrigationLayer = WaterMath.calculateOptimalIrrigationLayer(climateRecordSeven.getEtc(), testCrop, testSoil);
+    double optimalIrrigationLayer = WaterMath.calculateOptimalIrrigationLayer(testCrop, testSoil);
     double totalAmountWaterAvailable = WaterMath.calculateTotalAmountWaterAvailable(testCrop, testSoil);
 
     printAccumulatedAmountRainWater(presumedCurrentDate, testClimateRecords);
@@ -846,7 +846,7 @@ public class WaterNeedWsTest {
 
     double totalIrrigationWaterCurrentDate = 0;
     double accumulatedWaterDeficitPerDay = WaterMath.calculateAccumulatedWaterDeficitPerDay(testClimateRecords, testIrrigationRecords);
-    double optimalIrrigationLayer = WaterMath.calculateOptimalIrrigationLayer(climateRecordSeven.getEtc(), testCrop, testSoil);
+    double optimalIrrigationLayer = WaterMath.calculateOptimalIrrigationLayer(testCrop, testSoil);
     double totalAmountWaterAvailable = WaterMath.calculateTotalAmountWaterAvailable(testCrop, testSoil);
 
     printAccumulatedAmountRainWater(presumedCurrentDate, testClimateRecords);
@@ -904,7 +904,7 @@ public class WaterNeedWsTest {
 
     double totalIrrigationWaterCurrentDate = 2;
     double accumulatedWaterDeficitPerDay = WaterMath.calculateAccumulatedWaterDeficitPerDay(testClimateRecords, testIrrigationRecords);
-    double optimalIrrigationLayer = WaterMath.calculateOptimalIrrigationLayer(climateRecordSeven.getEtc(), testCrop, testSoil);
+    double optimalIrrigationLayer = WaterMath.calculateOptimalIrrigationLayer(testCrop, testSoil);
     double totalAmountWaterAvailable = WaterMath.calculateTotalAmountWaterAvailable(testCrop, testSoil);
 
     printAccumulatedAmountRainWater(presumedCurrentDate, testClimateRecords);
@@ -1112,7 +1112,7 @@ public class WaterNeedWsTest {
     System.out.println("Datos del cultivo de prueba");
     System.out.println("Nombre: " + testCrop.getName());
     System.out.println("Profundidad radicular [m]: " + testCrop.getLowerLimitMaximumRootDepth() + "-" + testCrop.getUpperLimitMaximumRootDepth());
-    System.out.println("Fraccion de agotamiento de la humedad en el suelo para un cultivo (p): " + testCrop.getDepletionFactor());
+    System.out.println("Fraccion de agotamiento de la humedad en el suelo para un cultivo (p): " + testCrop.getDepletionFraction());
   }
 
   /**
