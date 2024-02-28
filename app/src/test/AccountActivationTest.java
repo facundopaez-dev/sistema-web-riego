@@ -95,14 +95,13 @@ public class AccountActivationTest {
      * Creacion y persistencia de un usuario para los
      * enlaces de activacion
      */
-    User givenUser = new User();
-    givenUser.setUsername("testuserone");
-    givenUser.setName("Jackson");
-    givenUser.setLastName("Doe");
-    givenUser.setPassword("Ultra secret password");
-    givenUser.setEmail("testuserone@eservice.com");
+    User testUser = new User();
+    testUser.setUsername("testuserone");
+    testUser.setName("Jackson");
+    testUser.setLastName("Doe");
+    testUser.setEmail("testuserone@eservice.com");
 
-    givenUser = userService.create(givenUser);
+    testUser = userService.create(testUser);
 
     /*
      * Creacion de enlaces de activacion
@@ -110,17 +109,17 @@ public class AccountActivationTest {
     AccountActivationLink firstNewAccountActivationLink = new AccountActivationLink();
     firstNewAccountActivationLink.setDateIssue(firstDateIssue);
     firstNewAccountActivationLink.setExpirationDate(firstExpirationDate);
-    firstNewAccountActivationLink.setUser(givenUser);
+    firstNewAccountActivationLink.setUser(testUser);
 
     AccountActivationLink secondNewAccountActivationLink = new AccountActivationLink();
     secondNewAccountActivationLink.setDateIssue(secondDateIssue);
     secondNewAccountActivationLink.setExpirationDate(secondExpirationDate);
-    secondNewAccountActivationLink.setUser(givenUser);
+    secondNewAccountActivationLink.setUser(testUser);
 
     AccountActivationLink threeNewAccountActivationLink = new AccountActivationLink();
     threeNewAccountActivationLink.setDateIssue(threeDateIssue);
     threeNewAccountActivationLink.setExpirationDate(threeExpirationDate);
-    threeNewAccountActivationLink.setUser(givenUser);
+    threeNewAccountActivationLink.setUser(testUser);
 
     /*
      * Persistencia de enlaces de activacion
@@ -144,7 +143,7 @@ public class AccountActivationTest {
     accountActivationLinks.add(firstNewAccountActivationLink);
     accountActivationLinks.add(secondNewAccountActivationLink);
     accountActivationLinks.add(threeNewAccountActivationLink);
-    users.add(givenUser);
+    users.add(testUser);
 
     /*
      * Se imprimen por pantalla los enlaces de activacion de cuenta
@@ -155,7 +154,7 @@ public class AccountActivationTest {
      * de cuenta mas reciente de un usuario registrado.
      */
     System.out.println("* Impresion de los enlaces de activacion de la cuenta del usuario que tiene el correo");
-    System.out.println("electronico " + givenUser.getEmail());
+    System.out.println("electronico " + testUser.getEmail());
     System.out.println();
 
     for (AccountActivationLink currentAccountActivationLink : accountActivationLinks) {
@@ -165,7 +164,7 @@ public class AccountActivationTest {
     /*
      * Seccion de prueba
      */
-    AccountActivationLink latestAccountActivationLink = accountActivationLinkService.findByUserEmail(givenUser.getEmail());
+    AccountActivationLink latestAccountActivationLink = accountActivationLinkService.findByUserEmail(testUser.getEmail());
 
     System.out.println("Valor esperado (ID del enlace de activacion mas reciente): " + threeNewAccountActivationLink.getId());
     System.out.println("* Resultado obtenido (ID del enlace de activacion mas reciente): " + latestAccountActivationLink.getId());
@@ -199,20 +198,19 @@ public class AccountActivationTest {
      * Creacion y persistencia de un usuario para un
      * enlace de activacion
      */
-    User givenUser = new User();
-    givenUser.setUsername("testusertwo");
-    givenUser.setName("Jackie");
-    givenUser.setLastName("Doe");
-    givenUser.setPassword("Ultra secret password");
-    givenUser.setEmail("testusertwo@eservice.com");
+    User testUser = new User();
+    testUser.setUsername("testusertwo");
+    testUser.setName("Jackie");
+    testUser.setLastName("Doe");
+    testUser.setEmail("testusertwo@eservice.com");
 
-    givenUser = userService.create(givenUser);
+    testUser = userService.create(testUser);
 
     /*
      * Creacion y persistencia de un enlace de activacion
      */
     entityManager.getTransaction().begin();
-    AccountActivationLink newAccountActivationLink = accountActivationLinkService.create(givenUser);
+    AccountActivationLink newAccountActivationLink = accountActivationLinkService.create(testUser);
     entityManager.getTransaction().commit();
 
     /*
@@ -220,7 +218,7 @@ public class AccountActivationTest {
      * posterior eliminacion de la base de datos subyacente
      */
     accountActivationLinks.add(newAccountActivationLink);
-    users.add(givenUser);
+    users.add(testUser);
 
     System.out.println("* Impresion de un enlace de activacion de cuenta");
     System.out.println(newAccountActivationLink);
@@ -253,14 +251,13 @@ public class AccountActivationTest {
      * Creacion y persistencia de un usuario para un
      * enlace de activacion
      */
-    User givenUser = new User();
-    givenUser.setUsername("testuserthree");
-    givenUser.setName("Joe");
-    givenUser.setLastName("Doe");
-    givenUser.setPassword("Ultra secret password");
-    givenUser.setEmail("testuserthree@eservice.com");
+    User testUser = new User();
+    testUser.setUsername("testuserthree");
+    testUser.setName("Joe");
+    testUser.setLastName("Doe");
+    testUser.setEmail("testuserthree@eservice.com");
 
-    givenUser = userService.create(givenUser);
+    testUser = userService.create(testUser);
 
     /*
      * Creacion de la fecha de emision y de la fecha de expiracion para
@@ -277,7 +274,7 @@ public class AccountActivationTest {
     AccountActivationLink newAccountActivationLink = new AccountActivationLink();
     newAccountActivationLink.setDateIssue(dateIssue);
     newAccountActivationLink.setExpirationDate(expirationDate);
-    newAccountActivationLink.setUser(givenUser);
+    newAccountActivationLink.setUser(testUser);
     newAccountActivationLink.setConsumed(true);
 
     entityManager.getTransaction().begin();
@@ -289,7 +286,7 @@ public class AccountActivationTest {
      * posterior eliminacion de la base de datos subyacente
      */
     accountActivationLinks.add(newAccountActivationLink);
-    users.add(givenUser);
+    users.add(testUser);
 
     System.out.println("* Impresion de un enlace de activacion de cuenta");
     System.out.println(newAccountActivationLink);
