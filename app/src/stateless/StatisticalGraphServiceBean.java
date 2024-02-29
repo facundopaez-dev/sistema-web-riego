@@ -1,8 +1,11 @@
 package stateless;
 
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.Map;
 import java.util.Calendar;
+import java.util.Date;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -10,6 +13,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import model.StatisticalData;
 import model.StatisticalGraph;
+import util.UtilDate;
 
 @Stateless
 public class StatisticalGraphServiceBean {
@@ -206,9 +210,13 @@ public class StatisticalGraphServiceBean {
         return (find(userId, parcelId, dateFrom, dateUntil, statisticalData) != null);
     }
 
-    public Page<StatisticalGraph> findAllPagination(int userId, Integer page, Integer cantPerPage, Map<String, String> parameters) {
+    public Page<StatisticalGraph> findAllPagination(int userId, Integer page, Integer cantPerPage, Map<String, String> parameters) throws ParseException {
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+        Date date;
+        Calendar calendarDate;
+
         // Genera el WHERE dinámicamente
-        StringBuffer where = new StringBuffer(" WHERE 1=1 AND e IN (SELECT s FROM StatisticalGraph s JOIN s.parcel p WHERE p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId))");
+        StringBuffer where = new StringBuffer(" WHERE 1=1 AND e IN (SELECT t FROM StatisticalGraph t JOIN t.parcel p WHERE p IN (SELECT x FROM User u JOIN u.parcels x WHERE u.id = :userId))");
 
         if (parameters != null) {
 
@@ -229,6 +237,35 @@ public class StatisticalGraphServiceBean {
                             where.append(") LIKE UPPER('%");
                             where.append(parameters.get(param));
                             where.append("%')");
+                            break;
+                        case "Parcel":
+                            where.append(" AND UPPER(e.");
+                            where.append(param);
+                            where.append(".name");
+                            where.append(") LIKE UPPER('%");
+                            where.append(parameters.get(param));
+                            where.append("%')");
+                            break;
+                        case "Calendar":
+
+                            if (param.equals("dateFrom")) {
+                                date = new Date(dateFormatter.parse(parameters.get(param)).getTime());
+                                calendarDate = UtilDate.toCalendar(date);
+                                where.append(" AND e.");
+                                where.append(param);
+                                where.append(" >= ");
+                                where.append("'" + UtilDate.convertDateToYyyyMmDdFormat(calendarDate) + "'");
+                            }
+
+                            if (param.equals("dateUntil")) {
+                                date = new Date(dateFormatter.parse(parameters.get(param)).getTime());
+                                calendarDate = UtilDate.toCalendar(date);
+                                where.append(" AND e.");
+                                where.append(param);
+                                where.append(" <= ");
+                                where.append("'" + UtilDate.convertDateToYyyyMmDdFormat(calendarDate) + "'");
+                            }
+
                             break;
                         default:
                             where.append(" AND e.");
