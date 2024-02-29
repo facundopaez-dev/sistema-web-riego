@@ -291,6 +291,43 @@ public class StatisticalReportServiceBean {
    * periodo definido por dos fechas
    */
   public List<Integer> calculateTotalNumberPlantationsPerCrop(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    /*
+     * Con las condiciones de las fechas se seleccionan todos los
+     * registros de plantacion finalizados (*) de una parcela que
+     * estan entre una fecha desde y una fecha hasta.
+     * 
+     * Con la primera condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y menor o igual
+     * a la fecha hasta, y su fecha de cosecha estrictamente mayor
+     * a la fecha hasta. Es decir, se selecciona el registro de
+     * plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de siembra dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
+     * 
+     * Con la segunda condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y su fecha de
+     * cosecha menor o igual a la fecha hasta. Es decir, se
+     * selecciona el registro de plantacion que tiene su fecha
+     * de siembra y su fecha de cosecha dentro del periodo
+     * definido por la fecha desde y la fecha hasta.
+     * 
+     * Con la tercera conidicon se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su
+     * fecha de cosecha mayor o igual a la fecha desde y menor
+     * igual a la fecha hasta, y su fecha de siembra estrictamente
+     * menor a la fecha desde. Es decir, se selecciona el registro
+     * de plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de cosecha dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
+     * 
+     * (*) El ID para el estado finalizado de un registro de
+     * plantacion es el 1, siempre y cuando no se modifique el
+     * orden en el que se ejecutan las instrucciones de insercion
+     * del archivo plantingRecordStatusInserts.sql de la ruta
+     * app/etc/sql.
+     */
     String subQuery = "SELECT FK_CROP, COUNT(FK_CROP) AS NUMBER_PLANTATIONS FROM PLANTING_RECORD "
         + "WHERE FK_PARCEL = ?1 AND FK_STATUS = 1 AND "
         + "((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) "
@@ -327,6 +364,43 @@ public class StatisticalReportServiceBean {
    * una parcela en un periodo definido por dos fechas
    */
   public List<String> findCropNamesCalculatedPerTotalNumberPlantationsPerCrop(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    /*
+     * Con las condiciones de las fechas se seleccionan todos los
+     * registros de plantacion finalizados (*) de una parcela que
+     * estan entre una fecha desde y una fecha hasta.
+     * 
+     * Con la primera condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y menor o igual
+     * a la fecha hasta, y su fecha de cosecha estrictamente mayor
+     * a la fecha hasta. Es decir, se selecciona el registro de
+     * plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de siembra dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
+     * 
+     * Con la segunda condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y su fecha de
+     * cosecha menor o igual a la fecha hasta. Es decir, se
+     * selecciona el registro de plantacion que tiene su fecha
+     * de siembra y su fecha de cosecha dentro del periodo
+     * definido por la fecha desde y la fecha hasta.
+     * 
+     * Con la tercera conidicon se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su
+     * fecha de cosecha mayor o igual a la fecha desde y menor
+     * igual a la fecha hasta, y su fecha de siembra estrictamente
+     * menor a la fecha desde. Es decir, se selecciona el registro
+     * de plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de cosecha dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
+     * 
+     * (*) El ID para el estado finalizado de un registro de
+     * plantacion es el 1, siempre y cuando no se modifique el
+     * orden en el que se ejecutan las instrucciones de insercion
+     * del archivo plantingRecordStatusInserts.sql de la ruta
+     * app/etc/sql.
+     */
     String subQuery = "SELECT FK_CROP, COUNT(FK_CROP) AS NUMBER_PLANTATIONS FROM PLANTING_RECORD "
         + "WHERE FK_PARCEL = ?1 AND FK_STATUS = 1 AND "
         + "((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) "
@@ -363,6 +437,43 @@ public class StatisticalReportServiceBean {
    * parcela en un periodo definido por dos fechas
    */
   public List<Integer> calculateTotalNumberPlantationsPerCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    /*
+     * Con las condiciones de las fechas se seleccionan todos los
+     * registros de plantacion finalizados (*) de una parcela que
+     * estan entre una fecha desde y una fecha hasta.
+     * 
+     * Con la primera condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y menor o igual
+     * a la fecha hasta, y su fecha de cosecha estrictamente mayor
+     * a la fecha hasta. Es decir, se selecciona el registro de
+     * plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de siembra dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
+     * 
+     * Con la segunda condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y su fecha de
+     * cosecha menor o igual a la fecha hasta. Es decir, se
+     * selecciona el registro de plantacion que tiene su fecha
+     * de siembra y su fecha de cosecha dentro del periodo
+     * definido por la fecha desde y la fecha hasta.
+     * 
+     * Con la tercera conidicon se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su
+     * fecha de cosecha mayor o igual a la fecha desde y menor
+     * igual a la fecha hasta, y su fecha de siembra estrictamente
+     * menor a la fecha desde. Es decir, se selecciona el registro
+     * de plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de cosecha dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
+     * 
+     * (*) El ID para el estado finalizado de un registro de
+     * plantacion es el 1, siempre y cuando no se modifique el
+     * orden en el que se ejecutan las instrucciones de insercion
+     * del archivo plantingRecordStatusInserts.sql de la ruta
+     * app/etc/sql.
+     */
     String subQuery = "SELECT YEAR(SEED_DATE) AS YEAR_SEED_DATE, FK_CROP, COUNT(FK_CROP) AS NUMBER_PLANTATIONS FROM PLANTING_RECORD "
         + "WHERE FK_PARCEL = ?1 AND FK_STATUS = 1 AND "
         + "((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) "
@@ -399,6 +510,43 @@ public class StatisticalReportServiceBean {
    * una parcela en un periodo definido por dos fechas
    */
   public List<String> findCropNamesCalculatedPerTotalNumberPlantationsPerCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    /*
+     * Con las condiciones de las fechas se seleccionan todos los
+     * registros de plantacion finalizados (*) de una parcela que
+     * estan entre una fecha desde y una fecha hasta.
+     * 
+     * Con la primera condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y menor o igual
+     * a la fecha hasta, y su fecha de cosecha estrictamente mayor
+     * a la fecha hasta. Es decir, se selecciona el registro de
+     * plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de siembra dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
+     * 
+     * Con la segunda condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y su fecha de
+     * cosecha menor o igual a la fecha hasta. Es decir, se
+     * selecciona el registro de plantacion que tiene su fecha
+     * de siembra y su fecha de cosecha dentro del periodo
+     * definido por la fecha desde y la fecha hasta.
+     * 
+     * Con la tercera conidicon se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su
+     * fecha de cosecha mayor o igual a la fecha desde y menor
+     * igual a la fecha hasta, y su fecha de siembra estrictamente
+     * menor a la fecha desde. Es decir, se selecciona el registro
+     * de plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de cosecha dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
+     * 
+     * (*) El ID para el estado finalizado de un registro de
+     * plantacion es el 1, siempre y cuando no se modifique el
+     * orden en el que se ejecutan las instrucciones de insercion
+     * del archivo plantingRecordStatusInserts.sql de la ruta
+     * app/etc/sql.
+     */
     String subQuery = "SELECT YEAR(SEED_DATE) AS YEAR_SEED_DATE, FK_CROP, COUNT(FK_CROP) AS NUMBER_PLANTATIONS FROM PLANTING_RECORD "
         + "WHERE FK_PARCEL = ?1 AND FK_STATUS = 1 AND "
         + "((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) "
@@ -436,6 +584,43 @@ public class StatisticalReportServiceBean {
    * por dos fechas
    */
   public List<Integer> findSeedYearCalculatedPerTotalNumberPlantationsPerCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    /*
+     * Con las condiciones de las fechas se seleccionan todos los
+     * registros de plantacion finalizados (*) de una parcela que
+     * estan entre una fecha desde y una fecha hasta.
+     * 
+     * Con la primera condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y menor o igual
+     * a la fecha hasta, y su fecha de cosecha estrictamente mayor
+     * a la fecha hasta. Es decir, se selecciona el registro de
+     * plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de siembra dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
+     * 
+     * Con la segunda condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y su fecha de
+     * cosecha menor o igual a la fecha hasta. Es decir, se
+     * selecciona el registro de plantacion que tiene su fecha
+     * de siembra y su fecha de cosecha dentro del periodo
+     * definido por la fecha desde y la fecha hasta.
+     * 
+     * Con la tercera conidicon se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su
+     * fecha de cosecha mayor o igual a la fecha desde y menor
+     * igual a la fecha hasta, y su fecha de siembra estrictamente
+     * menor a la fecha desde. Es decir, se selecciona el registro
+     * de plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de cosecha dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
+     * 
+     * (*) El ID para el estado finalizado de un registro de
+     * plantacion es el 1, siempre y cuando no se modifique el
+     * orden en el que se ejecutan las instrucciones de insercion
+     * del archivo plantingRecordStatusInserts.sql de la ruta
+     * app/etc/sql.
+     */
     String subQuery = "SELECT YEAR(SEED_DATE) AS YEAR_SEED_DATE, FK_CROP, COUNT(FK_CROP) AS NUMBER_PLANTATIONS FROM PLANTING_RECORD "
         + "WHERE FK_PARCEL = ?1 AND FK_STATUS = 1 AND "
         + "((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) "
