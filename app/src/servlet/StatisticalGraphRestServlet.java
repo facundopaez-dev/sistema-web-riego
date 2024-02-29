@@ -409,6 +409,7 @@ public class StatisticalGraphRestServlet {
     StatisticalGraph newStatisticalGraph = mapper.readValue(json, StatisticalGraph.class);
 
     int parcelId = newStatisticalGraph.getParcel().getId();
+    int statisticalDataNumber = newStatisticalGraph.getStatisticalData().getNumber();
     Calendar dateFrom = newStatisticalGraph.getDateFrom();
     Calendar dateUntil = newStatisticalGraph.getDateUntil();
 
@@ -567,55 +568,61 @@ public class StatisticalGraphRestServlet {
     }
 
     /*
-     * ***********************************************************
-     * Control sobre la existencia de registros climaticos y
-     * registros de plantacion finalizados de la parcela para
-     * la que se quiere generar y persistir un informe estadistico
-     * ***********************************************************
+     * ********************************************************
+     * Controles sobre la existencia de registros de plantacion
+     * finalizados de la parcela seleccionada para generar un
+     * informe estadistico
+     * ********************************************************
      */
 
     /*
-     * Si la parcela para la que se quiere generar y persistir
-     * un informe estadistico, NO tiene registros climaticos ni
-     * registros de plantacion finalizados, la aplicacion del
-     * lado servidor retorna el mensaje HTTP 400 (Bad request)
-     * junto con el mensaje "La parcela seleccionada no tiene
-     * registros climaticos ni registros de plantacion finalizados
-     * para generar un informe estadistico" y no se realiza la
-     * operacion solicitada
+     * Si la parcela seleccionada para generar un informe
+     * estadistico NO tiene registros de plantacion finalizados,
+     * la aplicacion del lado servidor retorna el mensaje
+     * HTTP 400 (Bad request) junto con un mensaje que
+     * indica lo sucedido y no se realiza la operacion
+     * solicitada. Para generar un informe estadistico:
+     * - de la cantidad de veces que se plantaron los
+     * cultivos en una parcela durante un periodo definido
+     * por dos fechas o
+     * - de la cantidad de veces que se plantaron los
+     * cultivos por año en una parcela en un periodo
+     * definido por dos fechas,
+     * 
+     * se requiere que la parcela seleccionada tenga registros
+     * de plantacion finalizados. Este es el motivo de
+     * este control.
      */
-    if (!(climateRecordService.hasClimateRecords(userId, parcelId))
-        && !(plantingRecordService.hasFinishedPlantingRecords(userId, parcelId))) {
+    if ((statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_CROP || statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_CROP_AND_YEAR)
+        && !plantingRecordService.hasFinishedPlantingRecords(userId, parcelId)) {
       return Response.status(Response.Status.BAD_REQUEST)
-          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.CLIMATE_RECORDS_AND_PLANTING_RECORDS_DO_NOT_EXIST)))
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NON_EXISTENT_PLANTING_RECORDS)))
           .build();
     }
 
     /*
-     * Si la parcela para la que se quiere generar y persistir
-     * un informe estadistico, NO tiene registros climaticos ni
-     * registros de plantacion finalizados en el periodo definido
-     * por una fecha desde y una fecha hasta, la aplicacion del
-     * lado servidor retorna el mensaje HTTP 400 (Bad request)
-     * junto con el mensaje "La parcela seleccionada no tiene
-     * registros climaticos ni registros de plantacion finalizados
-     * en el periodo [<fecha desde>, <fecha hasta>] para generar
-     * un informe estadistico" y no se realiza la operacion
-     * solicitada
+     * Si la parcela seleccionada para generar un informe
+     * estadistico NO tiene registros de plantacion finalizados
+     * en el periodo definido por la fecha desde y la fecha
+     * hasta elegidas, la aplicacion del lado servidor retorna
+     * el mensaje HTTP 400 (Bad request) junto con un mensaje
+     * que indica lo sucedido y no se realiza la operacion
+     * solicitada. Para generar un informe estadistico:
+     * - de la cantidad de veces que se plantaron los
+     * cultivos en una parcela durante un periodo definido
+     * por dos fechas o
+     * - de la cantidad de veces que se plantaron los
+     * cultivos por año en una parcela en un periodo
+     * definido por dos fechas,
+     * 
+     * se requiere que la parcela seleccionada tenga registros
+     * de plantacion finalizados. Este es el motivo de
+     * este control.
      */
-    if (!(climateRecordService.hasClimateRecords(userId, parcelId,
-        newStatisticalGraph.getDateFrom(),
-        newStatisticalGraph.getDateUntil()))
-        && !(plantingRecordService.hasFinishedPlantingRecords(userId, parcelId,
-            newStatisticalGraph.getDateFrom(),
-            newStatisticalGraph.getDateUntil()))) {
-      String message = "La parcela seleccionada no tiene registros climaticos ni registros de plantacion finalizados en el período ["
-          + UtilDate.formatDate(newStatisticalGraph.getDateFrom()) + ", "
-          + UtilDate.formatDate(newStatisticalGraph.getDateUntil())
-          + "] para generar un informe estadistico";
-      PersonalizedResponse newPersonalizedResponse = new PersonalizedResponse(message);
+    if ((statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_CROP || statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_CROP_AND_YEAR)
+        && !plantingRecordService.hasFinishedPlantingRecords(userId, parcelId, dateFrom, dateUntil)) {
       return Response.status(Response.Status.BAD_REQUEST)
-          .entity(mapper.writeValueAsString(newPersonalizedResponse))
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NON_EXISTENT_PLANTING_RECORDS_IN_A_PERIOD)))
           .build();
     }
 
