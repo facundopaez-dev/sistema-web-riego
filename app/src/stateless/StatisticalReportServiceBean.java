@@ -285,10 +285,10 @@ public class StatisticalReportServiceBean {
    * @param parcelId
    * @param dateFrom
    * @param dateUntil
-   * @return referencia a un objeto de tipo List que contiene
-   * los numeros que representan la cantidad total de veces
-   * que se plantaron los cultivos en una parcela en un periodo
-   * definido por dos fechas
+   * @return referencia a un objeto de tipo List<Integer> que
+   * contiene los numeros que representan la cantidad total de
+   * veces que se plantaron los cultivos en una parcela en un
+   * periodo definido por dos fechas
    */
   public List<Integer> calculateTotalNumberPlantationsPerCrop(int parcelId, Calendar dateFrom, Calendar dateUntil) {
     String stringQuery = "SELECT COUNT(FK_CROP) FROM PLANTING_RECORD WHERE FK_PARCEL = ?1 "
@@ -316,10 +316,10 @@ public class StatisticalReportServiceBean {
    * @param parcelId
    * @param dateFrom
    * @param dateUntil
-   * @return referencia a un objeto de tipo List que contiene
-   * los nombres de los cultivos para los que se calcula la
-   * cantidad total de veces que se plantaron en una parcela
-   * en un periodo definido por dos fechas
+   * @return referencia a un objeto de tipo List<String> que
+   * contiene los nombres de los cultivos para los que se
+   * calcula la cantidad total de veces que se plantaron en
+   * una parcela en un periodo definido por dos fechas
    */
   public List<String> findCropNamesCalculatedPerTotalNumberPlantationsPerCrop(int parcelId, Calendar dateFrom, Calendar dateUntil) {
     String subQuery = "SELECT FK_CROP, COUNT(FK_CROP) AS NUMBER_PLANTATIONS FROM PLANTING_RECORD WHERE "
