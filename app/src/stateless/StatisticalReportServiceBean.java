@@ -291,10 +291,15 @@ public class StatisticalReportServiceBean {
    * periodo definido por dos fechas
    */
   public List<Integer> calculateTotalNumberPlantationsPerCrop(int parcelId, Calendar dateFrom, Calendar dateUntil) {
-    String stringQuery = "SELECT COUNT(FK_CROP) FROM PLANTING_RECORD WHERE FK_PARCEL = ?1 "
-        + "AND FK_STATUS = 1 AND ((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) "
-        + "OR (SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR (?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 "
-        + "AND SEED_DATE < ?2)) GROUP BY FK_CROP";
+    String subQuery = "SELECT FK_CROP, COUNT(FK_CROP) AS NUMBER_PLANTATIONS FROM PLANTING_RECORD "
+        + "WHERE FK_PARCEL = ?1 AND FK_STATUS = 1 AND "
+        + "((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) "
+        + "OR (SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR "
+        + "(?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2)) "
+        + "GROUP BY FK_CROP";
+
+    String stringQuery = "SELECT RESULT_TABLE.NUMBER_PLANTATIONS FROM (" + subQuery
+        + ") AS RESULT_TABLE";
 
     Query query = getEntityManager().createNativeQuery(stringQuery);
     query.setParameter(1, parcelId);
