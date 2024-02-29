@@ -524,6 +524,25 @@ public class StatisticalGraphRestServlet {
     }
 
     /*
+     * *************************************************
+     * Control sobre la definicion del dato estadistico
+     * sobre el que se tratara el informe estadistico
+     * *************************************************
+     */
+
+    /*
+     * Si el dato estadistico a calcular para un informe
+     * estadistico NO esta definido, la aplicacion del lado
+     * servidor retorna el mensaje HTTP 400 (Bad request)
+     * junto con el mensaje "El dato estadistico a calcular
+     * debe estar definido" y no se realiza la operacion
+     * solicitada
+     */
+    if (newStatisticalGraph.getStatisticalData() == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_STATISTICAL_DATA))).build();
+    }
+
+    /*
      * ***************************************************
      * Control sobre la posible existencia del informe
      * estadistico solicitado para las fechas y la parcela
@@ -598,17 +617,6 @@ public class StatisticalGraphRestServlet {
       return Response.status(Response.Status.BAD_REQUEST)
           .entity(mapper.writeValueAsString(newPersonalizedResponse))
           .build();
-    }
-
-    /*
-     * Si el dato estadistico a calcular para un informe
-     * estadistico NO esta definido, la aplicacion del lado
-     * servidor retorna el mensaje HTTP 400 (Bad request)
-     * junto con el mensaje "El dato estadistico debe estar
-     * definido" y no se realiza la operacion solicitada
-     */
-    if (newStatisticalGraph.getStatisticalData() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_STATISTICAL_DATA))).build();
     }
 
     /*
