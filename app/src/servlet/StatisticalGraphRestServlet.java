@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Collection;
 import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
@@ -90,6 +91,7 @@ public class StatisticalGraphRestServlet {
 
   private final int DAYS_YEAR = 365;
   private final int TOTAL_AMOUNT_PLANTATIONS_PER_CROP = 1;
+  private final int TOTAL_AMOUNT_PLANTATIONS_PER_CROP_AND_YEAR = 2;
 
   @GET
   @Path("/findAllPagination")
@@ -530,15 +532,15 @@ public class StatisticalGraphRestServlet {
 
     /*
      * Si en la base de datos subyacente existe un informe
-     * estadistico con la fecha desde y la fecha hasta
-     * elegidas asociado a una parcela de un usuario, la
-     * aplicacion del lado servidor retorna el mensaje
-     * HTTP 400 (Bad request) junto con el mensaje "Ya
-     * existe un informe estadistico con las fechas y
-     * la parcela elegidas" y no se realiza la operacion
-     * solicitada
+     * estadistico con la fecha desde, la fecha hasta y la
+     * parcela elegidas y el dato estadistico elegido, la
+     * aplicacion del lado lado servidor retorna el mensaje
+     * HTTP 400 (Bad request) junto con el mensaje "Ya existe
+     * un informe estadistico con las fechas, la parcela y
+     * el dato estadistico elegidos" y no se realiza la
+     * operacion solicitada
      */
-    if (statisticalGraphService.checkExistence(userId, newStatisticalGraph.getParcel().getId(), dateFrom, dateUntil)) {
+    if (statisticalGraphService.checkExistence(userId, newStatisticalGraph.getParcel().getId(), dateFrom, dateUntil, newStatisticalGraph.getStatisticalData())) {
       return Response.status(Response.Status.BAD_REQUEST)
           .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EXISTING_STATISTICAL_REPORT)))
           .build();
@@ -619,6 +621,37 @@ public class StatisticalGraphRestServlet {
       newStatisticalGraph.setData(statisticalReportService.calculateTotalNumberPlantationsPerCrop(newStatisticalGraph.getParcel().getId(), dateFrom, dateUntil));
       newStatisticalGraph.setLabels(statisticalReportService.findCropNamesCalculatedPerTotalNumberPlantationsPerCrop(newStatisticalGraph.getParcel().getId(), dateFrom, dateUntil));
       newStatisticalGraph.setText("Y: Cantidad de plantaciones, X: Cultivos, Cantidad total de veces que se plantaron los cultivos en la parcela "
+              + newStatisticalGraph.getParcel().getName() + " (ID: " + newStatisticalGraph.getParcel().getId() + ")"
+              + " en el período " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil));
+
+      return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(statisticalGraphService.create(newStatisticalGraph))).build();
+    }
+
+    /*
+     * Si el numero del dato estadistico a calcular es el
+     * valor de la constante TOTAL_AMOUNT_PLANTATIONS_PER_CROP_AND_YEAR,
+     * se calcula la cantidad total de veces que se plantaron
+     * los cultivos por año en una parcela durante un periodo
+     * definido por dos fechas
+     */
+    if (newStatisticalGraph.getStatisticalData().getNumber() == TOTAL_AMOUNT_PLANTATIONS_PER_CROP_AND_YEAR) {
+      List<String> cropNames = statisticalReportService.findCropNamesCalculatedPerTotalNumberPlantationsPerCropAndYear(
+          newStatisticalGraph.getParcel().getId(), dateFrom, dateUntil);
+
+      List<Integer> seedYears = statisticalReportService.findSeedYearCalculatedPerTotalNumberPlantationsPerCropAndYear(
+          newStatisticalGraph.getParcel().getId(), dateFrom, dateUntil);
+
+      /*
+       * Arma las etiquetas <cultivo> (<año>) para el grafico
+       * de barras que representa la cantidad de veces que
+       * se plantaron los cultivos por año en una parcela
+       * durante un periodo definido por dos fechas
+       */
+      List<String> labels = statisticalReportService.setLabelsOfCalculatedPerTotalNumberPlantationsPerCropAndYear(cropNames, seedYears);
+
+      newStatisticalGraph.setData(statisticalReportService.calculateTotalNumberPlantationsPerCropAndYear(newStatisticalGraph.getParcel().getId(), dateFrom, dateUntil));
+      newStatisticalGraph.setLabels(labels);
+      newStatisticalGraph.setText("Y: Cantidad de plantaciones, X: Cultivo (año), Cantidad total de veces que se plantaron los cultivos por año en la parcela "
               + newStatisticalGraph.getParcel().getName() + " (ID: " + newStatisticalGraph.getParcel().getId() + ")"
               + " en el período " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil));
 

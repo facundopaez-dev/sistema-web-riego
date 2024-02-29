@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 import java.text.ParseException;
 import java.util.Map;
 import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Calendar;
 import java.util.Date;
 import javax.ejb.Stateless;
@@ -15,7 +17,6 @@ import javax.persistence.Query;
 import model.PlantingRecord;
 import model.StatisticalReport;
 import util.UtilDate;
-import java.util.List;
 
 @Stateless
 public class StatisticalReportServiceBean {
@@ -343,6 +344,134 @@ public class StatisticalReportServiceBean {
     }
 
     return result;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<Integer> que
+   * contiene los numeros que representan la cantidad total
+   * de veces que se plantaron los cultivos por año en una
+   * parcela en un periodo definido por dos fechas
+   */
+  public List<Integer> calculateTotalNumberPlantationsPerCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String subQuery = "SELECT YEAR(SEED_DATE) AS YEAR_SEED_DATE, FK_CROP, COUNT(FK_CROP) AS NUMBER_PLANTATIONS FROM PLANTING_RECORD "
+        + "WHERE FK_PARCEL = ?1 AND FK_STATUS = 1 AND "
+        + "((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) "
+        + "OR (SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR "
+        + "(?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2)) "
+        + "GROUP BY YEAR(SEED_DATE), FK_CROP ORDER BY YEAR(SEED_DATE)";
+
+    String stringQuery = "SELECT RESULT_TABLE.NUMBER_PLANTATIONS FROM (" + subQuery
+        + ") AS RESULT_TABLE";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<Integer> result = null;
+
+    try {
+      result = query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<String> que
+   * contiene los nombres de los cultivos para los que se calcula
+   * la cantidad total de veces que se plantaron por año en
+   * una parcela en un periodo definido por dos fechas
+   */
+  public List<String> findCropNamesCalculatedPerTotalNumberPlantationsPerCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String subQuery = "SELECT YEAR(SEED_DATE) AS YEAR_SEED_DATE, FK_CROP, COUNT(FK_CROP) AS NUMBER_PLANTATIONS FROM PLANTING_RECORD "
+        + "WHERE FK_PARCEL = ?1 AND FK_STATUS = 1 AND "
+        + "((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) "
+        + "OR (SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR "
+        + "(?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2)) "
+        + "GROUP BY YEAR(SEED_DATE), FK_CROP ORDER BY YEAR(SEED_DATE)";
+
+    String stringQuery = "SELECT NAME FROM CROP JOIN (" + subQuery
+        + ") AS RESULT_TABLE ON CROP.ID = RESULT_TABLE.FK_CROP";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<String> result = null;
+
+    try {
+      result = query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<Integer> que
+   * contiene los años en los que se sembraron los cultivos
+   * para los que se calcula la cantidad total de veces que se
+   * plantaron por año en una parcela en un periodo definido
+   * por dos fechas
+   */
+  public List<Integer> findSeedYearCalculatedPerTotalNumberPlantationsPerCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String subQuery = "SELECT YEAR(SEED_DATE) AS YEAR_SEED_DATE, FK_CROP, COUNT(FK_CROP) AS NUMBER_PLANTATIONS FROM PLANTING_RECORD "
+        + "WHERE FK_PARCEL = ?1 AND FK_STATUS = 1 AND "
+        + "((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) "
+        + "OR (SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR "
+        + "(?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2)) "
+        + "GROUP BY YEAR(SEED_DATE), FK_CROP ORDER BY YEAR(SEED_DATE)";
+
+    String stringQuery = "SELECT RESULT_TABLE.YEAR_SEED_DATE FROM (" + subQuery
+        + ") AS RESULT_TABLE";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<Integer> result = null;
+
+    try {
+      result = query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * @param cropNames
+   * @param seedYears
+   * @return referencia a un objeto de tipo List<String> que
+   * contiene las etiquetas <cultivo> (<año>) para el grafico
+   * de barras que representa la cantidad de veces que se
+   * plantaron los cultivos por año en una parcela durante
+   * un periodo definido por dos fechas
+   */
+  public List<String> setLabelsOfCalculatedPerTotalNumberPlantationsPerCropAndYear(List<String> cropNames, List<Integer> seedYears) {
+    List<String> labels = new ArrayList<>();
+
+    for (int i = 0; i < cropNames.size(); i++) {
+      labels.add(new String(cropNames.get(i) + " (" + seedYears.get(i) + ")"));
+    }
+
+    return labels;
   }
 
   public Page<StatisticalReport> findAllPagination(int userId, Integer page, Integer cantPerPage, Map<String, String> parameters) throws ParseException {

@@ -8,6 +8,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import model.StatisticalData;
 import model.StatisticalGraph;
 
 @Stateless
@@ -114,27 +115,29 @@ public class StatisticalGraphServiceBean {
      * @param parcelId
      * @param dateFrom
      * @param dateUntil
+     * @param statisticalData
      * @return referencia a un objeto de tipo StatisticalGraph
      * si en la base de datos subyacente existe un grafico
      * estadistico con una fecha desde y una fecha hasta
      * asociado a una parcela de un usuario
      */
-    public StatisticalGraph findByDates(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
-        Query query = getEntityManager().createQuery("SELECT s FROM StatisticalGraph s JOIN s.parcel p WHERE (s.dateFrom = :dateFrom AND s.dateUntil = :dateUntil AND p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY s.id");
+    public StatisticalGraph find(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil, StatisticalData statisticalData) {
+        Query query = getEntityManager().createQuery("SELECT s FROM StatisticalGraph s JOIN s.parcel p WHERE (s.dateFrom = :dateFrom AND s.dateUntil = :dateUntil AND s.statisticalData = :statisticalData AND p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY s.id");
         query.setParameter("userId", userId);
         query.setParameter("parcelId", parcelId);
         query.setParameter("dateFrom", dateFrom);
         query.setParameter("dateUntil", dateUntil);
+        query.setParameter("statisticalData", statisticalData);
 
-        StatisticalGraph statisticalReport = null;
+        StatisticalGraph statisticalGraph = null;
 
         try {
-            statisticalReport = (StatisticalGraph) query.getSingleResult();
+            statisticalGraph = (StatisticalGraph) query.getSingleResult();
         } catch (NoResultException e) {
             e.printStackTrace();
         }
 
-        return statisticalReport;
+        return statisticalGraph;
     }
 
     /**
@@ -165,19 +168,20 @@ public class StatisticalGraphServiceBean {
 
     /**
      * Retorna true si y solo si existe un grafico estadistico
-     * con una fecha desde y una fecha hasta asociado a una
-     * parcela de un usuario
+     * con una fecha desde, una fecha hasta, una parcela y un
+     * dato estadistico
      * 
      * @param userId
      * @param parcelId
      * @param dateFrom
      * @param dateUntil
+     * @param statisticalData
      * @return true si en la base de datos subyacente existe un
-     * grafico estadistico con una fecha desde y una fecha hasta
-     * asociado a una parcela de un usuario. En caso contrario,
+     * grafico estadistico con una fecha desde, una fecha hasta,
+     * una parcela y un dato estadistico. En caso contrario,
      * false.
      */
-    public boolean checkExistence(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    public boolean checkExistence(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil, StatisticalData statisticalData) {
         /*
          * Si una de las variables de tipo por referencia de tipo
          * Calendar tiene el valor null, significa que una de las
@@ -199,7 +203,7 @@ public class StatisticalGraphServiceBean {
             return false;
         }
 
-        return (findByDates(userId, parcelId, dateFrom, dateUntil) != null);
+        return (find(userId, parcelId, dateFrom, dateUntil, statisticalData) != null);
     }
 
     public Page<StatisticalGraph> findAllPagination(int userId, Integer page, Integer cantPerPage, Map<String, String> parameters) {

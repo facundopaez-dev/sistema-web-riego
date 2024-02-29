@@ -126,6 +126,19 @@ app.controller(
             title: {
               display: true,
               text: data.text
+            },
+            scaleShowValues: true,
+            scales: {
+              yAxes: [{
+                ticks: {
+                  beginAtZero: true
+                }
+              }],
+              xAxes: [{
+                ticks: {
+                  autoSkip: false
+                }
+              }]
             }
 
             // Este codigo fuente es para crear una linea que marque el promedio de un conjunto de valores

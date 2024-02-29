@@ -118,7 +118,7 @@ public enum ReasonError {
   WEATHER_SERVICE_UNAVAILABLE("La aplicación no puede calcular la necesidad de agua de riego de un cultivo porque el servicio meteorológico Visual Crossing Weather no se encuentra en funcionamiento"),
   UNKNOW_ERROR_IN_IRRIGATION_WATER_NEED_CALCULATION("Se produjo un error al calcular la necesidad de agua de riego de un cultivo"),
   UNDEFINED_PARCEL_NAME_AND_DATE("La parcela y la fecha deben estar definidas"),
-  EXISTING_STATISTICAL_REPORT("Ya existe un informe estadístico para las fechas y la parcela elegidas"),
+  EXISTING_STATISTICAL_REPORT("Ya existe un informe estadístico con las fechas, la parcela y el dato estadístico elegidos"),
   DATE_FROM_STRICTLY_GREATER_THAN_DATE_UNTIL("La fecha desde no debe ser estrictamente mayor a la fecha hasta"),
   NON_EXISTENT_PARCEL("La parcela seleccionada no existe"),
   DATE_FROM_GREATEST_TO_MAXIMUM("La fecha desde no debe ser estrictamente mayor a 9999"),
