@@ -408,6 +408,7 @@ public class StatisticalGraphRestServlet {
 
     StatisticalGraph newStatisticalGraph = mapper.readValue(json, StatisticalGraph.class);
 
+    int parcelId = newStatisticalGraph.getParcel().getId();
     Calendar dateFrom = newStatisticalGraph.getDateFrom();
     Calendar dateUntil = newStatisticalGraph.getDateUntil();
 
@@ -496,7 +497,7 @@ public class StatisticalGraphRestServlet {
      * "Recurso no encontrado" y no se realiza la operacion
      * solicitada
      */
-    if (!parcelService.checkExistence(newStatisticalGraph.getParcel().getId())) {
+    if (!parcelService.checkExistence(parcelId)) {
       return Response.status(Response.Status.NOT_FOUND).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND))).build();
     }
 
@@ -507,7 +508,7 @@ public class StatisticalGraphRestServlet {
      * mensaje "Acceso no autorizado" (contenido en el enum
      * ReasonError) y no se realiza la operacion solicitada
      */
-    if (!parcelService.checkUserOwnership(userId, newStatisticalGraph.getParcel().getId())) {
+    if (!parcelService.checkUserOwnership(userId, parcelId)) {
       return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
     }
 
@@ -540,7 +541,7 @@ public class StatisticalGraphRestServlet {
      * el dato estadistico elegidos" y no se realiza la
      * operacion solicitada
      */
-    if (statisticalGraphService.checkExistence(userId, newStatisticalGraph.getParcel().getId(), dateFrom, dateUntil, newStatisticalGraph.getStatisticalData())) {
+    if (statisticalGraphService.checkExistence(userId, parcelId, dateFrom, dateUntil, newStatisticalGraph.getStatisticalData())) {
       return Response.status(Response.Status.BAD_REQUEST)
           .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EXISTING_STATISTICAL_REPORT)))
           .build();
@@ -564,8 +565,8 @@ public class StatisticalGraphRestServlet {
      * para generar un informe estadistico" y no se realiza la
      * operacion solicitada
      */
-    if (!(climateRecordService.hasClimateRecords(userId, newStatisticalGraph.getParcel().getId()))
-        && !(plantingRecordService.hasFinishedPlantingRecords(userId, newStatisticalGraph.getParcel().getId()))) {
+    if (!(climateRecordService.hasClimateRecords(userId, parcelId))
+        && !(plantingRecordService.hasFinishedPlantingRecords(userId, parcelId))) {
       return Response.status(Response.Status.BAD_REQUEST)
           .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.CLIMATE_RECORDS_AND_PLANTING_RECORDS_DO_NOT_EXIST)))
           .build();
@@ -583,10 +584,10 @@ public class StatisticalGraphRestServlet {
      * un informe estadistico" y no se realiza la operacion
      * solicitada
      */
-    if (!(climateRecordService.hasClimateRecords(userId, newStatisticalGraph.getParcel().getId(),
+    if (!(climateRecordService.hasClimateRecords(userId, parcelId,
         newStatisticalGraph.getDateFrom(),
         newStatisticalGraph.getDateUntil()))
-        && !(plantingRecordService.hasFinishedPlantingRecords(userId, newStatisticalGraph.getParcel().getId(),
+        && !(plantingRecordService.hasFinishedPlantingRecords(userId, parcelId,
             newStatisticalGraph.getDateFrom(),
             newStatisticalGraph.getDateUntil()))) {
       String message = "La parcela seleccionada no tiene registros climaticos ni registros de plantacion finalizados en el período ["
@@ -618,12 +619,12 @@ public class StatisticalGraphRestServlet {
      * definido por dos fechas
      */
     if (newStatisticalGraph.getStatisticalData().getNumber() == TOTAL_AMOUNT_PLANTATIONS_PER_CROP) {
-      newStatisticalGraph.setData(statisticalReportService.calculateTotalNumberPlantationsPerCrop(newStatisticalGraph.getParcel().getId(), dateFrom, dateUntil));
-      newStatisticalGraph.setLabels(statisticalReportService.findCropNamesCalculatedPerTotalNumberPlantationsPerCrop(newStatisticalGraph.getParcel().getId(), dateFrom, dateUntil));
+      newStatisticalGraph.setData(statisticalReportService.calculateTotalNumberPlantationsPerCrop(parcelId, dateFrom, dateUntil));
+      newStatisticalGraph.setLabels(statisticalReportService.findCropNamesCalculatedPerTotalNumberPlantationsPerCrop(parcelId, dateFrom, dateUntil));
       newStatisticalGraph.setText("Y: Cantidad de plantaciones, X: Cultivos, Cantidad total de veces que se plantaron los cultivos en la parcela "
-              + newStatisticalGraph.getParcel().getName() + " (ID: " + newStatisticalGraph.getParcel().getId() + ")"
+              + newStatisticalGraph.getParcel().getName() + " (ID: " + parcelId + ")"
               + " en el período " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
-              + ", Cant. total de plantaciones: " + statisticalReportService.calculateTotalNumberPlantationsPerPeriod(newStatisticalGraph.getParcel().getId(), dateFrom, dateUntil));
+              + ", Cant. total de plantaciones: " + statisticalReportService.calculateTotalNumberPlantationsPerPeriod(parcelId, dateFrom, dateUntil));
 
       return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(statisticalGraphService.create(newStatisticalGraph))).build();
     }
@@ -636,11 +637,8 @@ public class StatisticalGraphRestServlet {
      * definido por dos fechas
      */
     if (newStatisticalGraph.getStatisticalData().getNumber() == TOTAL_AMOUNT_PLANTATIONS_PER_CROP_AND_YEAR) {
-      List<String> cropNames = statisticalReportService.findCropNamesCalculatedPerTotalNumberPlantationsPerCropAndYear(
-          newStatisticalGraph.getParcel().getId(), dateFrom, dateUntil);
-
-      List<Integer> seedYears = statisticalReportService.findSeedYearCalculatedPerTotalNumberPlantationsPerCropAndYear(
-          newStatisticalGraph.getParcel().getId(), dateFrom, dateUntil);
+      List<String> cropNames = statisticalReportService.findCropNamesCalculatedPerTotalNumberPlantationsPerCropAndYear(parcelId, dateFrom, dateUntil);
+      List<Integer> seedYears = statisticalReportService.findSeedYearCalculatedPerTotalNumberPlantationsPerCropAndYear(parcelId, dateFrom, dateUntil);
 
       /*
        * Arma las etiquetas <cultivo> (<año>) para el grafico
@@ -650,12 +648,12 @@ public class StatisticalGraphRestServlet {
        */
       List<String> labels = statisticalReportService.setLabelsOfCalculatedPerTotalNumberPlantationsPerCropAndYear(cropNames, seedYears);
 
-      newStatisticalGraph.setData(statisticalReportService.calculateTotalNumberPlantationsPerCropAndYear(newStatisticalGraph.getParcel().getId(), dateFrom, dateUntil));
+      newStatisticalGraph.setData(statisticalReportService.calculateTotalNumberPlantationsPerCropAndYear(parcelId, dateFrom, dateUntil));
       newStatisticalGraph.setLabels(labels);
       newStatisticalGraph.setText("Y: Cantidad de plantaciones, X: Cultivo (año), Cantidad total de veces que se plantaron los cultivos por año en la parcela "
-              + newStatisticalGraph.getParcel().getName() + " (ID: " + newStatisticalGraph.getParcel().getId() + ")"
+              + newStatisticalGraph.getParcel().getName() + " (ID: " + parcelId + ")"
               + " en el período " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
-              + ", Cant. total de plantaciones: " + statisticalReportService.calculateTotalNumberPlantationsPerPeriod(newStatisticalGraph.getParcel().getId(), dateFrom, dateUntil));
+              + ", Cant. total de plantaciones: " + statisticalReportService.calculateTotalNumberPlantationsPerPeriod(parcelId, dateFrom, dateUntil));
 
       return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(statisticalGraphService.create(newStatisticalGraph))).build();
     }
