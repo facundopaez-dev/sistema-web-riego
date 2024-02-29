@@ -434,17 +434,17 @@ public class PlantingRecordServiceBean {
      * 
      * Con la primera condicion se selecciona el registro de
      * plantacion finalizado (*) de una parcela que tiene su fecha
-     * de siembra mayor o igual a la fecha desde y menor o igual a
-     * la fecha hasta, y su fecha de cosecha estrictamente mayor a
-     * la fecha hasta. Es decir, se selecciona el registro de
+     * de siembra mayor o igual a la fecha desde y menor o igual
+     * a la fecha hasta, y su fecha de cosecha estrictamente mayor
+     * a la fecha hasta. Es decir, se selecciona el registro de
      * plantacion finalizado de una parcela que tiene unicamente
-     * su fecha de siembra dentro del periodo definido por la fecha
-     * desde y la fecha hasta.
+     * su fecha de siembra dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
      * 
      * Con la segunda condicion se selecciona el registro de
      * plantacion finalizado (*) de una parcela que tiene su fecha
-     * de siembra mayor o igual a la fecha desde y y su fecha
-     * de cosecha menor o igual a la fecha hasta. Es decir, se
+     * de siembra mayor o igual a la fecha desde y su fecha de
+     * cosecha menor o igual a la fecha hasta. Es decir, se
      * selecciona el registro de plantacion que tiene su fecha
      * de siembra y su fecha de cosecha dentro del periodo
      * definido por la fecha desde y la fecha hasta.
@@ -455,7 +455,7 @@ public class PlantingRecordServiceBean {
      * igual a la fecha hasta, y su fecha de siembra estrictamente
      * menor a la fecha desde. Es decir, se selecciona el registro
      * de plantacion finalizado de una parcela que tiene unicamente
-     * su fecha de siembra dentro del periodo definido por la
+     * su fecha de cosecha dentro del periodo definido por la
      * fecha desde y la fecha hasta.
      * 
      * (*) El ID para el estado finalizado de un registro de
@@ -576,17 +576,17 @@ public class PlantingRecordServiceBean {
      * 
      * Con la primera condicion se selecciona el registro de
      * plantacion finalizado (*) de una parcela que tiene su fecha
-     * de siembra mayor o igual a la fecha desde y menor o igual a
-     * la fecha hasta, y su fecha de cosecha estrictamente mayor a
-     * la fecha hasta. Es decir, se selecciona el registro de
+     * de siembra mayor o igual a la fecha desde y menor o igual
+     * a la fecha hasta, y su fecha de cosecha estrictamente mayor
+     * a la fecha hasta. Es decir, se selecciona el registro de
      * plantacion finalizado de una parcela que tiene unicamente
-     * su fecha de siembra dentro del periodo definido por la fecha
-     * desde y la fecha hasta.
+     * su fecha de siembra dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
      * 
      * Con la segunda condicion se selecciona el registro de
      * plantacion finalizado (*) de una parcela que tiene su fecha
-     * de siembra mayor o igual a la fecha desde y y su fecha
-     * de cosecha menor o igual a la fecha hasta. Es decir, se
+     * de siembra mayor o igual a la fecha desde y su fecha de
+     * cosecha menor o igual a la fecha hasta. Es decir, se
      * selecciona el registro de plantacion que tiene su fecha
      * de siembra y su fecha de cosecha dentro del periodo
      * definido por la fecha desde y la fecha hasta.
@@ -597,7 +597,7 @@ public class PlantingRecordServiceBean {
      * igual a la fecha hasta, y su fecha de siembra estrictamente
      * menor a la fecha desde. Es decir, se selecciona el registro
      * de plantacion finalizado de una parcela que tiene unicamente
-     * su fecha de siembra dentro del periodo definido por la
+     * su fecha de cosecha dentro del periodo definido por la
      * fecha desde y la fecha hasta.
      * 
      * (*) El ID para el estado finalizado de un registro de
@@ -910,17 +910,17 @@ public class PlantingRecordServiceBean {
      * 
      * Con la primera condicion se selecciona el registro de
      * plantacion finalizado (*) de una parcela que tiene su fecha
-     * de siembra mayor o igual a la fecha desde y menor o igual a
-     * la fecha hasta, y su fecha de cosecha estrictamente mayor a
-     * la fecha hasta. Es decir, se selecciona el registro de
+     * de siembra mayor o igual a la fecha desde y menor o igual
+     * a la fecha hasta, y su fecha de cosecha estrictamente mayor
+     * a la fecha hasta. Es decir, se selecciona el registro de
      * plantacion finalizado de una parcela que tiene unicamente
-     * su fecha de siembra dentro del periodo definido por la fecha
-     * desde y la fecha hasta.
+     * su fecha de siembra dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
      * 
      * Con la segunda condicion se selecciona el registro de
      * plantacion finalizado (*) de una parcela que tiene su fecha
-     * de siembra mayor o igual a la fecha desde y y su fecha
-     * de cosecha menor o igual a la fecha hasta. Es decir, se
+     * de siembra mayor o igual a la fecha desde y su fecha de
+     * cosecha menor o igual a la fecha hasta. Es decir, se
      * selecciona el registro de plantacion que tiene su fecha
      * de siembra y su fecha de cosecha dentro del periodo
      * definido por la fecha desde y la fecha hasta.
@@ -931,7 +931,7 @@ public class PlantingRecordServiceBean {
      * igual a la fecha hasta, y su fecha de siembra estrictamente
      * menor a la fecha desde. Es decir, se selecciona el registro
      * de plantacion finalizado de una parcela que tiene unicamente
-     * su fecha de siembra dentro del periodo definido por la
+     * su fecha de cosecha dentro del periodo definido por la
      * fecha desde y la fecha hasta.
      * 
      * (*) El ID para el estado finalizado de un registro de
@@ -1074,17 +1074,17 @@ public class PlantingRecordServiceBean {
      * 
      * Con la primera condicion se selecciona el registro de
      * plantacion finalizado (*) de una parcela que tiene su fecha
-     * de siembra mayor o igual a la fecha desde y menor o igual a
-     * la fecha hasta, y su fecha de cosecha estrictamente mayor a
-     * la fecha hasta. Es decir, se selecciona el registro de
+     * de siembra mayor o igual a la fecha desde y menor o igual
+     * a la fecha hasta, y su fecha de cosecha estrictamente mayor
+     * a la fecha hasta. Es decir, se selecciona el registro de
      * plantacion finalizado de una parcela que tiene unicamente
-     * su fecha de siembra dentro del periodo definido por la fecha
-     * desde y la fecha hasta.
+     * su fecha de siembra dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
      * 
      * Con la segunda condicion se selecciona el registro de
      * plantacion finalizado (*) de una parcela que tiene su fecha
-     * de siembra mayor o igual a la fecha desde y y su fecha
-     * de cosecha menor o igual a la fecha hasta. Es decir, se
+     * de siembra mayor o igual a la fecha desde y su fecha de
+     * cosecha menor o igual a la fecha hasta. Es decir, se
      * selecciona el registro de plantacion que tiene su fecha
      * de siembra y su fecha de cosecha dentro del periodo
      * definido por la fecha desde y la fecha hasta.
@@ -1095,7 +1095,7 @@ public class PlantingRecordServiceBean {
      * igual a la fecha hasta, y su fecha de siembra estrictamente
      * menor a la fecha desde. Es decir, se selecciona el registro
      * de plantacion finalizado de una parcela que tiene unicamente
-     * su fecha de siembra dentro del periodo definido por la
+     * su fecha de cosecha dentro del periodo definido por la
      * fecha desde y la fecha hasta.
      * 
      * (*) El ID para el estado finalizado de un registro de
@@ -1215,17 +1215,17 @@ public class PlantingRecordServiceBean {
      * 
      * Con la primera condicion se selecciona el registro de
      * plantacion finalizado (*) de una parcela que tiene su fecha
-     * de siembra mayor o igual a la fecha desde y menor o igual a
-     * la fecha hasta, y su fecha de cosecha estrictamente mayor a
-     * la fecha hasta. Es decir, se selecciona el registro de
+     * de siembra mayor o igual a la fecha desde y menor o igual
+     * a la fecha hasta, y su fecha de cosecha estrictamente mayor
+     * a la fecha hasta. Es decir, se selecciona el registro de
      * plantacion finalizado de una parcela que tiene unicamente
-     * su fecha de siembra dentro del periodo definido por la fecha
-     * desde y la fecha hasta.
+     * su fecha de siembra dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
      * 
      * Con la segunda condicion se selecciona el registro de
      * plantacion finalizado (*) de una parcela que tiene su fecha
-     * de siembra mayor o igual a la fecha desde y y su fecha
-     * de cosecha menor o igual a la fecha hasta. Es decir, se
+     * de siembra mayor o igual a la fecha desde y su fecha de
+     * cosecha menor o igual a la fecha hasta. Es decir, se
      * selecciona el registro de plantacion que tiene su fecha
      * de siembra y su fecha de cosecha dentro del periodo
      * definido por la fecha desde y la fecha hasta.
@@ -1236,7 +1236,7 @@ public class PlantingRecordServiceBean {
      * igual a la fecha hasta, y su fecha de siembra estrictamente
      * menor a la fecha desde. Es decir, se selecciona el registro
      * de plantacion finalizado de una parcela que tiene unicamente
-     * su fecha de siembra dentro del periodo definido por la
+     * su fecha de cosecha dentro del periodo definido por la
      * fecha desde y la fecha hasta.
      * 
      * (*) El ID para el estado finalizado de un registro de
@@ -1379,17 +1379,17 @@ public class PlantingRecordServiceBean {
      * 
      * Con la primera condicion se selecciona el registro de
      * plantacion finalizado (*) de una parcela que tiene su fecha
-     * de siembra mayor o igual a la fecha desde y menor o igual a
-     * la fecha hasta, y su fecha de cosecha estrictamente mayor a
-     * la fecha hasta. Es decir, se selecciona el registro de
+     * de siembra mayor o igual a la fecha desde y menor o igual
+     * a la fecha hasta, y su fecha de cosecha estrictamente mayor
+     * a la fecha hasta. Es decir, se selecciona el registro de
      * plantacion finalizado de una parcela que tiene unicamente
-     * su fecha de siembra dentro del periodo definido por la fecha
-     * desde y la fecha hasta.
+     * su fecha de siembra dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
      * 
      * Con la segunda condicion se selecciona el registro de
      * plantacion finalizado (*) de una parcela que tiene su fecha
-     * de siembra mayor o igual a la fecha desde y y su fecha
-     * de cosecha menor o igual a la fecha hasta. Es decir, se
+     * de siembra mayor o igual a la fecha desde y su fecha de
+     * cosecha menor o igual a la fecha hasta. Es decir, se
      * selecciona el registro de plantacion que tiene su fecha
      * de siembra y su fecha de cosecha dentro del periodo
      * definido por la fecha desde y la fecha hasta.
@@ -1400,7 +1400,7 @@ public class PlantingRecordServiceBean {
      * igual a la fecha hasta, y su fecha de siembra estrictamente
      * menor a la fecha desde. Es decir, se selecciona el registro
      * de plantacion finalizado de una parcela que tiene unicamente
-     * su fecha de siembra dentro del periodo definido por la
+     * su fecha de cosecha dentro del periodo definido por la
      * fecha desde y la fecha hasta.
      * 
      * (*) El ID para el estado finalizado de un registro de
@@ -1517,17 +1517,17 @@ public class PlantingRecordServiceBean {
      * 
      * Con la primera condicion se selecciona el registro de
      * plantacion finalizado (*) de una parcela que tiene su fecha
-     * de siembra mayor o igual a la fecha desde y menor o igual a
-     * la fecha hasta, y su fecha de cosecha estrictamente mayor a
-     * la fecha hasta. Es decir, se selecciona el registro de
+     * de siembra mayor o igual a la fecha desde y menor o igual
+     * a la fecha hasta, y su fecha de cosecha estrictamente mayor
+     * a la fecha hasta. Es decir, se selecciona el registro de
      * plantacion finalizado de una parcela que tiene unicamente
-     * su fecha de siembra dentro del periodo definido por la fecha
-     * desde y la fecha hasta.
+     * su fecha de siembra dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
      * 
      * Con la segunda condicion se selecciona el registro de
      * plantacion finalizado (*) de una parcela que tiene su fecha
-     * de siembra mayor o igual a la fecha desde y y su fecha
-     * de cosecha menor o igual a la fecha hasta. Es decir, se
+     * de siembra mayor o igual a la fecha desde y su fecha de
+     * cosecha menor o igual a la fecha hasta. Es decir, se
      * selecciona el registro de plantacion que tiene su fecha
      * de siembra y su fecha de cosecha dentro del periodo
      * definido por la fecha desde y la fecha hasta.
@@ -1538,7 +1538,7 @@ public class PlantingRecordServiceBean {
      * igual a la fecha hasta, y su fecha de siembra estrictamente
      * menor a la fecha desde. Es decir, se selecciona el registro
      * de plantacion finalizado de una parcela que tiene unicamente
-     * su fecha de siembra dentro del periodo definido por la
+     * su fecha de cosecha dentro del periodo definido por la
      * fecha desde y la fecha hasta.
      * 
      * (*) El ID para el estado finalizado de un registro de
@@ -1672,17 +1672,17 @@ public class PlantingRecordServiceBean {
      * 
      * Con la primera condicion se selecciona el registro de
      * plantacion finalizado (*) de una parcela que tiene su fecha
-     * de siembra mayor o igual a la fecha desde y menor o igual a
-     * la fecha hasta, y su fecha de cosecha estrictamente mayor a
-     * la fecha hasta. Es decir, se selecciona el registro de
+     * de siembra mayor o igual a la fecha desde y menor o igual
+     * a la fecha hasta, y su fecha de cosecha estrictamente mayor
+     * a la fecha hasta. Es decir, se selecciona el registro de
      * plantacion finalizado de una parcela que tiene unicamente
-     * su fecha de siembra dentro del periodo definido por la fecha
-     * desde y la fecha hasta.
+     * su fecha de siembra dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
      * 
      * Con la segunda condicion se selecciona el registro de
      * plantacion finalizado (*) de una parcela que tiene su fecha
-     * de siembra mayor o igual a la fecha desde y y su fecha
-     * de cosecha menor o igual a la fecha hasta. Es decir, se
+     * de siembra mayor o igual a la fecha desde y su fecha de
+     * cosecha menor o igual a la fecha hasta. Es decir, se
      * selecciona el registro de plantacion que tiene su fecha
      * de siembra y su fecha de cosecha dentro del periodo
      * definido por la fecha desde y la fecha hasta.
@@ -1693,7 +1693,7 @@ public class PlantingRecordServiceBean {
      * igual a la fecha hasta, y su fecha de siembra estrictamente
      * menor a la fecha desde. Es decir, se selecciona el registro
      * de plantacion finalizado de una parcela que tiene unicamente
-     * su fecha de siembra dentro del periodo definido por la
+     * su fecha de cosecha dentro del periodo definido por la
      * fecha desde y la fecha hasta.
      * 
      * (*) El ID para el estado finalizado de un registro de
@@ -1792,17 +1792,17 @@ public class PlantingRecordServiceBean {
      * 
      * Con la primera condicion se selecciona el registro de
      * plantacion finalizado (*) de una parcela que tiene su fecha
-     * de siembra mayor o igual a la fecha desde y menor o igual a
-     * la fecha hasta, y su fecha de cosecha estrictamente mayor a
-     * la fecha hasta. Es decir, se selecciona el registro de
+     * de siembra mayor o igual a la fecha desde y menor o igual
+     * a la fecha hasta, y su fecha de cosecha estrictamente mayor
+     * a la fecha hasta. Es decir, se selecciona el registro de
      * plantacion finalizado de una parcela que tiene unicamente
-     * su fecha de siembra dentro del periodo definido por la fecha
-     * desde y la fecha hasta.
+     * su fecha de siembra dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
      * 
      * Con la segunda condicion se selecciona el registro de
      * plantacion finalizado (*) de una parcela que tiene su fecha
-     * de siembra mayor o igual a la fecha desde y y su fecha
-     * de cosecha menor o igual a la fecha hasta. Es decir, se
+     * de siembra mayor o igual a la fecha desde y su fecha de
+     * cosecha menor o igual a la fecha hasta. Es decir, se
      * selecciona el registro de plantacion que tiene su fecha
      * de siembra y su fecha de cosecha dentro del periodo
      * definido por la fecha desde y la fecha hasta.
@@ -1813,7 +1813,7 @@ public class PlantingRecordServiceBean {
      * igual a la fecha hasta, y su fecha de siembra estrictamente
      * menor a la fecha desde. Es decir, se selecciona el registro
      * de plantacion finalizado de una parcela que tiene unicamente
-     * su fecha de siembra dentro del periodo definido por la
+     * su fecha de cosecha dentro del periodo definido por la
      * fecha desde y la fecha hasta.
      * 
      * (*) El ID para el estado finalizado de un registro de
@@ -1946,17 +1946,17 @@ public class PlantingRecordServiceBean {
      * 
      * Con la primera condicion se selecciona el registro de
      * plantacion finalizado (*) de una parcela que tiene su fecha
-     * de siembra mayor o igual a la fecha desde y menor o igual a
-     * la fecha hasta, y su fecha de cosecha estrictamente mayor a
-     * la fecha hasta. Es decir, se selecciona el registro de
+     * de siembra mayor o igual a la fecha desde y menor o igual
+     * a la fecha hasta, y su fecha de cosecha estrictamente mayor
+     * a la fecha hasta. Es decir, se selecciona el registro de
      * plantacion finalizado de una parcela que tiene unicamente
-     * su fecha de siembra dentro del periodo definido por la fecha
-     * desde y la fecha hasta.
+     * su fecha de siembra dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
      * 
      * Con la segunda condicion se selecciona el registro de
      * plantacion finalizado (*) de una parcela que tiene su fecha
-     * de siembra mayor o igual a la fecha desde y y su fecha
-     * de cosecha menor o igual a la fecha hasta. Es decir, se
+     * de siembra mayor o igual a la fecha desde y su fecha de
+     * cosecha menor o igual a la fecha hasta. Es decir, se
      * selecciona el registro de plantacion que tiene su fecha
      * de siembra y su fecha de cosecha dentro del periodo
      * definido por la fecha desde y la fecha hasta.
@@ -1967,7 +1967,7 @@ public class PlantingRecordServiceBean {
      * igual a la fecha hasta, y su fecha de siembra estrictamente
      * menor a la fecha desde. Es decir, se selecciona el registro
      * de plantacion finalizado de una parcela que tiene unicamente
-     * su fecha de siembra dentro del periodo definido por la
+     * su fecha de cosecha dentro del periodo definido por la
      * fecha desde y la fecha hasta.
      * 
      * (*) El ID para el estado finalizado de un registro de
