@@ -622,7 +622,8 @@ public class StatisticalGraphRestServlet {
       newStatisticalGraph.setLabels(statisticalReportService.findCropNamesCalculatedPerTotalNumberPlantationsPerCrop(newStatisticalGraph.getParcel().getId(), dateFrom, dateUntil));
       newStatisticalGraph.setText("Y: Cantidad de plantaciones, X: Cultivos, Cantidad total de veces que se plantaron los cultivos en la parcela "
               + newStatisticalGraph.getParcel().getName() + " (ID: " + newStatisticalGraph.getParcel().getId() + ")"
-              + " en el período " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil));
+              + " en el período " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
+              + ", Cant. total de plantaciones: " + statisticalReportService.calculateTotalNumberPlantationsPerPeriod(newStatisticalGraph.getParcel().getId(), dateFrom, dateUntil));
 
       return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(statisticalGraphService.create(newStatisticalGraph))).build();
     }
@@ -653,7 +654,8 @@ public class StatisticalGraphRestServlet {
       newStatisticalGraph.setLabels(labels);
       newStatisticalGraph.setText("Y: Cantidad de plantaciones, X: Cultivo (año), Cantidad total de veces que se plantaron los cultivos por año en la parcela "
               + newStatisticalGraph.getParcel().getName() + " (ID: " + newStatisticalGraph.getParcel().getId() + ")"
-              + " en el período " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil));
+              + " en el período " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
+              + ", Cant. total de plantaciones: " + statisticalReportService.calculateTotalNumberPlantationsPerPeriod(newStatisticalGraph.getParcel().getId(), dateFrom, dateUntil));
 
       return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(statisticalGraphService.create(newStatisticalGraph))).build();
     }

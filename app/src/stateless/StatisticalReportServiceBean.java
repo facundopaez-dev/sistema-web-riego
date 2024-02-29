@@ -481,6 +481,66 @@ public class StatisticalReportServiceBean {
     return labels;
   }
 
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return entero que representa la cantidad total de
+   * plantaciones que se hicieron en una parcela en un
+   * periodo definido por dos fechas
+   */
+  public Long calculateTotalNumberPlantationsPerPeriod(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    /*
+     * Con esta condicion se seleccionan todos los registros de
+     * plantacion finalizados (*) de una parcela que estan entre
+     * una fecha desde y una fecha hasta.
+     * 
+     * Con la primera condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y menor o igual
+     * a la fecha hasta, y su fecha de cosecha estrictamente mayor
+     * a la fecha hasta. Es decir, se selecciona el registro de
+     * plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de siembra dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
+     * 
+     * Con la segunda condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y su fecha de
+     * cosecha menor o igual a la fecha hasta. Es decir, se
+     * selecciona el registro de plantacion que tiene su fecha
+     * de siembra y su fecha de cosecha dentro del periodo
+     * definido por la fecha desde y la fecha hasta.
+     * 
+     * Con la tercera conidicon se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su
+     * fecha de cosecha mayor o igual a la fecha desde y menor
+     * igual a la fecha hasta, y su fecha de siembra estrictamente
+     * menor a la fecha desde. Es decir, se selecciona el registro
+     * de plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de cosecha dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
+     * 
+     * (*) El ID para el estado finalizado de un registro de
+     * plantacion es el 1, siempre y cuando no se modifique el
+     * orden en el que se ejecutan las instrucciones de insercion
+     * del archivo plantingRecordStatusInserts.sql de la ruta
+     * app/etc/sql.
+     */
+    String subCondition = "(:dateFrom <= r.seedDate AND r.seedDate <= :dateUntil AND r.harvestDate > :dateUntil) OR "
+        + "(r.seedDate >= :dateFrom AND r.harvestDate <= :dateUntil) OR "
+        + "(:dateFrom <= r.harvestDate AND r.harvestDate <= :dateUntil AND r.seedDate < :dateFrom)";
+
+    String stringQuery = "SELECT COUNT(r.id) FROM PlantingRecord r WHERE r.parcel.id = :parcelId AND r.status.id = 1 AND (" + subCondition + ")";
+
+    Query query = getEntityManager().createQuery(stringQuery);
+    query.setParameter("parcelId", parcelId);
+    query.setParameter("dateFrom", dateFrom);
+    query.setParameter("dateUntil", dateUntil);
+
+    return (Long) query.getSingleResult();
+  }
+
   public Page<StatisticalReport> findAllPagination(int userId, Integer page, Integer cantPerPage, Map<String, String> parameters) throws ParseException {
     SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
     Date date;
