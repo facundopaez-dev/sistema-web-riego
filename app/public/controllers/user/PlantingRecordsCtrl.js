@@ -220,7 +220,7 @@ app.controller(
 
 			$scope.service = plantingRecordSrv;
 			$scope.listElement = []
-			$scope.cantPerPage = 10
+			$scope.cantPerPage = 6
 			/* Esto es necesario para la paginacion */
 
 			/*
