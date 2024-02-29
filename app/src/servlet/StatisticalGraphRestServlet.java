@@ -633,7 +633,7 @@ public class StatisticalGraphRestServlet {
      * los cultivos en una parcela durante un periodo
      * definido por dos fechas
      */
-    if (newStatisticalGraph.getStatisticalData().getNumber() == TOTAL_AMOUNT_PLANTATIONS_PER_CROP) {
+    if (statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_CROP) {
       newStatisticalGraph.setData(statisticalReportService.calculateTotalNumberPlantationsPerCrop(parcelId, dateFrom, dateUntil));
       newStatisticalGraph.setLabels(statisticalReportService.findCropNamesCalculatedPerTotalNumberPlantationsPerCrop(parcelId, dateFrom, dateUntil));
       newStatisticalGraph.setText("Y: Cantidad de plantaciones, X: Cultivos, Cantidad total de veces que se plantaron los cultivos en la parcela "
@@ -651,7 +651,7 @@ public class StatisticalGraphRestServlet {
      * los cultivos por año en una parcela durante un periodo
      * definido por dos fechas
      */
-    if (newStatisticalGraph.getStatisticalData().getNumber() == TOTAL_AMOUNT_PLANTATIONS_PER_CROP_AND_YEAR) {
+    if (statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_CROP_AND_YEAR) {
       List<String> cropNames = statisticalReportService.findCropNamesCalculatedPerTotalNumberPlantationsPerCropAndYear(parcelId, dateFrom, dateUntil);
       List<Integer> seedYears = statisticalReportService.findSeedYearCalculatedPerTotalNumberPlantationsPerCropAndYear(parcelId, dateFrom, dateUntil);
 
