@@ -474,15 +474,17 @@ public class StatisticalReportServiceBean {
      * del archivo plantingRecordStatusInserts.sql de la ruta
      * app/etc/sql.
      */
-    String subQuery = "SELECT YEAR(SEED_DATE) AS YEAR_SEED_DATE, FK_CROP, COUNT(FK_CROP) AS NUMBER_PLANTATIONS FROM PLANTING_RECORD "
-        + "WHERE FK_PARCEL = ?1 AND FK_STATUS = 1 AND "
-        + "((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) OR "
-        + "(SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR "
-        + "(?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2)) "
-        + "GROUP BY YEAR(SEED_DATE), FK_CROP ORDER BY YEAR(SEED_DATE)";
+    String subQuery = "SELECT RESULT_TABLE_TWO.YEAR_SEED_DATE, RESULT_TABLE_TWO.CROP_ID, COUNT(RESULT_TABLE_TWO.CROP_ID) AS NUMBER_PLANTATIONS FROM "
+        + "(SELECT YEAR(RESULT_TABLE.SEED_DATE) AS YEAR_SEED_DATE, RESULT_TABLE.CROP_ID FROM "
+        + "(SELECT SEED_DATE, FK_CROP AS CROP_ID FROM "
+        + "PLANTING_RECORD "
+        + "WHERE FK_PARCEL = ?1 AND FK_STATUS = 1 AND ((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) "
+        + "OR (SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) "
+        + "OR (?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2)) "
+        + "ORDER BY SEED_DATE) AS RESULT_TABLE) AS RESULT_TABLE_TWO "
+        + "GROUP BY RESULT_TABLE_TWO.YEAR_SEED_DATE, RESULT_TABLE_TWO.CROP_ID";
 
-    String stringQuery = "SELECT RESULT_TABLE.NUMBER_PLANTATIONS FROM (" + subQuery
-        + ") AS RESULT_TABLE";
+    String stringQuery = "SELECT RESULT_TABLE_THREE.NUMBER_PLANTATIONS FROM (" + subQuery + ") AS RESULT_TABLE_THREE";
 
     Query query = getEntityManager().createNativeQuery(stringQuery);
     query.setParameter(1, parcelId);
@@ -547,15 +549,18 @@ public class StatisticalReportServiceBean {
      * del archivo plantingRecordStatusInserts.sql de la ruta
      * app/etc/sql.
      */
-    String subQuery = "SELECT YEAR(SEED_DATE) AS YEAR_SEED_DATE, FK_CROP, COUNT(FK_CROP) AS NUMBER_PLANTATIONS FROM PLANTING_RECORD "
-        + "WHERE FK_PARCEL = ?1 AND FK_STATUS = 1 AND "
-        + "((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) OR "
-        + "(SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR "
-        + "(?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2)) "
-        + "GROUP BY YEAR(SEED_DATE), FK_CROP ORDER BY YEAR(SEED_DATE)";
+    String subQuery = "SELECT RESULT_TABLE_TWO.YEAR_SEED_DATE, RESULT_TABLE_TWO.CROP_ID, COUNT(RESULT_TABLE_TWO.CROP_ID) AS NUMBER_PLANTATIONS FROM "
+        + "(SELECT YEAR(RESULT_TABLE.SEED_DATE) AS YEAR_SEED_DATE, RESULT_TABLE.CROP_ID FROM "
+        + "(SELECT SEED_DATE, FK_CROP AS CROP_ID FROM "
+        + "PLANTING_RECORD "
+        + "WHERE FK_PARCEL = ?1 AND FK_STATUS = 1 AND ((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) "
+        + "OR (SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) "
+        + "OR (?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2)) "
+        + "ORDER BY SEED_DATE) AS RESULT_TABLE) AS RESULT_TABLE_TWO "
+        + "GROUP BY RESULT_TABLE_TWO.YEAR_SEED_DATE, RESULT_TABLE_TWO.CROP_ID";
 
     String stringQuery = "SELECT NAME FROM CROP JOIN (" + subQuery
-        + ") AS RESULT_TABLE ON CROP.ID = RESULT_TABLE.FK_CROP";
+        + ") AS RESULT_TABLE_THREE ON CROP.ID = RESULT_TABLE_THREE.CROP_ID";
 
     Query query = getEntityManager().createNativeQuery(stringQuery);
     query.setParameter(1, parcelId);
@@ -621,15 +626,17 @@ public class StatisticalReportServiceBean {
      * del archivo plantingRecordStatusInserts.sql de la ruta
      * app/etc/sql.
      */
-    String subQuery = "SELECT YEAR(SEED_DATE) AS YEAR_SEED_DATE, FK_CROP, COUNT(FK_CROP) AS NUMBER_PLANTATIONS FROM PLANTING_RECORD "
-        + "WHERE FK_PARCEL = ?1 AND FK_STATUS = 1 AND "
-        + "((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) OR "
-        + "(SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR "
-        + "(?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2)) "
-        + "GROUP BY YEAR(SEED_DATE), FK_CROP ORDER BY YEAR(SEED_DATE)";
+    String subQuery = "SELECT RESULT_TABLE_TWO.YEAR_SEED_DATE, RESULT_TABLE_TWO.CROP_ID, COUNT(RESULT_TABLE_TWO.CROP_ID) AS NUMBER_PLANTATIONS FROM "
+        + "(SELECT YEAR(RESULT_TABLE.SEED_DATE) AS YEAR_SEED_DATE, RESULT_TABLE.CROP_ID FROM "
+        + "(SELECT SEED_DATE, FK_CROP AS CROP_ID FROM "
+        + "PLANTING_RECORD "
+        + "WHERE FK_PARCEL = ?1 AND FK_STATUS = 1 AND ((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) "
+        + "OR (SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) "
+        + "OR (?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2)) "
+        + "ORDER BY SEED_DATE) AS RESULT_TABLE) AS RESULT_TABLE_TWO "
+        + "GROUP BY RESULT_TABLE_TWO.YEAR_SEED_DATE, RESULT_TABLE_TWO.CROP_ID";
 
-    String stringQuery = "SELECT RESULT_TABLE.YEAR_SEED_DATE FROM (" + subQuery
-        + ") AS RESULT_TABLE";
+    String stringQuery = "SELECT RESULT_TABLE_THREE.YEAR_SEED_DATE FROM (" + subQuery + ") AS RESULT_TABLE_THREE";
 
     Query query = getEntityManager().createNativeQuery(stringQuery);
     query.setParameter(1, parcelId);
