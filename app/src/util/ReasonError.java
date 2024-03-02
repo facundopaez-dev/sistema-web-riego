@@ -135,7 +135,9 @@ public enum ReasonError {
   NON_EXISTENT_PLANTING_RECORDS("Para generar el informe estadístico solicitado se requieren registros de plantación finalizados y la parcela seleccionada no tiene registros de plantación finalizados"),
   NON_EXISTENT_PLANTING_RECORDS_IN_A_PERIOD("Para generar el informe estadístico solicitado se requieren registros de plantación finalizados y la parcela seleccionada no tiene registros de plantación finalizados en el período definido por las fechas elegidas"),
   NON_EXISTENT_IRRIGATION_RECORDS_WITH_CROP("Para generar el informe estadístico solicitado se requieren registros de riego asociados a un cultivo y la parcela seleccionada no tiene registros de riego asociados a un cultivo"),
-  NON_EXISTENT_IRRIGATION_RECORDS_WITH_CROP_IN_A_PERIOD("Para generar el informe estadístico solicitado se requieren registros de riego asociados a un cultivo y la parcela seleccionada no tiene registros de riego asociados a un cultivo en el período definido por las fechas elegidas");
+  NON_EXISTENT_IRRIGATION_RECORDS_WITH_CROP_IN_A_PERIOD("Para generar el informe estadístico solicitado se requieren registros de riego asociados a un cultivo y la parcela seleccionada no tiene registros de riego asociados a un cultivo en el período definido por las fechas elegidas"),
+  NON_EXISTENT_HARVEST_RECORDS("Para generar el informe estadístico solicitado se requieren registros de cosecha (rendimientos) y la parcela seleccionada no tiene registros de cosecha"),
+  NON_EXISTENT_HARVEST_RECORDS_IN_A_PERIOD("Para generar el informe estadístico solicitado se requieren registros de cosecha (rendimientos) y la parcela seleccionada no tiene registros de cosecha en el período definido por las fechas elegidas");
 
   private final String reason;
 

@@ -961,6 +961,118 @@ public class StatisticalReportServiceBean {
     return (double) query.getSingleResult();
   }
 
+  /*
+   * ********************************************************
+   * A partir de aqui comienzan los metodos relacionados a la
+   * generacion de informe estadisticos que se tratan sobre
+   * la cantidad cosechada (rendimiento) por cultivo
+   * ********************************************************
+   */
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<Integer>
+   * que contiene la cantidad total cosechada [kg] por
+   * cultivo de cada uno de los cultivos cosechados en
+   * una parcela en un periodo definido por dos fechas
+   */
+  public List<Integer> calculateTotalHarvestPerCrop(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String subQuery = "SELECT FK_CROP AS CROP_ID, SUM(HARVEST_AMOUNT) AS TOTAL_HARVEST FROM "
+        + "HARVEST WHERE FK_PARCEL = ?1 AND ?2 <= DATE AND DATE <= ?3 "
+        + "GROUP BY FK_CROP";
+
+    String stringQuery = "SELECT CAST(CEIL(RESULT_TABLE.TOTAL_HARVEST) AS INTEGER) FROM (" + subQuery
+        + ") AS RESULT_TABLE";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<Integer> result = null;
+
+    try {
+      result = query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<String> que
+   * contiene los nombres de los cultivos para los que se
+   * calcula su cantidad total de cosecha (rendimiento), esto
+   * es de los cultivos cosechados en una parcela en un
+   * periodo definido por dos fechas
+   */
+  public List<String> findCropNamesCalculatedPerTotalHarvestPerCrop(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String subQuery = "SELECT FK_CROP AS CROP_ID, SUM(HARVEST_AMOUNT) AS TOTAL_HARVEST FROM "
+        + "HARVEST WHERE FK_PARCEL = ?1 AND ?2 <= DATE AND DATE <= ?3 "
+        + "GROUP BY FK_CROP";
+
+    String stringQuery = "SELECT NAME FROM CROP JOIN (" + subQuery
+        + ") AS RESULT_TABLE ON ID = RESULT_TABLE.CROP_ID";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<String> result = null;
+
+    try {
+      result = query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return double que representa el promedio de las cantidades
+   * cosechadas de los cultivos cosechados en una parcela en un
+   * periodo definido por dos fechas
+   */
+  public double calculateAverageHarvest(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    Query query = getEntityManager().createQuery("SELECT AVG(h.harvestAmount) FROM Harvest h WHERE h.parcel.id = :parcelId AND h.crop IS NOT NULL AND :dateFrom <= h.date AND h.date <= :dateUntil");
+    query.setParameter("parcelId", parcelId);
+    query.setParameter("dateFrom", dateFrom);
+    query.setParameter("dateUntil", dateUntil);
+
+    return (double) query.getSingleResult();
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo Integer que contiene
+   * la cantidad total cosechada de los cultivos cosechados en
+   * una parcela en un periodo definido por dos fechas
+   */
+  public Integer calculateTotalHarvestPerPeriod(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String stringQuery = "SELECT CAST(CEIL(SUM(HARVEST_AMOUNT)) AS INTEGER) FROM HARVEST WHERE "
+        + "FK_PARCEL = ?1 AND FK_CROP IS NOT NULL AND ?2 <= DATE AND DATE <= ?3";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    return (Integer) query.getSingleResult();
+  }
+
   public Page<StatisticalReport> findAllPagination(int userId, Integer page, Integer cantPerPage, Map<String, String> parameters) throws ParseException {
     SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
     Date date;

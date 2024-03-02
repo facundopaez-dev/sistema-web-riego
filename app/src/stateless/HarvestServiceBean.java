@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Collection;
 import java.util.Map;
 import javax.ejb.Stateless;
@@ -179,6 +180,66 @@ public class HarvestServiceBean {
     }
 
     return (String) cropNames.toArray()[0];
+  }
+
+  /**
+   * @param parcelId
+   * @return referencia a un objeto de tipo List<Harvest>
+   * que contiene todos los registros de cosecha pertenecientes
+   * a una parcela
+   */
+  public List<Harvest> findAll(int parcelId) {
+    Query query = getEntityManager().createQuery("SELECT h FROM Harvest h WHERE h.parcel.id = :parcelId");
+    query.setParameter("parcelId", parcelId);
+
+    return query.getResultList();
+  }
+
+  /**
+   * Retorna true si y solo si una parcela tiene registros de
+   * cosecha
+   * 
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return true si una parcela tiene registros de cosecha,
+   * en caso contrario false
+   */
+  public boolean hasHarvestRecords(int parcelId) {
+    return !findAll(parcelId).isEmpty();
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<Harvest> que
+   * contiene todos los registros de cosecha de una parcela
+   * que estan comprendidos en un periodo definido por dos
+   * fechas
+   */
+  public List<Harvest> findAllByPeriod(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    Query query = getEntityManager().createQuery("SELECT h FROM Harvest h WHERE h.parcel.id = :parcelId AND :dateFrom <= h.date AND h.date <= :dateUntil");
+    query.setParameter("parcelId", parcelId);
+    query.setParameter("dateFrom", dateFrom);
+    query.setParameter("dateUntil", dateUntil);
+
+    return query.getResultList();
+  }
+
+  /**
+   * Retorna true si y solo si una parcela tiene registros de
+   * cosecha pertenecientes a un periodo definido por dos fechas
+   * 
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return true si una parcela tiene registros de cosecha
+   * pertenecientes a un periodo definido por dos fechas, en
+   * caso contrario false
+   */
+  public boolean hasHarvestRecords(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    return !findAllByPeriod(parcelId, dateFrom, dateUntil).isEmpty();
   }
 
   /**
