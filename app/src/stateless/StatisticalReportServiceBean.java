@@ -733,6 +733,109 @@ public class StatisticalReportServiceBean {
     return (Long) query.getSingleResult();
   }
 
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<Integer> que
+   * contiene la cantidad total de agua utilizada para el
+   * riego para cada uno de los cultivos sembrados en una
+   * parcela en un periodo definido por dos fechas
+   */
+  public List<Integer> calculateTotalAmountIrrigationWaterPerCrop(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String subQuery = "SELECT FK_CROP AS CROP_ID, SUM(IRRIGATION_DONE) AS TOTAL_AMOUNT_IRRIGATION_WATER FROM "
+        + "IRRIGATION_RECORD WHERE FK_PARCEL = ?1 AND ?2 <= DATE AND DATE <= ?3 AND FK_CROP IS NOT NULL "
+        + "GROUP BY FK_CROP";
+
+    String stringQuery = "SELECT CAST(CEIL(RESULT_TABLE.TOTAL_AMOUNT_IRRIGATION_WATER) AS INTEGER) FROM (" + subQuery + ") AS RESULT_TABLE";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<Integer> result = null;
+
+    try {
+      result = query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<String> que
+   * contiene los nombres de los cultivos para los que se
+   * calcula la cantidad total de agua de riego utilizada
+   * en cada uno de ellos sembrados en una parcela en un
+   * periodo definido por dos fechas
+   */
+  public List<String> findCropNamesCalculatedPerTotalAmountIrrigationWaterPerCrop(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String subQuery = "SELECT FK_CROP AS CROP_ID "
+        + "FROM IRRIGATION_RECORD WHERE "
+        + "FK_PARCEL = ?1 AND ?2 <= DATE AND DATE <= ?3 AND FK_CROP IS NOT NULL "
+        + "GROUP BY FK_CROP";
+
+    String stringQuery = "SELECT NAME FROM CROP JOIN (" + subQuery + ") AS RESULT_TABLE ON CROP.ID = RESULT_TABLE.CROP_ID";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<String> result = null;
+
+    try {
+      result = query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo Integer que contiene
+   * la cantidad total de agua utilizada para el riego de cultivos
+   * en un periodo definido por dos fechas
+   */
+  public Integer calculateTotalAmountCropIrrigationWaterPerPeriod(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String stringQuery = "SELECT CAST(CEIL(SUM(IRRIGATION_DONE)) AS INTEGER) FROM IRRIGATION_RECORD WHERE "
+        + "FK_PARCEL = ?1 AND FK_CROP IS NOT NULL AND ?2 <= DATE AND DATE <= ?3";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    return (Integer) query.getSingleResult();
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo Integer que contiene
+   * el promedio del agua utilizada para el riego de los cultivos
+   * sembrados en una parcela en un periodo definido por dos fechas
+   */
+  public double calculateAverageCropIrrigationWater(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    Query query = getEntityManager().createQuery("SELECT AVG(i.irrigationDone) FROM IrrigationRecord i WHERE i.parcel.id = :parcelId AND i.crop IS NOT NULL AND :dateFrom <= i.date AND i.date <= :dateUntil");
+    query.setParameter("parcelId", parcelId);
+    query.setParameter("dateFrom", dateFrom);
+    query.setParameter("dateUntil", dateUntil);
+
+    return (double) query.getSingleResult();
+  }
+
   public Page<StatisticalReport> findAllPagination(int userId, Integer page, Integer cantPerPage, Map<String, String> parameters) throws ParseException {
     SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
     Date date;

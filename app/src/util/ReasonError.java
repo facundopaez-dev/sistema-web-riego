@@ -133,7 +133,9 @@ public enum ReasonError {
   REPETITION_OF_PRECIPITATION_TYPES("No se deben repetir los tipos de precipitación"),
   UNDEFINED_STATISTICAL_DATA("El dato estadístico a calcular debe estar definido"),
   NON_EXISTENT_PLANTING_RECORDS("Para generar el informe estadístico solicitado se requieren registros de plantación finalizados y la parcela seleccionada no tiene registros de plantación finalizados"),
-  NON_EXISTENT_PLANTING_RECORDS_IN_A_PERIOD("Para generar el informe estadístico solicitado se requieren registros de plantación finalizados y la parcela seleccionada no tiene registros de plantación finalizados en el período definido por las fechas elegidas");
+  NON_EXISTENT_PLANTING_RECORDS_IN_A_PERIOD("Para generar el informe estadístico solicitado se requieren registros de plantación finalizados y la parcela seleccionada no tiene registros de plantación finalizados en el período definido por las fechas elegidas"),
+  NON_EXISTENT_IRRIGATION_RECORDS_WITH_CROP("Para generar el informe estadístico solicitado se requieren registros de riego asociados a un cultivo y la parcela seleccionada no tiene registros de riego asociados a un cultivo"),
+  NON_EXISTENT_IRRIGATION_RECORDS_WITH_CROP_IN_A_PERIOD("Para generar el informe estadístico solicitado se requieren registros de riego asociados a un cultivo y la parcela seleccionada no tiene registros de riego asociados a un cultivo en el período definido por las fechas elegidas");
 
   private final String reason;
 

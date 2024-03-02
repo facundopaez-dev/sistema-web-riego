@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.lang.NullPointerException;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Date;
 import java.util.Calendar;
@@ -268,6 +269,67 @@ public class IrrigationRecordServiceBean {
     query.setParameter("dateUntil", dateUntil);
 
     return (Collection) query.getResultList();
+  }
+
+  /**
+   * @param parcelId
+   * @return referencia a un objeto de tipo List<IrrigationRecord>
+   * que contiene todos los registros de riego con cultivo
+   * pertenecientes a una parcela
+   */
+  public List<IrrigationRecord> findAllWithCrops(int parcelId) {
+    Query query = getEntityManager().createQuery("SELECT i FROM IrrigationRecord i WHERE i.parcel.id = :parcelId AND i.crop IS NOT NULL");
+    query.setParameter("parcelId", parcelId);
+
+    return query.getResultList();
+  }
+
+  /**
+   * Retorna true si y solo si una parcela tiene registros de
+   * riego con cultivo
+   * 
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return true si una parcela tiene registros de riego
+   * con cultivo pertenecientes, en caso contrario false
+   */
+  public boolean hasIrrigationRecordsWithCrops(int parcelId) {
+    return !findAllWithCrops(parcelId).isEmpty();
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<IrrigationRecord>
+   * que contiene todos los registros de riego que tiene un
+   * cultivo y que estan comprendidos en un periodo definido por
+   * dos fechas
+   */
+  public List<IrrigationRecord> findAllWithCropAndByPeriod(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    Query query = getEntityManager().createQuery("SELECT i FROM IrrigationRecord i WHERE i.parcel.id = :parcelId AND i.crop IS NOT NULL AND :dateFrom <= i.date AND i.date <= :dateUntil");
+    query.setParameter("parcelId", parcelId);
+    query.setParameter("dateFrom", dateFrom);
+    query.setParameter("dateUntil", dateUntil);
+
+    return query.getResultList();
+  }
+
+  /**
+   * Retorna true si y solo si una parcela tiene registros de
+   * riego con cultivo pertenecientes a un periodo definido
+   * por dos fechas
+   * 
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return true si una parcela tiene registros de riego
+   * con cultivo pertenecientes a un periodo definido por
+   * dos fechas, en caso contrario false
+   */
+  public boolean hasIrrigationRecordsWithCrops(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    return !findAllWithCropAndByPeriod(parcelId, dateFrom, dateUntil).isEmpty();
   }
 
   /**

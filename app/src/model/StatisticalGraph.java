@@ -33,6 +33,9 @@ public class StatisticalGraph {
     @Column(name = "TEXT")
     private String text;
 
+    @Column(name = "AVERAGE")
+    private double average;
+
     private Collection<Integer> data;
     private Collection<String> labels;
 
@@ -74,6 +77,14 @@ public class StatisticalGraph {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public double getAverage() {
+        return average;
+    }
+
+    public void setAverage(double average) {
+        this.average = average;
     }
 
     public Collection<Integer> getData() {

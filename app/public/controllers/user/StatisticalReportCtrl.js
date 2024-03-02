@@ -122,45 +122,85 @@ app.controller(
           $scope.data = data.data;
           $scope.labels = data.labels;
 
-          $scope.options = {
-            title: {
-              display: true,
-              text: data.text
-            },
-            scaleShowValues: true,
-            scales: {
-              yAxes: [{
-                ticks: {
-                  beginAtZero: true
-                }
-              }],
-              xAxes: [{
-                ticks: {
-                  autoSkip: false
-                }
-              }]
-            }
+          /* Si el promedio es igual de cero, significa que no existe
+          un promedio de un conjunto de valores. Por lo tanto, se crean
+          las opciones del grafico de barras sin una linea que represente
+          el promedio de un conjunto de valores. Esto implica que en el
+          grafico de barras no habra una linea que represente el promedio
+          de un conjunto de valores. */
+          if (data.average == 0) {
 
-            // Este codigo fuente es para crear una linea que marque el promedio de un conjunto de valores
-            // Fuente: https://github.com/chartjs/chartjs-plugin-annotation/tree/1ab782afce943456f958cac33f67edc5d6eab278
-            // annotation: {
-            //   annotations: [{
-            //     type: 'line',
-            //     mode: 'horizontal',
-            //     scaleID: 'y-axis-0',
-            //     value: '25',
-            //     borderColor: 'black',
-            //     borderDash: [6, 6],
-            //     borderDashOffset: 0,
-            //     borderWidth: 3,
-            //     label: {
-            //       enabled: true,
-            //       content: 'Promedio: ' + '25'
-            //     }
-            //   }]
-            // }
+            $scope.options = {
+              title: {
+                display: true,
+                text: data.text
+              },
+              scaleShowValues: true,
+              scales: {
+                yAxes: [{
+                  ticks: {
+                    beginAtZero: true
+                  }
+                }],
+                xAxes: [{
+                  ticks: {
+                    autoSkip: false
+                  }
+                }]
+              }
 
-          };
+            };
+
+          } // End if
+
+          /* Si el promedio es distinto de cero, significa que existe un
+          promedio de un conjunto de valores. Por lo tanto, se crean las
+          opciones del grafico de barras con una linea que represente
+          el promedio de un conjunto de valores. Esto implica que en el
+          grafico de barras habra una linea que represente el promedio
+          de un conjunto de valores. */
+          if (data.average != 0) {
+            $scope.options = {
+              title: {
+                display: true,
+                text: data.text
+              },
+              scaleShowValues: true,
+              scales: {
+                yAxes: [{
+                  ticks: {
+                    beginAtZero: true
+                  }
+                }],
+                xAxes: [{
+                  ticks: {
+                    autoSkip: false
+                  }
+                }]
+              },
+
+              // Este codigo fuente es para crear una linea que marque el promedio de un conjunto de valores
+              // Fuente: https://github.com/chartjs/chartjs-plugin-annotation/tree/1ab782afce943456f958cac33f67edc5d6eab278
+              annotation: {
+                annotations: [{
+                  type: 'line',
+                  mode: 'horizontal',
+                  scaleID: 'y-axis-0',
+                  value: data.average,
+                  borderColor: 'black',
+                  borderDash: [6, 6],
+                  borderDashOffset: 0,
+                  borderWidth: 2,
+                  label: {
+                    enabled: true,
+                    content: 'Promedio: ' + data.average
+                  }
+                }]
+              }
+
+            };
+
+          } // End if
 
         });
       }

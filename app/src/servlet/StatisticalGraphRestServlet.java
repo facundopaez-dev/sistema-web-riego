@@ -47,6 +47,7 @@ import util.ErrorResponse;
 import util.ReasonError;
 import util.RequestManager;
 import util.UtilDate;
+import util.UtilMath;
 import utilJwt.AuthHeaderManager;
 import utilJwt.JwtManager;
 
@@ -92,6 +93,7 @@ public class StatisticalGraphRestServlet {
   private final int DAYS_YEAR = 365;
   private final int TOTAL_AMOUNT_PLANTATIONS_PER_CROP = 1;
   private final int TOTAL_AMOUNT_PLANTATIONS_PER_CROP_AND_YEAR = 2;
+  private final int TOTAL_AMOUNT_IRRIGATION_WATER_PER_CROP = 3;
 
   @GET
   @Path("/findAllPagination")
@@ -627,6 +629,57 @@ public class StatisticalGraphRestServlet {
     }
 
     /*
+     * ********************************************************
+     * Controles sobre la existencia de registros de riego con
+     * cultivo de la parcela seleccionada para generar un informe
+     * estadistico
+     * ********************************************************
+     */
+
+    /*
+     * Si la parcela seleccionada para generar un informe
+     * estadistico NO tiene registros de riego asociados a
+     * un cultivo, la aplicacion del lado servidor retorna
+     * el mensaje HTTP 400 (Bad request) junto con un mensaje
+     * que indica lo sucedido y no se realiza la operacion
+     * solicitada. Para generar un informe estadistico:
+     * - de la cantidad total de agua de riego por cultivo
+     * de los cultivos plantados en una parcela durante
+     * un periodo definido por dos fechas
+     * 
+     * se requiere que la parcela seleccionada tenga registros
+     * de riego asociados a un cultivo. Este es el motivo de
+     * este control.
+     */
+    if (statisticalDataNumber == TOTAL_AMOUNT_IRRIGATION_WATER_PER_CROP && !irrigationRecordService.hasIrrigationRecordsWithCrops(parcelId)) {
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NON_EXISTENT_IRRIGATION_RECORDS_WITH_CROP)))
+          .build();
+    }
+
+    /*
+     * Si la parcela seleccionada para generar un informe
+     * estadistico NO tiene registros de riego asociados a
+     * un cultivo en el periodo definido por dos fechas, la
+     * aplicacion del lado servidor retorna el mensaje HTTP
+     * 400 (Bad request) junto con un mensaje que indica lo
+     * sucedido y no se realiza la operacion solicitada.
+     * Para generar un informe estadistico:
+     * - de la cantidad total de agua de riego por cultivo
+     * de los cultivos plantados en una parcela durante
+     * un periodo definido por dos fechas
+     * 
+     * se requiere que la parcela seleccionada tenga registros
+     * de riego asociados a un cultivo. Este es el motivo de
+     * este control.
+     */
+    if (statisticalDataNumber == TOTAL_AMOUNT_IRRIGATION_WATER_PER_CROP && !irrigationRecordService.hasIrrigationRecordsWithCrops(parcelId, dateFrom, dateUntil)) {
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NON_EXISTENT_IRRIGATION_RECORDS_WITH_CROP_IN_A_PERIOD)))
+          .build();
+    }
+
+    /*
      * Si el numero del dato estadistico a calcular es el
      * valor de la constante TOTAL_AMOUNT_PLANTATIONS_PER_CROP,
      * se calcula la cantidad total de veces que se plantaron
@@ -669,6 +722,25 @@ public class StatisticalGraphRestServlet {
               + newStatisticalGraph.getParcel().getName() + " (ID: " + parcelId + ")"
               + " en el período " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
               + ", Cant. total de plantaciones: " + statisticalReportService.calculateTotalNumberPlantationsPerPeriod(parcelId, dateFrom, dateUntil));
+
+      return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(statisticalGraphService.create(newStatisticalGraph))).build();
+    }
+
+    /*
+     * Si el numero del dato estadistico a calcular es el
+     * valor de la constante TOTAL_AMOUNT_IRRIGATION_WATER_PER_CROP,
+     * se calcula la cantidad total de agua de riego de los
+     * cultivos plantados en una parcela durante un periodo
+     * definido por dos fechas
+     */
+    if (statisticalDataNumber == TOTAL_AMOUNT_IRRIGATION_WATER_PER_CROP) {
+      newStatisticalGraph.setData(statisticalReportService.calculateTotalAmountIrrigationWaterPerCrop(parcelId, dateFrom, dateUntil));
+      newStatisticalGraph.setLabels(statisticalReportService.findCropNamesCalculatedPerTotalAmountIrrigationWaterPerCrop(parcelId, dateFrom, dateUntil));
+      newStatisticalGraph.setAverage(UtilMath.truncateToTwoDigits(statisticalReportService.calculateAverageCropIrrigationWater(parcelId, dateFrom, dateUntil)));
+      newStatisticalGraph.setText("Y: Agua de riego [mm], X: Cultivos, Cantidad total de agua riego de los cultivos plantados en la parcela "
+              + newStatisticalGraph.getParcel().getName() + " (ID: " + parcelId + ")"
+              + " en el período " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
+              + ", Cant. total de agua de riego [mm]: " + statisticalReportService.calculateTotalAmountCropIrrigationWaterPerPeriod(parcelId, dateFrom, dateUntil));
 
       return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(statisticalGraphService.create(newStatisticalGraph))).build();
     }
