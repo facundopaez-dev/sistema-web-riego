@@ -823,9 +823,9 @@ public class StatisticalReportServiceBean {
    * @param parcelId
    * @param dateFrom
    * @param dateUntil
-   * @return referencia a un objeto de tipo Integer que contiene
-   * el promedio del agua utilizada para el riego de los cultivos
-   * sembrados en una parcela en un periodo definido por dos fechas
+   * @return double que representa el promedio del agua utilizada
+   * para el riego de los cultivos sembrados en una parcela en un
+   * periodo definido por dos fechas
    */
   public double calculateAverageCropIrrigationWater(int parcelId, Calendar dateFrom, Calendar dateUntil) {
     Query query = getEntityManager().createQuery("SELECT AVG(i.irrigationDone) FROM IrrigationRecord i WHERE i.parcel.id = :parcelId AND i.crop IS NOT NULL AND :dateFrom <= i.date AND i.date <= :dateUntil");
