@@ -659,11 +659,9 @@ public class StatisticalReportServiceBean {
    * @param seedYears
    * @return referencia a un objeto de tipo List<String> que
    * contiene las etiquetas <cultivo> (<año>) para el grafico
-   * de barras que representa la cantidad de veces que se
-   * plantaron los cultivos por año en una parcela durante
-   * un periodo definido por dos fechas
+   * de barras que lo requiera
    */
-  public List<String> setLabelsOfCalculatedPerTotalNumberPlantationsPerCropAndYear(List<String> cropNames, List<Integer> seedYears) {
+  public List<String> setLabelsWithCropAndYear(List<String> cropNames, List<Integer> seedYears) {
     List<String> labels = new ArrayList<>();
 
     for (int i = 0; i < cropNames.size(); i++) {
@@ -789,6 +787,117 @@ public class StatisticalReportServiceBean {
     query.setParameter(3, dateUntil);
 
     List<String> result = null;
+
+    try {
+      result = query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<Integer> que
+   * contiene la cantidad total de agua utilizada por año para
+   * el riego para cada uno de los cultivos sembrados en una
+   * parcela en un periodo definido por dos fechas
+   */
+  public List<Integer> calculateTotalAmountIrrigationWaterPerCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String subQuery = "SELECT RESULT_TABLE_TWO.IRRIGATION_YEAR, RESULT_TABLE_TWO.CROP_ID, SUM(RESULT_TABLE_TWO.IRRIGATION_DONE) AS TOTAL_AMOUNT_CROP_IRRIGATION_WATER "
+        + "FROM (SELECT YEAR(RESULT_TABLE.DATE) AS IRRIGATION_YEAR, RESULT_TABLE.CROP_ID, RESULT_TABLE.IRRIGATION_DONE FROM "
+        + "(SELECT DATE, FK_CROP AS CROP_ID, IRRIGATION_DONE "
+        + "FROM IRRIGATION_RECORD WHERE FK_PARCEL = ?1 AND ?2 <= DATE AND DATE <= ?3 "
+        + "ORDER BY DATE) AS RESULT_TABLE) AS RESULT_TABLE_TWO "
+        + "GROUP BY RESULT_TABLE_TWO.IRRIGATION_YEAR, RESULT_TABLE_TWO.CROP_ID";
+
+    String stringQuery = "SELECT CAST(CEIL(RESULT_TABLE_THREE.TOTAL_AMOUNT_CROP_IRRIGATION_WATER) AS INTEGER) FROM ("
+        + subQuery + ") AS RESULT_TABLE_THREE";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<Integer> result = null;
+
+    try {
+      result = query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<String> que
+   * contiene los nombres de los cultivos para los que se
+   * calcula la cantidad total de agua de riego utilizada
+   * por año en cada uno de ellos, esto es de aquellos
+   * cultivos sembrados en una parcela en un periodo
+   * definido por dos fechas
+   */
+  public List<String> findCropNamesCalculatedPerTotalAmountIrrigationWaterPerCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String subQuery = "SELECT RESULT_TABLE_TWO.IRRIGATION_YEAR, RESULT_TABLE_TWO.CROP_ID, SUM(RESULT_TABLE_TWO.IRRIGATION_DONE) AS TOTAL_AMOUNT_CROP_IRRIGATION_WATER "
+        + "FROM (SELECT YEAR(RESULT_TABLE.DATE) AS IRRIGATION_YEAR, RESULT_TABLE.CROP_ID, RESULT_TABLE.IRRIGATION_DONE FROM "
+        + "(SELECT DATE, FK_CROP AS CROP_ID, IRRIGATION_DONE "
+        + "FROM IRRIGATION_RECORD WHERE FK_PARCEL = ?1 AND ?2 <= DATE AND DATE <= ?3 "
+        + "ORDER BY DATE) AS RESULT_TABLE) AS RESULT_TABLE_TWO "
+        + "GROUP BY RESULT_TABLE_TWO.IRRIGATION_YEAR, RESULT_TABLE_TWO.CROP_ID";
+
+    String stringQuery = "SELECT NAME FROM CROP JOIN ("
+        + subQuery + ") AS RESULT_TABLE_THREE ON ID = RESULT_TABLE_THREE.CROP_ID";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<String> result = null;
+
+    try {
+      result = query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<Integer> que
+   * contiene los años en los que se regaron los cultivos para
+   * los que se calcula la cantidad total de agua que se utilizo
+   * por año para regarlos, esto es de los cultivos sembrados
+   * en una parcela en un periodo definido por dos fechas
+   */
+  public List<Integer> findYearCalculatedPerTotalAmountIrrigationWaterPerCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String subQuery = "SELECT RESULT_TABLE_TWO.IRRIGATION_YEAR, RESULT_TABLE_TWO.CROP_ID, SUM(RESULT_TABLE_TWO.IRRIGATION_DONE) AS TOTAL_AMOUNT_CROP_IRRIGATION_WATER "
+        + "FROM (SELECT YEAR(RESULT_TABLE.DATE) AS IRRIGATION_YEAR, RESULT_TABLE.CROP_ID, RESULT_TABLE.IRRIGATION_DONE FROM "
+        + "(SELECT DATE, FK_CROP AS CROP_ID, IRRIGATION_DONE "
+        + "FROM IRRIGATION_RECORD WHERE FK_PARCEL = ?1 AND ?2 <= DATE AND DATE <= ?3 "
+        + "ORDER BY DATE) AS RESULT_TABLE) AS RESULT_TABLE_TWO "
+        + "GROUP BY RESULT_TABLE_TWO.IRRIGATION_YEAR, RESULT_TABLE_TWO.CROP_ID";
+
+    String stringQuery = "SELECT RESULT_TABLE_THREE.IRRIGATION_YEAR FROM ("
+        + subQuery + ") AS RESULT_TABLE_THREE";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<Integer> result = null;
 
     try {
       result = query.getResultList();
