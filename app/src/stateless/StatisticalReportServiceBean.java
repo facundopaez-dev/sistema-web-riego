@@ -282,6 +282,31 @@ public class StatisticalReportServiceBean {
   }
 
   /**
+   * @param cropNames
+   * @param seedYears
+   * @return referencia a un objeto de tipo List<String> que
+   * contiene las etiquetas <cultivo> (<año>) para el grafico
+   * de barras que lo requiera
+   */
+  public List<String> setLabelsWithCropAndYear(List<String> cropNames, List<Integer> seedYears) {
+    List<String> labels = new ArrayList<>();
+
+    for (int i = 0; i < cropNames.size(); i++) {
+      labels.add(new String(cropNames.get(i) + " (" + seedYears.get(i) + ")"));
+    }
+
+    return labels;
+  }
+
+  /*
+   * ********************************************************
+   * A partir de aqui comienzan los metodos relacionados a la
+   * generacion de informe estadisticos que se tratan sobre
+   * la cantidad de plantaciones por cultivo
+   * ********************************************************
+   */
+
+  /**
    * @param parcelId
    * @param dateFrom
    * @param dateUntil
@@ -655,23 +680,6 @@ public class StatisticalReportServiceBean {
   }
 
   /**
-   * @param cropNames
-   * @param seedYears
-   * @return referencia a un objeto de tipo List<String> que
-   * contiene las etiquetas <cultivo> (<año>) para el grafico
-   * de barras que lo requiera
-   */
-  public List<String> setLabelsWithCropAndYear(List<String> cropNames, List<Integer> seedYears) {
-    List<String> labels = new ArrayList<>();
-
-    for (int i = 0; i < cropNames.size(); i++) {
-      labels.add(new String(cropNames.get(i) + " (" + seedYears.get(i) + ")"));
-    }
-
-    return labels;
-  }
-
-  /**
    * @param parcelId
    * @param dateFrom
    * @param dateUntil
@@ -730,6 +738,14 @@ public class StatisticalReportServiceBean {
 
     return (Long) query.getSingleResult();
   }
+
+  /*
+   * ******************************************************
+   * A partir de aqui comienzan los metodos relacionados con
+   * la generacion de informes estadisticos que se tratan
+   * sobre la cantidad de agua de riego por cultivo
+   * ******************************************************
+   */
 
   /**
    * @param parcelId
