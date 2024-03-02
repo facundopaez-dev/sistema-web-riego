@@ -846,8 +846,8 @@ public class StatisticalGraphRestServlet {
     /*
      * Si el numero del dato estadistico a calcular es el
      * valor de la constante TOTAL_HARVEST_PER_CROP,
-     * se calcula la cosecha total [kg] (rendimiento) de
-     * los cultivos cosechados en una parcela durante un
+     * se calcula la cantidad total cosechada [kg] (rendimiento)
+     * de los cultivos cosechados en una parcela durante un
      * periodo definido por dos fechas
      */
     if (statisticalDataNumber == TOTAL_HARVEST_PER_CROP) {
