@@ -691,6 +691,12 @@ public class StatisticalGraphRestServlet {
     }
 
     /*
+     * ***********************************
+     * Generacion de informes estadisticos
+     * ***********************************
+     */
+
+    /*
      * Si el numero del dato estadistico a calcular es el
      * valor de la constante TOTAL_AMOUNT_PLANTATIONS_PER_CROP,
      * se calcula la cantidad total de veces que se plantaron
