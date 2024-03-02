@@ -747,9 +747,8 @@ public class StatisticalGraphRestServlet {
     if (statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_CROP) {
       newStatisticalGraph.setData(statisticalReportService.calculateTotalNumberPlantationsPerCrop(parcelId, dateFrom, dateUntil));
       newStatisticalGraph.setLabels(statisticalReportService.findCropNamesCalculatedPerTotalNumberPlantationsPerCrop(parcelId, dateFrom, dateUntil));
-      newStatisticalGraph.setText("Y: Cantidad de plantaciones, X: Cultivos, Cantidad total de veces que se plantaron los cultivos en la parcela "
-              + newStatisticalGraph.getParcel().getName()
-              + " en el período " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
+      newStatisticalGraph.setText("Y: Cantidad de plantaciones, X: Cultivo, Parcela: " + newStatisticalGraph.getParcel().getName()
+              + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
               + ", Cant. total de plantaciones: " + statisticalReportService.calculateTotalNumberPlantationsPerPeriod(parcelId, dateFrom, dateUntil));
 
       return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(statisticalGraphService.create(newStatisticalGraph))).build();
@@ -775,9 +774,8 @@ public class StatisticalGraphRestServlet {
 
       newStatisticalGraph.setData(statisticalReportService.calculateTotalNumberPlantationsPerCropAndYear(parcelId, dateFrom, dateUntil));
       newStatisticalGraph.setLabels(labels);
-      newStatisticalGraph.setText("Y: Cantidad de plantaciones, X: Cultivo (año), Cantidad total de veces que se plantaron los cultivos por año en la parcela "
-              + newStatisticalGraph.getParcel().getName()
-              + " en el período " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
+      newStatisticalGraph.setText("Y: Cantidad de plantaciones, X: Cultivo (año), Parcela: " + newStatisticalGraph.getParcel().getName()
+              + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
               + ", Cant. total de plantaciones: " + statisticalReportService.calculateTotalNumberPlantationsPerPeriod(parcelId, dateFrom, dateUntil));
 
       return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(statisticalGraphService.create(newStatisticalGraph))).build();
@@ -794,9 +792,8 @@ public class StatisticalGraphRestServlet {
       newStatisticalGraph.setData(statisticalReportService.calculateTotalAmountIrrigationWaterPerCrop(parcelId, dateFrom, dateUntil));
       newStatisticalGraph.setLabels(statisticalReportService.findCropNamesCalculatedPerTotalAmountIrrigationWaterPerCrop(parcelId, dateFrom, dateUntil));
       newStatisticalGraph.setAverage(UtilMath.truncateToTwoDigits(statisticalReportService.calculateAverageCropIrrigationWater(parcelId, dateFrom, dateUntil)));
-      newStatisticalGraph.setText("Y: Agua de riego [mm], X: Cultivos, Cantidad total de agua riego de los cultivos plantados en la parcela "
-              + newStatisticalGraph.getParcel().getName()
-              + " en el período " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
+      newStatisticalGraph.setText("Y: Cantidad de agua de riego [mm], X: Cultivo, Parcela: " + newStatisticalGraph.getParcel().getName()
+              + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
               + ", Cant. total de agua de riego [mm]: " + statisticalReportService.calculateTotalAmountCropIrrigationWaterPerPeriod(parcelId, dateFrom, dateUntil));
 
       return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(statisticalGraphService.create(newStatisticalGraph))).build();
@@ -823,9 +820,8 @@ public class StatisticalGraphRestServlet {
       newStatisticalGraph.setData(statisticalReportService.calculateTotalAmountIrrigationWaterPerCropAndYear(parcelId, dateFrom, dateUntil));
       newStatisticalGraph.setLabels(labels);
       newStatisticalGraph.setAverage(UtilMath.truncateToTwoDigits(statisticalReportService.calculateAverageCropIrrigationWater(parcelId, dateFrom, dateUntil)));
-      newStatisticalGraph.setText("Y: Agua de riego [mm], X: Cultivo (año), Cantidad total de agua riego por cultivo y año de los cultivos plantados en la parcela "
-              + newStatisticalGraph.getParcel().getName()
-              + " en el período " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
+      newStatisticalGraph.setText("Y: Cantidad de agua de riego [mm], X: Cultivo (año), Parcela: " + newStatisticalGraph.getParcel().getName()
+              + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
               + ", Cant. total de agua de riego [mm]: " + statisticalReportService.calculateTotalAmountCropIrrigationWaterPerPeriod(parcelId, dateFrom, dateUntil));
 
       return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(statisticalGraphService.create(newStatisticalGraph))).build();
