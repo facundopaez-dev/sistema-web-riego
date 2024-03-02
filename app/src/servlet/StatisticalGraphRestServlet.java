@@ -96,6 +96,7 @@ public class StatisticalGraphRestServlet {
   private final int TOTAL_AMOUNT_IRRIGATION_WATER_PER_CROP = 3;
   private final int TOTAL_AMOUNT_IRRIGATION_WATER_PER_CROP_AND_YEAR = 4;
   private final int TOTAL_HARVEST_PER_CROP = 5;
+  private final int TOTAL_HARVEST_PER_CROP_AND_YEAR = 6;
 
   @GET
   @Path("/findAllPagination")
@@ -692,6 +693,13 @@ public class StatisticalGraphRestServlet {
     }
 
     /*
+     * ********************************************************
+     * Controles sobre la existencia de registros de cosecha de
+     * la parcela seleccionada para generar un informe estadistico
+     * ********************************************************
+     */
+
+    /*
      * Si la parcela seleccionada para generar un informe
      * estadistico NO tiene registros de cosecha, la aplicacion
      * del lado servidor retorna el mensaje HTTP 400 (Bad
@@ -700,12 +708,16 @@ public class StatisticalGraphRestServlet {
      * un informe estadistico:
      * - de la cantidad total cosechada por cultivo de los
      * cultivos cosechados en una parcela durante un periodo
-     * definido por dos fechas
+     * definido por dos fechas o
+     * - de la cantidad total cosecha por cultivo y año de
+     * los cultivos cosechados en una parcela durante un
+     * periodo definido por dos fechas,
      * 
      * se requiere que la parcela seleccionada tenga registros
      * de cosecha. Este es el motivo de este control.
      */
-    if (statisticalDataNumber == TOTAL_HARVEST_PER_CROP && !harvestServiceBean.hasHarvestRecords(parcelId)) {
+    if ((statisticalDataNumber == TOTAL_HARVEST_PER_CROP || statisticalDataNumber == TOTAL_HARVEST_PER_CROP_AND_YEAR)
+        && !harvestServiceBean.hasHarvestRecords(parcelId)) {
       return Response.status(Response.Status.BAD_REQUEST)
           .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NON_EXISTENT_HARVEST_RECORDS)))
           .build();
@@ -720,12 +732,16 @@ public class StatisticalGraphRestServlet {
      * operacion solicitada. Para generar un informe estadistico:
      * - de la cantidad total cosechada por cultivo de los
      * cultivos cosechados en una parcela durante un periodo
-     * definido por dos fechas
+     * definido por dos fechas o
+     * - de la cantidad total cosecha por cultivo y año de
+     * los cultivos cosechados en una parcela durante un
+     * periodo definido por dos fechas,
      * 
      * se requiere que la parcela seleccionada tenga registros
      * de cosecha. Este es el motivo de este control.
      */
-    if (statisticalDataNumber == TOTAL_HARVEST_PER_CROP && !harvestServiceBean.hasHarvestRecords(parcelId, dateFrom, dateUntil)) {
+    if ((statisticalDataNumber == TOTAL_HARVEST_PER_CROP || statisticalDataNumber == TOTAL_HARVEST_PER_CROP_AND_YEAR)
+        && !harvestServiceBean.hasHarvestRecords(parcelId, dateFrom, dateUntil)) {
       return Response.status(Response.Status.BAD_REQUEST)
           .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NON_EXISTENT_HARVEST_RECORDS_IN_A_PERIOD)))
           .build();
@@ -839,6 +855,34 @@ public class StatisticalGraphRestServlet {
       newStatisticalGraph.setLabels(statisticalReportService.findCropNamesCalculatedPerTotalHarvestPerCrop(parcelId, dateFrom, dateUntil));
       newStatisticalGraph.setAverage(UtilMath.truncateToTwoDigits(statisticalReportService.calculateAverageHarvest(parcelId, dateFrom, dateUntil)));
       newStatisticalGraph.setText("Y: Cantidad cosechada [kg], X: Cultivo, Parcela: " + newStatisticalGraph.getParcel().getName()
+              + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
+              + ", Cant. total cosechada [kg]: " + statisticalReportService.calculateTotalHarvestPerPeriod(parcelId, dateFrom, dateUntil));
+
+      return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(statisticalGraphService.create(newStatisticalGraph))).build();
+    }
+
+    /*
+     * Si el numero del dato estadistico a calcular es el
+     * valor de la constante TOTAL_HARVEST_PER_CROP_AND_YEAR,
+     * se calcula la cantidad total cosechada [kg] (rendimiento)
+     * por cultivo y año de los cultivos cosechados en una
+     * parcela durante un periodo definido por dos fechas
+     */
+    if (statisticalDataNumber == TOTAL_HARVEST_PER_CROP_AND_YEAR) {
+      List<String> cropNames = statisticalReportService.findCropNamesCalculatedPerTotalHarvestPerCropAndYear(parcelId, dateFrom, dateUntil);
+      List<Integer> harvestYears = statisticalReportService.findYearCalculatedPerTotalHarvestPerCropAndYear(parcelId, dateFrom, dateUntil);
+
+      /*
+       * Arma las etiquetas <cultivo> (<año>) para el grafico
+       * de barras correspondiente al informe estadistico
+       * solicitado
+       */
+      List<String> labels = statisticalReportService.setLabelsWithCropAndYear(cropNames, harvestYears);
+
+      newStatisticalGraph.setData(statisticalReportService.calculateTotalHarvestPerCropAndYear(parcelId, dateFrom, dateUntil));
+      newStatisticalGraph.setLabels(labels);
+      newStatisticalGraph.setAverage(UtilMath.truncateToTwoDigits(statisticalReportService.calculateAverageHarvest(parcelId, dateFrom, dateUntil)));
+      newStatisticalGraph.setText("Y: Cantidad cosechada [kg], X: Cultivo (año), Parcela: " + newStatisticalGraph.getParcel().getName()
               + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
               + ", Cant. total cosechada [kg]: " + statisticalReportService.calculateTotalHarvestPerPeriod(parcelId, dateFrom, dateUntil));
 
