@@ -1183,6 +1183,393 @@ public class StatisticalReportServiceBean {
     return (Integer) query.getSingleResult();
   }
 
+  /*
+   * ********************************************************
+   * A partir de aqui comienzan los metodos relacionados a la
+   * generacion de informe estadisticos que se tratan sobre
+   * la cantidad de plantaciones por tipo de cultivo
+   * ********************************************************
+   */
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<Integer> que
+   * contiene los numeros que representan la cantidad total de
+   * veces que se plantaron los tipos de cultivo en una parcela
+   * en un periodo definido por dos fechas
+   */
+  public List<Integer> calculateTotalNumberPlantationsPerTypeCrop(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    /*
+     * Con las condiciones de las fechas se seleccionan todos los
+     * registros de plantacion finalizados (*) de una parcela que
+     * estan entre una fecha desde y una fecha hasta.
+     * 
+     * Con la primera condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y menor o igual
+     * a la fecha hasta, y su fecha de cosecha estrictamente mayor
+     * a la fecha hasta. Es decir, se selecciona el registro de
+     * plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de siembra dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
+     * 
+     * Con la segunda condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y su fecha de
+     * cosecha menor o igual a la fecha hasta. Es decir, se
+     * selecciona el registro de plantacion que tiene su fecha
+     * de siembra y su fecha de cosecha dentro del periodo
+     * definido por la fecha desde y la fecha hasta.
+     * 
+     * Con la tercera conidicon se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su
+     * fecha de cosecha mayor o igual a la fecha desde y menor
+     * igual a la fecha hasta, y su fecha de siembra estrictamente
+     * menor a la fecha desde. Es decir, se selecciona el registro
+     * de plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de cosecha dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
+     * 
+     * (*) El ID para el estado finalizado de un registro de
+     * plantacion es el 1, siempre y cuando no se modifique el
+     * orden en el que se ejecutan las instrucciones de insercion
+     * del archivo plantingRecordStatusInserts.sql de la ruta
+     * app/etc/sql.
+     */
+    String subQuery = "SELECT FK_TYPE_CROP AS TYPE_CROP_ID, COUNT(FK_TYPE_CROP) AS TOTAL_NUMBER_PLANTATIONS_PER_TYPE_CROP FROM "
+        + "PLANTING_RECORD JOIN CROP ON FK_CROP = CROP.ID WHERE "
+        + "FK_PARCEL = ?1 AND FK_STATUS = 1 AND ((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND "
+        + "HARVEST_DATE > ?3) OR (SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR (?2 <= HARVEST_DATE "
+        + "AND HARVEST_DATE <= ?3)) "
+        + "GROUP BY FK_TYPE_CROP";
+
+    String stringQuery = "SELECT RESULT_TABLE.TOTAL_NUMBER_PLANTATIONS_PER_TYPE_CROP FROM (" + subQuery
+        + ") AS RESULT_TABLE";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<Integer> result = null;
+
+    try {
+      result = query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<String> que
+   * contiene los nombres de los tipos de cultivos para los
+   * que se calcula la cantidad total de veces que se plantaron
+   * en una parcela en un periodo definido por dos fechas
+   */
+  public List<String> findTypeCropNamesCalculatedPerTotalNumberPlantationsPerTypeCrop(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    /*
+     * Con las condiciones de las fechas se seleccionan todos los
+     * registros de plantacion finalizados (*) de una parcela que
+     * estan entre una fecha desde y una fecha hasta.
+     * 
+     * Con la primera condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y menor o igual
+     * a la fecha hasta, y su fecha de cosecha estrictamente mayor
+     * a la fecha hasta. Es decir, se selecciona el registro de
+     * plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de siembra dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
+     * 
+     * Con la segunda condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y su fecha de
+     * cosecha menor o igual a la fecha hasta. Es decir, se
+     * selecciona el registro de plantacion que tiene su fecha
+     * de siembra y su fecha de cosecha dentro del periodo
+     * definido por la fecha desde y la fecha hasta.
+     * 
+     * Con la tercera conidicon se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su
+     * fecha de cosecha mayor o igual a la fecha desde y menor
+     * igual a la fecha hasta, y su fecha de siembra estrictamente
+     * menor a la fecha desde. Es decir, se selecciona el registro
+     * de plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de cosecha dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
+     * 
+     * (*) El ID para el estado finalizado de un registro de
+     * plantacion es el 1, siempre y cuando no se modifique el
+     * orden en el que se ejecutan las instrucciones de insercion
+     * del archivo plantingRecordStatusInserts.sql de la ruta
+     * app/etc/sql.
+     */
+    String subQuery = "SELECT FK_TYPE_CROP AS TYPE_CROP_ID, COUNT(FK_TYPE_CROP) AS TOTAL_NUMBER_PLANTATIONS_PER_TYPE_CROP FROM "
+        + "PLANTING_RECORD JOIN CROP ON FK_CROP = CROP.ID WHERE "
+        + "FK_PARCEL = ?1 AND FK_STATUS = 1 AND ((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND "
+        + "HARVEST_DATE > ?3) OR (SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR (?2 <= HARVEST_DATE "
+        + "AND HARVEST_DATE <= ?3)) "
+        + "GROUP BY FK_TYPE_CROP";
+
+    String stringQuery = "SELECT NAME FROM TYPE_CROP JOIN (" + subQuery
+        + ") AS RESULT_TABLE ON ID = RESULT_TABLE.TYPE_CROP_ID";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<String> result = null;
+
+    try {
+      result = query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<Integer> que
+   * contiene los numeros que representan la cantidad total
+   * de veces que se plantaron los tipos de cultivos por año
+   * en una parcela en un periodo definido por dos fechas
+   */
+  public List<Integer> calculateTotalNumberPlantationsPerTypeCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    /*
+     * Con las condiciones de las fechas se seleccionan todos los
+     * registros de plantacion finalizados (*) de una parcela que
+     * estan entre una fecha desde y una fecha hasta.
+     * 
+     * Con la primera condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y menor o igual
+     * a la fecha hasta, y su fecha de cosecha estrictamente mayor
+     * a la fecha hasta. Es decir, se selecciona el registro de
+     * plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de siembra dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
+     * 
+     * Con la segunda condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y su fecha de
+     * cosecha menor o igual a la fecha hasta. Es decir, se
+     * selecciona el registro de plantacion que tiene su fecha
+     * de siembra y su fecha de cosecha dentro del periodo
+     * definido por la fecha desde y la fecha hasta.
+     * 
+     * Con la tercera conidicon se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su
+     * fecha de cosecha mayor o igual a la fecha desde y menor
+     * igual a la fecha hasta, y su fecha de siembra estrictamente
+     * menor a la fecha desde. Es decir, se selecciona el registro
+     * de plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de cosecha dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
+     * 
+     * (*) El ID para el estado finalizado de un registro de
+     * plantacion es el 1, siempre y cuando no se modifique el
+     * orden en el que se ejecutan las instrucciones de insercion
+     * del archivo plantingRecordStatusInserts.sql de la ruta
+     * app/etc/sql.
+     */
+    String subQuery = "SELECT RESULT_TABLE_TWO.SEED_YEAR, RESULT_TABLE_TWO.TYPE_CROP_ID, "
+        + "COUNT(RESULT_TABLE_TWO.TYPE_CROP_ID) AS TOTAL_NUMBER_PLANTATIONS_PER_TYPE_CROP_AND_YEAR FROM "
+        + "(SELECT YEAR(RESULT_TABLE.SEED_DATE) AS SEED_YEAR, RESULT_TABLE.TYPE_CROP_ID FROM "
+        + "(SELECT SEED_DATE, FK_TYPE_CROP AS TYPE_CROP_ID FROM "
+        + "PLANTING_RECORD JOIN CROP ON FK_CROP = CROP.ID "
+        + "WHERE FK_PARCEL = ?1 AND FK_STATUS = 1 AND ((?2 <= SEED_DATE AND SEED_DATE <= ?3 "
+        + "AND HARVEST_DATE > ?3) OR (SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR "
+        + "(?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3)) "
+        + "ORDER BY SEED_DATE) AS RESULT_TABLE) AS RESULT_TABLE_TWO "
+        + "GROUP BY SEED_YEAR, TYPE_CROP_ID";
+
+    String stringQuery = "SELECT RESULT_TABLE_THREE.TOTAL_NUMBER_PLANTATIONS_PER_TYPE_CROP_AND_YEAR FROM (" + subQuery
+        + ") AS RESULT_TABLE_THREE";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<Integer> result = null;
+
+    try {
+      result = query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<String> que
+   * contiene los nombres de los tipos de cultivos para los
+   * que se calcula la cantidad total de veces que se plantaron
+   * por año en una parcela en un periodo definido por dos
+   * fechas
+   */
+  public List<String> findTypeCropNamesCalculatedPerTotalNumberPlantationsPerTypeCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    /*
+     * Con las condiciones de las fechas se seleccionan todos los
+     * registros de plantacion finalizados (*) de una parcela que
+     * estan entre una fecha desde y una fecha hasta.
+     * 
+     * Con la primera condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y menor o igual
+     * a la fecha hasta, y su fecha de cosecha estrictamente mayor
+     * a la fecha hasta. Es decir, se selecciona el registro de
+     * plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de siembra dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
+     * 
+     * Con la segunda condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y su fecha de
+     * cosecha menor o igual a la fecha hasta. Es decir, se
+     * selecciona el registro de plantacion que tiene su fecha
+     * de siembra y su fecha de cosecha dentro del periodo
+     * definido por la fecha desde y la fecha hasta.
+     * 
+     * Con la tercera conidicon se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su
+     * fecha de cosecha mayor o igual a la fecha desde y menor
+     * igual a la fecha hasta, y su fecha de siembra estrictamente
+     * menor a la fecha desde. Es decir, se selecciona el registro
+     * de plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de cosecha dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
+     * 
+     * (*) El ID para el estado finalizado de un registro de
+     * plantacion es el 1, siempre y cuando no se modifique el
+     * orden en el que se ejecutan las instrucciones de insercion
+     * del archivo plantingRecordStatusInserts.sql de la ruta
+     * app/etc/sql.
+     */
+    String subQuery = "SELECT RESULT_TABLE_TWO.SEED_YEAR, RESULT_TABLE_TWO.TYPE_CROP_ID, "
+        + "COUNT(RESULT_TABLE_TWO.TYPE_CROP_ID) AS TOTAL_NUMBER_PLANTATIONS_PER_TYPE_CROP_AND_YEAR FROM "
+        + "(SELECT YEAR(RESULT_TABLE.SEED_DATE) AS SEED_YEAR, RESULT_TABLE.TYPE_CROP_ID FROM "
+        + "(SELECT SEED_DATE, FK_TYPE_CROP AS TYPE_CROP_ID FROM "
+        + "PLANTING_RECORD JOIN CROP ON FK_CROP = CROP.ID "
+        + "WHERE FK_PARCEL = ?1 AND FK_STATUS = 1 AND ((?2 <= SEED_DATE AND SEED_DATE <= ?3 "
+        + "AND HARVEST_DATE > ?3) OR (SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR "
+        + "(?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3)) "
+        + "ORDER BY SEED_DATE) AS RESULT_TABLE) AS RESULT_TABLE_TWO "
+        + "GROUP BY SEED_YEAR, TYPE_CROP_ID";
+
+    String stringQuery = "SELECT NAME FROM TYPE_CROP JOIN (" + subQuery
+        + ") AS RESULT_TABLE_THREE ON ID = RESULT_TABLE_THREE.TYPE_CROP_ID";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<String> result = null;
+
+    try {
+      result = query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<Integer> que
+   * contiene los años en los que se sembraron los tipos de
+   * cultivos para los que se calcula la cantidad total de veces
+   * que se plantaron por año en una parcela en un periodo
+   * definido por dos fechas
+   */
+  public List<Integer> findSeedYearCalculatedPerTotalNumberPlantationsPerTypeCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    /*
+     * Con las condiciones de las fechas se seleccionan todos los
+     * registros de plantacion finalizados (*) de una parcela que
+     * estan entre una fecha desde y una fecha hasta.
+     * 
+     * Con la primera condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y menor o igual
+     * a la fecha hasta, y su fecha de cosecha estrictamente mayor
+     * a la fecha hasta. Es decir, se selecciona el registro de
+     * plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de siembra dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
+     * 
+     * Con la segunda condicion se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su fecha
+     * de siembra mayor o igual a la fecha desde y su fecha de
+     * cosecha menor o igual a la fecha hasta. Es decir, se
+     * selecciona el registro de plantacion que tiene su fecha
+     * de siembra y su fecha de cosecha dentro del periodo
+     * definido por la fecha desde y la fecha hasta.
+     * 
+     * Con la tercera conidicon se selecciona el registro de
+     * plantacion finalizado (*) de una parcela que tiene su
+     * fecha de cosecha mayor o igual a la fecha desde y menor
+     * igual a la fecha hasta, y su fecha de siembra estrictamente
+     * menor a la fecha desde. Es decir, se selecciona el registro
+     * de plantacion finalizado de una parcela que tiene unicamente
+     * su fecha de cosecha dentro del periodo definido por la
+     * fecha desde y la fecha hasta.
+     * 
+     * (*) El ID para el estado finalizado de un registro de
+     * plantacion es el 1, siempre y cuando no se modifique el
+     * orden en el que se ejecutan las instrucciones de insercion
+     * del archivo plantingRecordStatusInserts.sql de la ruta
+     * app/etc/sql.
+     */
+    String subQuery = "SELECT RESULT_TABLE_TWO.SEED_YEAR, RESULT_TABLE_TWO.TYPE_CROP_ID, "
+        + "COUNT(RESULT_TABLE_TWO.TYPE_CROP_ID) AS TOTAL_NUMBER_PLANTATIONS_PER_TYPE_CROP_AND_YEAR FROM "
+        + "(SELECT YEAR(RESULT_TABLE.SEED_DATE) AS SEED_YEAR, RESULT_TABLE.TYPE_CROP_ID FROM "
+        + "(SELECT SEED_DATE, FK_TYPE_CROP AS TYPE_CROP_ID FROM "
+        + "PLANTING_RECORD JOIN CROP ON FK_CROP = CROP.ID "
+        + "WHERE FK_PARCEL = ?1 AND FK_STATUS = 1 AND ((?2 <= SEED_DATE AND SEED_DATE <= ?3 "
+        + "AND HARVEST_DATE > ?3) OR (SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR "
+        + "(?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3)) "
+        + "ORDER BY SEED_DATE) AS RESULT_TABLE) AS RESULT_TABLE_TWO "
+        + "GROUP BY SEED_YEAR, TYPE_CROP_ID";
+
+    String stringQuery = "SELECT RESULT_TABLE_THREE.SEED_YEAR FROM (" + subQuery
+        + ") AS RESULT_TABLE_THREE";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<Integer> result = null;
+
+    try {
+      result = query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
   public Page<StatisticalReport> findAllPagination(int userId, Integer page, Integer cantPerPage, Map<String, String> parameters) throws ParseException {
     SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
     Date date;
