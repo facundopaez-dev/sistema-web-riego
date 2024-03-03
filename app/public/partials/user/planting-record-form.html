@@ -203,6 +203,14 @@
       </div>
 
       <div class="form-group" ng-hide="action == 'new'">
+        <label for="type_crop" class="col-md-2 control-label">Tipo de cultivo</label>
+        <div class="col-md-3">
+          <input type="text" class="form-control" id="type_crop" ng-model="data.crop.typeCrop.name"
+            ng-disabled="action == 'edit' || action == 'view'">
+        </div>
+      </div>
+
+      <div class="form-group" ng-hide="action == 'new'">
         <label for="plantingRecord_status" class="col-md-2 control-label">Estado del cultivo</label>
         <div class="col-md-3">
           <input type="text" class="form-control" id="plantingRecord_status" ng-model="data.status.name"
@@ -267,6 +275,14 @@
         <div class="col-md-3">
           <input type="text" class="form-control" id="crop_name" ng-model="cropIrrigationWaterNeedData.crop.name"
             ng-disabled="true">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="type_crop_name" class="col-md-2 control-label">Tipo de cultivo</label>
+        <div class="col-md-3">
+          <input type="text" class="form-control" id="type_crop_name"
+            ng-model="cropIrrigationWaterNeedData.crop.typeCrop.name" ng-disabled="true">
         </div>
       </div>
 
