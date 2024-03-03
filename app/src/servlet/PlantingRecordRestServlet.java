@@ -2045,7 +2045,7 @@ public class PlantingRecordRestServlet {
        * dicho servicio devuelve el mensaje HTTP 401 (Unauthorized).
        * Si la aplicacion del lado servidor recibe este mensaje
        * HTTP de parte de dicho servicio, devuelve el mensaje HTTP
-       * 401 a la aplicacion del lado del navegador web junto con
+       * 403 a la aplicacion del lado del navegador web junto con
        * el mensaje "La clave para solicitar datos meteorologicos
        * al servicio meteorológico Visual Crossing Weather, los
        * cuales son necesarios para calcular la necesidad de agua
@@ -2061,7 +2061,7 @@ public class PlantingRecordRestServlet {
        * API_KEY.
        */
       if (responseCode == UNAUTHORIZED) {
-        return Response.status(Response.Status.UNAUTHORIZED)
+        return Response.status(Response.Status.BAD_REQUEST)
             .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_API_KEY, SourceUnsatisfiedResponse.WATER_NEED_CROP)))
             .build();
       }

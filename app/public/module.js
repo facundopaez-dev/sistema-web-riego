@@ -513,6 +513,7 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 			Al intentar calcular la necesidad de agua de riego de un cultivo la
 			aplicacion del lado servidor puede devolver uno de los siguientes
 			mensajes HTTP:
+			- 400 (Bad request)
 			- 429 (Too many requests)
 			- 500 (Internal server error)
 			- 503 (Service unavailable)
@@ -524,11 +525,17 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 			Si el servicio meteorologico Visual Crossing Weather NO esta funcionamiento,
 			devuelve el mensaje HTTP 500.
 
+			Si la clave para realizar peticiones al servicio meteorologico Visual
+			Crossing Weather no es la correcta, dicho servicio retorna el mensaje
+			HTTP 401 (Unauthorized).
+
 			La aplicacion del lado servidor recibe estos mensajes HTTP de parte
 			de dicho servicio al intentar calcular la necesidad de agua de riego
-			de cultivo. Cuando lo hace los devuelve a la aplicacion del lado del
-			navegador web junto con un mensaje que describe el motivo por el cual
-			NO pudo calcular la necesidad de agua de riego de un cultivo.
+			de cultivo. Cuando los recibe los devuelve a la aplicacion del lado
+			del navegador web junto con un mensaje que describe el motivo por el
+			cual NO pudo calcular la necesidad de agua de riego de un cultivo. En
+			el caso de recibir el mensaje HTTP 401 de parte de dicho servicio,
+			devuelve el mensaje HTTP 400.
 
 			En el caso en el que el servicio meteorologico Visual Crossing Weather
 			devuelve a la aplicacion del lado servidor un mensaje HTTP distinto a
@@ -542,7 +549,7 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 			al usuario a la pagina web de registros de plantacion.
 			*/
 			if (accessManager.isUserLoggedIn() && !accessManager.loggedAsAdmin() && error.data.sourceUnsatisfiedResponse == WATER_NEED_CROP
-				&& (error.status == TOO_MANY_REQUESTS || error.status == INTERNAL_SERVER_ERROR || error.status == SERVICE_UNAVAILABLE)) {
+				&& (error.status == BAD_REQUEST || error.status == TOO_MANY_REQUESTS || error.status == INTERNAL_SERVER_ERROR || error.status == SERVICE_UNAVAILABLE)) {
 				$location.path(USER_PLANTING_RECORD_ROUTE);
 				return;
 			}
