@@ -1008,7 +1008,7 @@ public class StatisticalReportServiceBean {
    * @param dateUntil
    * @return referencia a un objeto de tipo List<String> que
    * contiene los nombres de los cultivos para los que se
-   * calcula su cantidad total de cosecha (rendimiento), esto
+   * calcula su cantidad total cosechada (rendimiento), esto
    * es de los cultivos cosechados en una parcela en un
    * periodo definido por dos fechas
    */
@@ -1078,7 +1078,7 @@ public class StatisticalReportServiceBean {
    * @param dateUntil
    * @return referencia a un objeto de tipo List<String>
    * que contiene los nombres de los cultivos para los
-   * que se calcula su cantidad total cosehada [kg] por
+   * que se calcula su cantidad total cosechada [kg] por
    * año, esto es de los cultivos cosechados en una parcela
    * en un periodo definido por dos fechas
    */
@@ -1267,7 +1267,7 @@ public class StatisticalReportServiceBean {
    * @param dateUntil
    * @return referencia a un objeto de tipo List<String>
    * que contiene los nombres de los tipos de cultivos
-   * para los que se calcula su cantidad total cosehada
+   * para los que se calcula su cantidad total cosechada
    * [kg] por año, esto es de los tipos de cultivos
    * cosechados en una parcela en un periodo definido por
    * dos fechas

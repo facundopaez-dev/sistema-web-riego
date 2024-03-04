@@ -744,7 +744,7 @@ public class StatisticalGraphRestServlet {
      * - de la cantidad total cosechada por cultivo de los
      * cultivos cosechados en una parcela durante un periodo
      * definido por dos fechas
-     * - de la cantidad total cosecha por cultivo y año de
+     * - de la cantidad total cosechada por cultivo y año de
      * los cultivos cosechados en una parcela durante un
      * periodo definido por dos fechas
      * - de la cantidad total cosechada por tipo de cultivo
@@ -777,7 +777,7 @@ public class StatisticalGraphRestServlet {
      * - de la cantidad total cosechada por cultivo de los
      * cultivos cosechados en una parcela durante un periodo
      * definido por dos fechas o
-     * - de la cantidad total cosecha por cultivo y año de
+     * - de la cantidad total cosechada por cultivo y año de
      * los cultivos cosechados en una parcela durante un
      * periodo definido por dos fechas
      * - de la cantidad total cosechada por tipo de cultivo
