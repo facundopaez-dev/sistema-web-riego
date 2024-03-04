@@ -99,6 +99,8 @@ public class StatisticalGraphRestServlet {
   private final int TOTAL_HARVEST_PER_CROP_AND_YEAR = 6;
   private final int TOTAL_AMOUNT_PLANTATIONS_PER_TYPE_CROP = 7;
   private final int TOTAL_AMOUNT_PLANTATIONS_PER_TYPE_CROP_AND_YEAR = 8;
+  private final int TOTAL_AMOUNT_IRRIGATION_WATER_PER_TYPE_CROP = 9;
+  private final int TOTAL_AMOUNT_IRRIGATION_WATER_PER_TYPE_CROP_AND_YEAR = 10;
 
   @GET
   @Path("/findAllPagination")
@@ -663,17 +665,25 @@ public class StatisticalGraphRestServlet {
      * solicitada. Para generar un informe estadistico:
      * - de la cantidad total de agua de riego por cultivo
      * de los cultivos plantados en una parcela durante
-     * un periodo definido por dos fechas o
+     * un periodo definido por dos fechas
      * - de la cantidad total de agua de riego por cultivo
      * y año de los cultivos plantados en una parcela durante
-     * un periodo definido por dos fechas,
+     * un periodo definido por dos fechas
+     * - de la cantidad total de agua de riego por tipo de
+     * cultivo de los tipos de cultivos plantados en una
+     * parcela durante un periodo definido por dos fechas
+     * - de la cantidad total de agua de riego por tipo de
+     * cultivo y año de los tipos de cultivos plantados en
+     * una parcela durante un periodo definido por dos fechas,
      * 
      * se requiere que la parcela seleccionada tenga registros
      * de riego asociados a un cultivo. Este es el motivo de
      * este control.
      */
     if ((statisticalDataNumber == TOTAL_AMOUNT_IRRIGATION_WATER_PER_CROP
-        || statisticalDataNumber == TOTAL_AMOUNT_IRRIGATION_WATER_PER_CROP_AND_YEAR)
+        || statisticalDataNumber == TOTAL_AMOUNT_IRRIGATION_WATER_PER_CROP_AND_YEAR
+        || statisticalDataNumber == TOTAL_AMOUNT_IRRIGATION_WATER_PER_TYPE_CROP
+        || statisticalDataNumber == TOTAL_AMOUNT_IRRIGATION_WATER_PER_TYPE_CROP_AND_YEAR)
         && !irrigationRecordService.hasIrrigationRecordsWithCrops(parcelId)) {
       return Response.status(Response.Status.BAD_REQUEST)
           .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NON_EXISTENT_IRRIGATION_RECORDS_WITH_CROP)))
@@ -690,17 +700,25 @@ public class StatisticalGraphRestServlet {
      * Para generar un informe estadistico:
      * - de la cantidad total de agua de riego por cultivo
      * de los cultivos plantados en una parcela durante
-     * un periodo definido por dos fechas o
+     * un periodo definido por dos fechas
      * - de la cantidad total de agua de riego por cultivo
      * y año de los cultivos plantados en una parcela durante
-     * un periodo definido por dos fechas,
+     * un periodo definido por dos fechas
+     * - de la cantidad total de agua de riego por tipo de
+     * cultivo de los tipos de cultivos plantados en una
+     * parcela durante un periodo definido por dos fechas
+     * - de la cantidad total de agua de riego por tipo de
+     * cultivo y año de los tipos de cultivos plantados en
+     * una parcela durante un periodo definido por dos fechas,
      * 
      * se requiere que la parcela seleccionada tenga registros
      * de riego asociados a un cultivo. Este es el motivo de
      * este control.
      */
     if ((statisticalDataNumber == TOTAL_AMOUNT_IRRIGATION_WATER_PER_CROP
-        || statisticalDataNumber == TOTAL_AMOUNT_IRRIGATION_WATER_PER_CROP_AND_YEAR)
+        || statisticalDataNumber == TOTAL_AMOUNT_IRRIGATION_WATER_PER_CROP_AND_YEAR
+        || statisticalDataNumber == TOTAL_AMOUNT_IRRIGATION_WATER_PER_TYPE_CROP
+        || statisticalDataNumber == TOTAL_AMOUNT_IRRIGATION_WATER_PER_TYPE_CROP_AND_YEAR)
         && !irrigationRecordService.hasIrrigationRecordsWithCrops(parcelId, dateFrom, dateUntil)) {
       return Response.status(Response.Status.BAD_REQUEST)
           .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NON_EXISTENT_IRRIGATION_RECORDS_WITH_CROP_IN_A_PERIOD)))
@@ -944,6 +962,52 @@ public class StatisticalGraphRestServlet {
       newStatisticalGraph.setText("Y: Cantidad de plantaciones, X: Tipo de cultivo (año), Parcela: " + newStatisticalGraph.getParcel().getName()
               + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
               + ", Cant. total de plantaciones: " + statisticalReportService.calculateTotalNumberPlantationsPerPeriod(parcelId, dateFrom, dateUntil));
+
+      return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(statisticalGraphService.create(newStatisticalGraph))).build();
+    }
+
+    /*
+     * Si el numero del dato estadistico a calcular es el
+     * valor de la constante TOTAL_AMOUNT_IRRIGATION_WATER_PER_TYPE_CROP,
+     * se calcula la cantidad total de agua de riego de los
+     * tipos de cultivos plantados en una parcela durante un
+     * periodo definido por dos fechas
+     */
+    if (statisticalDataNumber == TOTAL_AMOUNT_IRRIGATION_WATER_PER_TYPE_CROP) {
+      newStatisticalGraph.setData(statisticalReportService.calculateTotalAmountIrrigationWaterPerTypeCrop(parcelId, dateFrom, dateUntil));
+      newStatisticalGraph.setLabels(statisticalReportService.findTypeCropNamesCalculatedPerTotalAmountIrrigationWaterPerTypeCrop(parcelId, dateFrom, dateUntil));
+      newStatisticalGraph.setAverage(UtilMath.truncateToTwoDigits(statisticalReportService.calculateAverageCropIrrigationWater(parcelId, dateFrom, dateUntil)));
+      newStatisticalGraph.setText("Y: Cantidad de agua de riego [mm], X: Tipo de cultivo, Parcela: " + newStatisticalGraph.getParcel().getName()
+              + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
+              + ", Cant. total de agua de riego [mm]: " + statisticalReportService.calculateTotalAmountCropIrrigationWaterPerPeriod(parcelId, dateFrom, dateUntil));
+
+      return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(statisticalGraphService.create(newStatisticalGraph))).build();
+    }
+
+    /*
+     * Si el numero del dato estadistico a calcular es el
+     * valor de la constante TOTAL_AMOUNT_IRRIGATION_WATER_PER_TYPE_CROP_AND_YEAR,
+     * se calcula la cantidad total de agua de riego por
+     * tipo de cultivo y año de los cultivos plantados en una
+     * parcela durante un periodo definido por dos fechas
+     */
+    if (statisticalDataNumber == TOTAL_AMOUNT_IRRIGATION_WATER_PER_TYPE_CROP_AND_YEAR) {
+      List<String> cropNames = statisticalReportService.findTypeCropNamesCalculatedPerTotalAmountIrrigationWaterPerTypeCropAndYear(parcelId, dateFrom, dateUntil);
+      List<Integer> seedYears = statisticalReportService.findYearCalculatedPerTotalAmountIrrigationWaterPerTypeCropAndYear(parcelId, dateFrom, dateUntil);
+
+      /*
+       * Arma las etiquetas <cultivo> (<año>) para el grafico
+       * de barras correspondiente al informe estadistico
+       * solicitado
+       */
+      List<String> labels = statisticalReportService.setLabelsWithCropAndYear(cropNames, seedYears);
+
+      newStatisticalGraph.setData(statisticalReportService.calculateTotalAmountIrrigationWaterPerTypeCropAndYear(parcelId, dateFrom, dateUntil));
+      newStatisticalGraph.setLabels(labels);
+      newStatisticalGraph.setAverage(UtilMath.truncateToTwoDigits(statisticalReportService.calculateAverageCropIrrigationWater(parcelId, dateFrom, dateUntil)));
+      newStatisticalGraph.setText("Y: Cantidad de agua de riego [mm], X: Tipo de cultivo (año), Parcela: " + newStatisticalGraph.getParcel().getName()
+              + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
+              + ", Cant. total de agua de riego [mm]: " + statisticalReportService.calculateTotalAmountCropIrrigationWaterPerPeriod(parcelId, dateFrom, dateUntil));
 
       return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(statisticalGraphService.create(newStatisticalGraph))).build();
     }
