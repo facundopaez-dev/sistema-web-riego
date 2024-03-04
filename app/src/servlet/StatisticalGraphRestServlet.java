@@ -103,6 +103,7 @@ public class StatisticalGraphRestServlet {
   private final int TOTAL_AMOUNT_IRRIGATION_WATER_PER_TYPE_CROP_AND_YEAR = 10;
   private final int TOTAL_HARVEST_PER_TYPE_CROP = 11;
   private final int TOTAL_HARVEST_PER_TYPE_CROP_AND_YEAR = 12;
+  private final int LIFE_CYCLES_OF_PLANTED_CROPS = 13;
 
   @GET
   @Path("/findAllPagination")
@@ -605,7 +606,10 @@ public class StatisticalGraphRestServlet {
      * definido por dos fechas
      * - de la cantidad de veces que se plantaron los
      * tipos de cultivos por año en una parcela en un
-     * periodo definido por dos fechas,
+     * periodo definido por dos fechas
+     * - de los ciclos de vida de los cultivos sembrados
+     * en una parcela en un periodo definido por dos
+     * fechas,
      * 
      * se requiere que la parcela seleccionada tenga registros
      * de plantacion finalizados. Este es el motivo de
@@ -614,7 +618,8 @@ public class StatisticalGraphRestServlet {
     if ((statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_CROP
         || statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_CROP_AND_YEAR
         || statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_TYPE_CROP
-        || statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_TYPE_CROP_AND_YEAR)
+        || statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_TYPE_CROP_AND_YEAR
+        || statisticalDataNumber == LIFE_CYCLES_OF_PLANTED_CROPS)
         && !plantingRecordService.hasFinishedPlantingRecords(userId, parcelId)) {
       return Response.status(Response.Status.BAD_REQUEST)
           .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NON_EXISTENT_PLANTING_RECORDS)))
@@ -634,7 +639,10 @@ public class StatisticalGraphRestServlet {
      * por dos fechas o
      * - de la cantidad de veces que se plantaron los
      * cultivos por año en una parcela en un periodo
-     * definido por dos fechas,
+     * definido por dos fechas
+     * - de los ciclos de vida de los cultivos sembrados
+     * en una parcela en un periodo definido por dos
+     * fechas,
      * 
      * se requiere que la parcela seleccionada tenga registros
      * de plantacion finalizados. Este es el motivo de
@@ -643,7 +651,8 @@ public class StatisticalGraphRestServlet {
     if ((statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_CROP
         || statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_CROP_AND_YEAR
         || statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_TYPE_CROP
-        || statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_TYPE_CROP_AND_YEAR)
+        || statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_TYPE_CROP_AND_YEAR
+        || statisticalDataNumber == LIFE_CYCLES_OF_PLANTED_CROPS)
         && !plantingRecordService.hasFinishedPlantingRecords(userId, parcelId, dateFrom, dateUntil)) {
       return Response.status(Response.Status.BAD_REQUEST)
           .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NON_EXISTENT_PLANTING_RECORDS_IN_A_PERIOD)))
@@ -1075,6 +1084,22 @@ public class StatisticalGraphRestServlet {
       newStatisticalGraph.setText("Y: Cantidad cosechada [kg], X: Tipo de cultivo (año), Parcela: " + newStatisticalGraph.getParcel().getName()
               + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
               + ", Cant. total cosechada [kg]: " + statisticalReportService.calculateTotalHarvestPerPeriod(parcelId, dateFrom, dateUntil));
+
+      return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(statisticalGraphService.create(newStatisticalGraph))).build();
+    }
+
+    /*
+     * Si el numero del dato estadistico a calcular es el
+     * valor de la constante LIFE_CYCLES_OF_PLANTED_CROPS,
+     * se obtienen los ciclos de vida [dias] de los cultivos
+     * sembrados en una parcela durante un periodo definido
+     * por dos fechas
+     */
+    if (statisticalDataNumber == LIFE_CYCLES_OF_PLANTED_CROPS) {
+      newStatisticalGraph.setData(statisticalReportService.findLifeCyclesCropsPlantedPerPeriod(parcelId, dateFrom, dateUntil));
+      newStatisticalGraph.setLabels(statisticalReportService.findNamesCropPlantedPerPeriod(parcelId, dateFrom, dateUntil));
+      newStatisticalGraph.setText("Y: Ciclo de vida [días], X: Cultivo, Parcela: " + newStatisticalGraph.getParcel().getName()
+              + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil));
 
       return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(statisticalGraphService.create(newStatisticalGraph))).build();
     }

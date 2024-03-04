@@ -10,3 +10,4 @@ INSERT INTO STATISTICAL_DATA (NUMBER, DESCRIPTION) VALUES (9, 'Cantidad total de
 INSERT INTO STATISTICAL_DATA (NUMBER, DESCRIPTION) VALUES (10, 'Cantidad total de agua de riego por tipo de cultivo y año');
 INSERT INTO STATISTICAL_DATA (NUMBER, DESCRIPTION) VALUES (11, 'Cantidad total cosechada por tipo de cultivo');
 INSERT INTO STATISTICAL_DATA (NUMBER, DESCRIPTION) VALUES (12, 'Cantidad total cosechada por tipo de cultivo y año');
+INSERT INTO STATISTICAL_DATA (NUMBER, DESCRIPTION) VALUES (13, 'Ciclos de vida de los cultivos sembrados');
