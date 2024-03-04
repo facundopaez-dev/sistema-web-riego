@@ -967,7 +967,7 @@ public class StatisticalGraphRestServlet {
      * periodo definido por dos fechas
      */
     if (statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_TYPE_CROP_AND_YEAR) {
-      List<String> cropNames = statisticalReportService.findTypeCropNamesCalculatedPerTotalNumberPlantationsPerTypeCropAndYear(parcelId, dateFrom, dateUntil);
+      List<String> typeCropNames = statisticalReportService.findTypeCropNamesCalculatedPerTotalNumberPlantationsPerTypeCropAndYear(parcelId, dateFrom, dateUntil);
       List<Integer> seedYears = statisticalReportService.findSeedYearCalculatedPerTotalNumberPlantationsPerTypeCropAndYear(parcelId, dateFrom, dateUntil);
 
       /*
@@ -975,7 +975,7 @@ public class StatisticalGraphRestServlet {
        * de barras correspondiente al informe estadistico
        * solicitado
        */
-      List<String> labels = statisticalReportService.setLabelsWithCropAndYear(cropNames, seedYears);
+      List<String> labels = statisticalReportService.setLabelsWithCropAndYear(typeCropNames, seedYears);
 
       newStatisticalGraph.setData(statisticalReportService.calculateTotalNumberPlantationsPerTypeCropAndYear(parcelId, dateFrom, dateUntil));
       newStatisticalGraph.setLabels(labels);
@@ -1012,7 +1012,7 @@ public class StatisticalGraphRestServlet {
      * parcela durante un periodo definido por dos fechas
      */
     if (statisticalDataNumber == TOTAL_AMOUNT_IRRIGATION_WATER_PER_TYPE_CROP_AND_YEAR) {
-      List<String> cropNames = statisticalReportService.findTypeCropNamesCalculatedPerTotalAmountIrrigationWaterPerTypeCropAndYear(parcelId, dateFrom, dateUntil);
+      List<String> typeCropNames = statisticalReportService.findTypeCropNamesCalculatedPerTotalAmountIrrigationWaterPerTypeCropAndYear(parcelId, dateFrom, dateUntil);
       List<Integer> seedYears = statisticalReportService.findYearCalculatedPerTotalAmountIrrigationWaterPerTypeCropAndYear(parcelId, dateFrom, dateUntil);
 
       /*
@@ -1020,7 +1020,7 @@ public class StatisticalGraphRestServlet {
        * de barras correspondiente al informe estadistico
        * solicitado
        */
-      List<String> labels = statisticalReportService.setLabelsWithCropAndYear(cropNames, seedYears);
+      List<String> labels = statisticalReportService.setLabelsWithCropAndYear(typeCropNames, seedYears);
 
       newStatisticalGraph.setData(statisticalReportService.calculateTotalAmountIrrigationWaterPerTypeCropAndYear(parcelId, dateFrom, dateUntil));
       newStatisticalGraph.setLabels(labels);
