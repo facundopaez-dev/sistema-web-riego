@@ -301,7 +301,7 @@ public class StatisticalReportServiceBean {
   /*
    * ********************************************************
    * A partir de aqui comienzan los metodos relacionados a la
-   * generacion de informe estadisticos que se tratan sobre
+   * generacion de informes estadisticos que se tratan sobre
    * la cantidad de plantaciones por cultivo
    * ********************************************************
    */
@@ -964,7 +964,7 @@ public class StatisticalReportServiceBean {
   /*
    * ********************************************************
    * A partir de aqui comienzan los metodos relacionados a la
-   * generacion de informe estadisticos que se tratan sobre
+   * generacion de informes estadisticos que se tratan sobre
    * la cantidad cosechada (rendimiento) por cultivo
    * ********************************************************
    */
@@ -1186,7 +1186,7 @@ public class StatisticalReportServiceBean {
   /*
    * ********************************************************
    * A partir de aqui comienzan los metodos relacionados a la
-   * generacion de informe estadisticos que se tratan sobre
+   * generacion de informes estadisticos que se tratan sobre
    * la cantidad de plantaciones por tipo de cultivo
    * ********************************************************
    */
