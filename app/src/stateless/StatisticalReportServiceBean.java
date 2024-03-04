@@ -1146,6 +1146,200 @@ public class StatisticalReportServiceBean {
     return result;
   }
 
+  /*
+   * ********************************************************
+   * A partir de aqui comienzan los metodos relacionados a la
+   * generacion de informes estadisticos que se tratan sobre
+   * la cantidad cosechada (rendimiento) por tipo de cultivo
+   * ********************************************************
+   */
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<Integer>
+   * que contiene la cantidad total cosechada [kg] por
+   * tipo de cultivo de cada uno de los tipos de cultivos
+   * cosechados en una parcela en un periodo definido por
+   * dos fechas
+   */
+  public List<Integer> calculateTotalHarvestPerTypeCrop(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String subQuery = "SELECT FK_TYPE_CROP AS TYPE_CROP_ID, SUM(HARVEST_AMOUNT) AS TOTAL_HARVEST_AMOUNT FROM "
+        + "HARVEST JOIN CROP ON FK_CROP = CROP.ID WHERE FK_PARCEL = ?1 AND ?2 <= DATE AND DATE <= ?3 "
+        + "GROUP BY FK_TYPE_CROP";
+
+    String stringQuery = "SELECT CAST(CEIL(RESULT_TABLE.TOTAL_HARVEST_AMOUNT) AS INTEGER) FROM (" + subQuery
+        + ") AS RESULT_TABLE";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<Integer> result = null;
+
+    try {
+      result = query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<String> que
+   * contiene los nombres de los tipos de cultivos para los
+   * que se calcula su cantidad total cosechada (rendimiento),
+   * esto es de los tipos de cultivos cosechados en una parcela
+   * en un periodo definido por dos fechas
+   */
+  public List<String> findTypeCropNamesCalculatedPerTotalHarvestPerTypeCrop(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String subQuery = "SELECT FK_TYPE_CROP AS TYPE_CROP_ID, SUM(HARVEST_AMOUNT) AS TOTAL_HARVEST_AMOUNT FROM "
+        + "HARVEST JOIN CROP ON FK_CROP = CROP.ID WHERE FK_PARCEL = ?1 AND ?2 <= DATE AND DATE <= ?3 "
+        + "GROUP BY FK_TYPE_CROP";
+
+    String stringQuery = "SELECT NAME FROM TYPE_CROP JOIN (" + subQuery
+        + ") AS RESULT_TABLE ON ID = RESULT_TABLE.TYPE_CROP_ID";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<String> result = null;
+
+    try {
+      result = query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<Integer>
+   * que contiene la cantidad total cosechada [kg] por
+   * tipo de cultivo y año de cada uno de los tipos de
+   * cultivos cosechados en una parcela en un periodo
+   * definido por dos fechas
+   */
+  public List<Integer> calculateTotalHarvestPerTypeCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String subQuery = "SELECT RESULT_TABLE_TWO.HARVEST_YEAR, RESULT_TABLE_TWO.TYPE_CROP_ID, "
+        + "SUM(RESULT_TABLE_TWO.HARVEST_AMOUNT) AS TOTAL_HARVEST_AMOUNT FROM "
+        + "(SELECT YEAR(RESULT_TABLE.HARVEST_DATE) AS HARVEST_YEAR, RESULT_TABLE.TYPE_CROP_ID, RESULT_TABLE.HARVEST_AMOUNT "
+        + "FROM (SELECT DATE AS HARVEST_DATE, FK_TYPE_CROP AS TYPE_CROP_ID, HARVEST_AMOUNT "
+        + "FROM HARVEST JOIN CROP ON FK_CROP = CROP.ID "
+        + "WHERE FK_PARCEL = ?1 AND ?2 <= DATE AND DATE <= ?3 "
+        + "ORDER BY DATE) AS RESULT_TABLE) AS RESULT_TABLE_TWO "
+        + "GROUP BY RESULT_TABLE_TWO.HARVEST_YEAR, RESULT_TABLE_TWO.TYPE_CROP_ID";
+
+    String stringQuery = "SELECT CAST(CEIL(RESULT_TABLE_THREE.TOTAL_HARVEST_AMOUNT) AS INTEGER) FROM (" + subQuery
+        + ") AS RESULT_TABLE_THREE";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<Integer> result = null;
+
+    try {
+      result = query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<String>
+   * que contiene los nombres de los tipos de cultivos
+   * para los que se calcula su cantidad total cosehada
+   * [kg] por año, esto es de los tipos de cultivos
+   * cosechados en una parcela en un periodo definido por
+   * dos fechas
+   */
+  public List<String> findTypeCropNamesCalculatedPerTotalHarvestPerTypeCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String subQuery = "SELECT RESULT_TABLE_TWO.HARVEST_YEAR, RESULT_TABLE_TWO.TYPE_CROP_ID, "
+        + "SUM(RESULT_TABLE_TWO.HARVEST_AMOUNT) AS TOTAL_HARVEST_AMOUNT FROM "
+        + "(SELECT YEAR(RESULT_TABLE.HARVEST_DATE) AS HARVEST_YEAR, RESULT_TABLE.TYPE_CROP_ID, RESULT_TABLE.HARVEST_AMOUNT "
+        + "FROM (SELECT DATE AS HARVEST_DATE, FK_TYPE_CROP AS TYPE_CROP_ID, HARVEST_AMOUNT "
+        + "FROM HARVEST JOIN CROP ON FK_CROP = CROP.ID "
+        + "WHERE FK_PARCEL = ?1 AND ?2 <= DATE AND DATE <= ?3 "
+        + "ORDER BY DATE) AS RESULT_TABLE) AS RESULT_TABLE_TWO "
+        + "GROUP BY RESULT_TABLE_TWO.HARVEST_YEAR, RESULT_TABLE_TWO.TYPE_CROP_ID";
+
+    String stringQuery = "SELECT NAME FROM TYPE_CROP JOIN (" + subQuery
+        + ") AS RESULT_TABLE_THREE ON ID = RESULT_TABLE_THREE.TYPE_CROP_ID";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<String> result = null;
+
+    try {
+      result = query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<Integer> que
+   * contiene los años en los que se cosecharon los tipos de
+   * cultivos para los que se calcula la cantidad total cosechada
+   * [kg] por año, esto es de los tipos de cultivos cosechados en
+   * una parcela en un periodo definido por dos fechas
+   */
+  public List<Integer> findYearCalculatedPerTotalHarvestPerTypeCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String subQuery = "SELECT RESULT_TABLE_TWO.HARVEST_YEAR, RESULT_TABLE_TWO.TYPE_CROP_ID, "
+        + "SUM(RESULT_TABLE_TWO.HARVEST_AMOUNT) AS TOTAL_HARVEST_AMOUNT FROM "
+        + "(SELECT YEAR(RESULT_TABLE.HARVEST_DATE) AS HARVEST_YEAR, RESULT_TABLE.TYPE_CROP_ID, RESULT_TABLE.HARVEST_AMOUNT "
+        + "FROM (SELECT DATE AS HARVEST_DATE, FK_TYPE_CROP AS TYPE_CROP_ID, HARVEST_AMOUNT "
+        + "FROM HARVEST JOIN CROP ON FK_CROP = CROP.ID "
+        + "WHERE FK_PARCEL = ?1 AND ?2 <= DATE AND DATE <= ?3 "
+        + "ORDER BY DATE) AS RESULT_TABLE) AS RESULT_TABLE_TWO "
+        + "GROUP BY RESULT_TABLE_TWO.HARVEST_YEAR, RESULT_TABLE_TWO.TYPE_CROP_ID";
+
+    String stringQuery = "SELECT RESULT_TABLE_THREE.HARVEST_YEAR FROM (" + subQuery
+        + ") AS RESULT_TABLE_THREE";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<Integer> result = null;
+
+    try {
+      result = query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
   /**
    * @param parcelId
    * @param dateFrom
