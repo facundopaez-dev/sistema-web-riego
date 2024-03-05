@@ -446,6 +446,213 @@ public class StatisticalReportServiceBean {
     return result;
   }
 
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<Integer> que
+   * contiene los valores que representan la cantidad total de
+   * agua utilizada por año para el riego de cultivos en un
+   * periodo definido por dos fechas
+   */
+  public List<Integer> calculateTotalAmountCropIrrigationWaterPerYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String subQuery = "SELECT RESULT_TABLE_TWO.IRRIGATION_YEAR, SUM(RESULT_TABLE_TWO.IRRIGATION_DONE) AS TOTAL_AMOUNT_CROP_IRRIGATION_WATER_PER_YEAR "
+        + "FROM (SELECT YEAR(RESULT_TABLE.IRRIGATION_DATE) AS IRRIGATION_YEAR, RESULT_TABLE.IRRIGATION_DONE "
+        + "FROM (SELECT DATE AS IRRIGATION_DATE, IRRIGATION_DONE FROM IRRIGATION_RECORD "
+        + "WHERE FK_PARCEL = ?1 AND FK_CROP IS NOT NULL AND ?2 <= DATE AND DATE <= ?3 "
+        + "ORDER BY DATE) AS RESULT_TABLE) AS RESULT_TABLE_TWO "
+        + "GROUP BY RESULT_TABLE_TWO.IRRIGATION_YEAR";
+
+    String stringQuery = "SELECT CAST(CEIL(RESULT_TABLE_THREE.TOTAL_AMOUNT_CROP_IRRIGATION_WATER_PER_YEAR) AS INTEGER) FROM (" + subQuery
+        + ") AS RESULT_TABLE_THREE";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<Integer> result = null;
+
+    try {
+      result = query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<Integer> que
+   * contiene los años para los que se calcula la cantidad
+   * total de agua utilizda para el riego de cultivos en un
+   * periodo definido por dos fechas
+   */
+  public List<String> findYearsOfCalculationTotalAmountCropIrrigationWater(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String subQuery = "SELECT RESULT_TABLE_TWO.IRRIGATION_YEAR, SUM(RESULT_TABLE_TWO.IRRIGATION_DONE) AS TOTAL_AMOUNT_CROP_IRRIGATION_WATER_PER_YEAR "
+        + "FROM (SELECT YEAR(RESULT_TABLE.IRRIGATION_DATE) AS IRRIGATION_YEAR, RESULT_TABLE.IRRIGATION_DONE "
+        + "FROM (SELECT DATE AS IRRIGATION_DATE, IRRIGATION_DONE FROM IRRIGATION_RECORD "
+        + "WHERE FK_PARCEL = ?1 AND FK_CROP IS NOT NULL AND ?2 <= DATE AND DATE <= ?3 "
+        + "ORDER BY DATE) AS RESULT_TABLE) AS RESULT_TABLE_TWO "
+        + "GROUP BY RESULT_TABLE_TWO.IRRIGATION_YEAR";
+
+    String stringQuery = "SELECT RESULT_TABLE_THREE.IRRIGATION_YEAR FROM (" + subQuery
+        + ") AS RESULT_TABLE_THREE";
+
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<String> result = new ArrayList<>();
+
+    try {
+
+      for (Integer currentValue : (List<Integer>) query.getResultList()) {
+        result.add(String.valueOf(currentValue));
+      }
+
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<Integer> que
+   * contiene los valores que representan la cantidad total de
+   * agua de lluvia que cayo por año sobre una parcela en un
+   * periodo definido por dos fechas
+   */
+  public List<Integer> calculateTotalAmountRainwaterPerYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String subQuery = "SELECT RESULT_TABLE_TWO.YEAR_DATE_CLIMATE_RECORD, SUM(RESULT_TABLE_TWO.PRECIP) AS TOTAL_PRECIP_PER_YEAR "
+        + "FROM (SELECT YEAR(RESULT_TABLE.DATE_CLIMATE_RECORD) AS YEAR_DATE_CLIMATE_RECORD, RESULT_TABLE.PRECIP "
+        + "FROM (SELECT DATE AS DATE_CLIMATE_RECORD, PRECIP FROM CLIMATE_RECORD "
+        + "WHERE FK_PARCEL = ?1 AND ?2 <= DATE AND DATE <= ?3 AND (TYPE_PRECIP_ONE = 1 "
+        + "OR TYPE_PRECIP_TWO = 1 OR TYPE_PRECIP_THREE = 1 OR TYPE_PRECIP_FOUR = 1) "
+        + "ORDER BY DATE) AS RESULT_TABLE) AS RESULT_TABLE_TWO "
+        + "GROUP BY RESULT_TABLE_TWO.YEAR_DATE_CLIMATE_RECORD";
+
+    String stringQuery = "SELECT CAST(CEIL(RESULT_TABLE_THREE.TOTAL_PRECIP_PER_YEAR) AS INTEGER) FROM (" + subQuery
+        + ") AS RESULT_TABLE_THREE";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<Integer> result = null;
+
+    try {
+      result = query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<Integer> que
+   * contiene los años para los que se calcula la cantidad
+   * total de agua lluvia que cayo sobre una parcela en un
+   * periodo definido por dos fechas
+   */
+  public List<String> findYearsOfCalculationTotalAmountRainwater(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String subQuery = "SELECT RESULT_TABLE_TWO.YEAR_DATE_CLIMATE_RECORD, SUM(RESULT_TABLE_TWO.PRECIP) AS TOTAL_PRECIP_PER_YEAR "
+        + "FROM (SELECT YEAR(RESULT_TABLE.DATE_CLIMATE_RECORD) AS YEAR_DATE_CLIMATE_RECORD, RESULT_TABLE.PRECIP "
+        + "FROM (SELECT DATE AS DATE_CLIMATE_RECORD, PRECIP FROM CLIMATE_RECORD "
+        + "WHERE FK_PARCEL = ?1 AND ?2 <= DATE AND DATE <= ?3 AND (TYPE_PRECIP_ONE = 1 "
+        + "OR TYPE_PRECIP_TWO = 1 OR TYPE_PRECIP_THREE = 1 OR TYPE_PRECIP_FOUR = 1) "
+        + "ORDER BY DATE) AS RESULT_TABLE) AS RESULT_TABLE_TWO "
+        + "GROUP BY RESULT_TABLE_TWO.YEAR_DATE_CLIMATE_RECORD";
+
+    String stringQuery = "SELECT RESULT_TABLE_THREE.YEAR_DATE_CLIMATE_RECORD FROM (" + subQuery
+        + ") AS RESULT_TABLE_THREE";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<String> result = new ArrayList<>();
+
+    try {
+
+      for (Integer currentValue : (List<Integer>) query.getResultList()) {
+        result.add(String.valueOf(currentValue));
+      }
+
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return double que representa la cantidad total de agua
+   * de lluvia que cayo sobre una parcela en un periodo
+   * definido por dos fechas
+   */
+  public double calculateTotalAmountRainwaterPerPeriod(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    /*
+     * El ID del tipo de precipitacion correspondiente a la lluvia
+     * es igual 1, siempre y cuando no se modifique el orden en el
+     * que se ejecutan las instrucciones del archivo typePrecipInserts.sql
+     */
+    String stringQuery = "SELECT SUM(PRECIP) AS TOTAL_AMOUNT_RAINWATER FROM CLIMATE_RECORD WHERE "
+        + "FK_PARCEL = ?1 AND ?2 <= DATE AND DATE <= ?3 AND "
+        + "(TYPE_PRECIP_ONE = 1 OR TYPE_PRECIP_TWO = 1 OR TYPE_PRECIP_THREE = 1 OR TYPE_PRECIP_FOUR = 1)";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    return (double) query.getSingleResult();
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo Integer que contiene
+   * el valor que representa el promedio del agua de lluvia que
+   * cayo sobre una parcela en un periodo definido por dos fechas
+   */
+  public Integer calculateAverageRainwaterPerPeriod(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    /*
+     * El ID del tipo de precipitacion correspondiente a la lluvia
+     * es igual 1, siempre y cuando no se modifique el orden en el
+     * que se ejecutan las instrucciones del archivo typePrecipInserts.sql
+     */
+    String stringQuery = "SELECT CAST(CEIL(AVG(PRECIP)) AS INTEGER) FROM CLIMATE_RECORD WHERE "
+        + "FK_PARCEL = ?1 AND ?2 <= DATE AND DATE <= ?3 AND "
+        + "(TYPE_PRECIP_ONE = 1 OR TYPE_PRECIP_TWO = 1 OR TYPE_PRECIP_THREE = 1 OR TYPE_PRECIP_FOUR = 1)";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    return (Integer) query.getSingleResult();
+  }
+
   /*
    * ********************************************************
    * A partir de aqui comienzan los metodos relacionados a la

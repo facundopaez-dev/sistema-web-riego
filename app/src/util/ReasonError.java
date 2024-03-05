@@ -132,6 +132,8 @@ public enum ReasonError {
   NO_TYPE_OF_PRECIPITATION("Al ser la precipitación estrictamente mayor a 0 debe seleccionar como mínimo un tipo de precipitación"),
   REPETITION_OF_PRECIPITATION_TYPES("No se deben repetir los tipos de precipitación"),
   UNDEFINED_STATISTICAL_DATA("El dato estadístico a calcular debe estar definido"),
+  NON_EXISTENT_CLIMATE_RECORDS("Para generar el informe estadístico solicitado se requieren registros climáticos y la parcela seleccionada no tiene registros climáticos"),
+  NON_EXISTENT_CLIMATE_RECORDS_IN_A_PERIOD("Para generar el informe estadístico solicitado se requieren registros climáticos y la parcela seleccionada no tiene registros climáticos en el período definido por las fechas elegidas"),
   NON_EXISTENT_PLANTING_RECORDS("Para generar el informe estadístico solicitado se requieren registros de plantación finalizados y la parcela seleccionada no tiene registros de plantación finalizados"),
   NON_EXISTENT_PLANTING_RECORDS_IN_A_PERIOD("Para generar el informe estadístico solicitado se requieren registros de plantación finalizados y la parcela seleccionada no tiene registros de plantación finalizados en el período definido por las fechas elegidas"),
   NON_EXISTENT_IRRIGATION_RECORDS_WITH_CROP("Para generar el informe estadístico solicitado se requieren registros de riego asociados a un cultivo y la parcela seleccionada no tiene registros de riego asociados a un cultivo"),
