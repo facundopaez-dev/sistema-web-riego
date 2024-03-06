@@ -573,7 +573,7 @@ public class StatisticalReportServiceBean {
    * total de agua utilizda para el riego de cultivos en un
    * periodo definido por dos fechas
    */
-  public List<String> findYearsOfCalculationTotalAmountCropIrrigationWater(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+  public List<String> findYearsOfCalculationTotalAmountCropIrrigationWaterPerYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
     String subQuery = "SELECT RESULT_TABLE_TWO.IRRIGATION_YEAR, SUM(RESULT_TABLE_TWO.IRRIGATION_DONE) AS TOTAL_AMOUNT_CROP_IRRIGATION_WATER_PER_YEAR "
         + "FROM (SELECT YEAR(RESULT_TABLE.IRRIGATION_DATE) AS IRRIGATION_YEAR, RESULT_TABLE.IRRIGATION_DONE "
         + "FROM (SELECT DATE AS IRRIGATION_DATE, IRRIGATION_DONE FROM IRRIGATION_RECORD "
@@ -1126,7 +1126,7 @@ public class StatisticalReportServiceBean {
    * plantaron por año en una parcela en un periodo definido
    * por dos fechas
    */
-  public List<Integer> findSeedYearCalculatedPerTotalNumberPlantationsPerCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+  public List<Integer> findYearsCalculatedPerTotalNumberPlantationsPerCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
     /*
      * Con las condiciones de las fechas se seleccionan todos los
      * registros de plantacion finalizados (*) de una parcela que
@@ -1410,7 +1410,7 @@ public class StatisticalReportServiceBean {
    * por año para regarlos, esto es de los cultivos sembrados
    * en una parcela en un periodo definido por dos fechas
    */
-  public List<Integer> findYearCalculatedPerTotalAmountIrrigationWaterPerCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+  public List<Integer> findYearsCalculatedPerTotalAmountIrrigationWaterPerCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
     String subQuery = "SELECT RESULT_TABLE_TWO.IRRIGATION_YEAR, RESULT_TABLE_TWO.CROP_ID, SUM(RESULT_TABLE_TWO.IRRIGATION_DONE) AS TOTAL_AMOUNT_CROP_IRRIGATION_WATER "
         + "FROM (SELECT YEAR(RESULT_TABLE.DATE) AS IRRIGATION_YEAR, RESULT_TABLE.CROP_ID, RESULT_TABLE.IRRIGATION_DONE FROM "
         + "(SELECT DATE, FK_CROP AS CROP_ID, IRRIGATION_DONE "
@@ -1632,7 +1632,7 @@ public class StatisticalReportServiceBean {
    * por año, esto es de los cultivos cosechados en una parcela
    * en un periodo definido por dos fechas
    */
-  public List<Integer> findYearCalculatedPerTotalHarvestPerCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+  public List<Integer> findYearsCalculatedPerTotalHarvestPerCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
     String subQuery = "SELECT RESULT_TABLE_TWO.HARVEST_YEAR, RESULT_TABLE_TWO.CROP_ID, SUM(RESULT_TABLE_TWO.HARVEST_AMOUNT) AS TOTAL_AMOUNT "
         + "FROM (SELECT YEAR(RESULT_TABLE.HARVEST_DATE) AS HARVEST_YEAR, RESULT_TABLE.CROP_ID, RESULT_TABLE.HARVEST_AMOUNT FROM "
         + "(SELECT DATE AS HARVEST_DATE, FK_CROP AS CROP_ID, HARVEST_AMOUNT FROM HARVEST "
@@ -2019,7 +2019,7 @@ public class StatisticalReportServiceBean {
    * que se plantaron por año en una parcela en un periodo
    * definido por dos fechas
    */
-  public List<Integer> findSeedYearCalculatedPerTotalNumberPlantationsPerTypeCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+  public List<Integer> findYearsCalculatedPerTotalNumberPlantationsPerTypeCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
     /*
      * Con las condiciones de las fechas se seleccionan todos los
      * registros de plantacion finalizados (*) de una parcela que
@@ -2252,7 +2252,7 @@ public class StatisticalReportServiceBean {
    * cultivos sembrados en una parcela en un periodo definido
    * por dos fechas
    */
-  public List<Integer> findYearCalculatedPerTotalAmountIrrigationWaterPerTypeCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+  public List<Integer> findYearsCalculatedPerTotalAmountIrrigationWaterPerTypeCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
     String subQuery = "SELECT RESULT_TABLE_TWO.IRRIGATION_YEAR, RESULT_TABLE_TWO.TYPE_CROP_ID, "
         + "SUM(RESULT_TABLE_TWO.IRRIGATION_DONE) AS TOTAL_AMOUNT_IRRIGATION_WATER FROM "
         + "(SELECT YEAR(RESULT_TABLE.IRRIGATION_DATE) AS IRRIGATION_YEAR, RESULT_TABLE.TYPE_CROP_ID, RESULT_TABLE.IRRIGATION_DONE FROM "
@@ -2446,7 +2446,7 @@ public class StatisticalReportServiceBean {
    * [kg] por año, esto es de los tipos de cultivos cosechados en
    * una parcela en un periodo definido por dos fechas
    */
-  public List<Integer> findYearCalculatedPerTotalHarvestPerTypeCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+  public List<Integer> findYearsCalculatedPerTotalHarvestPerTypeCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
     String subQuery = "SELECT RESULT_TABLE_TWO.HARVEST_YEAR, RESULT_TABLE_TWO.TYPE_CROP_ID, "
         + "SUM(RESULT_TABLE_TWO.HARVEST_AMOUNT) AS TOTAL_HARVEST_AMOUNT FROM "
         + "(SELECT YEAR(RESULT_TABLE.HARVEST_DATE) AS HARVEST_YEAR, RESULT_TABLE.TYPE_CROP_ID, RESULT_TABLE.HARVEST_AMOUNT "

@@ -914,7 +914,7 @@ public class StatisticalGraphRestServlet {
      */
     if (statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_CROP_AND_YEAR) {
       List<String> cropNames = statisticalReportService.findCropNamesCalculatedPerTotalNumberPlantationsPerCropAndYear(parcelId, dateFrom, dateUntil);
-      List<Integer> seedYears = statisticalReportService.findSeedYearCalculatedPerTotalNumberPlantationsPerCropAndYear(parcelId, dateFrom, dateUntil);
+      List<Integer> seedYears = statisticalReportService.findYearsCalculatedPerTotalNumberPlantationsPerCropAndYear(parcelId, dateFrom, dateUntil);
 
       /*
        * Arma las etiquetas <cultivo> (<año>) para el grafico
@@ -959,7 +959,7 @@ public class StatisticalGraphRestServlet {
      */
     if (statisticalDataNumber == TOTAL_AMOUNT_IRRIGATION_WATER_PER_CROP_AND_YEAR) {
       List<String> cropNames = statisticalReportService.findCropNamesCalculatedPerTotalAmountIrrigationWaterPerCropAndYear(parcelId, dateFrom, dateUntil);
-      List<Integer> seedYears = statisticalReportService.findYearCalculatedPerTotalAmountIrrigationWaterPerCropAndYear(parcelId, dateFrom, dateUntil);
+      List<Integer> seedYears = statisticalReportService.findYearsCalculatedPerTotalAmountIrrigationWaterPerCropAndYear(parcelId, dateFrom, dateUntil);
 
       /*
        * Arma las etiquetas <cultivo> (<año>) para el grafico
@@ -1005,7 +1005,7 @@ public class StatisticalGraphRestServlet {
      */
     if (statisticalDataNumber == TOTAL_HARVEST_PER_CROP_AND_YEAR) {
       List<String> cropNames = statisticalReportService.findCropNamesCalculatedPerTotalHarvestPerCropAndYear(parcelId, dateFrom, dateUntil);
-      List<Integer> harvestYears = statisticalReportService.findYearCalculatedPerTotalHarvestPerCropAndYear(parcelId, dateFrom, dateUntil);
+      List<Integer> harvestYears = statisticalReportService.findYearsCalculatedPerTotalHarvestPerCropAndYear(parcelId, dateFrom, dateUntil);
 
       /*
        * Arma las etiquetas <cultivo> (<año>) para el grafico
@@ -1050,7 +1050,7 @@ public class StatisticalGraphRestServlet {
      */
     if (statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_TYPE_CROP_AND_YEAR) {
       List<String> typeCropNames = statisticalReportService.findTypeCropNamesCalculatedPerTotalNumberPlantationsPerTypeCropAndYear(parcelId, dateFrom, dateUntil);
-      List<Integer> seedYears = statisticalReportService.findSeedYearCalculatedPerTotalNumberPlantationsPerTypeCropAndYear(parcelId, dateFrom, dateUntil);
+      List<Integer> seedYears = statisticalReportService.findYearsCalculatedPerTotalNumberPlantationsPerTypeCropAndYear(parcelId, dateFrom, dateUntil);
 
       /*
        * Arma las etiquetas <cultivo> (<año>) para el grafico
@@ -1095,7 +1095,7 @@ public class StatisticalGraphRestServlet {
      */
     if (statisticalDataNumber == TOTAL_AMOUNT_IRRIGATION_WATER_PER_TYPE_CROP_AND_YEAR) {
       List<String> typeCropNames = statisticalReportService.findTypeCropNamesCalculatedPerTotalAmountIrrigationWaterPerTypeCropAndYear(parcelId, dateFrom, dateUntil);
-      List<Integer> seedYears = statisticalReportService.findYearCalculatedPerTotalAmountIrrigationWaterPerTypeCropAndYear(parcelId, dateFrom, dateUntil);
+      List<Integer> seedYears = statisticalReportService.findYearsCalculatedPerTotalAmountIrrigationWaterPerTypeCropAndYear(parcelId, dateFrom, dateUntil);
 
       /*
        * Arma las etiquetas <cultivo> (<año>) para el grafico
@@ -1142,7 +1142,7 @@ public class StatisticalGraphRestServlet {
      */
     if (statisticalDataNumber == TOTAL_HARVEST_PER_TYPE_CROP_AND_YEAR) {
       List<String> typeCropNames = statisticalReportService.findTypeCropNamesCalculatedPerTotalHarvestPerTypeCropAndYear(parcelId, dateFrom, dateUntil);
-      List<Integer> harvestYears = statisticalReportService.findYearCalculatedPerTotalHarvestPerTypeCropAndYear(parcelId, dateFrom, dateUntil);
+      List<Integer> harvestYears = statisticalReportService.findYearsCalculatedPerTotalHarvestPerTypeCropAndYear(parcelId, dateFrom, dateUntil);
 
       /*
        * Arma las etiquetas <cultivo> (<año>) para el grafico
@@ -1204,7 +1204,7 @@ public class StatisticalGraphRestServlet {
      */
     if (statisticalDataNumber == TOTAL_AMOUNT_OF_CROP_IRRIGATION_WATER_PER_YEAR) {
       newStatisticalGraph.setData(statisticalReportService.calculateTotalAmountCropIrrigationWaterPerYear(parcelId, dateFrom, dateUntil));
-      newStatisticalGraph.setLabels(statisticalReportService.findYearsOfCalculationTotalAmountCropIrrigationWater(parcelId, dateFrom, dateUntil));
+      newStatisticalGraph.setLabels(statisticalReportService.findYearsOfCalculationTotalAmountCropIrrigationWaterPerYear(parcelId, dateFrom, dateUntil));
       newStatisticalGraph.setAverage(UtilMath.truncateToTwoDigits(statisticalReportService.calculateAverageCropIrrigationWater(parcelId, dateFrom, dateUntil)));
       newStatisticalGraph.setText("Y: Cantidad de agua de riego [mm], X: Año, Parcela: " + newStatisticalGraph.getParcel().getName()
               + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
