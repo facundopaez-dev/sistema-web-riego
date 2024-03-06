@@ -104,8 +104,10 @@ public class StatisticalGraphRestServlet {
   private final int TOTAL_HARVEST_PER_TYPE_CROP = 11;
   private final int TOTAL_HARVEST_PER_TYPE_CROP_AND_YEAR = 12;
   private final int LIFE_CYCLES_OF_PLANTED_CROPS = 13;
-  private final int TOTAL_AMOUNT_OF_CROP_IRRIGATION_WATER_PER_YEAR = 14;
-  private final int TOTAL_AMOUNT_RAINWATER_PER_YEAR = 15;
+  private final int TOTAL_NUMBER_PLANTATIONS_PER_YEAR = 14;
+  private final int TOTAL_AMOUNT_OF_CROP_IRRIGATION_WATER_PER_YEAR = 15;
+  private final int TOTAL_AMOUNT_OF_HARVEST_PER_YEAR = 16;
+  private final int TOTAL_AMOUNT_RAINWATER_PER_YEAR = 17;
 
   @GET
   @Path("/findAllPagination")
@@ -658,6 +660,9 @@ public class StatisticalGraphRestServlet {
      * periodo definido por dos fechas
      * - de los ciclos de vida de los cultivos sembrados
      * en una parcela en un periodo definido por dos
+     * fechas
+     * - de la cantidad total de plantaciones por año
+     * sobre una parcela en un periodo definido por dos
      * fechas,
      * 
      * se requiere que la parcela seleccionada tenga registros
@@ -668,7 +673,8 @@ public class StatisticalGraphRestServlet {
         || statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_CROP_AND_YEAR
         || statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_TYPE_CROP
         || statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_TYPE_CROP_AND_YEAR
-        || statisticalDataNumber == LIFE_CYCLES_OF_PLANTED_CROPS)
+        || statisticalDataNumber == LIFE_CYCLES_OF_PLANTED_CROPS
+        || statisticalDataNumber == TOTAL_NUMBER_PLANTATIONS_PER_YEAR)
         && !plantingRecordService.hasFinishedPlantingRecords(userId, parcelId)) {
       return Response.status(Response.Status.BAD_REQUEST)
           .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NON_EXISTENT_PLANTING_RECORDS)))
@@ -691,6 +697,9 @@ public class StatisticalGraphRestServlet {
      * definido por dos fechas
      * - de los ciclos de vida de los cultivos sembrados
      * en una parcela en un periodo definido por dos
+     * fechas
+     * - de la cantidad total de plantaciones por año
+     * sobre una parcela en un periodo definido por dos
      * fechas,
      * 
      * se requiere que la parcela seleccionada tenga registros
@@ -701,7 +710,8 @@ public class StatisticalGraphRestServlet {
         || statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_CROP_AND_YEAR
         || statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_TYPE_CROP
         || statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_TYPE_CROP_AND_YEAR
-        || statisticalDataNumber == LIFE_CYCLES_OF_PLANTED_CROPS)
+        || statisticalDataNumber == LIFE_CYCLES_OF_PLANTED_CROPS
+        || statisticalDataNumber == TOTAL_NUMBER_PLANTATIONS_PER_YEAR)
         && !plantingRecordService.hasFinishedPlantingRecords(userId, parcelId, dateFrom, dateUntil)) {
       return Response.status(Response.Status.BAD_REQUEST)
           .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NON_EXISTENT_PLANTING_RECORDS_IN_A_PERIOD)))
@@ -818,7 +828,9 @@ public class StatisticalGraphRestServlet {
      * durante un periodo definido por dos fechas
      * - de la cantidad total cosechada por tipo de cultivo
      * y año de los tipos de cultivos cosechados en una
-     * parcela durante un periodo definido por dos fechas,
+     * parcela durante un periodo definido por dos fechas
+     * - de la cantidad total de cosecha por año de una parcela
+     * durante un periodo definido por dos fechas,
      * 
      * se requiere que la parcela seleccionada tenga registros
      * de cosecha. Este es el motivo de este control.
@@ -826,7 +838,8 @@ public class StatisticalGraphRestServlet {
     if ((statisticalDataNumber == TOTAL_HARVEST_PER_CROP
         || statisticalDataNumber == TOTAL_HARVEST_PER_CROP_AND_YEAR
         || statisticalDataNumber == TOTAL_HARVEST_PER_TYPE_CROP
-        || statisticalDataNumber == TOTAL_HARVEST_PER_TYPE_CROP_AND_YEAR)
+        || statisticalDataNumber == TOTAL_HARVEST_PER_TYPE_CROP_AND_YEAR
+        || statisticalDataNumber == TOTAL_AMOUNT_OF_HARVEST_PER_YEAR)
         && !harvestServiceBean.hasHarvestRecords(parcelId)) {
       return Response.status(Response.Status.BAD_REQUEST)
           .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NON_EXISTENT_HARVEST_RECORDS)))
@@ -851,7 +864,9 @@ public class StatisticalGraphRestServlet {
      * durante un periodo definido por dos fechas
      * - de la cantidad total cosechada por tipo de cultivo
      * y año de los tipos de cultivos cosechados en una
-     * parcela durante un periodo definido por dos fechas,
+     * parcela durante un periodo definido por dos fechas
+     * - de la cantidad total de cosecha por año de una parcela
+     * durante un periodo definido por dos fechas,
      * 
      * se requiere que la parcela seleccionada tenga registros
      * de cosecha. Este es el motivo de este control.
@@ -859,7 +874,8 @@ public class StatisticalGraphRestServlet {
     if ((statisticalDataNumber == TOTAL_HARVEST_PER_CROP
         || statisticalDataNumber == TOTAL_HARVEST_PER_CROP_AND_YEAR
         || statisticalDataNumber == TOTAL_HARVEST_PER_TYPE_CROP
-        || statisticalDataNumber == TOTAL_HARVEST_PER_TYPE_CROP_AND_YEAR)
+        || statisticalDataNumber == TOTAL_HARVEST_PER_TYPE_CROP_AND_YEAR
+        || statisticalDataNumber == TOTAL_AMOUNT_OF_HARVEST_PER_YEAR)
         && !harvestServiceBean.hasHarvestRecords(parcelId, dateFrom, dateUntil)) {
       return Response.status(Response.Status.BAD_REQUEST)
           .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NON_EXISTENT_HARVEST_RECORDS_IN_A_PERIOD)))
@@ -1163,6 +1179,24 @@ public class StatisticalGraphRestServlet {
 
     /*
      * Si el numero del dato estadistico a calcular es el
+     * valor de la constante TOTAL_NUMBER_PLANTATIONS_PER_YEAR,
+     * se calcula la cantidad total de plantaciones por año
+     * que se realizaron sobre una parcela durante un periodo
+     * definido por dos fechas
+     */
+    if (statisticalDataNumber == TOTAL_NUMBER_PLANTATIONS_PER_YEAR) {
+      newStatisticalGraph.setData(statisticalReportService.calculateTotalNumberPlantationsPerYear(parcelId, dateFrom, dateUntil));
+      newStatisticalGraph.setLabels(statisticalReportService.findYearsOfCalculationTotalNumberPlantationsPerYear(parcelId, dateFrom, dateUntil));
+      newStatisticalGraph.setText("Y: Cantidad de plantaciones, X: Año, Parcela: " + newStatisticalGraph.getParcel().getName()
+              + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
+              + ", Cant. total de plantaciones: "
+              + statisticalReportService.calculateTotalNumberPlantationsPerPeriod(parcelId, dateFrom, dateUntil));
+
+      return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(statisticalGraphService.create(newStatisticalGraph))).build();
+    }
+
+    /*
+     * Si el numero del dato estadistico a calcular es el
      * valor de la constante TOTAL_AMOUNT_OF_CROP_IRRIGATION_WATER_PER_YEAR,
      * se calcula la cantidad total de agua de riego de cultivo
      * por año de los cultivos sembrados en una parcela durante
@@ -1176,6 +1210,24 @@ public class StatisticalGraphRestServlet {
               + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
               + ", Cant. total de agua de riego [mm]: "
               + statisticalReportService.calculateTotalAmountCropIrrigationWaterPerPeriod(parcelId, dateFrom, dateUntil));
+
+      return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(statisticalGraphService.create(newStatisticalGraph))).build();
+    }
+
+    /*
+     * Si el numero del dato estadistico a calcular es el
+     * valor de la constante TOTAL_AMOUNT_OF_HARVEST_PER_YEAR,
+     * se calcula la cantidad total de cosecha por año de una
+     * parcela durante un periodo definido por dos fechas
+     */
+    if (statisticalDataNumber == TOTAL_AMOUNT_OF_HARVEST_PER_YEAR) {
+      newStatisticalGraph.setData(statisticalReportService.calculateTotalHarvestAmountPerYear(parcelId, dateFrom, dateUntil));
+      newStatisticalGraph.setLabels(statisticalReportService.findYearsOfCalculationTotalAmountHarvestPerYear(parcelId, dateFrom, dateUntil));
+      newStatisticalGraph.setAverage(UtilMath.truncateToTwoDigits(statisticalReportService.calculateAverageHarvest(parcelId, dateFrom, dateUntil)));
+      newStatisticalGraph.setText("Y: Cantidad cosechada [kg], X: Año, Parcela: " + newStatisticalGraph.getParcel().getName()
+              + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
+              + ", Cant. total cosechada [kg]: "
+              + statisticalReportService.calculateTotalHarvestPerPeriod(parcelId, dateFrom, dateUntil));
 
       return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(statisticalGraphService.create(newStatisticalGraph))).build();
     }

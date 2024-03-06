@@ -452,6 +452,88 @@ public class StatisticalReportServiceBean {
    * @param dateUntil
    * @return referencia a un objeto de tipo List<Integer> que
    * contiene los valores que representan la cantidad total de
+   * plantaciones por año que hubo en una parcela en un periodo
+   * definido por dos fechas
+   */
+  public List<Integer> calculateTotalNumberPlantationsPerYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String subQuery = "SELECT RESULT_TABLE_TWO.SEED_YEAR, COUNT(RESULT_TABLE_TWO.CROP_ID) AS TOTAL_NUMBER_PLANTATIONS_PER_YEAR "
+        + "FROM (SELECT YEAR(RESULT_TABLE.SEED_DATE) AS SEED_YEAR, RESULT_TABLE.CROP_ID FROM "
+        + "(SELECT SEED_DATE, FK_CROP AS CROP_ID FROM PLANTING_RECORD "
+        + "WHERE FK_PARCEL = ?1 AND FK_STATUS = 1 AND "
+        + "((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) OR "
+        + "(SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) "
+        + "OR (?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2)) "
+        + "ORDER BY SEED_DATE) AS RESULT_TABLE) AS RESULT_TABLE_TWO "
+        + "GROUP BY RESULT_TABLE_TWO.SEED_YEAR";
+
+    String stringQuery = "SELECT RESULT_TABLE_THREE.TOTAL_NUMBER_PLANTATIONS_PER_YEAR FROM (" + subQuery
+        + ") AS RESULT_TABLE_THREE";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<Integer> result = null;
+
+    try {
+      result = query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<String> que
+   * contiene los años para los que se calcula la cantidad
+   * total de plantaciones por año sobre una parcela en un
+   * periodo definido por dos fechas
+   */
+  public List<String> findYearsOfCalculationTotalNumberPlantationsPerYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String subQuery = "SELECT RESULT_TABLE_TWO.SEED_YEAR, COUNT(RESULT_TABLE_TWO.CROP_ID) AS TOTAL_NUMBER_PLANTATIONS_PER_YEAR "
+        + "FROM (SELECT YEAR(RESULT_TABLE.SEED_DATE) AS SEED_YEAR, RESULT_TABLE.CROP_ID FROM "
+        + "(SELECT SEED_DATE, FK_CROP AS CROP_ID FROM PLANTING_RECORD "
+        + "WHERE FK_PARCEL = ?1 AND FK_STATUS = 1 AND "
+        + "((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) OR "
+        + "(SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) "
+        + "OR (?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2)) "
+        + "ORDER BY SEED_DATE) AS RESULT_TABLE) AS RESULT_TABLE_TWO "
+        + "GROUP BY RESULT_TABLE_TWO.SEED_YEAR";
+
+    String stringQuery = "SELECT RESULT_TABLE_THREE.SEED_YEAR FROM (" + subQuery
+        + ") AS RESULT_TABLE_THREE";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<String> result = new ArrayList<>();
+
+    try {
+
+      for (Integer currentValue : (List<Integer>) query.getResultList()) {
+        result.add(String.valueOf(currentValue));
+      }
+
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<Integer> que
+   * contiene los valores que representan la cantidad total de
    * agua utilizada por año para el riego de cultivos en un
    * periodo definido por dos fechas
    */
@@ -502,6 +584,82 @@ public class StatisticalReportServiceBean {
     String stringQuery = "SELECT RESULT_TABLE_THREE.IRRIGATION_YEAR FROM (" + subQuery
         + ") AS RESULT_TABLE_THREE";
 
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<String> result = new ArrayList<>();
+
+    try {
+
+      for (Integer currentValue : (List<Integer>) query.getResultList()) {
+        result.add(String.valueOf(currentValue));
+      }
+
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<Integer> que
+   * contiene los valores que representan la cantidad toal de
+   * cosecha por año en una parcela en un periodo definido
+   * por dos fechas
+   */
+  public List<Integer> calculateTotalHarvestAmountPerYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String subQuery = "SELECT RESULT_TABLE_TWO.HARVEST_YEAR, SUM(RESULT_TABLE_TWO.HARVEST_AMOUNT) AS TOTAL_HARVEST_AMOUNT_PER_YEAR "
+        + "FROM (SELECT YEAR(RESULT_TABLE.HARVEST_DATE) AS HARVEST_YEAR, RESULT_TABLE.HARVEST_AMOUNT FROM "
+        + "(SELECT DATE AS HARVEST_DATE, HARVEST_AMOUNT FROM HARVEST WHERE "
+        + "FK_PARCEL = ?1 AND ?2 <= DATE AND DATE <= ?3 "
+        + "ORDER BY HARVEST_DATE) AS RESULT_TABLE) AS RESULT_TABLE_TWO "
+        + "GROUP BY RESULT_TABLE_TWO.HARVEST_YEAR";
+
+    String stringQuery = "SELECT CAST(CEIL(RESULT_TABLE_THREE.TOTAL_HARVEST_AMOUNT_PER_YEAR) AS INTEGER) FROM (" + subQuery
+        + ") AS RESULT_TABLE_THREE";
+
+    Query query = getEntityManager().createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+    query.setParameter(2, dateFrom);
+    query.setParameter(3, dateUntil);
+
+    List<Integer> result = null;
+
+    try {
+      result = query.getResultList();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<String> que
+   * contiene los años para los que se calcula la cantidad
+   * total de cosecha por año de una parcela en un periodo
+   * definido por dos fechas
+   */
+  public List<String> findYearsOfCalculationTotalAmountHarvestPerYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String subQuery = "SELECT RESULT_TABLE_TWO.HARVEST_YEAR, SUM(RESULT_TABLE_TWO.HARVEST_AMOUNT) AS TOTAL_HARVEST_AMOUNT_PER_YEAR "
+        + "FROM (SELECT YEAR(RESULT_TABLE.HARVEST_DATE) AS HARVEST_YEAR, RESULT_TABLE.HARVEST_AMOUNT FROM "
+        + "(SELECT DATE AS HARVEST_DATE, HARVEST_AMOUNT FROM HARVEST WHERE "
+        + "FK_PARCEL = ?1 AND ?2 <= DATE AND DATE <= ?3 "
+        + "ORDER BY HARVEST_DATE) AS RESULT_TABLE) AS RESULT_TABLE_TWO "
+        + "GROUP BY RESULT_TABLE_TWO.HARVEST_YEAR";
+
+    String stringQuery = "SELECT RESULT_TABLE_THREE.HARVEST_YEAR FROM (" + subQuery
+        + ") AS RESULT_TABLE_THREE";
 
     Query query = getEntityManager().createNativeQuery(stringQuery);
     query.setParameter(1, parcelId);
