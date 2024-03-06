@@ -1,7 +1,6 @@
 @startuml
 
 Usuario "1"-->"*" Parcela
-InformeEstadistico "*"-->"1" Parcela
 RegistroClimatico "*"-->"1" Parcela
 RegistroClimatico "*"-->"1..4" TipoPrecipitacion
 RegistroRiego "*"-->"1" Parcela
@@ -39,37 +38,6 @@ class Cosecha {
 -id
 -fecha
 -cantidadCosecha
-}
-
-class InformeEstadistico {
--id
--fechaDesde
--fechaHasta
--cultivoMayorCosecha
--cantidadCosechaCultivoMayorCosecha
--cantidadTotalAguaRiegoCultivoMayorCosecha
--cultivoMenorCosecha
--cantidadCosechaCultivoMenorCosecha
--cantidadTotalAguaRiegoCultivoMenorCosecha
--cultivoMasPlantado
--cantidadVecesPlantadoCultivoMasPlantado
--cantidadTotalAguaRiegoCultivoMasPlantado
--cultivoMenosPlantado
--cantidadVecesPlantadoCultivoMenosPlantado
--cantidadTotalAguaRiegoCultivoMenosPlantado
--cultivoPlantadoMayorCicloVida
--cicloVidaCultivoPlantadoMayorCicloVida
--cantidadTotalAguaRiegoCultivoMayorCicloVida
--cultivoPlantadoMenorCicloVida
--cicloVidaCultivoPlantadoMenorCicloVida
--cantidadTotalAguaRiegoCultivoMenorCicloVida
--diasConCultivoPlantado
--porcentajeDiasConCultivoPlantado
--diasSinCultivoPlantado
--porcentajeDiasSinCultivoPlantado
--diasPeriodo
--cantidadTotalAguaLluvia
--cantidadTotalAguaRiegoCultivo
 }
 
 class Cultivo {
