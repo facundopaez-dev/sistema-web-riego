@@ -568,7 +568,7 @@ public class StatisticalReportServiceBean {
    * @param parcelId
    * @param dateFrom
    * @param dateUntil
-   * @return referencia a un objeto de tipo List<Integer> que
+   * @return referencia a un objeto de tipo List<String> que
    * contiene los años para los que se calcula la cantidad
    * total de agua utilizda para el riego de cultivos en un
    * periodo definido por dos fechas
@@ -722,7 +722,7 @@ public class StatisticalReportServiceBean {
    * @param parcelId
    * @param dateFrom
    * @param dateUntil
-   * @return referencia a un objeto de tipo List<Integer> que
+   * @return referencia a un objeto de tipo List<String> que
    * contiene los años para los que se calcula la cantidad
    * total de agua lluvia que cayo sobre una parcela en un
    * periodo definido por dos fechas
@@ -2248,8 +2248,9 @@ public class StatisticalReportServiceBean {
    * @return referencia a un objeto de tipo List<Integer> que
    * contiene los años en los que se regaron los tipos de cultivos
    * para los que se calcula la cantidad total de agua que se
-   * utilizo por año para regarlos, esto es de los tipos de cultivos
-   * sembrados en una parcela en un periodo definido por dos fechas
+   * utilizo por año para regarlos, esto es de los tipos de
+   * cultivos sembrados en una parcela en un periodo definido
+   * por dos fechas
    */
   public List<Integer> findYearCalculatedPerTotalAmountIrrigationWaterPerTypeCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
     String subQuery = "SELECT RESULT_TABLE_TWO.IRRIGATION_YEAR, RESULT_TABLE_TWO.TYPE_CROP_ID, "
