@@ -156,6 +156,17 @@ app.service(
                         });
             }
 
+            this.recalculate = function (id, callback) {
+                $http.put("rest/statisticalReports/recalculate/" + id)
+                    .then(
+                        function (result) {
+                            callback(false, result.data);
+                        },
+                        function (error) {
+                            callback(error);
+                        });
+            }
+
             this.delete = function (id, callback) {
                 $http.delete("rest/statisticalReports/" + id)
                     .then(

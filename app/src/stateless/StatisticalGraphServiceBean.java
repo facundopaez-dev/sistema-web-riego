@@ -43,6 +43,30 @@ public class StatisticalGraphServiceBean {
     }
 
     /**
+     * Modifica un grafico estadistico
+     *
+     * @param userId
+     * @param statisticalGraphId
+     * @param modifiedStatisticalGraph
+     * @return referencia a un objeto de tipo StatisticalGraph si se
+     * modifica el grafico estadistico con el ID y el ID de usuario
+     * provistos, null en caso contrario
+     */
+    public StatisticalGraph modify(int userId, int statisticalGraphId, StatisticalGraph modifiedStatisticalGraph) {
+        StatisticalGraph chosenStatisticalGraph = findByUserId(userId, statisticalGraphId);
+
+        if (chosenStatisticalGraph != null) {
+            chosenStatisticalGraph.setText(modifiedStatisticalGraph.getText());
+            chosenStatisticalGraph.setAverage(modifiedStatisticalGraph.getAverage());
+            chosenStatisticalGraph.setData(modifiedStatisticalGraph.getData());
+            chosenStatisticalGraph.setLabels(modifiedStatisticalGraph.getLabels());
+            return chosenStatisticalGraph;
+        }
+
+        return null;
+    }
+
+    /**
      * Elimina fisicamente un grafico estadistico de la base de datos
      * subyacente
      * 

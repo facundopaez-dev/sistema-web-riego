@@ -18,6 +18,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
@@ -1254,6 +1255,516 @@ public class StatisticalGraphRestServlet {
      * cliente solicito persistir
      */
     return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(statisticalGraphService.create(newStatisticalGraph))).build();
+  }
+
+  @PUT
+  @Path("recalculate/{id}")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response recalculate(@Context HttpHeaders request, @PathParam("id") int statisticalGraphId) throws IOException {
+    Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
+
+    /*
+     * Si el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP NO
+     * es ACCEPTED, se devuelve el estado de error de la misma.
+     * 
+     * Que el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP sea
+     * ACCEPTED, significa que la peticion es valida,
+     * debido a que el encabezado de autorizacion de la misma
+     * cumple las siguientes condiciones:
+     * - Esta presente.
+     * - No esta vacio.
+     * - Cumple con la convencion de JWT.
+     * - Contiene un JWT valido.
+     */
+    if (!RequestManager.isAccepted(givenResponse)) {
+      return givenResponse;
+    }
+
+    /*
+     * Obtiene el JWT del valor del encabezado de autorizacion
+     * de una peticion HTTP
+     */
+    String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
+
+    /*
+     * Valor de la clave secreta con la que la aplicacion firma
+     * un JWT
+     */
+    String secretKeyValue = secretKeyService.find().getValue();
+
+    /*
+     * Obtiene el ID de usuario contenido en la carga util del
+     * JWT del encabezado de autorizacion de una peticion HTTP
+     */
+    int userId = JwtManager.getUserId(jwt, secretKeyValue);
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
+    }
+
+    /*
+     * Si la fecha de emision del JWT de un usuario NO es igual
+     * a la fecha de emision de la sesion activa del usuario,
+     * la aplicacion del lado servidor retorna el mensaje HTTP
+     * 400 (Bad request) junto con el mensaje "El JWT no
+     * corresponde a una sesión abierta" y no se realiza la
+     * operacion solicitada.
+     * 
+     * Se debe tener en cuenta que el metodo checkDateIssueLastSession
+     * de la clase SessionServiceBean debe ser invocado luego
+     * de invocar el metodo checkActiveSession de la misma
+     * clase, ya que de lo contrario se puede comparar la
+     * fecha de emision de un JWT con una sesion inactiva,
+     * lo cual es incorrecto porque la fecha de emision de un
+     * JWT se debe comparar con la fecha de emision de una
+     * sesion activa. El motivo por el cual puede ocurrir esta
+     * comparacion con una sesion inactiva es que el metodo
+     * findLastSession recupera la ultima sesion del usuario,
+     * independientemente de si esta activa o inactiva.
+     * 
+     * Este control se implementa para evitar que se puedan
+     * recuperar datos mediante peticiones HTTP haciendo uso
+     * de un JWT valido, pero que es de una sesion que fue
+     * cerrada por el usuario.
+     */
+    if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
+    }
+
+    /*
+     * Si el dato solicitado no existe en la base de datos
+     * subyacente, la aplicacion del lado servidor devuelve
+     * el mensaje HTTP 404 (Not found) junto con el mensaje
+     * "Recurso no encontrado" y no se realiza la operacion
+     * solicitada
+     */
+    if (!statisticalGraphService.checkExistence(statisticalGraphId)) {
+      return Response.status(Response.Status.NOT_FOUND)
+          .entity(mapper.writeValueAsString(mapper.writeValueAsString(new ErrorResponse(ReasonError.RESOURCE_NOT_FOUND)))).build();
+    }
+
+    /*
+     * Si al usuario que hizo esta peticion HTTP, no le pertenece
+     * el dato solicitado, la aplicacion del lado servidor
+     * devuelve el mensaje HTTP 403 (Forbidden) junto con el
+     * mensaje "Acceso no autorizado" (contenido en el enum
+     * ReasonError) y no se realiza la operacion solicitada
+     */
+    if (!statisticalGraphService.checkUserOwnership(userId, statisticalGraphId)) {
+      return Response.status(Response.Status.FORBIDDEN)
+          .entity(mapper.writeValueAsString(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS)))).build();
+    }
+
+    StatisticalGraph modifiedStatisticalGraph = new StatisticalGraph();
+    StatisticalGraph currentStatisticalGraph = statisticalGraphService.findByUserId(userId, statisticalGraphId);
+
+    int statisticalDataNumber = currentStatisticalGraph.getStatisticalData().getNumber();
+    int parcelId = currentStatisticalGraph.getParcel().getId();
+
+    Parcel parcel = currentStatisticalGraph.getParcel();
+    Calendar dateFrom = currentStatisticalGraph.getDateFrom();
+    Calendar dateUntil = currentStatisticalGraph.getDateUntil();
+
+    /*
+     * ***********************************
+     * Generacion de informes estadisticos
+     * ***********************************
+     */
+
+    /*
+     * Si el numero del dato estadistico a calcular es el
+     * valor de la constante TOTAL_AMOUNT_PLANTATIONS_PER_CROP,
+     * se calcula la cantidad total de veces que se plantaron
+     * los cultivos en una parcela durante un periodo
+     * definido por dos fechas
+     */
+    if (statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_CROP) {
+      modifiedStatisticalGraph.setData(statisticalReportService.calculateTotalNumberPlantationsPerCrop(parcelId, dateFrom, dateUntil));
+      modifiedStatisticalGraph.setLabels(statisticalReportService.findCropNamesCalculatedPerTotalNumberPlantationsPerCrop(parcelId, dateFrom, dateUntil));
+      modifiedStatisticalGraph.setText("Y: Cantidad de plantaciones, X: Cultivo, Parcela: " + parcel.getName()
+              + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
+              + ", Cant. total de plantaciones: " + statisticalReportService.calculateTotalNumberPlantationsPerPeriod(parcelId, dateFrom, dateUntil));
+
+      statisticalGraphService.modify(userId, statisticalGraphId, modifiedStatisticalGraph);
+      return Response.status(Response.Status.OK).build();
+    }
+
+    /*
+     * Si el numero del dato estadistico a calcular es el
+     * valor de la constante TOTAL_AMOUNT_PLANTATIONS_PER_CROP_AND_YEAR,
+     * se calcula la cantidad total de veces que se plantaron
+     * los cultivos por año en una parcela durante un periodo
+     * definido por dos fechas
+     */
+    if (statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_CROP_AND_YEAR) {
+      List<String> cropNames = statisticalReportService.findCropNamesCalculatedPerTotalNumberPlantationsPerCropAndYear(parcelId, dateFrom, dateUntil);
+      List<Integer> seedYears = statisticalReportService.findYearsCalculatedPerTotalNumberPlantationsPerCropAndYear(parcelId, dateFrom, dateUntil);
+
+      /*
+       * Arma las etiquetas <cultivo> (<año>) para el grafico
+       * de barras correspondiente al informe estadistico
+       * solicitado
+       */
+      List<String> labels = statisticalReportService.setLabelsWithCropAndYear(cropNames, seedYears);
+
+      modifiedStatisticalGraph.setData(statisticalReportService.calculateTotalNumberPlantationsPerCropAndYear(parcelId, dateFrom, dateUntil));
+      modifiedStatisticalGraph.setLabels(labels);
+      modifiedStatisticalGraph.setText("Y: Cantidad de plantaciones, X: Cultivo (año), Parcela: " + parcel.getName()
+              + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
+              + ", Cant. total de plantaciones: " + statisticalReportService.calculateTotalNumberPlantationsPerPeriod(parcelId, dateFrom, dateUntil));
+
+      statisticalGraphService.modify(userId, statisticalGraphId, modifiedStatisticalGraph);
+      return Response.status(Response.Status.OK).build();
+    }
+
+    /*
+     * Si el numero del dato estadistico a calcular es el
+     * valor de la constante TOTAL_AMOUNT_IRRIGATION_WATER_PER_CROP,
+     * se calcula la cantidad total de agua de riego de los
+     * cultivos plantados en una parcela durante un periodo
+     * definido por dos fechas
+     */
+    if (statisticalDataNumber == TOTAL_AMOUNT_IRRIGATION_WATER_PER_CROP) {
+      modifiedStatisticalGraph.setData(statisticalReportService.calculateTotalAmountIrrigationWaterPerCrop(parcelId, dateFrom, dateUntil));
+      modifiedStatisticalGraph.setLabels(statisticalReportService.findCropNamesCalculatedPerTotalAmountIrrigationWaterPerCrop(parcelId, dateFrom, dateUntil));
+      modifiedStatisticalGraph.setAverage(UtilMath.truncateToTwoDigits(statisticalReportService.calculateAverageCropIrrigationWater(parcelId, dateFrom, dateUntil)));
+      modifiedStatisticalGraph.setText("Y: Cantidad de agua de riego [mm], X: Cultivo, Parcela: " + parcel.getName()
+              + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
+              + ", Cant. total de agua de riego [mm]: " + statisticalReportService.calculateTotalAmountCropIrrigationWaterPerPeriod(parcelId, dateFrom, dateUntil));
+
+      statisticalGraphService.modify(userId, statisticalGraphId, modifiedStatisticalGraph);
+      return Response.status(Response.Status.OK).build();
+    }
+
+    /*
+     * Si el numero del dato estadistico a calcular es el
+     * valor de la constante TOTAL_AMOUNT_IRRIGATION_WATER_PER_CROP_AND_YEAR,
+     * se calcula la cantidad total de agua de riego por
+     * cultivo y año de los cultivos plantados en una parcela
+     * durante un periodo definido por dos fechas
+     */
+    if (statisticalDataNumber == TOTAL_AMOUNT_IRRIGATION_WATER_PER_CROP_AND_YEAR) {
+      List<String> cropNames = statisticalReportService.findCropNamesCalculatedPerTotalAmountIrrigationWaterPerCropAndYear(parcelId, dateFrom, dateUntil);
+      List<Integer> seedYears = statisticalReportService.findYearsCalculatedPerTotalAmountIrrigationWaterPerCropAndYear(parcelId, dateFrom, dateUntil);
+
+      /*
+       * Arma las etiquetas <cultivo> (<año>) para el grafico
+       * de barras correspondiente al informe estadistico
+       * solicitado
+       */
+      List<String> labels = statisticalReportService.setLabelsWithCropAndYear(cropNames, seedYears);
+
+      modifiedStatisticalGraph.setData(statisticalReportService.calculateTotalAmountIrrigationWaterPerCropAndYear(parcelId, dateFrom, dateUntil));
+      modifiedStatisticalGraph.setLabels(labels);
+      modifiedStatisticalGraph.setAverage(UtilMath.truncateToTwoDigits(statisticalReportService.calculateAverageCropIrrigationWater(parcelId, dateFrom, dateUntil)));
+      modifiedStatisticalGraph.setText("Y: Cantidad de agua de riego [mm], X: Cultivo (año), Parcela: " + parcel.getName()
+              + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
+              + ", Cant. total de agua de riego [mm]: " + statisticalReportService.calculateTotalAmountCropIrrigationWaterPerPeriod(parcelId, dateFrom, dateUntil));
+
+      statisticalGraphService.modify(userId, statisticalGraphId, modifiedStatisticalGraph);
+      return Response.status(Response.Status.OK).build();
+    }
+
+    /*
+     * Si el numero del dato estadistico a calcular es el
+     * valor de la constante TOTAL_HARVEST_PER_CROP,
+     * se calcula la cantidad total cosechada [kg] (rendimiento)
+     * de los cultivos cosechados en una parcela durante un
+     * periodo definido por dos fechas
+     */
+    if (statisticalDataNumber == TOTAL_HARVEST_PER_CROP) {
+      modifiedStatisticalGraph.setData(statisticalReportService.calculateTotalHarvestPerCrop(parcelId, dateFrom, dateUntil));
+      modifiedStatisticalGraph.setLabels(statisticalReportService.findCropNamesCalculatedPerTotalHarvestPerCrop(parcelId, dateFrom, dateUntil));
+      modifiedStatisticalGraph.setAverage(UtilMath.truncateToTwoDigits(statisticalReportService.calculateAverageHarvest(parcelId, dateFrom, dateUntil)));
+      modifiedStatisticalGraph.setText("Y: Cantidad cosechada [kg], X: Cultivo, Parcela: " + parcel.getName()
+              + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
+              + ", Cant. total cosechada [kg]: " + statisticalReportService.calculateTotalHarvestPerPeriod(parcelId, dateFrom, dateUntil));
+
+      statisticalGraphService.modify(userId, statisticalGraphId, modifiedStatisticalGraph);
+      return Response.status(Response.Status.OK).build();
+    }
+
+    /*
+     * Si el numero del dato estadistico a calcular es el
+     * valor de la constante TOTAL_HARVEST_PER_CROP_AND_YEAR,
+     * se calcula la cantidad total cosechada [kg] (rendimiento)
+     * por cultivo y año de los cultivos cosechados en una
+     * parcela durante un periodo definido por dos fechas
+     */
+    if (statisticalDataNumber == TOTAL_HARVEST_PER_CROP_AND_YEAR) {
+      List<String> cropNames = statisticalReportService.findCropNamesCalculatedPerTotalHarvestPerCropAndYear(parcelId, dateFrom, dateUntil);
+      List<Integer> harvestYears = statisticalReportService.findYearsCalculatedPerTotalHarvestPerCropAndYear(parcelId, dateFrom, dateUntil);
+
+      /*
+       * Arma las etiquetas <cultivo> (<año>) para el grafico
+       * de barras correspondiente al informe estadistico
+       * solicitado
+       */
+      List<String> labels = statisticalReportService.setLabelsWithCropAndYear(cropNames, harvestYears);
+
+      modifiedStatisticalGraph.setData(statisticalReportService.calculateTotalHarvestPerCropAndYear(parcelId, dateFrom, dateUntil));
+      modifiedStatisticalGraph.setLabels(labels);
+      modifiedStatisticalGraph.setAverage(UtilMath.truncateToTwoDigits(statisticalReportService.calculateAverageHarvest(parcelId, dateFrom, dateUntil)));
+      modifiedStatisticalGraph.setText("Y: Cantidad cosechada [kg], X: Cultivo (año), Parcela: " + parcel.getName()
+              + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
+              + ", Cant. total cosechada [kg]: " + statisticalReportService.calculateTotalHarvestPerPeriod(parcelId, dateFrom, dateUntil));
+
+      statisticalGraphService.modify(userId, statisticalGraphId, modifiedStatisticalGraph);
+      return Response.status(Response.Status.OK).build();
+    }
+
+    /*
+     * Si el numero del dato estadistico a calcular es el
+     * valor de la constante TOTAL_AMOUNT_PLANTATIONS_PER_TYPE_CROP,
+     * se calcula la cantidad total de veces que se plantaron
+     * los tipos de cultivo en una parcela durante un periodo
+     * definido por dos fechas
+     */
+    if (statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_TYPE_CROP) {
+      modifiedStatisticalGraph.setData(statisticalReportService.calculateTotalNumberPlantationsPerTypeCrop(parcelId, dateFrom, dateUntil));
+      modifiedStatisticalGraph.setLabels(statisticalReportService.findTypeCropNamesCalculatedPerTotalNumberPlantationsPerTypeCrop(parcelId, dateFrom, dateUntil));
+      modifiedStatisticalGraph.setText("Y: Cantidad de plantaciones, X: Tipo de cultivo, Parcela: " + parcel.getName()
+              + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
+              + ", Cant. total de plantaciones: " + statisticalReportService.calculateTotalNumberPlantationsPerPeriod(parcelId, dateFrom, dateUntil));
+
+      statisticalGraphService.modify(userId, statisticalGraphId, modifiedStatisticalGraph);
+      return Response.status(Response.Status.OK).build();
+    }
+
+    /*
+     * Si el numero del dato estadistico a calcular es el
+     * valor de la constante TOTAL_AMOUNT_PLANTATIONS_PER_TYPE_CROP_AND_YEAR,
+     * se calcula la cantidad total de veces que se plantaron
+     * los tipos de cultivos por año en una parcela durante un
+     * periodo definido por dos fechas
+     */
+    if (statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_TYPE_CROP_AND_YEAR) {
+      List<String> typeCropNames = statisticalReportService.findTypeCropNamesCalculatedPerTotalNumberPlantationsPerTypeCropAndYear(parcelId, dateFrom, dateUntil);
+      List<Integer> seedYears = statisticalReportService.findYearsCalculatedPerTotalNumberPlantationsPerTypeCropAndYear(parcelId, dateFrom, dateUntil);
+
+      /*
+       * Arma las etiquetas <cultivo> (<año>) para el grafico
+       * de barras correspondiente al informe estadistico
+       * solicitado
+       */
+      List<String> labels = statisticalReportService.setLabelsWithCropAndYear(typeCropNames, seedYears);
+
+      modifiedStatisticalGraph.setData(statisticalReportService.calculateTotalNumberPlantationsPerTypeCropAndYear(parcelId, dateFrom, dateUntil));
+      modifiedStatisticalGraph.setLabels(labels);
+      modifiedStatisticalGraph.setText("Y: Cantidad de plantaciones, X: Tipo de cultivo (año), Parcela: " + parcel.getName()
+              + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
+              + ", Cant. total de plantaciones: " + statisticalReportService.calculateTotalNumberPlantationsPerPeriod(parcelId, dateFrom, dateUntil));
+
+      statisticalGraphService.modify(userId, statisticalGraphId, modifiedStatisticalGraph);
+      return Response.status(Response.Status.OK).build();
+    }
+
+    /*
+     * Si el numero del dato estadistico a calcular es el
+     * valor de la constante TOTAL_AMOUNT_IRRIGATION_WATER_PER_TYPE_CROP,
+     * se calcula la cantidad total de agua de riego de los
+     * tipos de cultivos plantados en una parcela durante un
+     * periodo definido por dos fechas
+     */
+    if (statisticalDataNumber == TOTAL_AMOUNT_IRRIGATION_WATER_PER_TYPE_CROP) {
+      modifiedStatisticalGraph.setData(statisticalReportService.calculateTotalAmountIrrigationWaterPerTypeCrop(parcelId, dateFrom, dateUntil));
+      modifiedStatisticalGraph.setLabels(statisticalReportService.findTypeCropNamesCalculatedPerTotalAmountIrrigationWaterPerTypeCrop(parcelId, dateFrom, dateUntil));
+      modifiedStatisticalGraph.setAverage(UtilMath.truncateToTwoDigits(statisticalReportService.calculateAverageCropIrrigationWater(parcelId, dateFrom, dateUntil)));
+      modifiedStatisticalGraph.setText("Y: Cantidad de agua de riego [mm], X: Tipo de cultivo, Parcela: " + parcel.getName()
+              + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
+              + ", Cant. total de agua de riego [mm]: " + statisticalReportService.calculateTotalAmountCropIrrigationWaterPerPeriod(parcelId, dateFrom, dateUntil));
+
+      statisticalGraphService.modify(userId, statisticalGraphId, modifiedStatisticalGraph);
+      return Response.status(Response.Status.OK).build();
+    }
+
+    /*
+     * Si el numero del dato estadistico a calcular es el
+     * valor de la constante TOTAL_AMOUNT_IRRIGATION_WATER_PER_TYPE_CROP_AND_YEAR,
+     * se calcula la cantidad total de agua de riego por
+     * tipo de cultivo y año de los cultivos plantados en una
+     * parcela durante un periodo definido por dos fechas
+     */
+    if (statisticalDataNumber == TOTAL_AMOUNT_IRRIGATION_WATER_PER_TYPE_CROP_AND_YEAR) {
+      List<String> typeCropNames = statisticalReportService.findTypeCropNamesCalculatedPerTotalAmountIrrigationWaterPerTypeCropAndYear(parcelId, dateFrom, dateUntil);
+      List<Integer> seedYears = statisticalReportService.findYearsCalculatedPerTotalAmountIrrigationWaterPerTypeCropAndYear(parcelId, dateFrom, dateUntil);
+
+      /*
+       * Arma las etiquetas <cultivo> (<año>) para el grafico
+       * de barras correspondiente al informe estadistico
+       * solicitado
+       */
+      List<String> labels = statisticalReportService.setLabelsWithCropAndYear(typeCropNames, seedYears);
+
+      modifiedStatisticalGraph.setData(statisticalReportService.calculateTotalAmountIrrigationWaterPerTypeCropAndYear(parcelId, dateFrom, dateUntil));
+      modifiedStatisticalGraph.setLabels(labels);
+      modifiedStatisticalGraph.setAverage(UtilMath.truncateToTwoDigits(statisticalReportService.calculateAverageCropIrrigationWater(parcelId, dateFrom, dateUntil)));
+      modifiedStatisticalGraph.setText("Y: Cantidad de agua de riego [mm], X: Tipo de cultivo (año), Parcela: " + parcel.getName()
+              + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
+              + ", Cant. total de agua de riego [mm]: " + statisticalReportService.calculateTotalAmountCropIrrigationWaterPerPeriod(parcelId, dateFrom, dateUntil));
+
+      statisticalGraphService.modify(userId, statisticalGraphId, modifiedStatisticalGraph);
+      return Response.status(Response.Status.OK).build();
+    }
+
+    /*
+     * Si el numero del dato estadistico a calcular es el
+     * valor de la constante TOTAL_HARVEST_PER_TYPE_CROP,
+     * se calcula la cantidad total cosechada [kg] (rendimiento)
+     * de los tipos de cultivos cosechados en una parcela
+     * durante un periodo definido por dos fechas
+     */
+    if (statisticalDataNumber == TOTAL_HARVEST_PER_TYPE_CROP) {
+      modifiedStatisticalGraph.setData(statisticalReportService.calculateTotalHarvestPerTypeCrop(parcelId, dateFrom, dateUntil));
+      modifiedStatisticalGraph.setLabels(statisticalReportService.findTypeCropNamesCalculatedPerTotalHarvestPerTypeCrop(parcelId, dateFrom, dateUntil));
+      modifiedStatisticalGraph.setAverage(UtilMath.truncateToTwoDigits(statisticalReportService.calculateAverageHarvest(parcelId, dateFrom, dateUntil)));
+      modifiedStatisticalGraph.setText("Y: Cantidad cosechada [kg], X: Tipo de cultivo, Parcela: " + parcel.getName()
+              + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
+              + ", Cant. total cosechada [kg]: " + statisticalReportService.calculateTotalHarvestPerPeriod(parcelId, dateFrom, dateUntil));
+
+      statisticalGraphService.modify(userId, statisticalGraphId, modifiedStatisticalGraph);
+      return Response.status(Response.Status.OK).build();
+    }
+
+    /*
+     * Si el numero del dato estadistico a calcular es el
+     * valor de la constante TOTAL_HARVEST_PER_TYPE_CROP_AND_YEAR,
+     * se calcula la cantidad total cosechada [kg] (rendimiento)
+     * por tipo de cultivo y año de los tipos de cultivos
+     * cosechados en una parcela durante un periodo definido
+     * por dos fechas
+     */
+    if (statisticalDataNumber == TOTAL_HARVEST_PER_TYPE_CROP_AND_YEAR) {
+      List<String> typeCropNames = statisticalReportService.findTypeCropNamesCalculatedPerTotalHarvestPerTypeCropAndYear(parcelId, dateFrom, dateUntil);
+      List<Integer> harvestYears = statisticalReportService.findYearsCalculatedPerTotalHarvestPerTypeCropAndYear(parcelId, dateFrom, dateUntil);
+
+      /*
+       * Arma las etiquetas <cultivo> (<año>) para el grafico
+       * de barras correspondiente al informe estadistico
+       * solicitado
+       */
+      List<String> labels = statisticalReportService.setLabelsWithCropAndYear(typeCropNames, harvestYears);
+
+      modifiedStatisticalGraph.setData(statisticalReportService.calculateTotalHarvestPerTypeCropAndYear(parcelId, dateFrom, dateUntil));
+      modifiedStatisticalGraph.setLabels(labels);
+      modifiedStatisticalGraph.setAverage(UtilMath.truncateToTwoDigits(statisticalReportService.calculateAverageHarvest(parcelId, dateFrom, dateUntil)));
+      modifiedStatisticalGraph.setText("Y: Cantidad cosechada [kg], X: Tipo de cultivo (año), Parcela: " + parcel.getName()
+              + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
+              + ", Cant. total cosechada [kg]: " + statisticalReportService.calculateTotalHarvestPerPeriod(parcelId, dateFrom, dateUntil));
+
+      statisticalGraphService.modify(userId, statisticalGraphId, modifiedStatisticalGraph);
+      return Response.status(Response.Status.OK).build();
+    }
+
+    /*
+     * Si el numero del dato estadistico a calcular es el
+     * valor de la constante LIFE_CYCLES_OF_PLANTED_CROPS,
+     * se obtienen los ciclos de vida [dias] de los cultivos
+     * sembrados en una parcela durante un periodo definido
+     * por dos fechas
+     */
+    if (statisticalDataNumber == LIFE_CYCLES_OF_PLANTED_CROPS) {
+      modifiedStatisticalGraph.setData(statisticalReportService.findLifeCyclesCropsPlantedPerPeriod(parcelId, dateFrom, dateUntil));
+      modifiedStatisticalGraph.setLabels(statisticalReportService.findNamesCropPlantedPerPeriod(parcelId, dateFrom, dateUntil));
+      modifiedStatisticalGraph.setText("Y: Ciclo de vida [días], X: Cultivo, Parcela: " + parcel.getName()
+              + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil));
+
+      statisticalGraphService.modify(userId, statisticalGraphId, modifiedStatisticalGraph);
+      return Response.status(Response.Status.OK).build();
+    }
+
+    /*
+     * Si el numero del dato estadistico a calcular es el
+     * valor de la constante TOTAL_NUMBER_PLANTATIONS_PER_YEAR,
+     * se calcula la cantidad total de plantaciones por año
+     * que se realizaron sobre una parcela durante un periodo
+     * definido por dos fechas
+     */
+    if (statisticalDataNumber == TOTAL_NUMBER_PLANTATIONS_PER_YEAR) {
+      modifiedStatisticalGraph.setData(statisticalReportService.calculateTotalNumberPlantationsPerYear(parcelId, dateFrom, dateUntil));
+      modifiedStatisticalGraph.setLabels(statisticalReportService.findYearsOfCalculationTotalNumberPlantationsPerYear(parcelId, dateFrom, dateUntil));
+      modifiedStatisticalGraph.setText("Y: Cantidad de plantaciones, X: Año, Parcela: " + parcel.getName()
+              + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
+              + ", Cant. total de plantaciones: "
+              + statisticalReportService.calculateTotalNumberPlantationsPerPeriod(parcelId, dateFrom, dateUntil));
+
+      statisticalGraphService.modify(userId, statisticalGraphId, modifiedStatisticalGraph);
+      return Response.status(Response.Status.OK).build();
+    }
+
+    /*
+     * Si el numero del dato estadistico a calcular es el
+     * valor de la constante TOTAL_AMOUNT_OF_CROP_IRRIGATION_WATER_PER_YEAR,
+     * se calcula la cantidad total de agua de riego de cultivo
+     * por año de los cultivos sembrados en una parcela durante
+     * un periodo definido por dos fechas
+     */
+    if (statisticalDataNumber == TOTAL_AMOUNT_OF_CROP_IRRIGATION_WATER_PER_YEAR) {
+      modifiedStatisticalGraph.setData(statisticalReportService.calculateTotalAmountCropIrrigationWaterPerYear(parcelId, dateFrom, dateUntil));
+      modifiedStatisticalGraph.setLabels(statisticalReportService.findYearsOfCalculationTotalAmountCropIrrigationWaterPerYear(parcelId, dateFrom, dateUntil));
+      modifiedStatisticalGraph.setAverage(UtilMath.truncateToTwoDigits(statisticalReportService.calculateAverageCropIrrigationWater(parcelId, dateFrom, dateUntil)));
+      modifiedStatisticalGraph.setText("Y: Cantidad de agua de riego [mm], X: Año, Parcela: " + parcel.getName()
+              + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
+              + ", Cant. total de agua de riego [mm]: "
+              + statisticalReportService.calculateTotalAmountCropIrrigationWaterPerPeriod(parcelId, dateFrom, dateUntil));
+
+      statisticalGraphService.modify(userId, statisticalGraphId, modifiedStatisticalGraph);
+      return Response.status(Response.Status.OK).build();
+    }
+
+    /*
+     * Si el numero del dato estadistico a calcular es el
+     * valor de la constante TOTAL_AMOUNT_OF_HARVEST_PER_YEAR,
+     * se calcula la cantidad total de cosecha por año de una
+     * parcela durante un periodo definido por dos fechas
+     */
+    if (statisticalDataNumber == TOTAL_AMOUNT_OF_HARVEST_PER_YEAR) {
+      modifiedStatisticalGraph.setData(statisticalReportService.calculateTotalHarvestAmountPerYear(parcelId, dateFrom, dateUntil));
+      modifiedStatisticalGraph.setLabels(statisticalReportService.findYearsOfCalculationTotalAmountHarvestPerYear(parcelId, dateFrom, dateUntil));
+      modifiedStatisticalGraph.setAverage(UtilMath.truncateToTwoDigits(statisticalReportService.calculateAverageHarvest(parcelId, dateFrom, dateUntil)));
+      modifiedStatisticalGraph.setText("Y: Cantidad cosechada [kg], X: Año, Parcela: " + parcel.getName()
+              + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
+              + ", Cant. total cosechada [kg]: "
+              + statisticalReportService.calculateTotalHarvestPerPeriod(parcelId, dateFrom, dateUntil));
+
+      statisticalGraphService.modify(userId, statisticalGraphId, modifiedStatisticalGraph);
+      return Response.status(Response.Status.OK).build();
+    }
+
+    /*
+     * Si el numero del dato estadistico a calcular NO es igual
+     * al valor de ninguna de las constantes para las que hay
+     * controles, se calcula la cantidad total de agua de lluvia
+     * que cayo por año sobre una parcela en un periodo definido
+     * por dos fechas
+     */
+    modifiedStatisticalGraph.setData(statisticalReportService.calculateTotalAmountRainwaterPerYear(parcelId, dateFrom, dateUntil));
+    modifiedStatisticalGraph.setLabels(statisticalReportService.findYearsOfCalculationTotalAmountRainwater(parcelId, dateFrom, dateUntil));
+    modifiedStatisticalGraph.setAverage(statisticalReportService.calculateAverageRainwaterPerPeriod(parcelId, dateFrom, dateUntil));
+    modifiedStatisticalGraph.setText("Y: Cantidad de agua de lluvia [mm], X: Año, Parcela: " + parcel.getName()
+            + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
+            + ", Cant. total de agua de lluvia [mm]: "
+            + statisticalReportService.calculateTotalAmountRainwaterPerPeriod(parcelId, dateFrom, dateUntil));
+
+    statisticalGraphService.modify(userId, statisticalGraphId, modifiedStatisticalGraph);
+
+    /*
+     * Si el valor del encabezado de autorizacion de la peticion HTTP
+     * dada, tiene un JWT valido, la aplicacion del lado servidor
+     * devuelve el mensaje HTTP 200 (Ok)
+     */
+    return Response.status(Response.Status.OK).build();
   }
 
   @DELETE

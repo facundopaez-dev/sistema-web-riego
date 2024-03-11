@@ -86,7 +86,7 @@ app.controller(
         authHeaderManager.setJwtAuthHeader();
       }
 
-      if (['new', 'view'].indexOf($params.action) == -1) {
+      if (['new', 'view', 'recalculate'].indexOf($params.action) == -1) {
         alert("Acción inválida: " + $params.action);
         $location.path("/home/statisticalReports");
       }
@@ -202,6 +202,18 @@ app.controller(
 
           } // End if
 
+        });
+      }
+
+      function recalculate(id) {
+        statisticalReportService.recalculate(id, function (error) {
+          if (error) {
+            console.log(error);
+            errorResponseManager.checkResponse(error);
+            return;
+          }
+
+          $location.path("/home/statisticalReports")
         });
       }
 
@@ -327,6 +339,10 @@ app.controller(
 
       if ($scope.action == 'view') {
         find($params.id);
+      }
+
+      if ($scope.action == 'recalculate') {
+        recalculate($params.id);
       }
 
       findAllStatisticalData();
