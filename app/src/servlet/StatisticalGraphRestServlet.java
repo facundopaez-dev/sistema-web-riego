@@ -30,10 +30,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import model.Parcel;
 import model.StatisticalGraph;
-import model.StatisticalGraph;
 import stateless.StatisticalGraphServiceBean;
 import stateless.StatisticalReportServiceBean;
-import stateless.TypePrecipitationServiceBean;
 import stateless.SecretKeyServiceBean;
 import stateless.ClimateRecordServiceBean;
 import stateless.ParcelServiceBean;
@@ -69,9 +67,6 @@ public class StatisticalGraphRestServlet {
 
   @EJB
   ClimateRecordServiceBean climateRecordService;
-
-  @EJB
-  TypePrecipitationServiceBean typePrecipService;
 
   @EJB
   PlantingRecordServiceBean plantingRecordService;
