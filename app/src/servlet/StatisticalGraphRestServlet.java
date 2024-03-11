@@ -99,11 +99,10 @@ public class StatisticalGraphRestServlet {
   private final int TOTAL_AMOUNT_IRRIGATION_WATER_PER_TYPE_CROP_AND_YEAR = 10;
   private final int TOTAL_HARVEST_PER_TYPE_CROP = 11;
   private final int TOTAL_HARVEST_PER_TYPE_CROP_AND_YEAR = 12;
-  private final int LIFE_CYCLES_OF_PLANTED_CROPS = 13;
-  private final int TOTAL_NUMBER_PLANTATIONS_PER_YEAR = 14;
-  private final int TOTAL_AMOUNT_OF_CROP_IRRIGATION_WATER_PER_YEAR = 15;
-  private final int TOTAL_AMOUNT_OF_HARVEST_PER_YEAR = 16;
-  private final int TOTAL_AMOUNT_RAINWATER_PER_YEAR = 17;
+  private final int TOTAL_NUMBER_PLANTATIONS_PER_YEAR = 13;
+  private final int TOTAL_AMOUNT_OF_CROP_IRRIGATION_WATER_PER_YEAR = 14;
+  private final int TOTAL_AMOUNT_OF_HARVEST_PER_YEAR = 15;
+  private final int TOTAL_AMOUNT_RAINWATER_PER_YEAR = 16;
 
   @GET
   @Path("/findAllPagination")
@@ -654,9 +653,6 @@ public class StatisticalGraphRestServlet {
      * - de la cantidad de veces que se plantaron los
      * tipos de cultivos por año en una parcela en un
      * periodo definido por dos fechas
-     * - de los ciclos de vida de los cultivos sembrados
-     * en una parcela en un periodo definido por dos
-     * fechas
      * - de la cantidad total de plantaciones por año
      * sobre una parcela en un periodo definido por dos
      * fechas,
@@ -669,7 +665,6 @@ public class StatisticalGraphRestServlet {
         || statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_CROP_AND_YEAR
         || statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_TYPE_CROP
         || statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_TYPE_CROP_AND_YEAR
-        || statisticalDataNumber == LIFE_CYCLES_OF_PLANTED_CROPS
         || statisticalDataNumber == TOTAL_NUMBER_PLANTATIONS_PER_YEAR)
         && !plantingRecordService.hasFinishedPlantingRecords(userId, parcelId)) {
       return Response.status(Response.Status.BAD_REQUEST)
@@ -691,9 +686,6 @@ public class StatisticalGraphRestServlet {
      * - de la cantidad de veces que se plantaron los
      * cultivos por año en una parcela en un periodo
      * definido por dos fechas
-     * - de los ciclos de vida de los cultivos sembrados
-     * en una parcela en un periodo definido por dos
-     * fechas
      * - de la cantidad total de plantaciones por año
      * sobre una parcela en un periodo definido por dos
      * fechas,
@@ -706,7 +698,6 @@ public class StatisticalGraphRestServlet {
         || statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_CROP_AND_YEAR
         || statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_TYPE_CROP
         || statisticalDataNumber == TOTAL_AMOUNT_PLANTATIONS_PER_TYPE_CROP_AND_YEAR
-        || statisticalDataNumber == LIFE_CYCLES_OF_PLANTED_CROPS
         || statisticalDataNumber == TOTAL_NUMBER_PLANTATIONS_PER_YEAR)
         && !plantingRecordService.hasFinishedPlantingRecords(userId, parcelId, dateFrom, dateUntil)) {
       return Response.status(Response.Status.BAD_REQUEST)
@@ -1153,22 +1144,6 @@ public class StatisticalGraphRestServlet {
       newStatisticalGraph.setText("Y: Cantidad cosechada [kg], X: Tipo de cultivo (año), Parcela: " + newStatisticalGraph.getParcel().getName()
               + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
               + ", Cant. total cosechada [kg]: " + statisticalReportService.calculateTotalHarvestPerPeriod(parcelId, dateFrom, dateUntil));
-
-      return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(statisticalGraphService.create(newStatisticalGraph))).build();
-    }
-
-    /*
-     * Si el numero del dato estadistico a calcular es el
-     * valor de la constante LIFE_CYCLES_OF_PLANTED_CROPS,
-     * se obtienen los ciclos de vida [dias] de los cultivos
-     * sembrados en una parcela durante un periodo definido
-     * por dos fechas
-     */
-    if (statisticalDataNumber == LIFE_CYCLES_OF_PLANTED_CROPS) {
-      newStatisticalGraph.setData(statisticalReportService.findLifeCyclesCropsPlantedPerPeriod(parcelId, dateFrom, dateUntil));
-      newStatisticalGraph.setLabels(statisticalReportService.findNamesCropPlantedPerPeriod(parcelId, dateFrom, dateUntil));
-      newStatisticalGraph.setText("Y: Ciclo de vida [días], X: Cultivo, Parcela: " + newStatisticalGraph.getParcel().getName()
-              + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil));
 
       return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(statisticalGraphService.create(newStatisticalGraph))).build();
     }
@@ -1657,23 +1632,6 @@ public class StatisticalGraphRestServlet {
       modifiedStatisticalGraph.setText("Y: Cantidad cosechada [kg], X: Tipo de cultivo (año), Parcela: " + parcel.getName()
               + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil)
               + ", Cant. total cosechada [kg]: " + statisticalReportService.calculateTotalHarvestPerPeriod(parcelId, dateFrom, dateUntil));
-
-      statisticalGraphService.modify(userId, statisticalGraphId, modifiedStatisticalGraph);
-      return Response.status(Response.Status.OK).build();
-    }
-
-    /*
-     * Si el numero del dato estadistico a calcular es el
-     * valor de la constante LIFE_CYCLES_OF_PLANTED_CROPS,
-     * se obtienen los ciclos de vida [dias] de los cultivos
-     * sembrados en una parcela durante un periodo definido
-     * por dos fechas
-     */
-    if (statisticalDataNumber == LIFE_CYCLES_OF_PLANTED_CROPS) {
-      modifiedStatisticalGraph.setData(statisticalReportService.findLifeCyclesCropsPlantedPerPeriod(parcelId, dateFrom, dateUntil));
-      modifiedStatisticalGraph.setLabels(statisticalReportService.findNamesCropPlantedPerPeriod(parcelId, dateFrom, dateUntil));
-      modifiedStatisticalGraph.setText("Y: Ciclo de vida [días], X: Cultivo, Parcela: " + parcel.getName()
-              + ", Período: " + UtilDate.formatDate(dateFrom) + " - " + UtilDate.formatDate(dateUntil));
 
       statisticalGraphService.modify(userId, statisticalGraphId, modifiedStatisticalGraph);
       return Response.status(Response.Status.OK).build();
