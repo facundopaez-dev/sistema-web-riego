@@ -1197,6 +1197,32 @@ public class IrrigationRecordRestServlet {
     }
 
     IrrigationWaterNeedFormData irrigationWaterNeedFormData = mapper.readValue(json, IrrigationWaterNeedFormData.class);
+
+    int developingPlantingRecordId = plantingRecordService.findInDevelopment(irrigationWaterNeedFormData.getParcel().getId()).getId();
+    double irrigationDone = irrigationWaterNeedFormData.getIrrigationDone();
+    double cropIrrigationWaterNeed = irrigationWaterNeedFormData.getCropIrrigationWaterNeed();
+
+    /*
+     * Si el riego realizado en la fecha actual (es decir, hoy)
+     * [mm/dia] es mayor o igual a la necesidad de agua de riego
+     * de un cultivo en la fecha actual [mm/dia], dicha necesidad
+     * es igual a 0. En cambio, si el riego realizado en la fecha
+     * actual es estrictamente menor a la necesidad de agua de
+     * riego de un cultivo en la fecha actual, dicha necesidad es
+     * el resultado de la diferencia entre ella y el riego realizado
+     * en la fecha actual. Esto se utiliza para actualizar el atributo
+     * "necesidad de agua de riego de un cultivo en la fecha actual"
+     * del registro de plantacion en desarrollo de una parcela.
+     * 
+     * Este metodo REST se invoca unicamente para el registro de
+     * plantacion en desarrollo de una parcela.
+     */
+    if (irrigationDone >= cropIrrigationWaterNeed) {
+      plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecordId, String.valueOf(0.0));
+    } else {
+      plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecordId, String.valueOf(cropIrrigationWaterNeed - irrigationDone));
+    }
+
     IrrigationRecord newIrrigationRecord = new IrrigationRecord();
     newIrrigationRecord.setDate(UtilDate.getCurrentDate());
     newIrrigationRecord.setParcel(irrigationWaterNeedFormData.getParcel());
