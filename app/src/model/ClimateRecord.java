@@ -482,8 +482,8 @@ public class ClimateRecord {
     return String.format(
         "ID: %d\nLatitud: %f (grados decimales) Longitud: %f (grados decimales)\nFecha: %s\nPrecipitación del día: %f milímetros/día\nProbabilidad de precipitación: %f [porcentaje 0 - 100]\nPunto de rocío: %f °C\nPresión atmosférica: %f hectopascales (milibares)\nVelocidad del viento: %f kilómetros/por hora\nNubosidad: %f [porcentaje 0 - 100]\nTemperatura mínima: %f °C\nTemperatura máxima: %f °C\n",
         id,
-        parcel.getLatitude(),
-        parcel.getLongitude(),
+        parcel.getGeographicLocation().getLatitude(),
+        parcel.getGeographicLocation().getLongitude(),
         UtilDate.formatDate(date),
         precip,
         precipProbability,

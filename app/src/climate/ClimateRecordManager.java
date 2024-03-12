@@ -116,8 +116,7 @@ public class ClimateRecordManager {
            * Obtiene un registro climatico que contiene los datos
            * del conjunto de datos meteorologicos devuelto por la
            * API Visual Crossing Weather mediante la fecha actual
-           * en formato UNIX y las coordenadas geograficas de la
-           * parcela dada
+           * en formato UNIX y la ubicacion geografica de una parcela
            */
           currentClimateRecord = ClimateClient.getForecast(givenParcel, currentDate, typePrecipService.findAll());
         } catch (Exception e) {
@@ -181,12 +180,12 @@ public class ClimateRecordManager {
    * parcela y una fecha dada
    */
   private double calculateEtoForClimateRecord(ClimateRecord givenClimateRecord) {
-    Parcel givenParcel = givenClimateRecord.getParcel();
-    double extraterrestrialSolarRadiation = solarService.getRadiation(givenParcel.getLatitude(),
+    Parcel parcel = givenClimateRecord.getParcel();
+    double extraterrestrialSolarRadiation = solarService.getRadiation(parcel.getGeographicLocation().getLatitude(),
         monthService.getMonth(givenClimateRecord.getDate().get(Calendar.MONTH)),
-        latitudeService.find(givenParcel.getLatitude()),
-        latitudeService.findPreviousLatitude(givenParcel.getLatitude()),
-        latitudeService.findNextLatitude(givenParcel.getLatitude()));
+        latitudeService.find(parcel.getGeographicLocation().getLatitude()),
+        latitudeService.findPreviousLatitude(parcel.getGeographicLocation().getLatitude()),
+        latitudeService.findNextLatitude(parcel.getGeographicLocation().getLatitude()));
 
     /*
      * Calculo de la evapotranspiracion del cultivo de

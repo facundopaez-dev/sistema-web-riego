@@ -3678,10 +3678,10 @@ public class PlantingRecordRestServlet {
    */
   private double calculateEtoForClimateRecord(ClimateRecord givenClimateRecord) {
     Parcel parcel = givenClimateRecord.getParcel();
-    double extraterrestrialSolarRadiation = solarService.getRadiation(parcel.getLatitude(),
-        monthService.getMonth(givenClimateRecord.getDate().get(Calendar.MONTH)), latitudeService.find(parcel.getLatitude()),
-        latitudeService.findPreviousLatitude(parcel.getLatitude()),
-        latitudeService.findNextLatitude(parcel.getLatitude()));
+    double extraterrestrialSolarRadiation = solarService.getRadiation(parcel.getGeographicLocation().getLatitude(),
+        monthService.getMonth(givenClimateRecord.getDate().get(Calendar.MONTH)), latitudeService.find(parcel.getGeographicLocation().getLatitude()),
+        latitudeService.findPreviousLatitude(parcel.getGeographicLocation().getLatitude()),
+        latitudeService.findNextLatitude(parcel.getGeographicLocation().getLatitude()));
 
     /*
      * Calculo de la evapotranspiracion del cultivo de

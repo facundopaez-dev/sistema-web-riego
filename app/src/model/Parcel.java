@@ -10,6 +10,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.persistence.CascadeType;
 import javax.persistence.OneToOne;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
@@ -29,14 +30,12 @@ public class Parcel {
   @Column(name = "HECTARES", nullable = false)
   private double hectares;
 
-  @Column(name = "LATITUDE", nullable = false)
-  private double latitude; // en grados decimales
-
-  @Column(name = "LONGITUDE", nullable = false)
-  private double longitude; // en grados decimales
-
   @Column(name = "ACTIVE", nullable = false)
   private boolean active;
+
+  @OneToOne(cascade = CascadeType.PERSIST)
+  @JoinColumn(name = "FK_GEOGRAPHIC_LOCATION", nullable = false, unique = true)
+  private GeographicLocation geographicLocation;
 
   @OneToOne
   @JoinColumn(name = "FK_OPTION", nullable = false, unique = true)
@@ -100,42 +99,6 @@ public class Parcel {
   }
 
   /**
-   * Returns value of latitude
-   * 
-   * @return
-   */
-  public double getLatitude() {
-    return latitude;
-  }
-
-  /**
-   * Sets new value of latitude
-   * 
-   * @param
-   */
-  public void setLatitude(double latitude) {
-    this.latitude = latitude;
-  }
-
-  /**
-   * Returns value of longitude
-   * 
-   * @return
-   */
-  public double getLongitude() {
-    return longitude;
-  }
-
-  /**
-   * Sets new value of longitude
-   * 
-   * @param
-   */
-  public void setLongitude(double longitude) {
-    this.longitude = longitude;
-  }
-
-  /**
    * Returns value of active
    * 
    * @return
@@ -151,6 +114,14 @@ public class Parcel {
    */
   public void setActive(boolean active) {
     this.active = active;
+  }
+
+  public GeographicLocation getGeographicLocation() {
+    return geographicLocation;
+  }
+
+  public void setGeographicLocation(GeographicLocation geographicLocation) {
+    this.geographicLocation = geographicLocation;
   }
 
   public Option getOption() {
@@ -184,8 +155,8 @@ public class Parcel {
         id,
         name,
         hectares,
-        latitude,
-        longitude,
+        geographicLocation.getLatitude(),
+        geographicLocation.getLongitude(),
         active);
   }
 

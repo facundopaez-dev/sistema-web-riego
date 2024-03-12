@@ -23,6 +23,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import model.Crop;
+import model.GeographicLocation;
 import model.Option;
 import model.Parcel;
 import model.PlantingRecord;
@@ -35,6 +36,7 @@ import stateless.PlantingRecordServiceBean;
 import stateless.PlantingRecordStatusServiceBean;
 import stateless.SessionServiceBean;
 import stateless.SoilServiceBean;
+import stateless.GeographicLocationServiceBean;
 import stateless.OptionServiceBean;
 import stateless.Page;
 import util.ErrorResponse;
@@ -57,6 +59,7 @@ public class ParcelRestServlet {
   @EJB OptionServiceBean optionService;
   @EJB SoilServiceBean soilService;
   @EJB PlantingRecordStatusServiceBean statusService;
+  @EJB GeographicLocationServiceBean geographicLocationService;
 
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
@@ -1199,8 +1202,18 @@ public class ParcelRestServlet {
      */
     String cropIrrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getCropIrrigationWaterNotAvailableButCalculable();
 
-    double currentLatitude = parcelService.find(parcelId).getLatitude();
-    double currentLongitude = parcelService.find(parcelId).getLongitude();
+    GeographicLocation currentGeographicLocation = parcelService.find(parcelId).getGeographicLocation();
+    double currentLatitude = currentGeographicLocation.getLatitude();
+    double currentLongitude = currentGeographicLocation.getLongitude();
+
+    /*
+     * Si la latitud y/o la longitud de la ubicacion geografica de
+     * una parcela es modificada, se actualiza la latitud y/o longitud
+     * de la ubicacion geografica en la base de datos subyacente
+     */
+    if (modifiedParcel.getGeographicLocation().getLatitude() != currentLatitude || modifiedParcel.getGeographicLocation().getLongitude() != currentLongitude) {
+      geographicLocationService.modify(currentGeographicLocation.getId(), modifiedParcel.getGeographicLocation());
+    }
 
     /*
      * Si una parcela tiene un registro de plantacion que tiene un
@@ -1222,7 +1235,8 @@ public class ParcelRestServlet {
      * de un cultivo en la fecha actual" del registro de
      * plantacion en desarrollo de una parcela.
      */
-    if ((modifiedParcel.getLatitude() != currentLatitude || modifiedParcel.getLongitude() != currentLongitude)
+    if ((modifiedParcel.getGeographicLocation().getLatitude() != currentLatitude
+        || modifiedParcel.getGeographicLocation().getLongitude() != currentLongitude)
         && plantingRecordService.checkOneInDevelopment(parcelId)) {
       int developingPlantingRecordId = plantingRecordService.findInDevelopment(parcelId).getId();
       plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecordId, cropIrrigationWaterNeedNotAvailableButCalculable);

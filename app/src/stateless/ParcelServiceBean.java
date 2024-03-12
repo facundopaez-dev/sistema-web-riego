@@ -88,8 +88,6 @@ public class ParcelServiceBean {
     if (chosenParcel != null) {
       chosenParcel.setName(modifiedParcel.getName());
       chosenParcel.setHectares(modifiedParcel.getHectares());
-      chosenParcel.setLongitude(modifiedParcel.getLongitude());
-      chosenParcel.setLatitude(modifiedParcel.getLatitude());
       chosenParcel.setActive(modifiedParcel.getActive());
       chosenParcel.setSoil(modifiedParcel.getSoil());
       return chosenParcel;

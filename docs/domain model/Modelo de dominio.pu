@@ -24,14 +24,19 @@ Contraseña "1" --> "1" Usuario
 Parcela "1" --> "*" BalanceHidricoSuelo
 Cosecha "*" --> "1" Parcela
 Cosecha "*" --> "1" Cultivo
+Parcela "1" --> "1" UbicacionGeografica
 
 class Parcela {
 -id
 -nombre
 -hectareas
+-activa
+}
+
+class UbicacionGeografica {
+-id
 -latitud
 -longitud
--activa
 }
 
 class Cosecha {

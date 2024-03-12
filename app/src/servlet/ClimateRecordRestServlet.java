@@ -819,10 +819,10 @@ public class ClimateRecordRestServlet {
      * de referencia) [mm/dia] para el registro climatico
      */
     Parcel givenParcel = newClimateRecord.getParcel();
-    double extraterrestrialSolarRadiation = solarService.getRadiation(givenParcel.getLatitude(),
-        monthService.getMonth(newClimateRecord.getDate().get(Calendar.MONTH)), latitudeService.find(givenParcel.getLatitude()),
-        latitudeService.findPreviousLatitude(givenParcel.getLatitude()),
-        latitudeService.findNextLatitude(givenParcel.getLatitude()));
+    double extraterrestrialSolarRadiation = solarService.getRadiation(givenParcel.getGeographicLocation().getLatitude(),
+        monthService.getMonth(newClimateRecord.getDate().get(Calendar.MONTH)), latitudeService.find(givenParcel.getGeographicLocation().getLatitude()),
+        latitudeService.findPreviousLatitude(givenParcel.getGeographicLocation().getLatitude()),
+        latitudeService.findNextLatitude(givenParcel.getGeographicLocation().getLatitude()));
 
     double eto = HargreavesEto.calculateEto(newClimateRecord.getMaximumTemperature(), newClimateRecord.getMinimumTemperature(), extraterrestrialSolarRadiation);
 
@@ -1166,10 +1166,10 @@ public class ClimateRecordRestServlet {
      * de referencia) [mm/dia] para el registro climatico
      */
     Parcel givenParcel = modifiedClimateRecord.getParcel();
-    double extraterrestrialSolarRadiation = solarService.getRadiation(givenParcel.getLatitude(),
-        monthService.getMonth(modifiedClimateRecord.getDate().get(Calendar.MONTH)), latitudeService.find(givenParcel.getLatitude()),
-        latitudeService.findPreviousLatitude(givenParcel.getLatitude()),
-        latitudeService.findNextLatitude(givenParcel.getLatitude()));
+    double extraterrestrialSolarRadiation = solarService.getRadiation(givenParcel.getGeographicLocation().getLatitude(),
+        monthService.getMonth(modifiedClimateRecord.getDate().get(Calendar.MONTH)), latitudeService.find(givenParcel.getGeographicLocation().getLatitude()),
+        latitudeService.findPreviousLatitude(givenParcel.getGeographicLocation().getLatitude()),
+        latitudeService.findNextLatitude(givenParcel.getGeographicLocation().getLatitude()));
 
     double eto = HargreavesEto.calculateEto(modifiedClimateRecord.getMaximumTemperature(), modifiedClimateRecord.getMinimumTemperature(), extraterrestrialSolarRadiation);
 

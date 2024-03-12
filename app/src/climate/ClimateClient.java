@@ -45,7 +45,7 @@ public class ClimateClient {
   /*
    * URL incompleto del servicio web a utilizar para
    * obtener los datos meteorologicos en base a una fecha
-   * y una coordenada geografica
+   * y una ubicacion geografica
    */
   private static final String INCOMPLETE_WEATHER_URL = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/";
   private static final String API_KEY = "key=YOUR_VISUAL_CROSSING_WEATHER_API_KEY";
@@ -79,7 +79,7 @@ public class ClimateClient {
    * @param typesPrecip
    * @return referencia a un objeto de tipo ClimateRecord que
    * contiene los datos meteorologicos obtenidos en funcion
-   * de una fecha y una coordenada geografica
+   * de una fecha y una ubicacion geografica
    */
   public static ClimateRecord getForecast(Parcel parcel, Calendar date, Collection<TypePrecipitation> typesPrecip) throws IOException {
     ClimateRecord newClimateRecord = new ClimateRecord();
@@ -89,7 +89,7 @@ public class ClimateClient {
      * Obtiene los datos meteorologicos para una parcela
      * mediante su latitud y longitud, en una fecha dada
      */
-    Forecast newForecast = requestWeatherData(parcel.getLatitude(), parcel.getLongitude(), date);
+    Forecast newForecast = requestWeatherData(parcel.getGeographicLocation().getLatitude(), parcel.getGeographicLocation().getLongitude(), date);
 
     /*
      * Asigna los datos meteorologicos contenidos en el objeto
@@ -116,7 +116,7 @@ public class ClimateClient {
    * @param typesPrecip
    * @return referencia a un objeto de tipo ClimateRecord que
    * contiene los datos meteorologicos obtenidos en funcion
-   * de una fecha y una coordenada geografica
+   * de una fecha y una ubicacion geografica
    */
   public static ClimateRecord getForecast(double latitude, double longitude, Calendar date, Collection<TypePrecipitation> typesPrecip) throws IOException {
     ClimateRecord newClimateRecord = new ClimateRecord();

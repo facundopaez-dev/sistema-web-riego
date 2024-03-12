@@ -100,7 +100,7 @@ app.controller(
       const PARCEL_NAME_UNDEFINED = "El nombre de la parcela debe estar definido";
       const INVALID_PARCEL_NAME = "El nombre de una parcela debe empezar con una palabra formada únicamente por caracteres alfabéticos. Puede haber más de una palabra formada únicamente por caracteres alfabéticos y puede haber palabras formadas únicamente por caracteres numéricos. Todas las palabras deben estar separadas por un espacio en blanco.";
       const INVALID_NUMBER_OF_HECTARES = "La cantidad de hectáreas debe ser mayor a 0.0";
-      const UNDEFINED_GEOGRAPHIC_COORDINATE = "La coordenada geográfica de la parcela debe estar definida";
+      const UNDEFINED_GEOGRAPHIC_LOCATION = "La ubicación geográfica de la parcela debe estar definida";
 
       function find(id) {
         parcelService.find(id, function (error, data) {
@@ -125,8 +125,8 @@ app.controller(
           geografica de la misma
           */
           $scope.markers.push({
-            lat: $scope.data.latitude,
-            lng: $scope.data.longitude,
+            lat: $scope.data.geographicLocation.latitude,
+            lng: $scope.data.geographicLocation.longitude,
             message: "¡Soy un marcador!",
             icon: icondata
           });
@@ -206,26 +206,18 @@ app.controller(
         correspondiente a esta funcion.
         */
         if ($scope.markers[0] == undefined) {
-          alert(UNDEFINED_GEOGRAPHIC_COORDINATE);
+          alert(UNDEFINED_GEOGRAPHIC_LOCATION);
           return;
         }
 
-        /*
-        Si la propiedad data de $scope NO tiene el valor undefined
-        (lo cual, aparentemente ocurre cuando se completa un campo
-        del formulario de la parcela) se crean (aparentemente) las
-        propiedades latitude y longitude en data y se le asignan
-        la latitud y la longitud elegidas en el mapa
-        */
-        if ($scope.data != undefined) {
-          /*
-          Las coordendas geograficas del marcador colocado en el mapa por
-          parte del usuario, mediante el formulario de creacion, son cargadas
-          en los atributos latitud y longitud de la parcela a crear
-          */
-          $scope.data.latitude = $scope.markers[0].lat;
-          $scope.data.longitude = $scope.markers[0].lng;
-        }
+        /* Crea una ubicacion geografica con la latitud y la
+        longitud elegidas por el usuario */
+        var geographicLocation = {
+          latitude: $scope.markers[0].lat,
+          longitude: $scope.markers[0].lng
+        };
+
+        $scope.data.geographicLocation = geographicLocation;
 
         parcelService.create($scope.data, function (error, data) {
           if (error) {
@@ -279,10 +271,11 @@ app.controller(
         /*
         Las coordendas geograficas del marcador colocado en el mapa por
         parte del usuario, mediante el formulario de parcela, son cargadas
-        en los atributos latitud y longitud de la parcela a modificar
+        en los atributos latitud y longitud de la ubicacion geografica de
+        la parcela a modificar
         */
-        $scope.data.latitude = $scope.markers[0].lat;
-        $scope.data.longitude = $scope.markers[0].lng;
+        $scope.data.geographicLocation.latitude = $scope.markers[0].lat;
+        $scope.data.geographicLocation.longitude = $scope.markers[0].lng;
 
         parcelService.modify($scope.data, function (error, data) {
           if (error) {
