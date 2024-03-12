@@ -129,11 +129,6 @@ app.config(['$routeProvider', function (routeprovider) {
 			controller: 'PlantingRecordCtrl'
 		})
 
-		.when('/home/calculateCropIrrigationWaterNeed/:id', {
-			templateUrl: 'partials/user/irrigation-water-need-form.html',
-			controller: 'IrrigationWaterNeedFormCtrl'
-		})
-
 		.when('/home/statisticalReports', {
 			templateUrl: 'partials/user/statistical-report-list.html',
 			controller: 'StatisticalReportsCtrl'
