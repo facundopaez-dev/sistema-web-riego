@@ -452,11 +452,11 @@ public class StatisticalReportServiceBean {
    * @param dateUntil
    * @return referencia a un objeto de tipo List<Integer> que
    * contiene los valores que representan la cantidad total de
-   * plantaciones por año que hubo en una parcela en un periodo
-   * definido por dos fechas
+   * de ciclos (plantaciones) por año realizados en una parcela
+   * en un periodo definido por dos fechas
    */
-  public List<Integer> calculateTotalNumberPlantationsPerYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
-    String subQuery = "SELECT RESULT_TABLE_TWO.SEED_YEAR, COUNT(RESULT_TABLE_TWO.CROP_ID) AS TOTAL_NUMBER_PLANTATIONS_PER_YEAR "
+  public List<Integer> calculateTotalNumberCyclesPerYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String subQuery = "SELECT RESULT_TABLE_TWO.SEED_YEAR, COUNT(RESULT_TABLE_TWO.CROP_ID) AS TOTAL_NUMBER_CYCLES_PER_YEAR "
         + "FROM (SELECT YEAR(RESULT_TABLE.SEED_DATE) AS SEED_YEAR, RESULT_TABLE.CROP_ID FROM "
         + "(SELECT SEED_DATE, FK_CROP AS CROP_ID FROM PLANTING_RECORD "
         + "WHERE FK_PARCEL = ?1 AND FK_STATUS = 1 AND "
@@ -466,7 +466,7 @@ public class StatisticalReportServiceBean {
         + "ORDER BY SEED_DATE) AS RESULT_TABLE) AS RESULT_TABLE_TWO "
         + "GROUP BY RESULT_TABLE_TWO.SEED_YEAR";
 
-    String stringQuery = "SELECT RESULT_TABLE_THREE.TOTAL_NUMBER_PLANTATIONS_PER_YEAR FROM (" + subQuery
+    String stringQuery = "SELECT RESULT_TABLE_THREE.TOTAL_NUMBER_CYCLES_PER_YEAR FROM (" + subQuery
         + ") AS RESULT_TABLE_THREE";
 
     Query query = getEntityManager().createNativeQuery(stringQuery);
@@ -491,11 +491,11 @@ public class StatisticalReportServiceBean {
    * @param dateUntil
    * @return referencia a un objeto de tipo List<String> que
    * contiene los años para los que se calcula la cantidad
-   * total de plantaciones por año sobre una parcela en un
-   * periodo definido por dos fechas
+   * total de ciclos (plantaciones) por año realizados sobre
+   * una parcela en un periodo definido por dos fechas
    */
-  public List<String> findYearsOfCalculationTotalNumberPlantationsPerYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
-    String subQuery = "SELECT RESULT_TABLE_TWO.SEED_YEAR, COUNT(RESULT_TABLE_TWO.CROP_ID) AS TOTAL_NUMBER_PLANTATIONS_PER_YEAR "
+  public List<String> findYearsOfCalculationTotalNumberCyclesPerYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String subQuery = "SELECT RESULT_TABLE_TWO.SEED_YEAR, COUNT(RESULT_TABLE_TWO.CROP_ID) AS TOTAL_NUMBER_CYCLES_PER_YEAR "
         + "FROM (SELECT YEAR(RESULT_TABLE.SEED_DATE) AS SEED_YEAR, RESULT_TABLE.CROP_ID FROM "
         + "(SELECT SEED_DATE, FK_CROP AS CROP_ID FROM PLANTING_RECORD "
         + "WHERE FK_PARCEL = ?1 AND FK_STATUS = 1 AND "
@@ -815,7 +815,7 @@ public class StatisticalReportServiceBean {
    * ********************************************************
    * A partir de aqui comienzan los metodos relacionados a la
    * generacion de informes estadisticos que se tratan sobre
-   * la cantidad de plantaciones por cultivo
+   * la cantidad de ciclos (plantaciones) por cultivo
    * ********************************************************
    */
 
@@ -825,10 +825,11 @@ public class StatisticalReportServiceBean {
    * @param dateUntil
    * @return referencia a un objeto de tipo List<Integer> que
    * contiene los numeros que representan la cantidad total de
-   * veces que se plantaron los cultivos en una parcela en un
-   * periodo definido por dos fechas
+   * ciclos (cantidad total de veces que se plantaron) de los
+   * cultivos sembrados en una parcela en un periodo definido
+   * por dos fechas
    */
-  public List<Integer> calculateTotalNumberPlantationsPerCrop(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+  public List<Integer> calculateTotalNumberCyclesPerCrop(int parcelId, Calendar dateFrom, Calendar dateUntil) {
     /*
      * Con las condiciones de las fechas se seleccionan todos los
      * registros de plantacion finalizados (*) de una parcela que
@@ -866,14 +867,14 @@ public class StatisticalReportServiceBean {
      * del archivo plantingRecordStatusInserts.sql de la ruta
      * app/etc/sql.
      */
-    String subQuery = "SELECT FK_CROP, COUNT(FK_CROP) AS NUMBER_PLANTATIONS FROM PLANTING_RECORD "
+    String subQuery = "SELECT FK_CROP, COUNT(FK_CROP) AS NUMBER_CYCLES FROM PLANTING_RECORD "
         + "WHERE FK_PARCEL = ?1 AND FK_STATUS = 1 AND "
         + "((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) OR "
         + "(SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR "
         + "(?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2)) "
         + "GROUP BY FK_CROP";
 
-    String stringQuery = "SELECT RESULT_TABLE.NUMBER_PLANTATIONS FROM (" + subQuery
+    String stringQuery = "SELECT RESULT_TABLE.NUMBER_CYCLES FROM (" + subQuery
         + ") AS RESULT_TABLE";
 
     Query query = getEntityManager().createNativeQuery(stringQuery);
@@ -898,10 +899,11 @@ public class StatisticalReportServiceBean {
    * @param dateUntil
    * @return referencia a un objeto de tipo List<String> que
    * contiene los nombres de los cultivos para los que se
-   * calcula la cantidad total de veces que se plantaron en
-   * una parcela en un periodo definido por dos fechas
+   * calcula la cantidad total de ciclos (cantidad total de
+   * veces que se plantaron en una parcela) en un periodo
+   * definido por dos fechas
    */
-  public List<String> findCropNamesCalculatedPerTotalNumberPlantationsPerCrop(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+  public List<String> findCropNamesCalculatedPerTotalNumberCyclesPerCrop(int parcelId, Calendar dateFrom, Calendar dateUntil) {
     /*
      * Con las condiciones de las fechas se seleccionan todos los
      * registros de plantacion finalizados (*) de una parcela que
@@ -939,7 +941,7 @@ public class StatisticalReportServiceBean {
      * del archivo plantingRecordStatusInserts.sql de la ruta
      * app/etc/sql.
      */
-    String subQuery = "SELECT FK_CROP, COUNT(FK_CROP) AS NUMBER_PLANTATIONS FROM PLANTING_RECORD "
+    String subQuery = "SELECT FK_CROP, COUNT(FK_CROP) AS NUMBER_CYCLES FROM PLANTING_RECORD "
         + "WHERE FK_PARCEL = ?1 AND FK_STATUS = 1 AND "
         + "((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) OR "
         + "(SEED_DATE >= ?2 AND HARVEST_DATE <= ?3) OR "
@@ -971,10 +973,11 @@ public class StatisticalReportServiceBean {
    * @param dateUntil
    * @return referencia a un objeto de tipo List<Integer> que
    * contiene los numeros que representan la cantidad total
-   * de veces que se plantaron los cultivos por año en una
-   * parcela en un periodo definido por dos fechas
+   * de ciclos (cantidad total de veces que se plantaron) por
+   * cultivo y año de los cultivos sembrados en una parcela en
+   * un periodo definido por dos fechas
    */
-  public List<Integer> calculateTotalNumberPlantationsPerCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+  public List<Integer> calculateTotalNumberCyclesPerCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
     /*
      * Con las condiciones de las fechas se seleccionan todos los
      * registros de plantacion finalizados (*) de una parcela que
@@ -1012,7 +1015,7 @@ public class StatisticalReportServiceBean {
      * del archivo plantingRecordStatusInserts.sql de la ruta
      * app/etc/sql.
      */
-    String subQuery = "SELECT RESULT_TABLE_TWO.YEAR_SEED_DATE, RESULT_TABLE_TWO.CROP_ID, COUNT(RESULT_TABLE_TWO.CROP_ID) AS NUMBER_PLANTATIONS FROM "
+    String subQuery = "SELECT RESULT_TABLE_TWO.YEAR_SEED_DATE, RESULT_TABLE_TWO.CROP_ID, COUNT(RESULT_TABLE_TWO.CROP_ID) AS NUMBER_CYCLES FROM "
         + "(SELECT YEAR(RESULT_TABLE.SEED_DATE) AS YEAR_SEED_DATE, RESULT_TABLE.CROP_ID FROM "
         + "(SELECT SEED_DATE, FK_CROP AS CROP_ID FROM "
         + "PLANTING_RECORD "
@@ -1022,7 +1025,7 @@ public class StatisticalReportServiceBean {
         + "ORDER BY SEED_DATE) AS RESULT_TABLE) AS RESULT_TABLE_TWO "
         + "GROUP BY RESULT_TABLE_TWO.YEAR_SEED_DATE, RESULT_TABLE_TWO.CROP_ID";
 
-    String stringQuery = "SELECT RESULT_TABLE_THREE.NUMBER_PLANTATIONS FROM (" + subQuery + ") AS RESULT_TABLE_THREE";
+    String stringQuery = "SELECT RESULT_TABLE_THREE.NUMBER_CYCLES FROM (" + subQuery + ") AS RESULT_TABLE_THREE";
 
     Query query = getEntityManager().createNativeQuery(stringQuery);
     query.setParameter(1, parcelId);
@@ -1046,10 +1049,11 @@ public class StatisticalReportServiceBean {
    * @param dateUntil
    * @return referencia a un objeto de tipo List<String> que
    * contiene los nombres de los cultivos para los que se calcula
-   * la cantidad total de veces que se plantaron por año en
-   * una parcela en un periodo definido por dos fechas
+   * la cantidad total ciclos (cantidad total de veces que se
+   * plantaron en una parcela) por año en un periodo definido
+   * por dos fechas
    */
-  public List<String> findCropNamesCalculatedPerTotalNumberPlantationsPerCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+  public List<String> findCropNamesCalculatedPerTotalNumberCyclesPerCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
     /*
      * Con las condiciones de las fechas se seleccionan todos los
      * registros de plantacion finalizados (*) de una parcela que
@@ -1087,7 +1091,7 @@ public class StatisticalReportServiceBean {
      * del archivo plantingRecordStatusInserts.sql de la ruta
      * app/etc/sql.
      */
-    String subQuery = "SELECT RESULT_TABLE_TWO.YEAR_SEED_DATE, RESULT_TABLE_TWO.CROP_ID, COUNT(RESULT_TABLE_TWO.CROP_ID) AS NUMBER_PLANTATIONS FROM "
+    String subQuery = "SELECT RESULT_TABLE_TWO.YEAR_SEED_DATE, RESULT_TABLE_TWO.CROP_ID, COUNT(RESULT_TABLE_TWO.CROP_ID) AS NUMBER_CYCLES FROM "
         + "(SELECT YEAR(RESULT_TABLE.SEED_DATE) AS YEAR_SEED_DATE, RESULT_TABLE.CROP_ID FROM "
         + "(SELECT SEED_DATE, FK_CROP AS CROP_ID FROM "
         + "PLANTING_RECORD "
@@ -1122,11 +1126,11 @@ public class StatisticalReportServiceBean {
    * @param dateUntil
    * @return referencia a un objeto de tipo List<Integer> que
    * contiene los años en los que se sembraron los cultivos
-   * para los que se calcula la cantidad total de veces que se
-   * plantaron por año en una parcela en un periodo definido
-   * por dos fechas
+   * para los que se calcula la cantidad total de ciclos (cantidad
+   * total de veces que se plantaron en una parcela) por año
+   * en un periodo definido por dos fechas
    */
-  public List<Integer> findYearsCalculatedPerTotalNumberPlantationsPerCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+  public List<Integer> findYearsCalculatedPerTotalNumberCyclesPerCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
     /*
      * Con las condiciones de las fechas se seleccionan todos los
      * registros de plantacion finalizados (*) de una parcela que
@@ -1164,7 +1168,7 @@ public class StatisticalReportServiceBean {
      * del archivo plantingRecordStatusInserts.sql de la ruta
      * app/etc/sql.
      */
-    String subQuery = "SELECT RESULT_TABLE_TWO.YEAR_SEED_DATE, RESULT_TABLE_TWO.CROP_ID, COUNT(RESULT_TABLE_TWO.CROP_ID) AS NUMBER_PLANTATIONS FROM "
+    String subQuery = "SELECT RESULT_TABLE_TWO.YEAR_SEED_DATE, RESULT_TABLE_TWO.CROP_ID, COUNT(RESULT_TABLE_TWO.CROP_ID) AS NUMBER_CYCLES FROM "
         + "(SELECT YEAR(RESULT_TABLE.SEED_DATE) AS YEAR_SEED_DATE, RESULT_TABLE.CROP_ID FROM "
         + "(SELECT SEED_DATE, FK_CROP AS CROP_ID FROM "
         + "PLANTING_RECORD "
@@ -1197,10 +1201,11 @@ public class StatisticalReportServiceBean {
    * @param dateFrom
    * @param dateUntil
    * @return entero que representa la cantidad total de
-   * plantaciones que se hicieron en una parcela en un
-   * periodo definido por dos fechas
+   * ciclos (cantidad total de plantaciones) que se
+   * realizaron en una parcela en un periodo definido
+   * por dos fechas
    */
-  public Long calculateTotalNumberPlantationsPerPeriod(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+  public Long calculateTotalNumberCyclesPerPeriod(int parcelId, Calendar dateFrom, Calendar dateUntil) {
     /*
      * Con esta condicion se seleccionan todos los registros de
      * plantacion finalizados (*) de una parcela que estan entre
@@ -1700,7 +1705,7 @@ public class StatisticalReportServiceBean {
    * ********************************************************
    * A partir de aqui comienzan los metodos relacionados a la
    * generacion de informes estadisticos que se tratan sobre
-   * la cantidad de plantaciones por tipo de cultivo
+   * la cantidad de ciclos (plantaciones) por tipo de cultivo
    * ********************************************************
    */
 
@@ -1710,10 +1715,11 @@ public class StatisticalReportServiceBean {
    * @param dateUntil
    * @return referencia a un objeto de tipo List<Integer> que
    * contiene los numeros que representan la cantidad total de
-   * veces que se plantaron los tipos de cultivo en una parcela
+   * ciclos (cantidad total de veces que se plantaron) de los
+   * tipos de cultivo de los cultivos sembrados en una parcela
    * en un periodo definido por dos fechas
    */
-  public List<Integer> calculateTotalNumberPlantationsPerTypeCrop(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+  public List<Integer> calculateTotalNumberCyclesPerTypeCrop(int parcelId, Calendar dateFrom, Calendar dateUntil) {
     /*
      * Con las condiciones de las fechas se seleccionan todos los
      * registros de plantacion finalizados (*) de una parcela que
@@ -1751,7 +1757,7 @@ public class StatisticalReportServiceBean {
      * del archivo plantingRecordStatusInserts.sql de la ruta
      * app/etc/sql.
      */
-    String subQuery = "SELECT FK_TYPE_CROP AS TYPE_CROP_ID, COUNT(FK_TYPE_CROP) AS TOTAL_NUMBER_PLANTATIONS_PER_TYPE_CROP FROM "
+    String subQuery = "SELECT FK_TYPE_CROP AS TYPE_CROP_ID, COUNT(FK_TYPE_CROP) AS TOTAL_NUMBER_CYCLES_PER_TYPE_CROP FROM "
         + "PLANTING_RECORD JOIN CROP ON FK_CROP = CROP.ID WHERE "
         + "FK_PARCEL = ?1 AND FK_STATUS = 1 AND "
         + "((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) OR "
@@ -1759,7 +1765,7 @@ public class StatisticalReportServiceBean {
         + "(?2 <= HARVEST_DATE AND HARVEST_DATE <= ?3 AND SEED_DATE < ?2)) "
         + "GROUP BY FK_TYPE_CROP";
 
-    String stringQuery = "SELECT RESULT_TABLE.TOTAL_NUMBER_PLANTATIONS_PER_TYPE_CROP FROM (" + subQuery
+    String stringQuery = "SELECT RESULT_TABLE.TOTAL_NUMBER_CYCLES_PER_TYPE_CROP FROM (" + subQuery
         + ") AS RESULT_TABLE";
 
     Query query = getEntityManager().createNativeQuery(stringQuery);
@@ -1784,10 +1790,11 @@ public class StatisticalReportServiceBean {
    * @param dateUntil
    * @return referencia a un objeto de tipo List<String> que
    * contiene los nombres de los tipos de cultivos para los
-   * que se calcula la cantidad total de veces que se plantaron
-   * en una parcela en un periodo definido por dos fechas
+   * que se calcula la cantidad total de ciclos (cantidad total
+   * de veces que se plantaron en una parcela) en un periodo
+   * definido por dos fechas
    */
-  public List<String> findTypeCropNamesCalculatedPerTotalNumberPlantationsPerTypeCrop(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+  public List<String> findTypeCropNamesCalculatedPerTotalNumberCyclesPerTypeCrop(int parcelId, Calendar dateFrom, Calendar dateUntil) {
     /*
      * Con las condiciones de las fechas se seleccionan todos los
      * registros de plantacion finalizados (*) de una parcela que
@@ -1825,7 +1832,7 @@ public class StatisticalReportServiceBean {
      * del archivo plantingRecordStatusInserts.sql de la ruta
      * app/etc/sql.
      */
-    String subQuery = "SELECT FK_TYPE_CROP AS TYPE_CROP_ID, COUNT(FK_TYPE_CROP) AS TOTAL_NUMBER_PLANTATIONS_PER_TYPE_CROP FROM "
+    String subQuery = "SELECT FK_TYPE_CROP AS TYPE_CROP_ID, COUNT(FK_TYPE_CROP) AS TOTAL_NUMBER_CYCLES_PER_TYPE_CROP FROM "
         + "PLANTING_RECORD JOIN CROP ON FK_CROP = CROP.ID WHERE "
         + "FK_PARCEL = ?1 AND FK_STATUS = 1 AND "
         + "((?2 <= SEED_DATE AND SEED_DATE <= ?3 AND HARVEST_DATE > ?3) OR "
@@ -1858,10 +1865,11 @@ public class StatisticalReportServiceBean {
    * @param dateUntil
    * @return referencia a un objeto de tipo List<Integer> que
    * contiene los numeros que representan la cantidad total
-   * de veces que se plantaron los tipos de cultivos por año
-   * en una parcela en un periodo definido por dos fechas
+   * de ciclos (cantidad de veces que se plantaron) por tipo
+   * de cultivo y año de los cultivos sembrados en una parcela
+   * en un periodo definido por dos fechas
    */
-  public List<Integer> calculateTotalNumberPlantationsPerTypeCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+  public List<Integer> calculateTotalNumberCyclesPerTypeCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
     /*
      * Con las condiciones de las fechas se seleccionan todos los
      * registros de plantacion finalizados (*) de una parcela que
@@ -1900,7 +1908,7 @@ public class StatisticalReportServiceBean {
      * app/etc/sql.
      */
     String subQuery = "SELECT RESULT_TABLE_TWO.SEED_YEAR, RESULT_TABLE_TWO.TYPE_CROP_ID, "
-        + "COUNT(RESULT_TABLE_TWO.TYPE_CROP_ID) AS TOTAL_NUMBER_PLANTATIONS_PER_TYPE_CROP_AND_YEAR FROM "
+        + "COUNT(RESULT_TABLE_TWO.TYPE_CROP_ID) AS TOTAL_NUMBER_CYCLES_PER_TYPE_CROP_AND_YEAR FROM "
         + "(SELECT YEAR(RESULT_TABLE.SEED_DATE) AS SEED_YEAR, RESULT_TABLE.TYPE_CROP_ID FROM "
         + "(SELECT SEED_DATE, FK_TYPE_CROP AS TYPE_CROP_ID FROM "
         + "PLANTING_RECORD JOIN CROP ON FK_CROP = CROP.ID "
@@ -1911,7 +1919,7 @@ public class StatisticalReportServiceBean {
         + "ORDER BY SEED_DATE) AS RESULT_TABLE) AS RESULT_TABLE_TWO "
         + "GROUP BY SEED_YEAR, TYPE_CROP_ID";
 
-    String stringQuery = "SELECT RESULT_TABLE_THREE.TOTAL_NUMBER_PLANTATIONS_PER_TYPE_CROP_AND_YEAR FROM (" + subQuery
+    String stringQuery = "SELECT RESULT_TABLE_THREE.TOTAL_NUMBER_CYCLES_PER_TYPE_CROP_AND_YEAR FROM (" + subQuery
         + ") AS RESULT_TABLE_THREE";
 
     Query query = getEntityManager().createNativeQuery(stringQuery);
@@ -1936,11 +1944,11 @@ public class StatisticalReportServiceBean {
    * @param dateUntil
    * @return referencia a un objeto de tipo List<String> que
    * contiene los nombres de los tipos de cultivos para los
-   * que se calcula la cantidad total de veces que se plantaron
-   * por año en una parcela en un periodo definido por dos
-   * fechas
+   * que se calcula la cantidad total de ciclos (cantidad total
+   * de veces que se plantaron en una parcela) por año en un
+   * periodo definido por dos fechas
    */
-  public List<String> findTypeCropNamesCalculatedPerTotalNumberPlantationsPerTypeCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+  public List<String> findTypeCropNamesCalculatedPerTotalNumberCyclesPerTypeCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
     /*
      * Con las condiciones de las fechas se seleccionan todos los
      * registros de plantacion finalizados (*) de una parcela que
@@ -1979,7 +1987,7 @@ public class StatisticalReportServiceBean {
      * app/etc/sql.
      */
     String subQuery = "SELECT RESULT_TABLE_TWO.SEED_YEAR, RESULT_TABLE_TWO.TYPE_CROP_ID, "
-        + "COUNT(RESULT_TABLE_TWO.TYPE_CROP_ID) AS TOTAL_NUMBER_PLANTATIONS_PER_TYPE_CROP_AND_YEAR FROM "
+        + "COUNT(RESULT_TABLE_TWO.TYPE_CROP_ID) AS TOTAL_NUMBER_CYCLES_PER_TYPE_CROP_AND_YEAR FROM "
         + "(SELECT YEAR(RESULT_TABLE.SEED_DATE) AS SEED_YEAR, RESULT_TABLE.TYPE_CROP_ID FROM "
         + "(SELECT SEED_DATE, FK_TYPE_CROP AS TYPE_CROP_ID FROM "
         + "PLANTING_RECORD JOIN CROP ON FK_CROP = CROP.ID "
@@ -2015,11 +2023,11 @@ public class StatisticalReportServiceBean {
    * @param dateUntil
    * @return referencia a un objeto de tipo List<Integer> que
    * contiene los años en los que se sembraron los tipos de
-   * cultivos para los que se calcula la cantidad total de veces
-   * que se plantaron por año en una parcela en un periodo
-   * definido por dos fechas
+   * cultivos para los que se calcula la cantidad total de ciclos
+   * (cantidad total de veces que se plantaron en una parcela)
+   * por año en un periodo definido por dos fechas
    */
-  public List<Integer> findYearsCalculatedPerTotalNumberPlantationsPerTypeCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+  public List<Integer> findYearsCalculatedPerTotalNumberCyclesPerTypeCropAndYear(int parcelId, Calendar dateFrom, Calendar dateUntil) {
     /*
      * Con las condiciones de las fechas se seleccionan todos los
      * registros de plantacion finalizados (*) de una parcela que
@@ -2058,7 +2066,7 @@ public class StatisticalReportServiceBean {
      * app/etc/sql.
      */
     String subQuery = "SELECT RESULT_TABLE_TWO.SEED_YEAR, RESULT_TABLE_TWO.TYPE_CROP_ID, "
-        + "COUNT(RESULT_TABLE_TWO.TYPE_CROP_ID) AS TOTAL_NUMBER_PLANTATIONS_PER_TYPE_CROP_AND_YEAR FROM "
+        + "COUNT(RESULT_TABLE_TWO.TYPE_CROP_ID) AS TOTAL_NUMBER_CYCLES_PER_TYPE_CROP_AND_YEAR FROM "
         + "(SELECT YEAR(RESULT_TABLE.SEED_DATE) AS SEED_YEAR, RESULT_TABLE.TYPE_CROP_ID FROM "
         + "(SELECT SEED_DATE, FK_TYPE_CROP AS TYPE_CROP_ID FROM "
         + "PLANTING_RECORD JOIN CROP ON FK_CROP = CROP.ID "
