@@ -1,9 +1,9 @@
 app.controller(
   "PlantingRecordCtrl",
-  ["$scope", "$location", "$route", "$routeParams", "PlantingRecordSrv", "CropSrv", "ParcelSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager",
-    "LogoutManager", "ExpirationManager", "RedirectManager", "CropManager", "UtilDate",
-    function ($scope, $location, $route, $params, plantingRecordService, cropService, parcelService, accessManager, errorResponseManager, authHeaderManager,
-      logoutManager, expirationManager, redirectManager, cropManager, utilDate) {
+  ["$scope", "$location", "$route", "$routeParams", "PlantingRecordSrv", "IrrigationRecordSrv", "CropSrv", "ParcelSrv", "AccessManager", "ErrorResponseManager",
+    "AuthHeaderManager", "LogoutManager", "ExpirationManager", "RedirectManager", "CropManager", "UtilDate",
+    function ($scope, $location, $route, $params, plantingRecordService, irrigationRecordService, cropService, parcelService, accessManager, errorResponseManager,
+      authHeaderManager, logoutManager, expirationManager, redirectManager, cropManager, utilDate) {
 
       console.log("PlantingRecordCtrl loaded with action: " + $params.action)
 
@@ -409,6 +409,34 @@ app.controller(
           */
           $scope.cropIrrigationWaterNeedData = cropIrrigationWaterNeedData;
         });
+      }
+
+      $scope.saveIrrigationWaterNeedData = function () {
+
+        /*
+        Este control es para el caso en el que el usuario presiona
+        el boton "Aceptar" del formulario del calculo de la necesidad
+        de agua de riego de un cultivo en la fecha actual con los
+        campos vacios
+        */
+        if ($scope.cropIrrigationWaterNeedData == undefined) {
+          return;
+        }
+
+        if ($scope.cropIrrigationWaterNeedData.irrigationDone >= 0) {
+          irrigationRecordService.saveIrrigationWaterNeedData($scope.cropIrrigationWaterNeedData, function (error, cropIrrigationWaterNeedData) {
+            if (error) {
+              console.log(error);
+              errorResponseManager.checkResponse(error);
+              return;
+            }
+
+            $location.path("/home/plantingRecords");
+          });
+        } else {
+          alert("El riego realizado debe ser mayor o igual a cero");
+        }
+
       }
 
       $scope.action = $params.action;
