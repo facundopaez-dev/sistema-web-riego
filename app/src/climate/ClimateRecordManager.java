@@ -116,7 +116,7 @@ public class ClimateRecordManager {
            * Obtiene un registro climatico que contiene los datos
            * del conjunto de datos meteorologicos devuelto por la
            * API Visual Crossing Weather mediante la fecha actual
-           * en formato UNIX y la ubicacion geografica de una parcela
+           * y la ubicacion geografica de una parcela
            */
           currentClimateRecord = ClimateClient.getForecast(givenParcel, currentDate, typePrecipService.findAll());
         } catch (Exception e) {

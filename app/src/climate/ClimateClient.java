@@ -145,7 +145,7 @@ public class ClimateClient {
    * @param date
    * @return referencia a un objeto de tipo Forecast que
    * contiene los datos meteorologicos obtenidos para una
-   * latitud y una longitud, en una fecha en tiempo UNIX
+   * fecha y una ubicacion geografica
    */
   private static Forecast requestWeatherData(double latitude, double longitude, Calendar date) throws IOException {
     /*
