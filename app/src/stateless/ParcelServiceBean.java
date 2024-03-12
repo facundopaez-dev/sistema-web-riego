@@ -97,6 +97,30 @@ public class ParcelServiceBean {
   }
 
   /**
+   * Establece la bandera modifiedGeographicLocationFlag de una
+   * parcela en true
+   * 
+   * @param parcelId
+   */
+  public void setModifiedGeographicLocationFlag(int parcelId) {
+    Query query = entityManager.createQuery("UPDATE Parcel p SET p.modifiedGeographicLocationFlag = TRUE WHERE p.id = :parcelId");
+    query.setParameter("parcelId", parcelId);
+    query.executeUpdate();
+  }
+
+  /**
+   * Establece la bandera modifiedGeographicLocationFlag de una
+   * parcela en false
+   * 
+   * @param parcelId
+   */
+  public void unsetModifiedGeographicLocationFlag(int parcelId) {
+    Query query = entityManager.createQuery("UPDATE Parcel p SET p.modifiedGeographicLocationFlag = FALSE WHERE p.id = :parcelId");
+    query.setParameter("parcelId", parcelId);
+    query.executeUpdate();
+  }
+
+  /**
    * Segun la documentacion web de la clase EntityManager, el metodo
    * merge() de esta clase fusiona el estado de una entidad en el
    * contexto de persistencia actual.

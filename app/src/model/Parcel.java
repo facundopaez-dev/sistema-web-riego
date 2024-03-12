@@ -33,6 +33,9 @@ public class Parcel {
   @Column(name = "ACTIVE", nullable = false)
   private boolean active;
 
+  @Column(name = "MODIFIED_GEOGRAPHIC_LOCATION_FLAG")
+  private boolean modifiedGeographicLocationFlag;
+
   @OneToOne(cascade = CascadeType.PERSIST)
   @JoinColumn(name = "FK_GEOGRAPHIC_LOCATION", nullable = false, unique = true)
   private GeographicLocation geographicLocation;
@@ -114,6 +117,14 @@ public class Parcel {
    */
   public void setActive(boolean active) {
     this.active = active;
+  }
+
+  public boolean getModifiedGeographicLocationFlag() {
+    return modifiedGeographicLocationFlag;
+  }
+
+  public void setModifiedGeographicLocationFlag(boolean modifiedGeographicLocationFlag) {
+    this.modifiedGeographicLocationFlag = modifiedGeographicLocationFlag;
   }
 
   public GeographicLocation getGeographicLocation() {

@@ -633,22 +633,25 @@ public class PlantingRecordManager {
 
             /*
              * Si una parcela NO tiene un registro climatico perteneciente
-             * a una fecha, se lo solicita al servicio meteorologico utilizado
-             * y se lo persiste. En cambio, si lo tiene, se solicitan
-             * nuevamente los datos meteorologicos correspondientes a una
-             * fecha y a la ubicacion geografica de una parcela, los cuales
-             * se utilizan para actualizar el registro climatico correspondiente
-             * a una fecha y a una parcela. Este paso es necesario por si
-             * se modifican las coordenadas geograficas de una parcela. Si
-             * una parcela tiene registros climaticos que fueron obtenidos
-             * cuando tenia determinadas coordenadas geograficas y luego estas
-             * se modifican, se deben actualizar los datos de los registros
-             * climaticos de una parcela.
+             * a una fecha, se lo solicita al servicio meteorologico
+             * utilizado y se lo persiste
              */
             if (!climateRecordService.checkExistence(pastDate, parcel)) {
                 newClimateRecord = ClimateClient.getForecast(parcel, pastDate, typePrecipService.findAll());
                 climateRecordService.create(newClimateRecord);
-            } else {
+            }
+
+            /*
+             * Si existe el registro climatico perteneciente a una parcela
+             * y una fecha y si la ubicacion geografica de una parcela fue
+             * modificada, se solicitan los datos meteorologicos correspondientes
+             * a una fecha y una nueva ubicacion geografica. Esto es necesario
+             * para actualizar los datos meteorologicos de los registros
+             * climaticos comprendidos en un periodo definido por dos fechas
+             * pertenecientes a una parcela que fueron obtenidos antes de la
+             * modificacion de la ubicacion geografica de la misma.
+             */
+            if (climateRecordService.checkExistence(pastDate, parcel) && parcel.getModifiedGeographicLocationFlag()) {
                 climateRecord = climateRecordService.find(pastDate, parcel);
                 climateRecordService.modify(climateRecord.getId(), ClimateClient.getForecast(parcel, pastDate, typePrecipService.findAll()));
             }
@@ -659,6 +662,21 @@ public class PlantingRecordManager {
              * correspondiente a una fecha pasada
              */
             pastDate.set(Calendar.DAY_OF_YEAR, pastDate.get(Calendar.DAY_OF_YEAR) + 1);
+        } // End for
+
+        /*
+         * Luego de actualizar los registros climaticos comprendidos en
+         * un periodo definido por dos fechas pertenecientes a una parcela,
+         * con los datos meteorologicos de las fechas de dicho periodo y de
+         * la nueva ubicacion geografica de una parcela, se establece la
+         * bandera modifiedGeographicLocationFlag de una parcela en false
+         * para evitar que la aplicacion solicite nuevamente los datos
+         * meteorologicos de la nueva ubicacion geografica de una parcela
+         * al calcular la necesidad de agua de riego de un cultivo (en
+         * desarrollo) en la fecha actual
+         */
+        if (parcel.getModifiedGeographicLocationFlag()) {
+            parcelService.unsetModifiedGeographicLocationFlag(parcel.getId());
         }
 
     }

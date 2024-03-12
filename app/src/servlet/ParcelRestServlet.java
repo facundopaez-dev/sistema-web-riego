@@ -1209,10 +1209,14 @@ public class ParcelRestServlet {
     /*
      * Si la latitud y/o la longitud de la ubicacion geografica de
      * una parcela es modificada, se actualiza la latitud y/o longitud
-     * de la ubicacion geografica en la base de datos subyacente
+     * de la ubicacion geografica en la base de datos subyacente y la
+     * bandera modifiedGeographicLocationFlag de una parcela se establece
+     * en true para hacer que la aplicacion obtenga los datos meteorologicos
+     * de la nueva ubicacion geografica
      */
     if (modifiedParcel.getGeographicLocation().getLatitude() != currentLatitude || modifiedParcel.getGeographicLocation().getLongitude() != currentLongitude) {
       geographicLocationService.modify(currentGeographicLocation.getId(), modifiedParcel.getGeographicLocation());
+      parcelService.setModifiedGeographicLocationFlag(parcelId);
     }
 
     /*

@@ -31,6 +31,7 @@ class Parcela {
 -nombre
 -hectareas
 -activa
+-banderaUbicacionGeograficaModificada
 }
 
 class UbicacionGeografica {
