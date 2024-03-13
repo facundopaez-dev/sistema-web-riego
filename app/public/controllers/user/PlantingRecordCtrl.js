@@ -394,12 +394,22 @@ app.controller(
       }
 
       function calculateCropIrrigationWaterNeed(id) {
+        /* Propiedad de $scope creada para mostrar/ocultar la animacion de carga
+        en el formulario del calculo de la necesidad de agua de riego de un cultivo
+        en la fecha actual (es decir, hoy) [mm/dia] */
+        $scope.showLoadingAnimation = true;
+
         plantingRecordService.calculateCropIrrigationWaterNeed(id, function (error, cropIrrigationWaterNeedData) {
           if (error) {
             console.log(error);
             errorResponseManager.checkResponse(error);
             return;
           }
+
+          /* Una vez que la aplicacion del lado servidor retorna la respuesta del
+          calculo de la necesidad de agua de riego de un cultivo en la fecha actual
+          [mm/dia], se oculta la animacion de carga */
+          $scope.showLoadingAnimation = false;
 
           /*
           Si esta instruccion no esta, no se puede ver la

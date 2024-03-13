@@ -293,6 +293,9 @@
           <input step="any" type="number" class="form-control" id="cropIrrigationWaterNeed"
             ng-model="cropIrrigationWaterNeedData.cropIrrigationWaterNeed" ng-disabled="true">
         </div>
+
+        <!-- Codigo fuente para el uso de la animacion de carga -->
+        <i ng-show="showLoadingAnimation == true" class="lds-dual-ring"></i>
       </div>
 
       <div class="form-group">
@@ -303,6 +306,43 @@
             ng-model="cropIrrigationWaterNeedData.irrigationDone" required>
         </div>
       </div>
+
+      <!-- Codigo fuente CSS de la animacion de carga -->
+      <!-- Este codigo fuente CSS fue tomado del siguiente repositorio: https://github.com/loadingio/css-spinner -->
+      <style type="text/css">
+        .lds-dual-ring,
+        .lds-dual-ring:after {
+          box-sizing: border-box;
+        }
+
+        .lds-dual-ring {
+          display: inline-block;
+          width: 80px;
+          height: 80px;
+        }
+
+        .lds-dual-ring:after {
+          content: " ";
+          display: block;
+          width: 22px;
+          height: 22px;
+          margin: 6px;
+          border-radius: 50%;
+          border: 2.4px solid currentColor;
+          border-color: currentColor transparent currentColor transparent;
+          animation: lds-dual-ring 1.2s linear infinite;
+        }
+
+        @keyframes lds-dual-ring {
+          0% {
+            transform: rotate(0deg);
+          }
+
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+      </style>
 
       <div class="form-group">
         <div class="col-md-offset-2 col-md-3">
