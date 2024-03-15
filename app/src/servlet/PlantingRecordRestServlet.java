@@ -52,7 +52,6 @@ import model.ClimateRecord;
 import model.Crop;
 import model.IrrigationRecord;
 import model.Parcel;
-import model.PasswordResetFormData;
 import model.PlantingRecord;
 import model.PlantingRecordStatus;
 import model.SoilWaterBalance;
