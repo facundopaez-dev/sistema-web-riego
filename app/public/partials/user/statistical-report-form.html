@@ -161,9 +161,11 @@
 			<div class="form-group">
 				<label for="statisticalData" class="col-md-2 control-label">Dato estadístico</label>
 				<div class="col-md-6">
-					<select name="statisticalData" class="form-control" ng-model="data.statisticalData"
-						ng-disabled="action == 'view'"
-						ng-options="statisticalData.description for statisticalData in statisticsData track by statisticalData.id">
+					<select name="statisticalData" class="form-control" ng-model="data.statisticalDataNumbers"
+						ng-hide="action == 'view'" multiple>
+						<option ng-repeat="statisticalData in statisticsData" ng-value="statisticalData.number">
+							{{statisticalData.description}}
+						</option>
 					</select>
 				</div>
 			</div>

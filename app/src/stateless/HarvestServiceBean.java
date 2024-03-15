@@ -228,6 +228,28 @@ public class HarvestServiceBean {
   }
 
   /**
+   * @param userId
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return referencia a un objeto de tipo List<Harvest> que
+   * contiene todos los registros de cosecha de una parcela
+   * de un usuairo que estan comprendidos en un periodo definido
+   * por dos fechas
+   */
+  public List<Harvest> findAllByPeriod(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    String conditionWhere = "p.id = :parcelId AND :dateFrom <= h.date AND h.date <= :dateUntil AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)";
+
+    Query query = getEntityManager().createQuery("SELECT h FROM Harvest h JOIN h.parcel p WHERE " + conditionWhere);
+    query.setParameter("parcelId", parcelId);
+    query.setParameter("dateFrom", dateFrom);
+    query.setParameter("dateUntil", dateUntil);
+    query.setParameter("userId", userId);
+
+    return query.getResultList();
+  }
+
+  /**
    * Retorna true si y solo si una parcela tiene registros de
    * cosecha pertenecientes a un periodo definido por dos fechas
    * 
@@ -240,6 +262,23 @@ public class HarvestServiceBean {
    */
   public boolean hasHarvestRecords(int parcelId, Calendar dateFrom, Calendar dateUntil) {
     return !findAllByPeriod(parcelId, dateFrom, dateUntil).isEmpty();
+  }
+
+  /**
+   * Retorna true si y solo si una parcela de un usuario tiene
+   * registros de cosecha pertenecientes a un periodo definido
+   * por dos fechas
+   * 
+   * @param userId
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return true si una parcela de un usuario tiene registros
+   * de cosecha pertenecientes a un periodo definido por dos
+   * fechas, en caso contrario false
+   */
+  public boolean hasHarvestRecords(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    return !findAllByPeriod(userId, parcelId, dateFrom, dateUntil).isEmpty();
   }
 
   /**

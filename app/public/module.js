@@ -454,6 +454,7 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 	const ADMIN_REGION_LIST_WEB_PAGE_ROUTE = "/adminHome/regions";
 	const ADMIN_TYPES_CROP_LIST_WEB_PAGE_ROUTE = "/adminHome/typesCrop";
 	const USER_PLANTING_RECORD_ROUTE = "home/plantingRecords";
+	const STATISTICAL_REPORT_ROUTE = "home/statisticalReports";
 
 	/*
 	El contenido de estas constantes debe ser igual al de las
@@ -472,6 +473,7 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 	const PARCEL = "ORIGIN_PARCEL";
 	const WATER_NEED_CROP = "ORIGIN_NEED_WATER_CROP";
 	const DEAD_CROP_WATER_NEED = "ORIGIN_DEAD_CROP_WATER_NEED";
+	const NON_EXISTENT_DATA_FOR_STATISTICAL_REPORT = "ORIGIN_NON_EXISTENT_DATA_FOR_STATISTICAL_REPORT";
 
 	return {
 		/**
@@ -557,6 +559,13 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 			if (accessManager.isUserLoggedIn() && !accessManager.loggedAsAdmin() && error.status == BAD_REQUEST
 				&& error.data.sourceUnsatisfiedResponse == DEAD_CROP_WATER_NEED) {
 				$location.path(USER_PLANTING_RECORD_ROUTE);
+				return;
+			}
+
+			/**/
+			if (accessManager.isUserLoggedIn() && !accessManager.loggedAsAdmin() && error.status == BAD_REQUEST
+				&& error.data.sourceUnsatisfiedResponse == NON_EXISTENT_DATA_FOR_STATISTICAL_REPORT) {
+				$location.path(STATISTICAL_REPORT_ROUTE);
 				return;
 			}
 

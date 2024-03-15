@@ -96,7 +96,7 @@ app.controller(
       const INDEFINITE_PARCEL = "La parcela debe estar definida";
       const DATE_FROM_AND_DATE_UNTIL_OVERLAPPING = "La fecha desde no debe ser mayor o igual a la fecha hasta";
       const DATE_UNTIL_FUTURE_NOT_ALLOWED = "La fecha hasta no debe ser estrictamente mayor (es decir, posterior) a la fecha actual (es decir, hoy)";
-      const UNDEFINED_STATISTICAL_DATA = "El dato estadístico a calcular debe estar definido";
+      const NO_STATISTICAL_DATA = "Debe seleccionar uno o más datos estadísticos";
 
       /* Recupera de la aplicacion del lado servidor los datos
       estadisticos que se pueden calcular para una parcela */
@@ -272,11 +272,11 @@ app.controller(
           return;
         }
 
-        /* Si el dato estadistico a calcular NO esta definido, la
-        aplicacion muestra el mensaje dado y no ejecuta la instruccion
-        que realiza la peticion HTTP correspondiente a esta funcion */
-        if ($scope.data.statisticalData == undefined) {
-          alert(UNDEFINED_STATISTICAL_DATA);
+        /* Si no hay ningun dato estadistico elegido, la aplicacion
+        muestra el mensaje dado y no ejecuta la instruccion que realiza
+        la peticion HTTP correspondiente a esta funcion */
+        if ($scope.data.statisticalDataNumbers == undefined) {
+          alert(NO_STATISTICAL_DATA);
           return;
         }
 
