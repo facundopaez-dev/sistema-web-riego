@@ -744,7 +744,7 @@ public class HarvestServiceBean {
     countQuery.setParameter("userId", userId);
 
     // Pagina
-    Query query = entityManager.createQuery("FROM " + Harvest.class.getSimpleName() + " e" + where.toString());
+    Query query = entityManager.createQuery("FROM " + Harvest.class.getSimpleName() + " e" + where.toString() + " ORDER BY e.date");
     query.setMaxResults(cantPerPage);
     query.setFirstResult((page - 1) * cantPerPage);
     query.setParameter("userId", userId);
