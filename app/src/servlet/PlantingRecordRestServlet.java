@@ -2105,10 +2105,10 @@ public class PlantingRecordRestServlet {
        * a la fecha actual
        */
       if (plantingRecordService.hasInWaitingPlantingRecords(userId, parcelId)) {
-        int firstPlantingRecordId = plantingRecordService.findIdFirstOneOnWaiting(parcelId);
-        PlantingRecord firstPlantingRecord = plantingRecordService.find(firstPlantingRecordId);
-        status = statusService.calculateStatus(firstPlantingRecord);
-        plantingRecordService.setStatus(firstPlantingRecordId, status);
+        int idFirstPlantingRecordInWaiting = plantingRecordService.findIdFirstOneOnWaiting(parcelId);
+        PlantingRecord firstPlantingRecordInWaiting = plantingRecordService.find(idFirstPlantingRecordInWaiting);
+        status = statusService.calculateStatus(firstPlantingRecordInWaiting);
+        plantingRecordService.setStatus(idFirstPlantingRecordInWaiting, status);
 
         /*
          * El caracter "-" (guion) se utiliza para representar que la
@@ -2128,7 +2128,7 @@ public class PlantingRecordRestServlet {
          * "Desarrollo optimo".
          */
         if (statusService.equals(status, statusService.findInDevelopmentStatus()) || statusService.equals(status, statusService.findOptimalDevelopmentStatus())) {
-          plantingRecordService.updateCropIrrigationWaterNeed(firstPlantingRecordId, cropIrrigationWaterNeedNotAvailableButCalculable);
+          plantingRecordService.updateCropIrrigationWaterNeed(idFirstPlantingRecordInWaiting, cropIrrigationWaterNeedNotAvailableButCalculable);
         }
 
         /*
@@ -2138,11 +2138,11 @@ public class PlantingRecordRestServlet {
          * actualizan sus atributos "lamina total de agua disponible"
          * [mm] y "lamina de riego optima" [mm]
          */
-        if (statusService.equals(statusService.findOptimalDevelopmentStatus(), status) && firstPlantingRecord.getParcel().getOption().getSoilFlag()) {
-          plantingRecordService.updateTotalAmountWaterAvailable(firstPlantingRecordId, WaterMath
-              .calculateTotalAmountWaterAvailable(firstPlantingRecord.getCrop(), firstPlantingRecord.getParcel().getSoil()));
-          plantingRecordService.updateOptimalIrrigationLayer(firstPlantingRecordId, WaterMath
-              .calculateOptimalIrrigationLayer(firstPlantingRecord.getCrop(), firstPlantingRecord.getParcel().getSoil()));
+        if (statusService.equals(statusService.findOptimalDevelopmentStatus(), status) && firstPlantingRecordInWaiting.getParcel().getOption().getSoilFlag()) {
+          plantingRecordService.updateTotalAmountWaterAvailable(idFirstPlantingRecordInWaiting, WaterMath
+              .calculateTotalAmountWaterAvailable(firstPlantingRecordInWaiting.getCrop(), firstPlantingRecordInWaiting.getParcel().getSoil()));
+          plantingRecordService.updateOptimalIrrigationLayer(idFirstPlantingRecordInWaiting, WaterMath
+              .calculateOptimalIrrigationLayer(firstPlantingRecordInWaiting.getCrop(), firstPlantingRecordInWaiting.getParcel().getSoil()));
         }
 
       } // End if
