@@ -2127,7 +2127,9 @@ public class PlantingRecordRestServlet {
          * desarrollo". En caso contrario, adquiere el estado
          * "Desarrollo optimo".
          */
-        plantingRecordService.updateCropIrrigationWaterNeed(firstPlantingRecordId, cropIrrigationWaterNeedNotAvailableButCalculable);
+        if (statusService.equals(status, statusService.findInDevelopmentStatus()) || statusService.equals(status, statusService.findOptimalDevelopmentStatus())) {
+          plantingRecordService.updateCropIrrigationWaterNeed(firstPlantingRecordId, cropIrrigationWaterNeedNotAvailableButCalculable);
+        }
 
         /*
          * Si la parcela del registro de plantacion obtenido tiene
