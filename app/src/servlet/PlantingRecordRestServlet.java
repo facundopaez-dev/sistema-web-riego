@@ -1344,6 +1344,89 @@ public class PlantingRecordRestServlet {
     String notAvailable = plantingRecordService.getNotAvailable();
 
     /*
+     * Si el registro de plantacion a modificar tiene como nuevo
+     * estado al estado "Finalizado", se actualizan sus atributos
+     * "necesidad de agua de riego de un cultivo", "lamina total
+     * de agua disponible" y "lamina de riego optima". Si la
+     * parcela modificada de dicho registro tiene registros de
+     * plantacion que tienen el estado "En espera", se selecciona
+     * el registro de plantacion en espera de dicha parcela mas
+     * cercano a la fecha actual y se actualiza su estado, su
+     * necesidad de agua de riego, su lamina total de agua
+     * disponible y su lamina de riego optima. Esto tres ultimos
+     * atributos son actualizados si el nuevo estado del registro
+     * de plantacion en espera es "En desarrollo" o "En desarrollo
+     * optimo".
+     */
+    if (statusService.equals(statusService.calculateStatus(modifiedPlantingRecord), finishedStatus)) {
+      modifiedPlantingRecord.setStatus(finishedStatus);
+
+      /*
+       * La necesidad de agua de riego, la capacidad de almacenamiento
+       * de agua del suelo y el umbral de riego de un registro de
+       * plantacion que tiene el estado finalizado tienen los valores
+       * "n/a", 0 y 0, respectivamente
+       */
+      modifiedPlantingRecord.setCropIrrigationWaterNeed(notAvailable);
+      plantingRecordService.updateTotalAmountWaterAvailable(plantingRecordId, 0);
+      plantingRecordService.updateOptimalIrrigationLayer(plantingRecordId, 0);
+
+      /*
+       * Si la parcela correspondiente al registro de plantacion
+       * que paso de un estado de desarrollo al estado "Finalizado",
+       * tiene registros de plantacion en el estado "En espera", se
+       * obtiene de ellos el que tiene la fecha de siembra mas cercana
+       * a la fecha actual
+       */
+      if (plantingRecordService.hasInWaitingPlantingRecords(userId, modifiedParcel.getId())) {
+        int idFirstPlantingRecordInWaiting = plantingRecordService.findIdFirstOneOnWaiting(modifiedParcel.getId());
+        PlantingRecord firstPlantingRecordInWaiting = plantingRecordService.find(idFirstPlantingRecordInWaiting);
+        PlantingRecordStatus status = statusService.calculateStatus(firstPlantingRecordInWaiting);
+        plantingRecordService.setStatus(idFirstPlantingRecordInWaiting, status);
+
+        /*
+         * El caracter "-" (guion) se utiliza para representar que la
+         * necesidad de agua de riego de un cultivo en la fecha actual
+         * (es decir, hoy) [mm/dia] NO esta disponible, pero se puede
+         * calcular. Esta situacion ocurre unicamente para un registro
+         * de plantacion que tiene el estado "En desarrollo" o el estado
+         * "Desarrollo optimo". El que un registro de plantacion tenga
+         * el estado "En desarrollo" o el estado "Desarrollo optimo"
+         * depende de la fecha de siembra, la fecha de cosecha y la
+         * bandera suelo de las opciones de la parcela a la que
+         * pertenece. Si la fecha de siembra y la fecha de cosecha se
+         * eligen de tal manera que la fecha actual (es decir, hoy)
+         * esta dentro del periodo definido por ambas y la bandera
+         * suelo esta activa, el registro adquiere el estado "En
+         * desarrollo". En caso contrario, adquiere el estado
+         * "Desarrollo optimo".
+         */
+        if (statusService.equals(status, inDevelopmentStatus) || statusService.equals(status, optimalDevelopmentStatus)) {
+          plantingRecordService.updateCropIrrigationWaterNeed(idFirstPlantingRecordInWaiting, cropIrrigationWaterNeedNotAvailableButCalculable);
+        }
+
+        /*
+         * Si la parcela del registro de plantacion obtenido tiene
+         * la opcion suelo activa en sus opciones y si el registro
+         * de plantacion tiene el estado "Desarrollo optimo" se
+         * actualizan sus atributos "lamina total de agua disponible"
+         * [mm] y "lamina de riego optima" [mm]
+         */
+        if (statusService.equals(statusService.findOptimalDevelopmentStatus(), status) && firstPlantingRecordInWaiting.getParcel().getOption().getSoilFlag()) {
+          plantingRecordService.updateTotalAmountWaterAvailable(idFirstPlantingRecordInWaiting, WaterMath
+              .calculateTotalAmountWaterAvailable(firstPlantingRecordInWaiting.getCrop(), firstPlantingRecordInWaiting.getParcel().getSoil()));
+          plantingRecordService.updateOptimalIrrigationLayer(idFirstPlantingRecordInWaiting, WaterMath
+              .calculateOptimalIrrigationLayer(firstPlantingRecordInWaiting.getCrop(), firstPlantingRecordInWaiting.getParcel().getSoil()));
+        }
+
+      } // End if
+
+      return Response.status(Response.Status.OK)
+          .entity(mapper.writeValueAsString(plantingRecordService.modify(userId, plantingRecordId, modifiedPlantingRecord)))
+          .build();
+    }
+
+    /*
      * Un registro de plantacion tiene el estado "Finalizado" cuando
      * es del pasado, esto es que tanto su fecha de siembra como su
      * fecha de cosecha son estrictamente menores a la fecha actual
