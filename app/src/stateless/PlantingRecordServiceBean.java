@@ -213,6 +213,47 @@ public class PlantingRecordServiceBean {
   }
 
   /**
+   * @param parcelId
+   * @return entero que representa el ID del primer registro
+   * de plantacion, perteneciente a una parcela, que tiene
+   * el estado "En espera" de los registros de plantacion en
+   * espera de una parcela ordenados cronologicamente en forma
+   * ascendente
+   */
+  public int findIdFirstOneOnWaiting(int parcelId) {
+    /*
+     * Ordena cronologicamente de forma ascendente los registros
+     * de plantacion de una parcela que tienen el estado "En espera"
+     * y selecciona de ellos la fecha de siembra mas pequeña. De
+     * esta manera, selecciona el ID del registro de plantacion "En
+     * espera", perteneciente a una parcela, que tiene la fecha de
+     * siembra mas cercana a la fecha actual. De esta forma, se
+     * selecciona el ID del primer registro de plantacion en espera
+     * de los registros de plantacion en espera pertenecientes a
+     * una parcela.
+     * 
+     * El estado "En espera" tiene el ID = 2 siempre y cuando no se
+     * modifique el orden en el que se ejecutan las instrucciones
+     * de insercion del archivo SQL plantingRecordStatusInserts.
+     */
+    String subQuery = "SELECT MIN(RESULT_TABLE.SEED_DATE) FROM (SELECT * FROM PLANTING_RECORD WHERE (FK_PARCEL = ?1 AND FK_STATUS = 2) ORDER BY SEED_DATE) AS RESULT_TABLE";
+    String stringQuery = "SELECT ID FROM PLANTING_RECORD WHERE SEED_DATE = (" + subQuery + ")";
+
+    Query query = entityManager.createNativeQuery(stringQuery);
+    query.setParameter(1, parcelId);
+
+    int result = 0;
+
+    try {
+      result = (int) query.getSingleResult();
+    } catch(NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
    * Retorna true si y solo si una parcela tiene un registro
    * de plantacion en el que la fecha dada este entre la fecha
    * de siembra y la fecha de cosecha del mismo.
@@ -496,6 +537,24 @@ public class PlantingRecordServiceBean {
   }
 
   /**
+   * Retorna todos los registros de plantacion en espera de
+   * una parcela de un usuario
+   * 
+   * @param userId
+   * @param parcelId
+   * @return referencia a un objeto de tipo Collection que
+   * contiene los registros de plantacion en espera de una
+   * parcela de un usuario
+   */
+  public Collection<PlantingRecord> findAllInWaitingByParcelId(int userId, int parcelId) {
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (UPPER(r.status.name) = UPPER('En espera') AND p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY r.id");
+    query.setParameter("userId", userId);
+    query.setParameter("parcelId", parcelId);
+
+    return (Collection) query.getResultList();
+  }
+
+  /**
    * Retorna todos los registros de plantacion finalizados
    * de todas las parcelas registradas en la base de datos
    * subyacente
@@ -771,6 +830,19 @@ public class PlantingRecordServiceBean {
    */
   public boolean hasFinishedPlantingRecords(int userId, int parcelId) {
     return !findAllFinishedByParcelId(userId, parcelId).isEmpty();
+  }
+
+  /**
+   * Retorna true si y solo si una parcela de un usuario tiene
+   * registros de plantacion en espera
+   * 
+   * @param userId
+   * @param parcelId
+   * @return true si una parcela de un usuario tiene registros
+   * de plantacion en espera, en caso contrario false
+   */
+  public boolean hasInWaitingPlantingRecords(int userId, int parcelId) {
+    return !findAllInWaitingByParcelId(userId, parcelId).isEmpty();
   }
 
   /**

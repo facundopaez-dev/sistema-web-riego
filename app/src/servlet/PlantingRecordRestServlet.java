@@ -1950,14 +1950,6 @@ public class PlantingRecordRestServlet {
     }
 
     /*
-     * ***********************************************************
-     * A partir de aqui comienza el codigo necesario para calcular
-     * la necesidad de agua de riego de un cultivo en la fecha
-     * actual [mm/dia]
-     * ***********************************************************
-     */
-
-    /*
      * Si el flujo de ejecucion de este metodo llega a estas lineas
      * de codigo es debido a que el registro de plantacion sobre el
      * que se quiere calcular la necesidad de agua de riego es un
@@ -1968,7 +1960,6 @@ public class PlantingRecordRestServlet {
      * de agua de riego de un cultivo en desarrollo en la fecha actual.
      */
     PlantingRecord developingPlantingRecord = plantingRecordService.find(plantingRecordId);
-    String stringIrrigationWaterNeedCurrentDate = null;
 
     /*
      * El valor de esta constante se asigna a la necesidad de
@@ -1989,6 +1980,102 @@ public class PlantingRecordRestServlet {
      * La abreviatura "n/a" significa "no disponible".
      */
     String notAvailable = plantingRecordService.getNotAvailable();
+
+    /*
+     * El simbolo de esta variable se utiliza para representar que la
+     * necesidad de agua de riego de un cultivo en la fecha actual [mm/dia]
+     * no esta disponible, pero se puede calcular. Esta situacion
+     * ocurre unicamente para un registro de plantacion en desarrollo.
+     */
+    String cropIrrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getCropIrrigationWaterNotAvailableButCalculable();
+    PlantingRecordStatus status = statusService.calculateStatus(developingPlantingRecord);
+    int parcelId = developingPlantingRecord.getParcel().getId();
+
+    /*
+     * Si el presunto estado del registro de plantacion
+     * presuntamente en desarrollo, sobre el que se calcula
+     * la necesidad de agua de riego de su cultivo, es
+     * efectivamente el estado "Finalizado", la aplicacion
+     * del lado servidor retorna el mensaje HTTP 400 (Bad
+     * request) junto con un mensaje que indica lo sucedido,
+     * no se realiza la operacion solicitada y se establece
+     * el estado "Finalizado" en dicho registro
+     */
+    if (statusService.equals(status, statusService.findFinishedStatus())) {
+      plantingRecordService.setStatus(plantingRecordId, status);
+
+      /*
+       * La necesidad de agua de riego, la capacidad de almacenamiento
+       * de agua del suelo y el umbral de riego de un registro de
+       * plantacion que tiene el estado finalizado tiene los valores
+       * "n/a", 0 y 0, respectivamente
+       */
+      plantingRecordService.updateCropIrrigationWaterNeed(plantingRecordId, notAvailable);
+      plantingRecordService.updateTotalAmountWaterAvailable(plantingRecordId, 0);
+      plantingRecordService.updateOptimalIrrigationLayer(plantingRecordId, 0);
+
+      /*
+       * Si la parcela correspondiente al registro de plantacion
+       * que paso de un estado de desarrollo al estado "Finalizado",
+       * tiene registros de plantacion en el estado "En espera", se
+       * obtiene de ellos el que tiene la fecha de siembra mas cercana
+       * a la fecha actual
+       */
+      if (plantingRecordService.hasInWaitingPlantingRecords(userId, parcelId)) {
+        int firstPlantingRecordId = plantingRecordService.findIdFirstOneOnWaiting(parcelId);
+        PlantingRecord firstPlantingRecord = plantingRecordService.find(firstPlantingRecordId);
+        status = statusService.calculateStatus(firstPlantingRecord);
+        plantingRecordService.setStatus(firstPlantingRecordId, status);
+
+        /*
+         * El caracter "-" (guion) se utiliza para representar que la
+         * necesidad de agua de riego de un cultivo en la fecha actual
+         * (es decir, hoy) [mm/dia] NO esta disponible, pero se puede
+         * calcular. Esta situacion ocurre unicamente para un registro
+         * de plantacion que tiene el estado "En desarrollo" o el estado
+         * "Desarrollo optimo". El que un registro de plantacion tenga
+         * el estado "En desarrollo" o el estado "Desarrollo optimo"
+         * depende de la fecha de siembra, la fecha de cosecha y la
+         * bandera suelo de las opciones de la parcela a la que
+         * pertenece. Si la fecha de siembra y la fecha de cosecha se
+         * eligen de tal manera que la fecha actual (es decir, hoy)
+         * esta dentro del periodo definido por ambas y la bandera
+         * suelo esta activa, el registro adquiere el estado "En
+         * desarrollo". En caso contrario, adquiere el estado
+         * "Desarrollo optimo".
+         */
+        plantingRecordService.updateCropIrrigationWaterNeed(firstPlantingRecordId, cropIrrigationWaterNeedNotAvailableButCalculable);
+
+        /*
+         * Si la parcela del registro de plantacion obtenido tiene
+         * la opcion suelo activa en sus opciones y si el registro
+         * de plantacion tiene el estado "Desarrollo optimo" se
+         * actualizan sus atributos "lamina total de agua disponible"
+         * [mm] y "lamina de riego optima" [mm]
+         */
+        if (statusService.equals(statusService.findOptimalDevelopmentStatus(), status) && firstPlantingRecord.getParcel().getOption().getSoilFlag()) {
+          plantingRecordService.updateTotalAmountWaterAvailable(firstPlantingRecordId, WaterMath
+              .calculateTotalAmountWaterAvailable(firstPlantingRecord.getCrop(), firstPlantingRecord.getParcel().getSoil()));
+          plantingRecordService.updateOptimalIrrigationLayer(firstPlantingRecordId, WaterMath
+              .calculateOptimalIrrigationLayer(firstPlantingRecord.getCrop(), firstPlantingRecord.getParcel().getSoil()));
+        }
+
+      } // End if
+
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.FINISHED_CROP_IN_CALCULATION_NEED_IRRIGATION_WATER, SourceUnsatisfiedResponse.WATER_NEED_CROP)))
+          .build();
+    } // End if
+
+    /*
+     * ***********************************************************
+     * A partir de aqui comienza el codigo necesario para calcular
+     * la necesidad de agua de riego de un cultivo en la fecha
+     * actual [mm/dia]
+     * ***********************************************************
+     */
+
+    String stringIrrigationWaterNeedCurrentDate = null;
 
     try {
       /*
