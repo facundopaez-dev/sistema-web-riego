@@ -1205,6 +1205,59 @@ public class IrrigationRecordRestServlet {
     }
 
     IrrigationWaterNeedFormData irrigationWaterNeedFormData = mapper.readValue(json, IrrigationWaterNeedFormData.class);
+
+    /*
+     * ******************************************
+     * Controles sobre la definicion de los datos
+     * ******************************************
+     */
+
+    /*
+     * Si la parcela NO esta definida, la aplicacion del lado
+     * servidor retorna el mensaje HTTP 400 (Bad request) junto
+     * con el mensaje "La parcela debe estar definida" y no se
+     * realiza la operacion solicitada
+     */
+    if (irrigationWaterNeedFormData.getParcel() == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INDEFINITE_PARCEL))).build();
+    }
+
+    /*
+     * Si la necesidad de agua de riego de un cultivo en la
+     * fecha actual (es decir, hoy) [mm/dia] es negativa,
+     * la aplicacion retorna el mensaje HTTP 400 (Bad request)
+     * junto con un mensaje que indica la invalidez del dato
+     * provisto y no se realiza la operacion solicitada
+     */
+    if (irrigationWaterNeedFormData.getCropIrrigationWaterNeed() < 0) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_CROP_IRRIGATION_WATER_NEED))).build();
+    }
+
+    /*
+     * Si el riego realizado es negativo, la aplicacion del lado
+     * servidor retorna el mensaje HTTP 400 (Bad request) junto
+     * con el mensaje "El riego realizado debe ser mayor o igual
+     * a cero" y no se realiza la operacion solicitada
+     */
+    if (irrigationWaterNeedFormData.getIrrigationDone() < 0) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NEGATIVE_REALIZED_IRRIGATION))).build();
+    }
+
+    /*
+     * Este metodo REST es para crear un registro de riego para una
+     * parcela que tiene un cultivo en desarrollo. Por lo tanto, si
+     * la parcela para la cual se crea un registro de riego, NO tiene
+     * un cultivo en desarrollo (lo cual se representa mediante la
+     * inexistencia de un registro de plantacion en desarrollo), la
+     * aplicacion del lado servidor retorna el mensaje HTTP 400 (Bad
+     * request) junto con el mensaje "No esta permitido crear un
+     * registro de riego para una parcela que no tiene un cultivo en
+     * desarrollo" y no se realiza la operacion solicitada
+     */
+    if (!plantingRecordService.checkOneInDevelopment(irrigationWaterNeedFormData.getParcel().getId())) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.THERE_IS_NO_CROP_IN_DEVELOPMENT))).build();
+    }
+
     PlantingRecord developingPlantingRecord = plantingRecordService.findInDevelopment(irrigationWaterNeedFormData.getParcel().getId());
 
     int developingPlantingRecordId = developingPlantingRecord.getId();
@@ -1237,58 +1290,6 @@ public class IrrigationRecordRestServlet {
     currentIrrigationRecord.setParcel(irrigationWaterNeedFormData.getParcel());
     currentIrrigationRecord.setCrop(irrigationWaterNeedFormData.getCrop());
     currentIrrigationRecord.setIrrigationDone(irrigationWaterNeedFormData.getIrrigationDone());
-
-    /*
-     * ******************************************
-     * Controles sobre la definicion de los datos
-     * ******************************************
-     */
-
-    /*
-     * Si la fecha de un registro de riego nuevo NO esta
-     * definida, la aplicacion del lado servidor retorna el
-     * mensaje HTTP 400 (Bad request) junto con el mensaje
-     * "La fecha debe estar definida" y no se realiza la
-     * operacion solicitada
-     */
-    if (currentIrrigationRecord.getDate() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_DATE))).build();
-    }
-
-    /*
-     * Si la parcela NO esta definida, la aplicacion del lado
-     * servidor retorna el mensaje HTTP 400 (Bad request) junto
-     * con el mensaje "La parcela debe estar definida" y no se
-     * realiza la operacion solicitada
-     */
-    if (currentIrrigationRecord.getParcel() == null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INDEFINITE_PARCEL))).build();
-    }
-
-    /*
-     * Si el riego realizado es negativo, la aplicacion del lado
-     * servidor retorna el mensaje HTTP 400 (Bad request) junto
-     * con el mensaje "El riego realizado debe ser mayor o igual
-     * a cero" y no se realiza la operacion solicitada
-     */
-    if (currentIrrigationRecord.getIrrigationDone() < 0) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NEGATIVE_REALIZED_IRRIGATION))).build();
-    }
-
-    /*
-     * Este metodo REST es para crear un registro de riego para una
-     * parcela que tiene un cultivo en desarrollo. Por lo tanto, si
-     * la parcela para la cual se crea un registro de riego, NO tiene
-     * un cultivo en desarrollo (lo cual se representa mediante la
-     * inexistencia de un registro de plantacion en desarrollo), la
-     * aplicacion del lado servidor retorna el mensaje HTTP 400 (Bad
-     * request) junto con el mensaje "No esta permitido crear un
-     * registro de riego para una parcela que no tiene un cultivo en
-     * desarrollo" y no se realiza la operacion solicitada
-     */
-    if (!plantingRecordService.checkOneInDevelopment(currentIrrigationRecord.getParcel().getId())) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.THERE_IS_NO_CROP_IN_DEVELOPMENT))).build();
-    }
 
     /*
      * Hay que tener en cuenta que esta instruccion sera ejecutada

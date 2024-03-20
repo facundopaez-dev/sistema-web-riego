@@ -140,7 +140,8 @@ public enum ReasonError {
   NON_EXISTENT_IRRIGATION_RECORDS_WITH_CROP_IN_A_PERIOD("Para generar el informe estadístico solicitado se requieren registros de riego asociados a un cultivo y la parcela seleccionada no tiene registros de riego asociados a un cultivo en el período definido por las fechas elegidas"),
   NON_EXISTENT_HARVEST_RECORDS("Para generar el informe estadístico solicitado se requieren registros de cosecha (rendimientos) y la parcela seleccionada no tiene registros de cosecha"),
   NON_EXISTENT_HARVEST_RECORDS_IN_A_PERIOD("Para generar el informe estadístico solicitado se requieren registros de cosecha (rendimientos) y la parcela seleccionada no tiene registros de cosecha en el período definido por las fechas elegidas"),
-  FINISHED_CROP_IN_CALCULATION_NEED_IRRIGATION_WATER("El cultivo ha finalizado por ser la fecha de cosecha estrictamente menor a la fecha actual (es decir, hoy)");
+  FINISHED_CROP_IN_CALCULATION_NEED_IRRIGATION_WATER("El cultivo ha finalizado por ser la fecha de cosecha estrictamente menor a la fecha actual (es decir, hoy)"),
+  INVALID_CROP_IRRIGATION_WATER_NEED("La necesidad de agua de riego de un cultivo no debe ser negativa");
 
   private final String reason;
 
