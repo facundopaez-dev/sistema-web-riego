@@ -449,7 +449,7 @@ public class OptionRestServlet {
                  * como umbral de riego, debido a lo que representa.
                  */
                 plantingRecordService.updateOptimalIrrigationLayer(developingPlantingRecord.getId(),
-                        WaterMath.calculateNegativeOptimalIrrigationLayer(givenCrop, givenParcel.getSoil()));
+                        WaterMath.calculateOptimalIrrigationLayer(givenCrop, givenParcel.getSoil()));
             }
 
             /*

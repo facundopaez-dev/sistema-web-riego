@@ -32,6 +32,8 @@ import stateless.CropServiceBean;
 import stateless.LatitudeServiceBean;
 import stateless.MonthServiceBean;
 import stateless.SessionServiceBean;
+import stateless.SoilWaterBalanceServiceBean;
+import stateless.PlantingRecordStatusServiceBean;
 import stateless.Page;
 import model.IrrigationRecord;
 import model.Parcel;
@@ -78,6 +80,12 @@ public class IrrigationRecordRestServlet {
 
   @EJB
   ParcelServiceBean parcelService;
+
+  @EJB
+  SoilWaterBalanceServiceBean soilWaterBalanceService;
+
+  @EJB
+  PlantingRecordStatusServiceBean statusService;
 
   // mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
@@ -1197,9 +1205,10 @@ public class IrrigationRecordRestServlet {
     }
 
     IrrigationWaterNeedFormData irrigationWaterNeedFormData = mapper.readValue(json, IrrigationWaterNeedFormData.class);
+    PlantingRecord developingPlantingRecord = plantingRecordService.findInDevelopment(irrigationWaterNeedFormData.getParcel().getId());
 
-    int developingPlantingRecordId = plantingRecordService.findInDevelopment(irrigationWaterNeedFormData.getParcel().getId()).getId();
-    double irrigationDone = irrigationWaterNeedFormData.getIrrigationDone();
+    int developingPlantingRecordId = developingPlantingRecord.getId();
+    double irrigationDoneCurrentDate = irrigationWaterNeedFormData.getIrrigationDone();
     double cropIrrigationWaterNeed = irrigationWaterNeedFormData.getCropIrrigationWaterNeed();
 
     /*
@@ -1217,17 +1226,17 @@ public class IrrigationRecordRestServlet {
      * Este metodo REST se invoca unicamente para el registro de
      * plantacion en desarrollo de una parcela.
      */
-    if (irrigationDone >= cropIrrigationWaterNeed) {
+    if (irrigationDoneCurrentDate >= cropIrrigationWaterNeed) {
       plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecordId, String.valueOf(0.0));
     } else {
-      plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecordId, String.valueOf(cropIrrigationWaterNeed - irrigationDone));
+      plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecordId, String.valueOf(cropIrrigationWaterNeed - irrigationDoneCurrentDate));
     }
 
-    IrrigationRecord newIrrigationRecord = new IrrigationRecord();
-    newIrrigationRecord.setDate(UtilDate.getCurrentDate());
-    newIrrigationRecord.setParcel(irrigationWaterNeedFormData.getParcel());
-    newIrrigationRecord.setCrop(irrigationWaterNeedFormData.getCrop());
-    newIrrigationRecord.setIrrigationDone(irrigationWaterNeedFormData.getIrrigationDone());
+    IrrigationRecord currentIrrigationRecord = new IrrigationRecord();
+    currentIrrigationRecord.setDate(UtilDate.getCurrentDate());
+    currentIrrigationRecord.setParcel(irrigationWaterNeedFormData.getParcel());
+    currentIrrigationRecord.setCrop(irrigationWaterNeedFormData.getCrop());
+    currentIrrigationRecord.setIrrigationDone(irrigationWaterNeedFormData.getIrrigationDone());
 
     /*
      * ******************************************
@@ -1242,7 +1251,7 @@ public class IrrigationRecordRestServlet {
      * "La fecha debe estar definida" y no se realiza la
      * operacion solicitada
      */
-    if (newIrrigationRecord.getDate() == null) {
+    if (currentIrrigationRecord.getDate() == null) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_DATE))).build();
     }
 
@@ -1252,7 +1261,7 @@ public class IrrigationRecordRestServlet {
      * con el mensaje "La parcela debe estar definida" y no se
      * realiza la operacion solicitada
      */
-    if (newIrrigationRecord.getParcel() == null) {
+    if (currentIrrigationRecord.getParcel() == null) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INDEFINITE_PARCEL))).build();
     }
 
@@ -1262,7 +1271,7 @@ public class IrrigationRecordRestServlet {
      * con el mensaje "El riego realizado debe ser mayor o igual
      * a cero" y no se realiza la operacion solicitada
      */
-    if (newIrrigationRecord.getIrrigationDone() < 0) {
+    if (currentIrrigationRecord.getIrrigationDone() < 0) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NEGATIVE_REALIZED_IRRIGATION))).build();
     }
 
@@ -1277,7 +1286,7 @@ public class IrrigationRecordRestServlet {
      * registro de riego para una parcela que no tiene un cultivo en
      * desarrollo" y no se realiza la operacion solicitada
      */
-    if (!plantingRecordService.checkOneInDevelopment(newIrrigationRecord.getParcel().getId())) {
+    if (!plantingRecordService.checkOneInDevelopment(currentIrrigationRecord.getParcel().getId())) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.THERE_IS_NO_CROP_IN_DEVELOPMENT))).build();
     }
 
@@ -1288,12 +1297,22 @@ public class IrrigationRecordRestServlet {
      * este metodo REST, tiene un cultivo en desarrollo, lo cual
      * se representa mediante un registro de plantacion en desarrollo
      */
-    newIrrigationRecord.setCrop(plantingRecordService.findInDevelopment(newIrrigationRecord.getParcel().getId()).getCrop());
+    currentIrrigationRecord.setCrop(plantingRecordService.findInDevelopment(irrigationWaterNeedFormData.getParcel().getId()).getCrop());
 
     /*
-     * Persistencia del nuevo registro de riego
+     * Persistencia del riego realizado en la fecha actual [mm/dia]
      */
-    newIrrigationRecord = irrigationRecordService.create(newIrrigationRecord);
+    currentIrrigationRecord = irrigationRecordService.create(currentIrrigationRecord);
+
+    /*
+     * Establece el estado del registro de plantacion en desarrollo
+     * si y solo si la parcela a la que pertenece tiene la bandera
+     * suelo activa en sus opciones. Esto se hace para calcular el
+     * estado de dicho registro cada vez que se persiste un riego
+     * realizado en el formulario del calculo de la necesidad de
+     * agua de riego de un cultivo en la fecha actual.
+     */
+    setStatusDevelopingPlantingRecord(developingPlantingRecord);
 
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
@@ -1301,7 +1320,77 @@ public class IrrigationRecordRestServlet {
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos que el
      * cliente solicito persistir
      */
-    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(newIrrigationRecord)).build();
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(currentIrrigationRecord)).build();
+  }
+
+  /**
+   * Calcula el estado de un registro de plantacion en desarrollo
+   * perteneciente a una parcela que tiene la bandera suelo activa
+   * en sus opciones
+   * 
+   * @param developingPlantingRecord
+   */
+  private void setStatusDevelopingPlantingRecord(PlantingRecord developingPlantingRecord) {
+    Parcel parcel = developingPlantingRecord.getParcel();
+    Calendar yesterday = UtilDate.getYesterdayDate();
+
+    /*
+     * Calculo del estado del registro de plantacion que tiene
+     * el cultivo para el que se calcula la necesidad de agua
+     * de riego en la fecha actual (es decir, hoy) [mm/dia]
+     */
+    String stringAccumulatedWaterDeficitPerDayFromYesterday = soilWaterBalanceService.find(parcel.getId(), yesterday).getAccumulatedWaterDeficitPerDay();
+    String notCalculated = soilWaterBalanceService.getNotCalculated();
+
+    /*
+     * Si el valor del acumulado del deficit de agua por dia [mm/dia]
+     * de ayer es "NC" (no calculado), significa dos cosas:
+     * - que el algoritmo utilizado para calcular la necesidad de
+     * agua de riego de un cultivo en la fecha actual [mm/dia] es
+     * el que utiliza el suelo para ello,
+     * - y que la perdida de humeda del suelo, que tiene un cultivo
+     * sembrado, fue estrictamente mayor al doble de la capacidad de
+     * almacenamiento de agua del suelo.
+     * 
+     * Por lo tanto, se retorna "NC" para indicar que la necesidad de
+     * agua de riego de un cultivo en la fecha actual [mm/dia] no se
+     * calculo, ya que el cultivo esta muerto debido a que ningun
+     * cultivo puede sobrevivir con una perdida de humedad del suelo
+     * estrictamente mayor al doble de la capacidad de almacenamiento
+     * de agua del suelo.
+     * 
+     * Si el valor del acumulado del deficit de agua por dia del dia
+     * inmediatamente anterior a la fecha actual (es decir, hoy) NO
+     * es "NC", significa que es un numero, por lo tanto, se calcula
+     * el estado del registro de plantacion perteneciente a una parcela
+     * que tiene la bandera suelo activa en sus opciones. Si dicha
+     * bandera esta activa, significa que se utilizan datos de suelo
+     * para calcular el agua de riego de un cultivo en la fecha actual.
+     */
+    if (!stringAccumulatedWaterDeficitPerDayFromYesterday.equals(notCalculated)) {
+      double totalIrrigationWaterCurrentDate = irrigationRecordService.calculateTotalIrrigationWaterCurrentDate(parcel.getId());
+      double accumulatedWaterDeficitPerDayFromYesterday = Double.parseDouble(stringAccumulatedWaterDeficitPerDayFromYesterday);
+  
+      /*
+       * Si la bandera suelo de una parcela esta activa, se
+       * comprueba el nivel de humedad del suelo para establecer
+       * el estado del registro de plantacion en desarrollo para
+       * el que se calcula la necesidad de agua de riego de su
+       * cultivo en la fecha actual (es decir, hoy) [mm/dia].
+       * 
+       * El metodo calculateStatusRelatedToSoilMoistureLevel()
+       * de la clase PlantingRecordStatusService se ocupa de
+       * comprobar el nivel de humedad del suelo y retorna el
+       * estado correspondiente.
+       */
+      if (parcel.getOption().getSoilFlag()) {
+        plantingRecordService.setStatus(developingPlantingRecord.getId(),
+            statusService.calculateStatusRelatedToSoilMoistureLevel(totalIrrigationWaterCurrentDate,
+                accumulatedWaterDeficitPerDayFromYesterday, developingPlantingRecord));
+      }
+
+    } // End if
+
   }
 
 }

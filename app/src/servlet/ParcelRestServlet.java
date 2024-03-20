@@ -1419,7 +1419,7 @@ public class ParcelRestServlet {
 
       plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecordId, cropIrrigationWaterNeedNotAvailableButCalculable);
       plantingRecordService.updateTotalAmountWaterAvailable(developingPlantingRecordId, WaterMath.calculateTotalAmountWaterAvailable(developingCrop, modifiedSoil));
-      plantingRecordService.updateOptimalIrrigationLayer(developingPlantingRecordId, WaterMath.calculateNegativeOptimalIrrigationLayer(developingCrop, modifiedSoil));
+      plantingRecordService.updateOptimalIrrigationLayer(developingPlantingRecordId, WaterMath.calculateOptimalIrrigationLayer(developingCrop, modifiedSoil));
       plantingRecordService.setStatus(developingPlantingRecordId, statusService.findOptimalDevelopmentStatus());
     }
 

@@ -5,9 +5,12 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import irrigation.WaterMath;
 import model.PlantingRecord;
 import model.PlantingRecordStatus;
+import model.Crop;
 import model.Option;
+import model.Parcel;
 import util.UtilDate;
 
 @Stateless
@@ -164,6 +167,174 @@ public class PlantingRecordStatusServiceBean {
    */
   public boolean equals(PlantingRecordStatus statusOne, PlantingRecordStatus statusTwo) {
     return statusOne.getName().equals(statusTwo.getName());
+  }
+
+  /**
+   * Calcula el estado de un registro de plantacion en desarrollo en
+   * funcion del punto en el que se encuentra el nivel de humedad del
+   * suelo en el que esta sembrado el cultivo de dicho registro. Esto
+   * lo realiza en funcion de la cantidad total de agua de riego de la
+   * fecha actual (es decir, hoy) [mm/dia], del acumulado del deficit
+   * de agua por dia del dia inmediatamente anterior a la fecha actual
+   * [mm/dia], de la capacidad de almacenamiento de agua del suelo [mm]
+   * en el que esta sembrado un cultivo, del umbral de riego [mm], del
+   * punto de marchitez permanente y del negativo del doble de la
+   * capacidad de almacenamiento de agua [mm].
+   * 
+   * El estado de un registro de plantacion es el estado del cultivo
+   * que contiene. Por lo tanto, el estado que retorna este metodo
+   * representa el estado de un cultivo.
+   * 
+   * @param totalIrrigationWaterCurrentDate
+   * @param accumulatedWaterDeficitPerDayFromYesterday
+   * @param developingPlantingRecord
+   * @return referencia a un objeto de tipo PlantingRecordStatus
+   * que representa el estado de un registro de plantacion en
+   * desarrollo calculado en funcion del nivel de humedad del
+   * suelo en el que se encuentra sembrado el cultivo que contiene.
+   * Este estado tambien representa el estado de un cultivo.
+   */
+  public PlantingRecordStatus calculateStatusRelatedToSoilMoistureLevel(double totalIrrigationWaterCurrentDate,
+      double accumulatedWaterDeficitPerDayFromYesterday, PlantingRecord developingPlantingRecord) {
+    Parcel parcel = developingPlantingRecord.getParcel();
+    Crop crop = developingPlantingRecord.getCrop();
+
+    double soilMoistureLevel = 0.0;
+    double permanentWiltingPoint = 0.0;
+    double totalAmountWaterAvailable = 0.0;
+    double optimalIrrigationLayer = 0.0;
+    double fieldCapacity = 0.0;
+
+    totalAmountWaterAvailable = WaterMath.calculateTotalAmountWaterAvailable(crop, parcel.getSoil());
+    optimalIrrigationLayer = WaterMath.calculateOptimalIrrigationLayer(crop, parcel.getSoil());
+
+    /*
+     * La capacidad de campo se iguala a la capacidad de
+     * almacenamiento de agua del suelo [mm] para realizar
+     * las comparaciones del nivel de humedad del suelo con
+     * respecto a la capacidad de almacenamiento de agua del
+     * suelo [mm], la cual esta determinada por la lamina
+     * total de agua disponible [mm] (dt)
+     */
+    fieldCapacity = totalAmountWaterAvailable;
+
+    /*
+     * El deficit de agua por dia [mm/dia] puede ser negativo,
+     * cero o positivo. Cuando es negativo representa que en
+     * un dia hubo perdida de humedad en el suelo. En cambio,
+     * cuando es igual o mayor a cero representa que la cantidad
+     * de humedad del suelo agotada por dia fue totalmente cubierta.
+     * Dicha cantidad esta determinada por la ETc (evapotranspiracion
+     * del cultivo bajo condiciones estandar) [mm/dia].
+     * 
+     * El acumulado del deficit de agua por dia [mm/dia] es el
+     * resultado de sumar el deficit de agua por dia de cada
+     * uno de los dias de un conjunto de dias. Por lo tanto, es
+     * la cantidad total de perdida de humedad que hubo en el
+     * suelo dentro en un periodo de dias. El acumulado del
+     * deficit de agua por dia puede ser negativo o cero. Cuando
+     * es negativo representa que en un periodo de dias hubo
+     * perdida de humedad en el suelo. En cambio, cuando es
+     * igual a cero representa que la perdida de humedad que
+     * hubo en el suelo en un periodo de dias esta totalmente
+     * cubierta. Esto es que el suelo esta en capacidad de campo,
+     * lo significa que el suelo esta lleno de agua o en su
+     * maxima capacidad de almacenamiento de agua, pero no
+     * anegado.
+     * 
+     * Se suma la capacidad de almacenamiento de agua del suelo
+     * (la capacidad de campo es igualada a este valor en la
+     * linea inmediatamente anterior) al resultado de la suma
+     * entre el acumulado del deficit de agua por dia del dia
+     * inmediatamente anterior a la fecha actual [mm/dia] y la
+     * cantidad total de agua de riego de la fecha actual [mm/dia]
+     * porque lo que se busca es determinar el punto en el que
+     * se encuentra el nivel de humedad del suelo, que tiene
+     * un cultivo sembrado, con respecto a la capacidad de
+     * campo para establecer el estado de un registro de
+     * plantacion en desarrollo perteneciente a una parcela
+     * que tiene la bandera suelo activa en sus opciones.
+     * 
+     * La capacidad de campo es un valor estrictamente mayor
+     * a cero, ya que es igualada a la capacidad de almacenamiento
+     * de agua del suelo, la cual es estrictamente mayor a
+     * cero. La cantidad total de agua de riego de un dia
+     * cualquiera es un valor estrictamente mayor o igual a
+     * cero. En cambio, el acumulado del deficit de agua por
+     * dia es un valor negativo o igual a cero. Por este motivo
+     * se realiza la suma entre la capacidad de campo y el
+     * resultado de la suma entre el acumulado del deficit
+     * de agua por dia del dia inmediatamente anterior a la
+     * fecha actual y la cantidad total de agua de riego de
+     * la fecha actual para determinar el punto en el que
+     * se encuentra el nivel de humedad del suelo que tiene
+     * un cultivo sembrado. Esta determinacion se realiza con
+     * el fin de calcular el estado de un registro de plantacion
+     * en desarrollo. De esta manera, tambien se determina el
+     * estado del cultivo perteneciente a un registro de
+     * plantacion en desarrollo.
+     */
+    soilMoistureLevel = fieldCapacity + (accumulatedWaterDeficitPerDayFromYesterday + totalIrrigationWaterCurrentDate);
+
+    /*
+     * Si el nivel de humedad del suelo [mm], que tiene un cultivo
+     * sembrado, es menor o igual al punto de marchitez permanente
+     * (0) [mm] y mayor o igual al negativo del doble de la capacidad
+     * de almacenamiento del suelo [mm], el estado del registro de
+     * plantacion correspondiente a dicho cultivo es "Desarrollo en
+     * marchitez", y, por ende, este es el estado del cultivo.
+     */
+    if (soilMoistureLevel <= permanentWiltingPoint && soilMoistureLevel >= -(2 * totalAmountWaterAvailable)) {
+      return findDevelopmentInWiltingStatus();
+    }
+
+    /*
+     * Si el nivel de humedad del suelo [mm], que tiene un cultivo
+     * sembrado, es menor o igual al umbral de riego [mm] y estrictamente
+     * mayor al punto de marchitez permanente (0) [mm], el estado
+     * del registro de plantacion correspondiente a dicho cultivo
+     * es "Desarrollo en riesgo de marchitez", y, por ende, este es
+     * el estado del cultivo.
+     * 
+     * El umbral de riego esta determinado por la lamina de riego
+     * optima (drop) [mm].
+     */
+    if (soilMoistureLevel <= optimalIrrigationLayer && soilMoistureLevel > permanentWiltingPoint) {
+      return findDevelopmentAtRiskWiltingStatus();
+    }
+
+    /*
+     * Si no se ejecuta el bloque then de ninguna de las instrucciones
+     * if anteriores significa que el nivel de humedad del suelo [mm],
+     * que tiene un cultivo sembrado, es menor o igual a la capacidad
+     * de campo [mm] (*) y estrictamente mayor al umbral de riego [mm]
+     * (**), por lo tanto, el estado del registro de plantacion
+     * correspondiente a dicho cultivo es "Desarrollo optimo", y, por
+     * ende, este es el estado del cultivo.
+     * 
+     * (*) No hay que olvidar que la capacidad de campo es igualada
+     * a la capacidad de almacenamiento de agua del suelo. Esto se hace
+     * para determinar el nivel de humedad del suelo, que tiene un
+     * cultivo sembrado, con respecto a la capacidad de almacenamiento
+     * de agua del suelo. Esto se debe a que se parte desde la condicion
+     * de suelo a capacidad de campo en la fecha de siembra de un cultivo
+     * para que la aplicacion informe cada dia en funcion de la perdida
+     * de humedad del suelo y de la capacidad de almacenamiento de agua
+     * del suelo, la cantidad de agua de riego que se debe proveer al
+     * suelo para llevarlo a la condicion de capacidad de campo. La
+     * perdida de humedad del suelo esta determinada por la ETc
+     * (evapotranspiracion del cultivo bajo condiciones estandar) [mm/dia].
+     * La condicion de suelo en capacidad de campo significa que el
+     * suelo esta lleno de agua o en su maxima capacidad de almacenamiento
+     * de agua, pero no anegado. La maxima capacidad de almacenamiento
+     * de agua del suelo, o simplemente capacidad de almacenamiento
+     * de agua del suelo, esta determinada por la lamina total de agua
+     * disponible (dt) [mm].
+     * 
+     * (**) El umbral de riego esta determinado por la lamina de riego
+     * optima (drop) [mm].
+     */
+    return findOptimalDevelopmentStatus();
   }
 
 }
