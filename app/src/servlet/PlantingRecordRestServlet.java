@@ -3034,7 +3034,7 @@ public class PlantingRecordRestServlet {
 
       waterProvidedPerDay = climateRecord.getPrecip() + WaterMath.sumTotalAmountIrrigationWaterGivenDate(climateRecord.getDate(), irrigationRecords);
       waterDeficitPerDay = WaterMath.calculateWaterDeficitPerDay(climateRecord, irrigationRecords);
-      evaporatedWaterPerDay = soilWaterBalanceService.getEvaporatedWaterFromClimateRecord(climateRecord);
+      evaporatedWaterPerDay = climateRecord.getEtc();
 
       /*
        * Obtiene el acumulado del deficit de agua por dia del

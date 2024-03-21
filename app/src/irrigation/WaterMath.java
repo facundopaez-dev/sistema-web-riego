@@ -190,16 +190,12 @@ public class WaterMath {
    * @return double que representa el deficit (falta) de agua por dia
    * [mm/dia] de un cultivo en una fecha si se lo invoca con un registro
    * climatico y una coleccion de registros de riego pertenecientes a
-   * una misma parcela que tiene un cultivo sembrado en una fecha. En
-   * caso contrario, double que representa el deficit (falta) de agua
-   * por dia [mm/dia] de una parcela en una fecha. Se dice que el deficit
-   * de agua por dia [mm/dia] de un cultivo o de una parcela es de una
-   * fecha porque un registro climatico y un registro de riego tienen
-   * una fecha (dia) y pertenecen a una parcela.
+   * una misma parcela que tiene un cultivo sembrado y en desarrollo
+   * en una fecha. Se dice que el deficit de agua por dia [mm/dia] de
+   * un cultivo es de una fecha porque un registro climatico y un registro
+   * de riego tienen una fecha (dia) y pertenecen a una parcela.
    */
   public static double calculateWaterDeficitPerDay(ClimateRecord climateRecord, Collection<IrrigationRecord> irrigationRecords) {
-    double waterDeficitPerDay = 0.0;
-
     /*
      * Obtiene la cantidad total de agua de riego utilizada en una
      * fecha para regar una parcela [mm/dia]. Si se invoca este metodo
@@ -218,17 +214,6 @@ public class WaterMath {
     double totalIrrigationWaterGivenDate = sumTotalAmountIrrigationWaterGivenDate(climateRecord.getDate(), irrigationRecords);
 
     /*
-     * Cuando una parcela NO tuvo un cultivo sembrado en una fecha
-     * dada, la ETc [mm/dia] del registro climatico correspondiente
-     * a dicha fecha y perteneciente a una parcela dada, tiene el
-     * valor 0.0. Esto se debe a que si NO hubo un cultivo sembrado
-     * en una parcela en una fecha dada, NO es posible calcular la
-     * ETc (evapotranspiracion del cultivo bajo condiciones estandar)
-     * del mismo. Por lo tanto, en este caso se debe utilizar la ETo
-     * [mm/dia] (evapotranspiracion del cultivo de referencia) para
-     * calcular el deficit (falta) de agua por dia [mm/dia]. En caso
-     * contrario, se debe utilizar la ETc.
-     * 
      * El deficit de agua por dia [mm/dia] en una parcela en una fecha
      * (*) es la diferencia entre el agua provista (lluvia o riego, o
      * lluvia mas riego y viceversa) por dia [mm/dia] y el agua evaporada
@@ -253,13 +238,7 @@ public class WaterMath {
      * en una fecha" es que un registro climatico y un registro de
      * riego pertenecen a una parcela y tienen una fecha (dia).
      */
-    if (climateRecord.getEtc() == 0.0) {
-      waterDeficitPerDay = (climateRecord.getPrecip() + totalIrrigationWaterGivenDate) - climateRecord.getEto();
-    } else {
-      waterDeficitPerDay = (climateRecord.getPrecip() + totalIrrigationWaterGivenDate) - climateRecord.getEtc();
-    }
-
-    return waterDeficitPerDay;
+    return ((climateRecord.getPrecip() + totalIrrigationWaterGivenDate) - climateRecord.getEtc());
   }
 
   /**

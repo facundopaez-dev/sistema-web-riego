@@ -578,26 +578,22 @@ public class CropServiceBean {
   }
 
   /**
-   * Calcula el kc (coeficiente de cultivo) de un cultivo en
-   * funcion de su fecha de siembra y una fecha hasta dada.
-   * Para esto se determina la cantidad de dias de vida de un
-   * cultivo desde su fecha de siembra (incluida) hasta una
-   * fecha hasta dada. En base a la cantidad de dias de vida de
-   * un cultivo se determina la etapa en la que se encuentra
-   * un cultivo en su ciclo de vida, y en base a la etapa se
-   * retorna el kc de un cultivo.
+   * Para determinar el kc de un cultivo se calcula la cantidad
+   * de dias de vida transcurridos del mismo. Con base en esta
+   * cantidad se determina la etapa en la que se encuentra el
+   * cultivo y con base en la etapa de su ciclo de vida se
+   * retorna el kc correspondiente.
    * 
    * Este metodo es para la clase de pruebas unitarias GetKcTest
-   * y el metodo calculateEtsPastClimateRecords de las clases
+   * y el metodo calculateEtsPastClimateRecords() de las clases
    * PlantingRecordRestServlet y PlantingRecordManager.
    * 
    * @param crop
-   * @param seedDate [fecha de siembra de un cultivo dado]
+   * @param seedDate [fecha de siembra de un cultivo]
    * @param dateUntil
    * @return double que representa el kc (coeficiente de cultivo)
-   * de un cultivo en funcion de la etapa de su ciclo de vida en
-   * la que se encuentra tomando como referencia su fecha de siembra
-   * y una fecha hasta dada
+   * de un cultivo calculado en funcion de una fecha de siembra
+   * y una fecha hasta
    */
   public double getKc(Crop crop, Calendar seedDate, Calendar dateUntil) {
     /*
@@ -612,26 +608,17 @@ public class CropServiceBean {
   }
 
   /**
-   * Calcula el kc (coficiente de cultivo) de un cultivo en
-   * funcion de su fecha de siembra y la fecha actual.
-   * Para esto se determina la cantidad de dias de vida de un
-   * cultivo desde su fecha de siembra (incluida) hasta la
-   * fecha actual. En base a la cantidad de dias de vida de
-   * un cultivo se determina la etapa en la que se encuentra
-   * un cultivo en su ciclo de vida, y en base a la etapa se
-   * retorna el kc de un cultivo.
+   * Para determinar el kc de un cultivo se calcula la cantidad
+   * de dias de vida transcurridos del mismo. Con base en esta
+   * cantidad se determina la etapa en la que se encuentra el
+   * cultivo y con base en la etapa de su ciclo de vida se
+   * retorna el kc correspondiente.
    * 
-   * La fecha de siembra esta incluida en la cantidad de dias
-   * de vida de un cultivo porque cuenta como un dia de vida
-   * para un cultivo sembrado.
-   *
    * @param crop
-   * @param seedDate [fecha de siembra de un cultivo dado]
-   * @return numero de punto flotante que representa el kc
-   * (coeficiente de cultivo) de un cultivo en funcion de
-   * la etapa de su ciclo de vida en la que se encuentra
-   * teniendo en cuenta su fecha de siembra y la fecha
-   * actual
+   * @param seedDate [fecha de siembra de un cultivo]
+   * @return double que representa el kc (coeficiente de cultivo)
+   * de un cultivo calculado en funcion de una fecha de siembra
+   * y la fecha actual
    */
   public double getKc(Crop crop, Calendar seedDate) {
     /*
@@ -648,67 +635,84 @@ public class CropServiceBean {
   /**
    * Retorna el kc (coeficiente del cultivo) de un cultivo en
    * funcion de la etapa de su ciclo de vida en la que se
-   * encuentre. Para ello utiliza las cuatro etapas del
-   * ciclo de vida de un cultivo y la cantidad de dias de
-   * vida que tiene desde su fecha de siembra hasta la fecha
-   * actual, incluidas.
+   * encuentre. Para ello utiliza las cuatro etapas del ciclo
+   * de vida de un cultivo y la cantidad de dias de vida que
+   * tiene desde su fecha de siembra hasta una fecha hasta,
+   * incluidas.
    * 
-   * Si la cantidad de dias de vida de un cultivo es menor o
-   * mayor a su ciclo de vida, este metodo retorna 0.0 como
-   * kc. En este caso lo mejor es hacer que el metodo lance
-   * una excepcion, pero por falta de tiempo no implemento
-   * esto.
+   * Si la cantidad de dias de vida de un cultivo transcurridos
+   * es estrictamente mayor a la cantidad de dias que dura su
+   * etapa final (*) este metodo retorna el kc (coeficiente de
+   * cultivo) final.
    * 
-   * @param givenCrop
+   * (*) Esto significa que la cantidad de dias de vida de un
+   * cultivo transcurridos es estrictamente mayor a la cantidad
+   * de dias que dura su ciclo de vida.
+   * 
+   * Si por algun motivo la cantidad de dias de vida de un
+   * cultivo transcurridos es un valor igual a 0 o menor a cero,
+   * este metodo deberia lanzar una excepcion, pero por falta
+   * de tiempo no implemento esto.
+   * 
+   * @param crop
    * @param elapsedDaysLifeCrop
-   * @return kc (coeficiente de cultivo) de un cultivo en
-   * funcion de la etapa de su ciclo de vida en la que se
-   * encuentre, si la cantidad de dias de vida del cultivo
-   * no es mayor ni menor a su ciclo de vida. En caso
-   * contrario, 0.0.
+   * @return kc (coeficiente de cultivo) de un cultivo en funcion
+   * de la etapa de su ciclo de vida en la que se encuentre, si la
+   * cantidad de dias de vida del cultivo no es estrictamente mayor
+   * a su ciclo de vida. En caso contrario, kc final.
    */
-  private double calculateKc(Crop givenCrop, int elapsedDaysLifeCrop) {
+  private double calculateKc(Crop crop, int elapsedDaysLifeCrop) {
     /*
      * Si la cantidad de dias de vida transcurridos de un cultivo
-     * desde su fecha de siembra hasta la fecha actual, esta dentro
+     * desde su fecha de siembra hasta una fecha hasta, esta dentro
      * de los limites de la etapa inicial del ciclo de vida de un
      * cultivo, se retorna el kc (coficiente de cultivo) inicial 
      */
-    if ((getLowerLimitInitialStage() <= elapsedDaysLifeCrop) && (elapsedDaysLifeCrop <= getUpperLimitInitialStage(givenCrop))) {
-      return givenCrop.getInitialKc();
+    if ((elapsedDaysLifeCrop >= getLowerLimitInitialStage()) && (elapsedDaysLifeCrop <= getUpperLimitInitialStage(crop))) {
+      return crop.getInitialKc();
     }
 
     /*
      * Si la cantidad de dias de vida transcurridos de un cultivo
-     * desde su fecha de siembra hasta la fecha actual, esta dentro
+     * desde su fecha de siembra hasta una fecha hasta, esta dentro
      * de los limites de la etapa de desarrollo del ciclo de vida
      * de un cultivo, se retorna el kc (coficiente de cultivo) medio
      */
-    if ((getLowerLimitDevelopmentStage(givenCrop) <= elapsedDaysLifeCrop) && (elapsedDaysLifeCrop <= getUpperLimitDevelopmentStage(givenCrop))) {
-      return givenCrop.getMiddleKc();
+    if ((elapsedDaysLifeCrop >= getLowerLimitDevelopmentStage(crop)) && (elapsedDaysLifeCrop <= getUpperLimitDevelopmentStage(crop))) {
+      return crop.getMiddleKc();
     }
 
     /*
      * Si la cantidad de dias de vida transcurridos de un cultivo
-     * desde su fecha de siembra hasta la fecha actual, esta dentro
+     * desde su fecha de siembra hasta una fecha hasta, esta dentro
      * de los limites de la etapa media del ciclo de vida de un
      * cultivo, se retorna el kc (coficiente de cultivo) medio
      */
-    if ((getLowerLimitMiddleStage(givenCrop) <= elapsedDaysLifeCrop) && (elapsedDaysLifeCrop <= getUpperLimitMiddleStage(givenCrop))) {
-      return givenCrop.getMiddleKc();
+    if ((elapsedDaysLifeCrop >= getLowerLimitMiddleStage(crop)) && (elapsedDaysLifeCrop <= getUpperLimitMiddleStage(crop))) {
+      return crop.getMiddleKc();
     }
 
     /*
      * Si la cantidad de dias de vida transcurridos de un cultivo
-     * desde su fecha de siembra hasta la fecha actual, esta dentro
+     * desde su fecha de siembra hasta una fecha hasta, esta dentro
      * de los limites de la etapa final del ciclo de vida de un
      * cultivo, se retorna el kc (coficiente de cultivo) final
      */
-    if ((getLowerLimitFinalStage(givenCrop) <= elapsedDaysLifeCrop) && (elapsedDaysLifeCrop <= getUpperLimitFinalStage(givenCrop))) {
-      return givenCrop.getFinalKc();
+    if ((elapsedDaysLifeCrop >= getLowerLimitFinalStage(crop)) && (elapsedDaysLifeCrop <= getUpperLimitFinalStage(crop))) {
+      return crop.getFinalKc();
     }
 
-    return 0.0;
+    /*
+     * Si la cantidad de dias de vida transcurridos de un cultivo
+     * desde su fecha de siembra hasta una fecha hasta, es estrictamente
+     * mayor a la cantidad de dias que dura su etapa final (*), se
+     * retorna el kc (coeficiente de cultivo) final.
+     * 
+     * (*) Esto significa que la cantidad de dias de vida de un
+     * cultivo transcurridos es estrictamente mayor a la cantidad de
+     * dias que dura su ciclo de vida.
+     */
+    return crop.getFinalKc();
   }
 
   /**

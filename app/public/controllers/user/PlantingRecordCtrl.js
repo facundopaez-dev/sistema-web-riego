@@ -1,9 +1,9 @@
 app.controller(
   "PlantingRecordCtrl",
   ["$scope", "$location", "$route", "$routeParams", "PlantingRecordSrv", "IrrigationRecordSrv", "CropSrv", "ParcelSrv", "AccessManager", "ErrorResponseManager",
-    "AuthHeaderManager", "LogoutManager", "ExpirationManager", "RedirectManager", "CropManager", "UtilDate",
+    "AuthHeaderManager", "LogoutManager", "ExpirationManager", "RedirectManager", "UtilDate",
     function ($scope, $location, $route, $params, plantingRecordService, irrigationRecordService, cropService, parcelService, accessManager, errorResponseManager,
-      authHeaderManager, logoutManager, expirationManager, redirectManager, cropManager, utilDate) {
+      authHeaderManager, logoutManager, expirationManager, redirectManager, utilDate) {
 
       console.log("PlantingRecordCtrl loaded with action: " + $params.action)
 
@@ -121,8 +121,6 @@ app.controller(
       */
       const IN_DEVELOPMENT_STATUS = "En desarrollo";
       const OPTIMAL_DEVELOPMENT_STATE = "Desarrollo óptimo";
-      const DEVELOPMENT_AT_RISK_WILTING_STATUS = "Desarrollo en riesgo de marchitez";
-      const DEVELOPMENT_IN_WILTING_STATUS = "Desarrollo en marchitez";
       const DEAD_STATUS = "Muerto";
 
       /*
@@ -214,29 +212,6 @@ app.controller(
             $scope.data.harvestDate = new Date($scope.data.harvestDate);
           }
 
-          /*
-          Si el cultivo elegido tiene el estado "En desarrollo" o el estado
-          "Desarrollo optimo" y la cantidad de dias entre la fecha de siembra
-          y la fecha de cosecha elegidas para el mismo es mayor a su ciclo de
-          vida, la aplicacion muestra un mensaje de advertencia sugiriendo
-          cual debe ser la fecha de cosecha.
-
-          El que un registro de plantacion tenga el estado "En desarrollo" o
-          el estado "Desarrollo optimo" no solo depende del periodo definido
-          por su fecha de siembra y su fecha de cosecha, sino que tambien
-          depende de la bandera suelo de las opciones de la parcela a la que
-          pertenece. Si la fecha de siembra y la fecha de cosecha se eligen
-          de tal manera que la fecha actual (es decir, hoy) esta dentro del
-          periodo definido por ambas y la bandera suelo esta activa, el registro
-          adquiere el estado "En desarrollo". En caso contrario, adquiere el
-          estado "Desarrollo optimo".
-          */
-          if (($scope.data.status.name === IN_DEVELOPMENT_STATUS || $scope.data.status.name === OPTIMAL_DEVELOPMENT_STATE) &&
-            cropManager.lifeCycleExceeded($scope.data.crop.lifeCycle, $scope.data.seedDate, $scope.data.harvestDate)) {
-            var suggestedHarvestDate = cropManager.calculateSuggestedHarvestDate($scope.data.seedDate, $scope.data.crop.lifeCycle);
-            alert(cropManager.getLifeCycleExceededWarning($scope.data.seedDate, $scope.data.harvestDate, $scope.data.crop.lifeCycle, suggestedHarvestDate));
-          }
-
           $location.path("/home/plantingRecords");
         });
 
@@ -324,21 +299,6 @@ app.controller(
 
           if ($scope.data.harvestDate != null) {
             $scope.data.harvestDate = new Date($scope.data.harvestDate);
-          }
-
-          /*
-          Si el cultivo elegido tiene el estado "En desarrollo", "Desarrollo
-          optimo", "Desarrollo en riesgo de marchitez" o el estado "Desarrollo
-          en marchitez", y la cantidad de dias entre la fecha de siembra
-          y la fecha de cosecha elegidas para el mismo es mayor a su ciclo de
-          vida, la aplicacion muestra un mensaje de advertencia sugiriendo
-          cual debe ser la fecha de cosecha
-          */
-          if (($scope.data.status.name === IN_DEVELOPMENT_STATUS || $scope.data.status.name === OPTIMAL_DEVELOPMENT_STATE
-            || $scope.data.status.name === DEVELOPMENT_AT_RISK_WILTING_STATUS || $scope.data.status.name === DEVELOPMENT_IN_WILTING_STATUS) &&
-            cropManager.lifeCycleExceeded($scope.data.crop.lifeCycle, $scope.data.seedDate, $scope.data.harvestDate)) {
-            var suggestedHarvestDate = cropManager.calculateSuggestedHarvestDate($scope.data.seedDate, $scope.data.crop.lifeCycle);
-            alert(cropManager.getLifeCycleExceededWarning($scope.data.seedDate, $scope.data.harvestDate, $scope.data.crop.lifeCycle, suggestedHarvestDate));
           }
 
           $location.path("/home/plantingRecords")

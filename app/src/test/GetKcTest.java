@@ -20,10 +20,12 @@ import model.Crop;
  * de dichas pruebas
  */
 public class GetKcTest {
+
   private static EntityManager entityManager;
   private static EntityManagerFactory entityMangerFactory;
 
   private static CropServiceBean cropService;
+  private static Crop testCrop;
 
   private static final int JANUARY = 0;
   private static final int FEBRUARY = 1;
@@ -45,64 +47,64 @@ public class GetKcTest {
 
     cropService = new CropServiceBean();
     cropService.setEntityManager(entityManager);
+
+    testCrop = cropService.find("Tomate");
   }
 
   @Test
   public void testOne() {
     System.out.println("************************************** Prueba uno del metodo getKc **************************************");
-    System.out.println("El metodo getKc de la clase CropServiceBean retorna el kc (coeficiente de cultivo) de un cultivo en base");
-    System.out.println("a la cantidad de dias que ha vivido desde su fecha de siembra hasta la fecha actual.");
+    printDescriptionMethodToTest();
     System.out.println();
-    System.out.println("En esta prueba se demuestra que el metodo getKc retorna el coeficiente correcto para un cultivo que esta");
-    System.out.println("en la etapa inicial de su ciclo de vida.");
+    System.out.println("En esta prueba se demuestra que el metodo getKc() retorna el Kc correcto para un cultivo que esta en la");
+    System.out.println("etapa inicial de su ciclo de vida.");
     System.out.println();
-
-    Crop givenCrop = cropService.find("Tomate");
 
     System.out.println("* Cultivo de prueba");
-    System.out.println(givenCrop);
+    System.out.println(testCrop);
     System.out.println();
 
     /*
      * Fechas a partir de las cuales se obtiene el
-     * coeficiente del cultivo de prueba
+     * Kc (coeficiente de cultivo) del cultivo de
+     * prueba
      */
     Calendar seedDate = Calendar.getInstance();
     seedDate.set(Calendar.DAY_OF_MONTH, 27);
     seedDate.set(Calendar.MONTH, NOVEMBER);
     seedDate.set(Calendar.YEAR, 2019);
 
-    Calendar givenDate = Calendar.getInstance();
-    givenDate.set(Calendar.DAY_OF_MONTH, 15);
-    givenDate.set(Calendar.MONTH, DECEMBER);
-    givenDate.set(Calendar.YEAR, 2019);
+    Calendar dateUntil = Calendar.getInstance();
+    dateUntil.set(Calendar.DAY_OF_MONTH, 15);
+    dateUntil.set(Calendar.MONTH, DECEMBER);
+    dateUntil.set(Calendar.YEAR, 2019);
 
-    System.out.println("* Fechas a partir de las cuales se obtiene el coeficiente del " + givenCrop.getName());
+    System.out.println("* Fechas a partir de las cuales se obtiene el coeficiente del " + testCrop.getName());
     System.out.println("Fecha de siembra: " + UtilDate.formatDate(seedDate));
-    System.out.println("Fecha actual: " + UtilDate.formatDate(givenDate));
+    System.out.println("Fecha hasta: " + UtilDate.formatDate(dateUntil));
     System.out.println();
 
     System.out.println(
-        "Cantidad de dias de vida del " + givenCrop.getName() + " desde su fecha de siembra hasta la fecha actual: "
-            + getDaysLife(seedDate, givenDate));
+        "Cantidad de dias de vida del " + testCrop.getName() + " desde su fecha de siembra hasta la fecha hasta: "
+            + getDaysLife(seedDate, dateUntil));
     System.out.println();
 
-    System.out.println("* Periodo de cada etapa del " + givenCrop.getName());
+    System.out.println("* Periodo de cada etapa del " + testCrop.getName());
     System.out.println("Etapa inicial: dia " + getLowerLimitInitialStage()
-        + " a dia " + getUpperLimitInitialStage(givenCrop));
-    System.out.println("Etapa de desarrollo: dia " + getLowerLimitDevelopmentStage(givenCrop) + " a dia "
-        + getUpperLimitDevelopmentStage(givenCrop));
-    System.out.println("Etapa media: dia " + getLowerLimitMiddleStage(givenCrop) + " a dia "
-        + getUpperLimitMiddleStage(givenCrop));
-    System.out.println("Etapa final: dia " + getLowerLimitFinalStage(givenCrop) + " a dia "
-        + getUpperLimitFinalStage(givenCrop));
+        + " a dia " + getUpperLimitInitialStage(testCrop));
+    System.out.println("Etapa de desarrollo: dia " + getLowerLimitDevelopmentStage(testCrop) + " a dia "
+        + getUpperLimitDevelopmentStage(testCrop));
+    System.out.println("Etapa media: dia " + getLowerLimitMiddleStage(testCrop) + " a dia "
+        + getUpperLimitMiddleStage(testCrop));
+    System.out.println("Etapa final: dia " + getLowerLimitFinalStage(testCrop) + " a dia "
+        + getUpperLimitFinalStage(testCrop));
     System.out.println();
 
     /*
      * Seccion de prueba
      */
-    double expectedResult = 0.6;
-    double kc = cropService.getKc(givenCrop, seedDate, givenDate);
+    double expectedResult = testCrop.getInitialKc();
+    double kc = cropService.getKc(testCrop, seedDate, dateUntil);
 
     System.out.println("* Seccion de prueba *");
     System.out.println("Kc esperado: " + expectedResult);
@@ -117,59 +119,57 @@ public class GetKcTest {
   @Test
   public void testTwo() {
     System.out.println("************************************** Prueba dos del metodo getKc **************************************");
-    System.out.println("El metodo getKc de la clase CropServiceBean retorna el kc (coeficiente de cultivo) de un cultivo en base");
-    System.out.println("a la cantidad de dias que ha vivido desde su fecha de siembra hasta la fecha actual.");
+    printDescriptionMethodToTest();
     System.out.println();
-    System.out.println("En esta prueba se demuestra que el metodo getKc retorna el coeficiente correcto para un cultivo que esta");
-    System.out.println("en la etapa de desarrollo de su ciclo de vida.");
+    System.out.println("En esta prueba se demuestra que el metodo getKc() retorna el Kc correcto para un cultivo que esta en la");
+    System.out.println("etapa de desarrollo de su ciclo de vida.");
     System.out.println();
-
-    Crop givenCrop = cropService.find("Tomate");
 
     System.out.println("* Cultivo de prueba");
-    System.out.println(givenCrop);
+    System.out.println(testCrop);
     System.out.println();
 
     /*
      * Fechas a partir de las cuales se obtiene el
-     * coeficiente del cultivo de prueba
+     * Kc (coeficiente de cultivo) del cultivo de
+     * prueba
      */
     Calendar seedDate = Calendar.getInstance();
     seedDate.set(Calendar.DAY_OF_MONTH, 27);
     seedDate.set(Calendar.MONTH, NOVEMBER);
     seedDate.set(Calendar.YEAR, 2019);
 
-    Calendar givenDate = Calendar.getInstance();
-    givenDate.set(Calendar.DAY_OF_MONTH, 5);
-    givenDate.set(Calendar.MONTH, JANUARY);
-    givenDate.set(Calendar.YEAR, 2020);
+    Calendar dateUntil = Calendar.getInstance();
+    dateUntil.set(Calendar.DAY_OF_MONTH, 5);
+    dateUntil.set(Calendar.MONTH, JANUARY);
+    dateUntil.set(Calendar.YEAR, 2020);
 
-    System.out.println("* Fechas a partir de las cuales se obtiene el coeficiente del " + givenCrop.getName());
+    System.out.println("* Fechas a partir de las cuales se obtiene el coeficiente del " + testCrop.getName());
     System.out.println("Fecha de siembra: " + UtilDate.formatDate(seedDate));
-    System.out.println("Fecha actual: " + UtilDate.formatDate(givenDate));
+    System.out.println("Fecha hasta: " + UtilDate.formatDate(dateUntil));
     System.out.println();
 
     System.out.println(
-        "Cantidad de dias de vida del " + givenCrop.getName() + " desde su fecha de siembra hasta la fecha actual: "
-            + getDaysLife(seedDate, givenDate));
+        "Cantidad de dias de vida del " + testCrop.getName() + " desde su fecha de siembra hasta la fecha hasta: "
+            + getDaysLife(seedDate, dateUntil));
     System.out.println();
 
-    System.out.println("* Periodo de cada etapa del " + givenCrop.getName());
+    System.out.println("* Periodo de cada etapa del " + testCrop.getName());
     System.out.println("Etapa inicial: dia " + getLowerLimitInitialStage()
-        + " a dia " + getUpperLimitInitialStage(givenCrop));
-    System.out.println("Etapa de desarrollo: dia " + getLowerLimitDevelopmentStage(givenCrop) + " a dia "
-        + getUpperLimitDevelopmentStage(givenCrop));
-    System.out.println("Etapa media: dia " + getLowerLimitMiddleStage(givenCrop) + " a dia "
-        + getUpperLimitMiddleStage(givenCrop));
-    System.out.println("Etapa final: dia " + getLowerLimitFinalStage(givenCrop) + " a dia "
-        + getUpperLimitFinalStage(givenCrop));
+        + " a dia " + getUpperLimitInitialStage(testCrop));
+    System.out.println("Etapa de desarrollo: dia " + getLowerLimitDevelopmentStage(testCrop) + " a dia "
+        + getUpperLimitDevelopmentStage(testCrop));
+    System.out.println("Etapa media: dia " + getLowerLimitMiddleStage(testCrop) + " a dia "
+        + getUpperLimitMiddleStage(testCrop));
+    System.out.println("Etapa final: dia " + getLowerLimitFinalStage(testCrop) + " a dia "
+        + getUpperLimitFinalStage(testCrop));
     System.out.println();
 
     /*
      * Seccion de prueba
      */
-    double expectedResult = 1.15;
-    double kc = cropService.getKc(givenCrop, seedDate, givenDate);
+    double expectedResult = testCrop.getMiddleKc();
+    double kc = cropService.getKc(testCrop, seedDate, dateUntil);
 
     System.out.println("* Seccion de prueba *");
     System.out.println("Kc esperado: " + expectedResult);
@@ -184,59 +184,57 @@ public class GetKcTest {
   @Test
   public void testThree() {
     System.out.println("************************************** Prueba tres del metodo getKc **************************************");
-    System.out.println("El metodo getKc de la clase CropServiceBean retorna el kc (coeficiente de cultivo) de un cultivo en base");
-    System.out.println("a la cantidad de dias que ha vivido desde su fecha de siembra hasta la fecha actual.");
+    printDescriptionMethodToTest();
     System.out.println();
-    System.out.println("En esta prueba se demuestra que el metodo getKc retorna el coeficiente correcto para un cultivo que esta");
-    System.out.println("en la etapa media de su ciclo de vida.");
+    System.out.println("En esta prueba se demuestra que el metodo getKc() retorna el Kc correcto para un cultivo que esta en la");
+    System.out.println("etapa media de su ciclo de vida.");
     System.out.println();
-
-    Crop givenCrop = cropService.find("Tomate");
 
     System.out.println("* Cultivo de prueba");
-    System.out.println(givenCrop);
+    System.out.println(testCrop);
     System.out.println();
 
     /*
      * Fechas a partir de las cuales se obtiene el
-     * coeficiente del cultivo de prueba
+     * Kc (coeficiente de cultivo) del cultivo de
+     * prueba
      */
     Calendar seedDate = Calendar.getInstance();
     seedDate.set(Calendar.DAY_OF_MONTH, 27);
     seedDate.set(Calendar.MONTH, NOVEMBER);
     seedDate.set(Calendar.YEAR, 2019);
 
-    Calendar givenDate = Calendar.getInstance();
-    givenDate.set(Calendar.DAY_OF_MONTH, 1);
-    givenDate.set(Calendar.MONTH, MARCH);
-    givenDate.set(Calendar.YEAR, 2020);
+    Calendar dateUntil = Calendar.getInstance();
+    dateUntil.set(Calendar.DAY_OF_MONTH, 1);
+    dateUntil.set(Calendar.MONTH, MARCH);
+    dateUntil.set(Calendar.YEAR, 2020);
 
-    System.out.println("* Fechas a partir de las cuales se obtiene el coeficiente del " + givenCrop.getName());
+    System.out.println("* Fechas a partir de las cuales se obtiene el coeficiente del " + testCrop.getName());
     System.out.println("Fecha de siembra: " + UtilDate.formatDate(seedDate));
-    System.out.println("Fecha actual: " + UtilDate.formatDate(givenDate));
+    System.out.println("Fecha hasta: " + UtilDate.formatDate(dateUntil));
     System.out.println();
 
     System.out.println(
-        "Cantidad de dias de vida del " + givenCrop.getName() + " desde su fecha de siembra hasta la fecha actual: "
-            + getDaysLife(seedDate, givenDate));
+        "Cantidad de dias de vida del " + testCrop.getName() + " desde su fecha de siembra hasta la fecha hasta: "
+            + getDaysLife(seedDate, dateUntil));
     System.out.println();
 
-    System.out.println("* Periodo de cada etapa del " + givenCrop.getName());
+    System.out.println("* Periodo de cada etapa del " + testCrop.getName());
     System.out.println("Etapa inicial: dia " + getLowerLimitInitialStage()
-        + " a dia " + getUpperLimitInitialStage(givenCrop));
-    System.out.println("Etapa de desarrollo: dia " + getLowerLimitDevelopmentStage(givenCrop) + " a dia "
-        + getUpperLimitDevelopmentStage(givenCrop));
-    System.out.println("Etapa media: dia " + getLowerLimitMiddleStage(givenCrop) + " a dia "
-        + getUpperLimitMiddleStage(givenCrop));
-    System.out.println("Etapa final: dia " + getLowerLimitFinalStage(givenCrop) + " a dia "
-        + getUpperLimitFinalStage(givenCrop));
+        + " a dia " + getUpperLimitInitialStage(testCrop));
+    System.out.println("Etapa de desarrollo: dia " + getLowerLimitDevelopmentStage(testCrop) + " a dia "
+        + getUpperLimitDevelopmentStage(testCrop));
+    System.out.println("Etapa media: dia " + getLowerLimitMiddleStage(testCrop) + " a dia "
+        + getUpperLimitMiddleStage(testCrop));
+    System.out.println("Etapa final: dia " + getLowerLimitFinalStage(testCrop) + " a dia "
+        + getUpperLimitFinalStage(testCrop));
     System.out.println();
 
     /*
      * Seccion de prueba
      */
-    double expectedResult = 1.15;
-    double kc = cropService.getKc(givenCrop, seedDate, givenDate);
+    double expectedResult = testCrop.getMiddleKc();
+    double kc = cropService.getKc(testCrop, seedDate, dateUntil);
 
     System.out.println("* Seccion de prueba *");
     System.out.println("Kc esperado: " + expectedResult);
@@ -251,59 +249,57 @@ public class GetKcTest {
   @Test
   public void testFour() {
     System.out.println("************************************** Prueba cuatro del metodo getKc **************************************");
-    System.out.println("El metodo getKc de la clase CropServiceBean retorna el kc (coeficiente de cultivo) de un cultivo en base");
-    System.out.println("a la cantidad de dias que ha vivido desde su fecha de siembra hasta la fecha actual.");
+    printDescriptionMethodToTest();
     System.out.println();
-    System.out.println("En esta prueba se demuestra que el metodo getKc retorna el coeficiente correcto para un cultivo que esta");
-    System.out.println("en la etapa final de su ciclo de vida.");
+    System.out.println("En esta prueba se demuestra que el metodo getKc() retorna el Kc correcto para un cultivo que esta en la");
+    System.out.println("etapa final de su ciclo de vida.");
     System.out.println();
-
-    Crop givenCrop = cropService.find("Tomate");
 
     System.out.println("* Cultivo de prueba");
-    System.out.println(givenCrop);
+    System.out.println(testCrop);
     System.out.println();
 
     /*
      * Fechas a partir de las cuales se obtiene el
-     * coeficiente del cultivo de prueba
+     * Kc (coeficiente de cultivo) del cultivo de
+     * prueba
      */
     Calendar seedDate = Calendar.getInstance();
     seedDate.set(Calendar.DAY_OF_MONTH, 27);
     seedDate.set(Calendar.MONTH, NOVEMBER);
     seedDate.set(Calendar.YEAR, 2019);
 
-    Calendar givenDate = Calendar.getInstance();
-    givenDate.set(Calendar.DAY_OF_MONTH, 9);
-    givenDate.set(Calendar.MONTH, APRIL);
-    givenDate.set(Calendar.YEAR, 2020);
+    Calendar dateUntil = Calendar.getInstance();
+    dateUntil.set(Calendar.DAY_OF_MONTH, 1);
+    dateUntil.set(Calendar.MONTH, APRIL);
+    dateUntil.set(Calendar.YEAR, 2020);
 
-    System.out.println("* Fechas a partir de las cuales se obtiene el coeficiente del " + givenCrop.getName());
+    System.out.println("* Fechas a partir de las cuales se obtiene el coeficiente del " + testCrop.getName());
     System.out.println("Fecha de siembra: " + UtilDate.formatDate(seedDate));
-    System.out.println("Fecha actual: " + UtilDate.formatDate(givenDate));
+    System.out.println("Fecha hasta: " + UtilDate.formatDate(dateUntil));
     System.out.println();
 
     System.out.println(
-        "Cantidad de dias de vida del " + givenCrop.getName() + " desde su fecha de siembra hasta la fecha actual: "
-            + getDaysLife(seedDate, givenDate));
+        "Cantidad de dias de vida del " + testCrop.getName() + " desde su fecha de siembra hasta la fecha hasta: "
+            + getDaysLife(seedDate, dateUntil));
     System.out.println();
 
-    System.out.println("* Periodo de cada etapa del " + givenCrop.getName());
+    System.out.println("* Periodo de cada etapa del " + testCrop.getName());
     System.out.println("Etapa inicial: dia " + getLowerLimitInitialStage()
-        + " a dia " + getUpperLimitInitialStage(givenCrop));
-    System.out.println("Etapa de desarrollo: dia " + getLowerLimitDevelopmentStage(givenCrop) + " a dia "
-        + getUpperLimitDevelopmentStage(givenCrop));
-    System.out.println("Etapa media: dia " + getLowerLimitMiddleStage(givenCrop) + " a dia "
-        + getUpperLimitMiddleStage(givenCrop));
-    System.out.println("Etapa final: dia " + getLowerLimitFinalStage(givenCrop) + " a dia "
-        + getUpperLimitFinalStage(givenCrop));
+        + " a dia " + getUpperLimitInitialStage(testCrop));
+    System.out.println("Etapa de desarrollo: dia " + getLowerLimitDevelopmentStage(testCrop) + " a dia "
+        + getUpperLimitDevelopmentStage(testCrop));
+    System.out.println("Etapa media: dia " + getLowerLimitMiddleStage(testCrop) + " a dia "
+        + getUpperLimitMiddleStage(testCrop));
+    System.out.println("Etapa final: dia " + getLowerLimitFinalStage(testCrop) + " a dia "
+        + getUpperLimitFinalStage(testCrop));
     System.out.println();
 
     /*
      * Seccion de prueba
      */
-    double expectedResult = 0.80;
-    double kc = cropService.getKc(givenCrop, seedDate, givenDate);
+    double expectedResult = testCrop.getFinalKc();
+    double kc = cropService.getKc(testCrop, seedDate, dateUntil);
 
     System.out.println("* Seccion de prueba *");
     System.out.println("Kc esperado: " + expectedResult);
@@ -315,6 +311,403 @@ public class GetKcTest {
     System.out.println("- Prueba pasada satisfactoriamente");
   }
 
+  @Test
+  public void testFive() {
+    System.out.println("************************************** Prueba cinco del metodo getKc **************************************");
+    printDescriptionMethodToTest();
+    System.out.println();
+    System.out.println("En esta prueba se demuestra que el metodo getKc() retorna el Kc correcto para un cultivo que ha vivido una");
+    System.out.println("cantidad de dias estrictamente mayor a la cantidad de dias que dura su ciclo de vida.");
+    System.out.println();
+
+    System.out.println("* Cultivo de prueba");
+    System.out.println(testCrop);
+    System.out.println();
+
+    /*
+     * Fechas a partir de las cuales se obtiene el
+     * Kc (coeficiente de cultivo) del cultivo de
+     * prueba
+     */
+    Calendar seedDate = Calendar.getInstance();
+    seedDate.set(Calendar.DAY_OF_MONTH, 27);
+    seedDate.set(Calendar.MONTH, NOVEMBER);
+    seedDate.set(Calendar.YEAR, 2019);
+
+    Calendar dateUntil = Calendar.getInstance();
+    dateUntil.set(Calendar.DAY_OF_MONTH, 8);
+    dateUntil.set(Calendar.MONTH, MAY);
+    dateUntil.set(Calendar.YEAR, 2020);
+
+    System.out.println("* Fechas a partir de las cuales se obtiene el coeficiente del " + testCrop.getName());
+    System.out.println("Fecha de siembra: " + UtilDate.formatDate(seedDate));
+    System.out.println("Fecha hasta: " + UtilDate.formatDate(dateUntil));
+    System.out.println();
+
+    System.out.println(
+        "Cantidad de dias de vida del " + testCrop.getName() + " desde su fecha de siembra hasta la fecha hasta: "
+            + getDaysLife(seedDate, dateUntil));
+    System.out.println();
+
+    System.out.println("* Periodo de cada etapa del " + testCrop.getName());
+    System.out.println("Etapa inicial: dia " + getLowerLimitInitialStage()
+        + " a dia " + getUpperLimitInitialStage(testCrop));
+    System.out.println("Etapa de desarrollo: dia " + getLowerLimitDevelopmentStage(testCrop) + " a dia "
+        + getUpperLimitDevelopmentStage(testCrop));
+    System.out.println("Etapa media: dia " + getLowerLimitMiddleStage(testCrop) + " a dia "
+        + getUpperLimitMiddleStage(testCrop));
+    System.out.println("Etapa final: dia " + getLowerLimitFinalStage(testCrop) + " a dia "
+        + getUpperLimitFinalStage(testCrop));
+    System.out.println();
+
+    /*
+     * Seccion de prueba
+     */
+    double expectedResult = testCrop.getFinalKc();
+    double kc = cropService.getKc(testCrop, seedDate, dateUntil);
+
+    System.out.println("* Seccion de prueba *");
+    System.out.println("Kc esperado: " + expectedResult);
+    System.out.println("Kc devuelto por el metodo getKc: " + kc);
+    System.out.println();
+
+    assertEquals(expectedResult, kc, 1e-8);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+  }
+
+  @Test
+  public void testSix() {
+    System.out.println("************************************** Prueba seis del metodo getKc **************************************");
+    printDescriptionMethodToTest();
+    System.out.println();
+    System.out.println("En esta prueba se demuestra que el metodo getKc() retorna el Kc correcto para un cultivo que ha vivido una");
+    System.out.println("una cantidad de dias estrictamente mayor por una unidad a la cantidad de dias que dura su ciclo de vida.");
+    System.out.println();
+
+    System.out.println("* Cultivo de prueba");
+    System.out.println(testCrop);
+    System.out.println();
+
+    /*
+     * Fechas a partir de las cuales se obtiene el
+     * Kc (coeficiente de cultivo) del cultivo de
+     * prueba
+     */
+    Calendar seedDate = Calendar.getInstance();
+    seedDate.set(Calendar.DAY_OF_MONTH, 27);
+    seedDate.set(Calendar.MONTH, NOVEMBER);
+    seedDate.set(Calendar.YEAR, 2019);
+
+    Calendar dateUntil = Calendar.getInstance();
+    dateUntil.set(Calendar.DAY_OF_MONTH, 10);
+    dateUntil.set(Calendar.MONTH, APRIL);
+    dateUntil.set(Calendar.YEAR, 2020);
+
+    System.out.println("* Fechas a partir de las cuales se obtiene el coeficiente del " + testCrop.getName());
+    System.out.println("Fecha de siembra: " + UtilDate.formatDate(seedDate));
+    System.out.println("Fecha hasta: " + UtilDate.formatDate(dateUntil));
+    System.out.println();
+
+    System.out.println(
+        "Cantidad de dias de vida del " + testCrop.getName() + " desde su fecha de siembra hasta la fecha hasta: "
+            + getDaysLife(seedDate, dateUntil));
+    System.out.println();
+
+    System.out.println("* Periodo de cada etapa del " + testCrop.getName());
+    System.out.println("Etapa inicial: dia " + getLowerLimitInitialStage()
+        + " a dia " + getUpperLimitInitialStage(testCrop));
+    System.out.println("Etapa de desarrollo: dia " + getLowerLimitDevelopmentStage(testCrop) + " a dia "
+        + getUpperLimitDevelopmentStage(testCrop));
+    System.out.println("Etapa media: dia " + getLowerLimitMiddleStage(testCrop) + " a dia "
+        + getUpperLimitMiddleStage(testCrop));
+    System.out.println("Etapa final: dia " + getLowerLimitFinalStage(testCrop) + " a dia "
+        + getUpperLimitFinalStage(testCrop));
+    System.out.println();
+
+    /*
+     * Seccion de prueba
+     */
+    double expectedResult = testCrop.getFinalKc();
+    double kc = cropService.getKc(testCrop, seedDate, dateUntil);
+
+    System.out.println("* Seccion de prueba *");
+    System.out.println("Kc esperado: " + expectedResult);
+    System.out.println("Kc devuelto por el metodo getKc: " + kc);
+    System.out.println();
+
+    assertEquals(expectedResult, kc, 1e-8);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+  }
+
+  @Test
+  public void testSeven() {
+    System.out.println("************************************** Prueba siete del metodo getKc **************************************");
+    printDescriptionMethodToTest();
+    System.out.println();
+    System.out.println("En esta prueba se demuestra que el metodo getKc() retorna el Kc correcto para un cultivo que esta en la");
+    System.out.println("etapa inicial de su ciclo de vida. Esta prueba es un caso de borde porque se busca demostrar que el metodo");
+    System.out.println("getKc() retorna el Kc correcto para un cultivo que ha vivido una cantidad de dias igual al extremo superior");
+    System.out.println("de la etapa en la que se encuentra.");
+    System.out.println();
+
+    System.out.println("* Cultivo de prueba");
+    System.out.println(testCrop);
+    System.out.println();
+
+    /*
+     * Fechas a partir de las cuales se obtiene el
+     * Kc (coeficiente de cultivo) del cultivo de
+     * prueba
+     */
+    Calendar seedDate = Calendar.getInstance();
+    seedDate.set(Calendar.DAY_OF_MONTH, 27);
+    seedDate.set(Calendar.MONTH, NOVEMBER);
+    seedDate.set(Calendar.YEAR, 2019);
+
+    Calendar dateUntil = Calendar.getInstance();
+    dateUntil.set(Calendar.DAY_OF_MONTH, 26);
+    dateUntil.set(Calendar.MONTH, DECEMBER);
+    dateUntil.set(Calendar.YEAR, 2019);
+
+    System.out.println("* Fechas a partir de las cuales se obtiene el coeficiente del " + testCrop.getName());
+    System.out.println("Fecha de siembra: " + UtilDate.formatDate(seedDate));
+    System.out.println("Fecha hasta: " + UtilDate.formatDate(dateUntil));
+    System.out.println();
+
+    System.out.println(
+        "Cantidad de dias de vida del " + testCrop.getName() + " desde su fecha de siembra hasta la fecha hasta: "
+            + getDaysLife(seedDate, dateUntil));
+    System.out.println();
+
+    System.out.println("* Periodo de cada etapa del " + testCrop.getName());
+    System.out.println("Etapa inicial: dia " + getLowerLimitInitialStage()
+        + " a dia " + getUpperLimitInitialStage(testCrop));
+    System.out.println("Etapa de desarrollo: dia " + getLowerLimitDevelopmentStage(testCrop) + " a dia "
+        + getUpperLimitDevelopmentStage(testCrop));
+    System.out.println("Etapa media: dia " + getLowerLimitMiddleStage(testCrop) + " a dia "
+        + getUpperLimitMiddleStage(testCrop));
+    System.out.println("Etapa final: dia " + getLowerLimitFinalStage(testCrop) + " a dia "
+        + getUpperLimitFinalStage(testCrop));
+    System.out.println();
+
+    /*
+     * Seccion de prueba
+     */
+    double expectedResult = testCrop.getInitialKc();
+    double kc = cropService.getKc(testCrop, seedDate, dateUntil);
+
+    System.out.println("* Seccion de prueba *");
+    System.out.println("Kc esperado: " + expectedResult);
+    System.out.println("Kc devuelto por el metodo getKc: " + kc);
+    System.out.println();
+
+    assertEquals(expectedResult, kc, 1e-8);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+  }
+
+  @Test
+  public void testEight() {
+    System.out.println("************************************** Prueba ocho del metodo getKc **************************************");
+    printDescriptionMethodToTest();
+    System.out.println();
+    System.out.println("En esta prueba se demuestra que el metodo getKc() retorna el Kc correcto para un cultivo que esta en la");
+    System.out.println("etapa de desarrollo de su ciclo de vida. Esta prueba es un caso de borde porque se busca demostrar que el");
+    System.out.println("metodo getKc() retorna el Kc correcto para un cultivo que ha vivido una cantidad de dias igual al extremo");
+    System.out.println("superior de la etapa en la que se encuentra.");
+    System.out.println();
+
+    System.out.println("* Cultivo de prueba");
+    System.out.println(testCrop);
+    System.out.println();
+
+    /*
+     * Fechas a partir de las cuales se obtiene el
+     * Kc (coeficiente de cultivo) del cultivo de
+     * prueba
+     */
+    Calendar seedDate = Calendar.getInstance();
+    seedDate.set(Calendar.DAY_OF_MONTH, 27);
+    seedDate.set(Calendar.MONTH, NOVEMBER);
+    seedDate.set(Calendar.YEAR, 2019);
+
+    Calendar dateUntil = Calendar.getInstance();
+    dateUntil.set(Calendar.DAY_OF_MONTH, 4);
+    dateUntil.set(Calendar.MONTH, FEBRUARY);
+    dateUntil.set(Calendar.YEAR, 2020);
+
+    System.out.println("* Fechas a partir de las cuales se obtiene el coeficiente del " + testCrop.getName());
+    System.out.println("Fecha de siembra: " + UtilDate.formatDate(seedDate));
+    System.out.println("Fecha hasta: " + UtilDate.formatDate(dateUntil));
+    System.out.println();
+
+    System.out.println(
+        "Cantidad de dias de vida del " + testCrop.getName() + " desde su fecha de siembra hasta la fecha hasta: "
+            + getDaysLife(seedDate, dateUntil));
+    System.out.println();
+
+    System.out.println("* Periodo de cada etapa del " + testCrop.getName());
+    System.out.println("Etapa inicial: dia " + getLowerLimitInitialStage()
+        + " a dia " + getUpperLimitInitialStage(testCrop));
+    System.out.println("Etapa de desarrollo: dia " + getLowerLimitDevelopmentStage(testCrop) + " a dia "
+        + getUpperLimitDevelopmentStage(testCrop));
+    System.out.println("Etapa media: dia " + getLowerLimitMiddleStage(testCrop) + " a dia "
+        + getUpperLimitMiddleStage(testCrop));
+    System.out.println("Etapa final: dia " + getLowerLimitFinalStage(testCrop) + " a dia "
+        + getUpperLimitFinalStage(testCrop));
+    System.out.println();
+
+    /*
+     * Seccion de prueba
+     */
+    double expectedResult = testCrop.getMiddleKc();
+    double kc = cropService.getKc(testCrop, seedDate, dateUntil);
+
+    System.out.println("* Seccion de prueba *");
+    System.out.println("Kc esperado: " + expectedResult);
+    System.out.println("Kc devuelto por el metodo getKc: " + kc);
+    System.out.println();
+
+    assertEquals(expectedResult, kc, 1e-8);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+  }
+
+  @Test
+  public void testNine() {
+    System.out.println("************************************** Prueba nueve del metodo getKc **************************************");
+    printDescriptionMethodToTest();
+    System.out.println();
+    System.out.println("En esta prueba se demuestra que el metodo getKc() retorna el Kc correcto para un cultivo que esta en la");
+    System.out.println("etapa media de su ciclo de vida. Esta prueba es un caso de borde porque se busca demostrar que el metodo");
+    System.out.println("getKc() retorna el Kc correcto para un cultivo que ha vivido una cantidad de dias igual al extremo superior");
+    System.out.println("de la etapa en la que se encuentra.");
+    System.out.println();
+
+    System.out.println("* Cultivo de prueba");
+    System.out.println(testCrop);
+    System.out.println();
+
+    /*
+     * Fechas a partir de las cuales se obtiene el
+     * Kc (coeficiente de cultivo) del cultivo de
+     * prueba
+     */
+    Calendar seedDate = Calendar.getInstance();
+    seedDate.set(Calendar.DAY_OF_MONTH, 27);
+    seedDate.set(Calendar.MONTH, NOVEMBER);
+    seedDate.set(Calendar.YEAR, 2019);
+
+    Calendar dateUntil = Calendar.getInstance();
+    dateUntil.set(Calendar.DAY_OF_MONTH, 15);
+    dateUntil.set(Calendar.MONTH, MARCH);
+    dateUntil.set(Calendar.YEAR, 2020);
+
+    System.out.println("* Fechas a partir de las cuales se obtiene el coeficiente del " + testCrop.getName());
+    System.out.println("Fecha de siembra: " + UtilDate.formatDate(seedDate));
+    System.out.println("Fecha hasta: " + UtilDate.formatDate(dateUntil));
+    System.out.println();
+
+    System.out.println(
+        "Cantidad de dias de vida del " + testCrop.getName() + " desde su fecha de siembra hasta la fecha hasta: "
+            + getDaysLife(seedDate, dateUntil));
+    System.out.println();
+
+    System.out.println("* Periodo de cada etapa del " + testCrop.getName());
+    System.out.println("Etapa inicial: dia " + getLowerLimitInitialStage()
+        + " a dia " + getUpperLimitInitialStage(testCrop));
+    System.out.println("Etapa de desarrollo: dia " + getLowerLimitDevelopmentStage(testCrop) + " a dia "
+        + getUpperLimitDevelopmentStage(testCrop));
+    System.out.println("Etapa media: dia " + getLowerLimitMiddleStage(testCrop) + " a dia "
+        + getUpperLimitMiddleStage(testCrop));
+    System.out.println("Etapa final: dia " + getLowerLimitFinalStage(testCrop) + " a dia "
+        + getUpperLimitFinalStage(testCrop));
+    System.out.println();
+
+    /*
+     * Seccion de prueba
+     */
+    double expectedResult = testCrop.getMiddleKc();
+    double kc = cropService.getKc(testCrop, seedDate, dateUntil);
+
+    System.out.println("* Seccion de prueba *");
+    System.out.println("Kc esperado: " + expectedResult);
+    System.out.println("Kc devuelto por el metodo getKc: " + kc);
+    System.out.println();
+
+    assertEquals(expectedResult, kc, 1e-8);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+  }
+
+  @Test
+  public void testTen() {
+    System.out.println("************************************** Prueba diez del metodo getKc **************************************");
+    printDescriptionMethodToTest();
+    System.out.println();
+    System.out.println("En esta prueba se demuestra que el metodo getKc() retorna el Kc correcto para un cultivo que esta en la");
+    System.out.println("etapa final de su ciclo de vida. Esta prueba es un caso de borde porque se busca demostrar que el metodo");
+    System.out.println("getKc() retorna el Kc correcto para un cultivo que ha vivido una cantidad de dias igual al extremo superior");
+    System.out.println("de la etapa en la que se encuentra.");
+    System.out.println();
+
+    System.out.println("* Cultivo de prueba");
+    System.out.println(testCrop);
+    System.out.println();
+
+    /*
+     * Fechas a partir de las cuales se obtiene el
+     * Kc (coeficiente de cultivo) del cultivo de
+     * prueba
+     */
+    Calendar seedDate = Calendar.getInstance();
+    seedDate.set(Calendar.DAY_OF_MONTH, 27);
+    seedDate.set(Calendar.MONTH, NOVEMBER);
+    seedDate.set(Calendar.YEAR, 2019);
+
+    Calendar dateUntil = Calendar.getInstance();
+    dateUntil.set(Calendar.DAY_OF_MONTH, 9);
+    dateUntil.set(Calendar.MONTH, APRIL);
+    dateUntil.set(Calendar.YEAR, 2020);
+
+    System.out.println("* Fechas a partir de las cuales se obtiene el coeficiente del " + testCrop.getName());
+    System.out.println("Fecha de siembra: " + UtilDate.formatDate(seedDate));
+    System.out.println("Fecha hasta: " + UtilDate.formatDate(dateUntil));
+    System.out.println();
+
+    System.out.println(
+        "Cantidad de dias de vida del " + testCrop.getName() + " desde su fecha de siembra hasta la fecha hasta: "
+            + getDaysLife(seedDate, dateUntil));
+    System.out.println();
+
+    System.out.println("* Periodo de cada etapa del " + testCrop.getName());
+    System.out.println("Etapa inicial: dia " + getLowerLimitInitialStage()
+        + " a dia " + getUpperLimitInitialStage(testCrop));
+    System.out.println("Etapa de desarrollo: dia " + getLowerLimitDevelopmentStage(testCrop) + " a dia "
+        + getUpperLimitDevelopmentStage(testCrop));
+    System.out.println("Etapa media: dia " + getLowerLimitMiddleStage(testCrop) + " a dia "
+        + getUpperLimitMiddleStage(testCrop));
+    System.out.println("Etapa final: dia " + getLowerLimitFinalStage(testCrop) + " a dia "
+        + getUpperLimitFinalStage(testCrop));
+    System.out.println();
+
+    /*
+     * Seccion de prueba
+     */
+    double expectedResult = testCrop.getFinalKc();
+    double kc = cropService.getKc(testCrop, seedDate, dateUntil);
+
+    System.out.println("* Seccion de prueba *");
+    System.out.println("Kc esperado: " + expectedResult);
+    System.out.println("Kc devuelto por el metodo getKc: " + kc);
+    System.out.println();
+
+    assertEquals(expectedResult, kc, 1e-8);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+  }
   @AfterClass
   public static void postTest() {
     // Cierra las conexiones
@@ -323,21 +716,34 @@ public class GetKcTest {
   }
 
   /**
-   * @param seedDate
-   * @param givenDate
-   * @return entero que representa la cantidad de dias
-   *         de vida de un cultivo desde su fecha de siembra
-   *         (incluida) hasta una fecha dada
+   * Imprime la descripcion del metodo a probar
    */
-  private int getDaysLife(Calendar seedDate, Calendar givenDate) {
+  private void printDescriptionMethodToTest() {
+    System.out.println("El metodo getKc() de la clase CropServiceBean retorna el Kc (coeficiente de cultivo) de un cultivo con base");
+    System.out.println("a la etapa en la que se encuentra un cultivo, lo cual depende de la cantidad de dias que ha vivido desde su");
+    System.out.println("fecha de siembra hasta una fecha hasta. El ciclo de vida de un cultivo tiene cuatro etapas: etapa inicial,");
+    System.out.println("etapa de desarrollo, etapa media y etapa final. Estas etapas ocurren en este orden.");
+    System.out.println();
+    System.out.println("Si la cantidad de dias de vida que ha vivido un cultivo es estrictamente mayor a la cantidad de dias que");
+    System.out.println("dura su ciclo de vida, el metodo getKc() retorna el Kc final.");
+  }
+
+  /**
+   * @param seedDate
+   * @param dateUntil
+   * @return entero que representa la cantidad de dias
+   * de vida de un cultivo desde su fecha de siembra
+   * (incluida) hasta una fecha dada
+   */
+  private int getDaysLife(Calendar seedDate, Calendar dateUntil) {
     /*
      * A la diferencia de dias entre la fecha de siembra de
-     * un cultivo y la fecha dada se le suma un uno para
+     * un cultivo y la fecha hasta se le suma un uno para
      * incluir a la fecha de siembra en el resultado, ya que
      * esta cuenta como un dia de vida en la cantidad de dias
      * de vida de un cultivo
      */
-    return UtilDate.calculateDifferenceBetweenDates(seedDate, givenDate) + 1;
+    return UtilDate.calculateDifferenceBetweenDates(seedDate, dateUntil) + 1;
   }
 
   /**
@@ -359,12 +765,12 @@ public class GetKcTest {
   }
 
   /**
-   * @param givenCrop
+   * @param crop
    * @return entero que representa el ultimo dia de la
    * etapa inicial del ciclo de vida de un cultivo
    */
-  private int getUpperLimitInitialStage(Crop givenCrop) {
-    return givenCrop.getInitialStage();
+  private int getUpperLimitInitialStage(Crop crop) {
+    return crop.getInitialStage();
   }
 
   /**
@@ -380,21 +786,21 @@ public class GetKcTest {
    * cantidad de dias que dura la etapa inicial y la cantidad
    * de dias que dura la etapa de desarrollo.
    * 
-   * @param givenCrop
+   * @param crop
    * @return entero que representa el primer dia de la etapa
    * de desarrollo del ciclo de vida de un cultivo
    */
-  private int getLowerLimitDevelopmentStage(Crop givenCrop) {
-    return getUpperLimitInitialStage(givenCrop) + 1;
+  private int getLowerLimitDevelopmentStage(Crop crop) {
+    return getUpperLimitInitialStage(crop) + 1;
   }
 
   /**
-   * @param givenCrop
+   * @param crop
    * @return entero que representa el ultimo dia de la etapa
    * de desarrollo del ciclo de vida de un cultivo
    */
-  private int getUpperLimitDevelopmentStage(Crop givenCrop) {
-    return (givenCrop.getInitialStage() + givenCrop.getDevelopmentStage());
+  private int getUpperLimitDevelopmentStage(Crop crop) {
+    return (crop.getInitialStage() + crop.getDevelopmentStage());
   }
 
   /**
@@ -411,21 +817,21 @@ public class GetKcTest {
    * dura la etapa de desarrollo y la cantidad de dias que dura
    * la etapa media.
    * 
-   * @param givenCrop
+   * @param crop
    * @return entero que representa el primer dia de la etapa
    * media del ciclo de vida de un cultivo
    */
-  private int getLowerLimitMiddleStage(Crop givenCrop) {
-    return getUpperLimitDevelopmentStage(givenCrop) + 1;
+  private int getLowerLimitMiddleStage(Crop crop) {
+    return getUpperLimitDevelopmentStage(crop) + 1;
   }
 
   /**
-   * @param givenCrop
+   * @param crop
    * @return entero que representa el ultimo dia de la etapa
    * media del ciclo de vida de un cultivo
    */
-  private int getUpperLimitMiddleStage(Crop givenCrop) {
-    return (givenCrop.getInitialStage() + givenCrop.getDevelopmentStage() + givenCrop.getMiddleStage());
+  private int getUpperLimitMiddleStage(Crop crop) {
+    return (crop.getInitialStage() + crop.getDevelopmentStage() + crop.getMiddleStage());
   }
 
   /**
@@ -442,21 +848,21 @@ public class GetKcTest {
    * de desarrollo, la cantidad de dias que dura la etapa media y
    * la cantidad de dias que dura la etapa final.
    * 
-   * @param givenCrop
+   * @param crop
    * @return entero que representa el primer dia de la etapa
    * final del ciclo de vida de un cultivo
    */
-  private int getLowerLimitFinalStage(Crop givenCrop) {
-    return getUpperLimitMiddleStage(givenCrop) + 1;
+  private int getLowerLimitFinalStage(Crop crop) {
+    return getUpperLimitMiddleStage(crop) + 1;
   }
 
   /**
-   * @param givenCrop
+   * @param crop
    * @return entero que representa el ultimo dia de la etapa
    * final del ciclo de vida de un cultivo
    */
-  private int getUpperLimitFinalStage(Crop givenCrop) {
-    return (givenCrop.getInitialStage() + givenCrop.getDevelopmentStage() + givenCrop.getMiddleStage() + givenCrop.getFinalStage());
+  private int getUpperLimitFinalStage(Crop crop) {
+    return (crop.getInitialStage() + crop.getDevelopmentStage() + crop.getMiddleStage() + crop.getFinalStage());
   }
 
 }
