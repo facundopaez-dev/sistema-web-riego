@@ -29,12 +29,34 @@ public class SoilWaterBalanceServiceBean {
     /*
      * El valor de esta constante se utiliza para representar
      * la situacion en la que NO se calcula el acumulado del
-     * deficit de agua por dia de dias previos a una fecha de
-     * un balance hidrico de suelo de una parcela que tiene
-     * un cultivo sembrado y en desarrollo. Esta situacion
-     * ocurre cuando el nivel de humedad de un suelo, que tiene
-     * un cultivo sembrado, es estrictamente menor al doble de
-     * la capacidad de almacenamiento de agua del mismo.
+     * deficit de agua por dia de un balance hidrico de suelo
+     * de una parcela que tiene un cultivo sembrado y en
+     * desarrollo. Esta situacion ocurre cuando la perdida de
+     * humedad del suelo de un conjunto de dias es estrictamente
+     * mayor al doble de la capacidad de almacenamiento de agua
+     * del suelo. Esto se representa mediante la condicion de
+     * que el acumulado del deficit de agua por dia sea estrictamente
+     * menor al negativo del doble de la capacidad de almacenamiento
+     * de agua del suelo, ya que el acumulado del deficit de
+     * agua por dia puede ser negativo o cero. Cuando es negativo
+     * representa que en un periodo de dias hubo perdida de humedad
+     * en el suelo. En cambio, cuando es igual a cero representa
+     * que la perdida de humedad que hubo en el suelo en un periodo
+     * de dias esta totalmente cubierta. Esto es que el suelo
+     * esta en capacidad de campo, lo significa que el suelo
+     * esta lleno de agua o en su maxima capacidad de almacenamiento
+     * de agua, pero no anegado.
+     * 
+     * Cuando la perdida de humedad del suelo, que tiene un
+     * cultivo sembrado, de un conjunto de dias es estrictamente
+     * mayor al doble de la capacidad de almacenamiento de agua
+     * del suelo (representado mediante la conidicion de que el
+     * acumulado del deficit de agua por dia sea estrictamente
+     * menor al negativo del doble de la capacidad de almacenamiento
+     * de agua del suelo), el cultivo esta muerto, ya que ningun
+     * cultivo puede sobrevivir con dicha perdida de humedad.
+     * Por lo tanto, la presencia del valor "NC" (no calculado)
+     * tambien representa la muerte de un cultivo.
      */
     private final String NOT_CALCULATED = "NC";
 
