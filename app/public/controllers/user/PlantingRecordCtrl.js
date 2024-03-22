@@ -588,8 +588,8 @@ app.controller(
               label: {
                 enabled: true,
                 backgroundColor: 'black',
-                content: 'Límite inferior (2 * CC = ' + (2 * soilMoistureLevelGraph.totalAmountWaterAvailable) + ') [mm]: '
-                  + soilMoistureLevelGraph.negativeTotalAmountWaterAvailable
+                content: 'Lím. inferior (LI) [mm]: ' + soilMoistureLevelGraph.negativeTotalAmountWaterAvailable
+                  + ' (de CC a LI hay ' + (2 * soilMoistureLevelGraph.totalAmountWaterAvailable) + ' [mm] = 2 * CC)'
               },
               onMouseleave: function (e) {
                 // console.log("onMouseleave", e);
