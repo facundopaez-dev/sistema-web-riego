@@ -433,7 +433,7 @@ app.controller(
         }
 
         if ($scope.cropIrrigationWaterNeedData.irrigationDone >= 0) {
-          irrigationRecordService.saveIrrigationWaterNeedData($scope.cropIrrigationWaterNeedData, function (error, cropIrrigationWaterNeedData) {
+          irrigationRecordService.saveIrrigationWaterNeedData($scope.cropIrrigationWaterNeedData, function (error) {
             if (error) {
               console.log(error);
               errorResponseManager.checkResponse(error);
