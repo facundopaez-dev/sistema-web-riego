@@ -4049,6 +4049,7 @@ public class PlantingRecordRestServlet {
     Crop crop = plantingRecord.getCrop();
     Soil soil = plantingRecord.getParcel().getSoil();
     Parcel parcel = plantingRecord.getParcel();
+    String meaningXySoilMoistureLevelGraphTitle = ", Y: Nivel de humedad del suelo [mm], X: Día";
 
     int parcelId = parcel.getId();
 
@@ -4062,7 +4063,7 @@ public class PlantingRecordRestServlet {
       soilMoistureLevelGraph.setText("Evolución diaria del nivel de humedad del suelo en el período "
           + UtilDate.formatDate(seedDate) + " - "
           + UtilDate.formatDate(plantingRecord.getHarvestDate())
-          + ", Y: Nivel de humedad [mm], X: Día");
+          + meaningXySoilMoistureLevelGraphTitle);
     }
 
     /*
@@ -4080,7 +4081,7 @@ public class PlantingRecordRestServlet {
       soilMoistureLevelGraph.setText("Evolución diaria del nivel de humedad del suelo en el período "
           + UtilDate.formatDate(seedDate) + " - "
           + UtilDate.formatDate(UtilDate.getYesterdayDate())
-          + ", Y: Nivel de humedad [mm], X: Día");
+          + meaningXySoilMoistureLevelGraphTitle);
     }
 
     /*
@@ -4093,7 +4094,7 @@ public class PlantingRecordRestServlet {
       soilMoistureLevelGraph.setText("Evolución diaria del nivel de humedad del suelo en el período "
           + UtilDate.formatDate(seedDate) + " - "
           + UtilDate.formatDate(plantingRecord.getDeathDate())
-          + ", Y: Nivel de humedad [mm], X: Día");
+          + meaningXySoilMoistureLevelGraphTitle);
     }
 
     soilMoistureLevelGraph.setTotalAmountWaterAvailable(WaterMath.calculateTotalAmountWaterAvailable(crop, soil));
