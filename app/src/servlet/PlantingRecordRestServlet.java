@@ -2402,20 +2402,19 @@ public class PlantingRecordRestServlet {
      * parcela que tiene un cultivo sembrado y en desarrollo. Esta
      * situacion ocurre cuando la perdida de humedad del suelo, que
      * tiene un cultivo sembrado, es estrictamente mayor al doble de
-     * la capacidad de almacenamiento de agua de un suelo que tiene
-     * un cultivo sembrado.
+     * la capacidad de almacenamiento de agua del mismo.
      * 
      * Cuando la perdida de humedad del suelo, que tiene un cultivo,
      * sembrado es estrictamente mayor al doble de la capacidad de
-     * almacenamiento de agua del suelo, el cultivo muere. Por lo
+     * almacenamiento de agua del mismo, el cultivo muere. Por lo
      * tanto, la aplicacion del lado servidor asigna la abreviatura
      * "n/a" (no disponible) a la necesidad de agua de riego de un
      * cultivo en la fecha actual (es decir, hoy) [mm/dia] de un
      * registro de plantacion. En esta situacion, la aplicacion
      * retorna el mensaje HTTP 400 (Bad request) informando el
-     * motivo por el cual el cultivo, para que el se intento calcular
-     * su necesidad de agua de riego en la fecha actual (es decir,
-     * hoy) [mm/dia], ha muerto.
+     * motivo por el cual el cultivo, para que el se intento
+     * calcular su necesidad de agua de riego en la fecha actual
+     * (es decir, hoy) [mm/dia], ha muerto.
      */
     if (stringIrrigationWaterNeedCurrentDate != null && stringIrrigationWaterNeedCurrentDate.equals(notCalculated)) {
       plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(), notAvailable);
@@ -3070,7 +3069,7 @@ public class PlantingRecordRestServlet {
     /*
      * El valor de esta variable es la precipitacion
      * natural por dia [mm/dia] o la precipitacion
-     * artificial (agua de riego) por dia [mm/día] o
+     * artificial (agua de riego) por dia [mm/dia] o
      * la suma de ambas [mm/dia]
      */
     double waterProvidedPerDay = 0.0;
@@ -3178,11 +3177,36 @@ public class PlantingRecordRestServlet {
         stringAccumulatedWaterDeficitPerDay = String.valueOf(accumulatedWaterDeficitPerDay);
 
         /*
-         * Si la bandera suelo de una parcela esta activa, se
-         * comprueba el nivel de humedad del suelo para establecer
-         * el estado del registro de plantacion en desarrollo para
-         * el que se calcula la necesidad de agua de riego de su
-         * cultivo en la fecha actual (es decir, hoy) [mm/dia]
+         * Si el estado del registro de plantacion que contiene el
+         * cultivo para el que se calcula la necesidad de agua de
+         * riego en la fecha actual (es decir, hoy) [mm/dia], NO
+         * tiene el estado "Muerto" y si la parcela a la que
+         * pertenece tiene la bandera suelo activa en sus opciones,
+         * se comprueba si el acumulado del deficit de agua por
+         * dia de una fecha pasada es estrictamente menor al doble
+         * de la capacidad de almacenamiento de agua del suelo que
+         * contiene la parcela. Si lo es, el cultivo que contiene
+         * el registro de plantacion ha muerto en una fecha
+         * pasada. En caso contrario, no ha muerto en una fecha
+         * pasada.
+         * 
+         * Lo que se busca determinar con esta comprobacion es
+         * determinar si la perdida de humedad del suelo, que
+         * tiene un cultivo sembrado, es estrictamente mayor al
+         * doble de la capacidad de almacenamiento de agua del
+         * suelo en una fecha pasada. Si lo es, el cultivo murio
+         * en una fecha pasada, ya que ningún cultivo puede
+         * sobrevivir con dicha perdida. El motivo de esto es
+         * que cuando el acumulado del deficit de agua por dia
+         * es negativo representa que en un periodo de dias hubo
+         * perdida de humedad en el suelo. El acumulado del deficit
+         * de agua por dia tambien puede ser cero, ademas de negativo.
+         * Cuando es igual a cero representa que la perdida de
+         * humedad que hubo en el suelo en un periodo de dias esta
+         * totalmente cubierta. Esto es que el suelo esta en capacidad
+         * de campo, lo que significa que el suelo esta lleno de
+         * agua o en su maxima capacidad de almacenamiento de agua,
+         * pero no anegado.
          */
         if (!statusService.equals(developingPlantingRecord.getStatus(), deadStatus) && parcel.getOption().getSoilFlag()) {
 
