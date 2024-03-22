@@ -368,28 +368,31 @@ public class PlantingRecordManager {
 
             /*
              * Si la necesidad de agua de riego de un cultivo (en desarrollo)
-             * en la fecha actual (es decir, hoy) [mm/dia] es "NC" ("no
-             * calculado") significa que el algoritmo utilizado para calcular
-             * dicha necesidad es el que utiliza el suelo para ello, ya que al
-             * utilizar este algoritmo se retorna el valor "NC" para representar
-             * la situacion en la que NO se calcula el acumulado del deficit
-             * de agua por dia [mm/dia] del balance hidrico de un dia y de una
+             * en la fecha actual (es decir, hoy) [mm/dia] es "NC" (No Calculado,
+             * valor de la variable notCalculated) significa que el algoritmo
+             * utilizado para calcular dicha necesidad es el que utiliza datos
+             * de suelo, ya que al utilizar este algoritmo se retorna el valor
+             * "NC" para representar la situacion en la que NO se calcula el
+             * acumulado del deficit de agua por dia del balance hidrico de una
              * parcela que tiene un cultivo sembrado y en desarrollo. Esta
-             * situacion ocurre cuando el nivel de humedad de un suelo, que
-             * tiene un cultivo sembrado, es estrictamente menor al doble de
-             * la capacidad de almacenamiento de agua del mismo. Cuando ocurre
-             * esto con el nivel de humedad del suelo, el cultivo esta muerto
-             * y la aplicacion establece:
-             * 1. el estado "Muerto",
-             * 2. el valor "n/a" (no disponible) en el atributo "necesidad de
-             * agua de riego de un cultivo" (*) y
-             * 3. la fecha de muerte
+             * situacion ocurre cuando la perdida de humedad del suelo, que
+             * tiene un cultivo sembrado, es estrictamente mayor al doble de
+             * la capacidad de almacenamiento de agua del mismo.
              * 
-             * de un registro de plantacion correspondiente que tiene un estado
-             * de desarrollo (en desarrollo, desarrollo optimo, desarrollo en
-             * riesgo de marchitez, desarrollo en marchitez). El establecimiento
-             * del estado "Muerto" se realiza en el metodo calculateSoilWaterBalances()
-             * de esta clase.
+             * Cuando la perdida de humedad del suelo, que tiene un cultivo,
+             * sembrado es estrictamente mayor al doble de la capacidad de
+             * almacenamiento de agua del mismo, el cultivo muere. Cuando
+             * ocurre esto, la aplicacion ejecuta las siguientes operaciones
+             * sobre un registro de plantacion que tiene una parcela que
+             * tiene la bandera suelo activa en sus opciones:
+             * 1. Establece el estado "Muerto".
+             * 2. Asigna valor "n/a" (no disponible) en el atributo "necesidad
+             * de agua de riego de un cultivo" (*).
+             * 3. Establece la fecha de muerte.
+             * 
+             * El establecimiento del estado "Muerto" y de la fecha de muerte
+             * se realiza en el metodo calculateSoilWaterBalances() de esta
+             * clase.
              * 
              * (*) El atributo "necesidad de agua de riego de un cultivo" de
              * un registro de plantacion es la necesidad de agua de riego de
@@ -397,7 +400,6 @@ public class PlantingRecordManager {
              */
             if (stringIrrigationWaterNeedCurrentDate.equals(notCalculated)) {
                 plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(), notAvailable);
-                plantingRecordService.updateDateDeath(developingPlantingRecord.getId(), UtilDate.getCurrentDate());
             }
 
         } // End for
@@ -1027,7 +1029,7 @@ public class PlantingRecordManager {
         /*
          * El valor de esta variable es la precipitacion
          * natural por dia [mm/dia] o la precipitacion
-         * artificial (agua de riego) por dia [mm/día] o
+         * artificial (agua de riego) por dia [mm/dia] o
          * la suma de ambas [mm/dia]
          */
         double waterProvidedPerDay = 0.0;
@@ -1135,13 +1137,38 @@ public class PlantingRecordManager {
                 stringAccumulatedWaterDeficitPerDay = String.valueOf(accumulatedWaterDeficitPerDay);
 
                 /*
-                 * Si la bandera suelo de una parcela esta activa, se
-                 * comprueba el nivel de humedad del suelo para establecer
-                 * el estado del registro de plantacion en desarrollo para
-                 * el que se calcula la necesidad de agua de riego de su
-                 * cultivo en la fecha actual (es decir, hoy) [mm/dia]
+                 * Si el estado del registro de plantacion que contiene el
+                 * cultivo para el que se calcula la necesidad de agua de
+                 * riego en la fecha actual (es decir, hoy) [mm/dia], NO
+                 * tiene el estado "Muerto" y si la parcela a la que
+                 * pertenece tiene la bandera suelo activa en sus opciones,
+                 * se comprueba si el acumulado del deficit de agua por
+                 * dia de una fecha pasada es estrictamente menor al doble
+                 * de la capacidad de almacenamiento de agua del suelo que
+                 * contiene la parcela. Si lo es, el cultivo que contiene
+                 * el registro de plantacion ha muerto en una fecha
+                 * pasada. En caso contrario, no ha muerto en una fecha
+                 * pasada.
+                 * 
+                 * Lo que se busca determinar con esta comprobacion es
+                 * determinar si la perdida de humedad del suelo, que
+                 * tiene un cultivo sembrado, es estrictamente mayor al
+                 * doble de la capacidad de almacenamiento de agua del
+                 * suelo en una fecha pasada. Si lo es, el cultivo murio
+                 * en una fecha pasada, ya que ningún cultivo puede
+                 * sobrevivir con dicha perdida. El motivo de esto es
+                 * que cuando el acumulado del deficit de agua por dia
+                 * es negativo representa que en un periodo de dias hubo
+                 * perdida de humedad en el suelo. El acumulado del deficit
+                 * de agua por dia tambien puede ser cero, ademas de negativo.
+                 * Cuando es igual a cero representa que la perdida de
+                 * humedad que hubo en el suelo en un periodo de dias esta
+                 * totalmente cubierta. Esto es que el suelo esta en capacidad
+                 * de campo, lo que significa que el suelo esta lleno de
+                 * agua o en su maxima capacidad de almacenamiento de agua,
+                 * pero no anegado.
                  */
-                if (parcel.getOption().getSoilFlag()) {
+                if (!statusService.equals(developingPlantingRecord.getStatus(), deadStatus) && parcel.getOption().getSoilFlag()) {
 
                     /*
                      * El suelo de una parcela debe ser obtenido unicamente
@@ -1198,6 +1225,7 @@ public class PlantingRecordManager {
                      */
                     if (accumulatedWaterDeficitPerDay < -(2 * totalAmountWaterAvailable)) {
                         stringAccumulatedWaterDeficitPerDay = notCalculated;
+                        plantingRecordService.setDeathDate(developingPlantingRecord.getId(), pastDate);
                         plantingRecordService.setStatus(developingPlantingRecord.getId(), deadStatus);
                     }
 
