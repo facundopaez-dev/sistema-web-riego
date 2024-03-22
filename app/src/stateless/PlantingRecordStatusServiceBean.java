@@ -238,8 +238,8 @@ public class PlantingRecordStatusServiceBean {
      * igual a cero representa que la perdida de humedad que
      * hubo en el suelo en un periodo de dias esta totalmente
      * cubierta. Esto es que el suelo esta en capacidad de campo,
-     * lo significa que el suelo esta lleno de agua o en su
-     * maxima capacidad de almacenamiento de agua, pero no
+     * lo que significa que el suelo esta lleno de agua o en
+     * su maxima capacidad de almacenamiento de agua, pero no
      * anegado.
      * 
      * Se suma la capacidad de almacenamiento de agua del suelo
