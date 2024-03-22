@@ -135,6 +135,42 @@ public class SoilWaterBalanceServiceBean {
 
     /**
      * @param parcelId
+     * @param dateFrom
+     * @param dateUntil
+     * @return referencia a un objeto de tipo Collection que
+     * contiene los balances hidricos de suelo de una parcela
+     * pertenecientes al periodo definido por una fecha desde
+     * y una fecha hasta
+     */
+    public Collection<SoilWaterBalance> findAllFromDateFromToDateUntil(int parcelId, Calendar dateFrom, Calendar dateUntil) {
+        Query query = getEntityManager().createQuery("SELECT s FROM Parcel p JOIN p.soilWaterBalances s WHERE (p.id = :parcelId AND s.date >= :dateFrom AND s.date <= :dateUntil) ORDER BY s.date");
+        query.setParameter("parcelId", parcelId);
+        query.setParameter("dateFrom", dateFrom);
+        query.setParameter("dateUntil", dateUntil);
+
+        return (Collection) query.getResultList();
+    }
+
+    /**
+     * @param parcelId
+     * @param dateFrom
+     * @return referencia a un objeto de tipo Collection que
+     * contiene los balances hidricos de suelo de una parcela
+     * pertenecientes al periodo definido por una fecha desde
+     * y la fecha inmediatamente anterior a la fecha actual
+     * (es decir, hoy)
+     */
+    public Collection<SoilWaterBalance> findAllFromSeedDateUntilYesterday(int parcelId, Calendar dateFrom) {
+        Query query = getEntityManager().createQuery("SELECT s FROM Parcel p JOIN p.soilWaterBalances s WHERE (p.id = :parcelId AND s.date >= :dateFrom AND s.date <= :yesterday) ORDER BY s.date");
+        query.setParameter("parcelId", parcelId);
+        query.setParameter("dateFrom", dateFrom);
+        query.setParameter("yesterday", UtilDate.getYesterdayDate());
+
+        return (Collection) query.getResultList();
+    }
+
+    /**
+     * @param parcelId
      * @param date
      * @return true si en la base de datos subyacente existe un
      * balance hidrico de suelo con un ID de parcela y una fecha.

@@ -270,6 +270,14 @@
         </div>
       </div>
 
+      <div ng-show="showSoilName == true" class="form-group">
+        <label for="parcel_soil" class="col-md-2 control-label">Suelo de la parcela</label>
+        <div class="col-md-3">
+          <input type="text" class="form-control" id="parcel_soil"
+            ng-model="cropIrrigationWaterNeedData.parcel.soil.name" ng-disabled="true">
+        </div>
+      </div>
+
       <div class="form-group">
         <label for="crop_name" class="col-md-2 control-label">Cultivo</label>
         <div class="col-md-3">
@@ -283,6 +291,14 @@
         <div class="col-md-3">
           <input type="text" class="form-control" id="type_crop_name"
             ng-model="cropIrrigationWaterNeedData.crop.typeCrop.name" ng-disabled="true">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="status" class="col-md-2 control-label">Estado del cultivo</label>
+        <div class="col-md-3">
+          <input type="text" class="form-control" id="status" ng-model="cropIrrigationWaterNeedData.status.name"
+            ng-disabled="true">
         </div>
       </div>
 
@@ -351,5 +367,11 @@
         </div>
       </div>
     </form>
+  </div>
+</div>
+
+<div ng-show="showGraph == true && (action == 'view' || action == 'calculate')" class="panel panel-info">
+  <div class="panel-body">
+    <canvas id="soilMoistureLevelGraph"></canvas>
   </div>
 </div>

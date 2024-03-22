@@ -8,6 +8,7 @@ import java.text.ParseException;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Calendar;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Collection;
 import javax.ejb.EJB;
@@ -53,8 +54,11 @@ import model.Crop;
 import model.IrrigationRecord;
 import model.Parcel;
 import model.PlantingRecord;
+import model.PlantingRecordData;
 import model.PlantingRecordStatus;
+import model.SoilMoistureLevelGraph;
 import model.SoilWaterBalance;
+import model.Soil;
 import model.IrrigationWaterNeedFormData;
 import model.User;
 import model.Option;
@@ -654,13 +658,77 @@ public class PlantingRecordRestServlet {
       return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
     }
 
+    PlantingRecord plantingRecord = plantingRecordService.findByUserId(userId, plantingRecordId);
+    Calendar seedDate = plantingRecord.getSeedDate();
+    Calendar harvestDate = plantingRecord.getHarvestDate();
+    Calendar deathDate = plantingRecord.getDeathDate();
+    PlantingRecordStatus status = plantingRecord.getStatus();
+    PlantingRecordData plantingRecordData = new PlantingRecordData();
+    plantingRecordData.setPlantingRecord(plantingRecord);
+
+    int parcelId = plantingRecord.getParcel().getId();
+
+    /*
+     * En Java las variables de instancia de tipo primitivo
+     * de tipo por referencia se inicializan de forma automatica
+     * con un valor por defecto. En el caso de las variables
+     * de instancia de tipo boolean (tipo primitivo), estas
+     * se inicializan de manera automatica con el valor false.
+     * 
+     * La clase SoilMoistureLevelGraph tiene una variable de
+     * de tipo boolean llamada showGraph. Al instanciar la
+     * clase SoilMoistureLevelGraph, la variable showGraph
+     * se inicializa de manera automatica en false. Esta
+     * instruccion es para, que mediante la variable showGraph
+     * en false, no mostrar el grafico de la evolucion diaria
+     * del nivel de humedad del suelo para un registro de
+     * plantacion perteneciente a una parcela que NO tiene la
+     * bandera suelo activa en sus opciones.
+     */
+    plantingRecordData.setSoilMoistureLevelGraph(new SoilMoistureLevelGraph());
+
+    /*
+     * - Si la bandera suelo de las opciones de la parcela perteneciente
+     * a un registro de plantacion, esta activa,
+     * - si uno de los siguientes estados: "Finalizado", "Desarrollo optimo",
+     * "Desarrollo en riesgo de marchitez", "Desarrollo en marchitez" o "Muerto", y
+     * - si en los periodos correspondientes a cada uno de estos estados la
+     * parcela tiene balances hidricos de suelo,
+     * 
+     * se genera el grafico que representa la evolucion diaria del nivel de
+     * humedad del suelo para que pueda ser visualizado en la visualizacion
+     * de un registro de plantacion que tiene uno de estos estados y que
+     * tiene una parcela que tiene la bandera suelo activa en sus opciones
+     */
+    if (plantingRecord.getParcel().getOption().getSoilFlag()) {
+
+      if (statusService.equals(status, statusService.findFinishedStatus())
+          && !soilWaterBalanceService.findAllFromDateFromToDateUntil(parcelId, seedDate, harvestDate).isEmpty()) {
+        plantingRecordData.setSoilMoistureLevelGraph(generateSoilMoistureLevelGraph(plantingRecord));
+      }
+
+      if ((statusService.equals(status, statusService.findOptimalDevelopmentStatus())
+          || statusService.equals(status, statusService.findDevelopmentAtRiskWiltingStatus())
+          || statusService.equals(status, statusService.findDevelopmentInWiltingStatus()))
+          && !soilWaterBalanceService.findAllFromSeedDateUntilYesterday(parcelId, seedDate).isEmpty()) {
+        plantingRecordData.setSoilMoistureLevelGraph(generateSoilMoistureLevelGraph(plantingRecord));
+      }
+
+      if (statusService.equals(status, statusService.findDeadStatus())
+          && !soilWaterBalanceService.findAllFromDateFromToDateUntil(parcelId, seedDate, deathDate).isEmpty()) {
+        plantingRecordData.setSoilMoistureLevelGraph(generateSoilMoistureLevelGraph(plantingRecord));
+      }
+
+    }
+
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
      * por el cliente
      */
-    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(plantingRecordService.findByUserId(userId, plantingRecordId))).build();
+    // return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(plantingRecordService.findByUserId(userId, plantingRecordId))).build();
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(plantingRecordData)).build();
   }
 
   @POST
@@ -2324,40 +2392,40 @@ public class PlantingRecordRestServlet {
     String notCalculated = soilWaterBalanceService.getNotCalculated();
 
     /*
-     * Si la necesidad de agua de riego de un cultivo (en
-     * desarrollo) en la fecha actual [mm/dia] es "NC"
-     * (valor de la variable notCalculated) significa que
-     * el algoritmo utilizado para calcular dicha necesidad
-     * es el que utiliza el suelo para ello, ya que al
-     * utilizar este algoritmo se retorna el valor "NC"
-     * para representar la situacion en la que NO se
-     * calcula el acumulado del deficit de agua por dia
-     * del balance hidrico de una parcela que tiene un
-     * cultivo sembrado y en desarrollo. Esta situacion
-     * ocurre cuando el nivel de humedad de un suelo, que
-     * tiene un cultivo sembrado, es estrictamente menor
-     * al doble de la capacidad de almacenamiento de agua
-     * de un suelo que tiene un cultivo sembrado.
+     * Si la necesidad de agua de riego de un cultivo (en desarrollo)
+     * en la fecha actual (es decir, hoy) [mm/dia] es "NC" (No Calculado,
+     * valor de la variable notCalculated) significa que el algoritmo
+     * utilizado para calcular dicha necesidad es el que utiliza datos
+     * de suelo, ya que al utilizar este algoritmo se retorna el valor
+     * "NC" para representar la situacion en la que NO se calcula el
+     * acumulado del deficit de agua por dia del balance hidrico de una
+     * parcela que tiene un cultivo sembrado y en desarrollo. Esta
+     * situacion ocurre cuando la perdida de humedad del suelo, que
+     * tiene un cultivo sembrado, es estrictamente mayor al doble de
+     * la capacidad de almacenamiento de agua de un suelo que tiene
+     * un cultivo sembrado.
      * 
-     * Por lo tanto, la aplicacion del lado servidor asigna
-     * la abreviatura "n/a" (no disponible) a la necesidad de
-     * agua de riego de un cultivo en la fecha actual [mm/dia]
-     * de un registro de plantacion en desarrollo y no se
-     * realiza la operacion solicitada.
-     * 
-     * En esta situacion, la aplicacion retorna el mensaje
-     * HTTP 400 (Bad request) informando de que el cultivo
-     * para el que se deseo calcular su necesidad de agua
-     * de riego en la fecha actual [mm/dia], esta muerto.
+     * Cuando la perdida de humedad del suelo, que tiene un cultivo,
+     * sembrado es estrictamente mayor al doble de la capacidad de
+     * almacenamiento de agua del suelo, el cultivo muere. Por lo
+     * tanto, la aplicacion del lado servidor asigna la abreviatura
+     * "n/a" (no disponible) a la necesidad de agua de riego de un
+     * cultivo en la fecha actual (es decir, hoy) [mm/dia] de un
+     * registro de plantacion. En esta situacion, la aplicacion
+     * retorna el mensaje HTTP 400 (Bad request) informando el
+     * motivo por el cual el cultivo, para que el se intento calcular
+     * su necesidad de agua de riego en la fecha actual (es decir,
+     * hoy) [mm/dia], ha muerto.
      */
     if (stringIrrigationWaterNeedCurrentDate != null && stringIrrigationWaterNeedCurrentDate.equals(notCalculated)) {
       plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(), notAvailable);
-      plantingRecordService.updateDateDeath(developingPlantingRecord.getId(), UtilDate.getCurrentDate());
 
       String message = "El cultivo murió porque la pérdida de humedad del suelo fue estrictamente mayor al doble"
           + " de la capacidad de almacenamiento de agua del suelo (2 * "
           + developingPlantingRecord.getTotalAmountWaterAvailable()
-          + " = " + (2 * developingPlantingRecord.getTotalAmountWaterAvailable()) + ")";
+          + " = " + (2 * developingPlantingRecord.getTotalAmountWaterAvailable()) + "). Puede visualizar el gráfico de"
+          + " la evolución diaria del nivel de humedad del suelo presionando el botón de visualización sobre este registro"
+          + " de plantación.";
 
       return Response.status(Response.Status.BAD_REQUEST)
           .entity(mapper.writeValueAsString(new ErrorResponse(message, SourceUnsatisfiedResponse.DEAD_CROP_WATER_NEED)))
@@ -2396,6 +2464,42 @@ public class PlantingRecordRestServlet {
     irrigationWaterNeedFormData.setCrop(developingPlantingRecord.getCrop());
     irrigationWaterNeedFormData.setCropIrrigationWaterNeed(cropIrrigationWaterNeedCurrentDate);
     irrigationWaterNeedFormData.setIrrigationDone(cropIrrigationWaterNeedCurrentDate);
+
+    /*
+     * El motivo por el cual se recupera el estado del registro
+     * de plantacion desde la base de datos subyacente y no desde
+     * la instancia de dicho registro es para recuperar el estado
+     * actualizado y no un estado desactualizado
+     */
+    irrigationWaterNeedFormData.setStatus(plantingRecordService.find(developingPlantingRecord.getId()).getStatus());
+
+    /*
+     * Si la bandera suelo de las opciones de la parcela perteneciente
+     * a un registro de plantacion en desarrollo, esta activa, se genera
+     * el grafico de la evolucion diaria del nivel de humdad del suelo
+     */
+    if (developingPlantingRecord.getParcel().getOption().getSoilFlag()) {
+      irrigationWaterNeedFormData.setSoilMoistureLevelGraph(generateSoilMoistureLevelGraph(developingPlantingRecord));
+    } else {
+      /*
+       * En Java las variables de instancia de tipo primitivo
+       * de tipo por referencia se inicializan de forma automatica
+       * con un valor por defecto. En el caso de las variables
+       * de instancia de tipo boolean (tipo primitivo), estas
+       * se inicializan de manera automatica con el valor false.
+       * 
+       * La clase SoilMoistureLevelGraph tiene una variable de
+       * de tipo boolean llamada showGraph. Al instanciar la
+       * clase SoilMoistureLevelGraph, la variable showGraph
+       * se inicializa de manera automatica en false. Esta
+       * instruccion es para, que mediante la variable showGraph
+       * en false, no mostrar el grafico de la evolucion diaria
+       * del nivel de humedad del suelo para un registro de
+       * plantacion perteneciente a una parcela que NO tiene la
+       * bandera suelo activa en sus opciones.
+       */
+      irrigationWaterNeedFormData.setSoilMoistureLevelGraph(new SoilMoistureLevelGraph());
+    }
 
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
@@ -3080,7 +3184,7 @@ public class PlantingRecordRestServlet {
          * el que se calcula la necesidad de agua de riego de su
          * cultivo en la fecha actual (es decir, hoy) [mm/dia]
          */
-        if (parcel.getOption().getSoilFlag()) {
+        if (!statusService.equals(developingPlantingRecord.getStatus(), deadStatus) && parcel.getOption().getSoilFlag()) {
 
           /*
            * El suelo de una parcela debe ser obtenido unicamente
@@ -3137,6 +3241,7 @@ public class PlantingRecordRestServlet {
            */
           if (accumulatedWaterDeficitPerDay < -(2 * totalAmountWaterAvailable)) {
             stringAccumulatedWaterDeficitPerDay = notCalculated;
+            plantingRecordService.setDeathDate(developingPlantingRecord.getId(), pastDate);
             plantingRecordService.setStatus(developingPlantingRecord.getId(), deadStatus);
           }
 
@@ -3902,6 +4007,293 @@ public class PlantingRecordRestServlet {
    */
   private double calculateEtcForClimateRecord(double givenEto, PlantingRecord givenPlantingRecord, Calendar dateUntil) {
     return Etc.calculateEtc(givenEto, cropService.getKc(givenPlantingRecord.getCrop(), givenPlantingRecord.getSeedDate(), dateUntil));
+  }
+
+  /**
+   * @param plantingRecord
+   * @return refencia a un objeto de tipo SoilMoistureLevelGraph
+   * que representa el grafico de la evolucion diaria del nivel
+   * de humedad del suelo de una parcela que tiene la bandera
+   * suelo activa en sus opciones, la cual tiene un registro de
+   * plantacion finalizado, en desarrollo optimo, en desarrollo
+   * en riesgo de marchitez, en desarrollo en marchitez o muerto
+   */
+  private SoilMoistureLevelGraph generateSoilMoistureLevelGraph(PlantingRecord plantingRecord) {
+    SoilMoistureLevelGraph soilMoistureLevelGraph = new SoilMoistureLevelGraph();
+    PlantingRecordStatus status = plantingRecord.getStatus();
+    Calendar seedDate = plantingRecord.getSeedDate();
+    Crop crop = plantingRecord.getCrop();
+    Soil soil = plantingRecord.getParcel().getSoil();
+    Parcel parcel = plantingRecord.getParcel();
+
+    int parcelId = parcel.getId();
+
+    /*
+     * Si el estado del registro de plantacion correspondiente al
+     * grafico de la evolucion diaria del nivel de humedad del
+     * suelo, tiene el estado "Finalizado", el titulo del grafico
+     * tiene como periodo a [<fecha de siembra> - <fecha de cosecha>]
+     */
+    if (statusService.equals(status, statusService.findFinishedStatus())) {
+      soilMoistureLevelGraph.setText("Evolución diaria del nivel de humedad del suelo en el período "
+          + UtilDate.formatDate(seedDate) + " - "
+          + UtilDate.formatDate(plantingRecord.getHarvestDate())
+          + ", Y: Nivel de humedad [mm], X: Día");
+    }
+
+    /*
+     * Si el estado del registro de plantacion correspondiente al
+     * grafico de la evolucion diaria del nivel de humedad del
+     * suelo, tiene el estado "Desarrollo optimo", "Desarrollo en
+     * riesgo de marchitez" o "Desarrollo en marchitez", el titulo
+     * del grafico tiene como periodo a [<fecha de siembra> -
+     * <fecha inmediatamente anterior a la fecha actual (es decir,
+     * hoy)>]
+     */
+    if (statusService.equals(status, statusService.findOptimalDevelopmentStatus())
+        || statusService.equals(status, statusService.findDevelopmentAtRiskWiltingStatus())
+        || statusService.equals(status, statusService.findDevelopmentInWiltingStatus())) {
+      soilMoistureLevelGraph.setText("Evolución diaria del nivel de humedad del suelo en el período "
+          + UtilDate.formatDate(seedDate) + " - "
+          + UtilDate.formatDate(UtilDate.getYesterdayDate())
+          + ", Y: Nivel de humedad [mm], X: Día");
+    }
+
+    /*
+     * Si el estado del registro de plantacion correspondiente al
+     * grafico de la evolucion diaria del nivel de humedad del
+     * suelo, tiene el estado "Muerto", el titulo del grafico
+     * tiene como periodo a [<fecha de siembra> - <fecha de muerte>]
+     */
+    if (statusService.equals(status, statusService.findDeadStatus())) {
+      soilMoistureLevelGraph.setText("Evolución diaria del nivel de humedad del suelo en el período "
+          + UtilDate.formatDate(seedDate) + " - "
+          + UtilDate.formatDate(plantingRecord.getDeathDate())
+          + ", Y: Nivel de humedad [mm], X: Día");
+    }
+
+    soilMoistureLevelGraph.setTotalAmountWaterAvailable(WaterMath.calculateTotalAmountWaterAvailable(crop, soil));
+    soilMoistureLevelGraph.setOptimalIrrigationLayer(WaterMath.calculateOptimalIrrigationLayer(crop, soil));
+    soilMoistureLevelGraph.setNegativeTotalAmountWaterAvailable(-1 * WaterMath.calculateTotalAmountWaterAvailable(crop, soil));
+    soilMoistureLevelGraph.setData(calculateDataMoistureLevelGraph(plantingRecord));
+    soilMoistureLevelGraph.setLabels(getStringDatesSoilMoistureLevelGraph(plantingRecord));
+    soilMoistureLevelGraph.setShowGraph(true);
+
+    return soilMoistureLevelGraph;
+  }
+
+  /**
+   * @param plantingRecord
+   * @return referencia a un objeto de tipo Collection que contiene
+   * las fechas en formato de cadena de caracteres desde una fecha
+   * de siembra hasta una fecha hasta, la cual puede ser la fecha
+   * en la que finalizo (cosecha) un cultivo, la fecha inmediatamente
+   * anterior a la fecha actual (es decir, hoy) o la fecha de muerte
+   * de un cultivo
+   */
+  private Collection<String> getStringDatesSoilMoistureLevelGraph(PlantingRecord plantingRecord) {
+    Collection<SoilWaterBalance> soilWaterBalances = null;
+    Collection<String> stringDates = new ArrayList<>();
+
+    PlantingRecordStatus status = plantingRecord.getStatus();
+    Calendar seedDate = plantingRecord.getSeedDate();
+
+    int parcelId = plantingRecord.getParcel().getId();
+
+    /*
+     * Si el estado del registro de plantacion correspondiente al
+     * grafico de la evolucion diaria del nivel de humedad del
+     * suelo, tiene el estado "Finalizado", las fechas a generar
+     * para dicho grafico son las que estan comprendidas en el
+     * periodo definido por una fecha de siembra y una fecha de
+     * cosecha (finalizacion)
+     */
+    if (statusService.equals(status, statusService.findFinishedStatus())) {
+      soilWaterBalances = soilWaterBalanceService.findAllFromDateFromToDateUntil(parcelId, seedDate, plantingRecord.getHarvestDate());
+    }
+
+    /*
+     * Si el estado del registro de plantacion correspondiente al
+     * grafico de la evolucion diaria del nivel de humedad del
+     * suelo, tiene el estado "Desarrollo optimo", "Desarrollo en
+     * riesgo de marchitez" o "Desarrollo en marchitez", las fechas
+     * a generar para dicho grafico son las que estan comprendidas
+     * en el periodo definido por una fecha fecha de siembra y la
+     * fecha inmediatamente anterior a la fecha actual (es decir,
+     * hoy)
+     */
+    if (statusService.equals(status, statusService.findOptimalDevelopmentStatus())
+        || statusService.equals(status, statusService.findDevelopmentAtRiskWiltingStatus())
+        || statusService.equals(status, statusService.findDevelopmentInWiltingStatus())) {
+      soilWaterBalances = soilWaterBalanceService.findAllFromSeedDateUntilYesterday(parcelId, seedDate);
+    }
+
+    /*
+     * Si el estado del registro de plantacion correspondiente al
+     * grafico de la evolucion diaria del nivel de humedad del
+     * suelo, tiene el estado "Muerto", las fechas a generar
+     * para dicho grafico son las que estan comprendidas en el
+     * periodo definido por una fecha de siembra y una fecha de
+     * muerte
+     */
+    if (statusService.equals(status, statusService.findDeadStatus())) {
+      soilWaterBalances = soilWaterBalanceService.findAllFromDateFromToDateUntil(parcelId, seedDate, plantingRecord.getDeathDate());
+    }
+
+    for (SoilWaterBalance currentSoilWaterBalance : soilWaterBalances) {
+      stringDates.add(UtilDate.formatDate(currentSoilWaterBalance.getDate()));
+    }
+
+    return stringDates;
+  }
+
+  /**
+   * @param plantingRecord
+   * @return referencia a un objeto de tipo Collection que
+   * contiene los valores que representan el nivel de humedad
+   * diario del suelo de una parcela que tiene un cultivo
+   * finalizado, en proceso de desarrollo o muerto
+   */
+  private Collection<Double> calculateDataMoistureLevelGraph(PlantingRecord plantingRecord) {
+    /*
+     * La capacidad de campo se iguala a la capacidad de
+     * almacenamiento de agua del suelo [mm] para realizar
+     * las comparaciones del nivel de humedad del suelo con
+     * con respecto a la capacidad de almacenamiento de agua
+     * del suelo [mm] (determinado por la lamina total de agua
+     * disponible, dt), el umbral de riego (determinado por la
+     * lamina de riego optima, drop), el punto de marchitez
+     * permanente (0 [mm]) y el doble de la capacidad de
+     * almacenamiento de agua del suelo [mm]
+     */
+    double fieldCapacity = WaterMath.calculateTotalAmountWaterAvailable(plantingRecord.getCrop(), plantingRecord.getParcel().getSoil());
+    double permanentWiltingPoint = 0.0;
+    double soilMoistureLevel = 0.0;
+    int parcelId = plantingRecord.getParcel().getId();
+
+    /*
+     * El valor de esta constante se utiliza para representar
+     * la situacion en la que NO se calcula el acumulado del
+     * deficit de agua por dia de un balance hidrico de suelo
+     * de una parcela que tiene un cultivo sembrado y en
+     * desarrollo. Esta situacion ocurre cuando la perdida de
+     * humedad del suelo de un conjunto de dias es estrictamente
+     * mayor al doble de la capacidad de almacenamiento de agua
+     * del suelo. Esto se representa mediante la condicion de
+     * que el acumulado del deficit de agua por dia sea estrictamente
+     * menor al negativo del doble de la capacidad de almacenamiento
+     * de agua del suelo, ya que el acumulado del deficit de
+     * agua por dia puede ser negativo o cero. Cuando es negativo
+     * representa que en un periodo de dias hubo perdida de humedad
+     * en el suelo. En cambio, cuando es igual a cero representa
+     * que la perdida de humedad que hubo en el suelo en un periodo
+     * de dias esta totalmente cubierta. Esto es que el suelo
+     * esta en capacidad de campo, lo significa que el suelo
+     * esta lleno de agua o en su maxima capacidad de almacenamiento
+     * de agua, pero no anegado.
+     * 
+     * Cuando la perdida de humedad del suelo, que tiene un
+     * cultivo sembrado, de un conjunto de dias es estrictamente
+     * mayor al doble de la capacidad de almacenamiento de agua
+     * del suelo (representado mediante la conidicion de que el
+     * acumulado del deficit de agua por dia sea estrictamente
+     * menor al negativo del doble de la capacidad de almacenamiento
+     * de agua del suelo), el cultivo esta muerto, ya que ningun
+     * cultivo puede sobrevivir con dicha perdida de humedad.
+     * Por lo tanto, la presencia del valor "NC" (no calculado)
+     * tambien representa la muerte de un cultivo.
+     */
+    String notCalculated = soilWaterBalanceService.getNotCalculated();
+    String accumulatedWaterDeficitPerDay = null;
+    Calendar yesterdayDateFromDate = null;
+    SoilWaterBalance previousSoilWaterBalance = null;
+    PlantingRecordStatus status = plantingRecord.getStatus();
+    Calendar seedDate = plantingRecord.getSeedDate();
+
+    Collection<SoilWaterBalance> soilWaterBalances = null;
+    Collection<Double> data = new ArrayList<>();
+
+    /*
+     * Si el estado del registro de plantacion correspondiente al
+     * grafico de la evolucion diaria del nivel de humedad del
+     * suelo, tiene el estado "Finalizado", las fechas a generar
+     * para dicho grafico son las que estan comprendidas en el
+     * periodo definido por una fecha de siembra y una fecha de
+     * cosecha (finalizacion)
+     */
+    if (statusService.equals(status, statusService.findFinishedStatus())) {
+      soilWaterBalances = soilWaterBalanceService.findAllFromDateFromToDateUntil(parcelId, seedDate, plantingRecord.getHarvestDate());
+    }
+
+    /*
+     * Si el estado del registro de plantacion correspondiente al
+     * grafico de la evolucion diaria del nivel de humedad del
+     * suelo, tiene el estado "Desarrollo optimo", "Desarrollo en
+     * riesgo de marchitez" o "Desarrollo en marchitez", las fechas
+     * a generar para dicho grafico son las que estan comprendidas
+     * en el periodo definido por una fecha fecha de siembra y la
+     * fecha inmediatamente anterior a la fecha actual (es decir,
+     * hoy)
+     */
+    if (statusService.equals(status, statusService.findOptimalDevelopmentStatus())
+        || statusService.equals(status, statusService.findDevelopmentAtRiskWiltingStatus())
+        || statusService.equals(status, statusService.findDevelopmentInWiltingStatus())) {
+      soilWaterBalances = soilWaterBalanceService.findAllFromSeedDateUntilYesterday(parcelId, seedDate);
+    }
+
+    /*
+     * Si el estado del registro de plantacion correspondiente al
+     * grafico de la evolucion diaria del nivel de humedad del
+     * suelo, tiene el estado "Muerto", las fechas a generar
+     * para dicho grafico son las que estan comprendidas en el
+     * periodo definido por una fecha de siembra y una fecha de
+     * muerte
+     */
+    if (statusService.equals(status, statusService.findDeadStatus())) {
+      soilWaterBalances = soilWaterBalanceService.findAllFromDateFromToDateUntil(parcelId, seedDate, plantingRecord.getDeathDate());
+    }
+
+    for (SoilWaterBalance currentSoilWaterBalance : soilWaterBalances) {
+      accumulatedWaterDeficitPerDay = currentSoilWaterBalance.getAccumulatedWaterDeficitPerDay();
+
+      /*
+       * Si el acumulado del deficit de agua por dia de una fecha
+       * no es "NC" (No Calculado), significa que el cultivo para
+       * el que se calcula la necesidad de agua de riego en la fecha
+       * actual no murio en la fecha dada. Por lo tanto, se calcula
+       * el nivel de humedad que tuvo el suelo en dicha fecha.
+       */
+      if (!accumulatedWaterDeficitPerDay.equals(notCalculated)) {
+        soilMoistureLevel = fieldCapacity + Double.parseDouble(currentSoilWaterBalance.getAccumulatedWaterDeficitPerDay());
+        data.add(soilMoistureLevel);
+      }
+
+      /*
+       * Si el acumulado del deficit de agua por dia de una fecha
+       * es "NC" (No Calculado), significa que el cultivo para el
+       * que se calcula la necesidad de agua de riego en la fecha
+       * actual murio en la fecha dada. Lo que se hace es calcular
+       * el nivel de humedad que tuvo el suelo en dicha fecha para
+       * representar en el grafico que el nivel de humedad del suelo
+       * esta por debajo del doble de la capacidad de almacenamiento
+       * de agua del suelo. Ningun cultivo puede sobrevivir con una
+       * perdida de humedad del suelo estrictamente mayor al doble
+       * de la capacidad de almacenamiento de agua del suelo. En esta
+       * situacion un cultivo muere. Esto se representa mediante el
+       * valor "NC".
+       */
+      if (accumulatedWaterDeficitPerDay.equals(notCalculated)) {
+        yesterdayDateFromDate = UtilDate.getYesterdayDateFromDate(currentSoilWaterBalance.getDate());
+        previousSoilWaterBalance = soilWaterBalanceService.find(plantingRecord.getParcel().getId(), yesterdayDateFromDate);
+        soilMoistureLevel = fieldCapacity + (Double.parseDouble(previousSoilWaterBalance.getAccumulatedWaterDeficitPerDay())
+                + currentSoilWaterBalance.getWaterDeficitPerDay());
+        data.add(soilMoistureLevel);
+        break;
+      }
+
+    }
+
+    return data;
   }
 
 }

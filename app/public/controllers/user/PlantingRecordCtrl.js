@@ -98,7 +98,7 @@ app.controller(
             return;
           }
 
-          $scope.data = data;
+          $scope.data = data.plantingRecord;
 
           if ($scope.data.seedDate != null) {
             $scope.data.seedDate = new Date($scope.data.seedDate);
@@ -110,6 +110,17 @@ app.controller(
 
           if ($scope.data.deathDate != null) {
             $scope.data.deathDate = new Date($scope.data.deathDate);
+          }
+
+          /* Las propiedades del grafico de la evolucion diaria del nivel de humedad
+          del suelo deben ser establecidas y el grafico debe ser mostrado si y solo
+          si la bandera suelo de las opciones de la parcela correspondiente a un
+          registro de plantacion, esta activa. En este punto del codigo a esta
+          condicion se le agrega que dicho grafico debe ser mostrado si y solo
+          si la accion es la de visualizacion de un registro de plantacion. */
+          if ($scope.action == 'view' && data.soilMoistureLevelGraph.showGraph) {
+            setSoilMoistureLevelGraphData(data.soilMoistureLevelGraph);
+            $scope.showGraph = data.soilMoistureLevelGraph.showGraph;
           }
 
         });
@@ -359,6 +370,15 @@ app.controller(
         en la fecha actual (es decir, hoy) [mm/dia] */
         $scope.showLoadingAnimation = true;
 
+        /* Variable utilizada para mostrar u ocultar el grafico que representa
+        la evolucion diaria del nivel de humedad del suelo */
+        $scope.showGraph = false;
+
+        /* Variable utilizada para mostrar u ocultar el nombre del suelo de
+        una parcela en el formulario del calculo de la necesidad de agua de
+        riego de un cultivo, si es que una parcela tiene un suelo asignado */
+        $scope.showSoilName = false;
+
         plantingRecordService.calculateCropIrrigationWaterNeed(id, function (error, cropIrrigationWaterNeedData) {
           if (error) {
             console.log(error);
@@ -370,6 +390,25 @@ app.controller(
           calculo de la necesidad de agua de riego de un cultivo en la fecha actual
           [mm/dia], se oculta la animacion de carga */
           $scope.showLoadingAnimation = false;
+
+          /* Las propiedades del grafico de la evolucion diaria del nivel de humedad
+          del suelo deben ser establecidas y el grafico debe ser mostrado si y solo
+          si la bandera suelo de las opciones de la parcela correspondiente al registro
+          de plantacion que tiene el cultivo en desarrollo para el que se calcula la
+          necesidad de agua de riego en la fecha actual (es decir, hoy), esta activa */
+          if (cropIrrigationWaterNeedData.soilMoistureLevelGraph.showGraph) {
+            setSoilMoistureLevelGraphData(cropIrrigationWaterNeedData.soilMoistureLevelGraph);
+            $scope.showGraph = cropIrrigationWaterNeedData.soilMoistureLevelGraph.showGraph;
+          }
+
+          /* Si la parcela tiene la bandera suelo activa en sus opciones,
+          entonces tiene un suelo asignado. Esto se debe a que en el
+          metodo modify() de la clase OptionRestServlet (ubicacion:
+          app/src/servlet) hay un control para evitar que dicha bandera
+          sea activada para una parcela que no tiene un suelo asginado. */
+          if (cropIrrigationWaterNeedData.parcel.option.soilFlag) {
+            $scope.showSoilName = true;
+          }
 
           /*
           Si esta instruccion no esta, no se puede ver la
@@ -417,6 +456,166 @@ app.controller(
 
       if ($scope.action == 'calculate') {
         calculateCropIrrigationWaterNeed($params.id);
+      }
+
+      /**
+       * Establece las propiedades del grafico de lineas que representa
+       * la evolucion diaria del nivel de humedad del suelo de una
+       * parcela que tiene la bandera suelo activa en sus opciones
+       * 
+       * @param {*} soilMoistureLevelGraph 
+       */
+      function setSoilMoistureLevelGraphData(soilMoistureLevelGraph) {
+        var data = {
+          labels: soilMoistureLevelGraph.labels,
+          datasets: [
+            {
+              fill: true,
+              backgroundColor: "rgba(32, 162, 219, 0.3)",
+              data: soilMoistureLevelGraph.data,
+            }
+          ]
+        };
+
+        var options = {
+          title: {
+            display: true,
+            text: soilMoistureLevelGraph.text
+          },
+          elements: {
+            line: {
+              tension: 0
+            }
+          },
+          annotation: {
+            events: ['mouseenter', 'mouseleave'],
+            annotations: [{
+              type: 'line',
+              mode: 'horizontal',
+              scaleID: 'y-axis-0',
+              value: soilMoistureLevelGraph.totalAmountWaterAvailable,
+              borderColor: 'black',
+              borderDash: [6, 6],
+              borderDashOffset: 0,
+              borderWidth: 2,
+              label: {
+                enabled: true,
+                backgroundColor: 'black',
+                content: 'Capacidad de campo (CC) [mm]: ' + soilMoistureLevelGraph.totalAmountWaterAvailable
+              },
+              onMouseleave: function (e) {
+                // console.log("onMouseleave", e);
+                this.options.borderColor = "black";
+                this.options.label.backgroundColor = 'black';
+                this.options.label.fontColor = 'white';
+                graph.update();
+              },
+              onMouseenter: function (e) {
+                // console.log("onMouseenter", e);
+                this.options.borderColor = "rgba(0,0,0,0)";
+                this.options.label.backgroundColor = 'rgba(0,0,0,0)';
+                this.options.label.fontColor = 'rgba(0,0,0,0)';
+                graph.update();
+              }
+            },
+            {
+              type: 'line',
+              mode: 'horizontal',
+              scaleID: 'y-axis-0',
+              value: soilMoistureLevelGraph.optimalIrrigationLayer,
+              borderColor: 'black',
+              borderDash: [6, 6],
+              borderDashOffset: 0,
+              borderWidth: 2,
+              label: {
+                enabled: true,
+                backgroundColor: 'black',
+                content: 'Umbral de riego [mm]: ' + soilMoistureLevelGraph.optimalIrrigationLayer,
+              },
+              onMouseleave: function (e) {
+                // console.log("onMouseleave", e);
+                this.options.borderColor = "black";
+                this.options.label.backgroundColor = 'black';
+                this.options.label.fontColor = 'white';
+                graph.update();
+              },
+              onMouseenter: function (e) {
+                // console.log("onMouseenter", e);
+                this.options.borderColor = "rgba(0,0,0,0)";
+                this.options.label.backgroundColor = 'rgba(0,0,0,0)';
+                this.options.label.fontColor = 'rgba(0,0,0,0)';
+                graph.update();
+              }
+            },
+            {
+              type: 'line',
+              mode: 'horizontal',
+              scaleID: 'y-axis-0',
+              value: 0,
+              borderColor: 'black',
+              borderDash: [6, 6],
+              borderDashOffset: 0,
+              borderWidth: 2,
+              label: {
+                enabled: true,
+                backgroundColor: 'black',
+                content: 'Pto. de marchitez permanente [mm]: 0'
+              },
+              onMouseleave: function (e) {
+                // console.log("onMouseleave", e);
+                this.options.borderColor = "black";
+                this.options.label.backgroundColor = 'black';
+                this.options.label.fontColor = 'white';
+                graph.update();
+              },
+              onMouseenter: function (e) {
+                // console.log("onMouseenter", e);
+                this.options.borderColor = "rgba(0,0,0,0)";
+                this.options.label.backgroundColor = 'rgba(0,0,0,0)';
+                this.options.label.fontColor = 'rgba(0,0,0,0)';
+                graph.update();
+              }
+            },
+            {
+              type: 'line',
+              mode: 'horizontal',
+              scaleID: 'y-axis-0',
+              value: soilMoistureLevelGraph.negativeTotalAmountWaterAvailable,
+              borderColor: 'black',
+              borderDash: [6, 6],
+              borderDashOffset: 0,
+              borderWidth: 2,
+              label: {
+                enabled: true,
+                backgroundColor: 'black',
+                content: 'Límite inferior (2 * CC = ' + (2 * soilMoistureLevelGraph.totalAmountWaterAvailable) + ') [mm]: '
+                  + soilMoistureLevelGraph.negativeTotalAmountWaterAvailable
+              },
+              onMouseleave: function (e) {
+                // console.log("onMouseleave", e);
+                this.options.borderColor = "black";
+                this.options.label.backgroundColor = 'black';
+                this.options.label.fontColor = 'white';
+                graph.update();
+              },
+              onMouseenter: function (e) {
+                // console.log("onMouseenter", e);
+                this.options.borderColor = "rgba(0,0,0,0)";
+                this.options.label.backgroundColor = 'rgba(0,0,0,0)';
+                this.options.label.fontColor = 'rgba(0,0,0,0)';
+                graph.update();
+              }
+            }]
+          }
+        };
+
+        var ctx = document.getElementById("soilMoistureLevelGraph");
+
+        var graph = new Chart(ctx, {
+          type: 'line',
+          data: data,
+          options: options,
+        });
       }
 
     }]);

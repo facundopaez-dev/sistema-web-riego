@@ -1,7 +1,5 @@
 package model;
 
-import java.util.Calendar;
-
 /*
  * IrrigationWaterNeedFormData es la clase que se utiliza para mostrar
  * los datos resultantes del calculo de la cantidad (o necesidad) de
@@ -12,6 +10,8 @@ public class IrrigationWaterNeedFormData {
 
 	private Parcel parcel;
 	private Crop crop;
+	private SoilMoistureLevelGraph soilMoistureLevelGraph;
+	private PlantingRecordStatus status;
 	private double cropIrrigationWaterNeed;
 	private double irrigationDone;
 
@@ -33,6 +33,22 @@ public class IrrigationWaterNeedFormData {
 
 	public void setCrop(Crop crop) {
 		this.crop = crop;
+	}
+
+	public SoilMoistureLevelGraph getSoilMoistureLevelGraph() {
+        return soilMoistureLevelGraph;
+    }
+
+	public void setSoilMoistureLevelGraph(SoilMoistureLevelGraph soilMoistureLevelGraph) {
+		this.soilMoistureLevelGraph = soilMoistureLevelGraph;
+	}
+
+	public PlantingRecordStatus getStatus() {
+        return status;
+    }
+
+	public void setStatus(PlantingRecordStatus status) {
+		this.status = status;
 	}
 
 	public double getCropIrrigationWaterNeed() {

@@ -2475,6 +2475,19 @@ public class PlantingRecordServiceBean {
   }
 
   /**
+   * Establece la fecha de muerte de un registro de
+   * plantacion
+   * 
+   * @param plantingRecordId
+   */
+  public void setDeathDate(int plantingRecordId, Calendar deathDate) {
+    Query query = entityManager.createQuery("UPDATE PlantingRecord p SET p.deathDate = :deathDate WHERE p.id = :plantingRecordId");
+    query.setParameter("plantingRecordId", plantingRecordId);
+    query.setParameter("deathDate", deathDate);
+    query.executeUpdate();
+  }
+
+  /**
    * Elimina la fecha de muerte de un registro de
    * plantacion
    * 
