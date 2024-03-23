@@ -560,6 +560,11 @@ public class IrrigationRecordServiceBean {
      * - la fecha hasta es mayor o igual a la fecha de siembra y
      * menor o igual a la fecha de cosecha, y la fecha desde es
      * estrictamente menor a la fecha de siembra.
+     * 
+     * El estado "Finalizado" tiene el ID 1, siempre y cuando no
+     * se modifique el orden en el que se ejecutan las instrucciones
+     * del archivo plantingRecordStatusInserts.sql de la ruta
+     * app/etc/sql.
      */
     String dateSelectionQuery = "SELECT FK_PARCEL, SEED_DATE, HARVEST_DATE FROM PLANTING_RECORD "
         + "WHERE FK_PARCEL = ?1 AND FK_STATUS = 1 AND "
