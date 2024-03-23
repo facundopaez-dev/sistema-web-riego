@@ -3066,6 +3066,7 @@ public class PlantingRecordRestServlet {
      * fecha actual.
      */
     int days = UtilDate.calculateDifferenceBetweenDates(pastDate, yesterday) + 1;
+    int parcelId = parcel.getId();
 
     /*
      * El valor de esta variable es la precipitacion
@@ -3134,7 +3135,7 @@ public class PlantingRecordRestServlet {
        * dia (fecha) [mm/dia]
        */
       climateRecord = climateRecordService.find(pastDate, parcel);
-      irrigationRecords = irrigationRecordService.findAllByParcelIdAndDate(parcel.getId(), pastDate);
+      irrigationRecords = irrigationRecordService.findAllByParcelIdAndDate(parcelId, pastDate);
 
       waterProvidedPerDay = climateRecord.getPrecip() + WaterMath.sumTotalAmountIrrigationWaterGivenDate(climateRecord.getDate(), irrigationRecords);
       waterDeficitPerDay = WaterMath.calculateWaterDeficitPerDay(climateRecord, irrigationRecords);
@@ -3146,7 +3147,7 @@ public class PlantingRecordRestServlet {
        * a una fecha pasada
        */
       yesterdayDateFromDate = UtilDate.getYesterdayDateFromDate(pastDate);
-      stringAccumulatedWaterDeficitPerPreviousDay = soilWaterBalanceService.find(parcel.getId(), yesterdayDateFromDate).getAccumulatedWaterDeficitPerDay();
+      stringAccumulatedWaterDeficitPerPreviousDay = soilWaterBalanceService.find(parcelId, yesterdayDateFromDate).getAccumulatedWaterDeficitPerDay();
 
       /*
        * Si el acumulado del deficit de agua por dia de la fecha
@@ -3281,7 +3282,7 @@ public class PlantingRecordRestServlet {
        * fecha NO existe en la base de datos subyacente, se lo
        * crea y persiste. En caso contrario, se lo actualiza.
        */
-      if (!soilWaterBalanceService.checkExistence(parcel.getId(), pastDate)) {
+      if (!soilWaterBalanceService.checkExistence(parcelId, pastDate)) {
         soilWaterBalanceDate = Calendar.getInstance();
         soilWaterBalanceDate.set(Calendar.YEAR, pastDate.get(Calendar.YEAR));
         soilWaterBalanceDate.set(Calendar.MONTH, pastDate.get(Calendar.MONTH));
@@ -3311,7 +3312,7 @@ public class PlantingRecordRestServlet {
         parcel.getSoilWaterBalances().add(soilWaterBalance);
         parcelService.merge(parcel);
       } else {
-        soilWaterBalance = soilWaterBalanceService.find(parcel.getId(), pastDate);
+        soilWaterBalance = soilWaterBalanceService.find(parcelId, pastDate);
         soilWaterBalanceService.update(soilWaterBalance.getId(), crop.getName(), evaporatedWaterPerDay,
             waterProvidedPerDay, waterDeficitPerDay, stringAccumulatedWaterDeficitPerDay);
       }
