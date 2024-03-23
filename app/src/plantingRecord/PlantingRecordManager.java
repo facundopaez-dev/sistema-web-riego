@@ -1094,6 +1094,25 @@ public class PlantingRecordManager {
              * dia (fecha) [mm/dia]
              */
             climateRecord = climateRecordService.find(pastDate, parcel);
+
+            /*
+             * Actualiza la entidad de tipo ClimateRecord con los datos
+             * de la base de datos subyacente obteniendo de esta manera
+             * una referencia a un objeto de tipo ClimateRecord consistente.
+             * Esto significa que el objeto contiene los datos que tiene
+             * la entidad correspondiente en la base de datos subyacente.
+             * 
+             * Esta instruccion es necesaria para que este metodo
+             * persista balances hidricos de suelo de forma consistente.
+             * Esto es que contengan los datos que deben contener en
+             * funcion de los registros climaticos obtenidos (de
+             * Visual Crossing Weather) y persisitdos. Los balances
+             * hidricos de suelo pertenecen a una parcela que tiene
+             * un registro de plantacion que tiene un estado de
+             * desarrollo (en desarrollo, desarrollo optimo, desarrollo
+             * en riesgo de marchitez, desarrollo en marchitez).
+             */
+            climateRecordService.refresh(climateRecord);
             irrigationRecords = irrigationRecordService.findAllByParcelIdAndDate(parcel.getId(), pastDate);
 
             waterProvidedPerDay = climateRecord.getPrecip() + WaterMath.sumTotalAmountIrrigationWaterGivenDate(climateRecord.getDate(), irrigationRecords);

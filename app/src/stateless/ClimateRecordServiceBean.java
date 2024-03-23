@@ -93,6 +93,17 @@ public class ClimateRecordServiceBean {
   }
 
   /**
+   * Actualiza el estado de una instancia de tipo ClimateRecord desde
+   * la base de datos, sobrescribiendo los cambios realizados en la
+   * entidad, si los hubiera.
+   * 
+   * @param climateRecord
+   */
+  public void refresh(ClimateRecord climateRecord) {
+    getEntityManager().refresh(climateRecord);
+  }
+
+  /**
    * Retorna un registro climatico perteneciente a una de las
    * parcelas de un usuario si y solo si existe en la base
    * de datos subyacente
