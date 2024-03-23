@@ -278,6 +278,21 @@ public class SoilWaterBalanceServiceBean {
     }
 
     /**
+     * Actualiza el estado de instancias de tipo SoilWaterBalance
+     * desde la base de datos, sobrescribiendo los cambios realizados
+     * en cada una de ellas, si los hubiere
+     * 
+     * @param soilWaterBalances
+     */
+    public void refreshSoilWaterBalances(Collection<SoilWaterBalance> soilWaterBalances) {
+
+        for (SoilWaterBalance currentSoilWaterBalance : soilWaterBalances) {
+            getEntityManager().refresh(getEntityManager().merge(currentSoilWaterBalance));
+        }
+
+    }
+
+    /**
      * Crea y persiste los balances hidricos de suelo con
      * determinadas fechas para una parcela que tiene un
      * cultivo en desarrollo cuando se calcula la necesidad

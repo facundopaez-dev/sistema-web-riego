@@ -289,6 +289,17 @@ public class SoilWaterBalanceRestServlet {
         Collection<SoilWaterBalance> soilWaterBalances = soilWaterBalanceService.findAllByParcelIdAndCropName(parcel.getId(), cropName);
 
         /*
+         * Actualiza instancias de tipo SoilWaterBalance desde la base
+         * de datos subyacente, sobrescribiendo los cambios realizados
+         * en ellas, si los hubiere. Esto se realiza para recuperar
+         * los balances hidricos de suelo con los datos con las fechas
+         * con las que estan almacenados en la base de datos subyacente.
+         * De lo contrario, se los obtiene con fechas distintas a las
+         * fechas con las que estan almacenados.
+         */
+        soilWaterBalanceService.refreshSoilWaterBalances(soilWaterBalances);
+
+        /*
          * Siempre y cuando no se elimine el control por el nombre
          * de parcela y el nombre del cultivo indefinidos, si la
          * fecha desde y la fecha hasta NO estan definidas, la
