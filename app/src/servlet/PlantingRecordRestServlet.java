@@ -3051,6 +3051,7 @@ public class PlantingRecordRestServlet {
      */
     Calendar pastDate = UtilDate.getNextDateFromDate(seedDate);
     Calendar yesterdayDateFromDate = null;
+    Calendar soilWaterBalanceDate = null;
 
     /*
      * Los balances hidricos de suelo de una parcela, que
@@ -3281,8 +3282,13 @@ public class PlantingRecordRestServlet {
        * crea y persiste. En caso contrario, se lo actualiza.
        */
       if (!soilWaterBalanceService.checkExistence(parcel.getId(), pastDate)) {
+        soilWaterBalanceDate = Calendar.getInstance();
+        soilWaterBalanceDate.set(Calendar.YEAR, pastDate.get(Calendar.YEAR));
+        soilWaterBalanceDate.set(Calendar.MONTH, pastDate.get(Calendar.MONTH));
+        soilWaterBalanceDate.set(Calendar.DAY_OF_MONTH, pastDate.get(Calendar.DAY_OF_MONTH));
+
         soilWaterBalance = new SoilWaterBalance();
-        soilWaterBalance.setDate(pastDate);
+        soilWaterBalance.setDate(soilWaterBalanceDate);
         soilWaterBalance.setParcelName(parcel.getName());
         soilWaterBalance.setCropName(crop.getName());
         soilWaterBalance.setWaterProvidedPerDay(waterProvidedPerDay);

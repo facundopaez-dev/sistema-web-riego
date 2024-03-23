@@ -1011,6 +1011,7 @@ public class PlantingRecordManager {
          */
         Calendar pastDate = UtilDate.getNextDateFromDate(seedDate);
         Calendar yesterdayDateFromDate = null;
+        Calendar soilWaterBalanceDate = null;
 
         /*
          * Los balances hidricos de suelo de una parcela, que
@@ -1241,8 +1242,13 @@ public class PlantingRecordManager {
              * crea y persiste. En caso contrario, se lo actualiza.
              */
             if (!soilWaterBalanceService.checkExistence(parcel.getId(), pastDate)) {
+                soilWaterBalanceDate = Calendar.getInstance();
+                soilWaterBalanceDate.set(Calendar.YEAR, pastDate.get(Calendar.YEAR));
+                soilWaterBalanceDate.set(Calendar.MONTH, pastDate.get(Calendar.MONTH));
+                soilWaterBalanceDate.set(Calendar.DAY_OF_MONTH, pastDate.get(Calendar.DAY_OF_MONTH));
+
                 soilWaterBalance = new SoilWaterBalance();
-                soilWaterBalance.setDate(pastDate);
+                soilWaterBalance.setDate(soilWaterBalanceDate);
                 soilWaterBalance.setParcelName(parcel.getName());
                 soilWaterBalance.setCropName(crop.getName());
                 soilWaterBalance.setWaterProvidedPerDay(waterProvidedPerDay);
@@ -1264,17 +1270,6 @@ public class PlantingRecordManager {
                  */
                 parcel.getSoilWaterBalances().add(soilWaterBalance);
                 parcelService.merge(parcel);
-
-                /*
-                 * Sincroniza el contexto de persistencia con la base
-                 * de datos subyacente. Esto es que sincroniza el
-                 * contexto de persistencia con el contenido de la
-                 * base de datos subyacente. El motivo por el cual
-                 * es necesario ejecutar esta instruccion es que
-                 * de no hacerlo, NO se persisten los balances
-                 * hidricos de suelo inexistentes.
-                 */
-                soilWaterBalanceService.getEntityManager().flush();
             } else {
                 soilWaterBalance = soilWaterBalanceService.find(parcel.getId(), pastDate);
                 soilWaterBalanceService.update(soilWaterBalance.getId(), crop.getName(), evaporatedWaterPerDay,
