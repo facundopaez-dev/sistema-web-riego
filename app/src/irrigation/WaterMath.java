@@ -350,6 +350,18 @@ public class WaterMath {
   }
 
   /**
+   * @param precipPerDay
+   * @param totalAmountIrrigationWaterPerDay
+   * @return double que representa la cantidad total de agua
+   * provista por dia [mm/dia] como resultado de la suma entre
+   * la precipiacion por dia [mm/dia] y el agua de riego por
+   * dia [mm/dia]
+   */
+  public static double calculateWaterProvidedPerDay(double precipPerDay, double totalAmountIrrigationWaterPerDay) {
+    return precipPerDay + totalAmountIrrigationWaterPerDay;
+  }
+
+  /**
    * @param date
    * @param irrigationRecords
    * @return double que representa la cantidad total de agua de

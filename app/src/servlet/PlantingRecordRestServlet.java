@@ -3079,6 +3079,7 @@ public class PlantingRecordRestServlet {
     double evaporatedWaterPerDay = 0.0;
     double accumulatedWaterDeficitPerDay = 0.0;
     double accumulatedWaterDeficitPerPreviousDay = 0.0;
+    double totalAmountCropIrrigationWaterPerDay = 0.0;
     double totalAmountWaterAvailable = 0.0;
 
     String stringAccumulatedWaterDeficitPerPreviousDay = null;
@@ -3137,7 +3138,8 @@ public class PlantingRecordRestServlet {
       climateRecord = climateRecordService.find(pastDate, parcel);
       irrigationRecords = irrigationRecordService.findAllByParcelIdAndDate(parcelId, pastDate);
 
-      waterProvidedPerDay = climateRecord.getPrecip() + WaterMath.sumTotalAmountIrrigationWaterGivenDate(climateRecord.getDate(), irrigationRecords);
+      totalAmountCropIrrigationWaterPerDay = irrigationRecordService.calculateTotalAmountCropIrrigationWaterForDate(parcelId, pastDate);
+      waterProvidedPerDay = WaterMath.calculateWaterProvidedPerDay(climateRecord.getPrecip(), totalAmountCropIrrigationWaterPerDay);
       waterDeficitPerDay = WaterMath.calculateWaterDeficitPerDay(climateRecord, irrigationRecords);
       evaporatedWaterPerDay = climateRecord.getEtc();
 
