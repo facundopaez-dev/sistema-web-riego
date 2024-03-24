@@ -3125,7 +3125,6 @@ public class PlantingRecordRestServlet {
      */
     String notCalculated = soilWaterBalanceService.getNotCalculated();
     PlantingRecordStatus deadStatus = statusService.findDeadStatus();
-    Collection<IrrigationRecord> irrigationRecords = null;
 
     /*
      * Calcula los balances hidricos de suelo de una parcela,
@@ -3142,11 +3141,10 @@ public class PlantingRecordRestServlet {
        * dia (fecha) [mm/dia]
        */
       climateRecord = climateRecordService.find(pastDate, parcel);
-      irrigationRecords = irrigationRecordService.findAllByParcelIdAndDate(parcelId, pastDate);
 
       totalAmountCropIrrigationWaterPerDay = irrigationRecordService.calculateTotalAmountCropIrrigationWaterForDate(parcelId, pastDate);
       waterProvidedPerDay = WaterMath.calculateWaterProvidedPerDay(climateRecord.getPrecip(), totalAmountCropIrrigationWaterPerDay);
-      waterDeficitPerDay = WaterMath.calculateWaterDeficitPerDay(climateRecord, irrigationRecords);
+      waterDeficitPerDay = WaterMath.calculateWaterDeficitPerDay(climateRecord.getEtc(), climateRecord.getPrecip(), totalAmountCropIrrigationWaterPerDay);
       evaporatedWaterPerDay = climateRecord.getEtc();
 
       /*

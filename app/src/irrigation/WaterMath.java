@@ -185,6 +185,41 @@ public class WaterMath {
   }
 
   /**
+   * @param etc
+   * @param precipitation
+   * @param totalAmountIrrigationWater
+   * @return double que representa el deficit (falta) de agua por
+   * dia [mm/dia] en una fecha. Se dice que el deficit de agua por
+   * dia [mm/dia] es de una fecha porque la ETc, la precipitacion
+   * y la cantidad total de agua de riego pertenecen a una fecha
+   */
+  public static double calculateWaterDeficitPerDay(double etc, double precipitation, double totalAmountIrrigationWater) {
+    /*
+     * El deficit de agua por dia [mm/dia] en una fecha es la
+     * diferencia entre el agua provista (precipitacion natural
+     * o precipitacion artificial, o ambas) [mm/dia] y el agua
+     * evapotranspirada [mm/dia], la cual esta determinada por
+     * la ETc (evapotranspiracion del cultivo bajo condiciones
+     * estandar) [mm/dia]. Si el resultado de esta diferencia:
+     * - es menor a cero significa que hay deficit (falta) de
+     * agua [mm/dia], es decir, falta agua para cubrir (satisfacer)
+     * la cantidad de agua evapotranspirada.
+     * - es igual a cero significa que la cantidad de agua evapotranspirada
+     * fue cubierta (satisfecha) con una igual cantidad de agua,
+     * ni agua de mas ni agua de menos.
+     * - es mayor a cero significa que la cantidad de agua evapotranspirada
+     * fue cubierta (satisfecha) y que hay escurrimiento de agua.
+     * En este caso, el resultado de la diferencia es la cantidad
+     * de agua [mm/dia] que se escurre.
+     * 
+     * Solo para aclarar: estas condiciones ocurren en una
+     * parcela en una fecha. La ETc, la precipitacion y la
+     * cantidad total de agua de riego pertenecen a una fecha.
+     */
+    return ((precipitation + totalAmountIrrigationWater) - etc);
+  }
+
+  /**
    * @param climateRecord
    * @param irrigationRecords
    * @return double que representa el deficit (falta) de agua por dia
