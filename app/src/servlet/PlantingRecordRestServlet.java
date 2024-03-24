@@ -3080,6 +3080,12 @@ public class PlantingRecordRestServlet {
     double accumulatedWaterDeficitPerDay = 0.0;
     double accumulatedWaterDeficitPerPreviousDay = 0.0;
     double totalAmountCropIrrigationWaterPerDay = 0.0;
+
+    /*
+     * Esta variable representa la capacidad de almacenamiento
+     * de agua del suelo [mm], la cual esta determinada por
+     * la lamina total de agua disponible (dt) [mm]
+     */
     double totalAmountWaterAvailable = 0.0;
 
     String stringAccumulatedWaterDeficitPerPreviousDay = null;
