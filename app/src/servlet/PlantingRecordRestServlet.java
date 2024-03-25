@@ -3517,6 +3517,13 @@ public class PlantingRecordRestServlet {
 
     int parcelId = parcel.getId();
 
+    soilMoistureLevelGraph.setTotalAmountWaterAvailable(WaterMath.calculateTotalAmountWaterAvailable(crop, soil));
+    soilMoistureLevelGraph.setOptimalIrrigationLayer(WaterMath.calculateOptimalIrrigationLayer(crop, soil));
+    soilMoistureLevelGraph.setNegativeTotalAmountWaterAvailable(-1 * WaterMath.calculateTotalAmountWaterAvailable(crop, soil));
+    soilMoistureLevelGraph.setData(calculateDataMoistureLevelGraph(plantingRecord));
+    soilMoistureLevelGraph.setLabels(getStringDatesSoilMoistureLevelGraph(plantingRecord));
+    soilMoistureLevelGraph.setShowGraph(true);
+
     /*
      * Si el estado del registro de plantacion correspondiente al
      * grafico de la evolucion diaria del nivel de humedad del
@@ -3531,20 +3538,117 @@ public class PlantingRecordRestServlet {
     }
 
     /*
-     * Si el estado del registro de plantacion correspondiente al
-     * grafico de la evolucion diaria del nivel de humedad del
-     * suelo, tiene el estado "Desarrollo optimo", "Desarrollo en
-     * riesgo de marchitez" o "Desarrollo en marchitez", el titulo
-     * del grafico tiene como periodo a [<fecha de siembra> -
-     * <fecha inmediatamente anterior a la fecha actual (es decir,
-     * hoy)>]
+     * Si la cantidad total de agua de riego de un cultivo en desarrollo
+     * en la fecha actual (es decir, hoy) es igual a cero y si el registro
+     * de plantacion correspondiente al grafico de la evolucion diaria del
+     * nivel de humedad del suelo, tiene el estado "Desarrollo optimo",
+     * "Desarrollo en riesgo de marchitez" o "Desarrollo en marchitez",
+     * el titulo del grafico tiene el periodo [<fecha de siembra> -
+     * <fecha inmediatamente anterior a la fecha actual (es decir, hoy)>]
      */
-    if (statusService.equals(status, statusService.findOptimalDevelopmentStatus())
-        || statusService.equals(status, statusService.findDevelopmentAtRiskWiltingStatus())
-        || statusService.equals(status, statusService.findDevelopmentInWiltingStatus())) {
+    if (irrigationRecordService.calculateTotalAmountCropIrrigationWaterForCurrentDate(parcelId) == 0
+        && (statusService.equals(status, statusService.findOptimalDevelopmentStatus())
+            || statusService.equals(status, statusService.findDevelopmentAtRiskWiltingStatus())
+            || statusService.equals(status, statusService.findDevelopmentInWiltingStatus()))) {
       soilMoistureLevelGraph.setText("Evolución diaria del nivel de humedad del suelo en el período "
           + UtilDate.formatDate(seedDate) + " - "
           + UtilDate.formatDate(UtilDate.getYesterdayDate())
+          + meaningXySoilMoistureLevelGraphTitle);
+    }
+
+    /*
+     * Si la cantidad total de agua de riego de cultivo en desarrollo
+     * en la fecha actual (es decir, hoy) es estrictamente mayor a cero
+     * y si el registro de plantacion correspondiente al grafico de la
+     * evolucion diaria del nivel de humedad del suelo, tiene el estado
+     * "Desarrollo optimo", "Desarrollo en riesgo de marchitez" o
+     * "Desarrollo en marchitez", el titulo del grafico tiene el periodo
+     * [<fecha de siembra> - <fecha actual (es decir, hoy)>].
+     * 
+     * La fecha actual no forma parte del periodo [fecha de siembra
+     * de un cultivo - fecha inmediatamente anterior a la fecha
+     * actual] que la aplicacion utiliza para calcular la necesidad
+     * de agua de riego de un cultivo en la fecha actual y los motivos
+     * por los cuales se la agrega, junto al nivel de humedad del
+     * suelo en la fecha actual si la cantidad total de agua de riego
+     * de un cultivo en desarrollo en dicha fecha es estrictamente
+     * mayor a cero, al grafico de la evolucion diaria del nivel de
+     * humedad del suelo si se cumple la condicion mencionada, son:
+     * - mostrar en dicho grafico la forma en la que aumenta el
+     * nivel de humedad del suelo en la fecha actual en funcion
+     * del acumulado del deficit de humedad por dia (*) y la
+     * cantidad total de agua utilizada para el riego de un cultivo
+     * en desarrollo dicha fecha, y
+     * - mostrar mediante dicho grafico la forma en la que un
+     * registro de plantacion, que tiene un estado de desarrollo
+     * relacionado al uso de datos de suelo (desarrollo optimo,
+     * desarrollo en riesgo de marchitez, desarrollo en marchitez),
+     * cambia de estado en funcion del acumulado del deficit de
+     * humedad por dia (*) y la cantidad total de agua utilizada
+     * para el riego de un cultivo en desarrollo en la fecha actual.
+     * 
+     * (*) El acumulado del deficit de humedad por dia que se calcula
+     * para determinar la necesidad de agua de riego de un cultivo
+     * en la fecha actual (es decir, hoy) [mm/dia], pertenece al
+     * periodo definido por la fecha de siembra de un cultivo y
+     * la fecha inmediatamente anterior a la fecha actual, y puede
+     * ser negativo o igual a cero. Si es negativo representa la
+     * cantidad de humedad perdida que hay en dicho periodo. Si es
+     * igual a cero representa que la cantidad de humedad perdida
+     * en dicho periodo fue totalmente cubierta (satisfecha) mediante
+     * precipitacion natural y/o artificial. Por lo tanto, si se
+     * cumple este caso, en la fecha actual el nivel de humedad del
+     * suelo esta en capacidad de campo, lo cual significa que el
+     * suelo esta en capacidad de campo. Esto es que el suelo esta
+     * lleno de agua o en su maxima capacidad de almacenamiento de
+     * agua, pero no anegado.
+     */
+    if (irrigationRecordService.calculateTotalAmountCropIrrigationWaterForCurrentDate(parcelId) > 0 &&
+        (statusService.equals(status, statusService.findOptimalDevelopmentStatus())
+            || statusService.equals(status, statusService.findDevelopmentAtRiskWiltingStatus())
+            || statusService.equals(status, statusService.findDevelopmentInWiltingStatus()))) {
+
+      /*
+       * La capacidad de campo [mm] se la iguala a la capacidad de
+       * almacenamiento de agua del suelo (*) para determinar el
+       * nivel de humedad del suelo, que tiene un cultivo sembrado,
+       * con respecto a su capacidad de almacenamiento de agua del
+       * suelo.
+       * 
+       * La capacidad de almacenamiento de agua del suelo esta
+       * determinada por la lamina total de agua disponible [mm]
+       * (dt).
+       */
+      double fieldCapacity = WaterMath.calculateTotalAmountWaterAvailable(crop, soil);
+      double accumulatedWaterDeficitPerDayFromYesterday = Double.parseDouble(soilWaterBalanceService.find(parcelId, UtilDate.getYesterdayDate()).getAccumulatedWaterDeficitPerDay());
+      double totalAmountCropIrrigationWaterCurrentDate = irrigationRecordService.calculateTotalAmountCropIrrigationWaterForCurrentDate(parcelId);
+      double soilMoistureLevelCurrentDate = fieldCapacity + (accumulatedWaterDeficitPerDayFromYesterday + totalAmountCropIrrigationWaterCurrentDate);
+
+      /*
+       * Si el nivel de humedad del suelo en la fecha actual (es
+       * decir, hoy), calculado en funcion del acumulado del deficit
+       * de humedad del periodo definido por la fecha de siembra
+       * de un cultivo y la fecha inmediatamente anterior a la
+       * fecha actual, y la cantidad total de agua de riego de
+       * un cultivo en la fecha actual, es mayor o igual a la
+       * capacidad de almacenamiento de agua del suelo en el que
+       * esta sembrado un cultivo, el nivel de humedad del suelo
+       * esta en capacidad de campo, lo cual significa que el
+       * suelo esta en capacidad de campo. Esto es que el suelo
+       * esta lleno de agua o en su maxima capacidad de almacenamiento
+       * de agua, pero no anegado. El agua sobrante se escurre,
+       * ya que el suelo esta en capacidad de campo.
+       */
+      if (soilMoistureLevelCurrentDate >= fieldCapacity) {
+        soilMoistureLevelCurrentDate = fieldCapacity;
+      }
+
+      soilMoistureLevelGraph.getData().add(soilMoistureLevelCurrentDate);
+      soilMoistureLevelGraph.getLabels().add(UtilDate.formatDate(UtilDate.getCurrentDate()));
+      soilMoistureLevelGraph.setText("Evolución diaria del nivel de humedad del suelo en el período "
+          + UtilDate.formatDate(seedDate) + " - "
+          + UtilDate.formatDate(UtilDate.getCurrentDate())
+          + " (hoy)"
           + meaningXySoilMoistureLevelGraphTitle);
     }
 
@@ -3560,13 +3664,6 @@ public class PlantingRecordRestServlet {
           + UtilDate.formatDate(plantingRecord.getDeathDate())
           + meaningXySoilMoistureLevelGraphTitle);
     }
-
-    soilMoistureLevelGraph.setTotalAmountWaterAvailable(WaterMath.calculateTotalAmountWaterAvailable(crop, soil));
-    soilMoistureLevelGraph.setOptimalIrrigationLayer(WaterMath.calculateOptimalIrrigationLayer(crop, soil));
-    soilMoistureLevelGraph.setNegativeTotalAmountWaterAvailable(-1 * WaterMath.calculateTotalAmountWaterAvailable(crop, soil));
-    soilMoistureLevelGraph.setData(calculateDataMoistureLevelGraph(plantingRecord));
-    soilMoistureLevelGraph.setLabels(getStringDatesSoilMoistureLevelGraph(plantingRecord));
-    soilMoistureLevelGraph.setShowGraph(true);
 
     return soilMoistureLevelGraph;
   }

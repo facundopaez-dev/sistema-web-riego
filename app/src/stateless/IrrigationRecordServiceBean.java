@@ -541,6 +541,28 @@ public class IrrigationRecordServiceBean {
 
   /**
    * @param parcelId
+   * @return double que representa la cantidad total de agua
+   * utilizada para el riego de un cultivo en la fecha actual
+   * (es decir, hoy) [mm/dia]
+   */
+  public double calculateTotalAmountCropIrrigationWaterForCurrentDate(int parcelId) {
+    Query query = entityManager.createQuery("SELECT SUM(i.irrigationDone) FROM IrrigationRecord i WHERE i.parcel.id = :parcelId AND i.crop IS NOT NULL AND i.date = :date");
+    query.setParameter("parcelId", parcelId);
+    query.setParameter("date", UtilDate.getCurrentDate());
+
+    double result = 0.0;
+
+    try {
+      result = (double) query.getSingleResult();
+    } catch (NullPointerException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * @param parcelId
    * @param date
    * @return double que representa la cantidad total de agua
    * utilizada para el riego de un cultivo en una fecha [mm/dia]
