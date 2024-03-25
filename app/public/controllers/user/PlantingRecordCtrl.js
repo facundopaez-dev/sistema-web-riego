@@ -487,6 +487,14 @@ app.controller(
               tension: 0
             }
           },
+          scales: {
+            yAxes: [{
+              ticks: {
+                suggestedMax: soilMoistureLevelGraph.totalAmountWaterAvailable + 20,
+                suggestedMin: soilMoistureLevelGraph.negativeTotalAmountWaterAvailable - 20
+              }
+            }]
+          },
           annotation: {
             events: ['mouseenter', 'mouseleave'],
             annotations: [{
