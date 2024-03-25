@@ -3525,10 +3525,10 @@ public class PlantingRecordRestServlet {
     soilMoistureLevelGraph.setShowGraph(true);
 
     /*
-     * Si el estado del registro de plantacion correspondiente al
-     * grafico de la evolucion diaria del nivel de humedad del
-     * suelo, tiene el estado "Finalizado", el titulo del grafico
-     * tiene como periodo a [<fecha de siembra> - <fecha de cosecha>]
+     * Si el registro de plantacion correspondiente al grafico de la
+     * evolucion diaria del nivel de humedad del suelo, tiene el estado
+     * "Finalizado", el titulo del grafico tiene el periodo [<fecha de
+     * siembra> - <fecha de cosecha>]
      */
     if (statusService.equals(status, statusService.findFinishedStatus())) {
       soilMoistureLevelGraph.setText("Evolución diaria del nivel de humedad del suelo en el período "
@@ -3653,10 +3653,10 @@ public class PlantingRecordRestServlet {
     }
 
     /*
-     * Si el estado del registro de plantacion correspondiente al
-     * grafico de la evolucion diaria del nivel de humedad del
-     * suelo, tiene el estado "Muerto", el titulo del grafico
-     * tiene como periodo a [<fecha de siembra> - <fecha de muerte>]
+     * Si el registro de plantacion correspondiente al grafico de
+     * la evolucion diaria del nivel de humedad del suelo, tiene el
+     * estado "Muerto", el titulo del grafico tiene el periodo
+     * [<fecha de siembra> - <fecha de muerte>]
      */
     if (statusService.equals(status, statusService.findDeadStatus())) {
       soilMoistureLevelGraph.setText("Evolución diaria del nivel de humedad del suelo en el período "
