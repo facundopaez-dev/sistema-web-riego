@@ -96,6 +96,7 @@ public class PlantingRecordRestServlet {
   private final int UNAUTHORIZED = 401;
   private final int TOO_MANY_REQUESTS = 429;
   private final int SERVICE_UNAVAILABLE = 503;
+  private final int MINIMUM_DAYS_BETWEEN_SEED_DATE_AND_CURRENT_DATE = 2;
   private final String UNDEFINED_VALUE = "undefined";
   private final String NULL_VALUE = "null";
 
@@ -3450,9 +3451,65 @@ public class PlantingRecordRestServlet {
    * en riesgo de marchitez, en desarrollo en marchitez o muerto
    */
   private SoilMoistureLevelGraph generateSoilMoistureLevelGraph(PlantingRecord plantingRecord) {
-    SoilMoistureLevelGraph soilMoistureLevelGraph = new SoilMoistureLevelGraph();
     PlantingRecordStatus status = plantingRecord.getStatus();
     Calendar seedDate = plantingRecord.getSeedDate();
+    SoilMoistureLevelGraph soilMoistureLevelGraph = new SoilMoistureLevelGraph();
+
+    /*
+     * Para generar el grafico de la evolucion diaria del nivel
+     * de humedad del suelo se requiere que haya como minimo una
+     * diferencia de dos dias entre la fecha de siembra de un
+     * registro de plantacion que tiene el estado "Finalizado",
+     * el estado "Desarrollo optimo", el estado "Desarrollo en
+     * riesgo de marchitez" o el estado "Desarrollo en marchitez",
+     * y la fecha actual (es decir, hoy).
+     * 
+     * Si la fecha de siembra de un registro de plantacion que
+     * tiene uno de los estados mencionados es:
+     * - igual a la fecha actual, la diferencia de dias que hay
+     * entre ambas es 0.
+     * - es inmediatamente anterior a la fecha actual, la diferencia
+     * de dias entre ambas es 1.
+     * 
+     * En estos dos casos no hay grafico de la evolucion diaria
+     * del nivel de humedad del suelo que generar, ya que al
+     * partirse desde la condicion de suelo a capacidad de campo
+     * (suelo lleno de agua o en su maxima capacidad de almacenamiento
+     * de agua, pero no anegado) en la fecha de siembra de un
+     * cultivo y al ser la fecha de siembra igual o inmediatamente
+     * anterior a la fecha actual, no hay una perdida de humedad
+     * del suelo que mostrar. Esto se debe a que para que haya
+     * perdida de humedad en el suelo partiendo desde la condicion
+     * de suelo a capacidad de campo en la fecha de siembra de
+     * un cultivo, debe haber como minimo dos de diferencia
+     * entre dicha fecha y la fecha actual.
+     * 
+     * En estos dos casos, ademas de no generarse el grafico
+     * de la evolucion diaria del nivel de humedad del suelo,
+     * tampoco se lo de debe mostrar en la interfaz grafica
+     * de usuario. La forma en la que se logra esto es
+     * retornando una referencia a un objeto de tipo
+     * SoilMoistureLevelGraph con su variable de instancia
+     * showGraph en false. En Java las variables de instancia
+     * de tipo primitivo de tipo por referencia se inicializan
+     * de forma automatica con un valor por defecto. En el
+     * caso de las variables de instancia de tipo boolean
+     * (tipo primitivo), estas se inicializan de manera
+     * automatica con el valor false.
+     * 
+     * En el controller PlantingRecordCtrl.js de la ruta
+     * app/public/controllers se utiliza la variable showGraph
+     * para mostrar u ocultar el grafico de la evolucion
+     * diaria del nivel de humedad del suelo.
+     */
+    if (UtilDate.calculateDifferenceBetweenDates(seedDate, UtilDate.getCurrentDate()) < MINIMUM_DAYS_BETWEEN_SEED_DATE_AND_CURRENT_DATE
+        && (statusService.equals(status, statusService.findFinishedStatus())
+            || statusService.equals(status, statusService.findOptimalDevelopmentStatus())
+            || statusService.equals(status, statusService.findDevelopmentAtRiskWiltingStatus())
+            || statusService.equals(status, statusService.findDevelopmentInWiltingStatus()))) {
+      return soilMoistureLevelGraph;
+    }
+
     Crop crop = plantingRecord.getCrop();
     Soil soil = plantingRecord.getParcel().getSoil();
     Parcel parcel = plantingRecord.getParcel();
