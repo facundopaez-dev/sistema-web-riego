@@ -280,105 +280,65 @@ public class WaterMath {
    * @param deficitPerDay
    * @param accumulatedWaterDeficitPerDay
    * @return double que representa el acumulado del deficit (falta)
-   * de agua por dia en una parcela en una fecha [mm/dia] o de
-   * un cultivo en una fecha [mm/dia] si este metodo se invoca para
-   * una parcela que tiene un cultivo sembrado en una fecha
+   * de humedad por dia [mm/dia]
    */
   public static double accumulateWaterDeficitPerDay(double deficitPerDay, double accumulatedWaterDeficitPerDay) {
     /*
-     * El deficit de agua por dia [mm/dia] en una parcela en una
-     * fecha (*) es la diferencia entre el agua provista (lluvia
-     * o riego, o lluvia mas riego y viceversa) por dia [mm/dia]
-     * y el agua evaporada por dia [mm/dia] (dada por la ETc [mm/dia]
-     * o la ETo [mm/dia] si la ETc = 0) en una parcela en una fecha.
-     * Si el resultado de esta diferencia es menor a cero significa
-     * que toda o parte de la cantidad de agua evaporada en una
-     * parcela en una fecha NO fue cubierta (satisfecha). Si el
-     * deficit de agua por dia [mm/dia] es negativo, se lo acumula,
-     * ya que esto es necesario para determinar la necesidad de
-     * agua de riego de un cultivo en una fecha en caso de que
-     * este metodo sea invocado para una parcela que tiene un
-     * cultivo sembrado en una fecha.
+     * Si el deficit de humedad por dia [mm/dia] es negativo, se
+     * lo acumula, ya que esto es necesario para determinar la
+     * necesidad de agua de riego de un cultivo en una fecha en
+     * caso de que este metodo sea invocado para una parcela que
+     * tiene un cultivo en desarrollo en una fecha.
      * 
-     * (*) El motivo por el cual se usa la expresion "en una parcela
-     * en una fecha" es que un registro climatico y un registro de
-     * riego pertenecen a una parcela y tienen una fecha (dia). La
-     * ETo, la ETc y el agua de lluvia pertenecen a un registro
-     * climatico y el agua de riego pertenece a un registro de riego.
+     * Si el deficit de humedad por dia [mm/dia] es positivo y
+     * el acumulado del deficit de humedad por dia [mm/dia] es
+     * negativo, significa:
+     * - que la cantidad de humedad perdida del suelo en un dia
+     * esta totalmente cubierta (satisfecha) y que hay una cantidad
+     * extra de agua [mm/dia], y
+     * - que toda la humedad perdida del suelo en un conjunto de
+     * dias previos al dia correspondiente del deficit de humedad
+     * por dia, NO esta cubierta (satisfecha). En esta situacion
+     * hay lugar en el suelo para almacenar agua. Por lo tanto, la
+     * cantidad extra de agua del dia correspondiente del deficit
+     * de humedad por dia, se almacena en el suelo.
+     * 
+     * En esta instruccion se concentran estas dos condiciones.
      */
-    if (deficitPerDay < 0) {
-      accumulatedWaterDeficitPerDay = accumulatedWaterDeficitPerDay + deficitPerDay;
-    }
+    accumulatedWaterDeficitPerDay = accumulatedWaterDeficitPerDay + deficitPerDay;
 
     /*
-     * Si el deficit de agua por dia en una parcela en una fecha
-     * [mm/dia] (definicion en el comentario anterior) es mayor a
-     * cero significa que en una fecha la cantidad de agua evaporada
-     * fue totalmente cubierta (satisfecha) y que hubo una cantidad
-     * extra de agua [mm/dia].
+     * Si el acumulado del deficit de humedad por dia [mm/dia]
+     * de dias previos a una fecha es estrictamente mayor a cero,
+     * significa que toda la perdida de humedad del suelo en dias
+     * previos al dia correspondiente del deficit de humedad por
+     * dia, fue totalmente cubierta (satisfecha) mediante preciptacion
+     * (artificial y/o natural) en el dia de dicho deficit. En
+     * consecuencia, el acumulado del deficit de humedad por dia,
+     * de dias previos a una fecha, es 0 [mm/dia]. Esto significa
+     * que en el dia correspondiente al deficit de humedad por dia,
+     * el nivel de humedad del suelo esta en capacidad de campo,
+     * lo cual significa que el suelo esta en capacidad de campo
+     * (capacidad de campo es la condicion en la que el suelo esta
+     * lleno de agua o en su maxima capacidad de almacenamiento de
+     * agua, pero no anegado). Por lo tanto, en el dia del deficit
+     * de humedad por dia NO hay una cantidad acumulada de perdida
+     * de humedad del suelo que cubrir (satisfacer) mediante
+     * precipitacion (artificial y/o natural).
      * 
-     * Si el acumulado del deficit de agua por dia en una parcela en
-     * una fecha [mm/dia] es menor a cero significa que la cantidad
-     * de agua evaporada en una parcela en un conjunto de dias
-     * previos al dia correspondiente del deficit de agua por dia,
-     * NO fue cubierta (satisfecha). Esta condicion representa la
-     * situacion en la que hay lugar en el suelo para almacenar
-     * agua.
+     * Si el acumulado del deficit de humedad por dia de dias
+     * previos a una fecha [mm/dia] es igual a cero, se esta en
+     * la misma situacion. Por lo tanto, en el dia correspondiente
+     * al deficit de humedad por dia, el nivel de humedad del
+     * suelo esta en capacidad de campo, lo cual significa que
+     * el suelo esta en capacidad de campo.
      * 
-     * Si ambas condiciones ocurren al mismo tiempo significan
-     * las siguientes cosas:
-     * - que en el dia correspondiente al deficit de agua por
-     * dia, hay lugar en el suelo para almacenar agua, ya que
-     * un acumulado del deficit de agua por dia de dias previos
-     * a una fecha menor a cero indica que la cantidad acumulada
-     * de agua evaporada de un conjunto de dias previos al dia
-     * correspondiente del deficit de agua por dia calculado, NO
-     * fue cubierta (satisfecha). El acumulado del deficit de agua
-     * por dia de dias previos a una fecha es la sumatoria del
-     * deficit de agua por dia de un conjunto de dias previos a
-     * una fecha (dia).
-     * - que la cantidad extra de agua del dia correspondiente
-     * al deficit de agua por dia, se almacena en el suelo, ya
-     * que este tiene lugar para almacenar mas agua.
+     * El metodo calculateNegativeOptimalIrrigationLayer(),
+     * escrito en esta clase, tiene una explicacion de lo que
+     * es la capacidad de campo.
      */
-    if (deficitPerDay > 0 && accumulatedWaterDeficitPerDay < 0) {
-      accumulatedWaterDeficitPerDay = accumulatedWaterDeficitPerDay + deficitPerDay;
-
-      /*
-       * Si el acumulado del deficit de agua por dia de dias previos
-       * a una fecha [mm/dia] es estrictamente mayor a cero despues
-       * de sumarle una cantidad extra de agua [mm/dia], significa
-       * que la cantidad acumulada de agua evaporada de dias previos
-       * al dia correspondiente del deficit de agua por dia calculado,
-       * fue totalmente cubierta (satisfecha) mediante preciptacion
-       * (artificial y/o natural). Por lo tanto, en el dia del deficit
-       * de agua por dia calculado NO hay una cantidad de agua evaporada
-       * que cubrir (satisfacer) mediante precipitacion (artificial
-       * y/o natural). En consecuencia, el acumulado del deficit de
-       * agua por dia, de dias previos a una fecha, en una parcela
-       * en una fecha o de un cultivo en una fecha [mm/dia], si se
-       * invoca este metodo para una parcela que tiene un cultivo
-       * sembrado en una fecha, es 0 [mm/dia]. Todo esto significa
-       * que en el dia correspondiente al deficit de agua por dia
-       * calculado, el nivel de humedad del suelo esta en capacidad
-       * de campo, esto es que el suelo esta en capacidad de campo.
-       * 
-       * Si el acumulado del deficit de agua por dia de dias previos
-       * a una fecha [mm/dia] es igual a cero despues de sumarle una
-       * cantidad extra de agua [mm/dia], se esta en la misma
-       * situacion. Por lo tanto, en el dia correspondiente al
-       * deficit de agua por dia calculado, el nivel de humedad del
-       * suelo esta en capacidad de campo, esto es que el suelo
-       * esta en capacidad de campo.
-       * 
-       * El metodo calculateNegativeOptimalIrrigationLayer(),
-       * escrito en esta clase, tiene una explicacion de lo que
-       * es la capacidad de campo.
-       */
-      if (accumulatedWaterDeficitPerDay > 0) {
-        accumulatedWaterDeficitPerDay = 0;
-      }
-
+    if (accumulatedWaterDeficitPerDay > 0) {
+      accumulatedWaterDeficitPerDay = 0;
     }
 
     return accumulatedWaterDeficitPerDay;
