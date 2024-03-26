@@ -14,6 +14,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import model.Crop;
 import model.IrrigationRecord;
 import model.Parcel;
 import util.UtilDate;
@@ -248,21 +249,22 @@ public class IrrigationRecordServiceBean {
 
   /**
    * Retorna todos los registros de riego de una parcela de
-   * un usuario que estan en un periodo definido por dos fechas,
-   * si una parcela tiene registros de riego en un periodo dado.
+   * un usuario, que tienen un cultivo y que estan en un periodo
+   * definido por dos fechas, si una parcela tiene registros
+   * de riego con un cultivo asginado en un periodo.
    * 
    * @param userId
    * @param parcelId
    * @param dateFrom
    * @param dateUntil
-   * @return referencia a un objeto de tipo Collection que
-   * contiene todos los registros de riego de una parcela de un
-   * usuario que estan en un periodo definido por dos fechas.
-   * En caso contrario, referencia a un objeto de tipo Collection
-   * vacio (0 elementos).
+   * @return referencia a un objeto de tipo Collection que contiene
+   * todos los registros de riego de una parcela de un usuario, que
+   * tienen un cultivo y que estan en un periodo definido por dos
+   * fechas. En caso contrario, referencia a un objeto de tipo
+   * Collection vacio (con 0 elementos).
    */
-  public Collection<IrrigationRecord> findAllByParcelIdAndPeriod(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
-    Query query = getEntityManager().createQuery("SELECT i FROM IrrigationRecord i JOIN i.parcel p WHERE (p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId) AND :dateFrom <= i.date AND i.date <= :dateUntil) ORDER BY i.date");
+  public Collection<IrrigationRecord> findAllWithCropBetweenDates(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    Query query = getEntityManager().createQuery("SELECT i FROM IrrigationRecord i JOIN i.parcel p WHERE (i.crop IS NOT NULL AND :dateFrom <= i.date AND i.date <= :dateUntil AND p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY i.date");
     query.setParameter("userId", userId);
     query.setParameter("parcelId", parcelId);
     query.setParameter("dateFrom", dateFrom);
@@ -282,6 +284,25 @@ public class IrrigationRecordServiceBean {
     query.setParameter("parcelId", parcelId);
 
     return query.getResultList();
+  }
+
+  /**
+   * Modifica el cultivo de los registros de riego
+   * perteneciente a una parcela que estan en un
+   * periodo definido por dos fechas
+   * 
+   * @param parcelId
+   * @param crop
+   * @param dateFrom
+   * @param dateUntil
+   */
+  public void modifyCropInPeriod(int parcelId, Crop crop, Calendar dateFrom, Calendar dateUntil) {
+    Query query = entityManager.createQuery("UPDATE IrrigationRecord i SET i.crop = :crop WHERE i.parcel.id = :parcelId AND :dateFrom <= i.date AND i.date <= :dateUntil");
+    query.setParameter("parcelId", parcelId);
+    query.setParameter("crop", crop);
+    query.setParameter("dateFrom", dateFrom);
+    query.setParameter("dateUntil", dateUntil);
+    query.executeUpdate();
   }
 
   /**

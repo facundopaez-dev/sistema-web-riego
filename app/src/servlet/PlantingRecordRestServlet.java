@@ -1821,6 +1821,18 @@ public class PlantingRecordRestServlet {
     }
 
     /*
+     * Si se modifica el cultivo del registro de plantacion y hay registros
+     * de riego con un cultivo asignado en el periodo definido por la fecha
+     * de siembra y la fecha de cosecha del registro de plantacion, se
+     * modifica el cultivo de todos los registros de riego pertenecientes
+     * a dicho periodo
+     */
+    if (!cropService.equals(modifiedCrop, currentCrop) && !irrigationRecordService
+        .findAllWithCropBetweenDates(userId, modifiedParcel.getId(), modifiedSeedDate, modifiedHarvestDate).isEmpty()) {
+      irrigationRecordService.modifyCropInPeriod(modifiedParcel.getId(), modifiedCrop, modifiedSeedDate, modifiedHarvestDate);
+    }
+
+    /*
      * Se persisten los cambios realizados en el registro
      * de plantacion
      */
