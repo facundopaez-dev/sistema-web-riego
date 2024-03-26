@@ -156,19 +156,21 @@
     <table class="table table-condensed table-hover table-fixed-top">
         <thead>
             <tr>
-                <th>ID</th>
+                <!-- <th>ID</th> -->
                 <th>Fecha</th>
                 <th>Parcela</th>
                 <th>Cultivo</th>
                 <th>Precip. (artificial y/o natural) [mm/día]</th>
-                <th>H2O evaporada (ETc) [mm/día]</th>
-                <th>Déficit H2O [mm/día]</th>
-                <th>Déficit acum. H2O [mm/día]</th>
+
+                <!-- La perdida de humedad del suelo esta determinada por la ETc -->
+                <th>Pérdida humedad suelo [mm/día]</th>
+                <th>Déficit [mm/día]</th>
+                <th>Déficit acum. [mm/día]</th>
             </tr>
         </thead>
         <tbody>
             <tr ng-repeat="a in listElement">
-                <td>{{a.id}}</td>
+                <!-- <td>{{a.id}}</td> -->
                 <td>{{a.date | date:'dd/MM/yyyy'}}</td>
                 <td>{{a.parcelName}}</td>
                 <td>{{a.cropName}}</td>
