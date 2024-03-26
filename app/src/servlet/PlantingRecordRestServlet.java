@@ -2488,9 +2488,9 @@ public class PlantingRecordRestServlet {
       String message = "El cultivo murió porque la pérdida de humedad del suelo fue estrictamente mayor al doble"
           + " de la capacidad de almacenamiento de agua del suelo (2 * "
           + developingPlantingRecord.getTotalAmountWaterAvailable()
-          + " = " + (2 * developingPlantingRecord.getTotalAmountWaterAvailable()) + "). Puede visualizar el gráfico de"
-          + " la evolución diaria del nivel de humedad del suelo presionando el botón de visualización sobre este registro"
-          + " de plantación.";
+          + " = " + (2 * developingPlantingRecord.getTotalAmountWaterAvailable()) + "). El gráfico de la evolución diaria"
+          + " del nivel de humedad del suelo puede ser visualizado para un cultivo muerto presionando el botón de visualización"
+          + " sobre el respectivo registro de plantación.";
 
       return Response.status(Response.Status.BAD_REQUEST)
           .entity(mapper.writeValueAsString(new ErrorResponse(message, SourceUnsatisfiedResponse.DEAD_CROP_WATER_NEED)))
