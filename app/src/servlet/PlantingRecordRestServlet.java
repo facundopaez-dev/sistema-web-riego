@@ -689,8 +689,9 @@ public class PlantingRecordRestServlet {
     /*
      * - Si la bandera suelo de las opciones de la parcela perteneciente
      * a un registro de plantacion, esta activa,
-     * - si uno de los siguientes estados: "Finalizado", "Desarrollo optimo",
-     * "Desarrollo en riesgo de marchitez", "Desarrollo en marchitez" o "Muerto", y
+     * - si uno de los estados del registro de plantacion es: "Desarrollo optimo",
+     * "Desarrollo en riesgo de marchitez", "Desarrollo en marchitez" o
+     * "Muerto", y
      * - si en los periodos correspondientes a cada uno de estos estados la
      * parcela tiene balances hidricos de suelo,
      * 
@@ -700,11 +701,6 @@ public class PlantingRecordRestServlet {
      * tiene una parcela que tiene la bandera suelo activa en sus opciones
      */
     if (plantingRecord.getParcel().getOption().getSoilFlag()) {
-
-      if (statusService.equals(status, statusService.findFinishedStatus())
-          && !soilWaterBalanceService.findAllFromDateFromToDateUntil(parcelId, seedDate, harvestDate).isEmpty()) {
-        plantingRecordData.setSoilMoistureLevelGraph(generateSoilMoistureLevelGraph(plantingRecord));
-      }
 
       if ((statusService.equals(status, statusService.findOptimalDevelopmentStatus())
           || statusService.equals(status, statusService.findDevelopmentAtRiskWiltingStatus())
@@ -3459,8 +3455,8 @@ public class PlantingRecordRestServlet {
    * que representa el grafico de la evolucion diaria del nivel
    * de humedad del suelo de una parcela que tiene la bandera
    * suelo activa en sus opciones, la cual tiene un registro de
-   * plantacion finalizado, en desarrollo optimo, en desarrollo
-   * en riesgo de marchitez, en desarrollo en marchitez o muerto
+   * plantacion en desarrollo optimo, en desarrollo en riesgo de
+   * marchitez, en desarrollo en marchitez o muerto
    */
   private SoilMoistureLevelGraph generateSoilMoistureLevelGraph(PlantingRecord plantingRecord) {
     PlantingRecordStatus status = plantingRecord.getStatus();
@@ -3535,19 +3531,6 @@ public class PlantingRecordRestServlet {
     soilMoistureLevelGraph.setData(calculateDataMoistureLevelGraph(plantingRecord));
     soilMoistureLevelGraph.setLabels(getStringDatesSoilMoistureLevelGraph(plantingRecord));
     soilMoistureLevelGraph.setShowGraph(true);
-
-    /*
-     * Si el registro de plantacion correspondiente al grafico de la
-     * evolucion diaria del nivel de humedad del suelo, tiene el estado
-     * "Finalizado", el titulo del grafico tiene el periodo [<fecha de
-     * siembra> - <fecha de cosecha>]
-     */
-    if (statusService.equals(status, statusService.findFinishedStatus())) {
-      soilMoistureLevelGraph.setText("Evolución diaria del nivel de humedad del suelo en el período "
-          + UtilDate.formatDate(seedDate) + " - "
-          + UtilDate.formatDate(plantingRecord.getHarvestDate())
-          + meaningXySoilMoistureLevelGraphTitle);
-    }
 
     /*
      * Si la cantidad total de agua de riego de un cultivo en desarrollo
@@ -3685,9 +3668,8 @@ public class PlantingRecordRestServlet {
    * @return referencia a un objeto de tipo Collection que contiene
    * las fechas en formato de cadena de caracteres desde una fecha
    * de siembra hasta una fecha hasta, la cual puede ser la fecha
-   * en la que finalizo (cosecha) un cultivo, la fecha inmediatamente
-   * anterior a la fecha actual (es decir, hoy) o la fecha de muerte
-   * de un cultivo
+   * inmediatamente anterior a la fecha actual (es decir, hoy) o la
+   * fecha de muerte de un cultivo
    */
   private Collection<String> getStringDatesSoilMoistureLevelGraph(PlantingRecord plantingRecord) {
     Collection<SoilWaterBalance> soilWaterBalances = null;
@@ -3697,18 +3679,6 @@ public class PlantingRecordRestServlet {
     Calendar seedDate = plantingRecord.getSeedDate();
 
     int parcelId = plantingRecord.getParcel().getId();
-
-    /*
-     * Si el estado del registro de plantacion correspondiente al
-     * grafico de la evolucion diaria del nivel de humedad del
-     * suelo, tiene el estado "Finalizado", las fechas a generar
-     * para dicho grafico son las que estan comprendidas en el
-     * periodo definido por una fecha de siembra y una fecha de
-     * cosecha (finalizacion)
-     */
-    if (statusService.equals(status, statusService.findFinishedStatus())) {
-      soilWaterBalances = soilWaterBalanceService.findAllFromDateFromToDateUntil(parcelId, seedDate, plantingRecord.getHarvestDate());
-    }
 
     /*
      * Si el estado del registro de plantacion correspondiente al
@@ -3750,7 +3720,7 @@ public class PlantingRecordRestServlet {
    * @return referencia a un objeto de tipo Collection que
    * contiene los valores que representan el nivel de humedad
    * diario del suelo de una parcela que tiene un cultivo
-   * finalizado, en proceso de desarrollo o muerto
+   * en proceso de desarrollo o muerto
    */
   private Collection<Double> calculateDataMoistureLevelGraph(PlantingRecord plantingRecord) {
     /*
@@ -3810,18 +3780,6 @@ public class PlantingRecordRestServlet {
 
     Collection<SoilWaterBalance> soilWaterBalances = null;
     Collection<Double> data = new ArrayList<>();
-
-    /*
-     * Si el estado del registro de plantacion correspondiente al
-     * grafico de la evolucion diaria del nivel de humedad del
-     * suelo, tiene el estado "Finalizado", las fechas a generar
-     * para dicho grafico son las que estan comprendidas en el
-     * periodo definido por una fecha de siembra y una fecha de
-     * cosecha (finalizacion)
-     */
-    if (statusService.equals(status, statusService.findFinishedStatus())) {
-      soilWaterBalances = soilWaterBalanceService.findAllFromDateFromToDateUntil(parcelId, seedDate, plantingRecord.getHarvestDate());
-    }
 
     /*
      * Si el estado del registro de plantacion correspondiente al
