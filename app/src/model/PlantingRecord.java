@@ -75,6 +75,19 @@ public class PlantingRecord {
   @Column(name = "OPTIMAL_IRRIGATION_LAYER")
   private double optimalIrrigationLayer;
 
+  /*
+   * Bandera utilizada para no generar el grafico de la evolucion
+   * diaria del nivel de humedad del suelo de un registro de
+   * plantacion que tiene el estado "Desarrollo optimo", "Desarrollo
+   * en riesgo de marchitez", "Desarrollo en marchitez" o "Muerto"
+   * y que se le modifica la fecha de siembra y/o el cultivo. Un
+   * registro de plantacion utiliza uno de los estados mencionados
+   * cuando la parcela a la que pertenece tiene la bandera suelo
+   * activa en sus opciones.
+   */
+  @Column(name = "FLAG_NOT_GENERATE_SOIL_MOISTURE_LEVEL_GRAPH")
+  private boolean flagNotGenerateSoilMoistureGraph;
+
   @ManyToOne
   @JoinColumn(name = "FK_PARCEL", nullable = false)
   private Parcel parcel;
@@ -153,6 +166,14 @@ public class PlantingRecord {
 
   public void setOptimalIrrigationLayer(double optimalIrrigationLayer) {
     this.optimalIrrigationLayer = optimalIrrigationLayer;
+  }
+
+  public boolean getFlagNotGenerateSoilMoistureGraph() {
+    return flagNotGenerateSoilMoistureGraph;
+  }
+
+  public void setFlagNotGenerateSoilMoistureGraph(boolean flagNotGenerateSoilMoistureGraph) {
+    this.flagNotGenerateSoilMoistureGraph = flagNotGenerateSoilMoistureGraph;
   }
 
   public Parcel getParcel() {

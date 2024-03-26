@@ -2486,6 +2486,30 @@ public class PlantingRecordServiceBean {
   }
 
   /**
+   * Establece en true la bandera flagNotGenerateSoilMoistureGraph
+   * de un registro de plantacion
+   * 
+   * @param plantingRecordId
+   */
+  public void setFlagNotGenerateSoilMoistureGraph(int plantingRecordId) {
+    Query query = entityManager.createQuery("UPDATE PlantingRecord p SET p.flagNotGenerateSoilMoistureGraph = TRUE WHERE p.id = :plantingRecordId");
+    query.setParameter("plantingRecordId", plantingRecordId);
+    query.executeUpdate();
+  }
+
+  /**
+   * Establece en false la bandera flagNotGenerateSoilMoistureGraph
+   * de un registro de plantacion
+   * 
+   * @param plantingRecordId
+   */
+  public void unsetFlagNotGenerateSoilMoistureGraph(int plantingRecordId) {
+    Query query = entityManager.createQuery("UPDATE PlantingRecord p SET p.flagNotGenerateSoilMoistureGraph = FALSE WHERE p.id = :plantingRecordId");
+    query.setParameter("plantingRecordId", plantingRecordId);
+    query.executeUpdate();
+  }
+
+  /**
    * Retorna true si y solo si las fechas de un registro de
    * plantacion de una parcela estan superpuestas con las
    * fechas de los demas registros de plantacion de la misma

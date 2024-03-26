@@ -662,6 +662,8 @@ public class PlantingRecordRestServlet {
     Calendar harvestDate = plantingRecord.getHarvestDate();
     Calendar deathDate = plantingRecord.getDeathDate();
     PlantingRecordStatus status = plantingRecord.getStatus();
+    boolean flagNotGenerateSoilMoistureGraph = plantingRecord.getFlagNotGenerateSoilMoistureGraph();
+
     PlantingRecordData plantingRecordData = new PlantingRecordData();
     plantingRecordData.setPlantingRecord(plantingRecord);
 
@@ -691,16 +693,18 @@ public class PlantingRecordRestServlet {
      * a un registro de plantacion, esta activa,
      * - si uno de los estados del registro de plantacion es: "Desarrollo optimo",
      * "Desarrollo en riesgo de marchitez", "Desarrollo en marchitez" o
-     * "Muerto", y
+     * "Muerto",
      * - si en los periodos correspondientes a cada uno de estos estados la
-     * parcela tiene balances hidricos de suelo,
+     * parcela tiene balances hidricos de suelo y
+     * - si la bandera flagNotGenerateSoilMoistureGraph del registro de
+     * plantacion tiene el valor false,
      * 
      * se genera el grafico que representa la evolucion diaria del nivel de
      * humedad del suelo para que pueda ser visualizado en la visualizacion
      * de un registro de plantacion que tiene uno de estos estados y que
      * tiene una parcela que tiene la bandera suelo activa en sus opciones
      */
-    if (plantingRecord.getParcel().getOption().getSoilFlag()) {
+    if (!flagNotGenerateSoilMoistureGraph && plantingRecord.getParcel().getOption().getSoilFlag()) {
 
       if ((statusService.equals(status, statusService.findOptimalDevelopmentStatus())
           || statusService.equals(status, statusService.findDevelopmentAtRiskWiltingStatus())
@@ -1829,6 +1833,56 @@ public class PlantingRecordRestServlet {
     }
 
     /*
+     * Si el registro de plantacion modificado tiene el estado "Desarrollo
+     * optimo", "Desarrollo en riesgo de marchitez", "Desarrollo en marchitez"
+     * o "Muerto" y si se le modifica la fecha de siembra y/o el cultivo,
+     * NO se debe generar el grafico de la evolucion diaria del nivel de
+     * humedad del suelo para este registro cuando se presione el boton
+     * de visualizacion sobre el. La manera en la que se logra esto es
+     * asignando el valor false a la variable bandera
+     * flagNotGenerateSoilMoistureGraph de un registro de plantacion.
+     * 
+     * Un registro de plantacion utiliza uno de los estados mencionados
+     * cuando la parcela a la que pertenece tiene la bandera suelo
+     * activa en sus opciones.
+     */
+    if ((UtilDate.compareTo(modifiedSeedDate, currentSeedDate) != 0 || !cropService.equals(modifiedCrop, currentCrop))
+        && (statusService.equals(newStatusPlantingRecord, optimalDevelopmentStatus)
+            || statusService.equals(newStatusPlantingRecord, developmentAtRiskWiltingStatus)
+            || statusService.equals(newStatusPlantingRecord, developmentInWiltingStatus)
+            || statusService.equals(newStatusPlantingRecord, deadStatus))) {
+      plantingRecordService.setFlagNotGenerateSoilMoistureGraph(plantingRecordId);
+    }
+
+    /*
+     * Si la fecha de siembra y el cultivo del registro de plantacion
+     * a modificar no se modifican, y si el estado actual de dicho
+     * registro es el estado "Muerto" y si su nuevo estado es "Desarrollo
+     * optimo", "Desarrollo en riesgo de marchitez" o "Desarrollo en
+     * marchitez", NO se debe generar el grafico de la evolucion diaria del
+     * nivel de humedad del suelo para este registro cuando se presione
+     * el boton de visualizacion sobre el. La manera en la que se logra
+     * esto es asignando el valor false a la variable bandera
+     * flagNotGenerateSoilMoistureGraph de un registro de plantacion.
+     * 
+     * Un registro de plantacion utiliza uno de los estados mencionados
+     * cuando la parcela a la que pertenece tiene la bandera suelo
+     * activa en sus opciones.
+     * 
+     * Este control es para evitar que el grafico de la evolucion diaria
+     * del nivel de humedad del suelo sea visualizado cuando el usuario
+     * decide NO mantener el estado "Muerto" de un registro de plantacion
+     * sin modificar ni su fecha de siembra ni su cultivo.
+     */
+    if (UtilDate.compareTo(modifiedSeedDate, currentSeedDate) == 0 && cropService.equals(modifiedCrop, currentCrop)
+        && statusService.equals(currentStatusModifiedPlantingRecord, deadStatus)
+        && (statusService.equals(newStatusPlantingRecord, optimalDevelopmentStatus)
+            || statusService.equals(newStatusPlantingRecord, developmentAtRiskWiltingStatus)
+            || statusService.equals(newStatusPlantingRecord, developmentInWiltingStatus))) {
+      plantingRecordService.setFlagNotGenerateSoilMoistureGraph(plantingRecordId);
+    }
+
+    /*
      * Se persisten los cambios realizados en el registro
      * de plantacion
      */
@@ -2397,6 +2451,19 @@ public class PlantingRecordRestServlet {
      * tambien representa la muerte de un cultivo.
      */
     String notCalculated = soilWaterBalanceService.getNotCalculated();
+
+    /*
+     * Si el flujo de ejecucion llego a esta linea de codigo fuente
+     * es porque efectivamente se calculo la necesidad de agua de
+     * riego de un cultivo en la fecha actual (es decir, hoy), por
+     * lo tanto, se asigna el valor false a la variable bandera
+     * flagNotGenerateSoilMoistureGraph del registro de plantacion
+     * para que se pueda visualizar su grafico de evolucion diaria
+     * del nivel de humedad del suelo en caso de que dicho registro
+     * pertenezca a una parcela que tiene la bandera suelo activa
+     * en sus opciones
+     */
+    plantingRecordService.unsetFlagNotGenerateSoilMoistureGraph(developingPlantingRecord.getId());
 
     /*
      * Si la necesidad de agua de riego de un cultivo (en desarrollo)
