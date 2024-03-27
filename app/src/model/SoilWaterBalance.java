@@ -40,7 +40,7 @@ public class SoilWaterBalance {
     private double waterProvidedPerDay;
 
     /*
-     * La perdida de humedad del suelo esta determinada por
+     * La perdida de humedad de suelo esta determinada por
      * la ETc (evapotranspiracion del cultivo bajo condiciones
      * estandar) [mm/dia]
      */
