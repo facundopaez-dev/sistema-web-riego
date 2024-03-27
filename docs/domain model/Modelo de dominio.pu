@@ -188,7 +188,7 @@ class BalanceHidricoSuelo {
 -nombreParcela
 -nombreCultivo
 -aguaProvistaPorDia
--aguaEvaporadaPorDia
+-perdidaHumedadSueloPorDia
 -deficitAguaPorDia
 -acumuladoDeficitAguaPorDia
 }

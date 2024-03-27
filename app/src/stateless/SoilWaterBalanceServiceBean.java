@@ -100,7 +100,7 @@ public class SoilWaterBalanceServiceBean {
             chosenSoilWaterBalanace.setParcelName(modifiedSoilWaterBalance.getParcelName());
             chosenSoilWaterBalanace.setCropName(modifiedSoilWaterBalance.getCropName());
             chosenSoilWaterBalanace.setWaterProvidedPerDay(modifiedSoilWaterBalance.getWaterProvidedPerDay());
-            chosenSoilWaterBalanace.setEvaporatedWaterPerDay(modifiedSoilWaterBalance.getEvaporatedWaterPerDay());
+            chosenSoilWaterBalanace.setSoilMoistureLossPerDay(modifiedSoilWaterBalance.getSoilMoistureLossPerDay());
             chosenSoilWaterBalanace.setWaterDeficitPerDay(modifiedSoilWaterBalance.getWaterDeficitPerDay());
             chosenSoilWaterBalanace.setAccumulatedWaterDeficitPerDay(modifiedSoilWaterBalance.getAccumulatedWaterDeficitPerDay());
             return chosenSoilWaterBalanace;
@@ -189,15 +189,15 @@ public class SoilWaterBalanceServiceBean {
      * 
      * @param id
      * @param cropName
-     * @param evaporatedWaterPerDay
+     * @param soilMoistureLossPerDay
      * @param waterProvidedPerDay
      * @param waterDeficitPerDay
      * @param accumulatedWaterDeficitPerDay
      */
-    public void update(int id, String cropName, double evaporatedWaterPerDay, double waterProvidedPerDay, double waterDeficitPerDay, String accumulatedWaterDeficitPerDay) {
-        Query query = getEntityManager().createQuery("UPDATE SoilWaterBalance s SET s.cropName = :cropName, s.evaporatedWaterPerDay = :evaporatedWaterPerDay, s.waterProvidedPerDay = :waterProvidedPerDay, s.waterDeficitPerDay = :waterDeficitPerDay, s.accumulatedWaterDeficitPerDay = :accumulatedWaterDeficitPerDay WHERE s.id = :id");
+    public void update(int id, String cropName, double soilMoistureLossPerDay, double waterProvidedPerDay, double waterDeficitPerDay, String accumulatedWaterDeficitPerDay) {
+        Query query = getEntityManager().createQuery("UPDATE SoilWaterBalance s SET s.cropName = :cropName, s.soilMoistureLossPerDay = :soilMoistureLossPerDay, s.waterProvidedPerDay = :waterProvidedPerDay, s.waterDeficitPerDay = :waterDeficitPerDay, s.accumulatedWaterDeficitPerDay = :accumulatedWaterDeficitPerDay WHERE s.id = :id");
         query.setParameter("cropName", cropName);
-        query.setParameter("evaporatedWaterPerDay", evaporatedWaterPerDay);
+        query.setParameter("soilMoistureLossPerDay", soilMoistureLossPerDay);
         query.setParameter("waterProvidedPerDay", waterProvidedPerDay);
         query.setParameter("waterDeficitPerDay", waterDeficitPerDay);
         query.setParameter("accumulatedWaterDeficitPerDay", accumulatedWaterDeficitPerDay);
@@ -366,7 +366,7 @@ public class SoilWaterBalanceServiceBean {
                 newSoilWaterBalance.setDate(currentClimateRecord.getDate());
                 newSoilWaterBalance.setParcelName(parcel.getName());
                 newSoilWaterBalance.setCropName(cropName);
-                newSoilWaterBalance.setEvaporatedWaterPerDay(currentClimateRecord.getEtc());
+                newSoilWaterBalance.setSoilMoistureLossPerDay(currentClimateRecord.getEtc());
                 newSoilWaterBalance.setWaterProvidedPerDay(waterProvidedPerDay);
                 newSoilWaterBalance.setWaterDeficitPerDay(waterDeficitPerDay);
                 newSoilWaterBalance.setAccumulatedWaterDeficitPerDay(String.valueOf(accumulatedWaterDeficitPerDay));

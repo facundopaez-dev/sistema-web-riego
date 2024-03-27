@@ -40,15 +40,12 @@ public class SoilWaterBalance {
     private double waterProvidedPerDay;
 
     /*
-     * El agua evaporada [mm/dia] puede estar indicada por la
-     * ETc (evapotranspiracion del cultivo bajo condiciones
-     * estandar) [mm/dia] o la ETo (evapotranspiracion del
-     * cultivo de referencia) [mm/dia] en caso de que la
-     * ETc = 0, lo cual ocurre cuando no hay un cultivo sembrado
-     * en una parcela
+     * La perdida de humedad del suelo esta determinada por
+     * la ETc (evapotranspiracion del cultivo bajo condiciones
+     * estandar) [mm/dia]
      */
-    @Column(name = "EVAPORATED_WATER_PER_DAY", nullable = false)
-    private double evaporatedWaterPerDay;
+    @Column(name = "SOIL_MOISTURE_LOSS", nullable = false)
+    private double soilMoistureLossPerDay;
 
     @Column(name = "WATER_DEFICIT_PER_DAY", nullable = false)
     private double waterDeficitPerDay;
@@ -96,12 +93,12 @@ public class SoilWaterBalance {
         this.waterProvidedPerDay = waterProvidedPerDay;
     }
 
-    public double getEvaporatedWaterPerDay() {
-        return evaporatedWaterPerDay;
+    public double getSoilMoistureLossPerDay() {
+        return soilMoistureLossPerDay;
     }
 
-    public void setEvaporatedWaterPerDay(double evaporatedWaterPerDay) {
-        this.evaporatedWaterPerDay = evaporatedWaterPerDay;
+    public void setSoilMoistureLossPerDay(double soilMoistureLossPerDay) {
+        this.soilMoistureLossPerDay = soilMoistureLossPerDay;
     }
 
     public double getWaterDeficitPerDay() {
