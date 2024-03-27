@@ -47,8 +47,18 @@ public class SoilWaterBalance {
     @Column(name = "SOIL_MOISTURE_LOSS", nullable = false)
     private double soilMoistureLossPerDay;
 
-    @Column(name = "WATER_DEFICIT_PER_DAY", nullable = false)
-    private double waterDeficitPerDay;
+    /*
+     * El deficit de humedad de suelo por dia [mm/dia] es el
+     * resultado de la diferencia entre el agua provista por
+     * dia y la perdida de humedad de suelo por dia. Puede
+     * ser negativo, positivo o igual a cero. Cuando es negativo
+     * representa que en un dia la perdida de humedad del suelo
+     * NO fue cubierta (satisfecha). Cuando es igual o mayor a
+     * cero representa que la perdida de humedad del suelo en
+     * un dia fue totalmente cubierta.
+     */
+    @Column(name = "SOIL_MOSITURE_DEFICIT_PER_DAY", nullable = false)
+    private double soilMoistureDeficitPerDay;
 
     @Column(name = "ACCUMULATED_WATER_DEFICIT_PER_DAY", nullable = false)
     private String accumulatedWaterDeficitPerDay;
@@ -101,12 +111,12 @@ public class SoilWaterBalance {
         this.soilMoistureLossPerDay = soilMoistureLossPerDay;
     }
 
-    public double getWaterDeficitPerDay() {
-        return waterDeficitPerDay;
+    public double getSoilMoistureDeficitPerDay() {
+        return soilMoistureDeficitPerDay;
     }
 
-    public void setWaterDeficitPerDay(double waterDeficitPerDay) {
-        this.waterDeficitPerDay = waterDeficitPerDay;
+    public void setSoilMoistureDeficitPerDay(double soilMoistureDeficitPerDay) {
+        this.soilMoistureDeficitPerDay = soilMoistureDeficitPerDay;
     }
 
     public String getAccumulatedWaterDeficitPerDay() {

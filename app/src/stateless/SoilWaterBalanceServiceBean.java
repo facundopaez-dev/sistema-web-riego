@@ -101,7 +101,7 @@ public class SoilWaterBalanceServiceBean {
             chosenSoilWaterBalanace.setCropName(modifiedSoilWaterBalance.getCropName());
             chosenSoilWaterBalanace.setWaterProvidedPerDay(modifiedSoilWaterBalance.getWaterProvidedPerDay());
             chosenSoilWaterBalanace.setSoilMoistureLossPerDay(modifiedSoilWaterBalance.getSoilMoistureLossPerDay());
-            chosenSoilWaterBalanace.setWaterDeficitPerDay(modifiedSoilWaterBalance.getWaterDeficitPerDay());
+            chosenSoilWaterBalanace.setSoilMoistureDeficitPerDay(modifiedSoilWaterBalance.getSoilMoistureDeficitPerDay());
             chosenSoilWaterBalanace.setAccumulatedWaterDeficitPerDay(modifiedSoilWaterBalance.getAccumulatedWaterDeficitPerDay());
             return chosenSoilWaterBalanace;
         }
@@ -191,15 +191,15 @@ public class SoilWaterBalanceServiceBean {
      * @param cropName
      * @param soilMoistureLossPerDay
      * @param waterProvidedPerDay
-     * @param waterDeficitPerDay
+     * @param soilMoistureDeficitPerDay
      * @param accumulatedWaterDeficitPerDay
      */
-    public void update(int id, String cropName, double soilMoistureLossPerDay, double waterProvidedPerDay, double waterDeficitPerDay, String accumulatedWaterDeficitPerDay) {
-        Query query = getEntityManager().createQuery("UPDATE SoilWaterBalance s SET s.cropName = :cropName, s.soilMoistureLossPerDay = :soilMoistureLossPerDay, s.waterProvidedPerDay = :waterProvidedPerDay, s.waterDeficitPerDay = :waterDeficitPerDay, s.accumulatedWaterDeficitPerDay = :accumulatedWaterDeficitPerDay WHERE s.id = :id");
+    public void update(int id, String cropName, double soilMoistureLossPerDay, double waterProvidedPerDay, double soilMoistureDeficitPerDay, String accumulatedWaterDeficitPerDay) {
+        Query query = getEntityManager().createQuery("UPDATE SoilWaterBalance s SET s.cropName = :cropName, s.soilMoistureLossPerDay = :soilMoistureLossPerDay, s.waterProvidedPerDay = :waterProvidedPerDay, s.soilMoistureDeficitPerDay = :soilMoistureDeficitPerDay, s.accumulatedWaterDeficitPerDay = :accumulatedWaterDeficitPerDay WHERE s.id = :id");
         query.setParameter("cropName", cropName);
         query.setParameter("soilMoistureLossPerDay", soilMoistureLossPerDay);
         query.setParameter("waterProvidedPerDay", waterProvidedPerDay);
-        query.setParameter("waterDeficitPerDay", waterDeficitPerDay);
+        query.setParameter("soilMoistureDeficitPerDay", soilMoistureDeficitPerDay);
         query.setParameter("accumulatedWaterDeficitPerDay", accumulatedWaterDeficitPerDay);
         query.setParameter("id", id);
         query.executeUpdate();
@@ -311,7 +311,7 @@ public class SoilWaterBalanceServiceBean {
         SoilWaterBalance givenSoilWaterBalance;
         List<SoilWaterBalance> listSoilWaterBalances = (List) parcel.getSoilWaterBalances();
 
-        double waterDeficitPerDay = 0.0;
+        double soilMoistureDeficitPerDay = 0.0;
         double accumulatedWaterDeficitPerDay = 0.0;
         double waterProvidedPerDay = 0.0;
 
@@ -331,7 +331,7 @@ public class SoilWaterBalanceServiceBean {
              * cuando se calcula la necesidad de agua de riego de un
              * cultivo en la fecha actual [mm/dia]
              */
-            waterDeficitPerDay = WaterMath.calculateWaterDeficitPerDay(currentClimateRecord, irrigationRecords);
+            soilMoistureDeficitPerDay = WaterMath.calculateWaterDeficitPerDay(currentClimateRecord, irrigationRecords);
 
             /*
              * Calcula el deficit acumulado de agua por dia [mm/dia] de
@@ -341,7 +341,7 @@ public class SoilWaterBalanceServiceBean {
              * cuando se calcula la necesidad de agua de riego de un
              * cultivo en la fecha actual [mm/dia]
              */
-            accumulatedWaterDeficitPerDay = WaterMath.accumulateWaterDeficitPerDay(waterDeficitPerDay, accumulatedWaterDeficitPerDay);
+            accumulatedWaterDeficitPerDay = WaterMath.accumulateWaterDeficitPerDay(soilMoistureDeficitPerDay, accumulatedWaterDeficitPerDay);
 
             /*
              * Calcula el agua provista (lluvia o riego, o lluvia mas riego
@@ -368,7 +368,7 @@ public class SoilWaterBalanceServiceBean {
                 newSoilWaterBalance.setCropName(cropName);
                 newSoilWaterBalance.setSoilMoistureLossPerDay(currentClimateRecord.getEtc());
                 newSoilWaterBalance.setWaterProvidedPerDay(waterProvidedPerDay);
-                newSoilWaterBalance.setWaterDeficitPerDay(waterDeficitPerDay);
+                newSoilWaterBalance.setSoilMoistureDeficitPerDay(soilMoistureDeficitPerDay);
                 newSoilWaterBalance.setAccumulatedWaterDeficitPerDay(String.valueOf(accumulatedWaterDeficitPerDay));
 
                 /*
@@ -384,7 +384,7 @@ public class SoilWaterBalanceServiceBean {
                 listSoilWaterBalances.add(newSoilWaterBalance);
             } else {
                 givenSoilWaterBalance = find(parcel.getId(), currentClimateRecord.getDate());
-                update(givenSoilWaterBalance.getId(), cropName, currentClimateRecord.getEtc(), waterProvidedPerDay, waterDeficitPerDay, String.valueOf(accumulatedWaterDeficitPerDay));
+                update(givenSoilWaterBalance.getId(), cropName, currentClimateRecord.getEtc(), waterProvidedPerDay, soilMoistureDeficitPerDay, String.valueOf(accumulatedWaterDeficitPerDay));
             }
 
         } // End for
