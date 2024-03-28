@@ -162,9 +162,9 @@
 				<label for="statisticalData" class="col-md-2 control-label">Dato estadístico</label>
 				<div class="col-md-6">
 					<select name="statisticalData" class="form-control" ng-model="data.statisticalDataNumbers"
-						ng-hide="action == 'view'" multiple>
+						ng-hide="action == 'view'" multiple size="12">
 						<option ng-repeat="statisticalData in statisticsData" ng-value="statisticalData.number">
-							{{statisticalData.description}}
+							{{statisticalData.number}}. {{statisticalData.description}}
 						</option>
 					</select>
 				</div>
