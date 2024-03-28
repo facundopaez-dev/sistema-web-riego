@@ -1340,12 +1340,13 @@ public class IrrigationRecordRestServlet {
      * el cultivo para el que se calcula la necesidad de agua
      * de riego en la fecha actual (es decir, hoy) [mm/dia]
      */
-    String stringAccumulatedWaterDeficitPerDayFromYesterday = soilWaterBalanceService.find(parcel.getId(), yesterday).getAccumulatedWaterDeficitPerDay();
+    String stringAccumulatedSoilMoistureDeficitPerDayFromYesterday = soilWaterBalanceService.find(parcel.getId(), yesterday).getAccumulatedSoilMoistureDeficitPerDay();
     String notCalculated = soilWaterBalanceService.getNotCalculated();
 
     /*
-     * Si el valor del acumulado del deficit de agua por dia [mm/dia]
-     * de ayer es "NC" (no calculado), significa dos cosas:
+     * Si el valor del acumulado del deficit de humedad de suelo por
+     * dia [mm/dia] de ayer es "NC" (no calculado), significa dos
+     * cosas:
      * - que el algoritmo utilizado para calcular la necesidad de
      * agua de riego de un cultivo en la fecha actual [mm/dia] es
      * el que utiliza el suelo para ello,
@@ -1360,7 +1361,7 @@ public class IrrigationRecordRestServlet {
      * estrictamente mayor al doble de la capacidad de almacenamiento
      * de agua del suelo.
      * 
-     * Si el valor del acumulado del deficit de agua por dia del dia
+     * Si el valor del acumulado del deficit de humedad por dia del dia
      * inmediatamente anterior a la fecha actual (es decir, hoy) NO
      * es "NC", significa que es un numero, por lo tanto, se calcula
      * el estado del registro de plantacion perteneciente a una parcela
@@ -1368,9 +1369,9 @@ public class IrrigationRecordRestServlet {
      * bandera esta activa, significa que se utilizan datos de suelo
      * para calcular el agua de riego de un cultivo en la fecha actual.
      */
-    if (!stringAccumulatedWaterDeficitPerDayFromYesterday.equals(notCalculated)) {
+    if (!stringAccumulatedSoilMoistureDeficitPerDayFromYesterday.equals(notCalculated)) {
       double totalIrrigationWaterCurrentDate = irrigationRecordService.calculateTotalIrrigationWaterCurrentDate(parcel.getId());
-      double accumulatedWaterDeficitPerDayFromYesterday = Double.parseDouble(stringAccumulatedWaterDeficitPerDayFromYesterday);
+      double accumulatedSoilMoistureDeficitPerDayFromYesterday = Double.parseDouble(stringAccumulatedSoilMoistureDeficitPerDayFromYesterday);
   
       /*
        * Si la bandera suelo de una parcela esta activa, se
@@ -1387,7 +1388,7 @@ public class IrrigationRecordRestServlet {
       if (parcel.getOption().getSoilFlag()) {
         plantingRecordService.setStatus(developingPlantingRecord.getId(),
             statusService.calculateStatusRelatedToSoilMoistureLevel(totalIrrigationWaterCurrentDate,
-                accumulatedWaterDeficitPerDayFromYesterday, developingPlantingRecord));
+                accumulatedSoilMoistureDeficitPerDayFromYesterday, developingPlantingRecord));
       }
 
     } // End if

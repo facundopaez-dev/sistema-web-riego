@@ -190,7 +190,7 @@ class BalanceHidricoSuelo {
 -aguaProvistaPorDia
 -perdidaHumedadSueloPorDia
 -deficitHumedadSueloPorDia
--acumuladoDeficitAguaPorDia
+-acumuladoDeficitHumedadSueloPorDia
 }
 
 class Suelo {

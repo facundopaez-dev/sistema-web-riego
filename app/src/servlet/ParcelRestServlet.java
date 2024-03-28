@@ -1358,7 +1358,7 @@ public class ParcelRestServlet {
      * 
      * A la lamina de riego optima (drop) se le asigna el signo
      * negativo (-) para poder compararla con el acumulado del
-     * deficit de agua por dia [mm/dia], el cual es negativo y
+     * deficit de humedad por dia [mm/dia], el cual es negativo y
      * es calculado desde la fecha de siembra de un cultivo hasta
      * la fecha inmediatamente anterior a la fecha actual. La
      * lamina de riego optima representa la cantidad maxima de

@@ -60,8 +60,21 @@ public class SoilWaterBalance {
     @Column(name = "SOIL_MOSITURE_DEFICIT_PER_DAY", nullable = false)
     private double soilMoistureDeficitPerDay;
 
-    @Column(name = "ACCUMULATED_WATER_DEFICIT_PER_DAY", nullable = false)
-    private String accumulatedWaterDeficitPerDay;
+    /*
+     * El acumulado del deficit de humedadad de suelo por dia
+     * [mm/dia] es el resultado de acumular el deficit de
+     * humedad de suelo por dia. Puede ser negativo o cero.
+     * Cuando es negativo representa que en un periodo de dias
+     * hubo perdida de humedad en el suelo. En cambio, cuando
+     * es igual a cero representa que la perdida de humedad que
+     * hubo en el suelo en un periodo de dias esta totalmente
+     * cubierta. Esto es que el suelo esta en capacidad de campo,
+     * lo que significa que el suelo esta lleno de agua o en
+     * su maxima capacidad de almacenamiento de agua, pero no
+     * anegado.
+     */
+    @Column(name = "ACCUMULATED_SOIL_MOISTURE_DEFICIT_PER_DAY", nullable = false)
+    private String accumulatedSoilMoistureDeficitPerDay;
 
     public int getId() {
         return id;
@@ -119,12 +132,12 @@ public class SoilWaterBalance {
         this.soilMoistureDeficitPerDay = soilMoistureDeficitPerDay;
     }
 
-    public String getAccumulatedWaterDeficitPerDay() {
-        return accumulatedWaterDeficitPerDay;
+    public String getAccumulatedSoilMoistureDeficitPerDay() {
+        return accumulatedSoilMoistureDeficitPerDay;
     }
 
-    public void setAccumulatedWaterDeficitPerDay(String accumulatedWaterDeficitPerDay) {
-        this.accumulatedWaterDeficitPerDay = accumulatedWaterDeficitPerDay;
+    public void setAccumulatedSoilMoistureDeficitPerDay(String accumulatedSoilMoistureDeficitPerDay) {
+        this.accumulatedSoilMoistureDeficitPerDay = accumulatedSoilMoistureDeficitPerDay;
     }
 
 }

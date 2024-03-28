@@ -186,7 +186,7 @@ public class PlantingRecordStatusServiceBean {
    * representa el estado de un cultivo.
    * 
    * @param totalIrrigationWaterCurrentDate
-   * @param accumulatedWaterDeficitPerDayFromYesterday
+   * @param accumulatedSoilMoistureDeficitPerDayFromYesterday
    * @param developingPlantingRecord
    * @return referencia a un objeto de tipo PlantingRecordStatus
    * que representa el estado de un registro de plantacion en
@@ -195,7 +195,7 @@ public class PlantingRecordStatusServiceBean {
    * Este estado tambien representa el estado de un cultivo.
    */
   public PlantingRecordStatus calculateStatusRelatedToSoilMoistureLevel(double totalIrrigationWaterCurrentDate,
-      double accumulatedWaterDeficitPerDayFromYesterday, PlantingRecord developingPlantingRecord) {
+      double accumulatedSoilMoistureDeficitPerDayFromYesterday, PlantingRecord developingPlantingRecord) {
     Parcel parcel = developingPlantingRecord.getParcel();
     Crop crop = developingPlantingRecord.getCrop();
 
@@ -219,7 +219,7 @@ public class PlantingRecordStatusServiceBean {
     fieldCapacity = totalAmountWaterAvailable;
 
     /*
-     * El deficit de agua por dia [mm/dia] puede ser negativo,
+     * El deficit de humedad por dia [mm/dia] puede ser negativo,
      * cero o positivo. Cuando es negativo representa que en
      * un dia hubo perdida de humedad en el suelo. En cambio,
      * cuando es igual o mayor a cero representa que la cantidad
@@ -227,12 +227,12 @@ public class PlantingRecordStatusServiceBean {
      * Dicha cantidad esta determinada por la ETc (evapotranspiracion
      * del cultivo bajo condiciones estandar) [mm/dia].
      * 
-     * El acumulado del deficit de agua por dia [mm/dia] es el
-     * resultado de sumar el deficit de agua por dia de cada
+     * El acumulado del deficit de humedad por dia [mm/dia] es el
+     * resultado de sumar el deficit de humedad por dia de cada
      * uno de los dias de un conjunto de dias. Por lo tanto, es
      * la cantidad total de perdida de humedad que hubo en el
      * suelo dentro en un periodo de dias. El acumulado del
-     * deficit de agua por dia puede ser negativo o cero. Cuando
+     * deficit de humedad por dia puede ser negativo o cero. Cuando
      * es negativo representa que en un periodo de dias hubo
      * perdida de humedad en el suelo. En cambio, cuando es
      * igual a cero representa que la perdida de humedad que
@@ -245,7 +245,7 @@ public class PlantingRecordStatusServiceBean {
      * Se suma la capacidad de almacenamiento de agua del suelo
      * (la capacidad de campo es igualada a este valor en la
      * linea inmediatamente anterior) al resultado de la suma
-     * entre el acumulado del deficit de agua por dia del dia
+     * entre el acumulado del deficit de humedad por dia del dia
      * inmediatamente anterior a la fecha actual [mm/dia] y la
      * cantidad total de agua de riego de la fecha actual [mm/dia]
      * porque lo que se busca es determinar el punto en el que
@@ -260,7 +260,7 @@ public class PlantingRecordStatusServiceBean {
      * de agua del suelo, la cual es estrictamente mayor a
      * cero. La cantidad total de agua de riego de un dia
      * cualquiera es un valor estrictamente mayor o igual a
-     * cero. En cambio, el acumulado del deficit de agua por
+     * cero. En cambio, el acumulado del deficit de humedad por
      * dia es un valor negativo o igual a cero. Por este motivo
      * se realiza la suma entre la capacidad de campo y el
      * resultado de la suma entre el acumulado del deficit
@@ -274,7 +274,7 @@ public class PlantingRecordStatusServiceBean {
      * estado del cultivo perteneciente a un registro de
      * plantacion en desarrollo.
      */
-    soilMoistureLevel = fieldCapacity + (accumulatedWaterDeficitPerDayFromYesterday + totalIrrigationWaterCurrentDate);
+    soilMoistureLevel = fieldCapacity + (accumulatedSoilMoistureDeficitPerDayFromYesterday + totalIrrigationWaterCurrentDate);
 
     /*
      * Si el nivel de humedad del suelo [mm], que tiene un cultivo

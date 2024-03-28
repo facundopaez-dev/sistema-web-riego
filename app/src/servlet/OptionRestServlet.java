@@ -422,7 +422,7 @@ public class OptionRestServlet {
                  * Actualizacion de la lamina de riego optima (drop) [mm] de
                  * un registro de plantacion en la base de datos subyacente.
                  * A esta se le asigna el signo negativo (-) para poder
-                 * compararla con el acumulado del deficit de agua por dia
+                 * compararla con el acumulado del deficit de humedad por dia
                  * [mm/dia], el cual es negativo y es calculado desde la
                  * fecha de siembra de un cultivo hasta la fecha inmediatamente
                  * anterior a la fecha actual. La lamina de riego optima

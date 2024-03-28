@@ -29,13 +29,13 @@ public class SoilWaterBalanceServiceBean {
     /*
      * El valor de esta constante se utiliza para representar
      * la situacion en la que NO se calcula el acumulado del
-     * deficit de agua por dia de un balance hidrico de suelo
+     * deficit de humedad por dia de un balance hidrico de suelo
      * de una parcela que tiene un cultivo sembrado y en
      * desarrollo. Esta situacion ocurre cuando la perdida de
      * humedad del suelo de un conjunto de dias es estrictamente
      * mayor al doble de la capacidad de almacenamiento de agua
      * del suelo. Esto se representa mediante la condicion de
-     * que el acumulado del deficit de agua por dia sea estrictamente
+     * que el acumulado del deficit de humedad por dia sea estrictamente
      * menor al negativo del doble de la capacidad de almacenamiento
      * de agua del suelo, ya que el acumulado del deficit de
      * agua por dia puede ser negativo o cero. Cuando es negativo
@@ -51,7 +51,7 @@ public class SoilWaterBalanceServiceBean {
      * cultivo sembrado, de un conjunto de dias es estrictamente
      * mayor al doble de la capacidad de almacenamiento de agua
      * del suelo (representado mediante la conidicion de que el
-     * acumulado del deficit de agua por dia sea estrictamente
+     * acumulado del deficit de humedad por dia sea estrictamente
      * menor al negativo del doble de la capacidad de almacenamiento
      * de agua del suelo), el cultivo esta muerto, ya que ningun
      * cultivo puede sobrevivir con dicha perdida de humedad.
@@ -102,7 +102,7 @@ public class SoilWaterBalanceServiceBean {
             chosenSoilWaterBalanace.setWaterProvidedPerDay(modifiedSoilWaterBalance.getWaterProvidedPerDay());
             chosenSoilWaterBalanace.setSoilMoistureLossPerDay(modifiedSoilWaterBalance.getSoilMoistureLossPerDay());
             chosenSoilWaterBalanace.setSoilMoistureDeficitPerDay(modifiedSoilWaterBalance.getSoilMoistureDeficitPerDay());
-            chosenSoilWaterBalanace.setAccumulatedWaterDeficitPerDay(modifiedSoilWaterBalance.getAccumulatedWaterDeficitPerDay());
+            chosenSoilWaterBalanace.setAccumulatedSoilMoistureDeficitPerDay(modifiedSoilWaterBalance.getAccumulatedSoilMoistureDeficitPerDay());
             return chosenSoilWaterBalanace;
         }
 
@@ -181,26 +181,26 @@ public class SoilWaterBalanceServiceBean {
     }
 
     /**
-     * Actualiza el balance hidrico de suelo correspondiente a
-     * un ID dado con un nombre de cultivo, una cantidad de agua
-     * evaporada [mm/dia], una cantidad de agua provista [mm/dia],
-     * un deficit de agua [mm/dia] y un deficit acumulado de agua
-     * [mm/dia]
+     * Actualiza el balance hidrico de suelo correspondiente a un
+     * ID dado con un nombre de cultivo, una cantidad de perdida
+     * de humedad de suelo [mm/dia], una cantidad de agua provista
+     * [mm/dia], un deficit de humedad de suelo [mm/dia] y un deficit
+     * acumulado de humedad de suelo [mm/dia]
      * 
      * @param id
      * @param cropName
      * @param soilMoistureLossPerDay
      * @param waterProvidedPerDay
      * @param soilMoistureDeficitPerDay
-     * @param accumulatedWaterDeficitPerDay
+     * @param accumulatedSoilMoistureDeficitPerDay
      */
-    public void update(int id, String cropName, double soilMoistureLossPerDay, double waterProvidedPerDay, double soilMoistureDeficitPerDay, String accumulatedWaterDeficitPerDay) {
-        Query query = getEntityManager().createQuery("UPDATE SoilWaterBalance s SET s.cropName = :cropName, s.soilMoistureLossPerDay = :soilMoistureLossPerDay, s.waterProvidedPerDay = :waterProvidedPerDay, s.soilMoistureDeficitPerDay = :soilMoistureDeficitPerDay, s.accumulatedWaterDeficitPerDay = :accumulatedWaterDeficitPerDay WHERE s.id = :id");
+    public void update(int id, String cropName, double soilMoistureLossPerDay, double waterProvidedPerDay, double soilMoistureDeficitPerDay, String accumulatedSoilMoistureDeficitPerDay) {
+        Query query = getEntityManager().createQuery("UPDATE SoilWaterBalance s SET s.cropName = :cropName, s.soilMoistureLossPerDay = :soilMoistureLossPerDay, s.waterProvidedPerDay = :waterProvidedPerDay, s.soilMoistureDeficitPerDay = :soilMoistureDeficitPerDay, s.accumulatedSoilMoistureDeficitPerDay = :accumulatedSoilMoistureDeficitPerDay WHERE s.id = :id");
         query.setParameter("cropName", cropName);
         query.setParameter("soilMoistureLossPerDay", soilMoistureLossPerDay);
         query.setParameter("waterProvidedPerDay", waterProvidedPerDay);
         query.setParameter("soilMoistureDeficitPerDay", soilMoistureDeficitPerDay);
-        query.setParameter("accumulatedWaterDeficitPerDay", accumulatedWaterDeficitPerDay);
+        query.setParameter("accumulatedSoilMoistureDeficitPerDay", accumulatedSoilMoistureDeficitPerDay);
         query.setParameter("id", id);
         query.executeUpdate();
     }
@@ -312,7 +312,7 @@ public class SoilWaterBalanceServiceBean {
         List<SoilWaterBalance> listSoilWaterBalances = (List) parcel.getSoilWaterBalances();
 
         double soilMoistureDeficitPerDay = 0.0;
-        double accumulatedWaterDeficitPerDay = 0.0;
+        double accumulatedSoilMoistureDeficitPerDay = 0.0;
         double waterProvidedPerDay = 0.0;
 
         /*
@@ -324,9 +324,9 @@ public class SoilWaterBalanceServiceBean {
          */
         for (ClimateRecord currentClimateRecord : climateRecords) {
             /*
-             * Calcula el deficit de agua por dia [mm/dia] de un cultivo
-             * en una fecha, debido a que un registro climatico y un
-             * registro de riego tienen una fecha, y a que el metodo
+             * Calcula el deficit de humedad por dia [mm/dia] de un
+             * cultivo en una fecha, debido a que un registro climatico
+             * y un registro de riego tienen una fecha, y a que el metodo
              * generateSoilWaterBalances debe ser invocado unicamente
              * cuando se calcula la necesidad de agua de riego de un
              * cultivo en la fecha actual [mm/dia]
@@ -341,7 +341,7 @@ public class SoilWaterBalanceServiceBean {
              * cuando se calcula la necesidad de agua de riego de un
              * cultivo en la fecha actual [mm/dia]
              */
-            accumulatedWaterDeficitPerDay = WaterMath.accumulateWaterDeficitPerDay(soilMoistureDeficitPerDay, accumulatedWaterDeficitPerDay);
+            accumulatedSoilMoistureDeficitPerDay = WaterMath.accumulateSoilMoistureDeficitPerDay(soilMoistureDeficitPerDay, accumulatedSoilMoistureDeficitPerDay);
 
             /*
              * Calcula el agua provista (lluvia o riego, o lluvia mas riego
@@ -358,7 +358,7 @@ public class SoilWaterBalanceServiceBean {
              * una parcela en una fecha, se lo crea y persiste. En caso
              * contrario, se lo obtiene y se actualiza su nombre de cultivo,
              * su agua provista [mm/dia], su agua evaporada [mm/dia], su
-             * deficit de agua por dia [mm/dia] y su acumulado del deficit
+             * deficit de humedad por dia [mm/dia] y su acumulado del deficit
              * de agua por dia de dias previos a una fecha [mm/dia].
              */
             if (!checkExistence(parcel.getId(), currentClimateRecord.getDate())) {
@@ -369,7 +369,7 @@ public class SoilWaterBalanceServiceBean {
                 newSoilWaterBalance.setSoilMoistureLossPerDay(currentClimateRecord.getEtc());
                 newSoilWaterBalance.setWaterProvidedPerDay(waterProvidedPerDay);
                 newSoilWaterBalance.setSoilMoistureDeficitPerDay(soilMoistureDeficitPerDay);
-                newSoilWaterBalance.setAccumulatedWaterDeficitPerDay(String.valueOf(accumulatedWaterDeficitPerDay));
+                newSoilWaterBalance.setAccumulatedSoilMoistureDeficitPerDay(String.valueOf(accumulatedSoilMoistureDeficitPerDay));
 
                 /*
                  * Persiste el nuevo balance hidrico de suelo
@@ -384,7 +384,7 @@ public class SoilWaterBalanceServiceBean {
                 listSoilWaterBalances.add(newSoilWaterBalance);
             } else {
                 givenSoilWaterBalance = find(parcel.getId(), currentClimateRecord.getDate());
-                update(givenSoilWaterBalance.getId(), cropName, currentClimateRecord.getEtc(), waterProvidedPerDay, soilMoistureDeficitPerDay, String.valueOf(accumulatedWaterDeficitPerDay));
+                update(givenSoilWaterBalance.getId(), cropName, currentClimateRecord.getEtc(), waterProvidedPerDay, soilMoistureDeficitPerDay, String.valueOf(accumulatedSoilMoistureDeficitPerDay));
             }
 
         } // End for
