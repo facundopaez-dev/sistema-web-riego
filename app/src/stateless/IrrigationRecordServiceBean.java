@@ -274,6 +274,26 @@ public class IrrigationRecordServiceBean {
   }
 
   /**
+   * Elimina los registros de riego de una parcela que tienen
+   * una fecha que se encuentra en el periodo definido por
+   * una fecha desde y una fecha hasta
+   * 
+   * @param userId
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   */
+  public void deleteBetweenDates(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    Query query = getEntityManager().createQuery("DELETE FROM IrrigationRecord i WHERE (:dateFrom <= i.date AND i.date <= :dateUntil AND i.parcel.id = :parcelId AND i.parcel IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId))");
+    query.setParameter("userId", userId);
+    query.setParameter("parcelId", parcelId);
+    query.setParameter("dateFrom", dateFrom);
+    query.setParameter("dateUntil", dateUntil);
+
+    query.executeUpdate();
+  }
+
+  /**
    * @param parcelId
    * @return referencia a un objeto de tipo List<IrrigationRecord>
    * que contiene todos los registros de riego con cultivo

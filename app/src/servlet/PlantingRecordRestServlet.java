@@ -1996,8 +1996,22 @@ public class PlantingRecordRestServlet {
       return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
     }
 
-    PlantingRecordStatus statusGivenPlantingRecord = plantingRecordService.find(plantingRecordId).getStatus();
-    PlantingRecordStatus finishedStatus = statusService.findFinishedStatus();
+    PlantingRecord plantingRecord = plantingRecordService.find(plantingRecordId);
+    Calendar seedDate = plantingRecord.getSeedDate();
+    Calendar harvestDate = plantingRecord.getHarvestDate();
+
+    int parcelId = plantingRecord.getParcel().getId();
+
+    /*
+     * Si la parcela del registro de plantacion a eliminar tiene
+     * registros de riego que tienen una fecha que esta dentro
+     * del periodo definido por la fecha de siembra y la fecha
+     * de cosecha del registro de plantacion, se los elimina
+     * antes de eliminar el registro de plantacion
+     */
+    if (!irrigationRecordService.findAllWithCropBetweenDates(userId, parcelId, seedDate, harvestDate).isEmpty()) {
+      irrigationRecordService.deleteBetweenDates(userId, parcelId, seedDate, harvestDate);
+    }
 
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
