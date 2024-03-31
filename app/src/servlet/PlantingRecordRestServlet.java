@@ -2268,7 +2268,8 @@ public class PlantingRecordRestServlet {
          * la opcion suelo activa en sus opciones y si el registro
          * de plantacion tiene el estado "Desarrollo optimo" se
          * actualizan sus atributos "lamina total de agua disponible"
-         * [mm] y "lamina de riego optima" [mm]
+         * (capacidad de almacenamiento de agua del suelo) [mm] y
+         * "lamina de riego optima" (umbral de riego) [mm]
          */
         if (statusService.equals(statusService.findOptimalDevelopmentStatus(), status) && firstPlantingRecordInWaiting.getParcel().getOption().getSoilFlag()) {
           plantingRecordService.updateTotalAmountWaterAvailable(idFirstPlantingRecordInWaiting, WaterMath
