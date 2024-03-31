@@ -1468,7 +1468,7 @@ public class PlantingRecordRestServlet {
          * (capacidad de almacenamiento de agua del suelo) [mm] y
          * "lamina de riego optima" (umbral de riego) [mm]
          */
-        if (statusService.equals(statusService.findOptimalDevelopmentStatus(), status) && firstPlantingRecordInWaiting.getParcel().getOption().getSoilFlag()) {
+        if (statusService.equals(status, optimalDevelopmentStatus) && firstPlantingRecordInWaiting.getParcel().getOption().getSoilFlag()) {
           plantingRecordService.updateTotalAmountWaterAvailable(idFirstPlantingRecordInWaiting, WaterMath
               .calculateTotalAmountWaterAvailable(firstPlantingRecordInWaiting.getCrop(), firstPlantingRecordInWaiting.getParcel().getSoil()));
           plantingRecordService.updateOptimalIrrigationLayer(idFirstPlantingRecordInWaiting, WaterMath
@@ -1480,7 +1480,7 @@ public class PlantingRecordRestServlet {
       return Response.status(Response.Status.OK)
           .entity(mapper.writeValueAsString(plantingRecordService.modify(userId, plantingRecordId, modifiedPlantingRecord)))
           .build();
-    }
+    } // End if
 
     /*
      * Un registro de plantacion tiene el estado "Finalizado" cuando
@@ -2271,7 +2271,7 @@ public class PlantingRecordRestServlet {
          * (capacidad de almacenamiento de agua del suelo) [mm] y
          * "lamina de riego optima" (umbral de riego) [mm]
          */
-        if (statusService.equals(statusService.findOptimalDevelopmentStatus(), status) && firstPlantingRecordInWaiting.getParcel().getOption().getSoilFlag()) {
+        if (statusService.equals(status, statusService.findOptimalDevelopmentStatus()) && firstPlantingRecordInWaiting.getParcel().getOption().getSoilFlag()) {
           plantingRecordService.updateTotalAmountWaterAvailable(idFirstPlantingRecordInWaiting, WaterMath
               .calculateTotalAmountWaterAvailable(firstPlantingRecordInWaiting.getCrop(), firstPlantingRecordInWaiting.getParcel().getSoil()));
           plantingRecordService.updateOptimalIrrigationLayer(idFirstPlantingRecordInWaiting, WaterMath
