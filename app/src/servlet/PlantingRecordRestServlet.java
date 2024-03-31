@@ -901,19 +901,6 @@ public class PlantingRecordRestServlet {
     String cropIrrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getCropIrrigationWaterNotAvailableButCalculable();
 
     /*
-     * Se establece el estado del nuevo registro de plantacion
-     * en base a la fecha de siembra y la fecha de cosecha de
-     * su cultivo
-     */
-    newPlantingRecord.setStatus(statusService.calculateStatus(newPlantingRecord));
-
-    PlantingRecordStatus statusNewPlantingRecord = newPlantingRecord.getStatus();
-    PlantingRecordStatus finishedStatus = statusService.findFinishedStatus();
-    PlantingRecordStatus waitingStatus = statusService.findWaitingStatus();
-    PlantingRecordStatus inDevelopmentStatus = statusService.findInDevelopmentStatus();
-    PlantingRecordStatus optimalDevelopmentStatus = statusService.findOptimalDevelopmentStatus();
-
-    /*
      * El valor de esta constante se asigna a la necesidad de
      * agua de riego [mm/dia] de un registro de plantacion
      * para el que no se puede calcular dicha necesidad, lo
@@ -932,6 +919,59 @@ public class PlantingRecordRestServlet {
      * La abreviatura "n/a" significa "no disponible".
      */
     String notAvailable = plantingRecordService.getNotAvailable();
+
+    PlantingRecordStatus finishedStatus = statusService.findFinishedStatus();
+    PlantingRecordStatus waitingStatus = statusService.findWaitingStatus();
+    PlantingRecordStatus inDevelopmentStatus = statusService.findInDevelopmentStatus();
+    PlantingRecordStatus optimalDevelopmentStatus = statusService.findOptimalDevelopmentStatus();
+
+    /*
+     * El estado de un registro de plantacion se calcula
+     * en base a su fecha de siembra, su fecha de cosecha
+     * y a la bandera suelo de las opciones de la parcela
+     * a la que pertenece
+     */
+    PlantingRecordStatus statusNewPlantingRecord = statusService.calculateStatus(newPlantingRecord);
+    newPlantingRecord.setStatus(statusNewPlantingRecord);
+
+    /*
+     * Si la parcela del registro de plantacion a crear tiene
+     * un registro de plantacion que tiene un estado de desarrollo
+     * (en desarrollo, desarrollo optimo, desarrollo en riesgo
+     * de marchitez, desarrollo en marchitez), se comprueba si
+     * el estado efectivo de dicho registro es "Finalizado". Si
+     * lo es, se le asigna dicho estado y se le asignan los valores
+     * "n/a" (no disponible), 0 y 0 a sus atributos "necesidad
+     * de agua de riego de un cultivo", "lamina total de agua
+     * disponible" (capacidad de almacenamiento de agua del
+     * suelo) y "lamina de riego optima" (umbral de riego),
+     * respectivamente.
+     * 
+     * No es posible calcular la necesidad de agua de riego
+     * de un cultivo de un registro de plantacion finalizado,
+     * ya que este representa la cosecha de un cultivo. Por
+     * este motivo se asigna el valor "n/a" al atributo "necesidad
+     * de agua de riego de un cultivo" de un registro de
+     * plantacion finalizado.
+     * 
+     * Por otro lado, los valores de la capacidad de almacenamiento
+     * de agua del suelo y del umbral de riego no son necesarios
+     * para un registro de plantacion finalizado. Por este
+     * motivo se les asigna el valor 0 en un registro de
+     * plantacion finalizado.
+     */
+    if (plantingRecordService.checkOneInDevelopment(newPlantingRecord.getParcel().getId())) {
+      PlantingRecord developingPlantingRecord = plantingRecordService.findInDevelopment(newPlantingRecord.getParcel().getId());
+      PlantingRecordStatus status = statusService.calculateStatus(developingPlantingRecord);
+
+      if (statusService.equals(status, finishedStatus)) {
+        plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(), notAvailable);
+        plantingRecordService.updateTotalAmountWaterAvailable(developingPlantingRecord.getId(), 0);
+        plantingRecordService.updateOptimalIrrigationLayer(developingPlantingRecord.getId(), 0);
+        plantingRecordService.setStatus(developingPlantingRecord.getId(), finishedStatus);
+      }
+
+    }
 
     /*
      * Un registro de plantacion nuevo tiene el estado "Finalizado"
