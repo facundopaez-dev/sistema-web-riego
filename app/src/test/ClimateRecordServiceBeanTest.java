@@ -92,7 +92,7 @@ public class ClimateRecordServiceBeanTest {
   public void testOneFindAllByParcelIdAndPeriod() {
     System.out.println("******************************** Prueba uno del metodo findAllByParcelIdAndPeriod() ********************************");
     System.out.println("# Descripcion del metodo a probar");
-    System.out.println("El metodo findAllByParcelIdAndPeriod de la clase ClimateRecordServiceBean devuelve una coleccion de registros");
+    System.out.println("El metodo findAllByParcelIdAndPeriod() de la clase ClimateRecordServiceBean devuelve una coleccion de registros");
     System.out.println("climaticos de una parcela de un usuario que estan en un periodo definido por dos fechas. En el caso en el que una");
     System.out.println("parcela no tiene registros climaticos en un periodo definido por dos fechas, devuelve una coleccion vacia (0");
     System.out.println("elementos).");
@@ -230,8 +230,8 @@ public class ClimateRecordServiceBeanTest {
     int expectedSize = 3;
     int size = recoveredClimateRecords.size();
 
-    System.out.println("* Tamaño esperado de la coleccion devuelta por findAllByParcelIdAndPeriod: " + expectedSize);
-    System.out.println("* Tamaño de la coleccion devuelta por findAllByParcelIdAndPeriod: " + size);
+    System.out.println("* Tamaño esperado de la coleccion devuelta por findAllByParcelIdAndPeriod(): " + expectedSize);
+    System.out.println("* Tamaño de la coleccion devuelta por findAllByParcelIdAndPeriod(): " + size);
     System.out.println();
 
     assertTrue(expectedSize == size);
@@ -251,7 +251,7 @@ public class ClimateRecordServiceBeanTest {
   public void testTwoFindAllByParcelIdAndPeriod() {
     System.out.println("******************************** Prueba dos del metodo findAllByParcelIdAndPeriod() ********************************");
     System.out.println("# Descripcion del metodo a probar");
-    System.out.println("El metodo findAllByParcelIdAndPeriod de la clase ClimateRecordServiceBean devuelve una coleccion de registros");
+    System.out.println("El metodo findAllByParcelIdAndPeriod() de la clase ClimateRecordServiceBean devuelve una coleccion de registros");
     System.out.println("climaticos de una parcela de un usuario que estan en un periodo definido por dos fechas. En el caso en el que una");
     System.out.println("parcela no tiene registros climaticos en un periodo definido por dos fechas, devuelve una coleccion vacia (0");
     System.out.println("elementos).");
@@ -400,8 +400,8 @@ public class ClimateRecordServiceBeanTest {
     int expectedSize = 0;
     int size = recoveredClimateRecords.size();
 
-    System.out.println("* Tamaño esperado de la coleccion devuelta por findAllByParcelIdAndPeriod: " + expectedSize);
-    System.out.println("* Tamaño de la coleccion devuelta por findAllByParcelIdAndPeriod: " + size);
+    System.out.println("* Tamaño esperado de la coleccion devuelta por findAllByParcelIdAndPeriod(): " + expectedSize);
+    System.out.println("* Tamaño de la coleccion devuelta por findAllByParcelIdAndPeriod(): " + size);
     System.out.println();
 
     assertTrue(expectedSize == size);
