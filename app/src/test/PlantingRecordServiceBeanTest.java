@@ -7,9 +7,12 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import model.PlantingRecord;
+import model.PlantingRecordStatus;
+import model.TypeCrop;
 import model.Parcel;
 import model.User;
 import model.Crop;
+import model.GeographicLocation;
 import model.Option;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -21,6 +24,7 @@ import stateless.PlantingRecordStatusServiceBean;
 import stateless.TypeCropServiceBean;
 import stateless.UserServiceBean;
 import stateless.CropServiceBean;
+import stateless.GeographicLocationServiceBean;
 import stateless.OptionServiceBean;
 import util.UtilDate;
 
@@ -30,6 +34,7 @@ public class PlantingRecordServiceBeanTest {
         private static EntityManagerFactory entityManagerFactory;
 
         private static ParcelServiceBean parcelService;
+        private static GeographicLocationServiceBean geographicLocationService;
         private static UserServiceBean userService;
         private static CropServiceBean cropService;
         private static PlantingRecordServiceBean plantingRecordService;
@@ -37,10 +42,18 @@ public class PlantingRecordServiceBeanTest {
         private static TypeCropServiceBean typeCropService;
         private static OptionServiceBean optionService;
 
+        private static User testUser;
+        private static Parcel testParcel;
+        private static Crop testCrop;
+        private static PlantingRecordStatus testStatus;
+
         private static Collection<Parcel> parcels;
+        private static Collection<GeographicLocation> geographicLocations;
         private static Collection<PlantingRecord> plantingRecords;
+        private static Collection<PlantingRecordStatus> plantingRecordStatuses;
         private static Collection<User> users;
         private static Collection<Crop> crops;
+        private static Collection<TypeCrop> typesCrop;
         private static Collection<Option> options;
 
         private static final int JANUARY = 0;
@@ -64,6 +77,9 @@ public class PlantingRecordServiceBeanTest {
                 parcelService = new ParcelServiceBean();
                 parcelService.setEntityManager(entityManager);
 
+                geographicLocationService = new GeographicLocationServiceBean();
+                geographicLocationService.setEntityManager(entityManager);
+
                 userService = new UserServiceBean();
                 userService.setEntityManager(entityManager);
 
@@ -84,89 +100,101 @@ public class PlantingRecordServiceBeanTest {
 
                 parcels = new ArrayList<>();
                 plantingRecords = new ArrayList<>();
+                plantingRecordStatuses = new ArrayList<>();
                 users = new ArrayList<>();
                 crops = new ArrayList<>();
                 options = new ArrayList<>();
-        }
-
-        /*
-         * ***************************************************************
-         * Para ejecutar correctamente las pruebas del metodo checkByDate
-         * es necesario que la base de datos subyacente contenga tipos de
-         * cultivos. Para esto se debe ejecutar el comando "ant all" (sin
-         * las comillas) o el comando "ant basic" (sin las comillas).
-         * Estos comando cargan las tablas PLANTING_RECORD_STATUS y
-         * TYPE_CROP, las cuales contienen los datos necesarios para la
-         * creacion de un registro de plantacion y un cultivo de pruebas.
-         * ***************************************************************
-         */
-        @Test
-        public void testOneCheckByDate() {
-                System.out.println("*********************************** Prueba uno del metodo checkByDate ***********************************");
-                System.out.println("# Descripcion de la prueba unitaria");
-                System.out.println("El metodo checkByDate de la clase PlantingRecordRestServlet comprueba si una fecha esta en el periodo definido");
-                System.out.println("por la fecha de siembra y la fecha de cosecha de un registro de plantacion de una parcela correspondiente a un");
-                System.out.println("usuario. Si una fecha esta en dicho periodo, el metodo checkByDate devuelve true. En caso contrario, false.");
-                System.out.println();
-                System.out.println("En esta prueba se demuestra el correcto funcionamiento de este metodo utilizando una fecha que esta en el periodo");
-                System.out.println("definido por la fecha de siembra y la fecha de cosecha de un registro de plantacion de prueba. En este caso, el");
-                System.out.println("valor devuelto por checkByDate es true.");
-                System.out.println();
+                geographicLocations = new ArrayList<>();
+                typesCrop = new ArrayList<>();
 
                 /*
-                 * Creacion y persistencia de una opcion para una parcela
+                 * Creacion y persistencia de una ubicacion geografica para
+                 * una parcela de prueba
                  */
+                GeographicLocation testGeographicLocation = new GeographicLocation();
+                testGeographicLocation.setLatitude(1);
+                testGeographicLocation.setLongitude(1);
+
                 entityManager.getTransaction().begin();
-                Option newParcelOption = optionService.create();
+                testGeographicLocation = geographicLocationService.create(testGeographicLocation);
                 entityManager.getTransaction().commit();
 
                 /*
-                 * Creacion y persistencia de una parcela
+                 * Creacion y persistencia de una opcion para una parcela
+                 * de prueba
                  */
-                Parcel newParcel = new Parcel();
-                newParcel.setName("Erie");
-                newParcel.setHectares(2);
-                newParcel.setLatitude(1);
-                newParcel.setLongitude(1);
-                newParcel.setOption(newParcelOption);
+                entityManager.getTransaction().begin();
+                Option testParcelOption = optionService.create();
+                entityManager.getTransaction().commit();
+
+                /*
+                 * Creacion y persistencia de una opcion para una parcela
+                 * de prueba
+                 */
+                testParcel = new Parcel();
+                testParcel.setName("Erie");
+                testParcel.setHectares(2);
+                testParcel.setOption(testParcelOption);
+                testParcel.setGeographicLocation(testGeographicLocation);
 
                 entityManager.getTransaction().begin();
-                newParcel = parcelService.create(newParcel);
+                testParcel = parcelService.create(testParcel);
                 entityManager.getTransaction().commit();
 
                 /*
                  * Creacion y persistencia de un usuario de prueba
                  */
-                User newUser = new User();
-                newUser.setUsername("testOneCheckByDate");
-                newUser.setName("Peter");
-                newUser.setLastName("Doe");
-                newUser.setEmail("testOneCheckByDate@eservice.com");
-                newUser.setParcels(new ArrayList<>());
-                newUser.getParcels().add(newParcel);
+                testUser = new User();
+                testUser.setUsername("testOneCheckByDate");
+                testUser.setName("Peter");
+                testUser.setLastName("Doe");
+                testUser.setEmail("testOneCheckByDate@eservice.com");
+                testUser.setParcels(new ArrayList<>());
+                testUser.getParcels().add(testParcel);
 
                 entityManager.getTransaction().begin();
-                newUser = userService.create(newUser);
+                testUser = userService.create(testUser);
+                entityManager.getTransaction().commit();
+
+                /*
+                 * Creacion y persistencia de un tipo de cultivo de prueba
+                 */
+                TypeCrop testTypeCrop = new TypeCrop();
+                testTypeCrop.setName("test type crop name");
+
+                entityManager.getTransaction().begin();
+                testTypeCrop = typeCropService.create(testTypeCrop);
                 entityManager.getTransaction().commit();
 
                 /*
                  * Creacion y persistencia de un cultivo de prueba
                  */
-                Crop newCrop = new Crop();
-                newCrop.setName("test crop one");
-                newCrop.setInitialStage(1);
-                newCrop.setDevelopmentStage(1);
-                newCrop.setMiddleStage(1);
-                newCrop.setFinalStage(1);
-                newCrop.setInitialKc(1);
-                newCrop.setMiddleKc(1);
-                newCrop.setFinalKc(1);
-                newCrop.setLifeCycle(1);
-                newCrop.setActive(true);
-                newCrop.setTypeCrop(typeCropService.find(1));
+                testCrop = new Crop();
+                testCrop.setName("test crop");
+                testCrop.setInitialStage(1);
+                testCrop.setDevelopmentStage(1);
+                testCrop.setMiddleStage(1);
+                testCrop.setFinalStage(1);
+                testCrop.setInitialKc(1);
+                testCrop.setMiddleKc(1);
+                testCrop.setFinalKc(1);
+                testCrop.setLifeCycle(1);
+                testCrop.setActive(true);
+                testCrop.setTypeCrop(testTypeCrop);
 
                 entityManager.getTransaction().begin();
-                newCrop = cropService.create(newCrop);
+                testCrop = cropService.create(testCrop);
+                entityManager.getTransaction().commit();
+
+                /*
+                 * Creacion y persistencia de un estado de prueba
+                 */
+                testStatus = new PlantingRecordStatus();
+                testStatus.setName("test status");
+                testStatus.setDescription("test status description");
+
+                entityManager.getTransaction().begin();
+                entityManager.persist(testStatus);
                 entityManager.getTransaction().commit();
 
                 /*
@@ -175,21 +203,36 @@ public class PlantingRecordServiceBeanTest {
                  * subyacente. Esto se hace con el fin de hacer que
                  * la base de datos quede en su estado original.
                  */
-                users.add(newUser);
-                options.add(newParcelOption);
-                parcels.add(newParcel);
-                crops.add(newCrop);
+                geographicLocations.add(testGeographicLocation);
+                options.add(testParcelOption);
+                parcels.add(testParcel);
+                users.add(testUser);
+                crops.add(testCrop);
+                typesCrop.add(testTypeCrop);
+                plantingRecordStatuses.add(testStatus);
+        }
+
+        @Test
+        public void testOneCheckByDate() {
+                System.out.println("*********************************** Prueba uno del metodo checkByDate() ***********************************");
+                printDescriptionMethodToTest();
+                System.out.println();
+                System.out.println("# Descripcion de la prueba unitaria");
+                System.out.println("En esta prueba se demuestra el correcto funcionamiento de este metodo utilizando una fecha que esta en el periodo");
+                System.out.println("definido por la fecha de siembra y la fecha de cosecha de un registro de plantacion de prueba. En este caso, el");
+                System.out.println("valor devuelto por checkByDate() es true.");
+                System.out.println();
 
                 /*
                  * Fechas para el registro de plantacion de prueba
                  */
                 Calendar seedDate = Calendar.getInstance();
-                seedDate.set(Calendar.YEAR, 2023);
+                seedDate.set(Calendar.YEAR, 2018);
                 seedDate.set(Calendar.MONTH, MARCH);
                 seedDate.set(Calendar.DAY_OF_MONTH, 5);
 
                 Calendar harvestDate = Calendar.getInstance();
-                harvestDate.set(Calendar.YEAR, 2023);
+                harvestDate.set(Calendar.YEAR, 2018);
                 harvestDate.set(Calendar.MONTH, JULY);
                 harvestDate.set(Calendar.DAY_OF_MONTH, 24);
 
@@ -199,10 +242,10 @@ public class PlantingRecordServiceBeanTest {
                 PlantingRecord newPlantingRecord = new PlantingRecord();
                 newPlantingRecord.setSeedDate(seedDate);
                 newPlantingRecord.setHarvestDate(harvestDate);
-                newPlantingRecord.setParcel(newParcel);
-                newPlantingRecord.setCrop(newCrop);
-                newPlantingRecord.setIrrigationWaterNeed("0");
-                newPlantingRecord.setStatus(plantingRecordStatusService.findFinishedStatus());
+                newPlantingRecord.setParcel(testParcel);
+                newPlantingRecord.setCrop(testCrop);
+                newPlantingRecord.setCropIrrigationWaterNeed("0");
+                newPlantingRecord.setStatus(testStatus);
 
                 entityManager.getTransaction().begin();
                 newPlantingRecord = plantingRecordService.create(newPlantingRecord);
@@ -214,7 +257,7 @@ public class PlantingRecordServiceBeanTest {
                  * Seccion de prueba
                  */
                 Calendar testDate = Calendar.getInstance();
-                testDate.set(Calendar.YEAR, 2023);
+                testDate.set(Calendar.YEAR, 2018);
                 testDate.set(Calendar.MONTH, APRIL);
                 testDate.set(Calendar.DAY_OF_MONTH, 12);
 
@@ -228,10 +271,10 @@ public class PlantingRecordServiceBeanTest {
                 System.out.println();
 
                 boolean expectedResult = true;
-                boolean result = plantingRecordService.checkByDate(newUser.getId(), newParcel, testDate);
+                boolean result = plantingRecordService.checkByDate(testUser.getId(), testParcel, testDate);
 
-                System.out.println("* Valor que se espera que devuelva el metodo checkByDate: " + expectedResult);
-                System.out.println("* Valor devuelto por el metodo checkByDate: " + result);
+                System.out.println("* Valor que se espera que devuelva el metodo checkByDate(): " + expectedResult);
+                System.out.println("* Valor devuelto por el metodo checkByDate(): " + result);
                 System.out.println();
 
                 assertTrue(expectedResult == result);
@@ -241,95 +284,26 @@ public class PlantingRecordServiceBeanTest {
 
         @Test
         public void testTwoCheckByDate() {
-                System.out.println("*********************************** Prueba dos del metodo checkByDate ***********************************");
-                System.out.println("# Descripcion de la prueba unitaria");
-                System.out.println("El metodo checkByDate de la clase PlantingRecordRestServlet comprueba si una fecha esta en el periodo definido");
-                System.out.println("por la fecha de siembra y la fecha de cosecha de un registro de plantacion de una parcela correspondiente a un");
-                System.out.println("usuario. Si una fecha esta en dicho periodo, el metodo checkByDate devuelve true. En caso contrario, false.");
+                System.out.println("*********************************** Prueba dos del metodo checkByDate() ***********************************");
+                printDescriptionMethodToTest();
                 System.out.println();
+                System.out.println("# Descripcion de la prueba unitaria");
                 System.out.println("En esta prueba se demuestra el correcto funcionamiento de este metodo utilizando una fecha que esta en el periodo");
                 System.out.println("definido por la fecha de siembra y la fecha de cosecha de un registro de plantacion de prueba. La fecha de prueba");
                 System.out.println("es igual a la fecha de siembra del registro de plantacion de prueba. Este caso es un caso de borde, y el valor");
-                System.out.println("devuelto por checkByDate es true.");
+                System.out.println("devuelto por checkByDate() es true.");
                 System.out.println();
-
-                /*
-                 * Creacion y persistencia de una opcion para una parcela
-                 */
-                entityManager.getTransaction().begin();
-                Option newParcelOption = optionService.create();
-                entityManager.getTransaction().commit();
-
-                /*
-                 * Creacion y persistencia de una parcela
-                 */
-                Parcel newParcel = new Parcel();
-                newParcel.setName("Erie");
-                newParcel.setHectares(2);
-                newParcel.setLatitude(1);
-                newParcel.setLongitude(1);
-                newParcel.setOption(newParcelOption);
-
-                entityManager.getTransaction().begin();
-                newParcel = parcelService.create(newParcel);
-                entityManager.getTransaction().commit();
-
-                /*
-                 * Creacion y persistencia de un usuario de prueba
-                 */
-                User newUser = new User();
-                newUser.setUsername("testTwoCheckByDate");
-                newUser.setName("Peter");
-                newUser.setLastName("Doe");
-                newUser.setEmail("testTwoCheckByDate@eservice.com");
-                newUser.setParcels(new ArrayList<>());
-                newUser.getParcels().add(newParcel);
-
-                entityManager.getTransaction().begin();
-                newUser = userService.create(newUser);
-                entityManager.getTransaction().commit();
-
-                /*
-                 * Creacion y persistencia de un cultivo de prueba
-                 */
-                Crop newCrop = new Crop();
-                newCrop.setName("test crop two");
-                newCrop.setInitialStage(1);
-                newCrop.setDevelopmentStage(1);
-                newCrop.setMiddleStage(1);
-                newCrop.setFinalStage(1);
-                newCrop.setInitialKc(1);
-                newCrop.setMiddleKc(1);
-                newCrop.setFinalKc(1);
-                newCrop.setLifeCycle(1);
-                newCrop.setActive(true);
-                newCrop.setTypeCrop(typeCropService.find(1));
-
-                entityManager.getTransaction().begin();
-                newCrop = cropService.create(newCrop);
-                entityManager.getTransaction().commit();
-
-                /*
-                 * Se añaden los datos creados a una coleccion para
-                 * su respectiva eliminacion de la base de datos
-                 * subyacente. Esto se hace con el fin de hacer que
-                 * la base de datos quede en su estado original.
-                 */
-                users.add(newUser);
-                options.add(newParcelOption);
-                parcels.add(newParcel);
-                crops.add(newCrop);
 
                 /*
                  * Fechas para el registro de plantacion de prueba
                  */
                 Calendar seedDate = Calendar.getInstance();
-                seedDate.set(Calendar.YEAR, 2023);
+                seedDate.set(Calendar.YEAR, 2019);
                 seedDate.set(Calendar.MONTH, MARCH);
                 seedDate.set(Calendar.DAY_OF_MONTH, 5);
 
                 Calendar harvestDate = Calendar.getInstance();
-                harvestDate.set(Calendar.YEAR, 2023);
+                harvestDate.set(Calendar.YEAR, 2019);
                 harvestDate.set(Calendar.MONTH, JULY);
                 harvestDate.set(Calendar.DAY_OF_MONTH, 24);
 
@@ -339,10 +313,10 @@ public class PlantingRecordServiceBeanTest {
                 PlantingRecord newPlantingRecord = new PlantingRecord();
                 newPlantingRecord.setSeedDate(seedDate);
                 newPlantingRecord.setHarvestDate(harvestDate);
-                newPlantingRecord.setParcel(newParcel);
-                newPlantingRecord.setCrop(newCrop);
-                newPlantingRecord.setIrrigationWaterNeed("0");
-                newPlantingRecord.setStatus(plantingRecordStatusService.findFinishedStatus());
+                newPlantingRecord.setParcel(testParcel);
+                newPlantingRecord.setCrop(testCrop);
+                newPlantingRecord.setCropIrrigationWaterNeed("0");
+                newPlantingRecord.setStatus(testStatus);
 
                 entityManager.getTransaction().begin();
                 newPlantingRecord = plantingRecordService.create(newPlantingRecord);
@@ -354,7 +328,7 @@ public class PlantingRecordServiceBeanTest {
                  * Seccion de prueba
                  */
                 Calendar testDate = Calendar.getInstance();
-                testDate.set(Calendar.YEAR, 2023);
+                testDate.set(Calendar.YEAR, 2019);
                 testDate.set(Calendar.MONTH, MARCH);
                 testDate.set(Calendar.DAY_OF_MONTH, 5);
 
@@ -368,10 +342,10 @@ public class PlantingRecordServiceBeanTest {
                 System.out.println();
 
                 boolean expectedResult = true;
-                boolean result = plantingRecordService.checkByDate(newUser.getId(), newParcel, testDate);
+                boolean result = plantingRecordService.checkByDate(testUser.getId(), testParcel, testDate);
 
-                System.out.println("* Valor que se espera que devuelva el metodo checkByDate: " + expectedResult);
-                System.out.println("* Valor devuelto por el metodo checkByDate: " + result);
+                System.out.println("* Valor que se espera que devuelva el metodo checkByDate(): " + expectedResult);
+                System.out.println("* Valor devuelto por el metodo checkByDate(): " + result);
                 System.out.println();
 
                 assertTrue(expectedResult == result);
@@ -381,95 +355,26 @@ public class PlantingRecordServiceBeanTest {
 
         @Test
         public void testThreeCheckByDate() {
-                System.out.println("*********************************** Prueba tres del metodo checkByDate ***********************************");
-                System.out.println("# Descripcion de la prueba unitaria");
-                System.out.println("El metodo checkByDate de la clase PlantingRecordRestServlet comprueba si una fecha esta en el periodo definido");
-                System.out.println("por la fecha de siembra y la fecha de cosecha de un registro de plantacion de una parcela correspondiente a un");
-                System.out.println("usuario. Si una fecha esta en dicho periodo, el metodo checkByDate devuelve true. En caso contrario, false.");
+                System.out.println("*********************************** Prueba tres del metodo checkByDate() ***********************************");
+                printDescriptionMethodToTest();
                 System.out.println();
+                System.out.println("# Descripcion de la prueba unitaria");
                 System.out.println("En esta prueba se demuestra el correcto funcionamiento de este metodo utilizando una fecha que esta en el periodo");
                 System.out.println("definido por la fecha de siembra y la fecha de cosecha de un registro de plantacion de prueba. La fecha de prueba");
                 System.out.println("es igual a la fecha de cosecha del registro de plantacion de prueba. Este caso es un caso de borde, y el valor");
-                System.out.println("devuelto por checkByDate es true.");
+                System.out.println("devuelto por checkByDate() es true.");
                 System.out.println();
-
-                /*
-                 * Creacion y persistencia de una opcion para una parcela
-                 */
-                entityManager.getTransaction().begin();
-                Option newParcelOption = optionService.create();
-                entityManager.getTransaction().commit();
-
-                /*
-                 * Creacion y persistencia de una parcela
-                 */
-                Parcel newParcel = new Parcel();
-                newParcel.setName("Erie");
-                newParcel.setHectares(2);
-                newParcel.setLatitude(1);
-                newParcel.setLongitude(1);
-                newParcel.setOption(newParcelOption);
-
-                entityManager.getTransaction().begin();
-                newParcel = parcelService.create(newParcel);
-                entityManager.getTransaction().commit();
-
-                /*
-                 * Creacion y persistencia de un usuario de prueba
-                 */
-                User newUser = new User();
-                newUser.setUsername("testThreeCheckByDate");
-                newUser.setName("Peter");
-                newUser.setLastName("Doe");
-                newUser.setEmail("testThreeCheckByDate@eservice.com");
-                newUser.setParcels(new ArrayList<>());
-                newUser.getParcels().add(newParcel);
-
-                entityManager.getTransaction().begin();
-                newUser = userService.create(newUser);
-                entityManager.getTransaction().commit();
-
-                /*
-                 * Creacion y persistencia de un cultivo de prueba
-                 */
-                Crop newCrop = new Crop();
-                newCrop.setName("test crop three");
-                newCrop.setInitialStage(1);
-                newCrop.setDevelopmentStage(1);
-                newCrop.setMiddleStage(1);
-                newCrop.setFinalStage(1);
-                newCrop.setInitialKc(1);
-                newCrop.setMiddleKc(1);
-                newCrop.setFinalKc(1);
-                newCrop.setLifeCycle(1);
-                newCrop.setActive(true);
-                newCrop.setTypeCrop(typeCropService.find(1));
-
-                entityManager.getTransaction().begin();
-                newCrop = cropService.create(newCrop);
-                entityManager.getTransaction().commit();
-
-                /*
-                 * Se añaden los datos creados a una coleccion para
-                 * su respectiva eliminacion de la base de datos
-                 * subyacente. Esto se hace con el fin de hacer que
-                 * la base de datos quede en su estado original.
-                 */
-                users.add(newUser);
-                options.add(newParcelOption);
-                parcels.add(newParcel);
-                crops.add(newCrop);
 
                 /*
                  * Fechas para el registro de plantacion de prueba
                  */
                 Calendar seedDate = Calendar.getInstance();
-                seedDate.set(Calendar.YEAR, 2023);
+                seedDate.set(Calendar.YEAR, 2020);
                 seedDate.set(Calendar.MONTH, MARCH);
                 seedDate.set(Calendar.DAY_OF_MONTH, 5);
 
                 Calendar harvestDate = Calendar.getInstance();
-                harvestDate.set(Calendar.YEAR, 2023);
+                harvestDate.set(Calendar.YEAR, 2020);
                 harvestDate.set(Calendar.MONTH, JULY);
                 harvestDate.set(Calendar.DAY_OF_MONTH, 24);
 
@@ -479,10 +384,10 @@ public class PlantingRecordServiceBeanTest {
                 PlantingRecord newPlantingRecord = new PlantingRecord();
                 newPlantingRecord.setSeedDate(seedDate);
                 newPlantingRecord.setHarvestDate(harvestDate);
-                newPlantingRecord.setParcel(newParcel);
-                newPlantingRecord.setCrop(newCrop);
-                newPlantingRecord.setIrrigationWaterNeed("0");
-                newPlantingRecord.setStatus(plantingRecordStatusService.findFinishedStatus());
+                newPlantingRecord.setParcel(testParcel);
+                newPlantingRecord.setCrop(testCrop);
+                newPlantingRecord.setCropIrrigationWaterNeed("0");
+                newPlantingRecord.setStatus(testStatus);
 
                 entityManager.getTransaction().begin();
                 newPlantingRecord = plantingRecordService.create(newPlantingRecord);
@@ -494,7 +399,7 @@ public class PlantingRecordServiceBeanTest {
                  * Seccion de prueba
                  */
                 Calendar testDate = Calendar.getInstance();
-                testDate.set(Calendar.YEAR, 2023);
+                testDate.set(Calendar.YEAR, 2020);
                 testDate.set(Calendar.MONTH, JULY);
                 testDate.set(Calendar.DAY_OF_MONTH, 24);
 
@@ -508,10 +413,10 @@ public class PlantingRecordServiceBeanTest {
                 System.out.println();
 
                 boolean expectedResult = true;
-                boolean result = plantingRecordService.checkByDate(newUser.getId(), newParcel, testDate);
+                boolean result = plantingRecordService.checkByDate(testUser.getId(), testParcel, testDate);
 
-                System.out.println("* Valor que se espera que devuelva el metodo checkByDate: " + expectedResult);
-                System.out.println("* Valor devuelto por el metodo checkByDate: " + result);
+                System.out.println("* Valor que se espera que devuelva el metodo checkByDate(): " + expectedResult);
+                System.out.println("* Valor devuelto por el metodo checkByDate(): " + result);
                 System.out.println();
 
                 assertTrue(expectedResult == result);
@@ -521,94 +426,25 @@ public class PlantingRecordServiceBeanTest {
 
         @Test
         public void testFourCheckByDate() {
-                System.out.println("*********************************** Prueba cuatro del metodo checkByDate ***********************************");
-                System.out.println("# Descripcion de la prueba unitaria");
-                System.out.println("El metodo checkByDate de la clase PlantingRecordRestServlet comprueba si una fecha esta en el periodo definido");
-                System.out.println("por la fecha de siembra y la fecha de cosecha de un registro de plantacion de una parcela correspondiente a un");
-                System.out.println("usuario. Si una fecha esta en dicho periodo, el metodo checkByDate devuelve true. En caso contrario, false.");
+                System.out.println("*********************************** Prueba cuatro del metodo checkByDate() ***********************************");
+                printDescriptionMethodToTest();
                 System.out.println();
+                System.out.println("# Descripcion de la prueba unitaria");
                 System.out.println("En esta prueba se demuestra el correcto funcionamiento de este metodo utilizando una fecha que NO esta en el periodo");
                 System.out.println("definido por la fecha de siembra y la fecha de cosecha de un registro de plantacion de prueba. En este caso, el");
-                System.out.println("valor devuelto por checkByDate es false.");
+                System.out.println("valor devuelto por checkByDate() es false.");
                 System.out.println();
-
-                /*
-                 * Creacion y persistencia de una opcion para una parcela
-                 */
-                entityManager.getTransaction().begin();
-                Option newParcelOption = optionService.create();
-                entityManager.getTransaction().commit();
-
-                /*
-                 * Creacion y persistencia de una parcela
-                 */
-                Parcel newParcel = new Parcel();
-                newParcel.setName("Erie");
-                newParcel.setHectares(2);
-                newParcel.setLatitude(1);
-                newParcel.setLongitude(1);
-                newParcel.setOption(newParcelOption);
-
-                entityManager.getTransaction().begin();
-                newParcel = parcelService.create(newParcel);
-                entityManager.getTransaction().commit();
-
-                /*
-                 * Creacion y persistencia de un usuario de prueba
-                 */
-                User newUser = new User();
-                newUser.setUsername("testFourCheckByDate");
-                newUser.setName("Peter");
-                newUser.setLastName("Doe");
-                newUser.setEmail("testFourCheckByDate@eservice.com");
-                newUser.setParcels(new ArrayList<>());
-                newUser.getParcels().add(newParcel);
-
-                entityManager.getTransaction().begin();
-                newUser = userService.create(newUser);
-                entityManager.getTransaction().commit();
-
-                /*
-                 * Creacion y persistencia de un cultivo de prueba
-                 */
-                Crop newCrop = new Crop();
-                newCrop.setName("test crop four");
-                newCrop.setInitialStage(1);
-                newCrop.setDevelopmentStage(1);
-                newCrop.setMiddleStage(1);
-                newCrop.setFinalStage(1);
-                newCrop.setInitialKc(1);
-                newCrop.setMiddleKc(1);
-                newCrop.setFinalKc(1);
-                newCrop.setLifeCycle(1);
-                newCrop.setActive(true);
-                newCrop.setTypeCrop(typeCropService.find(1));
-
-                entityManager.getTransaction().begin();
-                newCrop = cropService.create(newCrop);
-                entityManager.getTransaction().commit();
-
-                /*
-                 * Se añaden los datos creados a una coleccion para
-                 * su respectiva eliminacion de la base de datos
-                 * subyacente. Esto se hace con el fin de hacer que
-                 * la base de datos quede en su estado original.
-                 */
-                users.add(newUser);
-                options.add(newParcelOption);
-                parcels.add(newParcel);
-                crops.add(newCrop);
 
                 /*
                  * Fechas para el registro de plantacion de prueba
                  */
                 Calendar seedDate = Calendar.getInstance();
-                seedDate.set(Calendar.YEAR, 2023);
+                seedDate.set(Calendar.YEAR, 2021);
                 seedDate.set(Calendar.MONTH, JUNE);
                 seedDate.set(Calendar.DAY_OF_MONTH, 1);
 
                 Calendar harvestDate = Calendar.getInstance();
-                harvestDate.set(Calendar.YEAR, 2023);
+                harvestDate.set(Calendar.YEAR, 2021);
                 harvestDate.set(Calendar.MONTH, SEPTEMBER);
                 harvestDate.set(Calendar.DAY_OF_MONTH, 20);
 
@@ -618,10 +454,10 @@ public class PlantingRecordServiceBeanTest {
                 PlantingRecord newPlantingRecord = new PlantingRecord();
                 newPlantingRecord.setSeedDate(seedDate);
                 newPlantingRecord.setHarvestDate(harvestDate);
-                newPlantingRecord.setParcel(newParcel);
-                newPlantingRecord.setCrop(newCrop);
-                newPlantingRecord.setIrrigationWaterNeed("0");
-                newPlantingRecord.setStatus(plantingRecordStatusService.findFinishedStatus());
+                newPlantingRecord.setParcel(testParcel);
+                newPlantingRecord.setCrop(testCrop);
+                newPlantingRecord.setCropIrrigationWaterNeed("0");
+                newPlantingRecord.setStatus(testStatus);
 
                 entityManager.getTransaction().begin();
                 newPlantingRecord = plantingRecordService.create(newPlantingRecord);
@@ -633,7 +469,7 @@ public class PlantingRecordServiceBeanTest {
                  * Seccion de prueba
                  */
                 Calendar testDate = Calendar.getInstance();
-                testDate.set(Calendar.YEAR, 2023);
+                testDate.set(Calendar.YEAR, 2021);
                 testDate.set(Calendar.MONTH, MARCH);
                 testDate.set(Calendar.DAY_OF_MONTH, 20);
 
@@ -647,10 +483,10 @@ public class PlantingRecordServiceBeanTest {
                 System.out.println();
 
                 boolean expectedResult = false;
-                boolean result = plantingRecordService.checkByDate(newUser.getId(), newParcel, testDate);
+                boolean result = plantingRecordService.checkByDate(testUser.getId(), testParcel, testDate);
 
-                System.out.println("* Valor que se espera que devuelva el metodo checkByDate: " + expectedResult);
-                System.out.println("* Valor devuelto por el metodo checkByDate: " + result);
+                System.out.println("* Valor que se espera que devuelva el metodo checkByDate(): " + expectedResult);
+                System.out.println("* Valor devuelto por el metodo checkByDate(): " + result);
                 System.out.println();
 
                 assertTrue(expectedResult == result);
@@ -660,95 +496,26 @@ public class PlantingRecordServiceBeanTest {
 
         @Test
         public void testFiveCheckByDate() {
-                System.out.println("*********************************** Prueba cinco del metodo checkByDate ***********************************");
-                System.out.println("# Descripcion de la prueba unitaria");
-                System.out.println("El metodo checkByDate de la clase PlantingRecordRestServlet comprueba si una fecha esta en el periodo definido");
-                System.out.println("por la fecha de siembra y la fecha de cosecha de un registro de plantacion de una parcela correspondiente a un");
-                System.out.println("usuario. Si una fecha esta en dicho periodo, el metodo checkByDate devuelve true. En caso contrario, false.");
+                System.out.println("*********************************** Prueba cinco del metodo checkByDate() ***********************************");
+                printDescriptionMethodToTest();
                 System.out.println();
+                System.out.println("# Descripcion de la prueba unitaria");
                 System.out.println("En esta prueba se demuestra el correcto funcionamiento de este metodo utilizando una fecha que NO esta en el periodo");
                 System.out.println("definido por la fecha de siembra y la fecha de cosecha de un registro de plantacion de prueba. La fecha de prueba es");
                 System.out.println("igual al dia inmediatamente anterior a la fecha de siembra del registro de plantacion de prueba. Este caso es un");
-                System.out.println("caso de borde, y el valor devuelto por checkByDate es false.");
+                System.out.println("caso de borde, y el valor devuelto por checkByDate() es false.");
                 System.out.println();
-
-                /*
-                 * Creacion y persistencia de una opcion para una parcela
-                 */
-                entityManager.getTransaction().begin();
-                Option newParcelOption = optionService.create();
-                entityManager.getTransaction().commit();
-
-                /*
-                 * Creacion y persistencia de una parcela
-                 */
-                Parcel newParcel = new Parcel();
-                newParcel.setName("Erie");
-                newParcel.setHectares(2);
-                newParcel.setLatitude(1);
-                newParcel.setLongitude(1);
-                newParcel.setOption(newParcelOption);
-
-                entityManager.getTransaction().begin();
-                newParcel = parcelService.create(newParcel);
-                entityManager.getTransaction().commit();
-
-                /*
-                 * Creacion y persistencia de un usuario de prueba
-                 */
-                User newUser = new User();
-                newUser.setUsername("testFiveCheckByDate");
-                newUser.setName("Peter");
-                newUser.setLastName("Doe");
-                newUser.setEmail("testFiveCheckByDate@eservice.com");
-                newUser.setParcels(new ArrayList<>());
-                newUser.getParcels().add(newParcel);
-
-                entityManager.getTransaction().begin();
-                newUser = userService.create(newUser);
-                entityManager.getTransaction().commit();
-
-                /*
-                 * Creacion y persistencia de un cultivo de prueba
-                 */
-                Crop newCrop = new Crop();
-                newCrop.setName("test crop five");
-                newCrop.setInitialStage(1);
-                newCrop.setDevelopmentStage(1);
-                newCrop.setMiddleStage(1);
-                newCrop.setFinalStage(1);
-                newCrop.setInitialKc(1);
-                newCrop.setMiddleKc(1);
-                newCrop.setFinalKc(1);
-                newCrop.setLifeCycle(1);
-                newCrop.setActive(true);
-                newCrop.setTypeCrop(typeCropService.find(1));
-
-                entityManager.getTransaction().begin();
-                newCrop = cropService.create(newCrop);
-                entityManager.getTransaction().commit();
-
-                /*
-                 * Se añaden los datos creados a una coleccion para
-                 * su respectiva eliminacion de la base de datos
-                 * subyacente. Esto se hace con el fin de hacer que
-                 * la base de datos quede en su estado original.
-                 */
-                users.add(newUser);
-                options.add(newParcelOption);
-                parcels.add(newParcel);
-                crops.add(newCrop);
 
                 /*
                  * Fechas para el registro de plantacion de prueba
                  */
                 Calendar seedDate = Calendar.getInstance();
-                seedDate.set(Calendar.YEAR, 2023);
+                seedDate.set(Calendar.YEAR, 2022);
                 seedDate.set(Calendar.MONTH, JUNE);
                 seedDate.set(Calendar.DAY_OF_MONTH, 1);
 
                 Calendar harvestDate = Calendar.getInstance();
-                harvestDate.set(Calendar.YEAR, 2023);
+                harvestDate.set(Calendar.YEAR, 2022);
                 harvestDate.set(Calendar.MONTH, SEPTEMBER);
                 harvestDate.set(Calendar.DAY_OF_MONTH, 20);
 
@@ -758,10 +525,10 @@ public class PlantingRecordServiceBeanTest {
                 PlantingRecord newPlantingRecord = new PlantingRecord();
                 newPlantingRecord.setSeedDate(seedDate);
                 newPlantingRecord.setHarvestDate(harvestDate);
-                newPlantingRecord.setParcel(newParcel);
-                newPlantingRecord.setCrop(newCrop);
-                newPlantingRecord.setIrrigationWaterNeed("0");
-                newPlantingRecord.setStatus(plantingRecordStatusService.findFinishedStatus());
+                newPlantingRecord.setParcel(testParcel);
+                newPlantingRecord.setCrop(testCrop);
+                newPlantingRecord.setCropIrrigationWaterNeed("0");
+                newPlantingRecord.setStatus(testStatus);
 
                 entityManager.getTransaction().begin();
                 newPlantingRecord = plantingRecordService.create(newPlantingRecord);
@@ -773,7 +540,7 @@ public class PlantingRecordServiceBeanTest {
                  * Seccion de prueba
                  */
                 Calendar testDate = Calendar.getInstance();
-                testDate.set(Calendar.YEAR, 2023);
+                testDate.set(Calendar.YEAR, 2022);
                 testDate.set(Calendar.MONTH, MAY);
                 testDate.set(Calendar.DAY_OF_MONTH, 31);
 
@@ -787,10 +554,10 @@ public class PlantingRecordServiceBeanTest {
                 System.out.println();
 
                 boolean expectedResult = false;
-                boolean result = plantingRecordService.checkByDate(newUser.getId(), newParcel, testDate);
+                boolean result = plantingRecordService.checkByDate(testUser.getId(), testParcel, testDate);
 
-                System.out.println("* Valor que se espera que devuelva el metodo checkByDate: " + expectedResult);
-                System.out.println("* Valor devuelto por el metodo checkByDate: " + result);
+                System.out.println("* Valor que se espera que devuelva el metodo checkByDate(): " + expectedResult);
+                System.out.println("* Valor devuelto por el metodo checkByDate(): " + result);
                 System.out.println();
 
                 assertTrue(expectedResult == result);
@@ -800,84 +567,15 @@ public class PlantingRecordServiceBeanTest {
 
         @Test
         public void testSixCheckByDate() {
-                System.out.println("*********************************** Prueba seis del metodo checkByDate ***********************************");
-                System.out.println("# Descripcion de la prueba unitaria");
-                System.out.println("El metodo checkByDate de la clase PlantingRecordRestServlet comprueba si una fecha esta en el periodo definido");
-                System.out.println("por la fecha de siembra y la fecha de cosecha de un registro de plantacion de una parcela correspondiente a un");
-                System.out.println("usuario. Si una fecha esta en dicho periodo, el metodo checkByDate devuelve true. En caso contrario, false.");
+                System.out.println("*********************************** Prueba seis del metodo checkByDate() ***********************************");
+                printDescriptionMethodToTest();
                 System.out.println();
+                System.out.println("# Descripcion de la prueba unitaria");
                 System.out.println("En esta prueba se demuestra el correcto funcionamiento de este metodo utilizando una fecha que NO esta en el periodo");
                 System.out.println("definido por la fecha de siembra y la fecha de cosecha de un registro de plantacion de prueba. La fecha de prueba es");
                 System.out.println("igual al dia inmediatamente siguiente a la fecha de cosecha del registro de plantacion de prueba. Este caso es un");
-                System.out.println("caso de borde, y el valor devuelto por checkByDate es false.");
+                System.out.println("caso de borde, y el valor devuelto por checkByDate() es false.");
                 System.out.println();
-
-                /*
-                 * Creacion y persistencia de una opcion para una parcela
-                 */
-                entityManager.getTransaction().begin();
-                Option newParcelOption = optionService.create();
-                entityManager.getTransaction().commit();
-
-                /*
-                 * Creacion y persistencia de una parcela
-                 */
-                Parcel newParcel = new Parcel();
-                newParcel.setName("Erie");
-                newParcel.setHectares(2);
-                newParcel.setLatitude(1);
-                newParcel.setLongitude(1);
-                newParcel.setOption(newParcelOption);
-
-                entityManager.getTransaction().begin();
-                newParcel = parcelService.create(newParcel);
-                entityManager.getTransaction().commit();
-
-                /*
-                 * Creacion y persistencia de un usuario de prueba
-                 */
-                User newUser = new User();
-                newUser.setUsername("testSixCheckByDate");
-                newUser.setName("Peter");
-                newUser.setLastName("Doe");
-                newUser.setEmail("testSixCheckByDate@eservice.com");
-                newUser.setParcels(new ArrayList<>());
-                newUser.getParcels().add(newParcel);
-
-                entityManager.getTransaction().begin();
-                newUser = userService.create(newUser);
-                entityManager.getTransaction().commit();
-
-                /*
-                 * Creacion y persistencia de un cultivo de prueba
-                 */
-                Crop newCrop = new Crop();
-                newCrop.setName("test crop six");
-                newCrop.setInitialStage(1);
-                newCrop.setDevelopmentStage(1);
-                newCrop.setMiddleStage(1);
-                newCrop.setFinalStage(1);
-                newCrop.setInitialKc(1);
-                newCrop.setMiddleKc(1);
-                newCrop.setFinalKc(1);
-                newCrop.setLifeCycle(1);
-                newCrop.setActive(true);
-                newCrop.setTypeCrop(typeCropService.find(1));
-
-                entityManager.getTransaction().begin();
-                newCrop = cropService.create(newCrop);
-                entityManager.getTransaction().commit();
-
-                /*
-                 * Se añaden los datos creados a una coleccion para
-                 * su respectiva eliminacion de la base de datos
-                 * subyacente. Esto se hace con el fin de hacer que
-                 * la base de datos quede en su estado original.
-                 */
-                users.add(newUser);
-                options.add(newParcelOption);
-                parcels.add(newParcel);
-                crops.add(newCrop);
 
                 /*
                  * Fechas para el registro de plantacion de prueba
@@ -898,10 +596,10 @@ public class PlantingRecordServiceBeanTest {
                 PlantingRecord newPlantingRecord = new PlantingRecord();
                 newPlantingRecord.setSeedDate(seedDate);
                 newPlantingRecord.setHarvestDate(harvestDate);
-                newPlantingRecord.setParcel(newParcel);
-                newPlantingRecord.setCrop(newCrop);
-                newPlantingRecord.setIrrigationWaterNeed("0");
-                newPlantingRecord.setStatus(plantingRecordStatusService.findFinishedStatus());
+                newPlantingRecord.setParcel(testParcel);
+                newPlantingRecord.setCrop(testCrop);
+                newPlantingRecord.setCropIrrigationWaterNeed("0");
+                newPlantingRecord.setStatus(testStatus);
 
                 entityManager.getTransaction().begin();
                 newPlantingRecord = plantingRecordService.create(newPlantingRecord);
@@ -927,10 +625,10 @@ public class PlantingRecordServiceBeanTest {
                 System.out.println();
 
                 boolean expectedResult = false;
-                boolean result = plantingRecordService.checkByDate(newUser.getId(), newParcel, testDate);
+                boolean result = plantingRecordService.checkByDate(testUser.getId(), testParcel, testDate);
 
-                System.out.println("* Valor que se espera que devuelva el metodo checkByDate: " + expectedResult);
-                System.out.println("* Valor devuelto por el metodo checkByDate: " + result);
+                System.out.println("* Valor que se espera que devuelva el metodo checkByDate(): " + expectedResult);
+                System.out.println("* Valor devuelto por el metodo checkByDate(): " + result);
                 System.out.println();
 
                 assertTrue(expectedResult == result);
@@ -952,8 +650,16 @@ public class PlantingRecordServiceBeanTest {
                         plantingRecordService.remove(currentPlantingRecord.getId());
                 }
 
+                for (PlantingRecordStatus currentPlantingRecordStatus : plantingRecordStatuses) {
+                        entityManager.remove(currentPlantingRecordStatus);
+                }
+
                 for (Crop currentCrop : crops) {
                         cropService.physicallyRemove(currentCrop.getId());
+                }
+
+                for (TypeCrop currentTypeCrop : typesCrop) {
+                        entityManager.remove(currentTypeCrop);
                 }
 
                 for (User currentUser : users) {
@@ -968,11 +674,25 @@ public class PlantingRecordServiceBeanTest {
                         optionService.remove(currentOption.getId());
                 }
 
+                for (GeographicLocation currentGeographicLocation : geographicLocations) {
+                        geographicLocationService.remove(currentGeographicLocation.getId());
+                }
+
                 entityManager.getTransaction().commit();
 
                 // Cierra las conexiones
                 entityManager.close();
                 entityManagerFactory.close();
+        }
+
+        /**
+         * Imprime la descripcion del metodo a probar
+         */
+        private void printDescriptionMethodToTest() {
+                System.out.println("# Descripcion del metodo a probar");
+                System.out.println("El metodo checkByDate() de la clase PlantingRecordRestServlet comprueba si una fecha esta en el periodo definido");
+                System.out.println("por la fecha de siembra y la fecha de cosecha de un registro de plantacion de una parcela correspondiente a un");
+                System.out.println("usuario. Si una fecha esta en dicho periodo, el metodo checkByDate devuelve true. En caso contrario, false.");
         }
 
 }
