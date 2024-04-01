@@ -681,66 +681,6 @@ public class ClimateRecordServiceBean {
   }
 
   /**
-   * Calcula la cantidad total de agua de lluvia [mm/periodo]
-   * que cayo sobre una parcela en un periodo definido por dos
-   * fechas si y solo si una parcela tiene registros climaticos
-   * en el periodo en el que se quiere calcular dicha cantidad.
-   * 
-   * @param parcelId
-   * @param rainId
-   * @param dateFrom
-   * @param dateUntil
-   * @return cantidad total de agua de lluvia que cayo sobre
-   * una parcela en un periodo definido por dos fechas, si
-   * una parcela tiene registros climaticos en el periodo en
-   * el que se quiere obtener dicha cantidad. En caso contrario,
-   * -1.0, valor que representa informacion no disponible.
-   */
-  public double calculateAmountRainwaterByPeriod(int parcelId, int rainId, Calendar dateFrom, Calendar dateUntil) {
-    /*
-     * Suma la cantidad de agua de lluvia de cada uno de los
-     * registros climaticos de una parcela que estan comprendidos
-     * en un periodo definido por dos fechas, obteniendo la
-     * cantidad total de agua de lluvia que cayo sobre una
-     * parcela en un periodo dado
-     */
-    String stringQuery = "SELECT SUM(PRECIP) FROM CLIMATE_RECORD WHERE " +
-        "FK_PARCEL = ?1 AND ?2 <= DATE AND DATE <= ?3  AND " +
-        "(TYPE_PRECIP_ONE = ?4 OR TYPE_PRECIP_TWO = ?4 OR TYPE_PRECIP_THREE = ?4 OR TYPE_PRECIP_FOUR = ?4)";
-
-    Query query = entityManager.createNativeQuery(stringQuery);
-    query.setParameter(1, parcelId);
-    query.setParameter(2, dateFrom);
-    query.setParameter(3, dateUntil);
-    query.setParameter(4, rainId);
-
-    double amountRainwater = -1.0;
-
-    try {
-      /*
-       * Si se realiza la consulta de este metodo con una
-       * parcela que no tiene ningun registro climatico
-       * asociado en un periodo definido por dos fechas, se
-       * observara que el valor devuelto es NULL. Por lo tanto,
-       * es necesario contemplar este caso en el codigo fuente
-       * de este metodo.
-       * 
-       * En caso de que se solicite la cantidad total de agua
-       * de lluvia que cayo sobre una parcela en un periodo
-       * definido por dos fechas para una parcela que no
-       * tiene ningun registro climatico asociado en un
-       * periodo dado, se retorna el valor -1.0, el cual
-       * indica informacion no disponible.
-       */
-      amountRainwater = (double) query.getSingleResult();
-    } catch (NullPointerException e) {
-      e.printStackTrace();
-    }
-
-    return amountRainwater;
-  }
-
-  /**
    * Retorna true si y solo si una parcela de un usuario
    * tiene registros climaticos
    * 
