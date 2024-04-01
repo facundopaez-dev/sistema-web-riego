@@ -1204,9 +1204,9 @@ public class StatisticalGraphRestServlet {
   }
 
   @PUT
-  @Path("recalculate/{id}")
+  @Path("regenerate/{id}")
   @Produces(MediaType.APPLICATION_JSON)
-  public Response recalculate(@Context HttpHeaders request, @PathParam("id") int statisticalGraphId) throws IOException {
+  public Response regenerate(@Context HttpHeaders request, @PathParam("id") int statisticalGraphId) throws IOException {
     Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
 
     /*

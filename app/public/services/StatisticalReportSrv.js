@@ -156,8 +156,8 @@ app.service(
                         });
             }
 
-            this.recalculate = function (id, callback) {
-                $http.put("rest/statisticalReports/recalculate/" + id)
+            this.regenerate = function (id, callback) {
+                $http.put("rest/statisticalReports/regenerate/" + id)
                     .then(
                         function (result) {
                             callback(false, result.data);
