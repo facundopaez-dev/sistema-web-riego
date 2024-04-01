@@ -12,6 +12,7 @@ import model.Parcel;
 import model.User;
 import model.Option;
 import model.TypePrecipitation;
+import model.GeographicLocation;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -19,6 +20,7 @@ import org.junit.Test;
 import stateless.ParcelServiceBean;
 import stateless.UserServiceBean;
 import stateless.ClimateRecordServiceBean;
+import stateless.GeographicLocationServiceBean;
 import stateless.OptionServiceBean;
 import stateless.TypePrecipitationServiceBean;
 import util.UtilDate;
@@ -33,12 +35,14 @@ public class ClimateRecordServiceBeanTest {
   private static OptionServiceBean optionService;
   private static ClimateRecordServiceBean climateRecordService;
   private static TypePrecipitationServiceBean typePrecipitationService;
+  private static GeographicLocationServiceBean geographicLocationService;
 
   private static Collection<Parcel> parcels;
   private static Collection<ClimateRecord> climateRecords;
   private static Collection<TypePrecipitation> typePrecipitations;
   private static Collection<User> users;
   private static Collection<Option> options;
+  private static Collection<GeographicLocation> geographicLocations;
 
   private static final int JANUARY = 0;
   private static final int FEBRUARY = 1;
@@ -73,16 +77,20 @@ public class ClimateRecordServiceBeanTest {
     typePrecipitationService = new TypePrecipitationServiceBean();
     typePrecipitationService.setEntityManager(entityManager);
 
+    geographicLocationService = new GeographicLocationServiceBean();
+    geographicLocationService.setEntityManager(entityManager);
+
     parcels = new ArrayList<>();
     climateRecords = new ArrayList<>();
     typePrecipitations = new ArrayList<>();
     users = new ArrayList<>();
     options = new ArrayList<>();
+    geographicLocations = new ArrayList<>();
   }
 
   @Test
   public void testOneFindAllByParcelIdAndPeriod() {
-    System.out.println("******************************** Prueba uno del metodo findAllByParcelIdAndPeriod ********************************");
+    System.out.println("******************************** Prueba uno del metodo findAllByParcelIdAndPeriod() ********************************");
     System.out.println("# Descripcion del metodo a probar");
     System.out.println("El metodo findAllByParcelIdAndPeriod de la clase ClimateRecordServiceBean devuelve una coleccion de registros");
     System.out.println("climaticos de una parcela de un usuario que estan en un periodo definido por dos fechas. En el caso en el que una");
@@ -110,6 +118,20 @@ public class ClimateRecordServiceBeanTest {
     System.out.println();
 
     /*
+     * Creacion y persistencia de una ubicacion geografica
+     * para parcelas de prueba
+     */
+    GeographicLocation testGeographicLocation = new GeographicLocation();
+    testGeographicLocation.setLatitude(1);
+    testGeographicLocation.setLongitude(1);
+
+    entityManager.getTransaction().begin();
+    testGeographicLocation = geographicLocationService.create(testGeographicLocation);
+    entityManager.getTransaction().commit();
+
+    geographicLocations.add(testGeographicLocation);
+
+    /*
      * Persistencia de una opcion para la parcela de prueba
      */
     entityManager.getTransaction().begin();
@@ -124,9 +146,8 @@ public class ClimateRecordServiceBeanTest {
     Parcel testParcel = new Parcel();
     testParcel.setName("Erie");
     testParcel.setHectares(2);
-    testParcel.setLatitude(1);
-    testParcel.setLongitude(1);
     testParcel.setOption(parcelOption);
+    testParcel.setGeographicLocation(testGeographicLocation);
 
     entityManager.getTransaction().begin();
     testParcel = parcelService.create(testParcel);
@@ -228,7 +249,7 @@ public class ClimateRecordServiceBeanTest {
 
   @Test
   public void testTwoFindAllByParcelIdAndPeriod() {
-    System.out.println("******************************** Prueba dos del metodo findAllByParcelIdAndPeriod ********************************");
+    System.out.println("******************************** Prueba dos del metodo findAllByParcelIdAndPeriod() ********************************");
     System.out.println("# Descripcion del metodo a probar");
     System.out.println("El metodo findAllByParcelIdAndPeriod de la clase ClimateRecordServiceBean devuelve una coleccion de registros");
     System.out.println("climaticos de una parcela de un usuario que estan en un periodo definido por dos fechas. En el caso en el que una");
@@ -255,6 +276,20 @@ public class ClimateRecordServiceBeanTest {
     System.out.println();
 
     /*
+     * Creacion y persistencia de una ubicacion geografica
+     * para parcelas de prueba
+     */
+    GeographicLocation testGeographicLocation = new GeographicLocation();
+    testGeographicLocation.setLatitude(1);
+    testGeographicLocation.setLongitude(1);
+
+    entityManager.getTransaction().begin();
+    testGeographicLocation = geographicLocationService.create(testGeographicLocation);
+    entityManager.getTransaction().commit();
+
+    geographicLocations.add(testGeographicLocation);
+
+    /*
      * Persistencia de una opcion para la parcela de prueba
      */
     entityManager.getTransaction().begin();
@@ -269,9 +304,8 @@ public class ClimateRecordServiceBeanTest {
     Parcel testParcel = new Parcel();
     testParcel.setName("Erie");
     testParcel.setHectares(2);
-    testParcel.setLatitude(1);
-    testParcel.setLongitude(1);
     testParcel.setOption(parcelOption);
+    testParcel.setGeographicLocation(testGeographicLocation);
 
     entityManager.getTransaction().begin();
     testParcel = parcelService.create(testParcel);
@@ -396,6 +430,10 @@ public class ClimateRecordServiceBeanTest {
 
     for (Parcel currentParcel : parcels) {
       parcelService.remove(currentParcel.getId());
+    }
+
+    for (GeographicLocation currentGeographicLocation : geographicLocations) {
+      geographicLocationService.remove(currentGeographicLocation.getId());
     }
 
     for (User currentUser : users) {
