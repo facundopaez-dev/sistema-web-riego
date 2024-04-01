@@ -206,48 +206,6 @@ public class IrrigationRecordServiceBean {
   }
 
   /**
-   * @param userId
-   * @param parcelId
-   * @param givenMinorDate
-   * @param givenMajorDate
-   * @return referencia a un objeto de tipo IrrigationRecord que
-   * representa el ultimo registro de riego creado para una parcela
-   * de un usuario dado entre dos fechas dadas, si existe dicho
-   * registro en la base de datos subyacente. En caso contrario,
-   * null.
-   */
-  public IrrigationRecord findLastBetweenDates(int userId, int parcelId, Calendar givenMinorDate, Calendar givenMajorDate) {
-    /*
-     * Selecciona el ID mas grande del conjunto de registros de
-     * riego pertenecientes a una parcela de un usuario dado
-     * que estan entre dos fechas dadas
-     */
-    String subQuery = "(SELECT MAX(i.id) FROM IrrigationRecord i JOIN i.parcel p WHERE (p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId) "
-        + "AND i.date >= :minorDate AND i.date <= :majorDate))";
-
-    /*
-     * Selecciona el ultimo registro de riego de una parcela de
-     * un usuario dado en un periodo definido por dos fechas
-     * dadas
-     */
-    Query query = entityManager.createQuery("SELECT i FROM IrrigationRecord i WHERE i.id = " + subQuery);
-    query.setParameter("userId", userId);
-    query.setParameter("parcelId", parcelId);
-    query.setParameter("minorDate", givenMinorDate);
-    query.setParameter("majorDate", givenMajorDate);
-
-    IrrigationRecord givenIrrigationRecord = null;
-
-    try {
-      givenIrrigationRecord = (IrrigationRecord) query.getSingleResult();
-    } catch (NoResultException e) {
-      e.printStackTrace();
-    }
-
-    return givenIrrigationRecord;
-  }
-
-  /**
    * Retorna todos los registros de riego de una parcela de
    * un usuario, que tienen un cultivo y que estan en un periodo
    * definido por dos fechas, si una parcela tiene registros
@@ -410,19 +368,6 @@ public class IrrigationRecordServiceBean {
    */
   public boolean hasIrrigationRecordsWithCrops(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
     return !findAllWithCropAndByPeriod(userId, parcelId, dateFrom, dateUntil).isEmpty();
-  }
-
-  /**
-   * @param givenUserId
-   * @param givenParcelId
-   * @param givenMinorDate
-   * @param givenMajorDate
-   * @return true si existe el ultimo registro de riego de una
-   * parcela de un usuario dado en un periodo definido por dos
-   * fechas. En caso contrario, false.
-   */
-  public boolean checkExistenceLastBetweenDates(int givenUserId, int givenParcelId, Calendar givenMinorDate, Calendar givenMajorDate) {
-    return (findLastBetweenDates(givenUserId, givenParcelId, givenMinorDate, givenMajorDate) != null);
   }
 
   /**
