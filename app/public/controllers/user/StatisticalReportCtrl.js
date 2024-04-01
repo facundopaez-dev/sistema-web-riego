@@ -112,97 +112,166 @@ app.controller(
       }
 
       function find(id) {
-        statisticalReportService.find(id, function (error, data) {
+        statisticalReportService.find(id, function (error, barChartProperties) {
           if (error) {
             console.log(error);
             errorResponseManager.checkResponse(error);
             return;
           }
 
-          $scope.data = data.data;
-          $scope.labels = data.labels;
-
-          /* Si el promedio es igual de cero, significa que no existe
-          un promedio de un conjunto de valores. Por lo tanto, se crean
-          las opciones del grafico de barras sin una linea que represente
-          el promedio de un conjunto de valores. Esto implica que en el
-          grafico de barras no habra una linea que represente el promedio
-          de un conjunto de valores. */
-          if (data.average == 0) {
-
-            $scope.options = {
-              title: {
-                display: true,
-                text: data.text
-              },
-              scaleShowValues: true,
-              scales: {
-                yAxes: [{
-                  ticks: {
-                    beginAtZero: true
-                  }
-                }],
-                xAxes: [{
-                  ticks: {
-                    autoSkip: false
-                  }
-                }]
-              }
-
-            };
-
-          } // End if
-
-          /* Si el promedio es distinto de cero, significa que existe un
-          promedio de un conjunto de valores. Por lo tanto, se crean las
-          opciones del grafico de barras con una linea que represente
-          el promedio de un conjunto de valores. Esto implica que en el
-          grafico de barras habra una linea que represente el promedio
-          de un conjunto de valores. */
-          if (data.average != 0) {
-            $scope.options = {
-              title: {
-                display: true,
-                text: data.text
-              },
-              scaleShowValues: true,
-              scales: {
-                yAxes: [{
-                  ticks: {
-                    beginAtZero: true
-                  }
-                }],
-                xAxes: [{
-                  ticks: {
-                    autoSkip: false
-                  }
-                }]
-              },
-
-              // Este codigo fuente es para crear una linea que marque el promedio de un conjunto de valores
-              // Fuente: https://github.com/chartjs/chartjs-plugin-annotation/tree/1ab782afce943456f958cac33f67edc5d6eab278
-              annotation: {
-                annotations: [{
-                  type: 'line',
-                  mode: 'horizontal',
-                  scaleID: 'y-axis-0',
-                  value: data.average,
-                  borderColor: 'black',
-                  borderDash: [6, 6],
-                  borderDashOffset: 0,
-                  borderWidth: 2,
-                  label: {
-                    enabled: true,
-                    content: 'Promedio: ' + data.average
-                  }
-                }]
-              }
-
-            };
-
-          } // End if
-
+          setBarGraph(barChartProperties);
         });
+      }
+
+      /**
+       * Establece las propiedades de un grafico de barras
+       *  
+       * @param {*} barChartProperties 
+       */
+      function setBarGraph(barChartProperties) {
+        var options;
+        var graphData = {
+          labels: barChartProperties.labels,
+          datasets: [
+            {
+              data: barChartProperties.data,
+              backgroundColor: getRandomColorArray(barChartProperties.data)
+            }
+          ]
+        };
+
+        /* Si el promedio es igual de cero, significa que no existe
+        un promedio de un conjunto de valores. Por lo tanto, se crean
+        las opciones del grafico de barras sin una linea que represente
+        el promedio de un conjunto de valores. Esto implica que en el
+        grafico de barras no habra una linea que represente el promedio
+        de un conjunto de valores. */
+        if (barChartProperties.average == 0) {
+
+          options = {
+            title: {
+              display: true,
+              text: barChartProperties.text
+            },
+            scaleShowValues: true,
+            scales: {
+              yAxes: [{
+                ticks: {
+                  beginAtZero: true
+                }
+              }],
+              xAxes: [{
+                ticks: {
+                  autoSkip: false
+                }
+              }]
+            }
+
+          };
+
+        } // End if
+
+        /* Si el promedio es distinto de cero, significa que existe un
+        promedio de un conjunto de valores. Por lo tanto, se crean las
+        opciones del grafico de barras con una linea que represente
+        el promedio de un conjunto de valores. Esto implica que en el
+        grafico de barras habra una linea que represente el promedio
+        de un conjunto de valores. */
+        if (barChartProperties.average != 0) {
+
+          options = {
+            title: {
+              display: true,
+              text: barChartProperties.text
+            },
+            scaleShowValues: true,
+            scales: {
+              yAxes: [{
+                ticks: {
+                  beginAtZero: true
+                }
+              }],
+              xAxes: [{
+                ticks: {
+                  autoSkip: false
+                }
+              }]
+            },
+
+            // Este codigo fuente es para crear una linea que marque el promedio de un conjunto de valores
+            // Fuente: https://github.com/chartjs/chartjs-plugin-annotation/tree/1ab782afce943456f958cac33f67edc5d6eab278
+            annotation: {
+              events: ['mouseenter', 'mouseleave'],
+              annotations: [{
+                type: 'line',
+                mode: 'horizontal',
+                scaleID: 'y-axis-0',
+                value: barChartProperties.average,
+                borderColor: 'black',
+                borderDash: [6, 6],
+                borderDashOffset: 0,
+                borderWidth: 2,
+                label: {
+                  enabled: true,
+                  content: 'Promedio: ' + barChartProperties.average
+                },
+                onMouseleave: function (e) {
+                  // console.log("onMouseleave", e);
+                  this.options.borderColor = "black";
+                  this.options.label.backgroundColor = 'black';
+                  this.options.label.fontColor = 'white';
+                  graph.update();
+                },
+                onMouseenter: function (e) {
+                  // console.log("onMouseenter", e);
+                  this.options.borderColor = "rgba(0,0,0,0)";
+                  this.options.label.backgroundColor = 'rgba(0,0,0,0)';
+                  this.options.label.fontColor = 'rgba(0,0,0,0)';
+                  graph.update();
+                }
+              }]
+            }
+
+          }; // End options
+
+        } // End if
+
+        var ctx = document.getElementById("barGraph");
+
+        var graph = new Chart(ctx, {
+          type: 'bar',
+          data: graphData,
+          options: options,
+        });
+
+      }
+
+      /**
+       * 
+       * @param {*} barChartData 
+       * @returns array que contiene un color generado aleatoriamente
+       * para cada valor representado por una barra en un grafico de
+       * barras
+       */
+      function getRandomColorArray(barChartData) {
+        var randomColors = [];
+
+        for (i in barChartData) {
+          randomColors.push(calculateRandomColor());
+        }
+
+        return randomColors;
+      }
+
+      /**
+       * 
+       * @returns string que representa un color generado aleatoriamente
+       */
+      function calculateRandomColor() {
+        var r = Math.floor(Math.random() * 255);
+        var g = Math.floor(Math.random() * 255);
+        var b = Math.floor(Math.random() * 255);
+        return "rgb(" + r + "," + g + "," + b + ")";
       }
 
       function regenerate(id) {
