@@ -7,7 +7,7 @@ import et.HargreavesEto;
 public class CalculateEtoTest {
 
     @Test
-    public void testOneCalculateEto() {
+    public void testOne() {
         System.out.println("************************ Prueba unitaria del metodo calculateEto de la clase ClassPenmanMonteithEtoTest ************************");
         System.out.println("En esta prueba unitaria se demuestra que el metodo calculateEto de la clase ClassPenmanMonteithEtoTest calcula correctamente la");
         System.out.println("evapotranspiracion del cultivo de referencia (ETo) haciendo uso del ejemplo de la pagina 72 del libro 'Evapotranspiracion del");
@@ -60,7 +60,7 @@ public class CalculateEtoTest {
     }
 
     @Test
-    public void testTwoCalculateEto() {
+    public void testTwo() {
         System.out.println("***************************** Prueba unitaria del metodo calculateEto de la clase HargreavesEto *****************************");
         System.out.println("En esta prueba unitaria se demuestra que el metodo calculateEto de la clase HargreavesEto calcula correctamente la");
         System.out.println("evapotranspiracion del cultivo de referencia (ETo).");
