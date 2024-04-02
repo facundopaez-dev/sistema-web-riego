@@ -116,9 +116,9 @@ public class LoginRestServlet {
      * usuario abra mas de una sesion con su cuenta, lo cual
      * no es lo que se busca con dicho control.
      */
-    if (sessionService.checkActiveSession(givenUser.getId())) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MULTIPLE_SESSIONS))).build();
-    }
+    // if (sessionService.checkActiveSession(givenUser.getId())) {
+    //   return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MULTIPLE_SESSIONS))).build();
+    // }
 
     /*
      * Si el flujo de ejecucion de este metodo llega a este punto, es
@@ -245,9 +245,9 @@ public class LoginRestServlet {
      * usuario abra mas de una sesion con su cuenta, lo cual
      * no es lo que se busca con dicho control.
      */
-    if (sessionService.checkActiveSession(givenUser.getId())) {
-      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MULTIPLE_SESSIONS))).build();
-    }
+    // if (sessionService.checkActiveSession(givenUser.getId())) {
+    //   return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MULTIPLE_SESSIONS))).build();
+    // }
 
     /*
      * Si el flujo de ejecucion de este metodo llega a este punto, es
