@@ -159,10 +159,10 @@ public class ClimateRecordServiceBeanTest {
      * Persistencia de un usuario de prueba
      */
     User testUser = new User();
-    testUser.setUsername("tmiller");
+    testUser.setUsername("testOneFindAllByParcelIdAndPeriod");
     testUser.setName("Tyler");
     testUser.setLastName("Miller");
-    testUser.setEmail("tmiller@email.com");
+    testUser.setEmail("testOneFindAllByParcelIdAndPeriod@email.com");
     testUser.setParcels(new ArrayList<>());
     testUser.getParcels().add(testParcel);
 
@@ -317,10 +317,10 @@ public class ClimateRecordServiceBeanTest {
      * Persistencia de un usuario de prueba
      */
     User testUser = new User();
-    testUser.setUsername("smiller");
+    testUser.setUsername("testTwoFindAllByParcelIdAndPeriod");
     testUser.setName("Sam");
     testUser.setLastName("Miller");
-    testUser.setEmail("smiller@eservice.com");
+    testUser.setEmail("testTwoFindAllByParcelIdAndPeriod@eservice.com");
     testUser.setParcels(new ArrayList<>());
     testUser.getParcels().add(testParcel);
 
@@ -405,6 +405,185 @@ public class ClimateRecordServiceBeanTest {
     System.out.println();
 
     assertTrue(expectedSize == size);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+    System.out.println();
+  }
+
+  @Test
+  public void testOneCheckExistence() {
+    System.out.println("******************************** Prueba uno del metodo checkExistence() ********************************");
+    System.out.println("# Descripcion del metodo a probar");
+    System.out.println("El metodo checkExistence() de la clase ClimateRecordServiceBean comprueba la existencia de un registro");
+    System.out.println("climatico perteneciente a una fecha y una parcela. Si en la base de datos subyacente existe un registro");
+    System.out.println("climatico con una parcela y una fecha retorna true. En caso contrario, retorna false.");
+    System.out.println();
+    System.out.println("En esta prueba unitaria se comprueba la existencia de un registro climatico utilizando una fecha y una");
+    System.out.println("parcela que pertenecen a un registro climatico. Por lo tanto, el metodo checkExistence() debe retornar");
+    System.out.println("true.");
+    System.out.println();
+
+    /*
+     * Creacion y persistencia de una ubicacion geografica
+     * para parcelas de prueba
+     */
+    GeographicLocation testGeographicLocation = new GeographicLocation();
+    testGeographicLocation.setLatitude(1);
+    testGeographicLocation.setLongitude(1);
+
+    entityManager.getTransaction().begin();
+    testGeographicLocation = geographicLocationService.create(testGeographicLocation);
+    entityManager.getTransaction().commit();
+
+    geographicLocations.add(testGeographicLocation);
+
+    /*
+     * Persistencia de una opcion para la parcela de prueba
+     */
+    entityManager.getTransaction().begin();
+    Option parcelOption = optionService.create();
+    entityManager.getTransaction().commit();
+
+    options.add(parcelOption);
+
+    /*
+     * Persistencia de una parcela de prueba
+     */
+    Parcel testParcel = new Parcel();
+    testParcel.setName("Erie");
+    testParcel.setHectares(2);
+    testParcel.setOption(parcelOption);
+    testParcel.setGeographicLocation(testGeographicLocation);
+
+    entityManager.getTransaction().begin();
+    testParcel = parcelService.create(testParcel);
+    entityManager.getTransaction().commit();
+
+    parcels.add(testParcel);
+
+    /*
+     * Creacion de fecha de prueba
+     */
+    Calendar date = UtilDate.getCurrentDate();
+    date.set(Calendar.YEAR, 2023);
+    date.set(Calendar.MONTH, JANUARY);
+    date.set(Calendar.DAY_OF_MONTH, 2);
+
+    /*
+     * Persistencia de registros climaticos de prueba
+     */
+    ClimateRecord testClimateRecord = new ClimateRecord();
+    testClimateRecord.setDate(date);
+    testClimateRecord.setParcel(testParcel);
+
+    entityManager.getTransaction().begin();
+    testClimateRecord = climateRecordService.create(testClimateRecord);
+    entityManager.getTransaction().commit();
+
+    climateRecords.add(testClimateRecord);
+
+    System.out.println("Datos del registro climatico de prueba:");
+    System.out.println("- ID: " + testClimateRecord.getId());
+    System.out.println("- Fecha: " + UtilDate.formatDate(testClimateRecord.getDate()));
+    System.out.println("- ID de la parcela a la que pertenece: " + testClimateRecord.getParcel().getId());
+    System.out.println();
+
+    /*
+     * Seccion de prueba
+     */
+    System.out.println("# Ejecucion de la prueba unitaria");
+    System.out.println("Fecha con la que se realiza la prueba: " + UtilDate.formatDate(date));
+    System.out.println("ID de la parcela con la que se realiza la prueba: " + testParcel.getId());
+    System.out.println();
+
+    boolean expectedResult = true;
+    boolean result = climateRecordService.checkExistence(date, testParcel);
+
+    System.out.println("* Resultado esperado: " + expectedResult);
+    System.out.println("* Resultado devuelto por checkExistence(): " + result);
+    System.out.println();
+
+    assertTrue(result == expectedResult);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+    System.out.println();
+  }
+
+  @Test
+  public void testTwoCheckExistence() {
+    System.out.println("******************************** Prueba dos del metodo checkExistence() ********************************");
+    System.out.println("# Descripcion del metodo a probar");
+    System.out.println("El metodo checkExistence() de la clase ClimateRecordServiceBean comprueba la existencia de un registro");
+    System.out.println("climatico perteneciente a una fecha y una parcela. Si en la base de datos subyacente existe un registro");
+    System.out.println("climatico con una parcela y una fecha retorna true. En caso contrario, retorna false.");
+    System.out.println();
+    System.out.println("En esta prueba unitaria se comprueba la existencia de un registro climatico utilizando una fecha y una");
+    System.out.println("parcela que NO pertenecen a ningun registro climatico. Por lo tanto, el metodo checkExistence() debe");
+    System.out.println("retornar false.");
+    System.out.println();
+
+    /*
+     * Creacion y persistencia de una ubicacion geografica
+     * para parcelas de prueba
+     */
+    GeographicLocation testGeographicLocation = new GeographicLocation();
+    testGeographicLocation.setLatitude(1);
+    testGeographicLocation.setLongitude(1);
+
+    entityManager.getTransaction().begin();
+    testGeographicLocation = geographicLocationService.create(testGeographicLocation);
+    entityManager.getTransaction().commit();
+
+    geographicLocations.add(testGeographicLocation);
+
+    /*
+     * Persistencia de una opcion para la parcela de prueba
+     */
+    entityManager.getTransaction().begin();
+    Option parcelOption = optionService.create();
+    entityManager.getTransaction().commit();
+
+    options.add(parcelOption);
+
+    /*
+     * Persistencia de una parcela de prueba
+     */
+    Parcel testParcel = new Parcel();
+    testParcel.setName("Erie");
+    testParcel.setHectares(2);
+    testParcel.setOption(parcelOption);
+    testParcel.setGeographicLocation(testGeographicLocation);
+
+    entityManager.getTransaction().begin();
+    testParcel = parcelService.create(testParcel);
+    entityManager.getTransaction().commit();
+
+    parcels.add(testParcel);
+
+    /*
+     * Creacion de fecha de prueba
+     */
+    Calendar date = UtilDate.getCurrentDate();
+    date.set(Calendar.YEAR, 2023);
+    date.set(Calendar.MONTH, JANUARY);
+    date.set(Calendar.DAY_OF_MONTH, 2);
+
+    /*
+     * Seccion de prueba
+     */
+    System.out.println("# Ejecucion de la prueba unitaria");
+    System.out.println("Fecha con la que se realiza la prueba: " + UtilDate.formatDate(date));
+    System.out.println("ID de la parcela con la que se realiza la prueba: " + testParcel.getId());
+    System.out.println();
+
+    boolean expectedResult = false;
+    boolean result = climateRecordService.checkExistence(date, testParcel);
+
+    System.out.println("* Resultado esperado: " + expectedResult);
+    System.out.println("* Resultado devuelto por checkExistence(): " + result);
+    System.out.println();
+
+    assertTrue(result == expectedResult);
 
     System.out.println("- Prueba pasada satisfactoriamente");
     System.out.println();
