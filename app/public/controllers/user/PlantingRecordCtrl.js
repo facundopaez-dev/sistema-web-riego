@@ -112,6 +112,15 @@ app.controller(
             $scope.data.deathDate = new Date($scope.data.deathDate);
           }
 
+          /* Si el estado de un registro de plantacion es "Muerto"
+          se debe mostrar el campo de la fecha de muerte en el
+          formulario de registro de plantacion */
+          $scope.showDateDeath = false;
+
+          if ($scope.data.status.name === DEAD_STATUS) {
+            $scope.showDateDeath = true;
+          }
+
           /* Las propiedades del grafico de la evolucion diaria del nivel de humedad
           del suelo deben ser establecidas y el grafico debe ser mostrado si y solo
           si la bandera suelo de las opciones de la parcela correspondiente a un
