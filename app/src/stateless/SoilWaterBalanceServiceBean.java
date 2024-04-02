@@ -293,6 +293,52 @@ public class SoilWaterBalanceServiceBean {
     }
 
     /**
+     * Un cultivo no muere cuando el nivel de humedad del
+     * suelo, en el que esta sembrado, esta en el punto
+     * de marchitez permanente del suelo o por debajo de
+     * este punto, ya que esto depende de cada cultivo.
+     * 
+     * Un cultivo muere cuando la perdida de humedad del
+     * suelo, en el que esta sembrado, es estrictamente
+     * mayor al doble de la capacidad de almacenamiento
+     * de agua del suelo. Esto se debe a que ningun cultivo
+     * tiene la capacidad de sobrevivir con dicha perdida
+     * de humedad de suelo. Esta es la convencion utilizada
+     * por la aplicacion para determinar la muerte de un
+     * cultivo.
+     * 
+     * La capacidad de almacenamiento de agua del suelo
+     * esta en funcion de la capacidad de campo del suelo,
+     * del punto de marchitez permanente del suelo, de la
+     * densidad aparente del suelo y de la profundidad
+     * radicular de un cultivo. Esto se debe a que la
+     * capacidad de almacenamiento de agua del suelo esta
+     * determinada por la lamina total de agua disponible
+     * (dt) [mm].
+     * 
+     * El nivel de humedad del suelo esta determinado
+     * por la cantidad agua que ingresa al suelo y la
+     * cantidad de agua que pierde el suelo.
+     * 
+     * @param parcelId
+     * @param cropDeathDate
+     * @return double que representa la perdida de humedad
+     * de suelo que causa la muerte de un cultivo
+     */
+    public double calculateCropDeathSoilMoistureLoss(int parcelId, Calendar cropDeathDate) {
+        /*
+         * Obtiene la perdida de humedad del suelo del dia
+         * inmediatamente anterior a la fecha de muerte de
+         * un cultivo
+         */
+        double soilMoistureLossFromDateBeforeDateCropDeath = Double
+                .parseDouble(find(parcelId, UtilDate.getYesterdayDateFromDate(cropDeathDate)).getAccumulatedSoilMoistureDeficitPerDay());
+        double soilMoistureLossDeathDate = find(parcelId, cropDeathDate).getSoilMoistureDeficitPerDay();
+
+        return Math.abs(soilMoistureLossFromDateBeforeDateCropDeath + soilMoistureLossDeathDate);
+    }
+
+    /**
      * Crea y persiste los balances hidricos de suelo con
      * determinadas fechas para una parcela que tiene un
      * cultivo en desarrollo cuando se calcula la necesidad

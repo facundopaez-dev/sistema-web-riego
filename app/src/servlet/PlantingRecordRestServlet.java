@@ -2540,11 +2540,16 @@ public class PlantingRecordRestServlet {
      */
     if (stringIrrigationWaterNeedCurrentDate != null && stringIrrigationWaterNeedCurrentDate.equals(notCalculated)) {
       plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(), notAvailable);
+      Calendar cropDeathDate = plantingRecordService.find(developingPlantingRecord.getId()).getDeathDate();
 
       String message = "El cultivo murió porque la pérdida de humedad del suelo fue estrictamente mayor al doble"
           + " de la capacidad de almacenamiento de agua del suelo (2 * "
           + developingPlantingRecord.getTotalAmountWaterAvailable()
-          + " = " + (2 * developingPlantingRecord.getTotalAmountWaterAvailable()) + "). El gráfico de la evolución diaria"
+          + " = " + (2 * developingPlantingRecord.getTotalAmountWaterAvailable()) + "). A partir de la fecha "
+          + UtilDate.formatDate(cropDeathDate)
+          + " la pérdida de humedad del suelo"
+          + " comenzó a ser de " + soilWaterBalanceService.calculateCropDeathSoilMoistureLoss(developingPlantingRecord.getParcel().getId(), cropDeathDate) 
+          + " [mm]. El gráfico de la evolución diaria"
           + " del nivel de humedad del suelo puede ser visualizado para un cultivo muerto presionando el botón de visualización"
           + " sobre el respectivo registro de plantación.";
 
