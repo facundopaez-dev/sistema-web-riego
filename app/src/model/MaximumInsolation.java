@@ -39,47 +39,36 @@ public class MaximumInsolation {
   @JoinColumn(name = "FK_MONTH")
   private Month month;
 
-  // Constructor method
   public MaximumInsolation() {
 
   }
 
-  /* Getters and setters */
-
-  /**
-   * Returns value of id
-   * 
-   * @return
-   */
   public int getId() {
     return id;
   }
 
-  /**
-   * Returns value of decimalLatitude
-   * 
-   * @return decimalLatitude
-   */
   public Latitude getLatitude() {
     return decimalLatitude;
   }
 
-  /**
-   * Returns value of maximumInsolationValue
-   * 
-   * @return
-   */
+  public void setLatitude(Latitude decimalLatitude) {
+    this.decimalLatitude = decimalLatitude;
+  }
+
   public float getInsolation() {
     return maximumInsolationValue;
   }
 
-  /**
-   * Returns value of month
-   * 
-   * @return
-   */
+  public void setInsolation(float maximumInsolationValue) {
+    this.maximumInsolationValue = maximumInsolationValue;
+  }
+
   public Month getMonth() {
     return month;
+  }
+
+  public void setMonth(Month month) {
+    this.month = month;
   }
 
 }
