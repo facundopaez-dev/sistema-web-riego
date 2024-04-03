@@ -12,15 +12,6 @@ import model.Month;
 @Stateless
 public class MaximumInsolationServiceBean {
 
-  // inject a reference to the MonthServiceBean
-  @EJB MonthServiceBean monthService;
-
-  // inject a reference to the LatitudeServiceBean
-  @EJB LatitudeServiceBean latitudeService;
-
-  /*
-   * Instance variables
-   */
   @PersistenceContext(unitName = "swcar")
   private EntityManager entityManager;
 
@@ -53,43 +44,29 @@ public class MaximumInsolationServiceBean {
   }
 
   /**
-   * @param  numberMonth [0 .. 11]
-   * @param  latitude    [grados decimales]
-   * @return promedio de la insolacion maxima en caso de que la
-   * latitud sea impar, en caso contrario retorna la insolacion
-   * maxima sin promediarla
+   * @param doubleLatitude
+   * @param month
+   * @param latitude
+   * @param previousLatitude
+   * @param nextLatitude
+   * @return double que representa la insolacion maxima correspondiente
+   * a un mes y una latitud
    */
-  public double getInsolation(int numberMonth, double latitude) {
-    Latitude previousLatitude = null;
-    Latitude nextLatitude = null;
-    int intLatitude = (int) latitude;
+  public double getInsolation(double doubleLatitude, Month month, Latitude latitude, Latitude previousLatitude, Latitude nextLatitude) {
     MaximumInsolation previousInsolation = null;
     MaximumInsolation nextInsolation = null;
-
-    /*
-     * Los meses en la clase Calendar van desde cero
-     * a once, por este motivo, si el parametro numberMonth
-     * es obtenido de un objeto de tipo Calendar, se le tiene
-     * que sumar un uno para poder obtener un mes de la
-     * base de datos, los cuales en la misma van desde
-     * uno a doce
-     */
-    Month month = monthService.find(numberMonth + 1);
+    int intLatitude = (int) doubleLatitude;
 
     /*
      * Si la latitud es impar se recuperan las latitudes
      * aledañas a la latitud impar y a partir de estas
      * dos latitudes se recuperan sus correspondientes
-     * insolaciones maximes con las cuales se calcula
+     * insolaciones maximas con las cuales se calcula
      * y retorna la insolacion maxima promedio
      */
     if ((intLatitude % 2) != 0) {
-      previousLatitude = latitudeService.find(intLatitude + 1);
-      nextLatitude = latitudeService.find(intLatitude - 1);
-
       previousInsolation = find(month, previousLatitude);
       nextInsolation = find(month, nextLatitude);
-
       return ((previousInsolation.getInsolation() + nextInsolation.getInsolation()) / 2.0);
     }
 
@@ -97,7 +74,7 @@ public class MaximumInsolationServiceBean {
      * Si la latitud no es impar se retorna
      * la insolacion maxima sin promediarla
      */
-    return find(month, latitudeService.find(intLatitude)).getInsolation();
+    return find(month, latitude).getInsolation();
   }
 
 }
