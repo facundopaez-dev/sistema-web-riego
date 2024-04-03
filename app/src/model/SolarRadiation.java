@@ -42,42 +42,32 @@ public class SolarRadiation {
 
   }
 
-  /* Getters and setters */
-
-  /**
-   * Returns value of id
-   * 
-   * @return
-   */
   public int getId() {
     return id;
   }
 
-  /**
-   * Returns value of solarRadiationValue
-   * 
-   * @return
-   */
   public float getRadiation() {
     return solarRadiationValue;
   }
 
-  /**
-   * Returns value of decimalLatitude
-   * 
-   * @return decimalLatitude
-   */
+  public void setRadiation(float solarRadiationValue) {
+    this.solarRadiationValue = solarRadiationValue;
+  }
+
   public Latitude getLatitude() {
     return decimalLatitude;
   }
 
-  /**
-   * Returns value of month
-   * 
-   * @return
-   */
+  public void setLatitude(Latitude decimalLatitude) {
+    this.decimalLatitude = decimalLatitude;
+  }
+
   public Month getMonth() {
     return month;
+  }
+
+  public void setMonth(Month month) {
+    this.month = month;
   }
 
 }
