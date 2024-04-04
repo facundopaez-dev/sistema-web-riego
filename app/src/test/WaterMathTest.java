@@ -651,13 +651,13 @@ public class WaterMathTest {
 
   /*
    * ***************************************************************************************************************
-   * A partir de aqui comienzan las pruebas unitarias del metodo calculateWaterDeficitPerDay() de la clase WaterMath
+   * A partir de aqui comienzan las pruebas unitarias del metodo calculateSoilMoistureDeficitPerDay() de la clase WaterMath
    * ***************************************************************************************************************
    */
 
   @Test
   public void testOneCalculateWaterDeficitPerDay() {
-    System.out.println("************************************** Prueba uno del metodo calculateWaterDeficitPerDay ***************************************");
+    System.out.println("************************************** Prueba uno del metodo calculateSoilMoistureDeficitPerDay ***************************************");
     printDescriptionCalculateWaterDeficitPerDay();
     System.out.println();
 
@@ -680,10 +680,10 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = -5;
-    double result = WaterMath.calculateWaterDeficitPerDay(etc, precipitation, totalIrrigationWater);
+    double result = WaterMath.calculateSoilMoistureDeficitPerDay(etc, precipitation, totalIrrigationWater);
 
     System.out.println("* Valor esperado (deficit de humedad por dia [mm/dia]): " + expectedResult);
-    System.out.println("* Valor devuelto por el metodo calculateWaterDeficitPerDay(): " + result);
+    System.out.println("* Valor devuelto por el metodo calculateSoilMoistureDeficitPerDay(): " + result);
     System.out.println();
 
     assertEquals(expectedResult, result, 0.001);
@@ -694,7 +694,7 @@ public class WaterMathTest {
 
   @Test
   public void testTwoCalculateWaterDeficitPerDay() {
-    System.out.println("************************************** Prueba dos del metodo calculateWaterDeficitPerDay ***************************************");
+    System.out.println("************************************** Prueba dos del metodo calculateSoilMoistureDeficitPerDay ***************************************");
     printDescriptionCalculateWaterDeficitPerDay();
     System.out.println();
 
@@ -717,10 +717,10 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 5;
-    double result = WaterMath.calculateWaterDeficitPerDay(etc, precipitation, totalIrrigationWater);
+    double result = WaterMath.calculateSoilMoistureDeficitPerDay(etc, precipitation, totalIrrigationWater);
 
     System.out.println("* Valor esperado (deficit de humedad por dia [mm/dia]): " + expectedResult);
-    System.out.println("* Valor devuelto por el metodo calculateWaterDeficitPerDay(): " + result);
+    System.out.println("* Valor devuelto por el metodo calculateSoilMoistureDeficitPerDay(): " + result);
     System.out.println();
 
     assertEquals(expectedResult, result, 0.001);
@@ -731,7 +731,7 @@ public class WaterMathTest {
 
   @Test
   public void testThreeCalculateWaterDeficitPerDay() {
-    System.out.println("************************************** Prueba tres del metodo calculateWaterDeficitPerDay ***************************************");
+    System.out.println("************************************** Prueba tres del metodo calculateSoilMoistureDeficitPerDay ***************************************");
     printDescriptionCalculateWaterDeficitPerDay();
     System.out.println();
 
@@ -754,10 +754,10 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 0;
-    double result = WaterMath.calculateWaterDeficitPerDay(etc, precipitation, totalIrrigationWater);
+    double result = WaterMath.calculateSoilMoistureDeficitPerDay(etc, precipitation, totalIrrigationWater);
 
     System.out.println("* Valor esperado (deficit de humedad por dia [mm/dia]): " + expectedResult);
-    System.out.println("* Valor devuelto por el metodo calculateWaterDeficitPerDay(): " + result);
+    System.out.println("* Valor devuelto por el metodo calculateSoilMoistureDeficitPerDay(): " + result);
     System.out.println();
 
     assertEquals(expectedResult, result, 0.001);
@@ -768,24 +768,24 @@ public class WaterMathTest {
 
   private void printDescriptionCalculateWaterDeficitPerDay() {
     System.out.println("# Descripcion del metodo a probar");
-    System.out.println("El metodo calculateWaterDeficitPerDay() de la clase WaterMath calcula el deficit de humedad por dia mediante la ETc, la");
+    System.out.println("El metodo calculateSoilMoistureDeficitPerDay() de la clase WaterMath calcula el deficit de humedad por dia mediante la ETc, la");
     System.out.println("precipitacion y la cantidad total de agua de riego, debiendo ser estos tres valores de una misma fecha.");
     System.out.println();
     System.out.println("Si la ETc es estrictamente mayor a la suma entre la precipitacion y la cantidad total de agua de riego, el resultado devuelto");
-    System.out.println("por el metodo calculateWaterDeficitPerDay() es negativo. En cambio, si la suma entre la precipitacion y la cantidad total de");
+    System.out.println("por el metodo calculateSoilMoistureDeficitPerDay() es negativo. En cambio, si la suma entre la precipitacion y la cantidad total de");
     System.out.println("agua riego es estrictamente mayor a la ETc, el resultado devuelto es positivo. Si la ETc es igual a la suma entre la precipitacion");
     System.out.println("y la cantidad total de agua de riego, el resultado es 0.");
   }
 
   /*
    * ****************************************************************************************************************
-   * A partir de aqui comienzan las pruebas unitarias del metodo accumulateWaterDeficitPerDay() de la clase WaterMath
+   * A partir de aqui comienzan las pruebas unitarias del metodo accumulateSoilMoistureDeficitPerDay() de la clase WaterMath
    * ****************************************************************************************************************
    */
 
   @Test
   public void testOneAccumulateWaterDeficitPerDay() {
-    System.out.println("************************************** Prueba uno del metodo accumulateWaterDeficitPerDay ***************************************");
+    System.out.println("************************************** Prueba uno del metodo accumulateSoilMoistureDeficitPerDay ***************************************");
     printDescriptionAccumulateWaterDeficitPerDay();
     System.out.println();
 
@@ -806,10 +806,10 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = -6;
-    double result = WaterMath.accumulateWaterDeficitPerDay(soilMoistureDeficitPerDay, accumulatedSoilMoistureDeficitPerDay);
+    double result = WaterMath.accumulateSoilMoistureDeficitPerDay(soilMoistureDeficitPerDay, accumulatedSoilMoistureDeficitPerDay);
 
     System.out.println("* Valor esperado (acumulado del deficit de humedad por dia [mm/dia]): " + expectedResult);
-    System.out.println("* Valor devuelto por el metodo accumulateWaterDeficitPerDay(): " + result);
+    System.out.println("* Valor devuelto por el metodo accumulateSoilMoistureDeficitPerDay(): " + result);
     System.out.println();
 
     assertEquals(expectedResult, result, 0.001);
@@ -820,7 +820,7 @@ public class WaterMathTest {
 
   @Test
   public void testTwoAccumulateWaterDeficitPerDay() {
-    System.out.println("************************************** Prueba dos del metodo accumulateWaterDeficitPerDay ***************************************");
+    System.out.println("************************************** Prueba dos del metodo accumulateSoilMoistureDeficitPerDay ***************************************");
     printDescriptionAccumulateWaterDeficitPerDay();
     System.out.println();
 
@@ -841,10 +841,10 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 0;
-    double result = WaterMath.accumulateWaterDeficitPerDay(soilMoistureDeficitPerDay, accumulatedSoilMoistureDeficitPerDay);
+    double result = WaterMath.accumulateSoilMoistureDeficitPerDay(soilMoistureDeficitPerDay, accumulatedSoilMoistureDeficitPerDay);
 
     System.out.println("* Valor esperado (acumulado del deficit de humedad por dia [mm/dia]): " + expectedResult);
-    System.out.println("* Valor devuelto por el metodo accumulateWaterDeficitPerDay(): " + result);
+    System.out.println("* Valor devuelto por el metodo accumulateSoilMoistureDeficitPerDay(): " + result);
     System.out.println();
 
     assertEquals(expectedResult, result, 0.001);
@@ -855,7 +855,7 @@ public class WaterMathTest {
 
   @Test
   public void testThreeAccumulateWaterDeficitPerDay() {
-    System.out.println("************************************** Prueba tres del metodo accumulateWaterDeficitPerDay ***************************************");
+    System.out.println("************************************** Prueba tres del metodo accumulateSoilMoistureDeficitPerDay ***************************************");
     printDescriptionAccumulateWaterDeficitPerDay();
     System.out.println();
 
@@ -876,10 +876,10 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = 0;
-    double result = WaterMath.accumulateWaterDeficitPerDay(soilMoistureDeficitPerDay, accumulatedSoilMoistureDeficitPerDay);
+    double result = WaterMath.accumulateSoilMoistureDeficitPerDay(soilMoistureDeficitPerDay, accumulatedSoilMoistureDeficitPerDay);
 
     System.out.println("* Valor esperado (acumulado del deficit de humedad por dia [mm/dia]): " + expectedResult);
-    System.out.println("* Valor devuelto por el metodo accumulateWaterDeficitPerDay(): " + result);
+    System.out.println("* Valor devuelto por el metodo accumulateSoilMoistureDeficitPerDay(): " + result);
     System.out.println();
 
     assertEquals(expectedResult, result, 0.001);
@@ -890,7 +890,7 @@ public class WaterMathTest {
 
   @Test
   public void testFourAccumulateWaterDeficitPerDay() {
-    System.out.println("************************************** Prueba cuatro del metodo accumulateWaterDeficitPerDay ***************************************");
+    System.out.println("************************************** Prueba cuatro del metodo accumulateSoilMoistureDeficitPerDay ***************************************");
     printDescriptionAccumulateWaterDeficitPerDay();
     System.out.println();
 
@@ -911,10 +911,10 @@ public class WaterMathTest {
     System.out.println("# Ejecucion de la prueba unitaria");
 
     double expectedResult = -9;
-    double result = WaterMath.accumulateWaterDeficitPerDay(soilMoistureDeficitPerDay, accumulatedSoilMoistureDeficitPerDay);
+    double result = WaterMath.accumulateSoilMoistureDeficitPerDay(soilMoistureDeficitPerDay, accumulatedSoilMoistureDeficitPerDay);
 
     System.out.println("* Valor esperado (acumulado del deficit de humedad por dia [mm/dia]): " + expectedResult);
-    System.out.println("* Valor devuelto por el metodo accumulateWaterDeficitPerDay(): " + result);
+    System.out.println("* Valor devuelto por el metodo accumulateSoilMoistureDeficitPerDay(): " + result);
     System.out.println();
 
     assertEquals(expectedResult, result, 0.001);
@@ -925,7 +925,7 @@ public class WaterMathTest {
 
   private void printDescriptionAccumulateWaterDeficitPerDay() {
     System.out.println("# Descripcion del metodo a probar");
-    System.out.println("El metodo accumulateWaterDeficitPerDay() de la clase WaterMath acumula el deficit de humedad por dia. Si el resultado de acumular");
+    System.out.println("El metodo accumulateSoilMoistureDeficitPerDay() de la clase WaterMath acumula el deficit de humedad por dia. Si el resultado de acumular");
     System.out.println("el deficit de humedad por dia es un numero negativo (estrictamente menor a cero), retorna un numero negativo. Si el resultado de");
     System.out.println("acumular el deficit de humedad por dia es un numero positivo (estrictamente mayor a cero), retorna cero. Si el resultado de acumular");
     System.out.println("el deficit de humedad por dia es igual a cero, retorna cero.");
@@ -957,7 +957,7 @@ public class WaterMathTest {
 
     for (ClimateRecord currentClimateRecord : givenClimateRecords) {
       differencePerDay = currentClimateRecord.getPrecip() - currentClimateRecord.getEtc();
-      accumulatedSoilMoistureDeficitPerDay = WaterMath.accumulateWaterDeficitPerDay(differencePerDay, accumulatedSoilMoistureDeficitPerDay);
+      accumulatedSoilMoistureDeficitPerDay = WaterMath.accumulateSoilMoistureDeficitPerDay(differencePerDay, accumulatedSoilMoistureDeficitPerDay);
 
       System.out.print(" " + day + " (" + UtilDate.formatDate(currentClimateRecord.getDate()) + ")");
       System.out.print("  |");
