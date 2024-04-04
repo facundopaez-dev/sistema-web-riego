@@ -24,7 +24,5 @@ El sistema tendrá inicio de sesión y registro de usuario, y podrá ser utiliza
 - Creación, modificación y eliminación (lógica) de tipos de cultivo.
 - Creación, modificación y eliminación (lógica) de suelos.
 - Generación y eliminación de informes estadísticos de parcelas.
-- Obtención y persistencia, en forma de registros climáticos, de los datos meteorológicos de la ubicación geográfica de una parcela.
 - Registro (sign up) e ingreso (log in) de usuario.
-- Ingreso (log in) como administrador. 
-- Modificación de los datos y de la contraseña de la cuenta.
+- Ingreso (log in) como administrador.
