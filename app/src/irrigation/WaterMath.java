@@ -87,6 +87,123 @@ public class WaterMath {
   }
 
   /**
+   * @param etc
+   * @param precipitation
+   * @param totalAmountIrrigationWater
+   * @return double que representa el deficit (falta) de humedad
+   * de suelo por dia [mm/dia] en una fecha. Se dice que el deficit
+   * de humedad de suelo por dia [mm/dia] es de una fecha porque la
+   * ETc, la precipitacion y la cantidad total de agua de riego
+   * pertenecen a una fecha
+   */
+  public static double calculateSoilMoistureDeficitPerDay(double etc, double precipitation, double totalAmountIrrigationWater) {
+    /*
+     * El deficit de humedad de suelo por dia [mm/dia] en una
+     * fecha es la diferencia entre el agua provista (precipitacion
+     * natural o precipitacion artificial, o ambas) [mm/dia] y
+     * el agua evapotranspirada [mm/dia], la cual esta determinada
+     * por la ETc (evapotranspiracion del cultivo bajo condiciones
+     * estandar) [mm/dia]. Si el resultado de esta diferencia:
+     * - es menor a cero significa que hay deficit (falta) de
+     * humedad en el suelo [mm/dia], con lo cual hay una cantidad
+     * de humedad del suelo que se debe cubrir (satisfacer) mediante
+     * agua.
+     * - es igual a cero significa que la cantidad de humedad
+     * evapotranspirada fue cubierta (satisfecha) con una igual
+     * cantidad de agua, ni agua de mas ni agua de menos.
+     * - es mayor a cero significa que la cantidad de humedad
+     * evapotranspirada fue cubierta (satisfecha) y que hay
+     * escurrimiento de agua. En este caso, el resultado de la
+     * diferencia es la cantidad de agua [mm/dia] que se escurre.
+     * 
+     * Solo para aclarar: estas condiciones ocurren en una
+     * parcela en una fecha. La ETc, la precipitacion y la
+     * cantidad total de agua de riego pertenecen a una fecha.
+     */
+    return ((precipitation + totalAmountIrrigationWater) - etc);
+  }
+
+  /**
+   * @param deficitPerDay
+   * @param accumulatedSoilMoistureDeficitPerDay
+   * @return double que representa el acumulado del deficit (falta)
+   * de humedad de suelo por dia [mm/dia]
+   */
+  public static double accumulateSoilMoistureDeficitPerDay(double deficitPerDay, double accumulatedSoilMoistureDeficitPerDay) {
+    /*
+     * Si el deficit de humedad de suelo por dia [mm/dia] es
+     * negativo, se lo acumula, ya que esto es necesario para
+     * determinar la necesidad de agua de riego de un cultivo en
+     * una fecha en caso de que este metodo sea invocado para una
+     * parcela que tiene un cultivo en desarrollo en una fecha.
+     * 
+     * Si el deficit de humedad de suelo por dia [mm/dia] es positivo
+     * y el acumulado del deficit de humedad de suelo por dia [mm/dia]
+     * es negativo, significa:
+     * - que la cantidad de humedad perdida del suelo en un dia
+     * esta totalmente cubierta (satisfecha) y que hay una cantidad
+     * extra de agua [mm/dia], y
+     * - que toda la humedad perdida del suelo en un conjunto de
+     * dias previos al dia correspondiente del deficit de humedad
+     * por dia, NO esta cubierta (satisfecha). En esta situacion
+     * hay lugar en el suelo para almacenar agua. Por lo tanto, la
+     * cantidad extra de agua del dia correspondiente del deficit
+     * de humedad por dia, se almacena en el suelo.
+     * 
+     * En esta instruccion se concentran estas dos condiciones.
+     */
+    accumulatedSoilMoistureDeficitPerDay = accumulatedSoilMoistureDeficitPerDay + deficitPerDay;
+
+    /*
+     * Si el acumulado del deficit de humedad por dia [mm/dia]
+     * de dias previos a una fecha es estrictamente mayor a cero,
+     * significa que toda la perdida de humedad del suelo en dias
+     * previos al dia correspondiente del deficit de humedad por
+     * dia, fue totalmente cubierta (satisfecha) mediante preciptacion
+     * (artificial y/o natural) en el dia de dicho deficit. En
+     * consecuencia, el acumulado del deficit de humedad por dia,
+     * de dias previos a una fecha, es 0 [mm/dia]. Esto significa
+     * que en el dia correspondiente al deficit de humedad por dia,
+     * el nivel de humedad del suelo esta en capacidad de campo,
+     * lo cual significa que el suelo esta en capacidad de campo
+     * (capacidad de campo es la condicion en la que el suelo esta
+     * lleno de agua o en su maxima capacidad de almacenamiento de
+     * agua, pero no anegado). Por lo tanto, en el dia del deficit
+     * de humedad por dia NO hay una cantidad acumulada de perdida
+     * de humedad del suelo que cubrir (satisfacer) mediante
+     * precipitacion (artificial y/o natural).
+     * 
+     * Si el acumulado del deficit de humedad por dia de dias
+     * previos a una fecha [mm/dia] es igual a cero, se esta en
+     * la misma situacion. Por lo tanto, en el dia correspondiente
+     * al deficit de humedad por dia, el nivel de humedad del
+     * suelo esta en capacidad de campo, lo cual significa que
+     * el suelo esta en capacidad de campo.
+     * 
+     * El metodo calculateNegativeOptimalIrrigationLayer(),
+     * escrito en esta clase, tiene una explicacion de lo que
+     * es la capacidad de campo.
+     */
+    if (accumulatedSoilMoistureDeficitPerDay > 0) {
+      accumulatedSoilMoistureDeficitPerDay = 0;
+    }
+
+    return accumulatedSoilMoistureDeficitPerDay;
+  }
+
+  /**
+   * @param precipPerDay
+   * @param totalAmountIrrigationWaterPerDay
+   * @return double que representa la cantidad total de agua
+   * provista por dia [mm/dia] como resultado de la suma entre
+   * la precipiacion por dia [mm/dia] y el agua de riego por
+   * dia [mm/dia]
+   */
+  public static double calculateWaterProvidedPerDay(double precipPerDay, double totalAmountIrrigationWaterPerDay) {
+    return precipPerDay + totalAmountIrrigationWaterPerDay;
+  }
+
+  /**
    * Este metodo calcula el acumulado del deficit de humedad por dia [mm/dia]
    * de dias previos a una fecha sumando el deficit de humedad por dia
    * de cada uno de dichos dias. La fecha puede ser la fecha actual
@@ -185,43 +302,6 @@ public class WaterMath {
   }
 
   /**
-   * @param etc
-   * @param precipitation
-   * @param totalAmountIrrigationWater
-   * @return double que representa el deficit (falta) de humedad
-   * de suelo por dia [mm/dia] en una fecha. Se dice que el deficit
-   * de humedad de suelo por dia [mm/dia] es de una fecha porque la
-   * ETc, la precipitacion y la cantidad total de agua de riego
-   * pertenecen a una fecha
-   */
-  public static double calculateSoilMoistureDeficitPerDay(double etc, double precipitation, double totalAmountIrrigationWater) {
-    /*
-     * El deficit de humedad de suelo por dia [mm/dia] en una
-     * fecha es la diferencia entre el agua provista (precipitacion
-     * natural o precipitacion artificial, o ambas) [mm/dia] y
-     * el agua evapotranspirada [mm/dia], la cual esta determinada
-     * por la ETc (evapotranspiracion del cultivo bajo condiciones
-     * estandar) [mm/dia]. Si el resultado de esta diferencia:
-     * - es menor a cero significa que hay deficit (falta) de
-     * humedad en el suelo [mm/dia], con lo cual hay una cantidad
-     * de humedad del suelo que se debe cubrir (satisfacer) mediante
-     * agua.
-     * - es igual a cero significa que la cantidad de humedad
-     * evapotranspirada fue cubierta (satisfecha) con una igual
-     * cantidad de agua, ni agua de mas ni agua de menos.
-     * - es mayor a cero significa que la cantidad de humedad
-     * evapotranspirada fue cubierta (satisfecha) y que hay
-     * escurrimiento de agua. En este caso, el resultado de la
-     * diferencia es la cantidad de agua [mm/dia] que se escurre.
-     * 
-     * Solo para aclarar: estas condiciones ocurren en una
-     * parcela en una fecha. La ETc, la precipitacion y la
-     * cantidad total de agua de riego pertenecen a una fecha.
-     */
-    return ((precipitation + totalAmountIrrigationWater) - etc);
-  }
-
-  /**
    * @param climateRecord
    * @param irrigationRecords
    * @return double que representa el deficit (falta) de agua por dia
@@ -276,86 +356,6 @@ public class WaterMath {
      * riego pertenecen a una parcela y tienen una fecha (dia).
      */
     return ((climateRecord.getPrecip() + totalIrrigationWaterGivenDate) - climateRecord.getEtc());
-  }
-
-  /**
-   * @param deficitPerDay
-   * @param accumulatedSoilMoistureDeficitPerDay
-   * @return double que representa el acumulado del deficit (falta)
-   * de humedad de suelo por dia [mm/dia]
-   */
-  public static double accumulateSoilMoistureDeficitPerDay(double deficitPerDay, double accumulatedSoilMoistureDeficitPerDay) {
-    /*
-     * Si el deficit de humedad de suelo por dia [mm/dia] es
-     * negativo, se lo acumula, ya que esto es necesario para
-     * determinar la necesidad de agua de riego de un cultivo en
-     * una fecha en caso de que este metodo sea invocado para una
-     * parcela que tiene un cultivo en desarrollo en una fecha.
-     * 
-     * Si el deficit de humedad de suelo por dia [mm/dia] es positivo
-     * y el acumulado del deficit de humedad de suelo por dia [mm/dia]
-     * es negativo, significa:
-     * - que la cantidad de humedad perdida del suelo en un dia
-     * esta totalmente cubierta (satisfecha) y que hay una cantidad
-     * extra de agua [mm/dia], y
-     * - que toda la humedad perdida del suelo en un conjunto de
-     * dias previos al dia correspondiente del deficit de humedad
-     * por dia, NO esta cubierta (satisfecha). En esta situacion
-     * hay lugar en el suelo para almacenar agua. Por lo tanto, la
-     * cantidad extra de agua del dia correspondiente del deficit
-     * de humedad por dia, se almacena en el suelo.
-     * 
-     * En esta instruccion se concentran estas dos condiciones.
-     */
-    accumulatedSoilMoistureDeficitPerDay = accumulatedSoilMoistureDeficitPerDay + deficitPerDay;
-
-    /*
-     * Si el acumulado del deficit de humedad por dia [mm/dia]
-     * de dias previos a una fecha es estrictamente mayor a cero,
-     * significa que toda la perdida de humedad del suelo en dias
-     * previos al dia correspondiente del deficit de humedad por
-     * dia, fue totalmente cubierta (satisfecha) mediante preciptacion
-     * (artificial y/o natural) en el dia de dicho deficit. En
-     * consecuencia, el acumulado del deficit de humedad por dia,
-     * de dias previos a una fecha, es 0 [mm/dia]. Esto significa
-     * que en el dia correspondiente al deficit de humedad por dia,
-     * el nivel de humedad del suelo esta en capacidad de campo,
-     * lo cual significa que el suelo esta en capacidad de campo
-     * (capacidad de campo es la condicion en la que el suelo esta
-     * lleno de agua o en su maxima capacidad de almacenamiento de
-     * agua, pero no anegado). Por lo tanto, en el dia del deficit
-     * de humedad por dia NO hay una cantidad acumulada de perdida
-     * de humedad del suelo que cubrir (satisfacer) mediante
-     * precipitacion (artificial y/o natural).
-     * 
-     * Si el acumulado del deficit de humedad por dia de dias
-     * previos a una fecha [mm/dia] es igual a cero, se esta en
-     * la misma situacion. Por lo tanto, en el dia correspondiente
-     * al deficit de humedad por dia, el nivel de humedad del
-     * suelo esta en capacidad de campo, lo cual significa que
-     * el suelo esta en capacidad de campo.
-     * 
-     * El metodo calculateNegativeOptimalIrrigationLayer(),
-     * escrito en esta clase, tiene una explicacion de lo que
-     * es la capacidad de campo.
-     */
-    if (accumulatedSoilMoistureDeficitPerDay > 0) {
-      accumulatedSoilMoistureDeficitPerDay = 0;
-    }
-
-    return accumulatedSoilMoistureDeficitPerDay;
-  }
-
-  /**
-   * @param precipPerDay
-   * @param totalAmountIrrigationWaterPerDay
-   * @return double que representa la cantidad total de agua
-   * provista por dia [mm/dia] como resultado de la suma entre
-   * la precipiacion por dia [mm/dia] y el agua de riego por
-   * dia [mm/dia]
-   */
-  public static double calculateWaterProvidedPerDay(double precipPerDay, double totalAmountIrrigationWaterPerDay) {
-    return precipPerDay + totalAmountIrrigationWaterPerDay;
   }
 
   /**
