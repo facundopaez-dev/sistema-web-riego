@@ -2823,7 +2823,7 @@ public class PlantingRecordRestServlet {
      * de agua de riego de un cultivo y la fecha del acumulado
      * del deficit de humedad por dia.
      */
-    return String.valueOf(WaterMath.calculateIrrigationWaterNeed(totalIrrigationWaterCurrentDate, accumulatedSoilMoistureDeficitPerDayFromYesterday));
+    return String.valueOf(WaterMath.calculateCropIrrigationWaterNeed(totalIrrigationWaterCurrentDate, accumulatedSoilMoistureDeficitPerDayFromYesterday));
   }
 
   /**

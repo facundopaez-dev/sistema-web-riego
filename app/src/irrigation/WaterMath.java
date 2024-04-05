@@ -49,7 +49,7 @@ public class WaterMath {
    * agua por dia de antes de ayer, la necesidad de agua
    * de riego de un cultivo calculada es de ayer.
    */
-  public static double calculateIrrigationWaterNeed(double totalIrrigationWaterGivenDate, double accumulatedSoilMoistureDeficitPerDay) {
+  public static double calculateCropIrrigationWaterNeed(double totalIrrigationWaterGivenDate, double accumulatedSoilMoistureDeficitPerDay) {
 
     /*
      * Si la suma entre la cantidad total de agua de riego de
