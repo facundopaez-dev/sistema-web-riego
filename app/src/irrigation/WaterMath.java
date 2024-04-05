@@ -26,28 +26,30 @@ public class WaterMath {
    * @param totalIrrigationWaterGivenDate
    * @param accumulatedSoilMoistureDeficitPerDay
    * @return double que representa la necesidad de agua de
-   * riego de un cultivo de una fecha [mm/dia].
+   * riego de un cultivo en una fecha [mm/dia].
    * 
    * La fecha para la que se calcula la necesidad de agua
    * de riego de un cultivo [mm/dia] depende de la fecha
-   * de la cantidad total de agua de riego [mm/dia] y de
-   * la fecha del acumulado del deficit de humedad por dia
-   * [mm/dia], el cual debe ser de la fecha inmediatamente
-   * anterior a la fecha de la cantidad total de agua de
-   * riego si se quiere calcular la necesidad de agua de
-   * riego de un cultivo en una fecha.
+   * de la cantidad total de agua de riego de cultivo
+   * [mm/dia] y de la fecha del acumulado del deficit de
+   * humedad de suelo por dia [mm/dia], el cual debe ser
+   * de la fecha inmediatamente anterior a la fecha de la
+   * cantidad total de agua de riego de cultivo para calcular
+   * la necesidad de agua de riego de un cultivo en una
+   * fecha.
    * 
    * Para calcular la necesidad de agua de riego de un
-   * cultivo en la fecha actual se debe utilizar la
-   * cantidad total de agua de riego [mm/dia] de la
-   * fecha actual (es decir, hoy) y el acumulado del
-   * deficit de humedad por dia [mm/dia] de la fecha
-   * inmediatamente a la fech actual.
+   * cultivo en la fecha actual (es decir, hoy) se debe
+   * utilizar la cantidad total de agua de riego [mm/dia]
+   * de cultivo de la fecha actual y el acumulado del
+   * deficit de humedad de suelo por dia [mm/dia] de la
+   * fecha inmediatamente anterior a la fecha actual.
    * 
    * Si este metodo se utiliza con la cantidad total de
-   * agua de riego de ayer y el acumulado del deficit de
-   * agua por dia de antes de ayer, la necesidad de agua
-   * de riego de un cultivo calculada es de ayer.
+   * agua de riego de cultivo de ayer y el acumulado del
+   * deficit de humedad de suelo por dia de antes de ayer,
+   * la necesidad de agua de riego de un cultivo calculada
+   * es de ayer.
    */
   public static double calculateCropIrrigationWaterNeed(double totalIrrigationWaterGivenDate, double accumulatedSoilMoistureDeficitPerDay) {
 
