@@ -23,7 +23,7 @@ public class WaterMath {
   }
 
   /**
-   * @param totalIrrigationWaterGivenDate
+   * @param totalAmountCropIrrigationWaterPerDay
    * @param accumulatedSoilMoistureDeficitPerDay
    * @return double que representa la necesidad de agua de
    * riego de un cultivo en una fecha [mm/dia].
@@ -51,7 +51,7 @@ public class WaterMath {
    * la necesidad de agua de riego de un cultivo calculada
    * es de ayer.
    */
-  public static double calculateCropIrrigationWaterNeed(double totalIrrigationWaterGivenDate, double accumulatedSoilMoistureDeficitPerDay) {
+  public static double calculateCropIrrigationWaterNeed(double totalAmountCropIrrigationWaterPerDay, double accumulatedSoilMoistureDeficitPerDay) {
 
     /*
      * Si la suma entre la cantidad total de agua de riego de
@@ -69,7 +69,7 @@ public class WaterMath {
      * por dia [mm/dia] de dias previos a una fecha es menor
      * o igual a cero.
      */
-    if ((totalIrrigationWaterGivenDate + accumulatedSoilMoistureDeficitPerDay) >= 0) {
+    if ((totalAmountCropIrrigationWaterPerDay + accumulatedSoilMoistureDeficitPerDay) >= 0) {
       return 0.0;
     }
 
@@ -85,7 +85,7 @@ public class WaterMath {
      * cultivo en una fecha [mm/dia] es el valor absoluto de
      * la suma entre estos dos valores.
      */
-    return Math.abs(totalIrrigationWaterGivenDate + accumulatedSoilMoistureDeficitPerDay);
+    return Math.abs(totalAmountCropIrrigationWaterPerDay + accumulatedSoilMoistureDeficitPerDay);
   }
 
   /**
