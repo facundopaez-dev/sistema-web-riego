@@ -69,9 +69,10 @@ public class WaterMathTest {
 
     /*
      * Esta coleccion es unicamente para aquellas pruebas unitarias
-     * del metodo calculateAccumulatedWaterDeficitPerDay de la clase
+     * del metodo calculateCropIrrigationWaterNeed() de la clase
      * WaterMath en las que se busca demostrar el correcto funcionamiento
-     * del mismo sin hacer uso del agua de riego
+     * del mismo sin hacer uso del agua de riego de cultivo de un
+     * conjunto de dias
      */
     zeroIrrigationRecords = new ArrayList<>();
     climateRecords = new ArrayList<>();
@@ -130,8 +131,8 @@ public class WaterMathTest {
   }
 
   @Test
-  public void testOneCalculateAccumulatedWaterDeficitPerDay() {
-    System.out.println("************************************** Prueba uno del metodo calculateAccumulatedWaterDeficitPerDay ***************************************");
+  public void testOneCalculateCropIrrigationWaterNeed() {
+    System.out.println("************************************** Prueba uno del metodo calculateCropIrrigationWaterNeed() ***************************************");
     printDescriptionMethodToTest();
 
     System.out.println("# Descripcion de la prueba unitaria");
@@ -149,18 +150,25 @@ public class WaterMathTest {
     System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
     System.out.println();
 
-    printWaterBalanceTable(presumedCurrentDate, climateRecords);
+    printWaterBalanceTable(presumedCurrentDate, climateRecords, zeroIrrigationRecords);
 
     /*
      * Seccion de prueba
      */
     System.out.println("# Ejecucion de la prueba unitaria");
 
-    double expectedResult = 14.0;
-    double result = Math.abs(WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords));
+    /*
+     * Calcula el acumulado del deficit (falta) de humedad por
+     * dia [mm/dia] de un conjunto de dias
+     */
+    double totalCropIrrigationWaterPresumedCurrentDate = 0;
+    double accumulatedSoilMoistureDeficitPerDay = calculateAccumulatedSoilMoistureDeficitPerDay(climateRecords, zeroIrrigationRecords);
+    double result = WaterMath.calculateCropIrrigationWaterNeed(totalCropIrrigationWaterPresumedCurrentDate, accumulatedSoilMoistureDeficitPerDay);
+    double expectedResult = 14;
 
+    System.out.println("* Cantidad total de agua de riego de cultivo de la presunta fecha actual: " + totalCropIrrigationWaterPresumedCurrentDate + " [mm/dia]");
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
-    System.out.println("* Valor devuelto por el metodo calculateAccumulatedWaterDeficitPerDay");
+    System.out.println("* Valor devuelto por el metodo calculateCropIrrigationWaterNeed()");
     System.out.println("(nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + result);
     System.out.println();
 
@@ -171,8 +179,8 @@ public class WaterMathTest {
   }
 
   @Test
-  public void testTwoCalculateAccumulatedWaterDeficitPerDay() {
-    System.out.println("************************************** Prueba dos del metodo calculateAccumulatedWaterDeficitPerDay ***************************************");
+  public void testTwoCalculateCropIrrigationWaterNeed() {
+    System.out.println("************************************** Prueba dos del metodo calculateCropIrrigationWaterNeed() ***************************************");
     printDescriptionMethodToTest();
 
     System.out.println("# Descripcion de la prueba unitaria");
@@ -190,18 +198,25 @@ public class WaterMathTest {
     System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
     System.out.println();
 
-    printWaterBalanceTable(presumedCurrentDate, climateRecords);
+    printWaterBalanceTable(presumedCurrentDate, climateRecords, zeroIrrigationRecords);
 
     /*
      * Seccion de prueba
      */
     System.out.println("# Ejecucion de la prueba unitaria");
 
+    /*
+     * Calcula el acumulado del deficit (falta) de humedad por
+     * dia [mm/dia] de un conjunto de dias
+     */
+    double totalCropIrrigationWaterPresumedCurrentDate = 0;
+    double accumulatedSoilMoistureDeficitPerDay = calculateAccumulatedSoilMoistureDeficitPerDay(climateRecords, zeroIrrigationRecords);
+    double result = WaterMath.calculateCropIrrigationWaterNeed(totalCropIrrigationWaterPresumedCurrentDate, accumulatedSoilMoistureDeficitPerDay);
     double expectedResult = 9.0;
-    double result = Math.abs(WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords));
 
+    System.out.println("* Cantidad total de agua de riego de cultivo de la presunta fecha actual: " + totalCropIrrigationWaterPresumedCurrentDate + " [mm/dia]");
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
-    System.out.println("* Valor devuelto por el metodo calculateAccumulatedWaterDeficitPerDay");
+    System.out.println("* Valor devuelto por el metodo calculateCropIrrigationWaterNeed()");
     System.out.println("(nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + result);
     System.out.println();
 
@@ -212,8 +227,8 @@ public class WaterMathTest {
   }
 
   @Test
-  public void testThreeCalculateAccumulatedWaterDeficitPerDay() {
-    System.out.println("************************************** Prueba tres del metodo calculateAccumulatedWaterDeficitPerDay ***************************************");
+  public void testThreeCalculateCropIrrigationWaterNeed() {
+    System.out.println("************************************** Prueba tres del metodo calculateCropIrrigationWaterNeed() ***************************************");
     printDescriptionMethodToTest();
 
     System.out.println("# Descripcion de la prueba unitaria");
@@ -231,18 +246,25 @@ public class WaterMathTest {
     System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
     System.out.println();
 
-    printWaterBalanceTable(presumedCurrentDate, climateRecords);
+    printWaterBalanceTable(presumedCurrentDate, climateRecords, zeroIrrigationRecords);
 
     /*
      * Seccion de prueba
      */
     System.out.println("# Ejecucion de la prueba unitaria");
 
+    /*
+     * Calcula el acumulado del deficit (falta) de humedad por
+     * dia [mm/dia] de un conjunto de dias
+     */
+    double totalCropIrrigationWaterPresumedCurrentDate = 0;
+    double accumulatedSoilMoistureDeficitPerDay = calculateAccumulatedSoilMoistureDeficitPerDay(climateRecords, zeroIrrigationRecords);
+    double result = WaterMath.calculateCropIrrigationWaterNeed(totalCropIrrigationWaterPresumedCurrentDate, accumulatedSoilMoistureDeficitPerDay);
     double expectedResult = 5.0;
-    double result = Math.abs(WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords));
 
+    System.out.println("* Cantidad total de agua de riego de cultivo de la presunta fecha actual: " + totalCropIrrigationWaterPresumedCurrentDate + " [mm/dia]");
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
-    System.out.println("* Valor devuelto por el metodo calculateAccumulatedWaterDeficitPerDay");
+    System.out.println("* Valor devuelto por el metodo calculateCropIrrigationWaterNeed()");
     System.out.println("(nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + result);
     System.out.println();
 
@@ -253,8 +275,8 @@ public class WaterMathTest {
   }
 
   @Test
-  public void testFourCalculateAccumulatedWaterDeficitPerDay() {
-    System.out.println("************************************** Prueba cuatro del metodo calculateAccumulatedWaterDeficitPerDay ***************************************");
+  public void testFourCalculateCropIrrigationWaterNeed() {
+    System.out.println("************************************** Prueba cuatro del metodo calculateCropIrrigationWaterNeed() ***************************************");
     printDescriptionMethodToTest();
 
     System.out.println("# Descripcion de la prueba unitaria");
@@ -272,18 +294,25 @@ public class WaterMathTest {
     System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
     System.out.println();
 
-    printWaterBalanceTable(presumedCurrentDate, climateRecords);
+    printWaterBalanceTable(presumedCurrentDate, climateRecords, zeroIrrigationRecords);
 
     /*
      * Seccion de prueba
      */
     System.out.println("# Ejecucion de la prueba unitaria");
 
+    /*
+     * Calcula el acumulado del deficit (falta) de humedad por
+     * dia [mm/dia] de un conjunto de dias
+     */
+    double totalCropIrrigationWaterPresumedCurrentDate = 0;
+    double accumulatedSoilMoistureDeficitPerDay = calculateAccumulatedSoilMoistureDeficitPerDay(climateRecords, zeroIrrigationRecords);
+    double result = WaterMath.calculateCropIrrigationWaterNeed(totalCropIrrigationWaterPresumedCurrentDate, accumulatedSoilMoistureDeficitPerDay);
     double expectedResult = 0.0;
-    double result = Math.abs(WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords));
 
+    System.out.println("* Cantidad total de agua de riego de cultivo de la presunta fecha actual: " + totalCropIrrigationWaterPresumedCurrentDate + " [mm/dia]");
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
-    System.out.println("* Valor devuelto por el metodo calculateAccumulatedWaterDeficitPerDay");
+    System.out.println("* Valor devuelto por el metodo calculateCropIrrigationWaterNeed()");
     System.out.println("(nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + result);
     System.out.println();
 
@@ -294,8 +323,8 @@ public class WaterMathTest {
   }
 
   @Test
-  public void testFiveCalculateAccumulatedWaterDeficitPerDay() {
-    System.out.println("************************************** Prueba cinco del metodo calculateAccumulatedWaterDeficitPerDay ***************************************");
+  public void testFiveCalculateCropIrrigationWaterNeed() {
+    System.out.println("************************************** Prueba cinco del metodo calculateCropIrrigationWaterNeed() ***************************************");
     printDescriptionMethodToTest();
 
     System.out.println("# Descripcion de la prueba unitaria");
@@ -313,18 +342,25 @@ public class WaterMathTest {
     System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
     System.out.println();
 
-    printWaterBalanceTable(presumedCurrentDate, climateRecords);
+    printWaterBalanceTable(presumedCurrentDate, climateRecords, zeroIrrigationRecords);
 
     /*
      * Seccion de prueba
      */
     System.out.println("# Ejecucion de la prueba unitaria");
 
+    /*
+     * Calcula el acumulado del deficit (falta) de humedad por
+     * dia [mm/dia] de un conjunto de dias
+     */
+    double totalCropIrrigationWaterPresumedCurrentDate = 0;
+    double accumulatedSoilMoistureDeficitPerDay = calculateAccumulatedSoilMoistureDeficitPerDay(climateRecords, zeroIrrigationRecords);
+    double result = WaterMath.calculateCropIrrigationWaterNeed(totalCropIrrigationWaterPresumedCurrentDate, accumulatedSoilMoistureDeficitPerDay);
     double expectedResult = 0.0;
-    double result = Math.abs(WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords));
 
+    System.out.println("* Cantidad total de agua de riego de cultivo de la presunta fecha actual: " + totalCropIrrigationWaterPresumedCurrentDate + " [mm/dia]");
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
-    System.out.println("* Valor devuelto por el metodo calculateAccumulatedWaterDeficitPerDay");
+    System.out.println("* Valor devuelto por el metodo calculateCropIrrigationWaterNeed()");
     System.out.println("(nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + result);
     System.out.println();
 
@@ -335,8 +371,8 @@ public class WaterMathTest {
   }
 
   @Test
-  public void testSixCalculateAccumulatedWaterDeficitPerDay() {
-    System.out.println("************************************** Prueba seis del metodo calculateAccumulatedWaterDeficitPerDay ***************************************");
+  public void testSixCalculateCropIrrigationWaterNeed() {
+    System.out.println("************************************** Prueba seis del metodo calculateCropIrrigationWaterNeed() ***************************************");
     printDescriptionMethodToTest();
 
     System.out.println("# Descripcion de la prueba unitaria");
@@ -354,18 +390,25 @@ public class WaterMathTest {
     System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
     System.out.println();
 
-    printWaterBalanceTable(presumedCurrentDate, climateRecords);
+    printWaterBalanceTable(presumedCurrentDate, climateRecords, zeroIrrigationRecords);
 
     /*
      * Seccion de prueba
      */
     System.out.println("# Ejecucion de la prueba unitaria");
 
+    /*
+     * Calcula el acumulado del deficit (falta) de humedad por
+     * dia [mm/dia] de un conjunto de dias
+     */
+    double totalCropIrrigationWaterPresumedCurrentDate = 0;
+    double accumulatedSoilMoistureDeficitPerDay = calculateAccumulatedSoilMoistureDeficitPerDay(climateRecords, zeroIrrigationRecords);
+    double result = WaterMath.calculateCropIrrigationWaterNeed(totalCropIrrigationWaterPresumedCurrentDate, accumulatedSoilMoistureDeficitPerDay);
     double expectedResult = 4.0;
-    double result = Math.abs(WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords));
 
+    System.out.println("* Cantidad total de agua de riego de cultivo de la presunta fecha actual: " + totalCropIrrigationWaterPresumedCurrentDate + " [mm/dia]");
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
-    System.out.println("* Valor devuelto por el metodo calculateAccumulatedWaterDeficitPerDay");
+    System.out.println("* Valor devuelto por el metodo calculateCropIrrigationWaterNeed()");
     System.out.println("(nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + result);
     System.out.println();
 
@@ -376,8 +419,8 @@ public class WaterMathTest {
   }
 
   @Test
-  public void testSevenCalculateAccumulatedWaterDeficitPerDay() {
-    System.out.println("************************************** Prueba siete del metodo calculateAccumulatedWaterDeficitPerDay ***************************************");
+  public void testSevenCalculateCropIrrigationWaterNeed() {
+    System.out.println("************************************** Prueba siete del metodo calculateCropIrrigationWaterNeed() ***************************************");
     printDescriptionMethodToTest();
 
     System.out.println("# Descripcion de la prueba unitaria");
@@ -395,18 +438,25 @@ public class WaterMathTest {
     System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
     System.out.println();
 
-    printWaterBalanceTable(presumedCurrentDate, climateRecords);
+    printWaterBalanceTable(presumedCurrentDate, climateRecords, zeroIrrigationRecords);
 
     /*
      * Seccion de prueba
      */
     System.out.println("# Ejecucion de la prueba unitaria");
 
+    /*
+     * Calcula el acumulado del deficit (falta) de humedad por
+     * dia [mm/dia] de un conjunto de dias
+     */
+    double totalCropIrrigationWaterPresumedCurrentDate = 0;
+    double accumulatedSoilMoistureDeficitPerDay = calculateAccumulatedSoilMoistureDeficitPerDay(climateRecords, zeroIrrigationRecords);
+    double result = WaterMath.calculateCropIrrigationWaterNeed(totalCropIrrigationWaterPresumedCurrentDate, accumulatedSoilMoistureDeficitPerDay);
     double expectedResult = 7.0;
-    double result = Math.abs(WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords));
 
+    System.out.println("* Cantidad total de agua de riego de cultivo de la presunta fecha actual: " + totalCropIrrigationWaterPresumedCurrentDate + " [mm/dia]");
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
-    System.out.println("* Valor devuelto por el metodo calculateAccumulatedWaterDeficitPerDay");
+    System.out.println("* Valor devuelto por el metodo calculateCropIrrigationWaterNeed()");
     System.out.println("(nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + result);
     System.out.println();
 
@@ -417,8 +467,8 @@ public class WaterMathTest {
   }
 
   @Test
-  public void testEightCalculateAccumulatedWaterDeficitPerDay() {
-    System.out.println("************************************** Prueba ocho del metodo calculateAccumulatedWaterDeficitPerDay ***************************************");
+  public void testEightCalculateCropIrrigationWaterNeed() {
+    System.out.println("************************************** Prueba ocho del metodo calculateCropIrrigationWaterNeed() ***************************************");
     printDescriptionMethodToTest();
 
     System.out.println("# Descripcion de la prueba unitaria");
@@ -436,18 +486,25 @@ public class WaterMathTest {
     System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
     System.out.println();
 
-    printWaterBalanceTable(presumedCurrentDate, climateRecords);
+    printWaterBalanceTable(presumedCurrentDate, climateRecords, zeroIrrigationRecords);
 
     /*
      * Seccion de prueba
      */
     System.out.println("# Ejecucion de la prueba unitaria");
 
+    /*
+     * Calcula el acumulado del deficit (falta) de humedad por
+     * dia [mm/dia] de un conjunto de dias
+     */
+    double totalCropIrrigationWaterPresumedCurrentDate = 0;
+    double accumulatedSoilMoistureDeficitPerDay = calculateAccumulatedSoilMoistureDeficitPerDay(climateRecords, zeroIrrigationRecords);
+    double result = WaterMath.calculateCropIrrigationWaterNeed(totalCropIrrigationWaterPresumedCurrentDate, accumulatedSoilMoistureDeficitPerDay);
     double expectedResult = 4.0;
-    double result = Math.abs(WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords));
 
+    System.out.println("* Cantidad total de agua de riego de cultivo de la presunta fecha actual: " + totalCropIrrigationWaterPresumedCurrentDate + " [mm/dia]");
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
-    System.out.println("* Valor devuelto por el metodo calculateAccumulatedWaterDeficitPerDay");
+    System.out.println("* Valor devuelto por el metodo calculateCropIrrigationWaterNeed()");
     System.out.println("(nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + result);
     System.out.println();
 
@@ -458,8 +515,8 @@ public class WaterMathTest {
   }
 
   @Test
-  public void testNineCalculateAccumulatedWaterDeficitPerDay() {
-    System.out.println("************************************** Prueba nueve del metodo calculateAccumulatedWaterDeficitPerDay ***************************************");
+  public void testNineCalculateCropIrrigationWaterNeed() {
+    System.out.println("************************************** Prueba nueve del metodo calculateCropIrrigationWaterNeed() ***************************************");
     printDescriptionMethodToTest();
 
     System.out.println("# Descripcion de la prueba unitaria");
@@ -477,18 +534,25 @@ public class WaterMathTest {
     System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
     System.out.println();
 
-    printWaterBalanceTable(presumedCurrentDate, climateRecords);
+    printWaterBalanceTable(presumedCurrentDate, climateRecords, zeroIrrigationRecords);
 
     /*
      * Seccion de prueba
      */
     System.out.println("# Ejecucion de la prueba unitaria");
 
+    /*
+     * Calcula el acumulado del deficit (falta) de humedad por
+     * dia [mm/dia] de un conjunto de dias
+     */
+    double totalCropIrrigationWaterPresumedCurrentDate = 0;
+    double accumulatedSoilMoistureDeficitPerDay = calculateAccumulatedSoilMoistureDeficitPerDay(climateRecords, zeroIrrigationRecords);
+    double result = WaterMath.calculateCropIrrigationWaterNeed(totalCropIrrigationWaterPresumedCurrentDate, accumulatedSoilMoistureDeficitPerDay);
     double expectedResult = 0.0;
-    double result = Math.abs(WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords));
 
+    System.out.println("* Cantidad total de agua de riego de cultivo de la presunta fecha actual: " + totalCropIrrigationWaterPresumedCurrentDate + " [mm/dia]");
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
-    System.out.println("* Valor devuelto por el metodo calculateAccumulatedWaterDeficitPerDay");
+    System.out.println("* Valor devuelto por el metodo calculateCropIrrigationWaterNeed()");
     System.out.println("(nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + result);
     System.out.println();
 
@@ -499,8 +563,8 @@ public class WaterMathTest {
   }
 
   @Test
-  public void testTenCalculateAccumulatedWaterDeficitPerDay() {
-    System.out.println("************************************** Prueba diez del metodo calculateAccumulatedWaterDeficitPerDay ***************************************");
+  public void testTenCalculateCropIrrigationWaterNeed() {
+    System.out.println("************************************** Prueba diez del metodo calculateCropIrrigationWaterNeed() ***************************************");
     printDescriptionMethodToTest();
 
     System.out.println("# Descripcion de la prueba unitaria");
@@ -518,18 +582,25 @@ public class WaterMathTest {
     System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
     System.out.println();
 
-    printWaterBalanceTable(presumedCurrentDate, climateRecords);
+    printWaterBalanceTable(presumedCurrentDate, climateRecords, zeroIrrigationRecords);
 
     /*
      * Seccion de prueba
      */
     System.out.println("# Ejecucion de la prueba unitaria");
 
+    /*
+     * Calcula el acumulado del deficit (falta) de humedad por
+     * dia [mm/dia] de un conjunto de dias
+     */
+    double totalCropIrrigationWaterPresumedCurrentDate = 0;
+    double accumulatedSoilMoistureDeficitPerDay = calculateAccumulatedSoilMoistureDeficitPerDay(climateRecords, zeroIrrigationRecords);
+    double result = WaterMath.calculateCropIrrigationWaterNeed(totalCropIrrigationWaterPresumedCurrentDate, accumulatedSoilMoistureDeficitPerDay);
     double expectedResult = 0.0;
-    double result = Math.abs(WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords));
 
+    System.out.println("* Cantidad total de agua de riego de cultivo de la presunta fecha actual: " + totalCropIrrigationWaterPresumedCurrentDate + " [mm/dia]");
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
-    System.out.println("* Valor devuelto por el metodo calculateAccumulatedWaterDeficitPerDay");
+    System.out.println("* Valor devuelto por el metodo calculateCropIrrigationWaterNeed()");
     System.out.println("(nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + result);
     System.out.println();
 
@@ -540,8 +611,8 @@ public class WaterMathTest {
   }
 
   @Test
-  public void testElevenCalculateAccumulatedWaterDeficitPerDay() {
-    System.out.println("************************************** Prueba once del metodo calculateAccumulatedWaterDeficitPerDay ***************************************");
+  public void testElevenCalculateCropIrrigationWaterNeed() {
+    System.out.println("************************************** Prueba once del metodo calculateCropIrrigationWaterNeed() ***************************************");
     printDescriptionMethodToTest();
 
     System.out.println("# Descripcion de la prueba unitaria");
@@ -559,18 +630,25 @@ public class WaterMathTest {
     System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
     System.out.println();
 
-    printWaterBalanceTable(presumedCurrentDate, climateRecords);
+    printWaterBalanceTable(presumedCurrentDate, climateRecords, zeroIrrigationRecords);
 
     /*
      * Seccion de prueba
      */
     System.out.println("# Ejecucion de la prueba unitaria");
 
+    /*
+     * Calcula el acumulado del deficit (falta) de humedad por
+     * dia [mm/dia] de un conjunto de dias
+     */
+    double totalCropIrrigationWaterPresumedCurrentDate = 0;
+    double accumulatedSoilMoistureDeficitPerDay = calculateAccumulatedSoilMoistureDeficitPerDay(climateRecords, zeroIrrigationRecords);
+    double result = WaterMath.calculateCropIrrigationWaterNeed(totalCropIrrigationWaterPresumedCurrentDate, accumulatedSoilMoistureDeficitPerDay);
     double expectedResult = 1.0;
-    double result = Math.abs(WaterMath.calculateAccumulatedWaterDeficitPerDay(climateRecords, zeroIrrigationRecords));
 
+    System.out.println("* Cantidad total de agua de riego de cultivo de la presunta fecha actual: " + totalCropIrrigationWaterPresumedCurrentDate + " [mm/dia]");
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
-    System.out.println("* Valor devuelto por el metodo calculateAccumulatedWaterDeficitPerDay");
+    System.out.println("* Valor devuelto por el metodo calculateCropIrrigationWaterNeed()");
     System.out.println("(nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + result);
     System.out.println();
 
@@ -581,8 +659,152 @@ public class WaterMathTest {
   }
 
   @Test
-  public void testTwelveCalculateAccumulatedWaterDeficitPerDay() {
-    System.out.println("************************************** Prueba doce del metodo calculateAccumulatedWaterDeficitPerDay ***************************************");
+  public void testTwelveCalculateCropIrrigationWaterNeed() {
+    System.out.println("************************************** Prueba doce del metodo calculateCropIrrigationWaterNeed() ***************************************");
+    printDescriptionMethodToTest();
+
+    System.out.println("# Descripcion de la prueba unitaria");
+    System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
+    System.out.println();
+
+    /*
+     * Establece la ETc, la lluvia y la fecha de
+     * 6 registros climaticos para esta prueba
+     * unitaria
+     */
+    setClimateRecordsValuesTwelve();
+
+    System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
+    System.out.println();
+
+    printWaterBalanceTable(presumedCurrentDate, climateRecords, zeroIrrigationRecords);
+
+    /*
+     * Seccion de prueba
+     */
+    System.out.println("# Ejecucion de la prueba unitaria");
+
+    /*
+     * Calcula el acumulado del deficit (falta) de humedad por
+     * dia [mm/dia] de un conjunto de dias
+     */
+    double totalCropIrrigationWaterPresumedCurrentDate = 16;
+    double accumulatedSoilMoistureDeficitPerDay = calculateAccumulatedSoilMoistureDeficitPerDay(climateRecords, zeroIrrigationRecords);
+    double result = WaterMath.calculateCropIrrigationWaterNeed(totalCropIrrigationWaterPresumedCurrentDate, accumulatedSoilMoistureDeficitPerDay);
+    double expectedResult = 0;
+
+    System.out.println("* Cantidad total de agua de riego de cultivo de la presunta fecha actual: " + totalCropIrrigationWaterPresumedCurrentDate + " [mm/dia]");
+    System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
+    System.out.println("* Valor devuelto por el metodo calculateCropIrrigationWaterNeed()");
+    System.out.println("(nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + result);
+    System.out.println();
+
+    assertEquals(expectedResult, result, 0.001);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+    System.out.println();
+  }
+
+  @Test
+  public void testThirteenCalculateCropIrrigationWaterNeed() {
+    System.out.println("************************************** Prueba trece del metodo calculateCropIrrigationWaterNeed() ***************************************");
+    printDescriptionMethodToTest();
+
+    System.out.println("# Descripcion de la prueba unitaria");
+    System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
+    System.out.println();
+
+    /*
+     * Establece la ETc, la lluvia y la fecha de
+     * 6 registros climaticos para esta prueba
+     * unitaria
+     */
+    setClimateRecordsValuesThirteen();
+
+    System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
+    System.out.println();
+
+    printWaterBalanceTable(presumedCurrentDate, climateRecords, zeroIrrigationRecords);
+
+    /*
+     * Seccion de prueba
+     */
+    System.out.println("# Ejecucion de la prueba unitaria");
+
+    /*
+     * Calcula el acumulado del deficit (falta) de humedad por
+     * dia [mm/dia] de un conjunto de dias
+     */
+    double totalCropIrrigationWaterPresumedCurrentDate = 14;
+    double accumulatedSoilMoistureDeficitPerDay = calculateAccumulatedSoilMoistureDeficitPerDay(climateRecords, zeroIrrigationRecords);
+    double result = WaterMath.calculateCropIrrigationWaterNeed(totalCropIrrigationWaterPresumedCurrentDate, accumulatedSoilMoistureDeficitPerDay);
+    double expectedResult = 0;
+
+    System.out.println("* Cantidad total de agua de riego de cultivo de la presunta fecha actual: " + totalCropIrrigationWaterPresumedCurrentDate + " [mm/dia]");
+    System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
+    System.out.println("* Valor devuelto por el metodo calculateCropIrrigationWaterNeed()");
+    System.out.println("(nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + result);
+    System.out.println();
+
+    assertEquals(expectedResult, result, 0.001);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+    System.out.println();
+  }
+
+  @Test
+  public void testFourteenCalculateCropIrrigationWaterNeed() {
+    System.out.println("************************************** Prueba catorce del metodo calculateCropIrrigationWaterNeed() ***************************************");
+    printDescriptionMethodToTest();
+
+    System.out.println("# Descripcion de la prueba unitaria");
+    System.out.println("Para esta prueba se utilizan 6 registros climaticos previos a la fecha actual " + UtilDate.formatDate(presumedCurrentDate) + ".");
+    System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
+    System.out.println();
+
+    /*
+     * Establece la ETc, la lluvia y la fecha de
+     * 6 registros climaticos para esta prueba
+     * unitaria
+     */
+    setClimateRecordsValuesFourteen();
+
+    System.out.println("Los datos con los que se calculara la necesidad de agua de riego de un cultivo en la fecha actual (" + UtilDate.formatDate(presumedCurrentDate) + ") son los siguientes:");
+    System.out.println();
+
+    printWaterBalanceTable(presumedCurrentDate, climateRecords, zeroIrrigationRecords);
+
+    /*
+     * Seccion de prueba
+     */
+    System.out.println("# Ejecucion de la prueba unitaria");
+
+    /*
+     * Calcula el acumulado del deficit (falta) de humedad por
+     * dia [mm/dia] de un conjunto de dias
+     */
+    double totalCropIrrigationWaterPresumedCurrentDate = 2;
+    double accumulatedSoilMoistureDeficitPerDay = calculateAccumulatedSoilMoistureDeficitPerDay(climateRecords, zeroIrrigationRecords);
+    double result = WaterMath.calculateCropIrrigationWaterNeed(totalCropIrrigationWaterPresumedCurrentDate, accumulatedSoilMoistureDeficitPerDay);
+    double expectedResult = 12;
+
+    System.out.println("* Cantidad total de agua de riego de cultivo de la presunta fecha actual: " + totalCropIrrigationWaterPresumedCurrentDate + " [mm/dia]");
+    System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
+    System.out.println("* Valor devuelto por el metodo calculateCropIrrigationWaterNeed()");
+    System.out.println("(nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + result);
+    System.out.println();
+
+    assertEquals(expectedResult, result, 0.001);
+
+    System.out.println("- Prueba pasada satisfactoriamente");
+    System.out.println();
+  }
+
+  @Test
+  public void testFifteenCalculateCropIrrigationWaterNeed() {
+    System.out.println("************************************** Prueba quince del metodo calculateCropIrrigationWaterNeed() ***************************************");
     printDescriptionMethodToTest();
 
     System.out.println("# Descripcion de la prueba unitaria");
@@ -591,7 +813,7 @@ public class WaterMathTest {
     System.out.println("Suponemos que la fecha actual es " + UtilDate.formatDate(presumedCurrentDate) + ".");
     System.out.println();
 
-    System.out.println("Tambien se utiliza un conjunto de 2 registros de riego, los cuales pertenecen a la fecha inmediatamente anterior a la fecha");
+    System.out.println("Tambien se utiliza un conjunto de 2 registros de riego, los cuales pertenecen a la fecha inmediatamente anterior a la presunta fecha");
     System.out.println("actual.");
     System.out.println();
 
@@ -635,11 +857,18 @@ public class WaterMathTest {
      */
     System.out.println("# Ejecucion de la prueba unitaria");
 
+    /*
+     * Calcula el acumulado del deficit (falta) de humedad por
+     * dia [mm/dia] de un conjunto de dias
+     */
+    double totalCropIrrigationWaterPresumedCurrentDate = 0;
+    double accumulatedSoilMoistureDeficitPerDay = calculateAccumulatedSoilMoistureDeficitPerDay(yesterdayClimateRecords, yesterdayIrrigationRecords);
+    double result = WaterMath.calculateCropIrrigationWaterNeed(totalCropIrrigationWaterPresumedCurrentDate, accumulatedSoilMoistureDeficitPerDay);
     double expectedResult = 4.5;
-    double result = Math.abs(WaterMath.calculateAccumulatedWaterDeficitPerDay(yesterdayClimateRecords, yesterdayIrrigationRecords));
 
+    System.out.println("* Cantidad total de agua de riego de cultivo de la presunta fecha actual: " + totalCropIrrigationWaterPresumedCurrentDate + " [mm/dia]");
     System.out.println("* Valor esperado (nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + expectedResult);
-    System.out.println("* Valor devuelto por el metodo calculateAccumulatedWaterDeficitPerDay");
+    System.out.println("* Valor devuelto por el metodo calculateCropIrrigationWaterNeed()");
     System.out.println("(nec. agua riego [mm/dia] de un cultivo en la fecha actual): " + result);
     System.out.println();
 
@@ -650,14 +879,14 @@ public class WaterMathTest {
   }
 
   /*
-   * ***************************************************************************************************************
+   * **********************************************************************************************************************
    * A partir de aqui comienzan las pruebas unitarias del metodo calculateSoilMoistureDeficitPerDay() de la clase WaterMath
-   * ***************************************************************************************************************
+   * **********************************************************************************************************************
    */
 
   @Test
   public void testOneCalculateWaterDeficitPerDay() {
-    System.out.println("************************************** Prueba uno del metodo calculateSoilMoistureDeficitPerDay ***************************************");
+    System.out.println("************************************** Prueba uno del metodo calculateSoilMoistureDeficitPerDay() ***************************************");
     printDescriptionCalculateWaterDeficitPerDay();
     System.out.println();
 
@@ -694,7 +923,7 @@ public class WaterMathTest {
 
   @Test
   public void testTwoCalculateWaterDeficitPerDay() {
-    System.out.println("************************************** Prueba dos del metodo calculateSoilMoistureDeficitPerDay ***************************************");
+    System.out.println("************************************** Prueba dos del metodo calculateSoilMoistureDeficitPerDay() ***************************************");
     printDescriptionCalculateWaterDeficitPerDay();
     System.out.println();
 
@@ -716,7 +945,7 @@ public class WaterMathTest {
      */
     System.out.println("# Ejecucion de la prueba unitaria");
 
-    double expectedResult = 5;
+    double expectedResult = 5.0;
     double result = WaterMath.calculateSoilMoistureDeficitPerDay(etc, precipitation, totalIrrigationWater);
 
     System.out.println("* Valor esperado (deficit de humedad por dia [mm/dia]): " + expectedResult);
@@ -731,7 +960,7 @@ public class WaterMathTest {
 
   @Test
   public void testThreeCalculateWaterDeficitPerDay() {
-    System.out.println("************************************** Prueba tres del metodo calculateSoilMoistureDeficitPerDay ***************************************");
+    System.out.println("************************************** Prueba tres del metodo calculateSoilMoistureDeficitPerDay() ***************************************");
     printDescriptionCalculateWaterDeficitPerDay();
     System.out.println();
 
@@ -778,14 +1007,14 @@ public class WaterMathTest {
   }
 
   /*
-   * ****************************************************************************************************************
+   * ***********************************************************************************************************************
    * A partir de aqui comienzan las pruebas unitarias del metodo accumulateSoilMoistureDeficitPerDay() de la clase WaterMath
-   * ****************************************************************************************************************
+   * ***********************************************************************************************************************
    */
 
   @Test
   public void testOneAccumulateWaterDeficitPerDay() {
-    System.out.println("************************************** Prueba uno del metodo accumulateSoilMoistureDeficitPerDay ***************************************");
+    System.out.println("************************************** Prueba uno del metodo accumulateSoilMoistureDeficitPerDay() ***************************************");
     printDescriptionAccumulateWaterDeficitPerDay();
     System.out.println();
 
@@ -820,7 +1049,7 @@ public class WaterMathTest {
 
   @Test
   public void testTwoAccumulateWaterDeficitPerDay() {
-    System.out.println("************************************** Prueba dos del metodo accumulateSoilMoistureDeficitPerDay ***************************************");
+    System.out.println("************************************** Prueba dos del metodo accumulateSoilMoistureDeficitPerDay() ***************************************");
     printDescriptionAccumulateWaterDeficitPerDay();
     System.out.println();
 
@@ -855,7 +1084,7 @@ public class WaterMathTest {
 
   @Test
   public void testThreeAccumulateWaterDeficitPerDay() {
-    System.out.println("************************************** Prueba tres del metodo accumulateSoilMoistureDeficitPerDay ***************************************");
+    System.out.println("************************************** Prueba tres del metodo accumulateSoilMoistureDeficitPerDay() ***************************************");
     printDescriptionAccumulateWaterDeficitPerDay();
     System.out.println();
 
@@ -890,7 +1119,7 @@ public class WaterMathTest {
 
   @Test
   public void testFourAccumulateWaterDeficitPerDay() {
-    System.out.println("************************************** Prueba cuatro del metodo accumulateSoilMoistureDeficitPerDay ***************************************");
+    System.out.println("************************************** Prueba cuatro del metodo accumulateSoilMoistureDeficitPerDay() ***************************************");
     printDescriptionAccumulateWaterDeficitPerDay();
     System.out.println();
 
@@ -939,33 +1168,39 @@ public class WaterMathTest {
   }
 
   /**
-   * Imprime una tabla que contiene el dia, la ETc por dia, la
-   * lluvia por dia, el deficit de humedad por dia y el acumulado del
-   * deficit de humedad por dia de dias previos a una fecha a partir
-   * de un conjunto de registros climaticos previos a una fecha
+   * Imprime una tabla que contiene el dia, la precipitacion [mm/dia], la
+   * ETc [mm/dia], el deficit de humedad de suelo [mm/dia] y el acumulado
+   * del deficit de humedad de suelo [mm/dia] calculados a partir de un
+   * conjunto de registros climaticos y de un conjunto de registros de
+   * riego
    * 
    * @param presumedCurrentDate
-   * @param givenClimateRecords
+   * @param climateRecords
+   * @param irrigationRecords
    */
-  private void printWaterBalanceTable(Calendar presumedCurrentDate, Collection<ClimateRecord> givenClimateRecords) {
+  private void printWaterBalanceTable(Calendar presumedCurrentDate, Collection<ClimateRecord> climateRecords, Collection<IrrigationRecord> irrigationRecords) {
     int day = 1;
-    double differencePerDay = 0.0;
+    double soilMoistureDeficitPerDay = 0.0;
+    double waterProvidedPerDay = 0.0;
+    double totalIrrigationWaterPerDay = 0.0;
     double accumulatedSoilMoistureDeficitPerDay = 0.0;
 
-    System.out.println("     Dia       " + "|" + "    ETc   " + "|" + "  Lluvia  " + "|" + "  Dif.  " + "|" + "  Acum. Def.  ");
+    System.out.println("     Dia       " + "|" + "  Precip.  " + "|" + "    ETc   " + "|" + "  Def.  " + "|" + "  Acum. Def.  ");
     System.out.println("-----------------------------------------------------------");
 
-    for (ClimateRecord currentClimateRecord : givenClimateRecords) {
-      differencePerDay = currentClimateRecord.getPrecip() - currentClimateRecord.getEtc();
-      accumulatedSoilMoistureDeficitPerDay = WaterMath.accumulateSoilMoistureDeficitPerDay(differencePerDay, accumulatedSoilMoistureDeficitPerDay);
+    for (ClimateRecord currentClimateRecord : climateRecords) {
+      totalIrrigationWaterPerDay = calculateTotalAmountIrrigationWaterPerDay(currentClimateRecord.getDate(), irrigationRecords);
+      waterProvidedPerDay = currentClimateRecord.getPrecip() + totalIrrigationWaterPerDay;
+      soilMoistureDeficitPerDay = WaterMath.calculateSoilMoistureDeficitPerDay(currentClimateRecord.getEtc(), currentClimateRecord.getPrecip(), totalIrrigationWaterPerDay);
+      accumulatedSoilMoistureDeficitPerDay = WaterMath.accumulateSoilMoistureDeficitPerDay(soilMoistureDeficitPerDay, accumulatedSoilMoistureDeficitPerDay);
 
       System.out.print(" " + day + " (" + UtilDate.formatDate(currentClimateRecord.getDate()) + ")");
       System.out.print("  |");
-      System.out.print("   " + currentClimateRecord.getEtc());
+      System.out.print("   " + waterProvidedPerDay);
       System.out.print("   |");
-      System.out.print("   " + currentClimateRecord.getPrecip());
+      System.out.print("   " + currentClimateRecord.getEtc());
       System.out.print("    |");
-      System.out.print("  " + differencePerDay);
+      System.out.print("  " + soilMoistureDeficitPerDay);
       System.out.print("  |");
       System.out.print("   " + accumulatedSoilMoistureDeficitPerDay);
       System.out.println();
@@ -982,35 +1217,27 @@ public class WaterMathTest {
     System.out.println();
     System.out.println();
 
+    System.out.println("Precip. [mm/dia] = Precip. artificial y/o natural [mm/dia]");
     System.out.println("ETc [mm/dia]");
-    System.out.println("Lluvia [mm/dia]");
-    System.out.println("Diferencia (Lluvia - ETc) [mm/dia]");
-    System.out.println("Acumulado del deficit de humedad por dia de dias previos a una fecha [mm/dia]");
+    System.out.println("Def. [mm/dia] = Deficit de humedad de suelo por dia (Lluvia - ETc) [mm/dia]");
+    System.out.println("Acum. Def. [mm/dia] = Acumulado del deficit de humedad de suelo por dia de dias previos a una fecha [mm/dia]");
     System.out.println();
   }
 
   /**
    * Imprime la descripcion del metodo a probar, el cual en este
-   * caso es el metodo calculateAccumulatedWaterDeficitPerDay de
+   * caso es el metodo calculateCropIrrigationWaterNeed() de
    * la clase WaterMath
    */
   private void printDescriptionMethodToTest() {
-    System.out.println("El metodo calculateAccumulatedWaterDeficitPerDay de la clase WaterMath calcula el acumulado del deficit de humedad por dia de dias previos");
-    System.out.println("a una fecha [mm/dia]. Si este metodo es invocado con una coleccion de registros climaticos y una coleccion de registros de riego previos");
-    System.out.println("a una fecha pertenecientes a una misma parcela que NO tiene un cultivo sembrado en una fecha, el valor devuelto por el mismo representa");
-    System.out.println("el acumulado del deficit de humedad por dia de dias previos a una fecha [mm/dia] de una parcela en una fecha. En cambio, si es invocado con");
-    System.out.println("una coleccion de registros climaticos y una coleccion de registros de riego previos a una fecha pertenecientes a una misma parcela que tiene");
-    System.out.println("un cultivo sembrado en una fecha, el valor devuelto por el mismo representa la necesidad de agua de riego de un cultivo en una fecha [mm/dia].");
-    System.out.println("En cada una de las pruebas unitarias de esta clase de pruebas unitarias suponemos que dicho metodo es invocado con una coleccion de registros");
-    System.out.println("climaticos y una coleccion de registros de riego previos a una fecha y pertenecientes a una misma parcela que tiene un cultivo sembrado en una");
-    System.out.println("fecha con el fin de demostrar que calcula correctamente la necesidad de agua de riego de un cultivo en una fecha [mm/dia].");
-    System.out.println();
-    System.out.println("La fecha para la que se calcula la necesidad de agua de riego de un cultivo esta determinada por los registros climaticos y los registros");
-    System.out.println("de riego que se seleccionan como previos a una fecha, debiendo ser ambos grupos de registros pertenecientes a una misma parcela. Por ejemplo,");
-    System.out.println("si se seleccionan los registros climaticos y los registros de riego de una parcela previos a la fecha actual (es decir, hoy), la necesidad");
-    System.out.println("de agua de riego de un cultivo calculada con estos registros corresponde a la fecha actual. En cambio, si se seleccionan los registros");
-    System.out.println("climaticos y los registros de riego de una parcela previos a la fecha actual + X dias, donde X > 0, la necesidad de agua de riego de un");
-    System.out.println("cultivo calculada con estos registros corresponde a la fecha actual + X dias.");
+    System.out.println("# Descripcion del metodo a probar");
+    System.out.println("El metodo calculateCropIrrigationWaterNeed() de la clase WaterMath calcula la necesidad de agua de riego de un cultivo en una fecha [mm/dia]");
+    System.out.println("con base en la cantidad total de agua de riego de cultivo por dia de esa fecha [mm/dia] y el acumulado del deficit de humedad de suelo");
+    System.out.println("por dia [mm/dia] de la fecha inmediatamente anterior a la fecha de la cantidad total de agua de riego de cultivo por dia. Si la suma");
+    System.out.println("entre ambos valores es mayor o igual a cero, el valor devuelto por el metodo es cero. En cambio, si la suma entre ambos valores es");
+    System.out.println("estrictamente menor a cero, el valor devuelto por el metodo es el valor absoluto de dicha suma. El motivo por el cual se realiza esta");
+    System.out.println("suma es que la cantidad total de agua de riego de cultivo por dia es mayor o igual a cero y el acumulado del deficit de humedad de");
+    System.out.println("suelo por dia es menor o igual a cero.");
     System.out.println();
   }
 
@@ -1342,6 +1569,157 @@ public class WaterMathTest {
     climateRecordSix.setEtc(5);
     climateRecordSix.setPrecip(10);
     climateRecordSix.setDate(daySix);
+  }
+
+  /**
+   * Establece la ETc, la lluvia y la fecha de 6 registros
+   * climaticos para la prueba unitaria doce
+   */
+  private void setClimateRecordsValuesTwelve() {
+    climateRecordOne.setEtc(10);
+    climateRecordOne.setPrecip(5);
+    climateRecordOne.setDate(dayOne);
+
+    climateRecordTwo.setEtc(5);
+    climateRecordTwo.setPrecip(2);
+    climateRecordTwo.setDate(dayTwo);
+
+    climateRecordThree.setEtc(2);
+    climateRecordThree.setPrecip(1);
+    climateRecordThree.setDate(dayThree);
+
+    climateRecordFour.setEtc(3);
+    climateRecordFour.setPrecip(1);
+    climateRecordFour.setDate(dayFour);
+
+    climateRecordFive.setEtc(1);
+    climateRecordFive.setPrecip(0);
+    climateRecordFive.setDate(dayFive);
+
+    climateRecordSix.setEtc(4);
+    climateRecordSix.setPrecip(2);
+    climateRecordSix.setDate(daySix);
+  }
+
+  /**
+   * Establece la ETc, la lluvia y la fecha de 6 registros
+   * climaticos para la prueba unitaria trece
+   */
+  private void setClimateRecordsValuesThirteen() {
+    climateRecordOne.setEtc(10);
+    climateRecordOne.setPrecip(5);
+    climateRecordOne.setDate(dayOne);
+
+    climateRecordTwo.setEtc(5);
+    climateRecordTwo.setPrecip(2);
+    climateRecordTwo.setDate(dayTwo);
+
+    climateRecordThree.setEtc(2);
+    climateRecordThree.setPrecip(1);
+    climateRecordThree.setDate(dayThree);
+
+    climateRecordFour.setEtc(3);
+    climateRecordFour.setPrecip(1);
+    climateRecordFour.setDate(dayFour);
+
+    climateRecordFive.setEtc(1);
+    climateRecordFive.setPrecip(0);
+    climateRecordFive.setDate(dayFive);
+
+    climateRecordSix.setEtc(4);
+    climateRecordSix.setPrecip(2);
+    climateRecordSix.setDate(daySix);
+  }
+
+  /**
+   * Establece la ETc, la lluvia y la fecha de 6 registros
+   * climaticos para la prueba unitaria catorce
+   */
+  private void setClimateRecordsValuesFourteen() {
+    climateRecordOne.setEtc(10);
+    climateRecordOne.setPrecip(5);
+    climateRecordOne.setDate(dayOne);
+
+    climateRecordTwo.setEtc(5);
+    climateRecordTwo.setPrecip(2);
+    climateRecordTwo.setDate(dayTwo);
+
+    climateRecordThree.setEtc(2);
+    climateRecordThree.setPrecip(1);
+    climateRecordThree.setDate(dayThree);
+
+    climateRecordFour.setEtc(3);
+    climateRecordFour.setPrecip(1);
+    climateRecordFour.setDate(dayFour);
+
+    climateRecordFive.setEtc(1);
+    climateRecordFive.setPrecip(0);
+    climateRecordFive.setDate(dayFive);
+
+    climateRecordSix.setEtc(4);
+    climateRecordSix.setPrecip(2);
+    climateRecordSix.setDate(daySix);
+  }
+
+  /**
+   * @param climateRecords
+   * @param irrigationRecords
+   * @return double que representa el acumulado del deficit (falta)
+   * de humedad de suelo [mm/dia] de un conjunto de dias
+   */
+  private static double calculateAccumulatedSoilMoistureDeficitPerDay(Collection<ClimateRecord> climateRecords, Collection<IrrigationRecord> irrigationRecords) {
+    double totalIrrigationWaterPerDay = 0.0;
+    double soilMoistureDeficitPerDay = 0.0;
+    double accumulatedSoilMoistureDeficitPerDay = 0.0;
+
+    /*
+     * Acumula el deficit (falta) de humedad de suelo por dia [mm/dia]
+     * de un conjunto de dias haciendo uso de un conjunto de registros
+     * climaticos y un conjunto de registros de riego, debiendo ser
+     * todos ellos pertenecientes a una misma parcela, ya que de lo
+     * contrario el resultado sera incorrecto
+     */
+    for (ClimateRecord currentClimateRecord : climateRecords) {
+      totalIrrigationWaterPerDay = calculateTotalAmountIrrigationWaterPerDay(currentClimateRecord.getDate(), irrigationRecords);
+
+      /*
+       * Calcula el deficit (falta) de humedad de suelo por dia [mm/dia]
+       * de una fecha, ya que la ETc, la precipitacion y la cantidad total
+       * de agua de riego pertenecen a una fecha.
+       * 
+       * ETc = evapotranspiracion del cultivo bajo condiciones estandar
+       */
+      soilMoistureDeficitPerDay = WaterMath.calculateSoilMoistureDeficitPerDay(currentClimateRecord.getEtc(), currentClimateRecord.getPrecip(), totalIrrigationWaterPerDay);
+      accumulatedSoilMoistureDeficitPerDay = WaterMath.accumulateSoilMoistureDeficitPerDay(soilMoistureDeficitPerDay, accumulatedSoilMoistureDeficitPerDay);
+    }
+
+    return accumulatedSoilMoistureDeficitPerDay;
+  }
+
+  /**
+   * @param date
+   * @param irrigationRecords
+   * @return double que representa la cantidad total de agua de
+   * riego de una fecha [mm/dia]
+   */
+  private static double calculateTotalAmountIrrigationWaterPerDay(Calendar date, Collection<IrrigationRecord> irrigationRecords) {
+    double totalIrrigationWaterGivenDate = 0.0;
+
+    for (IrrigationRecord currentIrrigationRecord : irrigationRecords) {
+
+      /*
+       * Acumula el agua de riego de todos los registros de riego
+       * pertenecientes a una parcela que tienen la misma fecha.
+       * De esta manera, se calcula la cantidad total de agua de
+       * riego de una fecha [mm/dia].
+       */
+      if (UtilDate.compareTo(currentIrrigationRecord.getDate(), date) == 0) {
+        totalIrrigationWaterGivenDate = totalIrrigationWaterGivenDate + currentIrrigationRecord.getIrrigationDone();
+      }
+
+    }
+
+    return totalIrrigationWaterGivenDate;
   }
 
 }
