@@ -186,8 +186,8 @@ public class PlantingRecordStatusServiceBean {
    * cultivo. Por lo tanto, el estado que retorna este metodo es el
    * estado de un cultivo.
    * 
-   * @param totalAmountCropIrrigationWaterCurrentDate
-   * @param accumulatedSoilMoistureDeficitPerDayFromYesterday
+   * @param totalAmountCropIrrigationWaterCurrentDate [mm/dia]
+   * @param accumulatedSoilMoistureDeficitPerDayFromYesterday [mm/dia]
    * @param developingPlantingRecord
    * @return referencia a un objeto de tipo PlantingRecordStatus
    * que representa el estado de un registro de plantacion en
