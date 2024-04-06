@@ -186,7 +186,7 @@ public class PlantingRecordStatusServiceBean {
    * cultivo. Por lo tanto, el estado que retorna este metodo es el
    * estado de un cultivo.
    * 
-   * @param totalIrrigationWaterCurrentDate
+   * @param totalAmountCropIrrigationWaterCurrentDate
    * @param accumulatedSoilMoistureDeficitPerDayFromYesterday
    * @param developingPlantingRecord
    * @return referencia a un objeto de tipo PlantingRecordStatus
@@ -195,7 +195,7 @@ public class PlantingRecordStatusServiceBean {
    * suelo en el que se encuentra sembrado el cultivo que contiene.
    * Este estado tambien representa el estado de un cultivo.
    */
-  public PlantingRecordStatus calculateStatusRelatedToSoilMoistureLevel(double totalIrrigationWaterCurrentDate,
+  public PlantingRecordStatus calculateStatusRelatedToSoilMoistureLevel(double totalAmountCropIrrigationWaterCurrentDate,
       double accumulatedSoilMoistureDeficitPerDayFromYesterday, PlantingRecord developingPlantingRecord) {
     Parcel parcel = developingPlantingRecord.getParcel();
     Crop crop = developingPlantingRecord.getCrop();
@@ -286,7 +286,7 @@ public class PlantingRecordStatusServiceBean {
      * de suelo, ya que un registro de plantacion representa la
      * siembra de un cultivo.
      */
-    soilMoistureLevel = fieldCapacity + (accumulatedSoilMoistureDeficitPerDayFromYesterday + totalIrrigationWaterCurrentDate);
+    soilMoistureLevel = fieldCapacity + (accumulatedSoilMoistureDeficitPerDayFromYesterday + totalAmountCropIrrigationWaterCurrentDate);
 
     /*
      * Si el nivel de humedad del suelo [mm], que tiene un cultivo
