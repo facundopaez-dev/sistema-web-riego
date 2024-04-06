@@ -55,19 +55,50 @@ public class WaterMath {
 
     /*
      * Si la suma entre la cantidad total de agua de riego de
-     * una fecha [mm/dia] y el acumulado del deficit de humedad
-     * por dia [mm/dia] de una fecha inmediatamente anterior
-     * a la fecha de la cantidad total de agua de riego es
-     * mayor o igual a cero, la cantidad total de humedad
-     * evapotranspirada en dias previos a una fecha [mm/dia]
-     * fue totalmente cubierta (satisfecha) en una fecha. Por
-     * lo tanto, la necesidad de agua de riego de un cultivo
-     * en una fecha es 0 [mm/dia].
+     * cultivo por dia de una fecha [mm/dia] y el acumulado del
+     * deficit de humedad de suelo por dia [mm/dia] de la fecha
+     * inmediatamente anterior a la fecha de la cantidad total de
+     * agua de riego de cultivo por dia, es mayor o igual a cero,
+     * la cantidad total de humedad evapotranspirada en dias previos
+     * a una fecha [mm/dia] fue totalmente cubierta (satisfecha)
+     * en una fecha. Por lo tanto, la necesidad de agua de riego
+     * de un cultivo en una fecha es 0 [mm/dia].
      * 
      * El motivo por el cual se realiza la suma entre estos
      * dos valores es que el acumulado del deficit de humedad
-     * por dia [mm/dia] de dias previos a una fecha es menor
-     * o igual a cero.
+     * de suelo por dia [mm/dia] es menor o igual a cero.
+     * 
+     * El acumulado del deficit de humedad de suelo por dia [mm/dia]
+     * es el resultado de sumar el deficit de humedad de suelo
+     * por dia de cada uno de los dias de un conjunto de dias.
+     * Por lo tanto, es la cantidad total de perdida de humedad
+     * que hubo en el suelo dentro de un periodo de dias. El
+     * acumulado del deficit de humedad de suelo por dia puede
+     * ser negativo o cero. Cuando es negativo representa que
+     * en un periodo de dias hubo una perdida de humedad en el
+     * suelo no cubierta (satisfecha). En cambio, cuando es igual
+     * a cero representa que la perdida de humedad que hubo en
+     * el suelo en un periodo de dias esta totalmente cubierta
+     * (satisfecha). Si el acumulado del deficit de humedad de
+     * suelo por dia es negativo significa que el suelo NO esta
+     * en capacidad de campo. Si el acumulado del deficit de
+     * humedad de suelo por dia es igual a cero significa que
+     * el suelo esta en capacidad de campo. Capacidad de campo
+     * es la condicion en la que el suelo agricola esta lleno
+     * de agua o en su maxima capacidad de almacenamiento de
+     * agua, pero no anegado.
+     * 
+     * El comentario anterior es la justificacion del motivo
+     * por el cual la necesidad de agua de riego de un cultivo
+     * es 0 [mm/dia] cuando la suma entre la cantidad total de
+     * agua de riego de cultivo por dia de una fecha [mm/dia] y
+     * el acumulado del deficit de humedad de suelo por dia [mm/dia]
+     * de la fecha inmediatamente anterior a la fecha de la cantidad
+     * total de agua de riego de cultivo por dia, es mayor o igual
+     * a cero. Dicho comentario tambien es la justificacion del
+     * motivo por el cual la necesidad de agua de riego de un
+     * cultivo es el valor absoluto de la suma entre ambos valores
+     * cuando dicha suma es estrictamente menor a cero.
      */
     if ((totalAmountCropIrrigationWaterPerDay + accumulatedSoilMoistureDeficitPerDay) >= 0) {
       return 0.0;
@@ -75,15 +106,15 @@ public class WaterMath {
 
     /*
      * Si la suma entre la cantidad total de agua de riego de
-     * una fecha [mm/dia] y el acumulado del deficit de humedad
-     * por dia [mm/dia] de una fecha inmediatamente anterior
-     * a la fecha de la cantidad total de agua de riego es
-     * estrictamente menor a cero, la cantidad total de agua
-     * evaporada de dias previos a una fecha [mm/dia] NO
-     * fue totalmente cubierta (satisfecha) en una fecha.
-     * Por lo tanto, la necesidad de agua de riego de un
-     * cultivo en una fecha [mm/dia] es el valor absoluto de
-     * la suma entre estos dos valores.
+     * cultivo por dia de una fecha [mm/dia] y el acumulado del
+     * deficit de humedad de suelo por dia [mm/dia] de la fecha
+     * inmediatamente anterior a la fecha de la cantidad total de
+     * agua de riego de cultivo por dia, es estrictamente menor a
+     * cero, la cantidad total de agua evapotranspirada de dias
+     * previos a una fecha [mm/dia] NO fue totalmente cubierta
+     * (satisfecha) en una fecha. Por lo tanto, la necesidad de
+     * agua de riego de un cultivo en una fecha [mm/dia] es el
+     * valor absoluto de la suma entre estos dos valores.
      */
     return Math.abs(totalAmountCropIrrigationWaterPerDay + accumulatedSoilMoistureDeficitPerDay);
   }

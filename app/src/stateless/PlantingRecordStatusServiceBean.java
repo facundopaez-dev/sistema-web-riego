@@ -173,17 +173,18 @@ public class PlantingRecordStatusServiceBean {
    * Calcula el estado de un registro de plantacion en desarrollo en
    * funcion del punto en el que se encuentra el nivel de humedad del
    * suelo en el que esta sembrado el cultivo de dicho registro. Esto
-   * lo realiza en funcion de la cantidad total de agua de riego de la
-   * fecha actual (es decir, hoy) [mm/dia], del acumulado del deficit
-   * de agua por dia del dia inmediatamente anterior a la fecha actual
-   * [mm/dia], de la capacidad de almacenamiento de agua del suelo [mm]
-   * en el que esta sembrado un cultivo, del umbral de riego [mm], del
-   * punto de marchitez permanente y del negativo del doble de la
-   * capacidad de almacenamiento de agua [mm].
+   * lo realiza en funcion de la cantidad total de agua de riego de
+   * cultivo de la fecha actual (es decir, hoy) [mm/dia], del acumulado
+   * del deficit de humedad por dia del dia inmediatamente anterior a la
+   * fecha actual [mm/dia], de la capacidad de almacenamiento de agua
+   * del suelo [mm] en el que esta sembrado un cultivo, del umbral de
+   * riego [mm], del punto de marchitez permanente del suelo y del
+   * negativo del doble de la capacidad de almacenamiento de agua [mm].
    * 
-   * El estado de un registro de plantacion es el estado del cultivo
-   * que contiene. Por lo tanto, el estado que retorna este metodo
-   * representa el estado de un cultivo.
+   * El estado de un registro de plantacion es el estado de un cultivo,
+   * ya que un registro de plantacion representa la siembra de un
+   * cultivo. Por lo tanto, el estado que retorna este metodo es el
+   * estado de un cultivo.
    * 
    * @param totalIrrigationWaterCurrentDate
    * @param accumulatedSoilMoistureDeficitPerDayFromYesterday
@@ -219,60 +220,71 @@ public class PlantingRecordStatusServiceBean {
     fieldCapacity = totalAmountWaterAvailable;
 
     /*
-     * El deficit de humedad por dia [mm/dia] puede ser negativo,
-     * cero o positivo. Cuando es negativo representa que en
-     * un dia hubo perdida de humedad en el suelo. En cambio,
-     * cuando es igual o mayor a cero representa que la cantidad
-     * de humedad del suelo agotada por dia fue totalmente cubierta.
-     * Dicha cantidad esta determinada por la ETc (evapotranspiracion
-     * del cultivo bajo condiciones estandar) [mm/dia].
+     * El deficit de humedad de suelo por dia [mm/dia] puede ser
+     * negativo, cero o positivo. Cuando es negativo representa
+     * que en un dia hubo perdida de humedad en el suelo no
+     * satisfecha (cubierta). En cambio, cuando es igual o mayor
+     * a cero representa que la perdida de humedad que hubo en el
+     * suelo en un dia esta totalmente satisfecha (cubierta). La
+     * perdida de humedad de suelo por dia esta determinada por la
+     * ETc (evapotranspiracion del cultivo bajo condiciones estandar)
+     * [mm/dia].
      * 
-     * El acumulado del deficit de humedad por dia [mm/dia] es el
-     * resultado de sumar el deficit de humedad por dia de cada
-     * uno de los dias de un conjunto de dias. Por lo tanto, es
-     * la cantidad total de perdida de humedad que hubo en el
-     * suelo dentro en un periodo de dias. El acumulado del
-     * deficit de humedad por dia puede ser negativo o cero. Cuando
-     * es negativo representa que en un periodo de dias hubo
-     * perdida de humedad en el suelo. En cambio, cuando es
-     * igual a cero representa que la perdida de humedad que
-     * hubo en el suelo en un periodo de dias esta totalmente
-     * cubierta. Esto es que el suelo esta en capacidad de campo,
-     * lo que significa que el suelo esta lleno de agua o en
-     * su maxima capacidad de almacenamiento de agua, pero no
-     * anegado.
+     * El acumulado del deficit de humedad de suelo por dia [mm/dia]
+     * es el resultado de sumar el deficit de humedad de suelo
+     * por dia de cada uno de los dias de un conjunto de dias.
+     * Por lo tanto, es la cantidad total de perdida de humedad
+     * que hubo en el suelo dentro en un periodo de dias. El
+     * acumulado del deficit de humedad de suelo por dia puede ser
+     * negativo o cero. Cuando es negativo representa que en un
+     * periodo de dias hubo una perdida de humedad en el suelo no
+     * cubierta (satisfecha). En cambio, cuando es igual a cero
+     * representa que la perdida de humedad que hubo en el suelo
+     * en un periodo de dias esta totalmente cubierta (satisfecha).
+     * Si el acumulado del deficit de humedad de suelo por dia es
+     * negativo significa que el suelo NO esta en capacidad de
+     * campo. Si el acumulado del deficit de humedad de suelo por
+     * dia es igual a cero significa que el suelo esta en capacidad
+     * de campo. Capacidad de campo es la condicion en la que el
+     * suelo agricola esta lleno de agua o en su maxima capacidad
+     * de almacenamiento de agua, pero no anegado.
      * 
      * Se suma la capacidad de almacenamiento de agua del suelo
      * (la capacidad de campo es igualada a este valor en la
-     * linea inmediatamente anterior) al resultado de la suma
-     * entre el acumulado del deficit de humedad por dia del dia
-     * inmediatamente anterior a la fecha actual [mm/dia] y la
-     * cantidad total de agua de riego de la fecha actual [mm/dia]
-     * porque lo que se busca es determinar el punto en el que
-     * se encuentra el nivel de humedad del suelo, que tiene
-     * un cultivo sembrado, con respecto a la capacidad de
-     * campo para establecer el estado de un registro de
-     * plantacion en desarrollo perteneciente a una parcela
-     * que tiene la bandera suelo activa en sus opciones.
+     * linea de codigo fuente inmediatamente anterior) al resultado
+     * de la suma entre el acumulado del deficit de humedad de
+     * suelo por dia del dia inmediatamente anterior a la fecha
+     * actual [mm/dia] y la cantidad total de agua de riego de
+     * cultivo por dia de la fecha actual [mm/dia] porque lo que
+     * se busca es determinar el punto en el que se encuentra el
+     * nivel de humedad del suelo, que tiene un cultivo sembrado,
+     * con respecto a la capacidad de campo del suelo para establecer
+     * el estado de un registro de plantacion en desarrollo perteneciente
+     * a una parcela que tiene la bandera suelo activa en sus
+     * opciones.
      * 
-     * La capacidad de campo es un valor estrictamente mayor
-     * a cero, ya que es igualada a la capacidad de almacenamiento
+     * La capacidad de campo del suelo es un valor estrictamente
+     * mayor a cero, ya que es igualada a la capacidad de almacenamiento
      * de agua del suelo, la cual es estrictamente mayor a
-     * cero. La cantidad total de agua de riego de un dia
-     * cualquiera es un valor estrictamente mayor o igual a
-     * cero. En cambio, el acumulado del deficit de humedad por
-     * dia es un valor negativo o igual a cero. Por este motivo
-     * se realiza la suma entre la capacidad de campo y el
-     * resultado de la suma entre el acumulado del deficit
-     * de agua por dia del dia inmediatamente anterior a la
-     * fecha actual y la cantidad total de agua de riego de
-     * la fecha actual para determinar el punto en el que
-     * se encuentra el nivel de humedad del suelo que tiene
-     * un cultivo sembrado. Esta determinacion se realiza con
-     * el fin de calcular el estado de un registro de plantacion
-     * en desarrollo. De esta manera, tambien se determina el
-     * estado del cultivo perteneciente a un registro de
-     * plantacion en desarrollo.
+     * cero. La cantidad total de agua de riego de cultivo por
+     * dia es un valor mayor o igual a cero. En cambio, el acumulado
+     * del deficit de humedad de suelo por dia es un valor negativo
+     * o igual a cero. Por este motivo se realiza la suma entre
+     * la capacidad de campo del suelo y el resultado de la suma
+     * entre el acumulado del deficit de humedad de suelo por dia
+     * del dia inmediatamente anterior a la fecha actual y la
+     * cantidad total de agua de riego de cultivo por dia de la
+     * fecha actual para determinar el punto en el que se encuentra
+     * el nivel de humedad del suelo que tiene un cultivo sembrado.
+     * Esta determinacion se realiza con el fin de calcular el
+     * estado de un registro de plantacion que tiene un estado
+     * de desarrollo relacionado al uso de datos de suelo (desarrollo
+     * optimo, desarrollo en riesgo de marchitez, desarrollo en
+     * marchitez). De esta manera, tambien se determina el estado
+     * del cultivo perteneciente a un registro de plantacion que
+     * utiliza un estado de desarrollo relacionado al uso de datos
+     * de suelo, ya que un registro de plantacion representa la
+     * siembra de un cultivo.
      */
     soilMoistureLevel = fieldCapacity + (accumulatedSoilMoistureDeficitPerDayFromYesterday + totalIrrigationWaterCurrentDate);
 
