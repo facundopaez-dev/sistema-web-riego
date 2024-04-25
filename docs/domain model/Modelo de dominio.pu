@@ -114,9 +114,7 @@ class RegistroRiego {
 
 class Opcion {
 -id
--diasPasadosReferencia
 -banderaSuelo
--banderaUltimoRiegoTreintaDias
 -banderaMensajeCapacidadCampo
 }
 
