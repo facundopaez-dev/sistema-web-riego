@@ -53,6 +53,10 @@ app.controller(
                     para controlar su acceso a las paginas web a las que accede un usuario
                     */
                     accessManager.setAsAdmin();
+
+                    /* Almacena el valor del permiso para modificar el permiso de administrador
+                    en el almacenamiento local del navegador web */
+                    accessManager.setSuperuserPermissionModifier(jwtManager.getSuperuserPermissionModifier());
                     $location.path("/adminHome");
                 });
             }

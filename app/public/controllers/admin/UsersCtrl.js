@@ -1,9 +1,9 @@
 app.controller(
-	"AdminSoilsCtrl",
-	["$scope", "$location", "$route", "SoilSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
-		function ($scope, $location, $route, soilService, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
+	"UsersCtrl",
+	["$scope", "$location", "UserSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
+		function ($scope, $location, userService, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
 
-			console.log("AdminSoilsCtrl loaded...")
+			console.log("UsersCtrl loaded...")
 
 			/*
 			Si el usuario NO tiene una sesion abierta, se le impide el acceso a
@@ -21,6 +21,17 @@ app.controller(
 			a la pagina de inicio del usuario
 			*/
 			if (accessManager.isUserLoggedIn() && !accessManager.loggedAsAdmin()) {
+				$location.path("/home");
+				return;
+			}
+
+			/*
+			Si el usuario que tiene una sesion abierta tiene permiso de administrador,
+			pero no tiene el permiso para modificar el permiso de administrador, no se
+			le da acceso a la pagina correspondiente a este controller y se lo redirige
+			a la pagina de inicio
+			*/
+			if (accessManager.isUserLoggedIn() && !accessManager.getSuperuserPermissionModifier()) {
 				$location.path("/home");
 				return;
 			}
@@ -48,41 +59,6 @@ app.controller(
 				authHeaderManager.setJwtAuthHeader();
 			}
 
-			/* Esta propiedad se utiliza para mostrar u ocultar el boton de
-			acceso a la lista de usuarios. Dicho boton se debe mostrar si
-			un usuario con permiso de administrador tiene el permiso para
-			modificar el permiso de administrador. En caso contrario, se
-			debe ocultar. */
-			$scope.showUsersButton = accessManager.getSuperuserPermissionModifier();
-
-			function findAll() {
-				soilService.findAll(function (error, data) {
-					if (error) {
-						console.log("Ocurrió un error: " + error);
-						errorResponseManager.checkResponse(error);
-						return;
-					}
-
-					$scope.data = data;
-				})
-			}
-
-			$scope.delete = function (id) {
-
-				console.log("Deleting: " + id)
-
-				soilService.delete(id, function (error, data) {
-					if (error) {
-						console.log(error);
-						errorResponseManager.checkResponse(error);
-						return;
-					}
-
-					$location.path("/adminHome/soils");
-					$route.reload()
-				});
-			}
-
 			$scope.logout = function () {
 				/*
 				LogoutManager es la factory encargada de realizar el cierre de
@@ -100,9 +76,9 @@ app.controller(
 				logoutManager.logout();
 			}
 
-			const UNDEFINED_SOIL_NAME = "El nombre del suelo debe estar definido";
+			const UNDEFINED_USERNAME = "El nombre de usuario debe estar definido";
 
-			$scope.searchSoil = function () {
+			$scope.searchUser = function () {
 				/*
 				Si esta propiedad de $scope tiene el valor undefined y se
 				presiona el boton "Buscar", significa que NO se ingreso un
@@ -111,15 +87,15 @@ app.controller(
 				aplicacion muestra el mensaje dado y no ejecuta la instruccion
 				que realiza la peticion HTTP correspondiente esta funcion.
 				*/
-				if ($scope.soilName == undefined) {
-					alert(UNDEFINED_SOIL_NAME);
+				if ($scope.username == undefined) {
+					alert(UNDEFINED_USERNAME);
 					return;
 				}
 
-				soilService.search($scope.soilName, function (error, data) {
+				userService.search($scope.username, function (error, data) {
 					if (error) {
 						console.log(error);
-						$scope.soilName = undefined;
+						$scope.username = undefined;
 						errorResponseManager.checkSearchResponse(error);
 						return;
 					}
@@ -131,24 +107,9 @@ app.controller(
 			// Esto es necesarios para la paginacion
 			var $ctrl = this;
 
-			$scope.service = soilService;
+			$scope.service = userService;
 			$scope.listElement = []
 			$scope.cantPerPage = 10
 			// Esto es necesarios para la paginacion
 
-			/*
-			Reinicia el listado de los datos correspondientes a este controller
-			cuando se presiona el boton "Reiniciar listado"
-			*/
-			$scope.reset = function () {
-				/*
-				Esta instruccion es para eliminar el contenido del campo
-				del menu de busqueda de un dato correspondientes a este
-				controller
-				*/
-				$scope.soilName = undefined;
-				findAll();
-			}
-
-			// findAll();
 		}]);

@@ -141,7 +141,9 @@ public enum ReasonError {
   NON_EXISTENT_HARVEST_RECORDS("Para generar el informe estadístico solicitado se requieren registros de cosecha (rendimientos) y la parcela seleccionada no tiene registros de cosecha"),
   NON_EXISTENT_HARVEST_RECORDS_IN_A_PERIOD("Para generar el informe estadístico solicitado se requieren registros de cosecha (rendimientos) y la parcela seleccionada no tiene registros de cosecha en el período definido por las fechas elegidas"),
   FINISHED_CROP_IN_CALCULATION_NEED_IRRIGATION_WATER("El cultivo ha finalizado por ser la fecha de cosecha estrictamente menor a la fecha actual (es decir, hoy)"),
-  INVALID_CROP_IRRIGATION_WATER_NEED("La necesidad de agua de riego de un cultivo no debe ser negativa");
+  INVALID_CROP_IRRIGATION_WATER_NEED("La necesidad de agua de riego de un cultivo no debe ser negativa"),
+  INACTIVE_USER_ADMIN_PERMISSION_MODIFICATION("No está permitido modificar el permiso de administrador de un usuario inactivo"),
+  OWN_MODIFICATION_ADMIN_PERMISSION_NOT_ALLOWED("No está permitido modificar el permiso de administrador propio");
 
   private final String reason;
 

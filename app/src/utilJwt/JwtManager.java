@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
+import model.User;
 
 /**
  * JwtManager es la clase que se utiliza para la creacion
@@ -25,6 +26,7 @@ public class JwtManager {
    */
   private static final String USER_ID = "userId";
   private static final String SUPERUSER = "superuser";
+  private static final String SUPERUSER_PERMISSION_MODIFIER = "superuserPermissionModifier";
   private static final String PASSWORD_RESET_LINK_ID = "passwordResetLinkId";
   private static final String USER_EMAIL = "userEmail";
 
@@ -55,6 +57,7 @@ public class JwtManager {
   private static final String TWO_POINTS = ":";
   private static final String USER_ID_KEY = "\"userId\"";
   private static final String SUPERUSER_KEY = "\"superuser\"";
+  private static final String SUPERUSER_PERMISSION_MODIFIER_KEY = "\"superuserPermissionModifier\"";
   private static final String ISSUED_AT_KEY = "\"iat\"";
   private static final String EXPIRES_AT_KEY = "\"exp\"";
   private static final String PASSWORD_RESET_LINK_ID_KEY = "\"passwordResetLinkId\"";
@@ -75,12 +78,12 @@ public class JwtManager {
    * Crea un JWT con el ID y el permiso de un usuario, una fecha
    * de emision y una fecha de expiracion
    * 
-   * @param userId ID de un usuario
-   * @param superuserPermission permiso de un usuario
+   * @param User
    * @param secretKey clave secreta con la que se firma un JWT
-   * @return referencia a un objeto de tipo String que contiene un JWT
+   * @return referencia a un objeto de tipo String que contiene
+   * un JWT
    */
-  public static String createJwt(int userId, boolean superuserPermission, String secretKey) {
+  public static String createJwt(User user, String secretKey) {
     /*
      * Asigna el tiempo actual a la fecha de emision
      */
@@ -93,8 +96,9 @@ public class JwtManager {
     expirationDate.setTime(dateIssue.getTime() + OFFSET);
 
     JWTCreator.Builder jwtCreator = JWT.create();
-    jwtCreator.withClaim(USER_ID, userId);
-    jwtCreator.withClaim(SUPERUSER, superuserPermission);
+    jwtCreator.withClaim(USER_ID, user.getId());
+    jwtCreator.withClaim(SUPERUSER, user.getSuperuser());
+    jwtCreator.withClaim(SUPERUSER_PERMISSION_MODIFIER, user.getSuperuserPermissionModifier());
     jwtCreator.withIssuedAt(dateIssue);
     jwtCreator.withExpiresAt(expirationDate);
 
@@ -231,6 +235,21 @@ public class JwtManager {
   public static boolean getSuperuser(String jwt, String secretKey) {
     String payload = getDecodedPayload(jwt, secretKey);
     return Boolean.parseBoolean(getValueKey(SUPERUSER_KEY, payload));
+  }
+
+  /**
+   * Recupera el permiso para modificar el permiso de administrador
+   * (super usuario) contenido en la carga util de un JWT
+   * 
+   * @param jwt
+   * @param secretKey clave secreta con la que se firma un JWT
+   * @return true si el valor asociado a la clave 'permissionModifier' es
+   * true, false si el valor asociado a la clave 'permissionModifier' es
+   * false
+   */
+  public static boolean getSuperuserPermissionModifier(String jwt, String secretKey) {
+    String payload = getDecodedPayload(jwt, secretKey);
+    return Boolean.parseBoolean(getValueKey(SUPERUSER_PERMISSION_MODIFIER_KEY, payload));
   }
 
   /**

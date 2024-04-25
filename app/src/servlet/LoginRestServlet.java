@@ -80,7 +80,7 @@ public class LoginRestServlet {
      * solo contiene el nombre de usuario y la contraseña ingresados
      * por el usuario en la pagina web de inicio de sesion
      */
-    User givenUser = userServiceBean.findByUsername(accessCredential.getUsername());
+    User user = userServiceBean.findByUsername(accessCredential.getUsername());
 
     /*
      * Si la cuenta con la que el usuario intenta iniciar sesion NO
@@ -89,7 +89,7 @@ public class LoginRestServlet {
      * de usuario o contraseña incorrectos" y no se inicia la sesion
      * solicitada
      */
-    if (!givenUser.getActive()) {
+    if (!user.getActive()) {
       return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.USERNAME_OR_PASSWORD_INCORRECT))).build();
     }
 
@@ -116,7 +116,7 @@ public class LoginRestServlet {
      * usuario abra mas de una sesion con su cuenta, lo cual
      * no es lo que se busca con dicho control.
      */
-    // if (sessionService.checkActiveSession(givenUser.getId())) {
+    // if (sessionService.checkActiveSession(user.getId())) {
     //   return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MULTIPLE_SESSIONS))).build();
     // }
 
@@ -133,7 +133,7 @@ public class LoginRestServlet {
      * secreta que hay para generar un JWT
      */
     SecretKey secretKey = secretKeyService.find();
-    Token newToken = new Token(JwtManager.createJwt(givenUser.getId(), givenUser.getSuperuser(), secretKey.getValue()));
+    Token newToken = new Token(JwtManager.createJwt(user, secretKey.getValue()));
 
     /*
      * Se crea y persiste una sesion activa para el usuario
@@ -142,7 +142,7 @@ public class LoginRestServlet {
      * luego de obtener el usuario mediante su nombre.
      */
     sessionService
-      .create(givenUser, JwtManager.getDateIssue(newToken.getJwt(), secretKey.getValue()), JwtManager.getExpirationDate(newToken.getJwt(), secretKey.getValue()));
+      .create(user, JwtManager.getDateIssue(newToken.getJwt(), secretKey.getValue()), JwtManager.getExpirationDate(newToken.getJwt(), secretKey.getValue()));
 
     /*
      * Si el usuario es autentico y NO tiene una sesion activa, el servidor
@@ -195,7 +195,7 @@ public class LoginRestServlet {
      * solo contiene el nombre de usuario y la contraseña ingresados
      * por el usuario en la pagina web de inicio de sesion
      */
-    User givenUser = userServiceBean.findByUsername(accessCredential.getUsername());
+    User user = userServiceBean.findByUsername(accessCredential.getUsername());
 
     /*
      * Si la cuenta con la que el usuario intenta iniciar sesion NO
@@ -204,7 +204,7 @@ public class LoginRestServlet {
      * de usuario o contraseña incorrectos" y no se inicia la sesion
      * solicitada
      */
-    if (!givenUser.getActive()) {
+    if (!user.getActive()) {
       return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.USERNAME_OR_PASSWORD_INCORRECT))).build();
     }
 
@@ -218,7 +218,7 @@ public class LoginRestServlet {
      * y luego la comprobacion del permiso de super usuario, dicha comprobacion
      * nunca va a fallar en caso de que se ingrese un usuario inexistente.
      */
-    if (!userServiceBean.checkSuperuserPermission(givenUser.getUsername())) {
+    if (!userServiceBean.checkSuperuserPermission(user.getUsername())) {
       return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
     }
 
@@ -245,7 +245,7 @@ public class LoginRestServlet {
      * usuario abra mas de una sesion con su cuenta, lo cual
      * no es lo que se busca con dicho control.
      */
-    // if (sessionService.checkActiveSession(givenUser.getId())) {
+    // if (sessionService.checkActiveSession(user.getId())) {
     //   return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MULTIPLE_SESSIONS))).build();
     // }
 
@@ -262,7 +262,7 @@ public class LoginRestServlet {
      * secreta que hay para generar un JWT
      */
     SecretKey secretKey = secretKeyService.find();
-    Token newToken = new Token(JwtManager.createJwt(givenUser.getId(), givenUser.getSuperuser(), secretKey.getValue()));
+    Token newToken = new Token(JwtManager.createJwt(user, secretKey.getValue()));
 
     /*
      * Se crea y persiste una sesion activa para el usuario
@@ -271,7 +271,7 @@ public class LoginRestServlet {
      * luego de obtener el usuario mediante su nombre.
      */
     sessionService
-      .create(givenUser, JwtManager.getDateIssue(newToken.getJwt(), secretKey.getValue()), JwtManager.getExpirationDate(newToken.getJwt(), secretKey.getValue()));
+      .create(user, JwtManager.getDateIssue(newToken.getJwt(), secretKey.getValue()), JwtManager.getExpirationDate(newToken.getJwt(), secretKey.getValue()));
 
     /*
      * Si el usuario es autentico y NO tiene una sesion activa, el servidor

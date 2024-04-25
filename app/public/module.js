@@ -238,6 +238,19 @@ app.config(['$routeProvider', function (routeprovider) {
 			controller: 'RegionCtrl'
 		})
 
+		.when('/adminHome/users', {
+			templateUrl: 'partials/admin/user-list.html',
+			controller: 'UsersCtrl'
+		})
+		.when('/adminHome/users/:action', {
+			templateUrl: 'partials/admin/admin-permission-modification-form.html',
+			controller: 'PermissionModifierCtrl'
+		})
+		.when('/adminHome/users/:action/:id', {
+			templateUrl: 'partials/admin/admin-permission-modification-form.html',
+			controller: 'PermissionModifierCtrl'
+		})
+
 		.otherwise({
 			templateUrl: 'partials/404.html'
 		})
@@ -259,7 +272,8 @@ app.factory('AccessManager', ['JwtManager', '$window', function (jwtManager, $wi
 	web de inicio de sesion de usuario, para acceder a las paginas web a las
 	que accede un usuario.
 	*/
-	const KEY = "superuser";
+	const SUPERUSER_KEY = "superuser";
+	const SUPERUSER_PERMISSION_MODIFIER_KEY = "superuserPermissionModifier";
 
 	return {
 		/**
@@ -294,7 +308,7 @@ app.factory('AccessManager', ['JwtManager', '$window', function (jwtManager, $wi
 		 * permiso de administrador, false en caso contrario
 		 */
 		loggedAsAdmin: function () {
-			return JSON.parse($window.localStorage.getItem(KEY));
+			return JSON.parse($window.localStorage.getItem(SUPERUSER_KEY));
 		},
 
 		/**
@@ -302,7 +316,7 @@ app.factory('AccessManager', ['JwtManager', '$window', function (jwtManager, $wi
 		 * tiene permiso de administrador
 		 */
 		setAsAdmin: function () {
-			$window.localStorage.setItem(KEY, JSON.stringify(true));
+			$window.localStorage.setItem(SUPERUSER_KEY, JSON.stringify(true));
 		},
 
 		/**
@@ -310,7 +324,32 @@ app.factory('AccessManager', ['JwtManager', '$window', function (jwtManager, $wi
 		 * tiene permiso de administrador
 		 */
 		clearAsAdmin: function () {
-			$window.localStorage.setItem(KEY, JSON.stringify(false));
+			$window.localStorage.setItem(SUPERUSER_KEY, JSON.stringify(false));
+		},
+
+		/**
+		 * Almacena el valor del permiso para modificar el permiso de administrador
+		 * en el almacenamiento local del navegador web
+		 */
+		setSuperuserPermissionModifier: function (superuserPermissionModifier) {
+			$window.localStorage.setItem(SUPERUSER_PERMISSION_MODIFIER_KEY, JSON.stringify(superuserPermissionModifier));
+		},
+
+		/**
+		 * @returns true si el usuario que tiene una sesion abierta tiene
+		 * permiso para modificar el permiso de administrador, false en
+		 * caso contrario
+		 */
+		getSuperuserPermissionModifier: function () {
+			return JSON.parse($window.localStorage.getItem(SUPERUSER_PERMISSION_MODIFIER_KEY));
+		},
+
+		/**
+		 * Establece el valor false en la clave superuserPermissionModifier
+		 * almacenada en el almacenamiento local del navegador web
+		 */
+		clearSuperuserPermissionModifier: function () {
+			$window.localStorage.setItem(SUPERUSER_PERMISSION_MODIFIER_KEY, JSON.stringify(false));
 		}
 	}
 }]);
@@ -368,7 +407,19 @@ app.factory('JwtManager', function ($window) {
 			}).join(''));
 
 			return JSON.parse(jsonPayload);
+		},
+
+		/**
+		 * Retorna el valor asociado a la clave superuserPermissionModifier
+		 * de un JWT
+		 * 
+		 * @param jwt
+		 */
+		getSuperuserPermissionModifier: function () {
+			var payload = this.getPayload();
+			return payload.superuserPermissionModifier;
 		}
+
 	}
 });
 
@@ -1014,6 +1065,13 @@ app.factory('RedirectManager', ['AccessManager', '$location', function (accessMa
 				del usuario
 				*/
 				accessManager.clearAsAdmin();
+
+				/* Asigna el valor false a la clave superuserPermissionModifier almacenada
+				en el almacenamiento local del navegador web. Esto es para el caso en el
+				que el administrador tiene el permiso para modificar el permiso superusuario
+				(administrador) de un usuario, ya que luego del cierre de sesio no se requiere
+				el valor true de dicha clave. */
+				accessManager.clearSuperuserPermissionModifier();
 
 				/*
 				Cuando el administrador cierra su sesion o cuando expira su sesion, se lo

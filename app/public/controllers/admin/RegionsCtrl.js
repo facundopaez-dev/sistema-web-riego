@@ -48,6 +48,13 @@ app.controller(
 				authHeaderManager.setJwtAuthHeader();
 			}
 
+			/* Esta propiedad se utiliza para mostrar u ocultar el boton de
+			acceso a la lista de usuarios. Dicho boton se debe mostrar si
+			un usuario con permiso de administrador tiene el permiso para
+			modificar el permiso de administrador. En caso contrario, se
+			debe ocultar. */
+			$scope.showUsersButton = accessManager.getSuperuserPermissionModifier();
+
 			function findAll() {
 				regionService.findAll(function (error, data) {
 					if (error) {

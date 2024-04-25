@@ -1,9 +1,11 @@
 app.controller(
-    "AdminHomeCtrl",
-    ["$scope", "$location", "UserSrv", "AuthHeaderManager", "AccessManager", "LogoutManager", "ExpirationManager", "ErrorResponseManager", "RedirectManager",
-        function ($scope, $location, userService, authHeaderManager, accessManager, logoutManager, expirationManager, errorResponseManager, redirectManager) {
+    "PermissionModifierCtrl",
+    ["$scope", "$location", "$routeParams", "UserSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
+        "ExpirationManager", "RedirectManager",
+        function ($scope, $location, $params, userService, accessManager, errorResponseManager, authHeaderManager, logoutManager, expirationManager,
+            redirectManager) {
 
-            console.log("AdminHomeCtrl loaded...")
+            console.log("PermissionModifierCtrl loaded with action: " + $params.action)
 
             /*
             Si el usuario NO tiene una sesion abierta, se le impide el acceso a
@@ -19,17 +21,30 @@ app.controller(
             Si el usuario que tiene una sesion abierta no tiene permiso de administrador,
             no se le da acceso a la pagina correspondiente a este controller y se lo redirige
             a la pagina de inicio del usuario
-             */
+            */
             if (accessManager.isUserLoggedIn() && !accessManager.loggedAsAdmin()) {
                 $location.path("/home");
                 return;
             }
 
             /*
-            Cuando el usuario accede a la pagina de inicio, se debe comprobar
+            Si el usuario que tiene una sesion abierta tiene permiso de administrador,
+            pero no tiene el permiso para modificar el permiso de administrador, no se
+            le da acceso a la pagina correspondiente a este controller y se lo redirige
+            a la pagina de inicio
+            */
+            if (accessManager.isUserLoggedIn() && !accessManager.getSuperuserPermissionModifier()) {
+                $location.path("/home");
+                return;
+            }
+
+            /*
+            Cada vez que el usuario presiona los botones para crear, editar o
+            ver un dato correspondiente a este controller, se debe comprobar
             si su JWT expiro o no. En el caso en el que JWT expiro, se redirige
             al usuario a la pagina web de inicio de sesion correspondiente. En caso
-            contrario, se deja al usuario en la pagina de inicio.
+            contrario, se realiza la accion solicitada por el usuario mediante
+            el boton pulsado.
             */
             if (expirationManager.isExpire()) {
                 expirationManager.displayExpiredSessionMessage();
@@ -77,23 +92,38 @@ app.controller(
                 authHeaderManager.setJwtAuthHeader();
             }
 
-            /* Esta propiedad se utiliza para mostrar u ocultar el boton de
-            acceso a la lista de usuarios. Dicho boton se debe mostrar si
-            un usuario con permiso de administrador tiene el permiso para
-            modificar el permiso de administrador. En caso contrario, se
-            debe ocultar. */
-            $scope.showUsersButton = accessManager.getSuperuserPermissionModifier();
+            if (['edit'].indexOf($params.action) == -1) {
+                alert("Acción inválida: " + $params.action);
+                $location.path("/adminHome/users");
+            }
 
-            function findMyAccount() {
-                userService.findMyAccount(function (error, data) {
+            function find(id) {
+                userService.find(id, function (error, data) {
                     if (error) {
-                        console.log("Ocurrió un error: " + error);
+                        console.log(error);
                         errorResponseManager.checkResponse(error);
                         return;
                     }
 
                     $scope.data = data;
-                })
+                });
+            }
+
+            $scope.modifySuperuserPermission = function () {
+                userService.modifySuperuserPermission($scope.data.id, $scope.data, function (error, data) {
+                    if (error) {
+                        console.log(error);
+                        errorResponseManager.checkResponse(error);
+                        return;
+                    }
+
+                    $scope.data = data;
+                    $location.path("/adminHome/users")
+                });
+            }
+
+            $scope.cancel = function () {
+                $location.path("/adminHome/users");
             }
 
             $scope.logout = function () {
@@ -113,5 +143,10 @@ app.controller(
                 logoutManager.logout();
             }
 
-            findMyAccount();
+            $scope.action = $params.action;
+
+            if ($scope.action == 'edit') {
+                find($params.id);
+            }
+
         }]);

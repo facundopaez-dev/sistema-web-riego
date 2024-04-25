@@ -3,6 +3,25 @@ app.service(
 	["$http",
 		function ($http) {
 
+			this.searchByPage = function (search, page, cant, callback) {
+				$http.get('rest/users/findAllActiveUsersExceptOwnUser?page=' + page + '&cant=' + cant + "&search=" + JSON.stringify(search))
+					.then(function (res) {
+						return callback(false, res.data)
+					}, function (err) {
+						return callback(err.data)
+					})
+			}
+
+			this.find = function (id, callback) {
+				$http.get("rest/users/" + id).then(
+					function (result) {
+						callback(false, result.data);
+					},
+					function (error) {
+						callback(error);
+					});
+			}
+
 			/*
 			Esta funcion es para que el usuario pueda ver los
 			datos de su cuenta en la lista de la pagina de
@@ -46,6 +65,17 @@ app.service(
 
 			this.modify = function (data, callback) {
 				$http.put("rest/users/modify", data)
+					.then(
+						function (result) {
+							callback(false, result.data);
+						},
+						function (error) {
+							callback(error);
+						});
+			};
+
+			this.modifySuperuserPermission = function (id, data, callback) {
+				$http.put("rest/users/modifySuperuserPermission/" + id, data)
 					.then(
 						function (result) {
 							callback(false, result.data);

@@ -1,6 +1,6 @@
 -- Nombre de usuario: admin, contraseña: admin
-INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
-VALUES ('admin', 'Admin name', 'Admin last name', 'admin@eservice.com', 1, 1);
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER, SUPERUSER_PERMISSION_MODIFIER)
+VALUES ('admin', 'Admin name', 'Admin last name', 'admin@eservice.com', 1, 1, 1);
 
 -- Nombre de usuario: jane, contraseña: jane
 INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)

@@ -1,6 +1,8 @@
 package stateless;
 
+import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Map;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -44,6 +46,19 @@ public class UserServiceBean {
     }
 
     return null;
+  }
+
+  /**
+   * Modifica el permiso de administrador de un usuario
+   * 
+   * @param userId
+   * @param superuser
+   */
+  public void modifySuperuserPermission(int userId, boolean superuser) {
+    Query query = entityManager.createQuery("UPDATE User u SET u.superuser = :superuser WHERE u.id = :userId");
+    query.setParameter("superuser", superuser);
+    query.setParameter("userId", userId);
+    query.executeUpdate();
   }
 
   /**
@@ -499,6 +514,67 @@ public class UserServiceBean {
    */
   public boolean isActive(String email) {
     return findByEmail(email).getActive();
+  }
+
+  public Page<User> findAllActiveUsersExceptOwnUser(int userId, Integer page, Integer cantPerPage, Map<String, String> parameters) {
+    // Genera el WHERE dinámicamente
+    StringBuffer where = new StringBuffer(" WHERE 1=1 AND e.id != :userId AND e.active = TRUE");
+
+    if (parameters != null) {
+
+      for (String param : parameters.keySet()) {
+        Method method;
+
+        try {
+          method = User.class.getMethod("get" + capitalize(param));
+
+          if (method == null || parameters.get(param) == null || parameters.get(param).isEmpty()) {
+            continue;
+          }
+
+          switch (method.getReturnType().getSimpleName()) {
+            case "String":
+              where.append(" AND UPPER(e.");
+              where.append(param);
+              where.append(") LIKE UPPER('%");
+              where.append(parameters.get(param));
+              where.append("%')");
+              break;
+            default:
+              where.append(" AND e.");
+              where.append(param);
+              where.append(" = ");
+              where.append(parameters.get(param));
+              break;
+          }
+        } catch (NoSuchMethodException | SecurityException e) {
+          e.printStackTrace();
+        }
+
+      } // End for
+
+    } // End if
+
+    // Cuenta el total de resultados
+    Query countQuery = entityManager.createQuery("SELECT COUNT(e.id) FROM " + User.class.getSimpleName() + " e" + where.toString());
+    countQuery.setParameter("userId", userId);
+
+    // Pagina
+    Query query = entityManager.createQuery("FROM " + User.class.getSimpleName() + " e" + where.toString() + " ORDER BY e.id");
+    query.setMaxResults(cantPerPage);
+    query.setFirstResult((page - 1) * cantPerPage);
+    query.setParameter("userId", userId);
+
+    Integer count = ((Long) countQuery.getSingleResult()).intValue();
+    Integer lastPage = (int) Math.ceil((double) count / (double) cantPerPage);
+
+    // Arma la respuesta
+    Page<User> resultPage = new Page<User>(page, count, page > 1 ? page - 1 : page, page < lastPage ? page + 1 : lastPage, lastPage, query.getResultList());
+    return resultPage;
+  }
+
+  private String capitalize(final String line) {
+    return Character.toUpperCase(line.charAt(0)) + line.substring(1);
   }
 
 }

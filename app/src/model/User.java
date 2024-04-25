@@ -39,6 +39,9 @@ public class User {
   @Column(name = "SUPERUSER", nullable = false)
   private boolean superuser;
 
+  @Column(name = "SUPERUSER_PERMISSION_MODIFIER")
+  private boolean superuserPermissionModifier;
+
   @OneToMany
   @JoinTable(name = "ISUSER_PARCEL", joinColumns = @JoinColumn(name = "FK_IRRIGATION_SYSTEM_USER"), inverseJoinColumns = @JoinColumn(name = "FK_PARCEL"))
   private Collection<Parcel> parcels;
@@ -101,6 +104,14 @@ public class User {
 
   public void setSuperuser(boolean superuser) {
     this.superuser = superuser;
+  }
+
+  public boolean getSuperuserPermissionModifier() {
+    return superuserPermissionModifier;
+  }
+
+  public void setSuperuserPermissionModifier(boolean superuserPermissionModifier) {
+    this.superuserPermissionModifier = superuserPermissionModifier;
   }
 
   public Collection<Parcel> getParcels() {
