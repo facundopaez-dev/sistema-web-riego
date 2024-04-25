@@ -278,7 +278,7 @@ app.factory('AccessManager', ['JwtManager', '$window', function (jwtManager, $wi
 	return {
 		/**
 		 * Cuando el usuario inicia sesion satisfactoriamente, la aplicacion
-		 * del lado servidor devuelve un JWT, el cual, es almacenado en el
+		 * del lado servidor devuelve un JWT, el cual es almacenado en el
 		 * almacenamiento local del navegador web por la funcion setJwt
 		 * de la factory JwtManager
 		 * 
@@ -298,12 +298,6 @@ app.factory('AccessManager', ['JwtManager', '$window', function (jwtManager, $wi
 		},
 
 		/**
-		 * Cuando el usuario que inicia sesion tiene permiso de administrador,
-		 * la variable booleana loggedAsSuperuser se establece en true.
-		 * 
-		 * Cuando el usuario que cierra su sesion tiene permiso de administrador,
-		 * la variable booleana loggedAsSuperuser se establece en false.
-		 * 
 		 * @returns true si el usuario que tiene una sesion abierta tiene
 		 * permiso de administrador, false en caso contrario
 		 */
@@ -320,8 +314,8 @@ app.factory('AccessManager', ['JwtManager', '$window', function (jwtManager, $wi
 		},
 
 		/**
-		 * Esta funcion debe ser invocada cuando el usuario que cierra su sesion,
-		 * tiene permiso de administrador
+		 * Establece el valor false en la clave superuser almacenada en el
+		 * almacenamiento local del navegador web
 		 */
 		clearAsAdmin: function () {
 			$window.localStorage.setItem(SUPERUSER_KEY, JSON.stringify(false));
