@@ -13,26 +13,6 @@ public class OptionServiceBean {
     @PersistenceContext(unitName = "swcar")
     private EntityManager entityManager;
 
-    /*
-     * Estas constantes son utilizadas para limitar la cantidad
-     * de valores utilizados como la cantidad de dias pasados a
-     * utilizar como referencia para calcular la necesidad de
-     * agua de riego en la fecha actual de un cultivo sembrado
-     * y en desarrollo en una parcela
-     */
-    private final int LOWER_LIMIT_PAST_DAYS = 1;
-    private final int UPPER_LIMIT_PAST_DAYS = 7;
-
-    /*
-     * Esta constante es utilizada para calcular la necesidad de
-     * agua de riego de un cultivo en la fecha actual a partir
-     * del ultimo riego registrado dentro de los treinta dias
-     * anteriores a la fecha actual, si el usuario activa la
-     * opcion correspondiente a este calculo de la necesidad de
-     * agua de riego de un cultivo
-     */
-    private final int THIRTY_DAYS = 30;
-
     public void setEntityManager(EntityManager localEntityManager) {
         entityManager = localEntityManager;
     }
@@ -46,14 +26,12 @@ public class OptionServiceBean {
     }
 
     /**
-     * Persiste una opcion que tiene el valor de la constante
-     * UPPER_LIMIT_PAST_DAYS
+     * Persiste una opcion para una parcela
      * 
      * @return referencia a un objeto de tipo Option
      */
     public Option create() {
         Option newOption = new Option();
-        newOption.setPastDaysReference(UPPER_LIMIT_PAST_DAYS);
         newOption.setFlagMessageFieldCapacity(true);
         entityManager.persist(newOption);
 
@@ -69,14 +47,12 @@ public class OptionServiceBean {
      *         ID dado, null en caso contrario
      */
     public Option modify(int id, Option modifiedOption) {
-        Option givenOption = find(id);
+        Option chosenOption = find(id);
 
-        if (givenOption != null) {
-            givenOption.setPastDaysReference(modifiedOption.getPastDaysReference());
-            givenOption.setSoilFlag(modifiedOption.getSoilFlag());
-            givenOption.setFlagLastIrrigationThirtyDays(modifiedOption.getFlagLastIrrigationThirtyDays());
-            givenOption.setFlagMessageFieldCapacity(modifiedOption.getFlagMessageFieldCapacity());
-            return givenOption;
+        if (chosenOption != null) {
+            chosenOption.setSoilFlag(modifiedOption.getSoilFlag());
+            chosenOption.setFlagMessageFieldCapacity(modifiedOption.getFlagMessageFieldCapacity());
+            return chosenOption;
         }
 
         return null;
@@ -140,62 +116,6 @@ public class OptionServiceBean {
         }
 
         return parcelOption;
-    }
-
-    /**
-     * @param givenOption
-     * @return true si el valor de pastDaysReference de un objeto de
-     * tipo Option esta entre los valores determinados por las constantes
-     * LOWER_LIMIT_PAST_DAYS y UPPER_LIMIT_PAST_DAYS. En caso contrario,
-     * false.
-     */
-    public boolean validatePastDaysReference(Option givenOption) {
-
-        /*
-         * Si el valor de pastDaysReference de un objeto de tipo Option
-         * es menor al valor de la constante LOWER_LIMIT_PAST_DAYS o
-         * mayor al valor de la constante UPPER_LIMIT_PAST_DAYS, es
-         * invalido, por lo tanto, se retorna false
-         */
-        if (givenOption.getPastDaysReference() < LOWER_LIMIT_PAST_DAYS || givenOption.getPastDaysReference() > UPPER_LIMIT_PAST_DAYS) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * @return entero que representa el limite inferior del
-     * atributo "cantidad de dias previos a la fecha actual
-     * a utilizar para calcular la necesidad de agua de riego
-     * de un cultivo en la fecha actual" de una opcion
-     */
-    public int getLowerLimitPastDays() {
-        return LOWER_LIMIT_PAST_DAYS;
-    }
-
-    /**
-     * @return entero que representa el limite superior del
-     * atributo "cantidad de dias previos a la fecha actual
-     * a utilizar para calcular la necesidad de agua de riego
-     * de un cultivo en la fecha actual" de una opcion
-     */
-    public int getUpperLimitPastDays() {
-        return UPPER_LIMIT_PAST_DAYS;
-    }
-
-    /**
-     * El valor de la constante THIRTY_DAYS es para calcular la
-     * necesidad de agua de riego de un cultivo en la fecha actual
-     * a partir del ultimo riego registrado en los ultimos treinta
-     * dias anteriores a la fecha actual. Esto se realiza si el
-     * usuario activa la opcion correspondiente a este calculo
-     * de la necesidad de agua de riego.
-     * 
-     * @return int que tiene el valor 30
-     */
-    public int getValueThirtyDays() {
-        return THIRTY_DAYS;
     }
 
     /**
