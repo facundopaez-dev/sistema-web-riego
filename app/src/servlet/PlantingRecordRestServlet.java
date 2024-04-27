@@ -2343,7 +2343,7 @@ public class PlantingRecordRestServlet {
        * actualizar la necesidad de agua de riego de un cultivo
        * (en desarrollo) en la fecha actual.
        */
-      stringIrrigationWaterNeedCurrentDate = runCalculationIrrigationWaterNeedCurrentDateTwo(developingPlantingRecord);
+      stringIrrigationWaterNeedCurrentDate = runCalculationIrrigationWaterNeedCurrentDate(developingPlantingRecord);
     } catch (Exception e) {
       e.printStackTrace();
 
@@ -2644,7 +2644,7 @@ public class PlantingRecordRestServlet {
    * de un cultivo en la fecha actual [mm/dia]
    * @throws IOException
    */
-  private String runCalculationIrrigationWaterNeedCurrentDateTwo(PlantingRecord developingPlantingRecord) throws IOException {
+  private String runCalculationIrrigationWaterNeedCurrentDate(PlantingRecord developingPlantingRecord) throws IOException {
     /*
      * Persiste los registros climaticos de la parcela de un registro
      * de plantacion en desarrollo desde la fecha de siembra hasta la
@@ -2652,7 +2652,7 @@ public class PlantingRecordRestServlet {
      * en la base de datos subyacente. Estos registros climaticos son
      * obtenidos del servicio meteorologico utilizado por la aplicacion.
      */
-    requestPastClimateRecordsTwo(developingPlantingRecord);
+    requestPastClimateRecords(developingPlantingRecord);
 
     /*
      * Calcula la ETo y la ETc de los registros climaticos de la parcela
@@ -2660,7 +2660,7 @@ public class PlantingRecordRestServlet {
      * La ETc es necesaria para calcular los balances hidricos de suelo
      * de una parcela que tiene un cultivo en desarrollo. 
      */
-    calculateEtsPastClimateRecordsTwo(developingPlantingRecord);
+    calculateEtsPastClimateRecords(developingPlantingRecord);
 
     /*
      * Persiste el balance hidrico de la fecha de siembra de un cultivo,
@@ -2836,7 +2836,7 @@ public class PlantingRecordRestServlet {
    * 
    * @param developingPlantingRecord
    */
-  private void requestPastClimateRecordsTwo(PlantingRecord developingPlantingRecord) throws IOException {
+  private void requestPastClimateRecords(PlantingRecord developingPlantingRecord) throws IOException {
     Calendar seedDate = developingPlantingRecord.getSeedDate();
     Calendar yesterday = UtilDate.getYesterdayDate();
 
@@ -2992,7 +2992,7 @@ public class PlantingRecordRestServlet {
    * 
    * @param developingPlantingRecord
    */
-  private void calculateEtsPastClimateRecordsTwo(PlantingRecord developingPlantingRecord) {
+  private void calculateEtsPastClimateRecords(PlantingRecord developingPlantingRecord) {
     Calendar seedDate = developingPlantingRecord.getSeedDate();
     Calendar yesterday = UtilDate.getYesterdayDate();
 
