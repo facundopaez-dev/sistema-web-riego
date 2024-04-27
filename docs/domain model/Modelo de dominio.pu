@@ -125,8 +125,8 @@ class Usuario {
 -apellido
 -email
 -activo
--superUsuario
--modificadorSuperUsuario
+-superusuario
+-modificadorPermisoSuperusuario
 }
 
 class EstadoRegistroPlantacion {
