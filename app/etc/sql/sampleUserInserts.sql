@@ -12,6 +12,6 @@ INSERT INTO PASSWORD (VALUE, FK_USER) VALUES ('f73137d930c31d188d901d57d78c13c88
 
 -- Nombre de usuario: tbosco, contraseña: tbosco
 INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
-VALUES ('tbosco', 'Tomás', 'Bosco', 'tbosco@eservice.com', 1, 0);
+VALUES ('tbosco', 'Tomás', 'Bosco', 'tbosco@eservice.com', 1, 1);
 
 INSERT INTO PASSWORD (VALUE, FK_USER) VALUES ('dd421f4484494907eb3f88be027070e18b4ad2f8d9c2cc1e1ff6c16fc38f592c', 3);
