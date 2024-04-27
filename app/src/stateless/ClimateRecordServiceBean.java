@@ -682,19 +682,6 @@ public class ClimateRecordServiceBean {
 
   /**
    * Retorna true si y solo si una parcela de un usuario
-   * tiene registros climaticos
-   * 
-   * @param userId
-   * @param parcelId
-   * @return true si una parcela tiene registros climaticos,
-   * en caso contrario false
-   */
-  public boolean hasClimateRecords(int userId, int parcelId) {
-    return !findAllByParcelId(userId, parcelId).isEmpty();
-  }
-
-  /**
-   * Retorna true si y solo si una parcela de un usuario
    * tiene registros climaticos en un periodo definido por
    * dos fechas
    * 
