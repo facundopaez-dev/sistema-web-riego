@@ -116,7 +116,7 @@ public enum ReasonError {
   INVALID_API_KEY("La clave para solicitar datos meteorológicos al servicio meteorológico Visual Crossing Weather, los cuales son necesarios para calcular la necesidad de agua de riego de un cultivo en la fecha actual (es decir, hoy), no es la correcta"),
   REQUEST_LIMIT_EXCEEDED("La aplicación no puede calcular la necesidad de agua de riego de un cultivo porque se supero la cantidad de 1000 peticiones gratuitas por día del servicio meteorológico Visual Crossing Weather"),
   WEATHER_SERVICE_UNAVAILABLE("La aplicación no puede calcular la necesidad de agua de riego de un cultivo porque el servicio meteorológico Visual Crossing Weather no se encuentra en funcionamiento"),
-  UNKNOW_ERROR_IN_IRRIGATION_WATER_NEED_CALCULATION("Se produjo un error al calcular la necesidad de agua de riego de un cultivo"),
+  UNKNOW_ERROR_IN_IRRIGATION_WATER_NEED_CALCULATION("Se produjo un error al calcular la necesidad de agua de riego de un cultivo debido a una falla desconocida del servicio meteorológico Visual Crossing Weather"),
   UNDEFINED_PARCEL_NAME_AND_DATE("La parcela y la fecha deben estar definidas"),
   EXISTING_STATISTICAL_REPORT("Ya existe un informe estadístico con las fechas, la parcela y el dato estadístico elegidos"),
   DATE_FROM_STRICTLY_GREATER_THAN_DATE_UNTIL("La fecha desde no debe ser estrictamente mayor a la fecha hasta"),

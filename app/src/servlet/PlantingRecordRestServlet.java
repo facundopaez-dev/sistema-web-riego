@@ -2458,8 +2458,9 @@ public class PlantingRecordRestServlet {
        * del lado servidor devuelve el mensaje HTTP 500 (Internal
        * server error) a la aplicacion del lado del navegador web
        * junto con el mensaje "Se produjo un error al calcular
-       * la necesidad de agua de riego de un cultivo" y no se
-       * realiza la operacion solicitada
+       * la necesidad de agua de riego de un cultivo debido a
+       * una falla desconocida del servicio meteorologico Visual
+       * Crossing Weather" y no se realiza la operacion solicitada
        */
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
           .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNKNOW_ERROR_IN_IRRIGATION_WATER_NEED_CALCULATION, SourceUnsatisfiedResponse.WATER_NEED_CROP)))
