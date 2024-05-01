@@ -56,65 +56,30 @@ public class Parcel {
 
   }
 
-  /**
-   * Returns value of id
-   * 
-   * @return
-   */
   public int getId() {
     return id;
   }
 
-  /**
-   * Returns value of name
-   * 
-   * @return name
-   */
   public String getName() {
     return name;
   }
 
-  /**
-   * Sets new value of name
-   * 
-   * @param name
-   */
   public void setName(String name) {
     this.name = name;
   }
 
-  /**
-   * Returns value of hectares
-   * 
-   * @return
-   */
   public double getHectares() {
     return hectares;
   }
 
-  /**
-   * Sets new value of hectares
-   * 
-   * @param
-   */
   public void setHectares(double hectares) {
     this.hectares = hectares;
   }
 
-  /**
-   * Returns value of active
-   * 
-   * @return
-   */
   public boolean getActive() {
     return active;
   }
 
-  /**
-   * Sets new value of active
-   * 
-   * @param
-   */
   public void setActive(boolean active) {
     this.active = active;
   }
