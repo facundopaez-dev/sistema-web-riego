@@ -3661,8 +3661,8 @@ public class PlantingRecordRestServlet {
      * tiene uno de los estados mencionados es:
      * - igual a la fecha actual, la diferencia de dias que hay
      * entre ambas es 0.
-     * - es inmediatamente anterior a la fecha actual, la diferencia
-     * de dias entre ambas es 1.
+     * - inmediatamente anterior a la fecha actual, la diferencia
+     * de dias que hay entre ambas es 1.
      * 
      * En estos dos casos no hay grafico de la evolucion diaria
      * del nivel de humedad del suelo que generar, ya que al
