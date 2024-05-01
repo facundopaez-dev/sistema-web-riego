@@ -143,7 +143,9 @@ public enum ReasonError {
   FINISHED_CROP_IN_CALCULATION_NEED_IRRIGATION_WATER("El cultivo ha finalizado por ser la fecha de cosecha estrictamente menor a la fecha actual (es decir, hoy)"),
   INVALID_CROP_IRRIGATION_WATER_NEED("La necesidad de agua de riego de un cultivo no debe ser negativa"),
   INACTIVE_USER_ADMIN_PERMISSION_MODIFICATION("No está permitido modificar el permiso de administrador de un usuario inactivo"),
-  OWN_MODIFICATION_ADMIN_PERMISSION_NOT_ALLOWED("No está permitido modificar el permiso de administrador propio");
+  OWN_MODIFICATION_ADMIN_PERMISSION_NOT_ALLOWED("No está permitido modificar el permiso de administrador propio"),
+  POSSIBLE_INTERNET_CONNECTION_PROBLEM_IN_MODIFIED_GEOGRAPHIC_LOCATION_OF_PARCEL("No es posible calcular la necesidad de agua de riego de un cultivo en la fecha actual (es decir, hoy) debido a que la ubicación geográfica de la parcela fue modificada y a que no tiene conexión a Internet o a que el servicio meteorológico Visual Crossing Weather no está en funcionamiento"),
+  POSSIBLE_INTERNET_CONNECTION_PROBLEM_IN_LACK_OF_CLIMATE_RECORDS("No es posible calcular la necesidad de agua de riego de un cultivo en la fecha actual (es decir, hoy) debido a que no tiene conexión a Internet o a que el servicio meteorológico Visual Crossing Weather no está en funcionamiento");
 
   private final String reason;
 

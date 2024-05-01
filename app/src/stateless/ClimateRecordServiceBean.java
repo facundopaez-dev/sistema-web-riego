@@ -697,6 +697,134 @@ public class ClimateRecordServiceBean {
   }
 
   /**
+   * @param userId
+   * @param parcelId
+   * @param dateFrom
+   * @param dateUntil
+   * @return long que representa la cantidad de registros climaticos
+   * de una parcela pertenecientes a un periodo definido por dos
+   * fechas
+   */
+  private long countClimateRecordsForPeriod(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
+    Query query = entityManager.createQuery("SELECT COUNT(c) FROM ClimateRecord c JOIN c.parcel p WHERE p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId) AND p.id = :parcelId AND :dateFrom <= c.date AND c.date <= :dateUntil");
+    query.setParameter("userId", userId);
+    query.setParameter("parcelId", parcelId);
+    query.setParameter("dateFrom", dateFrom);
+    query.setParameter("dateUntil", dateUntil);
+
+    long result = 0;
+
+    try {
+      result = (long) query.getSingleResult();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return result;
+  }
+
+  /**
+   * Comprueba si para cada dia del periodo de dias definido por
+   * la fecha inmediatamente siguiente a la fecha de siembra de
+   * cultivo y la fecha inmediatamente anterior a la fecha actual
+   * (es decir, hoy), hay un registro climatico para una parcela
+   * en particular. Es necesario comprobar si para cada dia de
+   * dicho periodo hay un registro climatico porque la aplicacion
+   * calcula el balance hidrico de suelo de cada dia de dicho
+   * periodo para calcular la necesidad de agua de riego de un
+   * cultivo en la fecha actual y para calcular un balance hidrico
+   * de suelo de un dia se requieren los datos climaticos de un
+   * dia.
+   * 
+   * El motivo por el cual no se cuenta el registro climatico de
+   * la fecha de siembra de un cultivo es que la aplicacion no
+   * lo persiste, ya que no se lo debe tener en cuenta para
+   * calcular la necesidad de agua de riego de un cultivo en la
+   * fecha actual debido a que en la fecha de siembra se parte,
+   * y se debe partir, con el suelo en capacidad de campo, es
+   * decir, lleno de agua o en su maxima capacidad almacenamiento
+   * de agua.
+   * 
+   * La aplicacion no calcula el balance hidrico de suelo de la
+   * fecha de siembra de un cultivo, sino que lo persiste con
+   * todos sus valores en cero, ya que en la fecha de siembra
+   * de un cultivo se parte, y se debe partir, con el suelo en
+   * capacidad de campo. La aplicacion tiene en cuenta los
+   * balances hidricos del periodo de dias definido por la fecha
+   * de siembra de un cultivo y la fecha inmediatamente anterior
+   * a la fecha actual para calcular la necesidad de agua de
+   * riego de un cultivo en la fecha actual.
+   * 
+   * @param userId
+   * @param parcelId
+   * @param seedDate
+   * @return true si para cada dia del periodo definido por
+   * la fecha inmediatamente siguiente a la fecha de siembra
+   * de un cultivo y la fecha inmediatamente anterior a la
+   * fecha actual (es decir, hoy), hay un registro climatico
+   * perteneciente a una parcela en particular. En caso,
+   * contrario, false.
+   */
+  public boolean checkClimateRecordsToCalculateIrrigationWaterNeed(int userId, int parcelId, Calendar seedDate) {
+    Calendar dateFollowingSeedDate = UtilDate.getNextDateFromDate(seedDate);
+    Calendar yesterdayDate = UtilDate.getYesterdayDate();
+
+    /*
+     * Se suma un uno a la diferencia entre la fecha inmediatamente
+     * siguiente a la fecha de siembra de un cultivo y la fecha
+     * inmediatamente anterior a la fecha actual para incluir a
+     * esta ultima en el resultado de dicha diferencia, ya que cuenta
+     * como un dia en el periodo definido por ambas fechas
+     */
+    long days = UtilDate.calculateDifferenceBetweenDates(dateFollowingSeedDate, yesterdayDate) + 1;
+    long numberClimateRecords = countClimateRecordsForPeriod(userId, parcelId, dateFollowingSeedDate, yesterdayDate);
+
+    /*
+     * Si la cantidad de dias que hay entre la fecha inmediatamente
+     * siguiente a la fecha de siembra de un cultivo y la fecha
+     * inmediatamente anterior a la fecha actual es igual a la
+     * cantidad de registros climaticos que hay en el periodo
+     * definido por dichas fechas, se retorna true como indicador
+     * de que en el periodo mencionado hay un registro climatico
+     * para cada uno de los dias de dicho periodo. En caso contrario,
+     * se retorna false.
+     * 
+     * El metodo automatico getCurrentWeatherDataset() de la
+     * clase Java ClimateRecordManager tiene como objetivo
+     * recuperar los datos meteorologicos de la fecha actual en
+     * forma de registro climatico. Gracias a este metodo, la
+     * aplicacion persiste un registro climatico para cada de
+     * dia que pasa. El metodo runCalculationIrrigationWaterNeedCurrentDate()
+     * de las clases PlantingRecordRestServlet y PlantingRecordManager
+     * persiste el registro climatico para cada uno de los
+     * dias del periodo definido por la fecha inmediatamente
+     * siguiente a la fecha de siembra de un cultivo y la
+     * fecha inmediatamente anterior a la fecha actual.
+     * El motivo por el cual no se persiste el registro
+     * climatico de la fecha de siembra de un cultivo es
+     * que en la fecha de siembra se parte con el suelo
+     * en la condicion de capacidad de campo (suelo lleno
+     * de agua o en su maxima capacidad de almacenamiento de
+     * agua).
+     * 
+     * El segundo parrafo de este comentario es para dar a
+     * entender que para cada dia del periodo definido por la
+     * fecha inmediatamente siguiente a la fecha de siembra de
+     * un cultivo y la fecha inmediatamente anterior a la fecha
+     * actual, hay un registro climatico. Este es el motivo por
+     * el cual el primer parrafo de este comentario habla de la
+     * comparacion entre la cantidad de dias que hay entre las
+     * fechas mencionadas y la cantidad de registros climaticos
+     * que hay en el periodo definido por dichas fechas.
+     */
+    if (days == numberClimateRecords) {
+        return true;
+    }
+
+    return false;
+  }
+
+  /**
    * Retorna true si y solo si la fecha de un registro climatico
    * es estrictamente menor a la fecha actual
    * 

@@ -28,6 +28,7 @@ import model.Crop;
 import model.SoilWaterBalance;
 import model.PlantingRecordStatus;
 import irrigation.WaterMath;
+import util.UtilConnection;
 import util.UtilDate;
 import et.HargreavesEto;
 import et.Etc;
@@ -268,6 +269,7 @@ public class PlantingRecordManager {
          * La abreviatura "n/a" significa "no disponible".
          */
         String notAvailable = plantingRecordService.getNotAvailable();
+        int parcelId;
 
         Collection<PlantingRecord> developingPlantingRecords = plantingRecordService.findAllInDevelopment();
 
@@ -286,6 +288,62 @@ public class PlantingRecordManager {
          * actual y de la cantidad total de agua de riego de la fecha actual.
          */
         for (PlantingRecord developingPlantingRecord : developingPlantingRecords) {
+            parcelId = developingPlantingRecord.getParcel().getId();
+
+            /*
+             * Si la ubicacion geografica de la parcela correspondiente al registro
+             * de plantacion que tiene el cultivo para el que se calcula la necesidad
+             * de agua de riego en la fecha actual (es decir, hoy), fue modificada y
+             * no hay conexion a Internet o el servicio meteorologico Visual Crossing
+             * Weather no esta en funcionamiento, la aplicacion del lado servidor asigna
+             * el valor "n/a" (no disponible) al atributo "necesidad de agua de riego
+             * de un cultivo" del registro de plantacion que tiene el cultivo para
+             * el que se realiza dicho calculo.
+             * 
+             * Este control se a debe a que cuando se modifica la ubicacion geografica
+             * de una parcela, la aplicacion del lado servidor solicita los datos
+             * climaticos de la nueva ubicacion geografica para actualizar los registros
+             * climaticos de una parcela existentes en la base de datos subyacente.
+             * Por lo tanto, si no hay conexion a Internet o el servicio meteorologico
+             * utilizado no esta en funcionamiento, no es posible realizar dicha
+             * solicitud. En consecuencia, en esta situacion no es posible calcular
+             * la necesidad de agua de riego de un cultivo en la fecha actual.
+             */
+            if (developingPlantingRecord.getParcel().getModifiedGeographicLocationFlag() && !UtilConnection.checkInternetConnection()) {
+                plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(), notAvailable);
+                break;
+            }
+
+            /*
+             * Si en el calculo de la necesidad de agua de riego de un cultivo en
+             * la fecha actual (es decir, hoy) falta el registro climatico de un
+             * dia o de mas de un dia del periodo de dias definido por la fecha
+             * inmediatamente siguiente a la fecha de siembra de un cultivo y la
+             * fecha inmediatametne anterior a la fecha actual, y no hay conexion
+             * a Internet o el servicio meteorologico Visual Crossing Weather no
+             * esta en funcionamiento, la aplicacion del lado servidor asigna el
+             * valor "n/a" (no disponible) al atributo "necesidad de agua de riego
+             * de un cultivo" del registro de plantacion que tiene el cultivo para
+             * el que se realiza dicho calculo.
+             * 
+             * Este control se debe a que para calcular la necesidad de agua de
+             * riego de un cultivo en la fecha actual se requiere el registro
+             * climatico de cada uno de los dias del periodo de dias definido por
+             * la fecha inmediatamente siguiente a la fecha de siembra de un cultivo
+             * y la fecha inmediatamente anterior a la fecha actual. Por lo tanto,
+             * si falta un registro climatico de un dia o de mas de un dia de dicho
+             * periodo, la aplicacion del lado servidor los solicita al servicio
+             * meteorologico utilizado. Pero si no hay conexion a Internet o el
+             * servicio meteorologico utilizado no esta en funcionamiento, no es
+             * posible realizar dicha solicitud. En consecuencia, en esta situacion
+             * no es posible calcular la necesidad de agua de riego de un cultivo
+             * en la fecha actual.
+             */
+            if (!climateRecordService.checkClimateRecordsToCalculateIrrigationWaterNeed(userService.findByParcelId(parcelId).getId(), parcelId,
+                    developingPlantingRecord.getSeedDate()) && !UtilConnection.checkInternetConnection()) {
+                plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(), notAvailable);
+                break;
+            }
 
             try {
                 /*
