@@ -3652,10 +3652,10 @@ public class PlantingRecordRestServlet {
      * Para generar el grafico de la evolucion diaria del nivel
      * de humedad del suelo se requiere que haya como minimo una
      * diferencia de dos dias entre la fecha de siembra de un
-     * registro de plantacion que tiene el estado "Finalizado",
-     * el estado "Desarrollo optimo", el estado "Desarrollo en
-     * riesgo de marchitez" o el estado "Desarrollo en marchitez",
-     * y la fecha actual (es decir, hoy).
+     * registro de plantacion que tiene el estado "Desarrollo
+     * optimo", el estado "Desarrollo en riesgo de marchitez" o
+     * el estado "Desarrollo en marchitez", y la fecha actual (es
+     * decir, hoy).
      * 
      * Si la fecha de siembra de un registro de plantacion que
      * tiene uno de los estados mencionados es:
@@ -3696,8 +3696,7 @@ public class PlantingRecordRestServlet {
      * diaria del nivel de humedad del suelo.
      */
     if (UtilDate.calculateDifferenceBetweenDates(seedDate, UtilDate.getCurrentDate()) < MINIMUM_DAYS_BETWEEN_SEED_DATE_AND_CURRENT_DATE
-        && (statusService.equals(status, statusService.findFinishedStatus())
-            || statusService.equals(status, statusService.findOptimalDevelopmentStatus())
+        && (statusService.equals(status, statusService.findOptimalDevelopmentStatus())
             || statusService.equals(status, statusService.findDevelopmentAtRiskWiltingStatus())
             || statusService.equals(status, statusService.findDevelopmentInWiltingStatus()))) {
       return soilMoistureLevelGraph;
