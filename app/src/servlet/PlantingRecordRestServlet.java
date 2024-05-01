@@ -693,10 +693,8 @@ public class PlantingRecordRestServlet {
      * - Si la bandera flagNotGenerateSoilMoistureGraph de un registro de
      * plantacion tiene el valor false,
      * - si la bandera suelo de las opciones de la parcela perteneciente
-     * a un registro de plantacion, esta activa,
-     * - si el estado de un registro de plantacion es "Muerto" y
-     * - si en el periodo correspondientes al estado "Muerto" la parcela
-     * tiene balances hidricos de suelo,
+     * a un registro de plantacion, esta activa y
+     * - si el estado de un registro de plantacion es "Muerto",
      * 
      * se genera el grafico que representa la evolucion diaria del nivel de
      * humedad del suelo para que pueda ser visualizado cuando se presiona
@@ -704,13 +702,9 @@ public class PlantingRecordRestServlet {
      * el estado "Muerto" y que pertenece a una parcela que tiene la bandera
      * suelo activa en sus opciones.
      */
-    if (!flagNotGenerateSoilMoistureGraph && plantingRecord.getParcel().getOption().getSoilFlag()) {
-
-      if (statusService.equals(status, statusService.findDeadStatus())
-          && !soilWaterBalanceService.findAllFromDateFromToDateUntil(parcelId, seedDate, deathDate).isEmpty()) {
-        plantingRecordData.setSoilMoistureLevelGraph(generateSoilMoistureLevelGraph(plantingRecord));
-      }
-
+    if (!flagNotGenerateSoilMoistureGraph && plantingRecord.getParcel().getOption().getSoilFlag()
+        && statusService.equals(status, statusService.findDeadStatus())) {
+      plantingRecordData.setSoilMoistureLevelGraph(generateSoilMoistureLevelGraph(plantingRecord));
     }
 
     /*
