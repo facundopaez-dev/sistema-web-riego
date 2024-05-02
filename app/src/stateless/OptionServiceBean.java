@@ -103,7 +103,7 @@ public class OptionServiceBean {
      * En caso contrario, null.
      */
     public Option findByUserId(int userId, int optionId) {
-        Query query = getEntityManager().createQuery("SELECT o FROM User u JOIN u.parcels p JOIN p.option o WHERE (u.id = :userId AND o.id = :optionId)");
+        Query query = getEntityManager().createQuery("SELECT o FROM Parcel p JOIN p.option o WHERE (p.user.id = :userId AND o.id = :optionId)");
         query.setParameter("userId", userId);
         query.setParameter("optionId", optionId);
 

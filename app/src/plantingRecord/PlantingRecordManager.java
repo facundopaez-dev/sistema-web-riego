@@ -270,6 +270,7 @@ public class PlantingRecordManager {
          */
         String notAvailable = plantingRecordService.getNotAvailable();
         int parcelId;
+        int userId;
 
         Collection<PlantingRecord> developingPlantingRecords = plantingRecordService.findAllInDevelopment();
 
@@ -289,6 +290,7 @@ public class PlantingRecordManager {
          */
         for (PlantingRecord developingPlantingRecord : developingPlantingRecords) {
             parcelId = developingPlantingRecord.getParcel().getId();
+            userId = developingPlantingRecord.getParcel().getUser().getId();
 
             /*
              * Si la ubicacion geografica de la parcela correspondiente al registro
@@ -339,7 +341,7 @@ public class PlantingRecordManager {
              * no es posible calcular la necesidad de agua de riego de un cultivo
              * en la fecha actual.
              */
-            if (!climateRecordService.checkClimateRecordsToCalculateIrrigationWaterNeed(userService.findByParcelId(parcelId).getId(), parcelId,
+            if (!climateRecordService.checkClimateRecordsToCalculateIrrigationWaterNeed(userId, parcelId,
                     developingPlantingRecord.getSeedDate()) && !UtilConnection.checkInternetConnection()) {
                 plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(), notAvailable);
                 break;

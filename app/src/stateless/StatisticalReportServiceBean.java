@@ -77,7 +77,7 @@ public class StatisticalReportServiceBean {
    * En caso contrario, null.
    */
   public StatisticalReport find(int userId, int statisticalReportId) {
-    Query query = getEntityManager().createQuery("SELECT s FROM StatisticalReport s JOIN s.parcel p WHERE (s.id = :statisticalReportId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId))");
+    Query query = getEntityManager().createQuery("SELECT s FROM StatisticalReport s WHERE s.id = :statisticalReportId AND s.parcel.user.id = :userId");
     query.setParameter("statisticalReportId", statisticalReportId);
     query.setParameter("userId", userId);
 
@@ -102,7 +102,7 @@ public class StatisticalReportServiceBean {
    * pertenecientes al usuario con el ID dado
    */
   public Collection<StatisticalReport> findAll(int userId) {
-    Query query = getEntityManager().createQuery("SELECT s FROM StatisticalReport s JOIN s.parcel p WHERE p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId) ORDER BY s.id");
+    Query query = getEntityManager().createQuery("SELECT s FROM StatisticalReport s WHERE (s.parcel.user.id = :userId) ORDER BY s.id");
     query.setParameter("userId", userId);
 
     return (Collection) query.getResultList();
@@ -120,7 +120,7 @@ public class StatisticalReportServiceBean {
    * el nombre dado y que pertenece al usuario con el ID dado
    */
   public Collection<StatisticalReport> findAllByParcelName(int userId, String parcelName) {
-    Query query = getEntityManager().createQuery("SELECT s FROM StatisticalReport s JOIN s.parcel p WHERE (p.name = :parcelName AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY s.id");
+    Query query = getEntityManager().createQuery("SELECT s FROM StatisticalReport s JOIN s.parcel p WHERE (p.name = :parcelName AND p.user.id = :userId) ORDER BY s.id");
     query.setParameter("userId", userId);
     query.setParameter("parcelName", parcelName);
 
@@ -137,7 +137,7 @@ public class StatisticalReportServiceBean {
    * desde elegida
    */
   public Collection<StatisticalReport> findAllByDateGreaterThanOrEqual(int userId, int parcelId, Calendar dateFrom) {
-    Query query = getEntityManager().createQuery("SELECT s FROM StatisticalReport s JOIN s.parcel p WHERE (s.dateFrom >= :dateFrom AND p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY s.dateFrom");
+    Query query = getEntityManager().createQuery("SELECT s FROM StatisticalReport s JOIN s.parcel p WHERE (s.dateFrom >= :dateFrom AND p.id = :parcelId AND p.user.id = :userId) ORDER BY s.dateFrom");
     query.setParameter("userId", userId);
     query.setParameter("parcelId", parcelId);
     query.setParameter("dateFrom", dateFrom);
@@ -155,7 +155,7 @@ public class StatisticalReportServiceBean {
    * elegida
    */
   public Collection<StatisticalReport> findAllByDateLessThanOrEqual(int userId, int parcelId, Calendar dateUntil) {
-    Query query = getEntityManager().createQuery("SELECT s FROM StatisticalReport s JOIN s.parcel p WHERE (s.dateUntil <= :dateUntil AND p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY s.dateUntil");
+    Query query = getEntityManager().createQuery("SELECT s FROM StatisticalReport s JOIN s.parcel p WHERE (s.dateUntil <= :dateUntil AND p.id = :parcelId AND p.user.id = :userId) ORDER BY s.dateUntil");
     query.setParameter("userId", userId);
     query.setParameter("parcelId", parcelId);
     query.setParameter("dateUntil", dateUntil);
@@ -175,7 +175,7 @@ public class StatisticalReportServiceBean {
    * fecha hasta elegida
    */
   public Collection<StatisticalReport> findByAllFilterParameters(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
-    Query query = getEntityManager().createQuery("SELECT s FROM StatisticalReport s JOIN s.parcel p WHERE (s.dateFrom >= :dateFrom AND s.dateUntil <= :dateUntil AND p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY s.dateFrom");
+    Query query = getEntityManager().createQuery("SELECT s FROM StatisticalReport s JOIN s.parcel p WHERE (s.dateFrom >= :dateFrom AND s.dateUntil <= :dateUntil AND p.id = :parcelId AND p.user.id = :userId) ORDER BY s.dateFrom");
     query.setParameter("userId", userId);
     query.setParameter("parcelId", parcelId);
     query.setParameter("dateFrom", dateFrom);
@@ -195,7 +195,7 @@ public class StatisticalReportServiceBean {
    * asociado a una parcela de un usuario
    */
   public StatisticalReport findByDates(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
-    Query query = getEntityManager().createQuery("SELECT s FROM StatisticalReport s JOIN s.parcel p WHERE (s.dateFrom = :dateFrom AND s.dateUntil = :dateUntil AND p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY s.id");
+    Query query = getEntityManager().createQuery("SELECT s FROM StatisticalReport s JOIN s.parcel p WHERE (s.dateFrom = :dateFrom AND s.dateUntil = :dateUntil AND p.id = :parcelId AND p.user.id = :userId) ORDER BY s.id");
     query.setParameter("userId", userId);
     query.setParameter("parcelId", parcelId);
     query.setParameter("dateFrom", dateFrom);
@@ -2489,7 +2489,7 @@ public class StatisticalReportServiceBean {
     Calendar calendarDate;
 
     // Genera el WHERE dinámicamente
-    StringBuffer where = new StringBuffer(" WHERE 1=1 AND e IN (SELECT t FROM StatisticalReport t JOIN t.parcel p WHERE p IN (SELECT x FROM User u JOIN u.parcels x WHERE u.id = :userId))");
+    StringBuffer where = new StringBuffer(" WHERE 1=1 AND e.parcel.user.id = :userId");
 
     if (parameters != null) {
 

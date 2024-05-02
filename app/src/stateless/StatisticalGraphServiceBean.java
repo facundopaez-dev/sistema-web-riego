@@ -123,7 +123,7 @@ public class StatisticalGraphServiceBean {
      * el ID dado. En caso contrario, null.
      */
     public StatisticalGraph findByUserId(int userId, int statisticalGraphId) {
-        Query query = getEntityManager().createQuery("SELECT s FROM StatisticalGraph s JOIN s.parcel p WHERE s.id = :statisticalGraphId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)");
+        Query query = getEntityManager().createQuery("SELECT s FROM StatisticalGraph s WHERE s.id = :statisticalGraphId AND s.parcel.user.id = :userId");
         query.setParameter("userId", userId);
         query.setParameter("statisticalGraphId", statisticalGraphId);
 
@@ -150,7 +150,7 @@ public class StatisticalGraphServiceBean {
      * asociado a una parcela de un usuario
      */
     public StatisticalGraph find(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil, StatisticalData statisticalData) {
-        Query query = getEntityManager().createQuery("SELECT s FROM StatisticalGraph s JOIN s.parcel p WHERE (s.dateFrom = :dateFrom AND s.dateUntil = :dateUntil AND s.statisticalData = :statisticalData AND p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY s.id");
+        Query query = getEntityManager().createQuery("SELECT s FROM StatisticalGraph s JOIN s.parcel p WHERE (s.dateFrom = :dateFrom AND s.dateUntil = :dateUntil AND s.statisticalData = :statisticalData AND p.id = :parcelId AND p.user.id = :userId) ORDER BY s.id");
         query.setParameter("userId", userId);
         query.setParameter("parcelId", parcelId);
         query.setParameter("dateFrom", dateFrom);
@@ -240,7 +240,7 @@ public class StatisticalGraphServiceBean {
         Calendar calendarDate;
 
         // Genera el WHERE dinámicamente
-        StringBuffer where = new StringBuffer(" WHERE 1=1 AND e IN (SELECT t FROM StatisticalGraph t JOIN t.parcel p WHERE p IN (SELECT x FROM User u JOIN u.parcels x WHERE u.id = :userId))");
+        StringBuffer where = new StringBuffer(" WHERE 1=1 AND e.parcel.user.id = :userId");
 
         if (parameters != null) {
 

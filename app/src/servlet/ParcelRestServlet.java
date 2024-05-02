@@ -866,20 +866,12 @@ public class ParcelRestServlet {
      */
     newParcel.setActive(true);
     newParcel.setOption(optionService.create());
+    newParcel.setUser(userService.find(userId));
 
     /*
      * Persistencia de una parcela
      */
     newParcel = parcelService.create(newParcel);
-
-    /*
-     * Persiste la relacion expresada mediante la
-     * añadidura de una nueva parcela a la coleccion
-     * de parcelas de un usuario
-     */
-    User user = userService.find(userId);
-    user.getParcels().add(newParcel);
-    userService.merge(user);
 
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP

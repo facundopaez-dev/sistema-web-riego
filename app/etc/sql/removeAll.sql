@@ -28,9 +28,6 @@ ALTER TABLE STATISTICAL_DATA ALTER COLUMN ID RESTART WITH 1;
 DELETE FROM STATISTICAL_REPORT;
 ALTER TABLE STATISTICAL_REPORT ALTER COLUMN ID RESTART WITH 1;
 
--- Esta es la tabla de union resultante de la relacion uno a muchos que hay entre los modelos de datos User y Parcel
-DELETE FROM ISUSER_PARCEL;
-
 -- Esta es la tabla de union resultante de la relacion uno a muchos que hay entre los modelos de datos Parcel y SoilWaterBalance
 DELETE FROM PARCEL_SWB;
 

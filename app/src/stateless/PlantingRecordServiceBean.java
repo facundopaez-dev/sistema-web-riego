@@ -281,8 +281,7 @@ public class PlantingRecordServiceBean {
    * del ID dado, en caso contrario null
    */
   public PlantingRecord findByUserId(int userId, int plantingRecordId) {
-    Query query = getEntityManager().createQuery(
-        "SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (r.id = :plantingRecordId AND p IN (SELECT p FROM User u JOIN u.parcels p WHERE u.id = :userId))");
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE r.id = :plantingRecordId AND p.user.id = :userId");
     query.setParameter("plantingRecordId", plantingRecordId);
     query.setParameter("userId", userId);
 
@@ -305,7 +304,7 @@ public class PlantingRecordServiceBean {
    * de cosecha
    */
   public PlantingRecord findOneByHarvestDate(int userId, Calendar harvestDate) {
-    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (r.harvestDate = :harvestDate AND p IN (SELECT p FROM User u JOIN u.parcels p WHERE u.id = :userId))");
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE r.harvestDate = :harvestDate AND p.user.id = :userId");
     query.setParameter("userId", userId);
     query.setParameter("harvestDate", harvestDate);
 
@@ -330,7 +329,7 @@ public class PlantingRecordServiceBean {
    * del usuario con el ID dado
    */
   public Collection<PlantingRecord> findAll(int userId) {
-    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId) ORDER BY r.id");
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (p.user.id = :userId) ORDER BY r.id");
     query.setParameter("userId", userId);
 
     return (Collection) query.getResultList();
@@ -390,7 +389,7 @@ public class PlantingRecordServiceBean {
    * ID dado
    */
   public Collection<PlantingRecord> findAllByParcelName(int userId, String parcelName) {
-    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (p.name = :parcelName AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY r.seedDate");
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (p.name = :parcelName AND p.user.id = :userId) ORDER BY r.seedDate");
     query.setParameter("userId", userId);
     query.setParameter("parcelName", parcelName);
 
@@ -407,7 +406,7 @@ public class PlantingRecordServiceBean {
    * a la fecha desde elegida
    */
   public Collection<PlantingRecord> findAllByDateGreaterThanOrEqual(int userId, int parcelId, Calendar dateFrom) {
-    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (r.seedDate >= :dateFrom AND p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY r.seedDate");
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (r.seedDate >= :dateFrom AND p.id = :parcelId AND p.user.id = :userId) ORDER BY r.seedDate");
     query.setParameter("userId", userId);
     query.setParameter("parcelId", parcelId);
     query.setParameter("dateFrom", dateFrom);
@@ -425,7 +424,7 @@ public class PlantingRecordServiceBean {
    * a la fecha hasta elegida
    */
   public Collection<PlantingRecord> findAllByDateLessThanOrEqual(int userId, int parcelId, Calendar dateUntil) {
-    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (r.harvestDate <= :dateUntil AND p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY r.harvestDate");
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (r.harvestDate <= :dateUntil AND p.id = :parcelId AND p.user.id = :userId) ORDER BY r.harvestDate");
     query.setParameter("userId", userId);
     query.setParameter("parcelId", parcelId);
     query.setParameter("dateUntil", dateUntil);
@@ -445,7 +444,7 @@ public class PlantingRecordServiceBean {
    * fecha hasta elegida
    */
   public Collection<PlantingRecord> findByAllFilterParameters(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
-    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (r.seedDate >= :dateFrom AND r.harvestDate <= :dateUntil AND p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY r.seedDate");
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (r.seedDate >= :dateFrom AND r.harvestDate <= :dateUntil AND p.id = :parcelId AND p.user.id = :userId) ORDER BY r.seedDate");
     query.setParameter("userId", userId);
     query.setParameter("parcelId", parcelId);
     query.setParameter("dateFrom", dateFrom);
@@ -529,7 +528,7 @@ public class PlantingRecordServiceBean {
    * parcela de un usuario
    */
   public Collection<PlantingRecord> findAllFinishedByParcelId(int userId, int parcelId) {
-    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (UPPER(r.status.name) = UPPER('Finalizado') AND p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY r.id");
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (UPPER(r.status.name) = UPPER('Finalizado') AND p.id = :parcelId AND p.user.id = :userId) ORDER BY r.id");
     query.setParameter("userId", userId);
     query.setParameter("parcelId", parcelId);
 
@@ -547,7 +546,7 @@ public class PlantingRecordServiceBean {
    * parcela de un usuario
    */
   public Collection<PlantingRecord> findAllInWaitingByParcelId(int userId, int parcelId) {
-    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (UPPER(r.status.name) = UPPER('En espera') AND p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY r.id");
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (UPPER(r.status.name) = UPPER('En espera') AND p.id = :parcelId AND p.user.id = :userId) ORDER BY r.id");
     query.setParameter("userId", userId);
     query.setParameter("parcelId", parcelId);
 
@@ -682,7 +681,7 @@ public class PlantingRecordServiceBean {
         + "(r.seedDate >= :dateFrom AND r.harvestDate <= :dateUntil) OR "
         + "(:dateFrom <= r.harvestDate AND r.harvestDate <= :dateUntil AND r.seedDate < :dateFrom)";
 
-    String conditionWhere = "p.id = :parcelId AND UPPER(r.status.name) = UPPER('Finalizado') AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId) AND (" + dateCondition + ")";
+    String conditionWhere = "p.id = :parcelId AND UPPER(r.status.name) = UPPER('Finalizado') AND p.user.id = :userId AND (" + dateCondition + ")";
 
     /*
      * Selecciona los registros de plantacion finalizados
@@ -765,7 +764,7 @@ public class PlantingRecordServiceBean {
      * a un usuario, en el que una fecha dada este en el periodo definido
      * por su fecha de siembra y su fecha de cosecha
      */
-    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (p = :parcel AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId) AND :date >= r.seedDate AND :date <= r.harvestDate)");
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE (p = :parcel AND p.user.id = :userId AND :date >= r.seedDate AND :date <= r.harvestDate)");
     query.setParameter("userId", userId);
     query.setParameter("parcel", parcel);
     query.setParameter("date", givenDate);
@@ -1580,7 +1579,7 @@ public class PlantingRecordServiceBean {
     Calendar calendarDate;
 
     // Genera el WHERE dinámicamente
-    StringBuffer where = new StringBuffer(" WHERE 1=1 AND e IN (SELECT t FROM PlantingRecord t JOIN t.parcel p WHERE p IN (SELECT x FROM User u JOIN u.parcels x WHERE u.id = :userId))");
+    StringBuffer where = new StringBuffer(" WHERE 1=1 AND e.parcel.user.id = :userId");
 
     if (parameters != null) {
 

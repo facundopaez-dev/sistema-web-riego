@@ -45,6 +45,10 @@ public class Parcel {
   private Option option;
 
   @ManyToOne
+  @JoinColumn(name = "FK_USER", nullable = false)
+  private User user;
+
+  @ManyToOne
   @JoinColumn(name = "FK_SOIL")
   private Soil soil;
 
@@ -108,6 +112,14 @@ public class Parcel {
     this.option = option;
   }
 
+  public User getUser() {
+    return user;
+  }
+
+  public void setUser(User user) {
+    this.user = user;
+  }
+
   public Soil getSoil() {
     return soil;
   }
@@ -127,13 +139,14 @@ public class Parcel {
   @Override
   public String toString() {
     return String.format(
-        "ID: %d\nNombre: %s\nHectáreas: %f\nLatitud: %f\nLongitud: %f\nActiva: %b\n",
+        "ID: %d\nNombre: %s\nHectáreas: %f\nLatitud: %f\nLongitud: %f\nActiva: %b\nID del usuario al que pertenece: %d\n",
         id,
         name,
         hectares,
         geographicLocation.getLatitude(),
         geographicLocation.getLongitude(),
-        active);
+        active,
+        user.getId());
   }
 
 }

@@ -118,7 +118,7 @@ public class IrrigationRecordServiceBean {
    * del ID dado, en caso contrario null
    */
   public IrrigationRecord findByUserId(int userId, int irrigationRecordId) {
-    Query query = getEntityManager().createQuery("SELECT i FROM IrrigationRecord i JOIN i.parcel p WHERE (i.id = :irrigationRecordId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId))");
+    Query query = getEntityManager().createQuery("SELECT i FROM IrrigationRecord i WHERE i.id = :irrigationRecordId AND i.parcel.user.id = :userId");
     query.setParameter("irrigationRecordId", irrigationRecordId);
     query.setParameter("userId", userId);
 
@@ -143,7 +143,7 @@ public class IrrigationRecordServiceBean {
    * parcelas del usuario con el ID dado
    */
   public Collection<IrrigationRecord> findAll(int userId) {
-    Query query = entityManager.createQuery("SELECT i FROM IrrigationRecord i JOIN i.parcel p WHERE p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId) ORDER BY i.id");
+    Query query = entityManager.createQuery("SELECT i FROM IrrigationRecord i WHERE i.parcel.user.id = :userId ORDER BY i.id");
     query.setParameter("userId", userId);
 
     return (Collection) query.getResultList();
@@ -161,7 +161,7 @@ public class IrrigationRecordServiceBean {
    * el nombre dado y que pertenece al usuario con el ID dado
    */
   public Collection<IrrigationRecord> findAllByParcelName(int userId, String parcelName) {
-    Query query = getEntityManager().createQuery("SELECT i FROM IrrigationRecord i JOIN i.parcel p WHERE (p.name = :parcelName AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY i.id");
+    Query query = getEntityManager().createQuery("SELECT i FROM IrrigationRecord i JOIN i.parcel p WHERE (p.name = :parcelName AND p.user.id = :userId) ORDER BY i.id");
     query.setParameter("userId", userId);
     query.setParameter("parcelName", parcelName);
 
@@ -182,7 +182,7 @@ public class IrrigationRecordServiceBean {
    * cual pertenece a un usuario
    */
   public Collection<IrrigationRecord> findAllByParcelNameAndDate(int userId, String parcelName, Calendar date) {
-    Query query = getEntityManager().createQuery("SELECT i FROM IrrigationRecord i JOIN i.parcel p WHERE (i.date = :date AND p.name = :parcelName AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY i.id");
+    Query query = getEntityManager().createQuery("SELECT i FROM IrrigationRecord i JOIN i.parcel p WHERE (i.date = :date AND p.name = :parcelName AND p.user.id = :userId) ORDER BY i.id");
     query.setParameter("userId", userId);
     query.setParameter("parcelName", parcelName);
     query.setParameter("date", date);
@@ -222,7 +222,7 @@ public class IrrigationRecordServiceBean {
    * Collection vacio (con 0 elementos).
    */
   public Collection<IrrigationRecord> findAllWithCropBetweenDates(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
-    Query query = getEntityManager().createQuery("SELECT i FROM IrrigationRecord i JOIN i.parcel p WHERE (i.crop IS NOT NULL AND :dateFrom <= i.date AND i.date <= :dateUntil AND p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY i.date");
+    Query query = getEntityManager().createQuery("SELECT i FROM IrrigationRecord i JOIN i.parcel p WHERE (i.crop IS NOT NULL AND :dateFrom <= i.date AND i.date <= :dateUntil AND p.id = :parcelId AND p.user.id = :userId) ORDER BY i.date");
     query.setParameter("userId", userId);
     query.setParameter("parcelId", parcelId);
     query.setParameter("dateFrom", dateFrom);
@@ -242,7 +242,7 @@ public class IrrigationRecordServiceBean {
    * @param dateUntil
    */
   public void deleteBetweenDates(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
-    Query query = getEntityManager().createQuery("DELETE FROM IrrigationRecord i WHERE (:dateFrom <= i.date AND i.date <= :dateUntil AND i.parcel.id = :parcelId AND i.parcel IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId))");
+    Query query = getEntityManager().createQuery("DELETE FROM IrrigationRecord i WHERE (:dateFrom <= i.date AND i.date <= :dateUntil AND i.parcel.id = :parcelId AND i.parcel.user.id = :userId)");
     query.setParameter("userId", userId);
     query.setParameter("parcelId", parcelId);
     query.setParameter("dateFrom", dateFrom);
@@ -326,8 +326,7 @@ public class IrrigationRecordServiceBean {
    * un periodo definido por dos fechas
    */
   public List<IrrigationRecord> findAllWithCropAndByPeriod(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
-    String conditionWhere = "p.id = :parcelId AND i.crop IS NOT NULL AND :dateFrom <= i.date AND i.date <= :dateUntil AND "
-        + "p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)";
+    String conditionWhere = "p.id = :parcelId AND i.crop IS NOT NULL AND :dateFrom <= i.date AND i.date <= :dateUntil AND p.user.id = :userId";
 
     Query query = getEntityManager().createQuery("SELECT i FROM IrrigationRecord i JOIN i.parcel p WHERE " + conditionWhere);
     query.setParameter("parcelId", parcelId);
@@ -670,7 +669,7 @@ public class IrrigationRecordServiceBean {
     Calendar calendarDate;
 
     // Genera el WHERE dinámicamente
-    StringBuffer where = new StringBuffer(" WHERE 1=1 AND e IN (SELECT t FROM IrrigationRecord t JOIN t.parcel p WHERE p IN (SELECT x FROM User u JOIN u.parcels x WHERE u.id = :userId))");
+    StringBuffer where = new StringBuffer(" WHERE 1=1 AND e.parcel.user.id = :userId");
 
     if (parameters != null) {
 

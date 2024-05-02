@@ -128,7 +128,7 @@ public class HarvestServiceBean {
    * retorna null.
    */
   public Harvest find(int userId, int harvestId) {
-    Query query = entityManager.createQuery("SELECT h FROM Harvest h JOIN h.parcel p WHERE h.id = :harvestId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)");
+    Query query = entityManager.createQuery("SELECT h FROM Harvest h WHERE h.id = :harvestId AND h.parcel.user.id = :userId");
     query.setParameter("userId", userId);
     query.setParameter("harvestId", harvestId);
 
@@ -238,7 +238,7 @@ public class HarvestServiceBean {
    * por dos fechas
    */
   public List<Harvest> findAllByPeriod(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
-    String conditionWhere = "p.id = :parcelId AND :dateFrom <= h.date AND h.date <= :dateUntil AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)";
+    String conditionWhere = ":dateFrom <= h.date AND h.date <= :dateUntil AND p.id = :parcelId AND p.user.id = :userId";
 
     Query query = getEntityManager().createQuery("SELECT h FROM Harvest h JOIN h.parcel p WHERE " + conditionWhere);
     query.setParameter("parcelId", parcelId);
@@ -674,7 +674,7 @@ public class HarvestServiceBean {
     Calendar calendarDate;
 
     // Genera el WHERE dinámicamente
-    StringBuffer where = new StringBuffer(" WHERE 1=1 AND e IN (SELECT h FROM Harvest h JOIN h.parcel p WHERE p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId))");
+    StringBuffer where = new StringBuffer(" WHERE 1=1 AND e.parcel.user.id = :userId");
 
     if (parameters != null) {
 

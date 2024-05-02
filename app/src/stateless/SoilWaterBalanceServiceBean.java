@@ -344,7 +344,7 @@ public class SoilWaterBalanceServiceBean {
         Calendar calendarDate;
 
         // Genera el WHERE dinámicamente
-        StringBuffer where = new StringBuffer(" WHERE 1=1 AND e IN (SELECT t FROM Parcel p JOIN p.soilWaterBalances t WHERE p IN (SELECT x FROM User u JOIN u.parcels x WHERE u.id = :userId))");
+        StringBuffer where = new StringBuffer(" WHERE 1=1 AND e IN (SELECT t FROM Parcel p JOIN p.soilWaterBalances t WHERE p.user.id = :userId)");
 
         if (parameters != null) {
 

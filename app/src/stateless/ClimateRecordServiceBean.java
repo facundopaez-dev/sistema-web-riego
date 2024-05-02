@@ -117,7 +117,7 @@ public class ClimateRecordServiceBean {
    * dado. En caso contrario, null.
    */
   public ClimateRecord findByUserId(int userId, int climateRecordId) {
-    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (c.id = :climateRecordId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId))");
+    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE c.id = :climateRecordId AND p.user.id = :userId");
     query.setParameter("userId", userId);
     query.setParameter("climateRecordId", climateRecordId);
 
@@ -142,7 +142,7 @@ public class ClimateRecordServiceBean {
    * pertenecientes al usuario con el ID dado
    */
   public Collection<ClimateRecord> findAll(int userId) {
-    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId) ORDER BY c.id");
+    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c WHERE (c.parcel.user.id = :userId) ORDER BY c.id");
     query.setParameter("userId", userId);
 
     return (Collection) query.getResultList();
@@ -160,7 +160,7 @@ public class ClimateRecordServiceBean {
    * el nombre dado y que pertenece al usuario con el ID dado
    */
   public Collection<ClimateRecord> findAllByParcelName(int userId, String parcelName) {
-    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (p.name = :parcelName AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY c.date");
+    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (p.name = :parcelName AND p.user.id = :userId) ORDER BY c.date");
     query.setParameter("userId", userId);
     query.setParameter("parcelName", parcelName);
 
@@ -181,7 +181,7 @@ public class ClimateRecordServiceBean {
    * cual pertenece a un usuario
    */
   public Collection<ClimateRecord> findAllByParcelNameAndDate(int userId, String parcelName, Calendar date) {
-    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (c.date = :date AND p.name = :parcelName AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY c.id");
+    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (c.date = :date AND p.name = :parcelName AND p.user.id = :userId) ORDER BY c.id");
     query.setParameter("userId", userId);
     query.setParameter("parcelName", parcelName);
     query.setParameter("date", date);
@@ -217,7 +217,7 @@ public class ClimateRecordServiceBean {
    * vacio (0 elementos).
    */
   public Collection<ClimateRecord> findAllByParcelId(int userId, int parcelId) {
-    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId)) ORDER BY c.id");
+    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (p.id = :parcelId AND p.user.id = :userId) ORDER BY c.id");
     query.setParameter("userId", userId);
     query.setParameter("parcelId", parcelId);
 
@@ -239,7 +239,7 @@ public class ClimateRecordServiceBean {
    * referencia a un objeto de tipo Collection vacio (0 elementos).
    */
   public Collection<ClimateRecord> findAllByParcelIdAndPeriod(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
-    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (p.id = :parcelId AND p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId) AND :dateFrom <= c.date AND c.date <= :dateUntil) ORDER BY c.date");
+    Query query = getEntityManager().createQuery("SELECT c FROM ClimateRecord c JOIN c.parcel p WHERE (p.id = :parcelId AND p.user.id = :userId AND :dateFrom <= c.date AND c.date <= :dateUntil) ORDER BY c.date");
     query.setParameter("userId", userId);
     query.setParameter("parcelId", parcelId);
     query.setParameter("dateFrom", dateFrom);
@@ -706,7 +706,7 @@ public class ClimateRecordServiceBean {
    * fechas
    */
   private long countClimateRecordsForPeriod(int userId, int parcelId, Calendar dateFrom, Calendar dateUntil) {
-    Query query = entityManager.createQuery("SELECT COUNT(c) FROM ClimateRecord c JOIN c.parcel p WHERE p IN (SELECT t FROM User u JOIN u.parcels t WHERE u.id = :userId) AND p.id = :parcelId AND :dateFrom <= c.date AND c.date <= :dateUntil");
+    Query query = entityManager.createQuery("SELECT COUNT(c) FROM ClimateRecord c JOIN c.parcel p WHERE p.user.id = :userId AND p.id = :parcelId AND :dateFrom <= c.date AND c.date <= :dateUntil");
     query.setParameter("userId", userId);
     query.setParameter("parcelId", parcelId);
     query.setParameter("dateFrom", dateFrom);
@@ -842,7 +842,7 @@ public class ClimateRecordServiceBean {
     Calendar calendarDate;
 
     // Genera el WHERE dinámicamente
-    StringBuffer where = new StringBuffer(" WHERE 1=1 AND e IN (SELECT t FROM ClimateRecord t JOIN t.parcel p WHERE p IN (SELECT x FROM User u JOIN u.parcels x WHERE u.id = :userId))");
+    StringBuffer where = new StringBuffer(" WHERE 1=1 AND e.parcel.user.id = :userId");
 
     if (parameters != null) {
 
