@@ -701,6 +701,16 @@ public class ClimateRecordRestServlet {
     }
 
     /*
+     * Si la temperatura maxima es menor o igual a la temperatura
+     * minima, la aplicacion del lado servidor retorna el mensaje
+     * HTTP 400 (Bad request) junto con un mensaje que indica lo
+     * sucedido y no se realiza la operacion solicitada
+     */
+    if (newClimateRecord.getMaximumTemperature() <= newClimateRecord.getMinimumTemperature()) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_MAXIMUM_TEMPERATURE))).build();
+    }
+
+    /*
      * Si la velocidad del viento tiene un valor menor a 0.0,
      * la aplicacion del lado servidor retorna el mensaje
      * HTTP 400 (Bad request) junto con el mensaje "La
@@ -1034,6 +1044,16 @@ public class ClimateRecordRestServlet {
      */
     if (modifiedClimateRecord.getDate() == null) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_DATE))).build();
+    }
+
+    /*
+     * Si la temperatura maxima es menor o igual a la temperatura
+     * minima, la aplicacion del lado servidor retorna el mensaje
+     * HTTP 400 (Bad request) junto con un mensaje que indica lo
+     * sucedido y no se realiza la operacion solicitada
+     */
+    if (modifiedClimateRecord.getMaximumTemperature() <= modifiedClimateRecord.getMinimumTemperature()) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_MAXIMUM_TEMPERATURE))).build();
     }
 
     /*

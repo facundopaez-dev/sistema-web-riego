@@ -61,6 +61,7 @@ public enum ReasonError {
   INVALID_CROP_NAME("El nombre de un cultivo debe empezar con una palabra formada únicamente por caracteres alfabéticos y puede tener más de una palabra formada únicamente por caracteres alfabéticos"),
   EXISTING_CLIMATE_RECORD("Ya existe un registro climático con la fecha ingresada para la parcela seleccionada"),
   UNDEFINED_DATE("La fecha debe estar definida"),
+  INVALID_MAXIMUM_TEMPERATURE("La temperatura máxima debe ser estrictamente mayor a la temperatura mínima"),
   INVALID_WIND_SPEED("La velocidad del viento debe ser un valor mayor o igual a 0.0"),
   INVALID_PRECIPITATION_PROBABILITY("La probabilidad de la precipitación debe ser un valor entre 0.0 y 100, incluido"),
   INVALID_PRECIPITATION("La precipitación debe ser un valor mayor o igual 0.0"),
