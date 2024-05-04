@@ -118,6 +118,21 @@ public class ClimateRecordServiceBeanTest {
     System.out.println();
 
     /*
+     * Persistencia de un usuario de prueba
+     */
+    User testUser = new User();
+    testUser.setUsername("testOneFindAllByParcelIdAndPeriod");
+    testUser.setName("Tyler");
+    testUser.setLastName("Miller");
+    testUser.setEmail("testOneFindAllByParcelIdAndPeriod@email.com");
+
+    entityManager.getTransaction().begin();
+    testUser = userService.create(testUser);
+    entityManager.getTransaction().commit();
+
+    users.add(testUser);
+
+    /*
      * Creacion y persistencia de una ubicacion geografica
      * para parcelas de prueba
      */
@@ -148,29 +163,13 @@ public class ClimateRecordServiceBeanTest {
     testParcel.setHectares(2);
     testParcel.setOption(parcelOption);
     testParcel.setGeographicLocation(testGeographicLocation);
+    testParcel.setUser(testUser);
 
     entityManager.getTransaction().begin();
     testParcel = parcelService.create(testParcel);
     entityManager.getTransaction().commit();
 
     parcels.add(testParcel);
-
-    /*
-     * Persistencia de un usuario de prueba
-     */
-    User testUser = new User();
-    testUser.setUsername("testOneFindAllByParcelIdAndPeriod");
-    testUser.setName("Tyler");
-    testUser.setLastName("Miller");
-    testUser.setEmail("testOneFindAllByParcelIdAndPeriod@email.com");
-    testUser.setParcels(new ArrayList<>());
-    testUser.getParcels().add(testParcel);
-
-    entityManager.getTransaction().begin();
-    testUser = userService.create(testUser);
-    entityManager.getTransaction().commit();
-
-    users.add(testUser);
 
     /*
      * Creacion de fechas para los registros climaticos de prueba
@@ -276,6 +275,21 @@ public class ClimateRecordServiceBeanTest {
     System.out.println();
 
     /*
+     * Persistencia de un usuario de prueba
+     */
+    User testUser = new User();
+    testUser.setUsername("testTwoFindAllByParcelIdAndPeriod");
+    testUser.setName("Sam");
+    testUser.setLastName("Miller");
+    testUser.setEmail("testTwoFindAllByParcelIdAndPeriod@eservice.com");
+
+    entityManager.getTransaction().begin();
+    testUser = userService.create(testUser);
+    entityManager.getTransaction().commit();
+
+    users.add(testUser);
+
+    /*
      * Creacion y persistencia de una ubicacion geografica
      * para parcelas de prueba
      */
@@ -306,29 +320,13 @@ public class ClimateRecordServiceBeanTest {
     testParcel.setHectares(2);
     testParcel.setOption(parcelOption);
     testParcel.setGeographicLocation(testGeographicLocation);
+    testParcel.setUser(testUser);
 
     entityManager.getTransaction().begin();
     testParcel = parcelService.create(testParcel);
     entityManager.getTransaction().commit();
 
     parcels.add(testParcel);
-
-    /*
-     * Persistencia de un usuario de prueba
-     */
-    User testUser = new User();
-    testUser.setUsername("testTwoFindAllByParcelIdAndPeriod");
-    testUser.setName("Sam");
-    testUser.setLastName("Miller");
-    testUser.setEmail("testTwoFindAllByParcelIdAndPeriod@eservice.com");
-    testUser.setParcels(new ArrayList<>());
-    testUser.getParcels().add(testParcel);
-
-    entityManager.getTransaction().begin();
-    testUser = userService.create(testUser);
-    entityManager.getTransaction().commit();
-
-    users.add(testUser);
 
     /*
      * Creacion de fechas para los registros climaticos de prueba
@@ -424,6 +422,21 @@ public class ClimateRecordServiceBeanTest {
     System.out.println();
 
     /*
+     * Persistencia de un usuario de prueba
+     */
+    User testUser = new User();
+    testUser.setUsername("testOneCheckExistence");
+    testUser.setName("Jake");
+    testUser.setLastName("Miller");
+    testUser.setEmail("testOneCheckExistence@eservice.com");
+
+    entityManager.getTransaction().begin();
+    testUser = userService.create(testUser);
+    entityManager.getTransaction().commit();
+
+    users.add(testUser);
+
+    /*
      * Creacion y persistencia de una ubicacion geografica
      * para parcelas de prueba
      */
@@ -454,6 +467,7 @@ public class ClimateRecordServiceBeanTest {
     testParcel.setHectares(2);
     testParcel.setOption(parcelOption);
     testParcel.setGeographicLocation(testGeographicLocation);
+    testParcel.setUser(testUser);
 
     entityManager.getTransaction().begin();
     testParcel = parcelService.create(testParcel);
@@ -523,6 +537,21 @@ public class ClimateRecordServiceBeanTest {
     System.out.println();
 
     /*
+     * Persistencia de un usuario de prueba
+     */
+    User testUser = new User();
+    testUser.setUsername("testTwoCheckExistence");
+    testUser.setName("Jane");
+    testUser.setLastName("Miller");
+    testUser.setEmail("testTwoCheckExistence@eservice.com");
+
+    entityManager.getTransaction().begin();
+    testUser = userService.create(testUser);
+    entityManager.getTransaction().commit();
+
+    users.add(testUser);
+
+    /*
      * Creacion y persistencia de una ubicacion geografica
      * para parcelas de prueba
      */
@@ -553,6 +582,7 @@ public class ClimateRecordServiceBeanTest {
     testParcel.setHectares(2);
     testParcel.setOption(parcelOption);
     testParcel.setGeographicLocation(testGeographicLocation);
+    testParcel.setUser(testUser);
 
     entityManager.getTransaction().begin();
     testParcel = parcelService.create(testParcel);
