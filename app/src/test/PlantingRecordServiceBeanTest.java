@@ -108,6 +108,19 @@ public class PlantingRecordServiceBeanTest {
                 typesCrop = new ArrayList<>();
 
                 /*
+                 * Creacion y persistencia de un usuario de prueba
+                 */
+                testUser = new User();
+                testUser.setUsername("testOneCheckByDate");
+                testUser.setName("Peter");
+                testUser.setLastName("Doe");
+                testUser.setEmail("testOneCheckByDate@eservice.com");
+
+                entityManager.getTransaction().begin();
+                testUser = userService.create(testUser);
+                entityManager.getTransaction().commit();
+
+                /*
                  * Creacion y persistencia de una ubicacion geografica para
                  * una parcela de prueba
                  */
@@ -136,24 +149,10 @@ public class PlantingRecordServiceBeanTest {
                 testParcel.setHectares(2);
                 testParcel.setOption(testParcelOption);
                 testParcel.setGeographicLocation(testGeographicLocation);
+                testParcel.setUser(testUser);
 
                 entityManager.getTransaction().begin();
                 testParcel = parcelService.create(testParcel);
-                entityManager.getTransaction().commit();
-
-                /*
-                 * Creacion y persistencia de un usuario de prueba
-                 */
-                testUser = new User();
-                testUser.setUsername("testOneCheckByDate");
-                testUser.setName("Peter");
-                testUser.setLastName("Doe");
-                testUser.setEmail("testOneCheckByDate@eservice.com");
-                testUser.setParcels(new ArrayList<>());
-                testUser.getParcels().add(testParcel);
-
-                entityManager.getTransaction().begin();
-                testUser = userService.create(testUser);
                 entityManager.getTransaction().commit();
 
                 /*
