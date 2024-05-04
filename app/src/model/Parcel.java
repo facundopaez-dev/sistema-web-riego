@@ -12,8 +12,6 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.persistence.CascadeType;
 import javax.persistence.OneToOne;
-import javax.persistence.JoinTable;
-import javax.persistence.OneToMany;
 
 @Entity
 @Table(name = "PARCEL", uniqueConstraints = { @UniqueConstraint(columnNames = { "NAME", "FK_USER" }) })
@@ -51,10 +49,6 @@ public class Parcel {
   @ManyToOne
   @JoinColumn(name = "FK_SOIL")
   private Soil soil;
-
-  @OneToMany
-  @JoinTable(name = "PARCEL_SWB", joinColumns = @JoinColumn(name = "FK_PARCEL"), inverseJoinColumns = @JoinColumn(name = "FK_SOIL_WATER_BALANCE"))
-  private Collection<SoilWaterBalance> soilWaterBalances;
 
   public Parcel() {
 
@@ -126,14 +120,6 @@ public class Parcel {
 
   public void setSoil(Soil soil) {
     this.soil = soil;
-  }
-
-  public Collection<SoilWaterBalance> getSoilWaterBalances() {
-    return soilWaterBalances;
-  }
-
-  public void setSoilWaterBalances(Collection<SoilWaterBalance> soilWaterBalances) {
-    this.soilWaterBalances = soilWaterBalances;
   }
 
   @Override

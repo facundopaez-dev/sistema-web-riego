@@ -21,7 +21,7 @@ Cultivo "*" --> "0..1" Region
 Cultivo "*" --> "0..2" Mes
 Parcela "*" --> "0..1" Suelo
 Contraseña "1" --> "1" Usuario
-Parcela "1" --> "*" BalanceHidricoSuelo
+BalanceHidricoSuelo "*" --> "1" Parcela
 Cosecha "*" --> "1" Parcela
 Cosecha "*" --> "1" Cultivo
 Parcela "1" --> "1" UbicacionGeografica
@@ -184,7 +184,6 @@ class ClaveSecreta {
 class BalanceHidricoSuelo {
 -id
 -fecha
--nombreParcela
 -nombreCultivo
 -aguaProvistaPorDia
 -perdidaHumedadSueloPorDia

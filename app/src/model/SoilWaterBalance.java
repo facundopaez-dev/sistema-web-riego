@@ -9,6 +9,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import java.util.Calendar;
 
 @Entity
@@ -23,9 +25,6 @@ public class SoilWaterBalance {
     @Column(name = "DATE", nullable = false)
     @Temporal(TemporalType.DATE)
     private Calendar date;
-
-    @Column(name = "PARCEL_NAME", nullable = false)
-    private String parcelName;
 
     @Column(name = "CROP_NAME", nullable = false)
     private String cropName;
@@ -76,6 +75,10 @@ public class SoilWaterBalance {
     @Column(name = "ACCUMULATED_SOIL_MOISTURE_DEFICIT_PER_DAY", nullable = false)
     private String accumulatedSoilMoistureDeficitPerDay;
 
+    @ManyToOne
+    @JoinColumn(name = "FK_PARCEL", nullable = false)
+    private Parcel parcel;
+
     public int getId() {
         return id;
     }
@@ -90,14 +93,6 @@ public class SoilWaterBalance {
 
     public void setDate(Calendar date) {
         this.date = date;
-    }
-
-    public String getParcelName() {
-        return parcelName;
-    }
-
-    public void setParcelName(String parcelName) {
-        this.parcelName = parcelName;
     }
 
     public String getCropName() {
@@ -138,6 +133,14 @@ public class SoilWaterBalance {
 
     public void setAccumulatedSoilMoistureDeficitPerDay(String accumulatedSoilMoistureDeficitPerDay) {
         this.accumulatedSoilMoistureDeficitPerDay = accumulatedSoilMoistureDeficitPerDay;
+    }
+
+    public Parcel getParcel() {
+        return parcel;
+    }
+
+    public void setParcel(Parcel parcel) {
+        this.parcel = parcel;
     }
 
 }

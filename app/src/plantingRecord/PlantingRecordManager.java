@@ -984,7 +984,7 @@ public class PlantingRecordManager {
         if (!soilWaterBalanceService.checkExistence(parcel.getId(), seedDate)) {
             soilWaterBalance = new SoilWaterBalance();
             soilWaterBalance.setDate(seedDate);
-            soilWaterBalance.setParcelName(parcel.getName());
+            soilWaterBalance.setParcel(parcel);
             soilWaterBalance.setCropName(developingPlantingRecord.getCrop().getName());
             soilWaterBalance.setWaterProvidedPerDay(0);
             soilWaterBalance.setSoilMoistureLossPerDay(0);
@@ -995,19 +995,9 @@ public class PlantingRecordManager {
              * Persistencia del balance hidrico
              */
             soilWaterBalance = soilWaterBalanceService.create(soilWaterBalance);
-
-            /*
-             * Se debe invocar el metodo merge() de la clase ParcelServiceBean
-             * para persistir los elementos que se hayan agregado a
-             * la coleccion soilWaterBalances de una parcela. De lo
-             * contrario, la base de datos subyacente quedara en un
-             * estado inconsistente.
-             */
-            parcel.getSoilWaterBalances().add(soilWaterBalance);
-            parcelService.merge(parcel);
         } else {
             soilWaterBalance = soilWaterBalanceService.find(parcel.getId(), seedDate);
-            soilWaterBalance.setParcelName(parcel.getName());
+            soilWaterBalance.setParcel(parcel);
             soilWaterBalance.setCropName(developingPlantingRecord.getCrop().getName());
             soilWaterBalance.setWaterProvidedPerDay(0);
             soilWaterBalance.setSoilMoistureLossPerDay(0);
@@ -1345,7 +1335,7 @@ public class PlantingRecordManager {
 
                 soilWaterBalance = new SoilWaterBalance();
                 soilWaterBalance.setDate(soilWaterBalanceDate);
-                soilWaterBalance.setParcelName(parcel.getName());
+                soilWaterBalance.setParcel(parcel);
                 soilWaterBalance.setCropName(crop.getName());
                 soilWaterBalance.setWaterProvidedPerDay(waterProvidedPerDay);
                 soilWaterBalance.setSoilMoistureLossPerDay(soilMoistureLossPerDay);
@@ -1356,16 +1346,6 @@ public class PlantingRecordManager {
                  * Persistencia del balance hidrico
                  */
                 soilWaterBalance = soilWaterBalanceService.create(soilWaterBalance);
-
-                /*
-                 * Se debe invocar el metodo merge() de la clase ParcelServiceBean
-                 * para persistir los elementos que se hayan agregado a
-                 * la coleccion soilWaterBalances de una parcela. De lo
-                 * contrario, la base de datos subyacente quedara en un
-                 * estado inconsistente.
-                 */
-                parcel.getSoilWaterBalances().add(soilWaterBalance);
-                parcelService.merge(parcel);
             } else {
                 soilWaterBalance = soilWaterBalanceService.find(parcelId, pastDate);
                 soilWaterBalanceService.update(soilWaterBalance.getId(), crop.getName(), soilMoistureLossPerDay,

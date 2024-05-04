@@ -97,7 +97,7 @@ public class SoilWaterBalanceServiceBean {
         SoilWaterBalance chosenSoilWaterBalanace = find(parcelId, date);
 
         if (chosenSoilWaterBalanace != null) {
-            chosenSoilWaterBalanace.setParcelName(modifiedSoilWaterBalance.getParcelName());
+            chosenSoilWaterBalanace.setParcel(modifiedSoilWaterBalance.getParcel());
             chosenSoilWaterBalanace.setCropName(modifiedSoilWaterBalance.getCropName());
             chosenSoilWaterBalanace.setWaterProvidedPerDay(modifiedSoilWaterBalance.getWaterProvidedPerDay());
             chosenSoilWaterBalanace.setSoilMoistureLossPerDay(modifiedSoilWaterBalance.getSoilMoistureLossPerDay());
@@ -118,7 +118,7 @@ public class SoilWaterBalanceServiceBean {
      * contrario, null.
      */
     public SoilWaterBalance find(int parcelId, Calendar date) {
-        Query query = getEntityManager().createQuery("SELECT s FROM Parcel p JOIN p.soilWaterBalances s WHERE (p.id = :parcelId AND s.date = :date)");
+        Query query = getEntityManager().createQuery("SELECT s FROM SoilWaterBalance s WHERE s.parcel.id = :parcelId AND s.date = :date");
         query.setParameter("parcelId", parcelId);
         query.setParameter("date", date);
 
@@ -143,7 +143,7 @@ public class SoilWaterBalanceServiceBean {
      * y una fecha hasta
      */
     public Collection<SoilWaterBalance> findAllFromDateFromToDateUntil(int parcelId, Calendar dateFrom, Calendar dateUntil) {
-        Query query = getEntityManager().createQuery("SELECT s FROM Parcel p JOIN p.soilWaterBalances s WHERE (p.id = :parcelId AND s.date >= :dateFrom AND s.date <= :dateUntil) ORDER BY s.date");
+        Query query = getEntityManager().createQuery("SELECT s FROM SoilWaterBalance s WHERE (s.parcel.id = :parcelId AND s.date >= :dateFrom AND s.date <= :dateUntil) ORDER BY s.date");
         query.setParameter("parcelId", parcelId);
         query.setParameter("dateFrom", dateFrom);
         query.setParameter("dateUntil", dateUntil);
@@ -161,7 +161,7 @@ public class SoilWaterBalanceServiceBean {
      * (es decir, hoy)
      */
     public Collection<SoilWaterBalance> findAllFromSeedDateUntilYesterday(int parcelId, Calendar dateFrom) {
-        Query query = getEntityManager().createQuery("SELECT s FROM Parcel p JOIN p.soilWaterBalances s WHERE (p.id = :parcelId AND s.date >= :dateFrom AND s.date <= :yesterday) ORDER BY s.date");
+        Query query = getEntityManager().createQuery("SELECT s FROM SoilWaterBalance s WHERE (s.parcel.id = :parcelId AND s.date >= :dateFrom AND s.date <= :yesterday) ORDER BY s.date");
         query.setParameter("parcelId", parcelId);
         query.setParameter("dateFrom", dateFrom);
         query.setParameter("yesterday", UtilDate.getYesterdayDate());
@@ -213,7 +213,7 @@ public class SoilWaterBalanceServiceBean {
      * parcela que tienen un nombre de cultivo
      */
     public Collection<SoilWaterBalance> findAllByParcelIdAndCropName(int parcelId, String cropName) {
-        Query query = getEntityManager().createQuery("SELECT s FROM Parcel p JOIN p.soilWaterBalances s WHERE (p.id = :parcelId AND s.cropName = :cropName) ORDER BY s.date");
+        Query query = getEntityManager().createQuery("SELECT s FROM SoilWaterBalance s WHERE (s.parcel.id = :parcelId AND s.cropName = :cropName) ORDER BY s.date");
         query.setParameter("parcelId", parcelId);
         query.setParameter("cropName", cropName);
 
@@ -230,7 +230,7 @@ public class SoilWaterBalanceServiceBean {
      * fecha desde
      */
     public Collection<SoilWaterBalance> findAllByDateGreaterThanOrEqual(int parcelId, String cropName, Calendar dateFrom) {
-        Query query = getEntityManager().createQuery("SELECT s FROM Parcel p JOIN p.soilWaterBalances s WHERE (p.id = :parcelId AND s.cropName = :cropName AND s.date >= :dateFrom) ORDER BY s.date");
+        Query query = getEntityManager().createQuery("SELECT s FROM SoilWaterBalance s WHERE (s.parcel.id = :parcelId AND s.cropName = :cropName AND s.date >= :dateFrom) ORDER BY s.date");
         query.setParameter("parcelId", parcelId);
         query.setParameter("cropName", cropName);
         query.setParameter("dateFrom", dateFrom);
@@ -248,7 +248,7 @@ public class SoilWaterBalanceServiceBean {
      * hasta
      */
     public Collection<SoilWaterBalance> findAllByDateLessThanOrEqual(int parcelId, String cropName, Calendar dateUntil) {
-        Query query = getEntityManager().createQuery("SELECT s FROM Parcel p JOIN p.soilWaterBalances s WHERE (p.id = :parcelId AND s.cropName = :cropName AND s.date <= :dateUntil) ORDER BY s.date");
+        Query query = getEntityManager().createQuery("SELECT s FROM SoilWaterBalance s WHERE (s.parcel.id = :parcelId AND s.cropName = :cropName AND s.date <= :dateUntil) ORDER BY s.date");
         query.setParameter("parcelId", parcelId);
         query.setParameter("cropName", cropName);
         query.setParameter("dateUntil", dateUntil);
@@ -268,7 +268,7 @@ public class SoilWaterBalanceServiceBean {
      * nombre de cultivo
      */
     public Collection<SoilWaterBalance> findByAllFilterParameters(int parcelId, String cropName, Calendar dateFrom, Calendar dateUntil) {
-        Query query = getEntityManager().createQuery("SELECT s FROM Parcel p JOIN p.soilWaterBalances s WHERE (p.id = :parcelId AND s.date >= :dateFrom AND s.date <= :dateUntil AND s.cropName = :cropName) ORDER BY s.date");
+        Query query = getEntityManager().createQuery("SELECT s FROM SoilWaterBalance s WHERE (s.parcel.id = :parcelId AND s.date >= :dateFrom AND s.date <= :dateUntil AND s.cropName = :cropName) ORDER BY s.date");
         query.setParameter("parcelId", parcelId);
         query.setParameter("cropName", cropName);
         query.setParameter("dateFrom", dateFrom);
@@ -344,7 +344,7 @@ public class SoilWaterBalanceServiceBean {
         Calendar calendarDate;
 
         // Genera el WHERE dinámicamente
-        StringBuffer where = new StringBuffer(" WHERE 1=1 AND e IN (SELECT t FROM Parcel p JOIN p.soilWaterBalances t WHERE p.user.id = :userId)");
+        StringBuffer where = new StringBuffer(" WHERE 1=1 AND e.parcel.user.id = :userId");
 
         if (parameters != null) {
 
@@ -359,15 +359,16 @@ public class SoilWaterBalanceServiceBean {
                     }
 
                     switch (method.getReturnType().getSimpleName()) {
-                        case "String":
+                        case "Parcel":
+                            where.append(" AND UPPER(e.");
+                            where.append(param);
+                            where.append(".name");
+                            where.append(") LIKE UPPER('%");
+                            where.append(parameters.get(param));
+                            where.append("%')");
+                            break;
 
-                            if (param.equals("parcelName")) {
-                                where.append(" AND UPPER(e.");
-                                where.append(param);
-                                where.append(") LIKE UPPER('%");
-                                where.append(parameters.get(param));
-                                where.append("%')");
-                            }
+                        case "String":
 
                             if (param.equals("cropName")) {
                                 where.append(" AND UPPER(e.");
@@ -378,6 +379,7 @@ public class SoilWaterBalanceServiceBean {
                             }
 
                             break;
+
                         case "Calendar":
 
                             if (param.equals("date")) {
