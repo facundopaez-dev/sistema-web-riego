@@ -129,6 +129,7 @@ app.controller(
       const UNDEFINED_ATMOSPHERIC_PRESSURE = "La presión atmosférica debe estar definida";
       const UNDEFINED_DEW_POINT = "El punto de rocío debe estar definido";
       const UNDEFINED_PARCEL = "La parcela debe estar definida";
+      const INVALID_MAXIMUM_TEMPERATURE = "La temperatura máxima debe ser estrictamente mayor a la temperatura mínima";
       const INVALID_WIND_SPEED = "La velocidad del viento debe ser un valor mayor o igual a 0.0";
       const INVALID_PRECIPITATION_PROBABILITY = "La probabilidad de la precipitación debe ser un valor entre 0.0 y 100, incluido";
       const INVALID_PRECIPITATION = "La precipitación debe ser un valor mayor o igual 0.0";
@@ -171,6 +172,11 @@ app.controller(
 
         if ($scope.data.maximumTemperature == undefined) {
           alert(UNDEFINED_MAXIMUM_TEMPERATURE);
+          return;
+        }
+
+        if ($scope.data.maximumTemperature <= $scope.data.minimumTemperature) {
+          alert(INVALID_MAXIMUM_TEMPERATURE);
           return;
         }
 
@@ -279,6 +285,11 @@ app.controller(
 
         if ($scope.data.maximumTemperature == undefined) {
           alert(UNDEFINED_MAXIMUM_TEMPERATURE);
+          return;
+        }
+
+        if ($scope.data.maximumTemperature <= $scope.data.minimumTemperature) {
+          alert(INVALID_MAXIMUM_TEMPERATURE);
           return;
         }
 
