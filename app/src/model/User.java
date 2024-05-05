@@ -1,6 +1,5 @@
 package model;
 
-import java.util.Calendar;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -26,9 +25,6 @@ public class User {
 
   @Column(name = "LAST_NAME", nullable = false)
   private String lastName;
-
-  @Column(name = "EMAIL", nullable = false, unique = true)
-  private String email;
 
   @Column(name = "ACTIVE", nullable = false)
   private boolean active;
@@ -75,14 +71,6 @@ public class User {
     this.lastName = lastName;
   }
 
-  public String getEmail() {
-    return email;
-  }
-
-  public void setEmail(String email) {
-    this.email = email;
-  }
-
   public boolean getActive() {
     return active;
   }
@@ -110,12 +98,11 @@ public class User {
   @Override
   public String toString() {
     return String.format(
-        "ID: %d\nUsername: %s\nName: %s\nLast name: %s\nEmail: %s\nActive: %b\nSuperuser: %b\n",
+        "ID: %d\nUsername: %s\nName: %s\nLast name: %s\nActive: %b\nSuperuser: %b\n",
         id,
         username,
         name,
         lastName,
-        email,
         active,
         superuser);
   }

@@ -12,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import stateless.AccountActivationLinkServiceBean;
+import stateless.EmailServiceBean;
 import stateless.UserServiceBean;
 import util.ReasonError;
 import util.ErrorResponse;
@@ -23,6 +24,7 @@ public class AccountActivationRestServlet {
 
   @EJB AccountActivationLinkServiceBean accountActivationLinkService;
   @EJB UserServiceBean userService;
+  @EJB EmailServiceBean emailService;
 
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
@@ -70,7 +72,7 @@ public class AccountActivationRestServlet {
      * del usuario
      */
     accountActivationLinkService.setConsumed(email);
-    userService.activateUser(email);
+    userService.activateUser(emailService.findUserByAddress(email).getId());
 
     /*
      * Si se cumplen las validaciones, se activa la cuenta del

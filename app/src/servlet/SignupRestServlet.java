@@ -10,12 +10,14 @@ import javax.ws.rs.core.Response.Status;
 import util.ErrorResponse;
 import util.ReasonError;
 import model.User;
+import model.Email;
 import model.Password;
 import model.SignupFormData;
 import stateless.UserServiceBean;
 import stateless.AccountActivationLinkServiceBean;
+import stateless.EmailServiceBean;
 import stateless.PasswordServiceBean;
-import util.Email;
+import util.EmailManager;
 
 @Path("/signup")
 public class SignupRestServlet {
@@ -23,6 +25,9 @@ public class SignupRestServlet {
   // inject a reference to the UserServiceBean slsb
   @EJB
   UserServiceBean userService;
+
+  @EJB
+  EmailServiceBean emailService;
 
   @EJB
   PasswordServiceBean passwordService;
@@ -253,7 +258,7 @@ public class SignupRestServlet {
      * (Bad request) junto con el mensaje "Correo electronico ya
      * utilizado, elija otro" y no se realiza la operacion solicitada
      */
-    if (userService.checkExistenceEmail(newUserData.getEmail())) {
+    if (emailService.checkExistenceEmail(newUserData.getEmail())) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EMAIL_ALREADY_USED))).build();
     }
 
@@ -285,6 +290,16 @@ public class SignupRestServlet {
     passwordService.create(newPassword);
 
     /*
+     * Luego de persistir un usuario se debe persistir
+     * el correo electronico del mismo
+     */
+    Email newEmail = new Email();
+    newEmail.setAddress(newUserData.getEmail());
+    newEmail.setUser(newUser);
+
+    emailService.create(newEmail);
+
+    /*
      * Se persiste en la base de datos subyacente un enlace de
      * activacion de cuenta para el usuario registrado
      */
@@ -296,7 +311,7 @@ public class SignupRestServlet {
      * de correo electronico ingresada por el usuario en el
      * formulario de registro
      */
-    Email.sendConfirmationEmail(newUser.getEmail());
+    EmailManager.sendConfirmationEmail(newUserData.getEmail());
 
     /*
      * Si se cumplen todos los controles, la aplicacion del
@@ -318,7 +333,6 @@ public class SignupRestServlet {
     newUser.setUsername(newUserData.getUsername());
     newUser.setName(newUserData.getName());
     newUser.setLastName(newUserData.getLastName());
-    newUser.setEmail(newUserData.getEmail());
   }
 
 }

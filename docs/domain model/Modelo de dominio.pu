@@ -21,6 +21,7 @@ Cultivo "*" --> "0..1" Region
 Cultivo "*" --> "0..2" Mes
 Parcela "*" --> "0..1" Suelo
 Contraseña "1" --> "1" Usuario
+CorreoElectronico "1" --> "1" Usuario
 BalanceHidricoSuelo "*" --> "1" Parcela
 Cosecha "*" --> "1" Parcela
 Cosecha "*" --> "1" Cultivo
@@ -123,10 +124,14 @@ class Usuario {
 -nombreUsuario
 -nombre
 -apellido
--email
 -activo
 -superusuario
 -modificadorPermisoSuperusuario
+}
+
+class CorreoElectronico {
+-id
+-direccion
 }
 
 class EstadoRegistroPlantacion {

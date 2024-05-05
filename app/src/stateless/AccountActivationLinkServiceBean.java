@@ -141,15 +141,15 @@ public class AccountActivationLinkServiceBean {
    * en tiempo de ejecucion en el caso en el que NO se borren los
    * enlaces de activacion de cuenta expirados de un usuario.
    * 
-   * @param userEmail
+   * @param email
    * @return referencia a un objeto de tipo AccountActivationLink si
    * se encuentra en la base de datos subyacente, el enlace de activacion
    * de cuenta mas reciente correspondiente a la direccion de correo
    * electronico de usuario dada, en caso contrario null
    */
-  public AccountActivationLink findByUserEmail(String userEmail) {
-    Query query = getEntityManager().createQuery("SELECT a FROM AccountActivationLink a WHERE a.user.email = :givenUserEmail AND a.dateIssue = (SELECT MAX(c.dateIssue) FROM AccountActivationLink c WHERE c.user.email = :givenUserEmail)");
-    query.setParameter("givenUserEmail", userEmail);
+  public AccountActivationLink findByUserEmail(String email) {
+    Query query = getEntityManager().createQuery("SELECT a FROM AccountActivationLink a WHERE a.user.id = (SELECT x.id FROM Email e JOIN e.user x WHERE e.address = :email) AND a.dateIssue = (SELECT MAX(c.dateIssue) FROM AccountActivationLink c WHERE c.user.id = (SELECT x.id FROM Email e JOIN e.user x WHERE e.address = :email))");
+    query.setParameter("email", email);
 
     AccountActivationLink givenAccountActivationLink = null;
 

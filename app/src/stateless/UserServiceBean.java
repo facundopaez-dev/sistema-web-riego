@@ -75,14 +75,13 @@ public class UserServiceBean {
    * null
    */
   public User modify(int id, User modifiedUser) {
-    User givenUser = find(id);
+    User chosenUser = find(id);
 
-    if (givenUser != null) {
-      givenUser.setUsername(modifiedUser.getUsername());
-      givenUser.setName(modifiedUser.getName());
-      givenUser.setLastName(modifiedUser.getLastName());
-      givenUser.setEmail(modifiedUser.getEmail());
-      return givenUser;
+    if (chosenUser != null) {
+      chosenUser.setUsername(modifiedUser.getUsername());
+      chosenUser.setName(modifiedUser.getName());
+      chosenUser.setLastName(modifiedUser.getLastName());
+      return chosenUser;
     }
 
     return null;
@@ -144,30 +143,6 @@ public class UserServiceBean {
   }
 
   /**
-   * Busca un usuario en la base de datos subyacente mediante una
-   * direccion de correo electronico
-   * 
-   * @param email
-   * @return referencia a un objeto de tipo User en caso de encontrarse
-   *         en la base de datos subyacente, el usuario con la direccion
-   *         de correo electronico provista, en caso contrario null
-   */
-  public User findByEmail(String email) {
-    Query query = getEntityManager().createQuery("SELECT u FROM User u WHERE UPPER(u.email) = UPPER(:email)");
-    query.setParameter("email", email);
-
-    User user = null;
-
-    try {
-      user = (User) query.getSingleResult();
-    } catch (NoResultException e) {
-      e.printStackTrace();
-    }
-
-    return user;
-  }
-
-  /**
    * Retorna una referencia a un objeto de tipo User si y solo si el
    * nombre de usuario existe dentro del conjunto de usuarios en el
    * que NO esta el usuario del ID dado. El motivo por el cual se hace
@@ -193,44 +168,6 @@ public class UserServiceBean {
     Query query = getEntityManager().createQuery("SELECT u FROM User u WHERE (u.id != :userId AND UPPER(u.username) = UPPER(:username))");
     query.setParameter("userId", userId);
     query.setParameter("username", username);
-
-    User user = null;
-
-    try {
-      user = (User) query.getSingleResult();
-    } catch (NoResultException e) {
-      e.printStackTrace();
-    }
-
-    return user;
-  }
-
-  /**
-   * Retorna una referencia a un objeto de tipo User si y solo si la
-   * direccion de correo electronico existe dentro del conjunto de
-   * usuarios en el que NO esta el usuario del ID dado. El motivo por
-   * el cual se hace esta descripcion de esta manera es que un usuario
-   * tiene una direccion de correo electronico.
-   * 
-   * Este metodo es para cuando el usuario que tiene el ID dado modifica
-   * su direccion de correo electronico. Lo que se busca con este metodo
-   * es verificar que la direccion de correo electronica modificada NO
-   * este registrada en la cuenta de otro usuario.
-   * 
-   * Si la direccion de correo electronico modificada NO esta registrada
-   * en la cuenta de otro usuario, la aplicacion realiza la modificacion
-   * de la direccion de correo electronico. En caso contrario, no la realiza.
-   * 
-   * @param userId
-   * @param username
-   * @return referencia a un objeto de tipo User si el nombre de usuario
-   *         existe dentro del conjunto de usuarios en el que NO esta el
-   *         usuario del ID dado, en caso contrario null
-   */
-  public User findByEmail(int userId, String email) {
-    Query query = getEntityManager().createQuery("SELECT u FROM User u WHERE (u.id != :userId AND UPPER(u.email) = UPPER(:email))");
-    query.setParameter("userId", userId);
-    query.setParameter("email", email);
 
     User user = null;
 
@@ -289,37 +226,6 @@ public class UserServiceBean {
   }
 
   /**
-   * Retorna true si y solo si la direccion de correo electronico
-   * existe en la base de datos subyacente
-   * 
-   * @param email
-   * @return true si la direccion de correo electronico existe en
-   * la base de datos subyacente, en caso contrario false
-   */
-  public boolean checkExistenceEmail(String email) {
-    /*
-     * Si la direccion de correo electronico tiene el valor
-     * null, se retorna false, ya que realizar la busqueda
-     * de una direccion de correo electronico con este valor
-     * es similar a buscar una direccion de correo electronico
-     * inexistente en la base de datos subyacente.
-     * 
-     * Con este control se evita realizar una consulta a la base
-     * de datos comparando la direccion de correo electronico
-     * con el valor null. Si no se realiza este control y se
-     * realiza esta consulta a la base de datos, ocurre la excepcion
-     * SQLSyntaxErrorException, debido a que la comparacion de
-     * un atributo con el valor null incumple la sintaxis del
-     * proveedor del motor de base de datos.
-     */
-    if (email == null) {
-      return false;
-    }
-
-    return (findByEmail(email) != null);
-  }
-
-  /**
    * Retorna true si y solo si el nombre de usuario existe dentro del
    * conjunto de usuarios en el que NO esta el usuario del ID dado. El
    * motivo por el cual se hace esta descripcion de esta manera es que
@@ -363,84 +269,27 @@ public class UserServiceBean {
   }
 
   /**
-   * Retorna true si y solo si la direccion de correo electronico esta
-   * dentro del conjunto de usuarios en el que NO esta el usuario del
-   * ID dado. El motivo por el cual se hace esta descripcion de esta
-   * manera es que un usuario tiene una direccion de correo electronico.
-   * 
-   * Este metodo es para cuando el usuario que tiene el ID dado modifica
-   * su direccion de correo electronico. Lo que se busca con este metodo
-   * es verificar que la direccion de correo electronica modificada NO
-   * este registrada en la cuenta de otro usuario.
-   * 
-   * Si la direccion de correo electronico modificada NO esta registrada
-   * en la cuenta de otro usuario, la aplicacion realiza la modificacion
-   * de la direccion de correo electronico. En caso contrario, no la realiza.
+   * Activa un usuario correspondienta a un ID. De esta manera,
+   * el usuario puede iniciar sesion en la aplicacion.
    * 
    * @param userId
-   * @param email
-   * @return true si la direccion de correo electronico existe dentro
-   *         del conjunto de usuarios en el que NO esta el usuario del
-   *         ID dado, en caso contrario false
    */
-  public boolean checkExistenceEmail(int userId, String email) {
-    /*
-     * Si la direccion de correo electronico tiene el valor
-     * null, se retorna false, ya que realizar la busqueda
-     * de una direccion de correo electronico con este valor
-     * es similar a buscar una direccion de correo electronico
-     * inexistente en la base de datos subyacente.
-     * 
-     * Con este control se evita realizar una consulta a la base
-     * de datos comparando la direccion de correo electronico
-     * con el valor null. Si no se realiza este control y se
-     * realiza esta consulta a la base de datos, ocurre la excepcion
-     * SQLSyntaxErrorException, debido a que la comparacion de
-     * un atributo con el valor null incumple la sintaxis del
-     * proveedor del motor de base de datos.
-     */
-    if (email == null) {
-      return false;
-    }
-
-    return (findByEmail(userId, email) != null);
+  public void activateUser(int userId) {
+    Query query = entityManager.createQuery("UPDATE User u SET u.active = TRUE WHERE u.id = :userId");
+    query.setParameter("userId", userId);
+    query.executeUpdate();
   }
 
   /**
-   * Activa al usuario que tiene el correo electronico dado.
-   * De esta manera, el usuario puede iniciar sesion en la
-   * aplicacion.
+   * Retorna true si y solo si el usuario correspondiente a un ID
+   * esta activo
    * 
-   * Establece en true (1) el atributo active del usuario
-   * correspondiente al correo electronico dado.
-   * 
-   * @param email
+   * @param userId
+   * @return true si el usuario correspondiente a un ID esta
+   * activo, en caso contrario false
    */
-  public void activateUser(String email) {
-    User givenUser = findByEmail(email);
-    givenUser.setActive(true);
-  }
-
-  /**
-   * Retorna true si y solo si el usuario correspondiente al correo
-   * electronico dado, esta activo.
-   * 
-   * Hay que tener en cuenta que este metodo debe ser invocado luego
-   * de invocar al metodo checkExistenceEmail(String email) de esta
-   * clase. Esto se debe a que se puede consultar si un usuario esta
-   * activo o no mediante un correo electronico con el valor null.
-   * En este caso, si se hace esta consulta sin invocar primero al
-   * metodo checkExistenceEmail(String email) ocurrira la excepcion
-   * SQLSyntaxErrorException, ya que la comparacion de un atributo
-   * con el valor null incumple la sintaxis del proveedor del motor
-   * de base de datos.
-   * 
-   * @param email
-   * @return true si el usuario correspondiente al correo
-   * electronico dado, esta activo, en caso contrario false
-   */
-  public boolean isActive(String email) {
-    return findByEmail(email).getActive();
+  public boolean isActive(int userId) {
+    return find(userId).getActive();
   }
 
   public Page<User> findAllActiveUsersExceptOwnUser(int userId, Integer page, Integer cantPerPage, Map<String, String> parameters) {

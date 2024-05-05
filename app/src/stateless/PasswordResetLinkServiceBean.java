@@ -95,16 +95,16 @@ public class PasswordResetLinkServiceBean {
 
   /**
    * @param passwordResetLinkId
-   * @param userEmail
+   * @param email
    * @return referencia a un objeto de tipo PasswordResetLink en
    * caso de encontrarse en la base de datos subyacente, el enlace
    * de restablecimiento de contraseña correspondiente al ID y al
    * correo electronico dados, en caso contrario null
    */
-  public PasswordResetLink find(int passwordResetLinkId, String userEmail) {
-    Query query = getEntityManager().createQuery("SELECT p FROM PasswordResetLink p WHERE (p.id = :givenId AND p.user.email = :givenUserEmail)");
-    query.setParameter("givenId", passwordResetLinkId);
-    query.setParameter("givenUserEmail", userEmail);
+  public PasswordResetLink find(int passwordResetLinkId, String email) {
+    Query query = getEntityManager().createQuery("SELECT p FROM PasswordResetLink p WHERE (p.id = :passwordResetLinkId AND p.user.id = (SELECT x.id FROM Email e JOIN e.user x WHERE e.address = :email))");
+    query.setParameter("passwordResetLinkId", passwordResetLinkId);
+    query.setParameter("email", email);
 
     PasswordResetLink givenPasswordResetLink = null;
 

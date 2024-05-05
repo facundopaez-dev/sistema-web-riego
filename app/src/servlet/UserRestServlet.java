@@ -5,6 +5,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import java.io.IOException;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Collection;
+import java.util.ArrayList;
 import javax.ejb.EJB;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -23,6 +25,7 @@ import stateless.UserServiceBean;
 import stateless.PasswordResetLinkServiceBean;
 import stateless.PasswordServiceBean;
 import stateless.SessionServiceBean;
+import stateless.EmailServiceBean;
 import stateless.Page;
 import util.ErrorResponse;
 import util.ReasonError;
@@ -32,17 +35,20 @@ import util.RequestManager;
 import utilJwt.AuthHeaderManager;
 import utilJwt.JwtManager;
 import model.User;
+import model.Email;
+import model.UserData;
 import model.DataEmailFormPasswordReset;
 import model.PasswordChangeFormData;
 import model.PasswordResetFormData;
 import model.PasswordResetLink;
-import util.Email;
+import util.EmailManager;
 
 @Path("/users")
 public class UserRestServlet {
 
   // inject a reference to the UserServiceBean slsb
   @EJB UserServiceBean userService;
+  @EJB EmailServiceBean emailService;
   @EJB PasswordServiceBean passwordService;
   @EJB SecretKeyServiceBean secretKeyService;
   @EJB PasswordResetLinkServiceBean passwordResetLinkService;
@@ -531,13 +537,15 @@ public class UserRestServlet {
           .build();
     }
 
+    UserData userData = setUserData(userService.find(userId), emailService.findEmailByUserId(userId));
+
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
      * por el cliente
      */
-    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(userService.find(userId))).build();
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(userData)).build();
 	}
 
   /*
@@ -630,13 +638,25 @@ public class UserRestServlet {
           .build();
     }
 
+    User user = userService.find(userId);
+
+    UserData userData = setUserData(user, emailService.findEmailByUserId(userId));
+
+    /*
+     * Se utiliza una coleccion para que el usuario visualice
+     * los datos de su cuenta en forma renglon en la pagina
+     * web de inicio (home)
+     */
+    Collection<UserData> data = new ArrayList<>();
+    data.add(userData);
+
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
      * dada, tiene un JWT valido, la aplicacion del lado servidor
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
      * por el cliente
      */
-    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(userService.findMyUser(userId))).build();
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(data)).build();
 	}
 
   @PUT
@@ -737,7 +757,7 @@ public class UserRestServlet {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EMPTY_DATA))).build();
     }
 
-    User myModifiedUser = mapper.readValue(json, User.class);
+    UserData modifiedUserData = mapper.readValue(json, UserData.class);
 
     /*
      * ******************************************
@@ -751,7 +771,7 @@ public class UserRestServlet {
      * junto con el mensaje "El nombre de usuario debe estar
      * definido" y no se realiza la operacion solicitada
      */
-    if (myModifiedUser.getUsername() == null) {
+    if (modifiedUserData.getUsername() == null) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_USERNAME))).build();
     }
 
@@ -761,7 +781,7 @@ public class UserRestServlet {
      * con el mensaje "El nombre debe estar definido" y no se
      * realiza la operacion solicitada
      */
-    if (myModifiedUser.getName() == null) {
+    if (modifiedUserData.getName() == null) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_NAME))).build();
     }
 
@@ -771,7 +791,7 @@ public class UserRestServlet {
      * junto con el mensaje "El apellido debe estar definido"
      * y no se realiza la operacion solicitada
      */
-    if (myModifiedUser.getLastName() == null) {
+    if (modifiedUserData.getLastName() == null) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_LAST_NAME))).build();
     }
 
@@ -782,7 +802,7 @@ public class UserRestServlet {
      * correo electrónico debe estar definida" y no se realiza
      * la operacion solicitada
      */
-    if (myModifiedUser.getEmail() == null) {
+    if (modifiedUserData.getEmail() == null) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_EMAIL))).build();
     }
 
@@ -802,7 +822,7 @@ public class UserRestServlet {
      * (sin simbolos de acentuacion) seguido o no de numeros y/o guiones
      * bajos" y no se realiza la operacion solicitada
      */
-    if (!myModifiedUser.getUsername().matches("^[A-Za-z][A-Za-z0-9_]{3,14}$")) {
+    if (!modifiedUserData.getUsername().matches("^[A-Za-z][A-Za-z0-9_]{3,14}$")) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MALFORMED_USERNAME))).build();
     }
 
@@ -835,7 +855,7 @@ public class UserRestServlet {
      * blanco, y que empiece con una letra mayuscula seguido de
      * letras minusculas.
      */
-    if (!myModifiedUser.getName().matches("^[A-Z](?=.{2,29}$)[a-z]+(?:\\h[A-Z][a-z]+)*$")) {
+    if (!modifiedUserData.getName().matches("^[A-Z](?=.{2,29}$)[a-z]+(?:\\h[A-Z][a-z]+)*$")) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MALFORMED_NAME))).build();
     }
 
@@ -855,7 +875,7 @@ public class UserRestServlet {
      * mayuscula seguido de letras minusculas" y no se realiza la operacion
      * solicitada.
      */
-    if (!myModifiedUser.getLastName().matches("^[A-Z](?=.{2,29}$)[a-z]+(?:\\h[A-Z][a-z]+)*$")) {
+    if (!modifiedUserData.getLastName().matches("^[A-Z](?=.{2,29}$)[a-z]+(?:\\h[A-Z][a-z]+)*$")) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MALFORMED_LAST_NAME))).build();
     }
 
@@ -865,7 +885,7 @@ public class UserRestServlet {
      * con el mensaje "La direccion de correo electronico no es valida" y
      * no se realiza la operacion solicitada
      */
-    if (!myModifiedUser.getEmail().matches("^(?=.{1,64}@)[\\p{L}0-9_-]+(\\.[\\p{L}0-9_-]+)*@[^-][\\p{L}0-9-]+(\\.[\\p{L}0-9-]+)*(\\.[\\p{L}]{2,})$")) {
+    if (!modifiedUserData.getEmail().matches("^(?=.{1,64}@)[\\p{L}0-9_-]+(\\.[\\p{L}0-9_-]+)*@[^-][\\p{L}0-9-]+(\\.[\\p{L}0-9-]+)*(\\.[\\p{L}]{2,})$")) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MALFORMED_EMAIL))).build();
     }
 
@@ -882,7 +902,7 @@ public class UserRestServlet {
      * "Nombre de usuario ya utilizado, elija otro" y no se realiza la
      * operacion solicitada
      */
-    if (userService.checkExistenceUsername(userId, myModifiedUser.getUsername())) {
+    if (userService.checkExistenceUsername(userId, modifiedUserData.getUsername())) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.USERNAME_ALREADY_USED))).build();
     }
 
@@ -893,9 +913,21 @@ public class UserRestServlet {
      * mensaje "Correo electronico ya utilizado, elija otro" y no se
      * realiza la operacion solicitada
      */
-    if (userService.checkExistenceEmail(userId, myModifiedUser.getEmail())) {
+    if (emailService.checkExistenceEmail(userId, modifiedUserData.getEmail())) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EMAIL_ALREADY_USED))).build();
     }
+
+    User myModifiedUser = new User();
+    myModifiedUser.setUsername(modifiedUserData.getUsername());
+    myModifiedUser.setName(modifiedUserData.getName());
+    myModifiedUser.setLastName(modifiedUserData.getLastName());
+
+    myModifiedUser = userService.modify(userId, myModifiedUser);
+
+    Email myModifiedEmail = new Email();
+    myModifiedEmail.setAddress(modifiedUserData.getEmail());
+
+    myModifiedEmail = emailService.modify(emailService.findIdEmailByUserId(userId), myModifiedEmail);
 
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
@@ -905,7 +937,7 @@ public class UserRestServlet {
      * HTTP 200 (Ok) junto con los datos que el cliente solicito
      * modificar
      */
-    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(userService.modify(userId, myModifiedUser))).build();
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(setUserData(myModifiedUser, myModifiedEmail))).build();
   }
 
   @PUT
@@ -1167,7 +1199,7 @@ public class UserRestServlet {
      * (Bad request) junto con el mensaje "No existe una cuenta con la dirección
      * de correo electrónico ingresada" y no se realiza la operacion solicitada
      */
-    if (!userService.checkExistenceEmail(dataEmailFormPasswordReset.getEmail())) {
+    if (!emailService.checkExistenceEmail(dataEmailFormPasswordReset.getEmail())) {
       return Response.status(Response.Status.BAD_REQUEST)
           .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.THERE_IS_NO_ACCOUNT_WITH_EMAIL_ADDRESS_ENTERED)))
           .build();
@@ -1188,7 +1220,7 @@ public class UserRestServlet {
      * mediante el correo electronico de confirmacion de registro" y no se realiza
      * la operacion solicitada
      */
-    if (!userService.isActive(dataEmailFormPasswordReset.getEmail())) {
+    if (!userService.isActive(emailService.findUserByAddress(dataEmailFormPasswordReset.getEmail()).getId())) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INACTIVE_USER_TO_RECOVER_PASSWORD))).build();
     }
 
@@ -1202,9 +1234,9 @@ public class UserRestServlet {
      * enlace de restablecimiento de contraseña, el cual, tiene el JWT
      * creado.
      */
-    PasswordResetLink givenPasswordResetLink = passwordResetLinkService.create(userService.findByEmail(dataEmailFormPasswordReset.getEmail()));
+    PasswordResetLink givenPasswordResetLink = passwordResetLinkService.create(emailService.findUserByAddress(dataEmailFormPasswordReset.getEmail()));
     String jwtResetPassword = JwtManager.createJwt(givenPasswordResetLink.getId(), dataEmailFormPasswordReset.getEmail(), secretKeyService.find().getValue());
-    Email.sendPasswordResetEmail(dataEmailFormPasswordReset.getEmail(), jwtResetPassword);
+    EmailManager.sendPasswordResetEmail(dataEmailFormPasswordReset.getEmail(), jwtResetPassword);
 
     /*
      * Si se cumplen todos los controles, la aplicacion del lado
@@ -1386,7 +1418,7 @@ public class UserRestServlet {
      * el usuario que solicito dicho restablecimiento, accede a dicho
      * enlace y restablece su contraseña.
      */
-    passwordService.modify(userService.findByEmail(userEmail).getId(), passwordResetFormData.getNewPassword());
+    passwordService.modify(emailService.findUserByAddress(userEmail).getId(), passwordResetFormData.getNewPassword());
     passwordResetLinkService.setConsumed(passwordResetLinkId);
     return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(new SuccessfullyResponse(ReasonSuccess.PASSWORD_RESET_SUCCESSFULLY))).build();
   }
@@ -1488,6 +1520,25 @@ public class UserRestServlet {
      * mensaje HTTP 200 (Ok)
      */
     return Response.status(Response.Status.OK).build();
+  }
+
+  /**
+   * @param user
+   * @param email
+   * @return referencia a un objeto de tipo UserData que
+   * contiene el nombre de usuario, el nombre, el apellido
+   * y el correo electronico de un usuario
+   */
+  private UserData setUserData(User user, Email email) {
+    UserData newUserData = new UserData();
+    newUserData.setId(user.getId());
+    newUserData.setUsername(user.getUsername());
+    newUserData.setName(user.getName());
+    newUserData.setLastName(user.getLastName());
+    newUserData.setEmail(email.getAddress());
+    newUserData.setSuperuser(user.getSuperuser());
+
+    return newUserData;
   }
 
 }

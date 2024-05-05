@@ -13,12 +13,12 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 /**
- * Email es la clase que se utiliza para el envio de correos
+ * EmailManager es la clase que se utiliza para el envio de correos
  * electronicos, como correos de confirmacion de registro para
  * la activacion de la cuenta de un usuario y correos para la
  * recuperacion de la contraseña, por ejemplo.
  */
-public class Email {
+public class EmailManager {
 
   /*
    * Estas constantes se utilizan para establecer la configuracion
@@ -80,7 +80,7 @@ public class Email {
    * son estaticos, con lo cual, no se requiere una instancia de
    * esta clase para invocar a sus metodos publicos
    */
-  private Email() {
+  private EmailManager() {
 
   }
 
