@@ -2331,67 +2331,84 @@ public class PlantingRecordRestServlet {
     String stringIrrigationWaterNeedCurrentDate = null;
 
     /*
-     * Si la ubicacion geografica de la parcela correspondiente al registro
-     * de plantacion que tiene el cultivo para el que se calcula la necesidad
-     * de agua de riego en la fecha actual (es decir, hoy), fue modificada y
-     * no hay conexion a Internet o el servicio meteorologico Visual Crossing
-     * Weather no esta en funcionamiento, la aplicacion del lado servidor asigna
-     * el valor "n/a" (no disponible) al atributo "necesidad de agua de riego
-     * de un cultivo" del registro de plantacion que tiene el cultivo para
-     * el que se realiza dicho calculo y devuelve el mensaje HTTP 400 (Bad
-     * request) junto con un mensaje que indica lo sucedido y no se realiza
-     * la operacion solicitada.
-     * 
-     * Este control se a debe a que cuando se modifica la ubicacion geografica
-     * de una parcela, la aplicacion del lado servidor solicita los datos
-     * climaticos de la nueva ubicacion geografica para actualizar los registros
-     * climaticos de una parcela existentes en la base de datos subyacente.
-     * Por lo tanto, si no hay conexion a Internet o el servicio meteorologico
-     * utilizado no esta en funcionamiento, no es posible realizar dicha
-     * solicitud. En consecuencia, en esta situacion no es posible calcular
-     * la necesidad de agua de riego de un cultivo en la fecha actual.
+     * Si el servicio meteorologico utilizado no es alcanzable, se realizan
+     * los siguientes controles:
+     * - se comprueba si la ubicacion geografica de una parcela fue modificada.
+     * - se comprueba si hay un registro climatico para cada dia del periodo
+     * de dias formado por la fecha inmediatamente siguiente a la fecha de
+     * siembra de un cultivo y la fecha inmediatamente anterior a la fecha
+     * actual (es decir, hoy).
      */
-    if (developingPlantingRecord.getParcel().getModifiedGeographicLocationFlag() && !UtilConnection.checkInternetConnection()) {
-      plantingRecordService.updateCropIrrigationWaterNeed(plantingRecordId, notAvailable);
-      return Response.status(Response.Status.BAD_REQUEST)
-          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.POSSIBLE_INTERNET_CONNECTION_PROBLEM_IN_MODIFIED_GEOGRAPHIC_LOCATION_OF_PARCEL, SourceUnsatisfiedResponse.WATER_NEED_CROP)))
-          .build();
-    }
+    if (!UtilConnection.weatherServiceIsReachable()) {
 
-    /*
-     * Si en el calculo de la necesidad de agua de riego de un cultivo en
-     * la fecha actual (es decir, hoy) falta el registro climatico de un
-     * dia o de mas de un dia del periodo de dias definido por la fecha
-     * inmediatamente siguiente a la fecha de siembra de un cultivo y la
-     * fecha inmediatametne anterior a la fecha actual, y no hay conexion
-     * a Internet o el servicio meteorologico Visual Crossing Weather no
-     * esta en funcionamiento, la aplicacion del lado servidor asigna el
-     * valor "n/a" (no disponible) al atributo "necesidad de agua de riego
-     * de un cultivo" del registro de plantacion que tiene el cultivo para
-     * el que se realiza dicho calculo y devuelve el mensaje HTTP 400 (Bad
-     * request) junto con un mensaje que indica lo sucedido y no se realiza
-     * la operacion solicitada.
-     * 
-     * Este control se debe a que para calcular la necesidad de agua de
-     * riego de un cultivo en la fecha actual se requiere el registro
-     * climatico de cada uno de los dias del periodo de dias definido por
-     * la fecha inmediatamente siguiente a la fecha de siembra de un cultivo
-     * y la fecha inmediatamente anterior a la fecha actual. Por lo tanto,
-     * si falta un registro climatico de un dia o de mas de un dia de dicho
-     * periodo, la aplicacion del lado servidor los solicita al servicio
-     * meteorologico utilizado. Pero si no hay conexion a Internet o el
-     * servicio meteorologico utilizado no esta en funcionamiento, no es
-     * posible realizar dicha solicitud. En consecuencia, en esta situacion
-     * no es posible calcular la necesidad de agua de riego de un cultivo
-     * en la fecha actual.
-     */
-    if (!climateRecordService.checkClimateRecordsToCalculateIrrigationWaterNeed(userId, parcelId,
-        developingPlantingRecord.getSeedDate()) && !UtilConnection.checkInternetConnection()) {
-      plantingRecordService.updateCropIrrigationWaterNeed(plantingRecordId, notAvailable);
-      return Response.status(Response.Status.BAD_REQUEST)
-          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.POSSIBLE_INTERNET_CONNECTION_PROBLEM_IN_LACK_OF_CLIMATE_RECORDS, SourceUnsatisfiedResponse.WATER_NEED_CROP)))
-          .build();
-    }
+      /*
+       * Si la ubicacion geografica de la parcela correspondiente al registro
+       * de plantacion que tiene el cultivo para el que se calcula la necesidad
+       * de agua de riego en la fecha actual (es decir, hoy), fue modificada y
+       * el servicio meteorologico Visual Crossing Weather no es alcanzable
+       * porque no esta en funcionamiento o porque la computadora en la que se
+       * ejecuta esta aplicacion no tiene conexion a Internet, la aplicacion
+       * del lado servidor asigna el valor "n/a" (no disponible) al atributo
+       * "necesidad de agua de riego de un cultivo" del registro de plantacion
+       * que tiene el cultivo para el que se realiza dicho calculo y devuelve
+       * el mensaje HTTP 400 (Bad request) junto con un mensaje que indica lo
+       * sucedido y no se realiza la operacion solicitada.
+       * 
+       * Este control se a debe a que cuando se modifica la ubicacion geografica
+       * de una parcela, la aplicacion del lado servidor solicita los datos
+       * climaticos de la nueva ubicacion geografica para actualizar los registros
+       * climaticos de una parcela existentes en la base de datos subyacente.
+       * Por lo tanto, si no hay conexion a Internet o el servicio meteorologico
+       * utilizado no esta en funcionamiento, no es posible realizar dicha
+       * solicitud. En consecuencia, en esta situacion no es posible calcular
+       * la necesidad de agua de riego de un cultivo en la fecha actual.
+       */
+      if (developingPlantingRecord.getParcel().getModifiedGeographicLocationFlag()) {
+        plantingRecordService.updateCropIrrigationWaterNeed(plantingRecordId, notAvailable);
+        return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(
+            ReasonError.POSSIBLE_INTERNET_CONNECTION_PROBLEM_IN_MODIFIED_GEOGRAPHIC_LOCATION_OF_PARCEL,
+            SourceUnsatisfiedResponse.WATER_NEED_CROP)))
+            .build();
+      }
+
+      /*
+       * Si en el calculo de la necesidad de agua de riego de un cultivo en
+       * la fecha actual (es decir, hoy) falta el registro climatico de un
+       * dia o de mas de un dia del periodo de dias definido por la fecha
+       * inmediatamente siguiente a la fecha de siembra de un cultivo y la
+       * fecha inmediatametne anterior a la fecha actual, y el servicio
+       * meteorologico Visual Crossing Weather no es alcanzable porque no
+       * esta en funcionamiento o porque la computadora en la que se ejecuta
+       * esta aplicacion no tiene conexion a Internet, la aplicacion del
+       * lado servidor asigna el valor "n/a" (no disponible) al atributo
+       * "necesidad de agua de riego de un cultivo" del registro de plantacion
+       * que tiene el cultivo para el que se realiza dicho calculo y devuelve
+       * el mensaje HTTP 400 (Bad request) junto con un mensaje que indica
+       * lo sucedido y no se realiza la operacion solicitada.
+       * 
+       * Este control se debe a que para calcular la necesidad de agua de
+       * riego de un cultivo en la fecha actual se requiere el registro
+       * climatico de cada uno de los dias del periodo de dias definido por
+       * la fecha inmediatamente siguiente a la fecha de siembra de un cultivo
+       * y la fecha inmediatamente anterior a la fecha actual. Por lo tanto,
+       * si falta un registro climatico de un dia o de mas de un dia de dicho
+       * periodo, la aplicacion del lado servidor los solicita al servicio
+       * meteorologico utilizado. Pero si no hay conexion a Internet o el
+       * servicio meteorologico utilizado no esta en funcionamiento, no es
+       * posible realizar dicha solicitud. En consecuencia, en esta situacion
+       * no es posible calcular la necesidad de agua de riego de un cultivo
+       * en la fecha actual.
+       */
+      if (!climateRecordService.checkClimateRecordsToCalculateIrrigationWaterNeed(userId, parcelId, developingPlantingRecord.getSeedDate())) {
+        plantingRecordService.updateCropIrrigationWaterNeed(plantingRecordId, notAvailable);
+        return Response.status(Response.Status.BAD_REQUEST)
+            .entity(mapper.writeValueAsString(
+                new ErrorResponse(ReasonError.POSSIBLE_INTERNET_CONNECTION_PROBLEM_IN_LACK_OF_CLIMATE_RECORDS,
+                    SourceUnsatisfiedResponse.WATER_NEED_CROP)))
+            .build();
+      }
+
+    } // End if
 
     try {
       /*

@@ -1,20 +1,19 @@
 package util;
 
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.InetAddress;
 
 public class UtilConnection {
 
     /**
-     * @return true si hay conexion a Internet, false en
-     * caso contrario
+     * @return true si el servicio meteorologico utilizado
+     * por la aplicacion es alcanzable, en caso contrario
+     * false
      */
-    public static boolean checkInternetConnection() {
+    public static boolean weatherServiceIsReachable() {
 
         try {
-            URL url = new URL("https://weather.visualcrossing.com");
-            URLConnection connection = url.openConnection();
-            connection.connect();
+            InetAddress address = InetAddress.getByName("www.visualcrossing.com");
+            address.isReachable(2000);
             return true;
         } catch (Exception e) {
             return false;
