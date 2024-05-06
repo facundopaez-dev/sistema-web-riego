@@ -2200,14 +2200,16 @@ public class PlantingRecordRestServlet {
     }
 
     /*
-     * Si el flujo de ejecucion de este metodo llega a estas lineas
-     * de codigo es debido a que el registro de plantacion sobre el
-     * que se quiere calcular la necesidad de agua de riego es un
-     * registro de plantacion que tiene el estado "En desarrollo".
-     * Un registro de plantacion en desarrollo representa la existencia
-     * de un cultivo sembrado en una parcela y en desarrollo en la
-     * fecha actual. Por lo tanto, este metodo calcula la necesidad
-     * de agua de riego de un cultivo en desarrollo en la fecha actual.
+     * Si el flujo de ejecucion de este metodo llega a estas lineas de
+     * codigo fuente es debido a que el registro de plantacion, para el
+     * que se quiere calcular la necesidad de agua de riego de su cultivo
+     * en la fecha actual (es decir, hoy), tiene un estado de desarrollo
+     * (en desarrollo, desarrollo optimo, desarrollo en riesgo de marchitez,
+     * desarrollo en marchitez), ya que este metodo es para calcular en
+     * la fecha actual la necesidad de agua de riego de un cultivo en
+     * desarrollo. Un registro de plantacion que tiene un estado de desarrollo
+     * representa la existencia de la siembra de un cultivo sembrado en
+     * una parcela, el cual esta en proceso de maduracion o de desarrollo.
      */
     PlantingRecord developingPlantingRecord = plantingRecordService.find(plantingRecordId);
 
