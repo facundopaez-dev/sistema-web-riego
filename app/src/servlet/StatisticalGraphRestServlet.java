@@ -1340,21 +1340,130 @@ public class StatisticalGraphRestServlet {
           .entity(mapper.writeValueAsString(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS)))).build();
     }
 
-    StatisticalGraph modifiedStatisticalGraph = new StatisticalGraph();
     StatisticalGraph currentStatisticalGraph = statisticalGraphService.findByUserId(userId, statisticalGraphId);
 
     int statisticalDataNumber = currentStatisticalGraph.getStatisticalData().getNumber();
     int parcelId = currentStatisticalGraph.getParcel().getId();
 
-    Parcel parcel = currentStatisticalGraph.getParcel();
     Calendar dateFrom = currentStatisticalGraph.getDateFrom();
     Calendar dateUntil = currentStatisticalGraph.getDateUntil();
 
     /*
-     * ***********************************
-     * Generacion de informes estadisticos
-     * ***********************************
+     * ********************************************************
+     * Controles sobre la existencia de los datos necesarios
+     * para la regeneracion de un informe estadistico
+     * ********************************************************
      */
+    String message;
+
+    /*
+     * Si la parcela del informe estadistico a regenerar NO tiene
+     * registros climaticos en el periodo de dicho informe
+     * estadistico, la aplicacion del lado servidor retorna el
+     * mensaje HTTP 400 (Bad request) junto con un mensaje que
+     * indica lo sucedido y no se realiza la operacion solicitada.
+     * Para regenerar un informe estadistico sobre la cantidad
+     * total de agua de lluvia por año de una parcela se requiere
+     * que la misma tenga registros climaticos en el periodo de
+     * fechas del informe estadistico a regenerar.
+     */
+    if (statisticalDataNumber == TOTAL_AMOUNT_RAINWATER_PER_YEAR
+        && !climateRecordService.hasClimateRecords(userId, parcelId, dateFrom, dateUntil)) {
+      message = "La parcela del informe estadístico a regenerar no tiene registros climáticos en el período de dicho informe estadístico. Por lo tanto, no se "
+          + "regenerará el informe estadístico seleccionado.";
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(
+              new ErrorResponse(message,
+                  SourceUnsatisfiedResponse.NON_EXISTENT_DATA_FOR_THE_REGENERATION_OF_STATISTICAL_REPORTS)))
+          .build();
+    }
+
+    /*
+     * Si la parcela del informe estadistico a regenerar NO tiene
+     * registros de plantacion en el periodo de dicho informe
+     * estadistico, la aplicacion del lado servidor retorna el
+     * mensaje HTTP 400 (Bad request) junto con un mensaje que
+     * indica lo sucedido y no se realiza la operacion solicitada.
+     * Para regenerar un informe estadistico sobre los ciclos
+     * (plantaciones) de una parcela se requiere que la misma
+     * tenga registros de plantacion en el periodo de fechas del
+     * informe estadistico a regenerar.
+     */
+    if ((statisticalDataNumber == TOTAL_AMOUNT_OF_CYCLES_PER_CROP
+        || statisticalDataNumber == TOTAL_AMOUNT_OF_CYCLES_PER_CROP_AND_YEAR
+        || statisticalDataNumber == TOTAL_AMOUNT_OF_CYCLES_PER_TYPE_CROP
+        || statisticalDataNumber == TOTAL_AMOUNT_OF_CYCLES_PER_TYPE_CROP_AND_YEAR
+        || statisticalDataNumber == TOTAL_AMOUNT_OF_CYCLES_PER_YEAR)
+        && !plantingRecordService.hasFinishedPlantingRecords(userId, parcelId, dateFrom, dateUntil)) {
+      message = "La parcela del informe estadístico a regenerar no tiene registros de plantación finalizados en el período de dicho informe estadístico. Por lo tanto, "
+          + "no se regenerará el informe estadístico seleccionado.";
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(
+              new ErrorResponse(message,
+                  SourceUnsatisfiedResponse.NON_EXISTENT_DATA_FOR_THE_REGENERATION_OF_STATISTICAL_REPORTS)))
+          .build();
+    }
+
+    /*
+     * Si la parcela del informe estadistico a regenerar NO tiene
+     * registros de riego en el periodo de dicho informe
+     * estadistico, la aplicacion del lado servidor retorna el
+     * mensaje HTTP 400 (Bad request) junto con un mensaje que
+     * indica lo sucedido y no se realiza la operacion solicitada.
+     * Para regenerar un informe estadistico sobre el agua de
+     * riego de cultivo de una parcela se requiere que la misma
+     * tenga registros de riego en el periodo de fechas del
+     * informe estadistico a regenerar.
+     */
+    if ((statisticalDataNumber == TOTAL_AMOUNT_IRRIGATION_WATER_PER_CROP
+        || statisticalDataNumber == TOTAL_AMOUNT_IRRIGATION_WATER_PER_CROP_AND_YEAR
+        || statisticalDataNumber == TOTAL_AMOUNT_IRRIGATION_WATER_PER_TYPE_CROP
+        || statisticalDataNumber == TOTAL_AMOUNT_IRRIGATION_WATER_PER_TYPE_CROP_AND_YEAR
+        || statisticalDataNumber == TOTAL_AMOUNT_OF_CROP_IRRIGATION_WATER_PER_YEAR)
+        && !irrigationRecordService.hasIrrigationRecordsWithCrops(userId, parcelId, dateFrom, dateUntil)) {
+      message = "La parcela del informe estadístico a regenerar no tiene registros de riego con cultivo en el período de dicho informe estadístico. Por lo tanto, "
+          + "no se regenerará el informe estadístico seleccionado.";
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(
+              new ErrorResponse(message,
+                  SourceUnsatisfiedResponse.NON_EXISTENT_DATA_FOR_THE_REGENERATION_OF_STATISTICAL_REPORTS)))
+          .build();
+    }
+
+    /*
+     * Si la parcela del informe estadistico a regenerar NO tiene
+     * registros de cosecha en el periodo de dicho informe
+     * estadistico, la aplicacion del lado servidor retorna el
+     * mensaje HTTP 400 (Bad request) junto con un mensaje que
+     * indica lo sucedido y no se realiza la operacion solicitada.
+     * Para regenerar un informe estadistico sobre la cosecha de
+     * una parcela se requiere que la misma tenga registros de
+     * cosecha en el periodo de fechas del informe estadistico
+     * a regenerar.
+     */
+    if ((statisticalDataNumber == TOTAL_HARVEST_PER_CROP
+        || statisticalDataNumber == TOTAL_HARVEST_PER_CROP_AND_YEAR
+        || statisticalDataNumber == TOTAL_HARVEST_PER_TYPE_CROP
+        || statisticalDataNumber == TOTAL_HARVEST_PER_TYPE_CROP_AND_YEAR
+        || statisticalDataNumber == TOTAL_AMOUNT_OF_HARVEST_PER_YEAR)
+        && !harvestService.hasHarvestRecords(userId, parcelId, dateFrom, dateUntil)) {
+      message = "La parcela del informe estadístico a regenerar no tiene registros de cosecha en el período de dicho informe estadístico. Por lo tanto, no se "
+          + "regenerará el informe estadístico seleccionado.";
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(
+              new ErrorResponse(message,
+                  SourceUnsatisfiedResponse.NON_EXISTENT_DATA_FOR_THE_REGENERATION_OF_STATISTICAL_REPORTS)))
+          .build();
+    }
+
+    /*
+     * **************************************
+     * Regeneracion de un informe estadistico
+     * **************************************
+     */
+
+    StatisticalGraph modifiedStatisticalGraph = new StatisticalGraph();
+    Parcel parcel = currentStatisticalGraph.getParcel();
 
     /*
      * Si el numero del dato estadistico a calcular es el
