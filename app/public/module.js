@@ -519,6 +519,7 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 	const WATER_NEED_CROP = "ORIGIN_NEED_WATER_CROP";
 	const DEAD_CROP_WATER_NEED = "ORIGIN_DEAD_CROP_WATER_NEED";
 	const NON_EXISTENT_DATA_FOR_STATISTICAL_REPORT = "ORIGIN_NON_EXISTENT_DATA_FOR_STATISTICAL_REPORT";
+	const NON_EXISTENT_DATA_FOR_THE_GENERATION_OF_STATISTICAL_REPORTS = "ORIGIN_NON_EXISTENT_DATA_FOR_THE_GENERATION_OF_STATISTICAL_REPORTS";
 
 	return {
 		/**
@@ -610,6 +611,21 @@ app.factory('ErrorResponseManager', ['$location', 'AccessManager', 'JwtManager',
 			/**/
 			if (accessManager.isUserLoggedIn() && !accessManager.loggedAsAdmin() && error.status == BAD_REQUEST
 				&& error.data.sourceUnsatisfiedResponse == NON_EXISTENT_DATA_FOR_STATISTICAL_REPORT) {
+				$location.path(STATISTICAL_REPORT_ROUTE);
+				return;
+			}
+
+			/* Si la aplicacion del lado servidor retorna el mensaje HTTP 400
+			(Bad request) junto con la fuente de solicitud insatisfecha
+			NON_EXISTENT_DATA_FOR_THE_GENERATION_OF_STATISTICAL_REPORTS, significa
+			que el usuario intento generar informes estadisticos para una parcela
+			que no tiene registros de plantacion finalizados ni registros de
+			riego ni registros de cosecha ni registros climaticos en el periodo
+			elegido para la generacion de informes estadisticos. Por lo tanto, la
+			aplicacion del lado del navegador web redirige al usuario a la pagina
+			web de lista de informes estadisticos. */
+			if (accessManager.isUserLoggedIn() && !accessManager.loggedAsAdmin() && error.status == BAD_REQUEST
+				&& error.data.sourceUnsatisfiedResponse == NON_EXISTENT_DATA_FOR_THE_GENERATION_OF_STATISTICAL_REPORTS) {
 				$location.path(STATISTICAL_REPORT_ROUTE);
 				return;
 			}

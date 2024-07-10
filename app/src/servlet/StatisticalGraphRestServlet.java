@@ -576,9 +576,37 @@ public class StatisticalGraphRestServlet {
      * **********************************************************
      */
 
+    String message = "La parcela seleccionada no tiene los datos necesarios (registros de plantación finalizados, registros de riego, registros de cosecha, "
+        + "registros climáticos) en el período elegido para la generación de informes estadísticos";
+
+    /*
+     * Si hay uno o mas datos estadisticos definidos y la parcela
+     * seleccionada para la generacion de informes estadisticos
+     * no tiene en el periodo de fechas elegido:
+     * - registros de plantacion finalizados,
+     * - registros de riego,
+     * - registros de cosecha y
+     * - registros climaticos,
+     * 
+     * la aplicacion del lado servidor retorna el mensaje HTTP
+     * 400 (Bad request) junto con un mensaje que indica lo
+     * sucedido y no se realiza la operacion solicitada.
+     */
+    if (statisticalDataNumbers.length > 0
+        && !plantingRecordService.hasFinishedPlantingRecords(userId, parcelId, dateFrom, dateUntil)
+        && !irrigationRecordService.hasIrrigationRecordsWithCrops(userId, parcelId, dateFrom, dateUntil)
+        && !harvestService.hasHarvestRecords(userId, parcelId, dateFrom, dateUntil)
+        && !climateRecordService.hasClimateRecords(userId, parcelId, dateFrom, dateUntil)) {
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(
+              new ErrorResponse(message,
+                  SourceUnsatisfiedResponse.NON_EXISTENT_DATA_FOR_THE_GENERATION_OF_STATISTICAL_REPORTS)))
+          .build();
+    }
+
     boolean nonExistentData = false;
-    String warningMessage = "Advertencia: Faltan datos para generar todos o algunos de los informes estadísticos correspondientes a los datos estadísticos elegidos. "
-        + "Para generar un informe estadístico para la parcela elegida se requiere que la misma tenga en el período elegido:\n"
+    String warningMessage = "Advertencia: Faltan datos para generar algunos de los informes estadísticos correspondientes a los datos estadísticos elegidos. "
+        + "Para generar un informe estadístico se requiere que una parcela tenga en el período elegido:\n"
         + "- registros climáticos para datos estadísticos relacionados al agua de lluvia.\n"
         + "- registros de plantación para datos estadísticos relacionados a los ciclos (plantaciones) de cultivos o de tipos de cultivo.\n"
         + "- registros de riego de cultivos para datos estadísticos relacionados al agua de riego de cultivos o de tipos de cultivo.\n"
