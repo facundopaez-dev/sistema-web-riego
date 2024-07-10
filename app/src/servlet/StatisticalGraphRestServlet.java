@@ -576,7 +576,7 @@ public class StatisticalGraphRestServlet {
      * **********************************************************
      */
 
-    String message = "La parcela seleccionada no tiene los datos necesarios (registros de plantación finalizados, registros de riego, registros de cosecha, "
+    String message = "La parcela seleccionada no tiene niguno de los datos necesarios (registros de plantación finalizados, registros de riego, registros de cosecha, "
         + "registros climáticos) en el período elegido para la generación de informes estadísticos";
 
     /*
