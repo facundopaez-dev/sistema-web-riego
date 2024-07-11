@@ -17,6 +17,7 @@ import stateless.LatitudeServiceBean;
 import model.ClimateRecord;
 import model.PlantingRecord;
 import model.Parcel;
+import util.UtilConnection;
 import util.UtilDate;
 import irrigation.WaterMath;
 import et.HargreavesEto;
@@ -110,6 +111,20 @@ public class ClimateRecordManager {
        * dada, se solicita y persiste uno para dicha parcela
        */
       if (!climateRecordService.checkExistence(currentDate, givenParcel)) {
+
+        /*
+         * Si el servicio meteorologico utilizado por la aplicacion
+         * es inalcanzable, no es posible obtener los datos
+         * meteorologicos de la fecha actual y una ubicacion
+         * geografica, la cual es un atributo de una parcela. Por lo
+         * tanto, se debe interrumpir la ejecucion de esta sentencia
+         * for, ya que dentro de ella se solicitan los datos
+         * meteorologicos de la fecha actual y una ubicacion
+         * geografica.
+         */
+        if (!UtilConnection.weatherServiceIsReachable()) {
+          break;
+        }
 
         try {
           /*
