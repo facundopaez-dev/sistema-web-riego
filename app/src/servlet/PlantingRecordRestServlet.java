@@ -2504,7 +2504,7 @@ public class PlantingRecordRestServlet {
        */
       if (responseCode == TOO_MANY_REQUESTS) {
         return Response.status(Response.Status.TOO_MANY_REQUESTS)
-            .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.REQUEST_LIMIT_EXCEEDED, SourceUnsatisfiedResponse.WATER_NEED_CROP)))
+            .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.WEATHER_SERVICE_REQUEST_LIMIT_EXCEEDED, SourceUnsatisfiedResponse.WATER_NEED_CROP)))
             .build();
       }
 
