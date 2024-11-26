@@ -150,6 +150,7 @@
 				<th>Nombre</th>
 				<th>Hectáreas</th>
 				<th>Suelo</th>
+				<th>Uso del suelo para calcular riego</th>
 				<th>Activa</th>
 				<th class="text-right"></th>
 			</tr>
@@ -160,6 +161,7 @@
 				<td>{{p.name}}</td>
 				<td>{{p.hectares}}</td>
 				<td>{{p.soil ? p.soil.name : '-'}}</td>
+				<td>{{p.option.soilFlag ? 'Sí' : 'No'}}</td>
 				<td>{{p.active ? 'Sí' : 'No'}}</td>
 				<td class="text-right">
 					<div class="btn-group" role="group" aria-label="...">
