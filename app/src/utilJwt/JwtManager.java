@@ -243,8 +243,8 @@ public class JwtManager {
    * 
    * @param jwt
    * @param secretKey clave secreta con la que se firma un JWT
-   * @return true si el valor asociado a la clave 'permissionModifier' es
-   * true, false si el valor asociado a la clave 'permissionModifier' es
+   * @return true si el valor asociado a la clave 'superuserPermissionModifier' es
+   * true, false si el valor asociado a la clave 'superuserPermissionModifier' es
    * false
    */
   public static boolean getSuperuserPermissionModifier(String jwt, String secretKey) {
