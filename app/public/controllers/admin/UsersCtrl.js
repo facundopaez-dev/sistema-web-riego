@@ -1,7 +1,7 @@
 app.controller(
 	"UsersCtrl",
-	["$scope", "$location", "UserSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
-		function ($scope, $location, userService, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
+	["$scope", "$location", "$route", "UserSrv", "AccessManager", "ErrorResponseManager", "AuthHeaderManager", "LogoutManager",
+		function ($scope, $location, $route, userService, accessManager, errorResponseManager, authHeaderManager, logoutManager) {
 
 			console.log("UsersCtrl loaded...")
 
@@ -102,6 +102,26 @@ app.controller(
 
 					$scope.data = data;
 				})
+			}
+
+			$scope.delete = function (id) {
+
+				var result = window.confirm("¿Desea eliminar el elemento seleccionado?");
+
+				if (result === false) {
+					return;
+				}
+
+				userService.delete(id, function (error) {
+					if (error) {
+						console.log(error);
+						errorResponseManager.checkResponse(error);
+						return;
+					}
+
+					$location.path("/adminHome/users");
+					$route.reload()
+				});
 			}
 
 			// Esto es necesarios para la paginacion

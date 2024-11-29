@@ -43,6 +43,17 @@ public class PasswordServiceBean {
   }
 
   /**
+   * Elimina la contraseña de un usuario a través de su ID de usuario
+   * 
+   * @param userId
+   */
+  public void removeByUserId(int userId) {
+    Query query = entityManager.createQuery("DELETE FROM Password p WHERE p.user.id = :userId");
+    query.setParameter("userId", userId);
+    query.executeUpdate();
+  }
+
+  /**
    * Modifica la contraseña del usuario correspondiente al ID dado
    * con la nueva contraseña ingresada por el mismo
    * 

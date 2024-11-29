@@ -131,6 +131,18 @@ public class PlantingRecordServiceBean {
   }
 
   /**
+   * Elimina los registros de plantacion asociados a las parcelas
+   * de un usuario
+   * 
+   * @param userId
+   */
+  public void deletePlantingRecordsByUserId(int userId) {
+    Query query = entityManager.createQuery("DELETE FROM PlantingRecord r WHERE r.parcel IN (SELECT x FROM Parcel x WHERE x.user.id = :userId)");
+    query.setParameter("userId", userId);
+    query.executeUpdate();
+  }
+
+  /**
    * Modifica un registro de plantacion perteneciente a una parcela
    * de un usuario
    * 

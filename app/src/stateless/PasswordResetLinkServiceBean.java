@@ -38,6 +38,18 @@ public class PasswordResetLinkServiceBean {
   }
 
   /**
+   * Elimina todos los enlaces de restablecimiento de contraseña
+   * vinculados a un usuario a través de su ID de usuario
+   * 
+   * @param userId
+   */
+  public void removeByUserId(int userId) {
+    Query query = entityManager.createQuery("DELETE FROM PasswordResetLink p WHERE p.user.id = :userId");
+    query.setParameter("userId", userId);
+    query.executeUpdate();
+  }
+
+  /**
    * La fecha de expiracion de un enlace de restablecimiento de contraseña
    * es de 60 minutos a partir de la hora en la que se lo emite, la cual,
    * es la hora en la que un usuario solicita el restablecimiento de la

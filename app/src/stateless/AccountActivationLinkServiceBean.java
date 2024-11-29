@@ -119,6 +119,18 @@ public class AccountActivationLinkServiceBean {
   }
 
   /**
+   * Elimina todos los enlaces de activación de cuenta vinculados
+   * a un usuario a través de su ID de usuario
+   * 
+   * @param userId
+   */
+  public void removeByUserId(int userId) {
+    Query query = entityManager.createQuery("DELETE FROM AccountActivationLink a WHERE a.user.id = :userId");
+    query.setParameter("userId", userId);
+    query.executeUpdate();
+  }
+
+  /**
    * Establece en true (1) el atributo consumed del enlace mas reciente
    * de activacion de cuenta correspondiente al correo electronico dado
    * 

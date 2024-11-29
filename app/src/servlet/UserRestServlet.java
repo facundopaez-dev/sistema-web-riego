@@ -6,11 +6,13 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Collection;
+import java.util.List;
 import java.util.ArrayList;
 import javax.ejb.EJB;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
@@ -20,12 +22,23 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import stateless.SecretKeyServiceBean;
 import stateless.UserServiceBean;
-import stateless.PasswordResetLinkServiceBean;
 import stateless.PasswordServiceBean;
-import stateless.SessionServiceBean;
 import stateless.EmailServiceBean;
+import stateless.AccountActivationLinkServiceBean;
+import stateless.PasswordResetLinkServiceBean;
+import stateless.SessionServiceBean;
+import stateless.TypePrecipitationServiceBean;
+import stateless.ClimateRecordServiceBean;
+import stateless.SoilWaterBalanceServiceBean;
+import stateless.HarvestServiceBean;
+import stateless.IrrigationRecordServiceBean;
+import stateless.PlantingRecordServiceBean;
+import stateless.ParcelServiceBean;
+import stateless.OptionServiceBean;
+import stateless.GeographicLocationServiceBean;
+import stateless.StatisticalGraphServiceBean;
+import stateless.SecretKeyServiceBean;
 import stateless.Page;
 import util.ErrorResponse;
 import util.ReasonError;
@@ -36,6 +49,7 @@ import utilJwt.AuthHeaderManager;
 import utilJwt.JwtManager;
 import model.User;
 import model.Email;
+import model.Parcel;
 import model.UserData;
 import model.DataEmailFormPasswordReset;
 import model.PasswordChangeFormData;
@@ -48,19 +62,30 @@ public class UserRestServlet {
 
   // inject a reference to the UserServiceBean slsb
   @EJB UserServiceBean userService;
-  @EJB EmailServiceBean emailService;
   @EJB PasswordServiceBean passwordService;
-  @EJB SecretKeyServiceBean secretKeyService;
+  @EJB EmailServiceBean emailService;
+  @EJB AccountActivationLinkServiceBean accountActivationLinkService;
   @EJB PasswordResetLinkServiceBean passwordResetLinkService;
   @EJB SessionServiceBean sessionService;
+  @EJB TypePrecipitationServiceBean typePrecipitationService;
+  @EJB ClimateRecordServiceBean climateRecordService;
+  @EJB SoilWaterBalanceServiceBean soilWaterBalanceService;
+  @EJB HarvestServiceBean harvestService;
+  @EJB IrrigationRecordServiceBean irrigationRecordService;
+  @EJB PlantingRecordServiceBean plantingRecordService;
+  @EJB ParcelServiceBean parcelService;
+  @EJB OptionServiceBean optionService;
+  @EJB GeographicLocationServiceBean geographicLocationService;
+  @EJB StatisticalGraphServiceBean statisticalGraphService;
+  @EJB SecretKeyServiceBean secretKeyService;
 
   // Mapea lista de pojo a JSON
   ObjectMapper mapper = new ObjectMapper();
 
   @GET
-  @Path("/findAllActiveUsersExceptOwnUser")
+  @Path("/findAllUsersExceptOwnUser")
   @Produces(MediaType.APPLICATION_JSON)
-  public Response findAllActiveUsersExceptOwnUser(@Context HttpHeaders request, @QueryParam("page") Integer page,
+  public Response findAllUsersExceptOwnUser(@Context HttpHeaders request, @QueryParam("page") Integer page,
       @QueryParam("cant") Integer cant, @QueryParam("search") String search) throws IOException {
     Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
 
@@ -177,7 +202,7 @@ public class UserRestServlet {
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
      * por el cliente
      */
-    Page<User> users = userService.findAllActiveUsersExceptOwnUser(userId, page, cant, map);
+    Page<User> users = userService.findAllUsersExceptOwnUser(userId, page, cant, map);
     return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(users)).build();
   }
 
@@ -325,6 +350,143 @@ public class UserRestServlet {
      * deben cumplir para modificar un dato correspondiente a esta
      * clase, la aplicacion del lado servidor devuelve el mensaje
      * HTTP 200 (Ok)
+     */
+    return Response.status(Response.Status.OK).build();
+  }
+
+  @DELETE
+  @Path("/deleteUser/{id}")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response deleteUser(@Context HttpHeaders request, @PathParam("id") int targetUserId, String json) throws IOException {
+    Response givenResponse = RequestManager.validateAuthHeader(request, secretKeyService.find());
+
+    /*
+     * Si el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP NO
+     * es ACCEPTED, se devuelve el estado de error de la misma.
+     * 
+     * Que el estado de la respuesta obtenida de validar el
+     * encabezado de autorizacion de una peticion HTTP sea
+     * ACCEPTED, significa que la peticion es valida,
+     * debido a que el encabezado de autorizacion de la misma
+     * cumple las siguientes condiciones:
+     * - Esta presente.
+     * - No esta vacio.
+     * - Cumple con la convencion de JWT.
+     * - Contiene un JWT valido.
+     */
+    if (!RequestManager.isAccepted(givenResponse)) {
+      return givenResponse;
+    }
+
+    /*
+     * Obtiene el JWT del valor del encabezado de autorizacion
+     * de una peticion HTTP
+     */
+    String jwt = AuthHeaderManager.getJwt(AuthHeaderManager.getAuthHeaderValue(request));
+
+    /*
+     * Valor de la clave secreta con la que la aplicacion firma
+     * un JWT
+     */
+    String secretKeyValue = secretKeyService.find().getValue();
+
+    /*
+     * Obtiene el ID de usuario contenido en la carga util del
+     * JWT del encabezado de autorizacion de una peticion HTTP
+     */
+    int userId = JwtManager.getUserId(jwt, secretKeyValue);
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene una
+     * sesion activa, la aplicacion del lador servidor devuelve
+     * el mensaje 401 (Unauthorized) junto con el mensaje "No
+     * tiene una sesion activa" y no se realiza la operacion
+     * solicitada
+     */
+    if (!sessionService.checkActiveSession(userId)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.NO_ACTIVE_SESSION))).build();
+    }
+
+    /*
+     * Si la fecha de emision del JWT de un usuario NO es igual
+     * a la fecha de emision de la sesion activa del usuario,
+     * la aplicacion del lado servidor retorna el mensaje HTTP
+     * 400 (Bad request) junto con el mensaje "El JWT no
+     * corresponde a una sesión abierta" y no se realiza la
+     * operacion solicitada.
+     * 
+     * Se debe tener en cuenta que el metodo checkDateIssueLastSession
+     * de la clase SessionServiceBean debe ser invocado luego
+     * de invocar el metodo checkActiveSession de la misma
+     * clase, ya que de lo contrario se puede comparar la
+     * fecha de emision de un JWT con una sesion inactiva,
+     * lo cual es incorrecto porque la fecha de emision de un
+     * JWT se debe comparar con la fecha de emision de una
+     * sesion activa. El motivo por el cual puede ocurrir esta
+     * comparacion con una sesion inactiva es que el metodo
+     * findLastSession recupera la ultima sesion del usuario,
+     * independientemente de si esta activa o inactiva.
+     * 
+     * Este control se implementa para evitar que se puedan
+     * recuperar datos mediante peticiones HTTP haciendo uso
+     * de un JWT valido, pero que es de una sesion que fue
+     * cerrada por el usuario.
+     */
+    if (!sessionService.checkDateIssueLastSession(userId, JwtManager.getDateIssue(jwt, secretKeyValue))) {
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.JWT_NOT_ASSOCIATED_WITH_ACTIVE_SESSION)))
+          .build();
+    }
+
+    /*
+     * Si el usuario que solicita esta operacion no tiene el permiso de
+     * administrador (superuser), la aplicacion del lado servidor devuelve
+     * el mensaje HTTP 403 (Forbidden) junto con el mensaje "Acceso no
+     * autorizado" (esta contenido en el enum ReasonError) y no se realiza
+     * la operacion solicitada
+     */
+    if (!JwtManager.getSuperuser(jwt, secretKeyService.find().getValue())) {
+      return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
+    }
+
+    /*
+     * Si el usuario que solicita esta operacion NO tiene el permiso de
+     * eliminacion de usuario, la aplicacion del lado servidor devuelve
+     * el mensaje HTTP 403 (Forbidden) junto con el mensaje "Acceso no
+     * autorizado" (esta contenido en el enum ReasonError) y no se realiza
+     * la operacion solicitada
+     */
+    if (!JwtManager.getUserDeletionPermission(jwt, secretKeyService.find().getValue())) {
+      return Response.status(Response.Status.FORBIDDEN).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNAUTHORIZED_ACCESS))).build();
+    }
+
+    /*
+     * Si un usuario con permiso de administrador y con permiso de
+     * eliminacion de usuario, intenta eliminar su propio usuario,
+     * la aplicacion del lado servidor retorna el mensaje HTTP 400
+     * (Bad request) junto con un mensaje que indica lo sucedido y
+     * no se realiza la operacion solicitada
+     */
+    if (userId == targetUserId) {
+      return Response.status(Response.Status.BAD_REQUEST)
+          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.SELF_DELETION_NOT_ALLOWED)))
+          .build();
+    }
+
+    /*
+     * Hay datos que estan asociados a un usuario. Por lo tanto,
+     * para eliminar un usuario primero se deben eliminar sus
+     * datos asociados.
+     */
+    deleteDataAssociatedWithUser(targetUserId);
+    userService.remove(targetUserId);
+
+    /*
+     * Si el valor del encabezado de autorizacion de la peticion HTTP
+     * dada, tiene un JWT valido, y se cumplen las condiciones que se
+     * deben cumplir para realizar esta operacion, la aplicacion del
+     * lado servidor devuelve el mensaje HTTP 200 (Ok)
      */
     return Response.status(Response.Status.OK).build();
   }
@@ -1539,6 +1701,67 @@ public class UserRestServlet {
     newUserData.setSuperuser(user.getSuperuser());
 
     return newUserData;
+  }
+
+  /**
+   * Elimina fisicamente los datos asociados a un usuario:
+   * - clave de cuenta
+   * - correo electronico
+   * - enlaces de activacion de cuenta
+   * - enlaces de restablecimiento de clave
+   * - sesiones de cuenta
+   * - registros climaticos
+   * - balances hidricos de suelo
+   * - registros de cosecha
+   * - registros de riego
+   * - registros de plantacion
+   * - informes estadisticos
+   * - parcelas
+   * - opciones de parcelas
+   * - ubicaciones geograficas de parcelas
+   * 
+   * @param userId
+   */
+  private void deleteDataAssociatedWithUser(int userId) {
+    passwordService.removeByUserId(userId);
+    emailService.removeByUserId(userId);
+    accountActivationLinkService.removeByUserId(userId);
+    passwordResetLinkService.removeByUserId(userId);
+    sessionService.removeByUserId(userId);
+
+    climateRecordService.deleteClimateRecordsByUserId(userId);
+    soilWaterBalanceService.deleteSoilWaterBalancesByUserId(userId);
+    harvestService.deleteHarvestRecordsByUserId(userId);
+    irrigationRecordService.deleteIrrigationRecordsByUserId(userId);
+    plantingRecordService.deletePlantingRecordsByUserId(userId);
+
+    /*
+     * En la base de datos subyacente, la tabla de parcelas contiene una
+     * clave foranea hacia las tablas de opciones y ubicaciones geograficas,
+     * dado que la clase Parcel incluye una opcion y una ubicacion geografica.
+     * Por esta razon, no es posible eliminar una opcion o una ubicacion
+     * geografica sin antes eliminar la parcela asociada.
+     * 
+     * Para eliminar las opciones y ubicaciones geograficas vinculadas a una
+     * parcela que se va a eliminar, es necesario obtener los IDs de estas
+     * entidades antes de proceder con la eliminacion de la parcela, ya que
+     * es a traves de la parcela del usuario como se accede a la opcion y la
+     * ubicacion geografica correspondientes.
+     */
+    Collection<Long> optionIds = optionService.findOptionIdsByUserId(userId); 
+    Collection<Long> geographicLocationIds = geographicLocationService.findGeographicLocationIdsByUserId(userId); 
+
+    /*
+     * En la base de datos subyacente, la tabla de graficos estadisticos
+     * tiene una clave foranea hacia la tabla de parcelas, ya que la
+     * clase StatisticalGraph contiene una parcela. Por esta razon, no es
+     * posible eliminar una parcela sin antes eliminar un grafico
+     * estadistico.
+     */
+    statisticalGraphService.deleteStatisticalGraphsByUserId(userId);
+    parcelService.deleteParcelsByUserId(userId);
+    optionService.deleteOptionsByIds(optionIds);
+    geographicLocationService.deleteGeographicLocationsByIds(optionIds);
   }
 
 }

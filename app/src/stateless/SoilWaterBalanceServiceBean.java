@@ -110,6 +110,18 @@ public class SoilWaterBalanceServiceBean {
     }
 
     /**
+     * Elimina balances hidricos de suelo asociados a una parcela
+     * de un usuario
+     * 
+     * @param ids
+     */
+    public void deleteSoilWaterBalancesByUserId(int userId) {
+        Query query = entityManager.createQuery("DELETE FROM SoilWaterBalance s WHERE s.parcel IN (SELECT x FROM SoilWaterBalance y JOIN y.parcel x WHERE x.user.id = :userId)");
+        query.setParameter("userId", userId);
+        query.executeUpdate();
+    }
+
+    /**
      * @param parcelId
      * @param date
      * @return referencia a un objeto de tipo SoilWaterBalance si

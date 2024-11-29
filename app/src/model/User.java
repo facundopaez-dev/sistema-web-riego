@@ -35,6 +35,9 @@ public class User {
   @Column(name = "SUPERUSER_PERMISSION_MODIFIER")
   private boolean superuserPermissionModifier;
 
+  @Column(name = "USER_DELETION_PERMISSION")
+  private boolean userDeletionPermission;
+
   public User() {
 
   }
@@ -95,10 +98,18 @@ public class User {
     this.superuserPermissionModifier = superuserPermissionModifier;
   }
 
+  public boolean getUserDeletionPermission() {
+    return userDeletionPermission;
+  }
+
+  public void setUserDeletionPermission(boolean userDeletionPermission) {
+    this.userDeletionPermission = userDeletionPermission;
+  }
+
   @Override
   public String toString() {
     return String.format(
-        "ID: %d\nUsername: %s\nName: %s\nLast name: %s\nActive: %b\nSuperuser: %b\n",
+        "ID: %d\nUsername: %s\nName: %s\nLast name: %s\nActive: %b\nSuperuser: %b\nUser deletion permission: %b\n",
         id,
         username,
         name,

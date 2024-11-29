@@ -87,6 +87,18 @@ public class SessionServiceBean {
   }
 
   /**
+   * Elimina todas las sesiones de cuenta vinculadas a un
+   * usuario a través de su ID de usuario
+   * 
+   * @param userId
+   */
+  public void removeByUserId(int userId) {
+    Query query = entityManager.createQuery("DELETE FROM Session s WHERE s.user.id = :userId");
+    query.setParameter("userId", userId);
+    query.executeUpdate();
+  }
+
+  /**
    * Retorna true si y solo si el usuario con el ID dado tiene
    * una sesion activa.
    * 

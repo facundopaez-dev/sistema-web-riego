@@ -73,6 +73,17 @@ public class ParcelServiceBean {
   }
 
   /**
+   * Elimina las parcelas de un usuario
+   * 
+   * @param userId
+   */
+  public void deleteParcelsByUserId(int userId) {
+    Query query = entityManager.createQuery("DELETE FROM Parcel p WHERE p.user.id = :userId");
+    query.setParameter("userId", userId);
+    query.executeUpdate();
+  }
+
+  /**
    * Modifica una parcela de un usuario
    *
    * @param userId

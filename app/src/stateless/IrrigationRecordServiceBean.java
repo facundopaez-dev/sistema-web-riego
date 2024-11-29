@@ -76,6 +76,18 @@ public class IrrigationRecordServiceBean {
   }
 
   /**
+   * Elimina los registros de riego asociados a las parcelas
+   * de un usuario
+   * 
+   * @param userId
+   */
+  public void deleteIrrigationRecordsByUserId(int userId) {
+    Query query = entityManager.createQuery("DELETE FROM IrrigationRecord i WHERE i.parcel IN (SELECT x FROM Parcel x WHERE x.user.id = :userId)");
+    query.setParameter("userId", userId);
+    query.executeUpdate();
+  }
+
+  /**
    * Modifica un registro de riego perteneciente a una parcela
    * de un usuario
    * 

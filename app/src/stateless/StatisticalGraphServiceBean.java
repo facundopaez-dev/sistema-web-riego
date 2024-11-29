@@ -87,6 +87,18 @@ public class StatisticalGraphServiceBean {
     }
 
     /**
+     * Elimina los informes estadisticos asociados a las parcelas
+     * de un usuario
+     * 
+     * @param userId
+     */
+    public void deleteStatisticalGraphsByUserId(int userId) {
+        Query query = entityManager.createQuery("DELETE FROM StatisticalGraph s WHERE s.parcel IN (SELECT x FROM Parcel x WHERE x.user.id = :userId)");
+        query.setParameter("userId", userId);
+        query.executeUpdate();
+    }
+
+    /**
      * Elimina fisicamente un grafico estadistico perteneciente a
      * una parcela de un usuario
      * 

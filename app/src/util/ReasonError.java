@@ -145,6 +145,7 @@ public enum ReasonError {
   INVALID_CROP_IRRIGATION_WATER_NEED("La necesidad de agua de riego de un cultivo no debe ser negativa"),
   INACTIVE_USER_ADMIN_PERMISSION_MODIFICATION("No está permitido modificar el permiso de administrador de un usuario inactivo"),
   OWN_MODIFICATION_ADMIN_PERMISSION_NOT_ALLOWED("No está permitido modificar el permiso de administrador propio"),
+  SELF_DELETION_NOT_ALLOWED("No está permitido eliminar la propia cuenta de usuario"),
   POSSIBLE_INTERNET_CONNECTION_PROBLEM_IN_MODIFIED_GEOGRAPHIC_LOCATION_OF_PARCEL("No es posible calcular la necesidad de agua de riego de un cultivo en la fecha actual (es decir, hoy) debido a que no tiene conexión a Internet o a que el servicio meteorológico Visual Crossing Weather no está en funcionamiento para obtener los datos meteorológicos de la nueva ubicación geográfica de la parcela, los cuales son necesarios para realizar dicho cálculo"),
   POSSIBLE_INTERNET_CONNECTION_PROBLEM_IN_LACK_OF_CLIMATE_RECORDS("No es posible calcular la necesidad de agua de riego de un cultivo en la fecha actual (es decir, hoy) debido a que no tiene conexión a Internet o a que el servicio meteorológico Visual Crossing Weather no está en funcionamiento para obtener los datos meteorológicos necesarios para realizar dicho cálculo");
 

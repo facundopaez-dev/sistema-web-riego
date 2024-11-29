@@ -28,6 +28,18 @@ public class EmailServiceBean {
   }
 
   /**
+   * Elimina la dirección de correo electrónico de un
+   * usuario utilizando su ID de usuario
+   * 
+   * @param userId
+   */
+  public void removeByUserId(int userId) {
+    Query query = entityManager.createQuery("DELETE FROM Email e WHERE e.user.id = :userId");
+    query.setParameter("userId", userId);
+    query.executeUpdate();
+  }
+
+  /**
    * Modifica la direccion de un correo electronico en la base
    * de datos subyacente
    * 

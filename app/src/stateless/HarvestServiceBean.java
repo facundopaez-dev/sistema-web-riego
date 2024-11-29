@@ -61,6 +61,18 @@ public class HarvestServiceBean {
   }
 
   /**
+   * Elimina los registros de cosecha asociados a las parcelas
+   * de un usuario
+   * 
+   * @param userId
+   */
+  public void deleteHarvestRecordsByUserId(int userId) {
+    Query query = entityManager.createQuery("DELETE FROM Harvest h WHERE h.parcel IN (SELECT x FROM Parcel x WHERE x.user.id = :userId)");
+    query.setParameter("userId", userId);
+    query.executeUpdate();
+  }
+
+  /**
    * Elimina fisicamente una cosecha
    * 
    * @param userId

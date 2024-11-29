@@ -1,8 +1,10 @@
 package stateless;
 
+import java.util.Collection;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import model.GeographicLocation;
 
 @Stateless
@@ -48,6 +50,31 @@ public class GeographicLocationServiceBean {
     }
 
     return null;
+  }
+
+  /**
+   * @param userId
+   * @return referencia a un objeto de tipo Collection que
+   * contiene el ID de las ubicaciones geograficas de las
+   * parcelas de un usuario
+   */
+  public Collection<Long> findGeographicLocationIdsByUserId(int userId) {
+    Query query = entityManager.createQuery("SELECT g.id FROM Parcel p JOIN p.geographicLocation g WHERE p.user.id = :userId");
+    query.setParameter("userId", userId);
+
+    return (Collection) query.getResultList();
+  }
+
+  /**
+   * Elimina las ubicaciones geograficas de las parcelas de
+   * un usuario mediante sus IDs
+   * 
+   * @param ids
+   */
+  public void deleteGeographicLocationsByIds(Collection<Long> ids) {
+    Query deleteQuery = entityManager.createQuery("DELETE FROM GeographicLocation g WHERE g.id IN :ids");
+    deleteQuery.setParameter("ids", ids);
+    deleteQuery.executeUpdate();
   }
 
   public GeographicLocation find(int id) {

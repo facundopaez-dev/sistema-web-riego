@@ -4,7 +4,7 @@ app.service(
 		function ($http) {
 
 			this.searchByPage = function (search, page, cant, callback) {
-				$http.get('rest/users/findAllActiveUsersExceptOwnUser?page=' + page + '&cant=' + cant + "&search=" + JSON.stringify(search))
+				$http.get('rest/users/findAllUsersExceptOwnUser?page=' + page + '&cant=' + cant + "&search=" + JSON.stringify(search))
 					.then(function (res) {
 						return callback(false, res.data)
 					}, function (err) {
@@ -62,6 +62,17 @@ app.service(
 							callback(error);
 						});
 			}
+
+            this.delete = function (id, callback) {
+                $http.delete("rest/users/deleteUser/" + id)
+                    .then(
+                        function (result) {
+                            callback(false, result.data);
+                        },
+                        function (error) {
+                            callback(error);
+                        });
+            }
 
 			this.modify = function (data, callback) {
 				$http.put("rest/users/modify", data)

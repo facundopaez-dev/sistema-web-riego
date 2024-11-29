@@ -1,6 +1,7 @@
 package stateless;
 
 import javax.ejb.Stateless;
+import java.util.Collection;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.NoResultException;
@@ -99,6 +100,31 @@ public class OptionServiceBean {
         }
 
         return null;
+    }
+
+    /**
+     * @param userId
+     * @return referencia a un objeto de tipo Collection que
+     * contiene el ID de las opciones de las parcelas de un
+     * usuario
+     */
+    public Collection<Long> findOptionIdsByUserId(int userId) {
+        Query query = entityManager.createQuery("SELECT o.id FROM Parcel p JOIN p.option o WHERE p.user.id = :userId");
+        query.setParameter("userId", userId);
+
+        return (Collection) query.getResultList();
+    }
+
+    /**
+     * Elimina las opciones de las parcelas de un usuario
+     * mediante sus IDs
+     * 
+     * @param ids
+     */
+    public void deleteOptionsByIds(Collection<Long> ids) {
+        Query deleteQuery = entityManager.createQuery("DELETE FROM Option o WHERE o.id IN :ids");
+        deleteQuery.setParameter("ids", ids);
+        deleteQuery.executeUpdate();
     }
 
     /**

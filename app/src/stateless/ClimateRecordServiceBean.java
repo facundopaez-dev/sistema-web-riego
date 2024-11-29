@@ -88,6 +88,18 @@ public class ClimateRecordServiceBean {
     return null;
   }
 
+  /**
+   * Elimina los registros climaticos asociados a las parcelas
+   * de un usuario
+   * 
+   * @param userId
+   */
+  public void deleteClimateRecordsByUserId(int userId) {
+    Query query = entityManager.createQuery("DELETE FROM ClimateRecord c WHERE c.parcel IN (SELECT x FROM Parcel x WHERE x.user.id = :userId)");
+    query.setParameter("userId", userId);
+    query.executeUpdate();
+  }
+
   public ClimateRecord find(int id) {
     return getEntityManager().find(ClimateRecord.class, id);
   }

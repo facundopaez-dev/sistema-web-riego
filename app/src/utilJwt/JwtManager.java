@@ -27,6 +27,7 @@ public class JwtManager {
   private static final String USER_ID = "userId";
   private static final String SUPERUSER = "superuser";
   private static final String SUPERUSER_PERMISSION_MODIFIER = "superuserPermissionModifier";
+  private static final String USER_DELETION_PERMISSION = "userDeletionPermission";
   private static final String PASSWORD_RESET_LINK_ID = "passwordResetLinkId";
   private static final String USER_EMAIL = "userEmail";
 
@@ -58,6 +59,7 @@ public class JwtManager {
   private static final String USER_ID_KEY = "\"userId\"";
   private static final String SUPERUSER_KEY = "\"superuser\"";
   private static final String SUPERUSER_PERMISSION_MODIFIER_KEY = "\"superuserPermissionModifier\"";
+  private static final String USER_DELETION_PERMISSION_KEY = "\"userDeletionPermission\"";
   private static final String ISSUED_AT_KEY = "\"iat\"";
   private static final String EXPIRES_AT_KEY = "\"exp\"";
   private static final String PASSWORD_RESET_LINK_ID_KEY = "\"passwordResetLinkId\"";
@@ -99,6 +101,7 @@ public class JwtManager {
     jwtCreator.withClaim(USER_ID, user.getId());
     jwtCreator.withClaim(SUPERUSER, user.getSuperuser());
     jwtCreator.withClaim(SUPERUSER_PERMISSION_MODIFIER, user.getSuperuserPermissionModifier());
+    jwtCreator.withClaim(USER_DELETION_PERMISSION, user.getUserDeletionPermission());
     jwtCreator.withIssuedAt(dateIssue);
     jwtCreator.withExpiresAt(expirationDate);
 
@@ -250,6 +253,21 @@ public class JwtManager {
   public static boolean getSuperuserPermissionModifier(String jwt, String secretKey) {
     String payload = getDecodedPayload(jwt, secretKey);
     return Boolean.parseBoolean(getValueKey(SUPERUSER_PERMISSION_MODIFIER_KEY, payload));
+  }
+
+  /**
+   * Recupera el permiso de eliminacion de usuario contenido
+   * en la carga util de un JWT
+   * 
+   * @param jwt
+   * @param secretKey clave secreta con la que se firma un JWT
+   * @return true si el valor asociado a la clave 'userDeletionPermission' es
+   * true, false si el valor asociado a la clave 'userDeletionPermission' es
+   * false
+   */
+  public static boolean getUserDeletionPermission(String jwt, String secretKey) {
+    String payload = getDecodedPayload(jwt, secretKey);
+    return Boolean.parseBoolean(getValueKey(USER_DELETION_PERMISSION_KEY, payload));
   }
 
   /**

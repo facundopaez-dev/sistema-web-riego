@@ -292,9 +292,9 @@ public class UserServiceBean {
     return find(userId).getActive();
   }
 
-  public Page<User> findAllActiveUsersExceptOwnUser(int userId, Integer page, Integer cantPerPage, Map<String, String> parameters) {
+  public Page<User> findAllUsersExceptOwnUser(int userId, Integer page, Integer cantPerPage, Map<String, String> parameters) {
     // Genera el WHERE dinámicamente
-    StringBuffer where = new StringBuffer(" WHERE 1=1 AND e.id != :userId AND e.active = TRUE");
+    StringBuffer where = new StringBuffer(" WHERE 1=1 AND e.id != :userId");
 
     if (parameters != null) {
 
