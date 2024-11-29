@@ -38,7 +38,7 @@ public class Parcel {
   @JoinColumn(name = "FK_GEOGRAPHIC_LOCATION", nullable = false, unique = true)
   private GeographicLocation geographicLocation;
 
-  @OneToOne
+  @OneToOne(cascade = CascadeType.PERSIST)
   @JoinColumn(name = "FK_OPTION", nullable = false, unique = true)
   private Option option;
 

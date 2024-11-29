@@ -865,7 +865,7 @@ public class ParcelRestServlet {
      * Una parcela nueva esta inicialmente activa
      */
     newParcel.setActive(true);
-    newParcel.setOption(optionService.create());
+    newParcel.setOption(optionService.generateOption());
     newParcel.setUser(userService.find(userId));
 
     /*

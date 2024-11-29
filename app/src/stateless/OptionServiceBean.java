@@ -39,6 +39,18 @@ public class OptionServiceBean {
     }
 
     /**
+     * Genera una instancia de tipo Option
+     * 
+     * @return referencia a un objeto de tipo Option
+     */
+    public Option generateOption() {
+        Option newOption = new Option();
+        newOption.setFlagMessageFieldCapacity(true);
+
+        return newOption;
+    }
+
+    /**
      * @param id
      * @param modifiedOption
      * @return referencia a un objeto de tipo Option que contiene las
