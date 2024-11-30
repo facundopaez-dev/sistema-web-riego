@@ -99,6 +99,7 @@
 			<tr>
 				<th>ID</th>
 				<th>Nombre de usuario</th>
+				<th>Dir. de correo electrónico</th>
 				<th>Activo</th>
 				<th>Permiso de administrador</th>
 			</tr>
@@ -107,6 +108,7 @@
 			<tr ng-repeat="u in listElement">
 				<td>{{u.id}}</td>
 				<td>{{u.username}}</td>
+				<td>{{u.email.address}}</td>
 				<td>{{u.active ? 'Sí' : 'No'}}</td>
 				<td>{{u.superuser ? 'Sí' : 'No'}}</td>
 				<td class="text-right">

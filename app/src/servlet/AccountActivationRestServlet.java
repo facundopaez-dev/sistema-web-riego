@@ -72,7 +72,7 @@ public class AccountActivationRestServlet {
      * del usuario
      */
     accountActivationLinkService.setConsumed(email);
-    userService.activateUser(emailService.findUserByAddress(email).getId());
+    userService.activateUser(userService.findUserByEmail(email).getId());
 
     /*
      * Si se cumplen las validaciones, se activa la cuenta del

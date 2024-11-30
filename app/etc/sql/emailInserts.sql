@@ -1,6 +1,6 @@
-INSERT INTO EMAIL (ADDRESS, FK_USER) VALUES ('admin@eservice.com', 1);
-INSERT INTO EMAIL (ADDRESS, FK_USER) VALUES ('jane@eservice.com', 2);
-INSERT INTO EMAIL (ADDRESS, FK_USER) VALUES ('john@eservice.com', 3);
-INSERT INTO EMAIL (ADDRESS, FK_USER) VALUES ('anya@eservice.com', 4);
-INSERT INTO EMAIL (ADDRESS, FK_USER) VALUES ('taylor@eservice.com', 5);
-INSERT INTO EMAIL (ADDRESS, FK_USER) VALUES ('jack@eservice.com', 6);
+INSERT INTO EMAIL (ADDRESS) VALUES ('admin@eservice.com');
+INSERT INTO EMAIL (ADDRESS) VALUES ('jane@eservice.com');
+INSERT INTO EMAIL (ADDRESS) VALUES ('john@eservice.com');
+INSERT INTO EMAIL (ADDRESS) VALUES ('anya@eservice.com');
+INSERT INTO EMAIL (ADDRESS) VALUES ('taylor@eservice.com');
+INSERT INTO EMAIL (ADDRESS) VALUES ('jack@eservice.com');

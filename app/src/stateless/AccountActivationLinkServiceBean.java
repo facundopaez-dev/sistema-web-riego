@@ -149,19 +149,15 @@ public class AccountActivationLinkServiceBean {
    * Retorna el enlace mas reciente de activacion de cuenta de un usuario
    * si y solo existe en la base de datos subyacente.
    * 
-   * La subconsulta de la consulta JPQL es para evitar que hayan errores
-   * en tiempo de ejecucion en el caso en el que NO se borren los
-   * enlaces de activacion de cuenta expirados de un usuario.
-   * 
-   * @param email
+   * @param address
    * @return referencia a un objeto de tipo AccountActivationLink si
    * se encuentra en la base de datos subyacente, el enlace de activacion
    * de cuenta mas reciente correspondiente a la direccion de correo
    * electronico de usuario dada, en caso contrario null
    */
-  public AccountActivationLink findByUserEmail(String email) {
-    Query query = getEntityManager().createQuery("SELECT a FROM AccountActivationLink a WHERE a.user.id = (SELECT x.id FROM Email e JOIN e.user x WHERE e.address = :email) AND a.dateIssue = (SELECT MAX(c.dateIssue) FROM AccountActivationLink c WHERE c.user.id = (SELECT x.id FROM Email e JOIN e.user x WHERE e.address = :email))");
-    query.setParameter("email", email);
+  public AccountActivationLink findByUserEmail(String address) {
+    Query query = getEntityManager().createQuery("SELECT a FROM AccountActivationLink a WHERE a.user.id = (SELECT u.id FROM User u JOIN u.email e WHERE e.address = :address) AND a.dateIssue = (SELECT MAX(c.dateIssue) FROM AccountActivationLink c WHERE c.user.id = (SELECT y.id FROM User y JOIN y.email t WHERE t.address = :address))");
+    query.setParameter("address", address);
 
     AccountActivationLink givenAccountActivationLink = null;
 

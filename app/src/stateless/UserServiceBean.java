@@ -92,6 +92,30 @@ public class UserServiceBean {
   }
 
   /**
+   * Busca un usuario en la base de datos subyacente mediante una
+   * direccion de correo electronico
+   * 
+   * @param address
+   * @return referencia a un objeto de tipo User en caso de encontrarse
+   * en la base de datos subyacente, el usuario con la direccion
+   * de correo electronico provista, en caso contrario null
+   */
+  public User findUserByEmail(String address) {
+    Query query = getEntityManager().createQuery("SELECT u FROM User u JOIN u.email e WHERE UPPER(e.address) = UPPER(:address)");
+    query.setParameter("address", address);
+
+    User user = null;
+
+    try {
+      user = (User) query.getSingleResult();
+    } catch (NoResultException e) {
+      e.printStackTrace();
+    }
+
+    return user;
+  }
+
+  /**
    * Retorna el usuario que tiene el ID dado.
    * 
    * El motivo de este metodo es la directiva ng-repeat de AngularJS,

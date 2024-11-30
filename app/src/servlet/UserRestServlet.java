@@ -475,12 +475,10 @@ public class UserRestServlet {
     }
 
     /*
-     * Hay datos que estan asociados a un usuario. Por lo tanto,
-     * para eliminar un usuario primero se deben eliminar sus
-     * datos asociados.
+     * Para poder eliminar un usuario se debe eliminar sus datos
+     * asociados
      */
-    deleteDataAssociatedWithUser(targetUserId);
-    userService.remove(targetUserId);
+    deleteUserAndAssociatedData(targetUserId);
 
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
@@ -699,7 +697,7 @@ public class UserRestServlet {
           .build();
     }
 
-    UserData userData = setUserData(userService.find(userId), emailService.findEmailByUserId(userId));
+    UserData userData = setUserData(userService.find(userId));
 
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
@@ -802,7 +800,7 @@ public class UserRestServlet {
 
     User user = userService.find(userId);
 
-    UserData userData = setUserData(user, emailService.findEmailByUserId(userId));
+    UserData userData = setUserData(user);
 
     /*
      * Se utiliza una coleccion para que el usuario visualice
@@ -1079,17 +1077,17 @@ public class UserRestServlet {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.EMAIL_ALREADY_USED))).build();
     }
 
+    Email myModifiedEmail = emailService.findEmailByUserId(userId);
+    myModifiedEmail.setAddress(modifiedUserData.getEmail());
+
+    emailService.modify(myModifiedEmail.getId(), myModifiedEmail);
+
     User myModifiedUser = new User();
     myModifiedUser.setUsername(modifiedUserData.getUsername());
     myModifiedUser.setName(modifiedUserData.getName());
     myModifiedUser.setLastName(modifiedUserData.getLastName());
 
     myModifiedUser = userService.modify(userId, myModifiedUser);
-
-    Email myModifiedEmail = new Email();
-    myModifiedEmail.setAddress(modifiedUserData.getEmail());
-
-    myModifiedEmail = emailService.modify(emailService.findIdEmailByUserId(userId), myModifiedEmail);
 
     /*
      * Si el valor del encabezado de autorizacion de la peticion HTTP
@@ -1099,7 +1097,7 @@ public class UserRestServlet {
      * HTTP 200 (Ok) junto con los datos que el cliente solicito
      * modificar
      */
-    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(setUserData(myModifiedUser, myModifiedEmail))).build();
+    return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(myModifiedUser)).build();
   }
 
   @PUT
@@ -1382,8 +1380,8 @@ public class UserRestServlet {
      * mediante el correo electronico de confirmacion de registro" y no se realiza
      * la operacion solicitada
      */
-    if (!userService.isActive(emailService.findUserByAddress(dataEmailFormPasswordReset.getEmail()).getId())) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INACTIVE_USER_TO_RECOVER_PASSWORD))).build();
+    if (!userService.isActive(userService.findUserByEmail(dataEmailFormPasswordReset.getEmail()).getId())) {
+        return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INACTIVE_USER_TO_RECOVER_PASSWORD))).build();
     }
 
     /*
@@ -1396,7 +1394,7 @@ public class UserRestServlet {
      * enlace de restablecimiento de contraseña, el cual, tiene el JWT
      * creado.
      */
-    PasswordResetLink givenPasswordResetLink = passwordResetLinkService.create(emailService.findUserByAddress(dataEmailFormPasswordReset.getEmail()));
+    PasswordResetLink givenPasswordResetLink = passwordResetLinkService.create(userService.findUserByEmail(dataEmailFormPasswordReset.getEmail()));
     String jwtResetPassword = JwtManager.createJwt(givenPasswordResetLink.getId(), dataEmailFormPasswordReset.getEmail(), secretKeyService.find().getValue());
     EmailManager.sendPasswordResetEmail(dataEmailFormPasswordReset.getEmail(), jwtResetPassword);
 
@@ -1580,7 +1578,7 @@ public class UserRestServlet {
      * el usuario que solicito dicho restablecimiento, accede a dicho
      * enlace y restablece su contraseña.
      */
-    passwordService.modify(emailService.findUserByAddress(userEmail).getId(), passwordResetFormData.getNewPassword());
+    passwordService.modify(userService.findUserByEmail(userEmail).getId(), passwordResetFormData.getNewPassword());
     passwordResetLinkService.setConsumed(passwordResetLinkId);
     return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(new SuccessfullyResponse(ReasonSuccess.PASSWORD_RESET_SUCCESSFULLY))).build();
   }
@@ -1686,18 +1684,17 @@ public class UserRestServlet {
 
   /**
    * @param user
-   * @param email
    * @return referencia a un objeto de tipo UserData que
    * contiene el nombre de usuario, el nombre, el apellido
    * y el correo electronico de un usuario
    */
-  private UserData setUserData(User user, Email email) {
+  private UserData setUserData(User user) {
     UserData newUserData = new UserData();
     newUserData.setId(user.getId());
     newUserData.setUsername(user.getUsername());
     newUserData.setName(user.getName());
     newUserData.setLastName(user.getLastName());
-    newUserData.setEmail(email.getAddress());
+    newUserData.setEmail(user.getEmail().getAddress());
     newUserData.setSuperuser(user.getSuperuser());
 
     return newUserData;
@@ -1722,9 +1719,8 @@ public class UserRestServlet {
    * 
    * @param userId
    */
-  private void deleteDataAssociatedWithUser(int userId) {
+  private void deleteUserAndAssociatedData(int userId) {
     passwordService.removeByUserId(userId);
-    emailService.removeByUserId(userId);
     accountActivationLinkService.removeByUserId(userId);
     passwordResetLinkService.removeByUserId(userId);
     sessionService.removeByUserId(userId);
@@ -1762,6 +1758,22 @@ public class UserRestServlet {
     parcelService.deleteParcelsByUserId(userId);
     optionService.deleteOptionsByIds(optionIds);
     geographicLocationService.deleteGeographicLocationsByIds(optionIds);
+
+    int emailId = userService.find(userId).getEmail().getId();
+
+    /*
+     * Despues de eliminar los datos dependientes del usuario, se puede
+     * proceder a eliminar al usuario
+     */
+    userService.remove(userId);
+
+    /*
+     * En la base de datos subyacente, la tabla de usuarios tiene
+     * una clave foranea a la tabla de correos electronicos. Por
+     * lo tanto, para eliminar un correo electronico primero se
+     * debe eliminar un usuario.
+     */
+    emailService.remove(emailId);
   }
 
 }

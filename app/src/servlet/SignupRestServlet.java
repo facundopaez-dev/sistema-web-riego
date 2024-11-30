@@ -290,16 +290,6 @@ public class SignupRestServlet {
     passwordService.create(newPassword);
 
     /*
-     * Luego de persistir un usuario se debe persistir
-     * el correo electronico del mismo
-     */
-    Email newEmail = new Email();
-    newEmail.setAddress(newUserData.getEmail());
-    newEmail.setUser(newUser);
-
-    emailService.create(newEmail);
-
-    /*
      * Se persiste en la base de datos subyacente un enlace de
      * activacion de cuenta para el usuario registrado
      */
@@ -333,6 +323,11 @@ public class SignupRestServlet {
     newUser.setUsername(newUserData.getUsername());
     newUser.setName(newUserData.getName());
     newUser.setLastName(newUserData.getLastName());
+
+    Email email = new Email();
+    email.setAddress(newUserData.getEmail());
+
+    newUser.setEmail(email);
   }
 
 }

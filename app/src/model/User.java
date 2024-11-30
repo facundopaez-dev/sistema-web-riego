@@ -6,7 +6,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.OneToOne;
 import javax.persistence.JoinColumn;
+import javax.persistence.CascadeType;
 
 @Entity
 @Table(name = "IRRIGATION_SYSTEM_USER")
@@ -37,6 +39,10 @@ public class User {
 
   @Column(name = "USER_DELETION_PERMISSION")
   private boolean userDeletionPermission;
+
+  @OneToOne(cascade = CascadeType.PERSIST)
+  @JoinColumn(name = "FK_EMAIL", nullable = false, unique = true)
+  private Email email;
 
   public User() {
 
@@ -104,6 +110,14 @@ public class User {
 
   public void setUserDeletionPermission(boolean userDeletionPermission) {
     this.userDeletionPermission = userDeletionPermission;
+  }
+
+  public Email getEmail() {
+    return email;
+  }
+
+  public void setEmail(Email email) {
+    this.email = email;
   }
 
   @Override

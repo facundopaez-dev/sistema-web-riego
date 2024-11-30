@@ -21,7 +21,7 @@ Cultivo "*" --> "0..1" Region
 Cultivo "*" --> "0..2" Mes
 Parcela "*" --> "0..1" Suelo
 Contraseña "1" --> "1" Usuario
-CorreoElectronico "1" --> "1" Usuario
+Usuario "1" --> "1" CorreoElectronico
 BalanceHidricoSuelo "*" --> "1" Parcela
 Cosecha "*" --> "1" Parcela
 Cosecha "*" --> "1" Cultivo

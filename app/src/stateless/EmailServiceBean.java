@@ -28,15 +28,13 @@ public class EmailServiceBean {
   }
 
   /**
-   * Elimina la dirección de correo electrónico de un
-   * usuario utilizando su ID de usuario
-   * 
-   * @param userId
+   * Elimina fisicamente un correo electronico mediante su ID
+   *  
+   * @param emailId
    */
-  public void removeByUserId(int userId) {
-    Query query = entityManager.createQuery("DELETE FROM Email e WHERE e.user.id = :userId");
-    query.setParameter("userId", userId);
-    query.executeUpdate();
+  public void remove(int emailId) {
+    Email chosenEmail = find(emailId);
+    entityManager.remove(chosenEmail);
   }
 
   /**
@@ -87,7 +85,7 @@ public class EmailServiceBean {
    * de usuario provisto, null en caso contrario
    */
   public Email findEmailByUserId(int userId) {
-    Query query = getEntityManager().createQuery("SELECT e FROM Email e WHERE e.user.id = :userId");
+    Query query = getEntityManager().createQuery("SELECT e FROM User u JOIN u.email e WHERE u.id = :userId");
     query.setParameter("userId", userId);
 
     Email email = null;
@@ -102,64 +100,66 @@ public class EmailServiceBean {
   }
 
   /**
-   * Busca un usuario en la base de datos subyacente mediante una
-   * direccion de correo electronico
+   * Busca un correo electronico en la base de datos subyacente
+   * mediante una direccion de correo electronico
    * 
-   * @param email
-   * @return referencia a un objeto de tipo User en caso de encontrarse
-   * en la base de datos subyacente, el usuario con la direccion
-   * de correo electronico provista, en caso contrario null
+   * @param address
+   * @return referencia a un objeto de tipo Email si en la base de
+   * datos subyacente se encuentra un correo electronico con la
+   * direccion provista, en caso contrario null
    */
-  public User findUserByAddress(String email) {
-    Query query = getEntityManager().createQuery("SELECT u FROM Email e JOIN e.user u WHERE UPPER(e.address) = UPPER(:email)");
-    query.setParameter("email", email);
+  public Email findEmailByAddress(String address) {
+    Query query = getEntityManager().createQuery("SELECT e FROM User u JOIN u.email e WHERE UPPER(e.address) = UPPER(:address)");
+    query.setParameter("address", address);
 
-    User user = null;
+    Email email = null;
 
     try {
-      user = (User) query.getSingleResult();
+      email = (Email) query.getSingleResult();
     } catch (NoResultException e) {
       e.printStackTrace();
     }
 
-    return user;
+    return email;
   }
 
   /**
-   * Retorna una referencia a un objeto de tipo User si y solo si la
+   * Retorna una referencia a un objeto de tipo Email si y solo si la
    * direccion de correo electronico existe dentro del conjunto de
-   * usuarios en el que NO esta el usuario del ID dado. El motivo por
+   * correos electronicos en el que NO esta el correo electronico
+   * del usuario correspondiente a un ID de usuario. El motivo por
    * el cual se hace esta descripcion de esta manera es que un usuario
    * tiene una direccion de correo electronico.
    * 
-   * Este metodo es para cuando el usuario que tiene el ID dado modifica
-   * su direccion de correo electronico. Lo que se busca con este metodo
-   * es verificar que la direccion de correo electronica modificada NO
-   * este registrada en la cuenta de otro usuario. Si la direccion de
-   * correo electronico modificada NO esta registrada en la cuenta de otro
-   * usuario, la aplicacion realiza la modificacion de la direccion de
-   * correo electronico. En caso contrario, no la realiza.
+   * Este metodo es para cuando el usuario modifica su direccion de
+   * correo electronico. Lo que se busca con este metodo es verificar
+   * que la direccion de correo electronica modificada NO este registrada
+   * en la cuenta de otro usuario. Si la direccion de correo electronico
+   * modificada NO esta registrada en la cuenta de otro usuario, la
+   * aplicacion realiza la modificacion de la direccion de correo
+   * electronico. En caso contrario, no la realiza.
    * 
    * @param userId
-   * @param username
-   * @return referencia a un objeto de tipo User si el nombre de usuario
-   * existe dentro del conjunto de usuarios en el que NO esta el
-   * usuario del ID dado, en caso contrario null
+   * @param address
+   * @return referencia a un objeto de tipo Email si una direccion de
+   * correo electronico existe dentro del conjunto de correos electronicos
+   * en el que NO esta el correo electronico del usuario correspondiente
+   * a un ID de usuario, en caso contrario null
    */
-  public User findUserByAddress(int userId, String email) {
-    Query query = getEntityManager().createQuery("SELECT u FROM Email e JOIN e.user u WHERE (u.id != :userId AND UPPER(e.address) = UPPER(:email))");
+  public Email findEmailByUserIdAndAddress(int userId, String address) {
+    Query query = getEntityManager().createQuery("SELECT e FROM User u JOIN u.email e WHERE (u.id != :userId AND UPPER(e.address) = UPPER(:address))");
     query.setParameter("userId", userId);
-    query.setParameter("email", email);
+    query.setParameter("address", address);
 
-    User user = null;
+    Email email = null;
 
     try {
-      user = (User) query.getSingleResult();
+      email = (Email) query.getSingleResult();
     } catch (NoResultException e) {
       e.printStackTrace();
     }
 
-    return user;
+    return email;
   }
 
   /**
@@ -190,7 +190,7 @@ public class EmailServiceBean {
       return false;
     }
 
-    return (findUserByAddress(email) != null);
+    return (findEmailByAddress(email) != null);
   }
 
   /**
@@ -234,7 +234,7 @@ public class EmailServiceBean {
       return false;
     }
 
-    return (findUserByAddress(userId, email) != null);
+    return (findEmailByUserIdAndAddress(userId, email) != null);
   }
 
 }

@@ -1,57 +1,83 @@
 -- Este archivo corresponde a la tarea 89 de la pila del producto.
--- LEER: Este conjunto de datos es para la prueba del modulo automatico ExpiredAccountManager, el cual, se encuentra en la ruta app/src/accountsAdministration.
+-- LEER: Este conjunto de datos es para la prueba del modulo automatico ExpiredAccountManager, el cual se encuentra en la ruta app/src/accountsAdministration.
 -- Este modulo automatico elimina los enlaces de activacion de cuenta expirados y NO consumidos, y las cuentas registradas asociadas a los mismos.
 
-INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
-VALUES ('gdelf0', 'Goddart', 'Delf', 'ktaunton0@hexun.com', 1, 0);
-INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
-VALUES ('emarc1', 'Edik', 'Marc', 'jrichardes2@nsw.gov.au', 1, 0);
-INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
-VALUES ('belderkin2', 'Bobbye', 'Elderkin', 'jcurbishley1@hc360.com', 0, 0);
-INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
-VALUES ('pporte3', 'Pippo', 'Porte', 'kdesaur3@accuweather.com', 0, 0);
-INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
-VALUES ('csummerill4', 'Corilla', 'Summerill', 'bhuc4@yolasite.com', 0, 0);
-INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
-VALUES ('cbranford5', 'Cthrine', 'Branford', 'jwallbrook5@altervista.org', 0, 0);
-INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
-VALUES ('ogrishkov6', 'Ole', 'Grishkov', 'cwestell6@prweb.com', 0, 0);
-INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
-VALUES ('cbaumber7', 'Cyrille', 'Baumber', 'biddens7@hhs.gov', 0, 0);
-INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
-VALUES ('gfrapwell8', 'Gaven', 'Frapwell', 'hcoger8@alexa.com', 0, 0);
-INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
-VALUES ('hcrummie9', 'Harriott', 'Crummie', 'hpeasgood9@4shared.com', 0, 0);
-INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
-VALUES ('bbaumforda', 'Bernhard', 'Baumford', 'afreshwatera@biblegateway.com', 0, 0);
-INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
-VALUES ('nwithamsb', 'Nanine', 'Withams', 'aharmesb@t-online.de', 0, 0);
-INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
-VALUES ('cstellic', 'Cathy', 'Stelli', 'edebrettc@nationalgeographic.com', 0, 0);
-INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
-VALUES ('lwallingd', 'Lou', 'Walling', 'cmcardled@newyorker.com', 0, 0);
-INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
-VALUES ('hmcquiltye', 'Hewie', 'McQuilty', 'pstennese@digg.com', 0, 0);
-INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
-VALUES ('adightf', 'Aeriela', 'Dight', 'rstihlf@irs.gov', 0, 0);
-INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
-VALUES ('kmcgraffing', 'Katlin', 'McGraffin', 'poverg@dedecms.com', 0, 0);
-INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
-VALUES ('bbeddowsh', 'Booth', 'Beddows', 'tseymarkh@loc.gov', 0, 0);
-INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
-VALUES ('cgorettii', 'Carlyn', 'Goretti', 'fouthwaitei@kickstarter.com', 0, 0);
-INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
-VALUES ('jpauelj', 'Jennine', 'Pauel', 'rmolnarj@wsj.com', 0, 0);
-INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
-VALUES ('ccolebeckk', 'Crystie', 'Colebeck', 'cvarnek@ca.gov', 0, 0);
-INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
-VALUES ('pcalderbankl', 'Paul', 'Calderbank', 'tberryl@behance.net', 0, 0);
-INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
-VALUES ('jtulipm', 'Johann', 'Tulip', 'hfredam@examiner.com', 0, 0);
-INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
-VALUES ('dmatselln', 'Derek', 'Matsell', 'cbullern@jimdo.com', 0, 0);
-INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, EMAIL, ACTIVE, SUPERUSER)
-VALUES ('nclemmeyo', 'Nilson', 'Clemmey', 'frizzardoo@jalbum.net', 0, 0);
+INSERT INTO EMAIL (ADDRESS) VALUES ('ktaunton0@hexun.com');
+INSERT INTO EMAIL (ADDRESS) VALUES ('jrichardes2@nsw.gov.au');
+INSERT INTO EMAIL (ADDRESS) VALUES ('jcurbishley1@hc360.com');
+INSERT INTO EMAIL (ADDRESS) VALUES ('kdesaur3@accuweather.com');
+INSERT INTO EMAIL (ADDRESS) VALUES ('bhuc4@yolasite.com');
+INSERT INTO EMAIL (ADDRESS) VALUES ('jwallbrook5@altervista.org');
+INSERT INTO EMAIL (ADDRESS) VALUES ('cwestell6@prweb.com');
+INSERT INTO EMAIL (ADDRESS) VALUES ('biddens7@hhs.gov');
+INSERT INTO EMAIL (ADDRESS) VALUES ('hcoger8@alexa.com');
+INSERT INTO EMAIL (ADDRESS) VALUES ('hpeasgood9@4shared.com');
+INSERT INTO EMAIL (ADDRESS) VALUES ('afreshwatera@biblegateway.com');
+INSERT INTO EMAIL (ADDRESS) VALUES ('aharmesb@t-online.de');
+INSERT INTO EMAIL (ADDRESS) VALUES ('edebrettc@nationalgeographic.com');
+INSERT INTO EMAIL (ADDRESS) VALUES ('cmcardled@newyorker.com');
+INSERT INTO EMAIL (ADDRESS) VALUES ('pstennese@digg.com');
+INSERT INTO EMAIL (ADDRESS) VALUES ('rstihlf@irs.gov');
+INSERT INTO EMAIL (ADDRESS) VALUES ('poverg@dedecms.com');
+INSERT INTO EMAIL (ADDRESS) VALUES ('tseymarkh@loc.gov');
+INSERT INTO EMAIL (ADDRESS) VALUES ('fouthwaitei@kickstarter.com');
+INSERT INTO EMAIL (ADDRESS) VALUES ('rmolnarj@wsj.com');
+INSERT INTO EMAIL (ADDRESS) VALUES ('cvarnek@ca.gov');
+INSERT INTO EMAIL (ADDRESS) VALUES ('tberryl@behance.net');
+INSERT INTO EMAIL (ADDRESS) VALUES ('hfredam@examiner.com');
+INSERT INTO EMAIL (ADDRESS) VALUES ('cbullern@jimdo.com');
+INSERT INTO EMAIL (ADDRESS) VALUES ('frizzardoo@jalbum.net');
+
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, ACTIVE, SUPERUSER, FK_EMAIL)
+VALUES ('gdelf0', 'Goddart', 'Delf', 1, 0, 1);
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, ACTIVE, SUPERUSER, FK_EMAIL)
+VALUES ('emarc1', 'Edik', 'Marc', 1, 0, 2);
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, ACTIVE, SUPERUSER, FK_EMAIL)
+VALUES ('belderkin2', 'Bobbye', 'Elderkin', 0, 0, 3);
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, ACTIVE, SUPERUSER, FK_EMAIL)
+VALUES ('pporte3', 'Pippo', 'Porte', 0, 0, 4);
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, ACTIVE, SUPERUSER, FK_EMAIL)
+VALUES ('csummerill4', 'Corilla', 'Summerill', 0, 0, 5);
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, ACTIVE, SUPERUSER, FK_EMAIL)
+VALUES ('cbranford5', 'Cthrine', 'Branford', 0, 0, 6);
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, ACTIVE, SUPERUSER, FK_EMAIL)
+VALUES ('ogrishkov6', 'Ole', 'Grishkov', 0, 0, 7);
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, ACTIVE, SUPERUSER, FK_EMAIL)
+VALUES ('cbaumber7', 'Cyrille', 'Baumber', 0, 0, 8);
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, ACTIVE, SUPERUSER, FK_EMAIL)
+VALUES ('gfrapwell8', 'Gaven', 'Frapwell', 0, 0, 9);
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, ACTIVE, SUPERUSER, FK_EMAIL)
+VALUES ('hcrummie9', 'Harriott', 'Crummie', 0, 0, 10);
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, ACTIVE, SUPERUSER, FK_EMAIL)
+VALUES ('bbaumforda', 'Bernhard', 'Baumford', 0, 0, 11);
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, ACTIVE, SUPERUSER, FK_EMAIL)
+VALUES ('nwithamsb', 'Nanine', 'Withams', 0, 0, 12);
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, ACTIVE, SUPERUSER, FK_EMAIL)
+VALUES ('cstellic', 'Cathy', 'Stelli', 0, 0, 13);
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, ACTIVE, SUPERUSER, FK_EMAIL)
+VALUES ('lwallingd', 'Lou', 'Walling', 0, 0, 14);
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, ACTIVE, SUPERUSER, FK_EMAIL)
+VALUES ('hmcquiltye', 'Hewie', 'McQuilty', 0, 0, 15);
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, ACTIVE, SUPERUSER, FK_EMAIL)
+VALUES ('adightf', 'Aeriela', 'Dight', 0, 0, 16);
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, ACTIVE, SUPERUSER, FK_EMAIL)
+VALUES ('kmcgraffing', 'Katlin', 'McGraffin', 0, 0, 17);
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, ACTIVE, SUPERUSER, FK_EMAIL)
+VALUES ('bbeddowsh', 'Booth', 'Beddows', 0, 0, 18);
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, ACTIVE, SUPERUSER, FK_EMAIL)
+VALUES ('cgorettii', 'Carlyn', 'Goretti', 0, 0, 19);
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, ACTIVE, SUPERUSER, FK_EMAIL)
+VALUES ('jpauelj', 'Jennine', 'Pauel', 0, 0, 20);
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, ACTIVE, SUPERUSER, FK_EMAIL)
+VALUES ('ccolebeckk', 'Crystie', 'Colebeck', 0, 0, 21);
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, ACTIVE, SUPERUSER, FK_EMAIL)
+VALUES ('pcalderbankl', 'Paul', 'Calderbank', 0, 0, 22);
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, ACTIVE, SUPERUSER, FK_EMAIL)
+VALUES ('jtulipm', 'Johann', 'Tulip', 0, 0, 23);
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, ACTIVE, SUPERUSER, FK_EMAIL)
+VALUES ('dmatselln', 'Derek', 'Matsell', 0, 0, 24);
+INSERT INTO IRRIGATION_SYSTEM_USER (USERNAME, NAME, LAST_NAME, ACTIVE, SUPERUSER, FK_EMAIL)
+VALUES ('nclemmeyo', 'Nilson', 'Clemmey', 0, 0, 25);
 
 INSERT INTO ACCOUNT_ACTIVATION_LINK (DATE_ISSUE, EXPIRATION_DATE, CONSUMED, FK_USER) VALUES ('2022-12-09 00:00:00', '2022-10-14 00:00:00', 1, 1);
 INSERT INTO ACCOUNT_ACTIVATION_LINK (DATE_ISSUE, EXPIRATION_DATE, CONSUMED, FK_USER) VALUES ('2022-03-24 00:00:00', '2022-11-27 00:00:00', 1, 2);
