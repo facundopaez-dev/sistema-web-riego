@@ -713,9 +713,10 @@ public class PlantingRecordServiceBean {
    * @param parcelId
    * @return referencia a un objeto de tipo PlantingRecord que
    * representa un registro de plantacion que tiene un estado
-   * en desarrollo (desarrollo optimo, desarrollo riesgoso,
-   * desarrollo en marchitez), si existe en la base de datos
-   * subyacente. En caso contrario, retorna null.
+   * de desarrollo (en desarrollo, desarrollo optimo, desarrollo
+   * en riesgo de marchitez, desarrollo en marchitez), si existe
+   * en la base de datos subyacente. En caso contrario, retorna
+   * null.
    */
   public PlantingRecord findInDevelopment(int parcelId) {
     Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p JOIN r.status s WHERE (p.id = :parcelId AND s IN (SELECT t FROM PlantingRecordStatus t WHERE UPPER(t.name) LIKE (CONCAT('%', UPPER('Desarrollo'), '%'))))");
