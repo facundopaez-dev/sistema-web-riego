@@ -249,7 +249,7 @@ public class PlantingRecordServiceBean {
      * de insercion del archivo SQL plantingRecordStatusInserts.
      */
     String subQuery = "SELECT MIN(RESULT_TABLE.SEED_DATE) FROM (SELECT * FROM PLANTING_RECORD WHERE (FK_PARCEL = ?1 AND FK_STATUS = 2) ORDER BY SEED_DATE) AS RESULT_TABLE";
-    String stringQuery = "SELECT ID FROM PLANTING_RECORD WHERE SEED_DATE = (" + subQuery + ")";
+    String stringQuery = "SELECT ID FROM PLANTING_RECORD WHERE FK_PARCEL = ?1 AND SEED_DATE = (" + subQuery + ")";
 
     Query query = entityManager.createNativeQuery(stringQuery);
     query.setParameter(1, parcelId);
