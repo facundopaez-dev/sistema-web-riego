@@ -71,7 +71,6 @@ public enum ReasonError {
   MODIFICATION_WITH_FUTURE_SEED_DATE_NOT_ALLOWED("No está permitido modificar un registro de plantación con una fecha de siembra mayor a la fecha actual (es decir, posterior a la fecha actual)"),
   DELETION_PARCEL_WITH_PLANTING_RECORD_IN_DEVELOPMENT_NOT_ALLOWED("No está permitido eliminar (lógicamente) una parcela que tiene un registro de plantación en desarrollo"),
   MODIFICATION_IRRIGATION_WATER_NEED_NOT_ALLOWED("No está permitida la modificación de la necesidad de agua de riego"),
-  MODIFICATION_WITH_PARCEL_HAS_PLANTING_RECORD_IN_DEVELOPMENT_NOT_ALLOWED("La parcela seleccionada ya tiene un registro de plantación en desarrollo"),
   UNDEFINED_SEED_DATE("La fecha de siembra debe estar definida"),
   UNDEFINED_HARVEST_DATE("La fecha de cosecha debe estar definida"),
   OVERLAPPING_SEED_DATE_AND_HARVEST_DATE("La fecha de siembra no debe ser mayor ni igual a la fecha de cosecha"),
@@ -147,7 +146,8 @@ public enum ReasonError {
   OWN_MODIFICATION_ADMIN_PERMISSION_NOT_ALLOWED("No está permitido modificar el permiso de administrador propio"),
   SELF_DELETION_NOT_ALLOWED("No está permitido eliminar la propia cuenta de usuario"),
   POSSIBLE_INTERNET_CONNECTION_PROBLEM_IN_MODIFIED_GEOGRAPHIC_LOCATION_OF_PARCEL("No es posible calcular la necesidad de agua de riego de un cultivo en la fecha actual (es decir, hoy) debido a que no tiene conexión a Internet o a que el servicio meteorológico Visual Crossing Weather no está en funcionamiento para obtener los datos meteorológicos de la nueva ubicación geográfica de la parcela, los cuales son necesarios para realizar dicho cálculo"),
-  POSSIBLE_INTERNET_CONNECTION_PROBLEM_IN_LACK_OF_CLIMATE_RECORDS("No es posible calcular la necesidad de agua de riego de un cultivo en la fecha actual (es decir, hoy) debido a que no tiene conexión a Internet o a que el servicio meteorológico Visual Crossing Weather no está en funcionamiento para obtener los datos meteorológicos necesarios para realizar dicho cálculo");
+  POSSIBLE_INTERNET_CONNECTION_PROBLEM_IN_LACK_OF_CLIMATE_RECORDS("No es posible calcular la necesidad de agua de riego de un cultivo en la fecha actual (es decir, hoy) debido a que no tiene conexión a Internet o a que el servicio meteorológico Visual Crossing Weather no está en funcionamiento para obtener los datos meteorológicos necesarios para realizar dicho cálculo"),
+  INVALID_MODIFICATION_OF_HARVEST_DATE_ON_DEATH("Para mantener el estado muerto, la fecha de cosecha debe ser igual o posterior a la fecha de muerte, y no puede ser anterior");
 
   private final String reason;
 

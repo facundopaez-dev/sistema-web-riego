@@ -1305,22 +1305,6 @@ public class PlantingRecordRestServlet {
     }
 
     /*
-     * Si la parcela del registro de plantacion a modificar
-     * es diferente a la parcela actual de dicho registro y
-     * ya tiene un registro de plantacion en desarrollo, la
-     * aplicacion retorna el mensaje HTTP 400 (Bad request)
-     * junto con el mensaje "La parcela seleccionada ya tiene
-     * un registro de plantacion en desarrollo" y no se realiza
-     * la operacion solicitada
-     */
-    if (!(parcelService.equals(modifiedPlantingRecord.getParcel(), currentPlantingRecord.getParcel()))
-        && (plantingRecordService.checkOneInDevelopment(modifiedPlantingRecord.getParcel().getId()))) {
-      return Response.status(Response.Status.BAD_REQUEST)
-          .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_WITH_PARCEL_HAS_PLANTING_RECORD_IN_DEVELOPMENT_NOT_ALLOWED)))
-          .build();
-    }
-
-    /*
      * Si el cultivo del registro de plantacion a modificar NO
      * esta definido, la aplicacion del lado servidor retorna
      * el mensaje HTTP 400 (Bad request) junto con el mensaje
@@ -1345,213 +1329,152 @@ public class PlantingRecordRestServlet {
         .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.MODIFICATION_IRRIGATION_WATER_NEED_NOT_ALLOWED))).build();
     }
 
-    PlantingRecordStatus currentStatusModifiedPlantingRecord = modifiedPlantingRecord.getStatus();
-
     /*
-     * El estado actual (*) del registro de plantacion a modificar
-     * puede cambiar dependiendo de:
-     * - si es "Muerto" y el usuario NO se desea que el registro
-     * mantenga este estado.
-     * - si NO es "Muerto" y si la fecha de siembra o la fecha
-     * de cosecha del registro es modificada o si ambas son
-     * modificadas o si su parcela es modificada o si su
-     * cultivo es modificado.
-     * 
-     * (*) Por "actual" se hace referencia al dato existente
-     * antes de la modificacion de un registro de plantacion.
+     * Si se modifica el cultivo del registro de plantacion y existen
+     * registros de riego con un cultivo asignado dentro del periodo
+     * definido por la fecha de siembra y la fecha de cosecha del
+     * registro de plantacion, se actualiza el cultivo de todos los
+     * registros de riego correspondientes a dicho periodo.
      */
-    PlantingRecordStatus newStatusPlantingRecord = currentStatusModifiedPlantingRecord;
-
-    /*
-     * Si un registro de plantacion a modificar tiene el estado
-     * muerto y NO se desea que mantenga ese estado luego de su
-     * modificacion, se establece su proximo estado. El estado
-     * de un registro de plantacion se calcula con base en la
-     * fecha de siembra, la fecha de cosecha y la bandera suelo
-     * de las opciones de la parcela a la que pertenece.
-     */
-    if (statusService.equals(currentStatusModifiedPlantingRecord, deadStatus) && !maintainDeadStatus) {
-      newStatusPlantingRecord = statusService.calculateStatus(modifiedPlantingRecord);
-      plantingRecordService.unsetDeathDate(plantingRecordId);
+    if (!cropService.equals(modifiedCrop, currentCrop) && irrigationRecordService
+        .checkExistenceBetweenDates(userId, modifiedParcel.getId(), modifiedSeedDate, modifiedHarvestDate)) {
+      irrigationRecordService.modifyCropInPeriod(modifiedParcel.getId(), modifiedCrop, modifiedSeedDate, modifiedHarvestDate);
     }
 
     /*
-     * Si el registro de plantacion a modificar NO tiene el
-     * estado "Muerto" y:
-     * - su fecha de siembra o su fecha de cosecha es modificada
-     * o si ambas son modificadas o
-     * - su parcela es modificada o
-     * - su cultivo es modificado,
-     * 
-     * se calcula y asigna su proximo estado. El estado de un
-     * registro de plantacion se calcula con base en la fecha
-     * de siembra, la fecha de cosecha y la bandera suelo de
-     * las opciones de la parcela a la que pertenece.
+     * Verifica si la parcela actual y la parcela modificada del
+     * registro de plantacion a modificar tienen un registro de
+     * plantacion con un estado de desarrollo (en desarrollo,
+     * desarrollo optimo, desarrollo en riesgo de marchitez,
+     * desarrollo en marchitez). Si es asi, se comprueba si dicho
+     * registro tiene el estado "Finalizado". En caso afirmativo,
+     * se realizan las modificaciones correspondientes.
      */
-    if (!statusService.equals(currentStatusModifiedPlantingRecord, deadStatus)
-        && (UtilDate.compareTo(modifiedSeedDate, currentSeedDate) != 0
-            || UtilDate.compareTo(modifiedHarvestDate, currentHarvestDate) != 0
-            || !parcelService.equals(modifiedParcel, currentParcel)
-            || !cropService.equals(modifiedCrop, currentCrop))) {
-      newStatusPlantingRecord = statusService.calculateStatus(modifiedPlantingRecord);
+    checkDevelopingPlantingRecordForParcels(currentParcel.getId(), modifiedParcel.getId());
+
+    /*
+     * Comprueba si tanto la parcela actual como la parcela modificada
+     * del registro de plantacion a modificar NO tienen un registro
+     * en un estado de desarrollo (en desarrollo, desarrollo optimo,
+     * desarrollo en riesgo de marchitez o desarrollo en marchitez)
+     * y si ambas tienen registros de plantacion con el estado "En
+     * espera".
+     * 
+     * Si ambas condiciones se cumplen, se selecciona, de cada parcela,
+     * el registro de plantacion con el estado "En espera" cuya fecha
+     * de siembra sea la mas cercana a la fecha actual. Luego, se evalua
+     * si dicho registro debe actualizarse al estado "En desarrollo"
+     * o "Desarrollo optimo". De ser necesario, se realizan las
+     * modificaciones correspondientes.
+     */
+    checkWaitingPlantingRecordForParcels(userId, currentParcel.getId(), modifiedParcel.getId());
+
+    /*
+     * *****************************************************************
+     * Codigo fuente del control del estado de un registro de plantacion
+     * *****************************************************************
+     */
+
+    PlantingRecordStatus modifiedPlantingRecordStatus = modifiedPlantingRecord.getStatus();
+
+    /*
+     * Si el estado del registro de plantacion a modificar es "Muerto"
+     * y el usuario desea mantenerlo, se realizan los siguientes
+     * controles:
+     * 1. Verificar que la fecha de siembra modificada coincida con la
+     * fecha de siembra actual, que la parcela y el cultivo sean los mismos,
+     * y que la fecha de cosecha no sea anterior a la fecha de muerte.
+     * 2. Similar al control anterior, pero en este caso se verifica
+     * que la fecha de cosecha sea igual o posterior a la fecha de
+     * muerte.
+     * 
+     * El objetivo de estos controles es permitir que el usuario mantenga
+     * el estado "Muerto" solo cuando se modifica la fecha de cosecha, si
+     * asi lo desea. Esto se debe a que si un cultivo esta muerto y se
+     * modifica la fecha de siembra, la parcela o el cultivo, se esta
+     * tratando con un caso nuevo. En ese caso, es necesario recalcular
+     * la necesidad de agua de riego de un cultivo en la fecha actual en
+     * funcion de la nueva configuracion.
+     */
+    if (statusService.equals(modifiedPlantingRecordStatus, deadStatus) && maintainDeadStatus) {
+        Calendar deathDate = modifiedPlantingRecord.getDeathDate();
+
+      if (UtilDate.compareTo(modifiedSeedDate, currentSeedDate) == 0
+          && parcelService.equals(modifiedParcel, currentParcel)
+          && cropService.equals(modifiedCrop, currentCrop)
+          && UtilDate.compareTo(modifiedHarvestDate, deathDate) < 0) {
+        return Response.status(Response.Status.BAD_REQUEST)
+            .entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INVALID_MODIFICATION_OF_HARVEST_DATE_ON_DEATH)))
+            .build();
+      }
+
+      if (UtilDate.compareTo(modifiedSeedDate, currentSeedDate) == 0
+          && parcelService.equals(modifiedParcel, currentParcel)
+          && cropService.equals(modifiedCrop, currentCrop)
+          && UtilDate.compareTo(modifiedHarvestDate, deathDate) >= 0) {
+
+        /*
+         * Modifica unicamente la fecha de cosecha del registro de
+         * plantacion
+         */
+        modifiedPlantingRecord = plantingRecordService.modify(userId, plantingRecordId, modifiedPlantingRecord);
+        return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(modifiedPlantingRecord)).build();
+      }
+
     }
 
     /*
-     * Asignacion del posible nuevo estado del registro de
-     * plantacion a modificar. En caso de que el estado no
-     * sea nuevo, al registro de plantacion a modificar
-     * se le asigna el estado que tenia antes de la
-     * peticion de modificacion.
+     * ********************************************************************
+     * Si se llega a esta linea de codigo es debido a una de las siguientes
+     * condiciones:
+     * - El registro de plantacion a modificar NO tiene el estado "Muerto".
+     * - El registro de plantacion a modificar tiene el estado "Muerto" y
+     * el usuario NO desea mantener dicho estado.
+     * - El registro de plantacion a modificar tiene el estado "Muerto" y
+     * el usuario desea mantener dicho estado, pero se modifico la fecha de
+     * siembra, la parcela o el cultivo.
+     * ********************************************************************
      */
-    modifiedPlantingRecord.setStatus(newStatusPlantingRecord);
+    PlantingRecordStatus newModifiedPlantingRecordStatus = statusService.calculateStatus(modifiedPlantingRecord);
+    modifiedPlantingRecord.setDeathDate(null);
 
     /*
-     * El simbolo de esta variable se utiliza para representar que la
-     * necesidad de agua de riego de un cultivo en la fecha actual [mm/dia]
-     * no esta disponible, pero se puede calcular. Esta situacion
-     * ocurre unicamente para un registro de plantacion en desarrollo.
+     * Si el registro de plantacion a modificar cambia su estado a
+     * "Finalizado" o "En espera", se actualizan los siguientes
+     * atributos: "necesidad de agua de riego del cultivo", "lamina
+     * total de agua disponible" y "lamina de riego optima".
      */
-    String cropIrrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getCropIrrigationWaterNotAvailableButCalculable();
-
-    /*
-     * El valor de esta constante se asigna a la necesidad de
-     * agua de riego [mm/dia] de un registro de plantacion
-     * para el que no se puede calcular dicha necesidad, lo
-     * cual, ocurre cuando no se tiene la evapotranspiracion
-     * del cultivo bajo condiciones estandar (ETc) [mm/dia]
-     * ni la precipitacion [mm/dia], siendo ambos valores de
-     * la fecha actual.
-     * 
-     * El valor de esta constante tambien se asigna a la
-     * necesidad de agua de riego de un registro de plantacion
-     * finalizado o en espera, ya que NO tiene ninguna utilidad
-     * que un registro de plantacion en uno de estos estados
-     * tenga un valor numerico mayor o igual a cero en la
-     * necesidad de agua de riego.
-     * 
-     * La abreviatura "n/a" significa "no disponible".
-     */
-    String notAvailable = plantingRecordService.getNotAvailable();
-
-    /*
-     * Si el registro de plantacion a modificar tiene como nuevo
-     * estado al estado "Finalizado", se actualizan sus atributos
-     * "necesidad de agua de riego de un cultivo", "lamina total
-     * de agua disponible" y "lamina de riego optima". Si la
-     * parcela modificada de dicho registro tiene registros de
-     * plantacion que tienen el estado "En espera", se selecciona
-     * el registro de plantacion en espera de dicha parcela mas
-     * cercano a la fecha actual y se actualiza su estado, su
-     * necesidad de agua de riego, su lamina total de agua
-     * disponible y su lamina de riego optima. Esto tres ultimos
-     * atributos son actualizados si el nuevo estado del registro
-     * de plantacion en espera es "En desarrollo" o "En desarrollo
-     * optimo".
-     */
-    if (statusService.equals(statusService.calculateStatus(modifiedPlantingRecord), finishedStatus)) {
-      modifiedPlantingRecord.setStatus(finishedStatus);
+    if (statusService.equals(newModifiedPlantingRecordStatus, finishedStatus) || statusService.equals(newModifiedPlantingRecordStatus, waitingStatus)) {
+      /*
+       * El valor de esta constante se asigna a la necesidad de
+       * agua de riego [mm/dia] de un registro de plantacion
+       * para el que no se puede calcular dicha necesidad, lo
+       * cual, ocurre cuando no se tiene la evapotranspiracion
+       * del cultivo bajo condiciones estandar (ETc) [mm/dia]
+       * ni la precipitacion [mm/dia], siendo ambos valores de
+       * la fecha actual.
+       * 
+       * El valor de esta constante tambien se asigna a la
+       * necesidad de agua de riego de un registro de plantacion
+       * finalizado o en espera, ya que NO tiene ninguna utilidad
+       * que un registro de plantacion en uno de estos estados
+       * tenga un valor numerico mayor o igual a cero en la
+       * necesidad de agua de riego.
+       * 
+       * La abreviatura "n/a" significa "no disponible".
+       */
+      String notAvailable = plantingRecordService.getNotAvailable();
 
       /*
        * La necesidad de agua de riego, la capacidad de almacenamiento
        * de agua del suelo y el umbral de riego de un registro de
-       * plantacion que tiene el estado finalizado tienen los valores
-       * "n/a", 0 y 0, respectivamente
+       * plantación con estado "Finalizado" o "En espera" se establecen
+       * en los valores "n/a", 0 y 0, respectivamente.
        */
       modifiedPlantingRecord.setCropIrrigationWaterNeed(notAvailable);
       plantingRecordService.updateTotalAmountWaterAvailable(plantingRecordId, 0);
       plantingRecordService.updateOptimalIrrigationLayer(plantingRecordId, 0);
-
-      /*
-       * Si la parcela correspondiente al registro de plantacion
-       * que paso de un estado de desarrollo al estado "Finalizado",
-       * tiene registros de plantacion en el estado "En espera", se
-       * obtiene de ellos el que tiene la fecha de siembra mas cercana
-       * a la fecha actual
-       */
-      if (plantingRecordService.hasInWaitingPlantingRecords(userId, modifiedParcel.getId())) {
-        int idFirstPlantingRecordInWaiting = plantingRecordService.findIdFirstOneOnWaiting(modifiedParcel.getId());
-        PlantingRecord firstPlantingRecordInWaiting = plantingRecordService.find(idFirstPlantingRecordInWaiting);
-        PlantingRecordStatus status = statusService.calculateStatus(firstPlantingRecordInWaiting);
-        plantingRecordService.setStatus(idFirstPlantingRecordInWaiting, status);
-
-        /*
-         * El caracter "-" (guion) se utiliza para representar que la
-         * necesidad de agua de riego de un cultivo en la fecha actual
-         * (es decir, hoy) [mm/dia] NO esta disponible, pero se puede
-         * calcular. Esta situacion ocurre unicamente para un registro
-         * de plantacion que tiene el estado "En desarrollo" o el estado
-         * "Desarrollo optimo". El que un registro de plantacion tenga
-         * el estado "En desarrollo" o el estado "Desarrollo optimo"
-         * depende de la fecha de siembra, la fecha de cosecha y la
-         * bandera suelo de las opciones de la parcela a la que
-         * pertenece. Si la fecha de siembra y la fecha de cosecha se
-         * eligen de tal manera que la fecha actual (es decir, hoy)
-         * esta dentro del periodo definido por ambas y la bandera
-         * suelo esta activa, el registro adquiere el estado "En
-         * desarrollo". En caso contrario, adquiere el estado
-         * "Desarrollo optimo".
-         */
-        if (statusService.equals(status, inDevelopmentStatus) || statusService.equals(status, optimalDevelopmentStatus)) {
-          plantingRecordService.updateCropIrrigationWaterNeed(idFirstPlantingRecordInWaiting, cropIrrigationWaterNeedNotAvailableButCalculable);
-        }
-
-        /*
-         * Si la parcela del registro de plantacion obtenido tiene
-         * la opcion suelo activa en sus opciones y si el registro
-         * de plantacion tiene el estado "Desarrollo optimo" se
-         * actualizan sus atributos "lamina total de agua disponible"
-         * (capacidad de almacenamiento de agua del suelo) [mm] y
-         * "lamina de riego optima" (umbral de riego) [mm]
-         */
-        if (statusService.equals(status, optimalDevelopmentStatus) && firstPlantingRecordInWaiting.getParcel().getOption().getSoilFlag()) {
-          plantingRecordService.updateTotalAmountWaterAvailable(idFirstPlantingRecordInWaiting, WaterMath
-              .calculateTotalAmountWaterAvailable(firstPlantingRecordInWaiting.getCrop(), firstPlantingRecordInWaiting.getParcel().getSoil()));
-          plantingRecordService.updateOptimalIrrigationLayer(idFirstPlantingRecordInWaiting, WaterMath
-              .calculateOptimalIrrigationLayer(firstPlantingRecordInWaiting.getCrop(), firstPlantingRecordInWaiting.getParcel().getSoil()));
-        }
-
-      } // End if
-
-      return Response.status(Response.Status.OK)
-          .entity(mapper.writeValueAsString(plantingRecordService.modify(userId, plantingRecordId, modifiedPlantingRecord)))
-          .build();
-    } // End if
-
-    /*
-     * Un registro de plantacion tiene el estado "Finalizado" cuando
-     * es del pasado, esto es que tanto su fecha de siembra como su
-     * fecha de cosecha son estrictamente menores a la fecha actual
-     * (hoy).
-     * 
-     * Un registro de plantacion tiene el estado "En espera" cuando
-     * es del futuro, esto es que tanto su fecha de siembra como su
-     * fecha de cosecha son estrictamente mayor a la fecha actual
-     * (hoy).
-     * 
-     * Un registro de plantacion del pasado tiene el valor "n/a" (no
-     * disponible) en su atributo de la necesidad de agua de riego
-     * porque no se tienen los registros climaticos del pasado, con
-     * los cuales se calcula la ETc (evapotranspiracion del cultivo
-     * bajo condiciones estandar) de un cultivo y al no tener la ETc
-     * no se puede calcular la necesidad de agua de riego de un cultivo.
-     * 
-     * Un registro de plantacion del futuro tiene el valor "n/a" (no
-     * disponible) en su atributo de la necesidad de agua de riego
-     * porque no se tienen los registros climaticos del futuro, con
-     * los cuales se calcula la ETc (evapotranspiracion del cultivo
-     * bajo condiciones estandar) de un cultivo y al no tener la ETc
-     * no se puede calcular la necesidad de agua de riego de un cultivo.
-     * 
-     * Se asigna el valor 0 a la lamina total de agua disponible (dt)
-     * [mm] y a la lamina de riego optima (drop) [mm] de un registro
-     * de plantacion modificado que tiene el estado finalizado o el
-     * estado en espera, ya que en uno de estos estados NO tiene
-     * ninguna utilidad tener tales datos.
-     */
-    if (statusService.equals(newStatusPlantingRecord, finishedStatus) || statusService.equals(newStatusPlantingRecord, waitingStatus)) {
-      modifiedPlantingRecord.setCropIrrigationWaterNeed(notAvailable);
-      plantingRecordService.updateTotalAmountWaterAvailable(plantingRecordId, 0);
-      plantingRecordService.updateOptimalIrrigationLayer(plantingRecordId, 0);
+      modifiedPlantingRecord.setStatus(newModifiedPlantingRecordStatus);
 
       return Response.status(Response.Status.OK)
           .entity(mapper.writeValueAsString(plantingRecordService.modify(userId, plantingRecordId, modifiedPlantingRecord)))
@@ -1559,233 +1482,59 @@ public class PlantingRecordRestServlet {
     }
 
     /*
-     * Si el nuevo estado del registro de plantacion a modificar es
-     * "En desarrollo" o "Desarrollo optimo" se realizan las siguientes
-     * evaluaciones:
-     * 1. si el unico dato modificado del registro es su fecha de siembra.
-     * 2. si la parcela o el cultivo del registro es modificado. Si el
-     * estado actual (*) del registro es "Finalizado", "En espera" o
-     * "Muerto".
-     * 
-     * 1. Si el unico dato modificado del registro de plantacion a
-     * modificar es su fecha de siembra, se asigna el caracter "-" (guion)
-     * al atributo "necesidad de agua de riego de un cultivo" (**) del
-     * mismo.
-     * 
-     * 2. Si se modifica la parcela y/o el cultivo del registro de
-     * plantacion a modificar, se asigna el caracter "-" (guion) al
-     * atributo "necesidad de agua de riego de un cultivo" (**) del
-     * mismo. Si el estado actual (*) del registro de plantacion es
-     * "Finalizado", "En espera" o "Muerto" se realiza la misma
-     * asignacion.
-     * 
-     * El caracter "-" (guion) se utiliza para representar que la
-     * necesidad de agua de riego de un cultivo en la fecha actual
-     * (es decir, hoy) [mm/dia] NO esta disponible, pero se puede
-     * calcular. Esta situacion ocurre unicamente para un registro
-     * de plantacion que tiene el estado "En desarrollo" o el estado
-     * "Desarrollo optimo". El que un registro de plantacion tenga
-     * el estado "En desarrollo" o el estado "Desarrollo optimo"
-     * depende de la fecha de siembra, la fecha de cosecha y la
-     * bandera suelo de las opciones de la parcela a la que
-     * pertenece. Si la fecha de siembra y la fecha de cosecha se
-     * eligen de tal manera que la fecha actual (es decir, hoy)
-     * esta dentro del periodo definido por ambas y la bandera
-     * suelo esta activa, el registro adquiere el estado "En
-     * desarrollo". En caso contrario, adquiere el estado "Desarrollo
-     * optimo".
-     * 
-     * (*) Por "actual" se hace referencia al estado existente antes de
-     * la modificacion de un registro de plantacion.
-     * 
-     * (**) El atributo "necesidad de agua de riego de un cultivo" es
-     * la necesidad de agua de riego de un cultivo en la fecha actual
-     * (es decir, hoy) [mm/dia].
+     * ****************************************************************
+     * Esta linea de codigo se ejecuta cuando el registro de plantacion
+     * a modificar adquiere el estado "En desarrollo" o "Desarrollo
+     * optimo". El metodo calculateStatus() de la clase
+     * PlantingRecordStatusServiceBean determina y devuelve uno de los
+     * siguientes estados: "Finalizado", "En desarrollo", "Desarrollo
+     * optimo" o "En espera".
+     * ****************************************************************
      */
-    if (statusService.equals(newStatusPlantingRecord, inDevelopmentStatus) || statusService.equals(newStatusPlantingRecord, optimalDevelopmentStatus)) {
-
-      /*
-       * La necesidad de agua de riego de un cultivo en la fecha
-       * actual (es decir, hoy) [mm/dia] se calcula con base en el
-       * acumulado del deficit de humedad por dia [mm/dia] del dia
-       * inmediatamente anterior a la fecha actual. Este valor
-       * acumulado es el resultado de acumular el deficit de humedad
-       * por dia [mm/dia] de cada uno de los balances hidricos de
-       * suelo calculados desde la fecha de siembra de un cultivo
-       * hasta la fecha inmediatamente anterior a la fecha actual.
-       * El deficit de humedad por dia [mm/dia] es calculado como
-       * la diferencia entre la precipitacion [mm/dia] y la ETc
-       * (evapotranspiracion del cultivo bajo condiciones estandar)
-       * [mm/dia] o la ETo (evapotranspiracion del cultivo de
-       * referencia) [mm/dia] si la ETc = 0. La ETc se calcula
-       * con base en la ETo y un Kc (coeficiente de cultivo) de
-       * un cultivo. La ETo se calcula con base en los datos
-       * meteorologicos de una fecha y una ubicacion geografica.
-       * Por lo tanto, la ETc es calculada con base en datos
-       * meteorologicos de una ubicacion geografica y una fecha.
-       * La precipitacion se obtiene de los datos meteorologicos
-       * de una ubicacion geografica y una fecha.
-       * 
-       * Con lo anterior en mente se realizan las siguientes
-       * justificaciones.
-       * 
-       * Cuando se modifica la fecha de siembra de un registro de
-       * plantacion, se asigna el carater "-" (guion) al atributo
-       * "necesidad de agua de riego de un cultivo" (**) del registro
-       * porque al cambiar la fecha de siembra cambia la fecha a partir
-       * de la cual se calculan los balances hidricos de suelo. Por
-       * lo tanto, cambia el acumulado del deficit de humedad por dia
-       * [mm/dia] del dia inmediatamente anterior a la fecha actual.
-       * Por ende, cambia la necesidad de agua de riego de un cultivo
-       * en la fecha actual (es decir, hoy) [mm/dia].
-       * 
-       * Cuando se modifica la parcela de un registro de plantacion,
-       * se asigna el caracter "-" (guion) al atributo "necesidad de
-       * agua de riego de un cultivo" (**) del registro porque al
-       * cambiar la parcela cambia la cambia la ubicacion geografica,
-       * y al cambiar la ubicacion geografica cambian los datos meteorologicos
-       * a partir de los cuales se obtiene la precipitacion [mm/dia]
-       * y se calcula la ETo [mm/dia], con lo cual cambian la prepcipitacion
-       * y la ETo, y al cambiar la ETo cambia la ETc [mm/dia]. Por
-       * lo tanto, cambia el deficit de humedad por dia [mm/dia] de cada
-       * uno de los balances hidricos de suelo calculados desde la
-       * fecha de siembra de un cultivo hasta la fecha inmediatamente
-       * anterior a la fecha actual. En consecuencia, cambia el
-       * acumulado del deficit de humedad por dia [mm/dia] de la fecha
-       * inmediatamente anterior a la fecha actual. Por ende, cambia
-       * la necesidad de agua de riego de un cultivo en la fecha actual
-       * (es decir, hoy) [mm/dia].
-       * 
-       * Cuando se modifica el cultivo de un registro de plantacion,
-       * se asigna el caracter "-" (guion) al atributo "necesidad de
-       * agua de riego de un cultivo" (**) del registro porque al cambiar
-       * el cultivo cambia el Kc (coeficiente de cultivo) y al cambiar
-       * el Kc cambia la ETc (evapotranspiracion del cultivo bajo condiciones
-       * estandar) [mm/dia]. Por lo tanto, cambia el deficit de humedad
-       * por dia [mm/dia] de cada uno de los balances hidricos de suelo
-       * calculados desde la fecha de siembra de un cultivo hasta la
-       * fecha inmediatamente anterior a la fecha actual. En consecuencia,
-       * cambia el acumulado del deficit de humedad por dia [mm/dia] de
-       * la fecha inmediatamente anterior a la fecha actual. Por ende,
-       * cambia la necesidad de agua de riego de un cultivo en la fecha
-       * actual (es decir, hoy) [mm/dia].
-       * 
-       * Si el estado actual (*) del registro de plantacion a modificar
-       * es "Finalizado", "En espera" o "Muerto" y su nuevo estado es
-       * "Desarrollo optimo", se asigna el caracter "-" (guion) al
-       * atributo "necesidad de agua de riego de un cultivo" (**) del
-       * registro para representar que la necesidad de agua de riego
-       * de un cultivo en la fecha actual (es decir, hoy) [mm/dia] NO
-       * esta disponible, pero se puede calcular. Esto se realiza porque
-       * en los estados "Finalizado", "En espera" y "Muerto" la necesidad
-       * de agua de riego de un cultivo en la fecha actual (es decir,
-       * hoy) no esta disponible ni se puede calcular, lo cual se
-       * representa mediante la asignacion de la abreviatura "n/a"
-       * (no disponible) al atributo "necesidad de agua de riego de
-       * un cultivo" de un registro de plantacion.
-       * 
-       * El caracter "-" (guion) se utiliza para representar que la
-       * necesidad de agua de riego de un cultivo en la fecha actual
-       * (es decir, hoy) [mm/dia] NO esta disponible, pero se puede
-       * calcular. Esta situacion ocurre unicamente para un registro
-       * de plantacion que tiene el estado "En desarrollo" o el estado
-       * "Desarrollo optimo". El que un registro de plantacion tenga
-       * el estado "En desarrollo" o el estado "Desarrollo optimo"
-       * depende de la fecha de siembra, la fecha de cosecha y la
-       * bandera suelo de las opciones de la parcela a la que
-       * pertenece. Si la fecha de siembra y la fecha de cosecha se
-       * eligen de tal manera que la fecha actual (es decir, hoy)
-       * esta dentro del periodo definido por ambas y la bandera
-       * suelo esta activa, el registro adquiere el estado "En
-       * desarrollo". En caso contrario, adquiere el estado "Desarrollo
-       * optimo".
-       * 
-       * (*) Por "actual" se hace referencia al dato existente antes
-       * de la modificacion de un registro de plantacion.
-       * 
-       * (**) El atributo "necesidad de agua de riego de un cultivo"
-       * de un registro de plantacion es la necesidad de agua de riego
-       * de un cultivo en la fecha actual (es decir, hoy) [mm/dia].
-       */
-      if (UtilDate.compareTo(modifiedSeedDate, currentSeedDate) != 0
-          && UtilDate.compareTo(modifiedHarvestDate, currentHarvestDate) == 0
-          && parcelService.equals(modifiedParcel, currentParcel)
-          && cropService.equals(modifiedCrop, currentCrop)) {
-        modifiedPlantingRecord.setCropIrrigationWaterNeed(cropIrrigationWaterNeedNotAvailableButCalculable);
-      }
-
-      if (!parcelService.equals(modifiedParcel, currentParcel)
-          || !cropService.equals(modifiedCrop, currentCrop)
-          || statusService.equals(currentStatusModifiedPlantingRecord, finishedStatus)
-          || statusService.equals(currentStatusModifiedPlantingRecord, waitingStatus)
-          || statusService.equals(currentStatusModifiedPlantingRecord, deadStatus)) {
-        modifiedPlantingRecord.setCropIrrigationWaterNeed(cropIrrigationWaterNeedNotAvailableButCalculable);
-      }
-
-    } // End if
 
     /*
-     * Lo que influye a la hora de calcular la necesidad de agua de
-     * riego de un cultivo en la fecha actual (es decir, hoy) [mm/dia],
-     * y, por ende, a la hora de asignar como valor inicial el caracter
-     * "-" (guion) al atributo "necesidad de agua de riego" (**) de un
-     * registro de plantacion a modificar que tiene como nuevo (proximo)
-     * estado el estado "En desarrollo" o el estado "Desarrollo optimo",
-     * es:
-     * - si su estado actual (*) es "Finalizado", "En espera" o "Muerto",
-     * - o la modificacion de la parcela
-     * - o la modifcacion del cultivo
-     * - o la modificacion unicamente de la fecha de siembra.
-     * 
-     * Por este motivo, cuando se modifica unicamente la fecha de
-     * cosecha de un registro de plantacion a modificar que como
-     * resultado de calcular su nuevo estado tiene el estado "Desarrollo
-     * optimo" y como estado actual (*) tiene el estado "Desarrollo
-     * en riesgo de marchitez" o el estado "Desarrollo en marchitez",
-     * no se asigna el caracter "-" (guion) al atributo "necesidad
-     * de agua de riego" (**) del registro, sino que se mantiene
-     * su valor actual. Ademas de esto, se mantiene el estado actual
-     * del registro de plantacion a modificar para lograr la
-     * consistencia del mismo, ya que no seria correcto asignarle
-     * el estado "Desarrollo optimo" manteniendo el valor actual
-     * de su atributo "necesidad de agua de riego de un cultivo".
-     * 
-     * El caracter "-" (guion) se utiliza para representar que la
-     * necesidad de agua de riego de un cultivo en la fecha actual
-     * (es decir, hoy) [mm/dia] NO esta disponible, pero se puede
-     * calcular. Esta situacion ocurre unicamente para un registro
-     * de plantacion que tiene el estado "En desarrollo" o el estado
-     * "Desarrollo optimo". El que un registro de plantacion tenga
-     * el estado "En desarrollo" o el estado "Desarrollo optimo"
-     * depende de la fecha de siembra, la fecha de cosecha y la
-     * bandera suelo de las opciones de la parcela a la que
-     * pertenece. Si la fecha de siembra y la fecha de cosecha se
-     * eligen de tal manera que la fecha actual (es decir, hoy)
-     * esta dentro del periodo definido por ambas y la bandera
-     * suelo esta activa, el registro adquiere el estado "En
-     * desarrollo". En caso contrario, adquiere el estado "Desarrollo
-     * optimo".
-     * 
-     * (*) Por "actual" se hace referencia al dato existente antes
-     * de la modificacion de un registro de plantacion.
-     * 
-     * (**) El atributo "necesidad de agua de riego de un cultivo"
-     * de un registro de plantacion es la necesidad de agua de riego
-     * de un cultivo en la fecha actual (es decir, hoy) [mm/dia].
+     * Este control evita que el usuario tenga que recalcular
+     * la necesidad de agua de riego de un cultivo en la fecha
+     * actual (es decir, hoy) si ya ha sido calculada previamente,
+     * para un registro de plantacion cuyo estado es "En desarrollo",
+     * "Desarrollo optimo", "Desarrollo en riesgo de marchitez"
+     * o "Desarrollo en marchitez", cuando solo se modifica la
+     * fecha de cosecha. Esto se debe a que modificar unicamente
+     * la fecha de cosecha en un registro de plantacion con alguno
+     * de estos estados no genera un nuevo caso que requiera el
+     * calculo de la necesidad de agua de riego de un cultivo en
+     * la fecha actual. Por lo tanto, solo se persiste la fecha
+     * de cosecha modificada.
      */
-    if (statusService.equals(newStatusPlantingRecord, optimalDevelopmentStatus)) {
+    if (UtilDate.compareTo(modifiedHarvestDate, currentHarvestDate) != 0
+        && UtilDate.compareTo(modifiedSeedDate, currentSeedDate) == 0
+        && parcelService.equals(modifiedParcel, currentParcel)
+        && cropService.equals(modifiedCrop, currentCrop)
+        && (statusService.equals(modifiedPlantingRecordStatus, inDevelopmentStatus)
+            || statusService.equals(modifiedPlantingRecordStatus, optimalDevelopmentStatus)
+            || statusService.equals(modifiedPlantingRecordStatus, developmentAtRiskWiltingStatus)
+            || statusService.equals(modifiedPlantingRecordStatus, developmentInWiltingStatus))) {
 
-      if (UtilDate.compareTo(modifiedSeedDate, currentSeedDate) == 0
-          && UtilDate.compareTo(modifiedHarvestDate, currentHarvestDate) != 0
-          && parcelService.equals(modifiedParcel, currentParcel)
-          && cropService.equals(modifiedCrop, currentCrop)
-          && (statusService.equals(currentStatusModifiedPlantingRecord, developmentAtRiskWiltingStatus)
-              || statusService.equals(currentStatusModifiedPlantingRecord, developmentInWiltingStatus))) {
-        newStatusPlantingRecord = currentStatusModifiedPlantingRecord;
-        modifiedPlantingRecord.setStatus(newStatusPlantingRecord);
-      }
-
+      /*
+       * Modifica unicamente la fecha de cosecha del registro de
+       * plantacion
+       */
+      modifiedPlantingRecord = plantingRecordService.modify(userId, plantingRecordId, modifiedPlantingRecord);
+      return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(modifiedPlantingRecord)).build();
     }
+
+    /*
+     * *******************************************************************
+     * Esta linea de codigo se alcanza cuando se cumplen las siguientes
+     * condiciones:
+     * 1. Se ha modificado la fecha de siembra, la parcela o el cultivo
+     * de un registro de plantacion que tiene el estado "En desarrollo",
+     * "Desarrollo optimo", "Desarrollo en riesgo de marchitez" o
+     * "Desarrollo en marchitez".
+     * 2. El registro de plantacion ha adquirido el estado "En desarrollo"
+     * o "Desarrollo optimo".
+     * *******************************************************************
+     */
 
     /*
      * Si el nuevo estado del registro de plantacion a modificar es
@@ -1803,7 +1552,7 @@ public class PlantingRecordRestServlet {
      * Por este motivo se les asigna el valor 0 en el registro de
      * plantacion a modificar.
      */
-    if (statusService.equals(newStatusPlantingRecord, inDevelopmentStatus)) {
+    if (statusService.equals(newModifiedPlantingRecordStatus, inDevelopmentStatus)) {
       plantingRecordService.updateTotalAmountWaterAvailable(plantingRecordId, 0);
       plantingRecordService.updateOptimalIrrigationLayer(plantingRecordId, 0);
     }
@@ -1843,72 +1592,101 @@ public class PlantingRecordRestServlet {
      * a la hora de calcular la lamina total de agua disponible y
      * la lamina de riego optima.
      */
-    if (statusService.equals(newStatusPlantingRecord, optimalDevelopmentStatus)) {
+    if (statusService.equals(newModifiedPlantingRecordStatus, optimalDevelopmentStatus)) {
       plantingRecordService.updateTotalAmountWaterAvailable(plantingRecordId, WaterMath.calculateTotalAmountWaterAvailable(modifiedCrop, modifiedParcel.getSoil()));
       plantingRecordService.updateOptimalIrrigationLayer(plantingRecordId, WaterMath.calculateOptimalIrrigationLayer(modifiedCrop, modifiedParcel.getSoil()));
     }
 
     /*
-     * Si se modifica el cultivo del registro de plantacion y hay registros
-     * de riego con un cultivo asignado en el periodo definido por la fecha
-     * de siembra y la fecha de cosecha del registro de plantacion, se
-     * modifica el cultivo de todos los registros de riego pertenecientes
-     * a dicho periodo
+     * El simbolo de esta variable se utiliza para representar que la
+     * necesidad de agua de riego de un cultivo en la fecha actual
+     * [mm/dia] no esta disponible, pero se puede calcular. Esta
+     * situacion ocurre unicamente para un registro de plantacion en
+     * desarrollo.
      */
-    if (!cropService.equals(modifiedCrop, currentCrop) && !irrigationRecordService
-        .findAllWithCropBetweenDates(userId, modifiedParcel.getId(), modifiedSeedDate, modifiedHarvestDate).isEmpty()) {
-      irrigationRecordService.modifyCropInPeriod(modifiedParcel.getId(), modifiedCrop, modifiedSeedDate, modifiedHarvestDate);
-    }
+    String cropIrrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getCropIrrigationWaterNotAvailableButCalculable();
 
     /*
-     * Si el registro de plantacion modificado tiene el estado "Desarrollo
-     * optimo", "Desarrollo en riesgo de marchitez", "Desarrollo en marchitez"
-     * o "Muerto" y si se le modifica la fecha de siembra y/o el cultivo,
-     * NO se debe generar el grafico de la evolucion diaria del nivel de
-     * humedad del suelo para este registro cuando se presione el boton
-     * de visualizacion sobre el. La manera en la que se logra esto es
-     * asignando el valor false a la variable bandera
-     * flagNotGenerateSoilMoistureGraph de un registro de plantacion.
+     * La necesidad de agua de riego de un cultivo en la fecha
+     * actual (es decir, hoy) [mm/dia] se calcula con base en el
+     * acumulado del deficit de humedad por dia [mm/dia] del dia
+     * inmediatamente anterior a la fecha actual. Este valor
+     * acumulado es el resultado de acumular el deficit de humedad
+     * por dia [mm/dia] de cada uno de los balances hidricos de
+     * suelo calculados desde la fecha de siembra de un cultivo
+     * hasta la fecha inmediatamente anterior a la fecha actual.
+     * El deficit de humedad por dia [mm/dia] es calculado como
+     * la diferencia entre la precipitacion [mm/dia] y la ETc
+     * (evapotranspiracion del cultivo bajo condiciones estandar)
+     * [mm/dia] o la ETo (evapotranspiracion del cultivo de
+     * referencia) [mm/dia] si la ETc = 0. La ETc se calcula
+     * con base en la ETo y un Kc (coeficiente de cultivo) de
+     * un cultivo. La ETo se calcula con base en los datos
+     * meteorologicos de una fecha y una ubicacion geografica.
+     * Por lo tanto, la ETc es calculada con base en datos
+     * meteorologicos de una ubicacion geografica y una fecha.
+     * La precipitacion se obtiene de los datos meteorologicos
+     * de una ubicacion geografica y una fecha.
      * 
-     * Un registro de plantacion utiliza uno de los estados mencionados
-     * cuando la parcela a la que pertenece tiene la bandera suelo
-     * activa en sus opciones.
+     * Con lo anterior en mente se realizan las siguientes
+     * justificaciones.
+     * 
+     * - Cuando se modifica la fecha de siembra de un registro de
+     * plantacion, se asigna el carater "-" (guion) al atributo
+     * "necesidad de agua de riego de un cultivo" del registro
+     * porque al cambiar la fecha de siembra cambia la fecha a partir
+     * de la cual se calculan los balances hidricos de suelo. Por
+     * lo tanto, cambia el acumulado del deficit de humedad por dia
+     * [mm/dia] del dia inmediatamente anterior a la fecha actual.
+     * Por ende, cambia la necesidad de agua de riego de un cultivo
+     * en la fecha actual (es decir, hoy) [mm/dia].
+     * 
+     * - Cuando se modifica la parcela de un registro de plantacion,
+     * se asigna el caracter "-" (guion) al atributo "necesidad de
+     * agua de riego de un cultivo" del registro porque al cambiar
+     * la parcela cambia la cambia la ubicacion geografica, y al
+     * cambiar la ubicacion geografica cambian los datos meteorologicos
+     * a partir de los cuales se obtiene la precipitacion [mm/dia]
+     * y se calcula la ETo [mm/dia], con lo cual cambian la prepcipitacion
+     * y la ETo, y al cambiar la ETo cambia la ETc [mm/dia]. Por
+     * lo tanto, cambia el deficit de humedad por dia [mm/dia] de
+     * cada uno de los balances hidricos de suelo calculados desde
+     * la fecha de siembra de un cultivo hasta la fecha inmediatamente
+     * anterior a la fecha actual. En consecuencia, cambia el
+     * acumulado del deficit de humedad por dia [mm/dia] de la fecha
+     * inmediatamente anterior a la fecha actual. Por ende, cambia
+     * la necesidad de agua de riego de un cultivo en la fecha actual
+     * (es decir, hoy) [mm/dia].
+     * 
+     * - Cuando se modifica el cultivo de un registro de plantacion,
+     * se asigna el caracter "-" (guion) al atributo "necesidad de
+     * agua de riego de un cultivo" del registro porque al cambiar
+     * el cultivo cambia el Kc (coeficiente de cultivo) y al cambiar
+     * el Kc cambia la ETc (evapotranspiracion del cultivo bajo condiciones
+     * estandar) [mm/dia]. Por lo tanto, cambia el deficit de humedad
+     * por dia [mm/dia] de cada uno de los balances hidricos de suelo
+     * calculados desde la fecha de siembra de un cultivo hasta la
+     * fecha inmediatamente anterior a la fecha actual. En consecuencia,
+     * cambia el acumulado del deficit de humedad por dia [mm/dia]
+     * de la fecha inmediatamente anterior a la fecha actual. Por ende,
+     * cambia la necesidad de agua de riego de un cultivo en la fecha
+     * actual (es decir, hoy) [mm/dia].
+     * 
+     * El caracter "-" (guion) se utiliza para indicar que la necesidad
+     * de agua de riego de un cultivo en la fecha actual (es decir, hoy)
+     * [mm/dia] no esta disponible, pero puede ser calculada. Esto se
+     * aplica tanto a un registro de plantacion nuevo que adquiere el
+     * estado "En desarrollo" o "Desarrollo en riesgo de marchitez",
+     * como a un registro de plantacion que ya tiene alguno de estos
+     * estados y cuya fecha de siembra, parcela o cultivo ha sido
+     * modificado.
+     * 
+     * El atributo "necesidad de agua de riego de un cultivo"
+     * de un registro de plantacion es la necesidad de agua de riego
+     * de un cultivo en la fecha actual (es decir, hoy) [mm/dia].
      */
-    if ((UtilDate.compareTo(modifiedSeedDate, currentSeedDate) != 0 || !cropService.equals(modifiedCrop, currentCrop))
-        && (statusService.equals(newStatusPlantingRecord, optimalDevelopmentStatus)
-            || statusService.equals(newStatusPlantingRecord, developmentAtRiskWiltingStatus)
-            || statusService.equals(newStatusPlantingRecord, developmentInWiltingStatus)
-            || statusService.equals(newStatusPlantingRecord, deadStatus))) {
-      plantingRecordService.setFlagNotGenerateSoilMoistureGraph(plantingRecordId);
-    }
-
-    /*
-     * Si la fecha de siembra y el cultivo del registro de plantacion
-     * a modificar no se modifican, y si el estado actual de dicho
-     * registro es el estado "Muerto" y si su nuevo estado es "Desarrollo
-     * optimo", "Desarrollo en riesgo de marchitez" o "Desarrollo en
-     * marchitez", NO se debe generar el grafico de la evolucion diaria del
-     * nivel de humedad del suelo para este registro cuando se presione
-     * el boton de visualizacion sobre el. La manera en la que se logra
-     * esto es asignando el valor false a la variable bandera
-     * flagNotGenerateSoilMoistureGraph de un registro de plantacion.
-     * 
-     * Un registro de plantacion utiliza uno de los estados mencionados
-     * cuando la parcela a la que pertenece tiene la bandera suelo
-     * activa en sus opciones.
-     * 
-     * Este control es para evitar que el grafico de la evolucion diaria
-     * del nivel de humedad del suelo sea visualizado cuando el usuario
-     * decide NO mantener el estado "Muerto" de un registro de plantacion
-     * sin modificar ni su fecha de siembra ni su cultivo.
-     */
-    if (UtilDate.compareTo(modifiedSeedDate, currentSeedDate) == 0 && cropService.equals(modifiedCrop, currentCrop)
-        && statusService.equals(currentStatusModifiedPlantingRecord, deadStatus)
-        && (statusService.equals(newStatusPlantingRecord, optimalDevelopmentStatus)
-            || statusService.equals(newStatusPlantingRecord, developmentAtRiskWiltingStatus)
-            || statusService.equals(newStatusPlantingRecord, developmentInWiltingStatus))) {
-      plantingRecordService.setFlagNotGenerateSoilMoistureGraph(plantingRecordId);
-    }
+    modifiedPlantingRecord.setCropIrrigationWaterNeed(cropIrrigationWaterNeedNotAvailableButCalculable);
+    modifiedPlantingRecord.setStatus(newModifiedPlantingRecordStatus);
 
     /*
      * Se persisten los cambios realizados en el registro
@@ -4027,6 +3805,218 @@ public class PlantingRecordRestServlet {
     }
 
     return data;
+  }
+
+  /**
+   * Verifica si las parcelas asociadas a dos IDs tienen un
+   * registro de plantacion con un estado de desarrollo
+   * (en desarrollo, desarrollo optimo, desarrollo en riesgo
+   * de marchitez, desarrollo en marchitez). Si es asi, se
+   * comprueba si dicho registro tiene el estado "Finalizado".
+   * En caso afirmativo, se realizan las modificaciones
+   * correspondientes.
+   * 
+   * @param parcelOneId
+   * @param parcelTwoId
+   */
+  private void checkDevelopingPlantingRecordForParcels(int parcelOneId, int parcelTwoId) {
+    /*
+     * El valor de esta constante se asigna a la necesidad de
+     * agua de riego [mm/dia] de un registro de plantacion
+     * para el que no se puede calcular dicha necesidad, lo
+     * cual, ocurre cuando no se tiene la evapotranspiracion
+     * del cultivo bajo condiciones estandar (ETc) [mm/dia]
+     * ni la precipitacion [mm/dia], siendo ambos valores de
+     * la fecha actual.
+     * 
+     * El valor de esta constante tambien se asigna a la
+     * necesidad de agua de riego de un registro de plantacion
+     * finalizado o en espera, ya que NO tiene ninguna utilidad
+     * que un registro de plantacion en uno de estos estados
+     * tenga un valor numerico mayor o igual a cero en la
+     * necesidad de agua de riego.
+     * 
+     * La abreviatura "n/a" significa "no disponible".
+     */
+    String notAvailable = plantingRecordService.getNotAvailable();
+    PlantingRecord developingPlantingRecord;
+    PlantingRecordStatus finishedStatus = statusService.findFinishedStatus();
+    PlantingRecordStatus status;
+
+    int[] parcelIds;
+    int parcelId;
+
+    /*
+     * Si los IDs de las parcelas son diferentes, se considera
+     * que se trata de dos parcelas distintas. En este caso, se
+     * verifica si las parcelas asociadas a esos IDs tienen un
+     * registro de plantacion con un estado de desarrollo (en
+     * desarrollo, desarrollo optimo, desarrollo en riesgo de
+     * marchitez, desarrollo en marchitez). Si es asi, se
+     * comprueba si dicho registro tiene el estado "Finalizado".
+     * 
+     * Si los IDs son iguales, se considera que se trata de una
+     * parcela y se aplica el mismo procedimiento a esa parcela.
+     */
+    if (parcelOneId != parcelTwoId) {
+      parcelIds = new int[2];
+      parcelIds[0] = parcelOneId;
+      parcelIds[1] = parcelTwoId;
+    } else {
+      parcelIds = new int[1];
+      parcelIds[0] = parcelOneId;
+    }
+
+    for (int i = 0; i < parcelIds.length; i++) {
+      parcelId = parcelIds[i];
+
+      /*
+       * Si la parcela asociada a un ID tiene un registro de
+       * plantacion con un estado de desarrollo (en desarrollo, 
+       * desarrollo optimo, en riesgo de marchitez o en marchitez), 
+       * se verifica si dicho registro tiene el estado "Finalizado". 
+       * En caso afirmativo, se proceden a realizar las modificaciones 
+       * correspondientes.
+       */
+      if (plantingRecordService.checkOneInDevelopment(parcelId)) {
+        developingPlantingRecord = plantingRecordService.findInDevelopment(parcelId);
+        status = statusService.calculateStatus(developingPlantingRecord);
+
+        if (statusService.equals(status, finishedStatus)) {
+          plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(), notAvailable);
+          plantingRecordService.updateTotalAmountWaterAvailable(developingPlantingRecord.getId(), 0);
+          plantingRecordService.updateOptimalIrrigationLayer(developingPlantingRecord.getId(), 0);
+          plantingRecordService.setStatus(developingPlantingRecord.getId(), finishedStatus);
+        }
+
+      }
+
+    }
+
+  }
+
+  /**
+   * Verifica si las parcelas asociadas a dos IDs NO tienen
+   * un registro de plantacion con un estado de desarrollo
+   * (en desarrollo, desarrollo optimo, desarrollo en riesgo
+   * de marchitez, desarrollo en marchitez) y si tienen
+   * registros de plantacion con el estado "En espera". Si
+   * se cumplen ambas condiciones, de cada una de ellas se
+   * obtiene el registro de plantacion "En espera" con la
+   * fecha de siembra mas cercana a la fecha actual para
+   * verificar si debe pasar al estado "En desarrollo" o
+   * "Desarrollo optimo". En caso afirmativo, se realizan
+   * las modificaciones correspondientes.
+   * 
+   * @param userId
+   * @param parcelOneId
+   * @param parcelTwoId
+   */
+  private void checkWaitingPlantingRecordForParcels(int userId, int parcelOneId, int parcelTwoId) {
+    /*
+     * El simbolo de esta variable se utiliza para representar que la
+     * necesidad de agua de riego de un cultivo en la fecha actual
+     * [mm/dia] no esta disponible, pero se puede calcular. Esta
+     * situacion ocurre unicamente para un registro de plantacion en
+     * desarrollo.
+     */
+    String cropIrrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getCropIrrigationWaterNotAvailableButCalculable();
+    PlantingRecordStatus status;
+    PlantingRecordStatus inDevelopmentStatus = statusService.findInDevelopmentStatus();
+    PlantingRecordStatus optimalDevelopmentStatus = statusService.findOptimalDevelopmentStatus();
+    PlantingRecord firstPlantingRecordInWaiting;
+
+    int[] parcelIds;
+    int parcelId;
+    int idFirstPlantingRecordInWaiting;
+
+    /**
+     * Si los IDs de las parcelas son diferentes, se considera
+     * que se trata de dos parcelas distintas. En este caso, se
+     * verifican las siguientes condiciones de las parcelas
+     * asociadas a esos IDs:
+     * 1. Que no tengan un registro de plantacion con un estado
+     * de desarrollo (en desarrollo, desarrollo optimo, desarrollo
+     * en riesgo de marchitez, desarrollo en marchitez).
+     * 2. Que las parcelas tengan registros de plantacion con el
+     * estado "En espera".
+     * 
+     * Si se cumplen ambas condiciones, se procede a realizar las
+     * correspondientes modificaciones.
+     * 
+     * Si los IDs son iguales, se considera que se trata de una
+     * parcela y se aplica el mismo procedimiento a esa parcela.
+     */
+    if (parcelOneId != parcelTwoId) {
+      parcelIds = new int[2];
+      parcelIds[0] = parcelOneId;
+      parcelIds[1] = parcelTwoId;
+    } else {
+      parcelIds = new int[1];
+      parcelIds[0] = parcelOneId;
+    }
+
+    for (int i = 0; i < parcelIds.length; i++) {
+      parcelId = parcelIds[i];
+
+      /*
+       * Si la parcela correspondiente a un ID NO tiene un registro de
+       * plantacion con un estado de desarrollo (en desarrollo, desarrollo
+       * optimo, en riesgo de marchitez o en marchitez), pero tiene
+       * registros en el estado "En espera", se selecciona el registro
+       * cuya fecha de siembra sea la mas cercana a la fecha actual (hoy).
+       * Luego, se verifica si dicho registro tiene un estado de desarrollo.
+       * Si es asi, se procede con las modificaciones correspondientes.
+       */
+      if (!plantingRecordService.checkOneInDevelopment(parcelId) && plantingRecordService.hasInWaitingPlantingRecords(userId, parcelId)) {
+        idFirstPlantingRecordInWaiting = plantingRecordService.findIdFirstOneOnWaiting(parcelId);
+        firstPlantingRecordInWaiting = plantingRecordService.find(idFirstPlantingRecordInWaiting);
+        status = statusService.calculateStatus(firstPlantingRecordInWaiting);
+        plantingRecordService.setStatus(idFirstPlantingRecordInWaiting, status);
+
+        /*
+         * El caracter "-" (guion) se utiliza para representar que la
+         * necesidad de agua de riego de un cultivo en la fecha actual
+         * (es decir, hoy) [mm/dia] NO esta disponible, pero se puede
+         * calcular. Esta situacion ocurre unicamente para un registro
+         * de plantacion que tiene el estado "En desarrollo" o el estado
+         * "Desarrollo optimo". El que un registro de plantacion tenga
+         * el estado "En desarrollo" o el estado "Desarrollo optimo"
+         * depende de la fecha de siembra, la fecha de cosecha y la
+         * bandera suelo de las opciones de la parcela a la que
+         * pertenece. Si la fecha de siembra y la fecha de cosecha se
+         * eligen de tal manera que la fecha actual (es decir, hoy)
+         * esta dentro del periodo definido por ambas y la bandera
+         * suelo esta activa, el registro adquiere el estado "En
+         * desarrollo". En caso contrario, adquiere el estado
+         * "Desarrollo optimo".
+         */
+        if (statusService.equals(status, inDevelopmentStatus) || statusService.equals(status, optimalDevelopmentStatus)) {
+          plantingRecordService.updateCropIrrigationWaterNeed(idFirstPlantingRecordInWaiting,
+              cropIrrigationWaterNeedNotAvailableButCalculable);
+        }
+
+        /*
+         * Si la parcela del registro de plantacion obtenido tiene
+         * la opcion suelo activa en sus opciones y si el registro
+         * de plantacion tiene el estado "Desarrollo optimo" se
+         * actualizan sus atributos "lamina total de agua disponible"
+         * (capacidad de almacenamiento de agua del suelo) [mm] y
+         * "lamina de riego optima" (umbral de riego) [mm]
+         */
+        if (statusService.equals(status, optimalDevelopmentStatus) && firstPlantingRecordInWaiting.getParcel().getOption().getSoilFlag()) {
+          plantingRecordService.updateTotalAmountWaterAvailable(idFirstPlantingRecordInWaiting, WaterMath
+              .calculateTotalAmountWaterAvailable(firstPlantingRecordInWaiting.getCrop(),
+                  firstPlantingRecordInWaiting.getParcel().getSoil()));
+          plantingRecordService.updateOptimalIrrigationLayer(idFirstPlantingRecordInWaiting, WaterMath
+              .calculateOptimalIrrigationLayer(firstPlantingRecordInWaiting.getCrop(),
+                  firstPlantingRecordInWaiting.getParcel().getSoil()));
+        }
+
+      }
+
+    } // End for
+
   }
 
 }

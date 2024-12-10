@@ -395,6 +395,31 @@ public class IrrigationRecordServiceBean {
   }
 
   /**
+   * Comprueba si existe al menos un registro de riego asociado a
+   * una parcela perteneciente a un usuario dentro de un periodo
+   * definido por una fecha de inicio y una fecha de finalizacion.
+   * 
+   * @param userId
+   * @param parcelId
+   * @param startDate
+   * @param endDate
+   * @return true si existe al menos un registro de riego asociado
+   * a una parcela perteneciente a un usuario dentro de un periodo
+   * definido por una fecha de inicio y una fecha de finalizacion;
+   * en caso contrario, false
+   */
+  public boolean checkExistenceBetweenDates(int userId, int parcelId, Calendar startDate, Calendar endDate) {
+    Query query = getEntityManager().createQuery("SELECT i FROM IrrigationRecord i JOIN i.parcel p WHERE p.id = :parcelId AND p.user.id = :userId AND :startDate <= i.date AND i.date <= :endDate");
+    query.setParameter("userId", userId);
+    query.setParameter("parcelId", parcelId);
+    query.setParameter("startDate", startDate);
+    query.setParameter("endDate", endDate);
+    query.setMaxResults(1);
+
+    return !query.getResultList().isEmpty();
+  }
+
+  /**
    * Comprueba si un registro de riego pertenece a un usuario
    * a traves de la relacion muchos a uno que hay entre la
    * entidad parcela y la entidad usuario.

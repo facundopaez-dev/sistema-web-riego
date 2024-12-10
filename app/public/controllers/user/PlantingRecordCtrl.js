@@ -273,34 +273,15 @@ app.controller(
         let maintainDeadStatus = false;
 
         /*
-        Si el registro de plantacion a modificar tiene el estado "Muerto" y
-        existe la posibilidad de que adquiera al estado "Finalizado" (si la
-        fecha de cosecha elegida es anterior a la fecha actual) o el estado
-        "En desarrollo" o el estado "Desarrollo optimo" (si la fecha actual
-        es mayor o igual a la fecha de siembra elegida y menor o igual a la
-        fecha de cosecha elegida, es decir, si la fecha actual esta entre la
-        fecha de siembra y la fecha de cosecha elegidas), se pide al usuario
-        que confirme si desea que el registro de plantacion mantenga el estado
-        "Muerto" luego de la modificacion.
-
-        El que un registro de plantacion tenga el estado "En desarrollo" o
-        el estado "Desarrollo optimo" no solo depende del periodo definido
-        por su fecha de siembra y su fecha de cosecha, sino que tambien
-        depende de la bandera suelo de las opciones de la parcela a la que
-        pertenece. Si la fecha de siembra y la fecha de cosecha se eligen
-        de tal manera que la fecha actual (es decir, hoy) esta dentro del
-        periodo definido por ambas y la bandera suelo esta activa, el registro
-        adquiere el estado "En desarrollo". En caso contrario, adquiere el
-        estado "Desarrollo optimo".
+        Si el registro de plantacion a modificar tiene el estado "Muerto"
+        y la fecha de cosecha es anterior a la fecha actual (es decir,
+        hoy), se solicita al usuario que confirme si desea mantener ese
+        estado.
         */
-        if (($scope.data.status.name == DEAD_STATUS)
-          && (utilDate.compareTo($scope.data.harvestDate, currentDate) < 0
-            || (utilDate.compareTo(currentDate, $scope.data.seedDate) >= 0 && utilDate.compareTo(currentDate, $scope.data.harvestDate) <= 0))) {
-          var message = "Si se modifica el registro de plantación con una fecha de cosecha anterior a la fecha actual, adquirirá el estado finalizado. "
-            + "En cambio, si se lo modifica con fechas de tal manera que la fecha actual (hoy) esté en el período definido por las fechas elegidas, el "
-            + "registro de plantación adquirirá un estado de desarrollo (en desarrollo o desarrollo óptimo dependiendo de si se utilizan datos de suelo o no). "
-            + "¿Desea que el registro de plantación mantenga el estado muerto luego de la modificación?";
-
+        if ($scope.data.status.name == DEAD_STATUS && utilDate.compareTo($scope.data.harvestDate, currentDate) < 0) {
+          var message = "¿Desea que el registro de plantación mantenga el estado muerto? En caso afirmativo, tenga en cuenta que, para conservarlo,"
+            + " el único dato que puede modificar es la fecha de cosecha, la cual debe ser anterior a la fecha actual (hoy) y, al mismo tiempo, igual o"
+            + " posterior a la fecha de muerte para mantener dicho estado";
           maintainDeadStatus = confirm(message);
         }
 
