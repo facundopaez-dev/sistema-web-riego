@@ -887,34 +887,6 @@ public class PlantingRecordRestServlet {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.INDEFINITE_CROP))).build();
     }
 
-    /*
-     * El simbolo de esta variable se utiliza para representar que la
-     * necesidad de agua de riego de un cultivo en la fecha actual [mm/dia]
-     * no esta disponible, pero se puede calcular. Esta situacion
-     * ocurre unicamente para un registro de plantacion en desarrollo.
-     */
-    String cropIrrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getCropIrrigationWaterNotAvailableButCalculable();
-
-    /*
-     * El valor de esta constante se asigna a la necesidad de
-     * agua de riego [mm/dia] de un registro de plantacion
-     * para el que no se puede calcular dicha necesidad, lo
-     * cual, ocurre cuando no se tiene la evapotranspiracion
-     * del cultivo bajo condiciones estandar (ETc) [mm/dia]
-     * ni la precipitacion [mm/dia], siendo ambos valores de
-     * la fecha actual.
-     * 
-     * El valor de esta constante tambien se asigna a la
-     * necesidad de agua de riego de un registro de plantacion
-     * finalizado o en espera, ya que NO tiene ninguna utilidad
-     * que un registro de plantacion en uno de estos estados
-     * tenga un valor numerico mayor o igual a cero en la
-     * necesidad de agua de riego.
-     * 
-     * La abreviatura "n/a" significa "no disponible".
-     */
-    String notAvailable = plantingRecordService.getNotAvailable();
-
     PlantingRecordStatus finishedStatus = statusService.findFinishedStatus();
     PlantingRecordStatus waitingStatus = statusService.findWaitingStatus();
     PlantingRecordStatus inDevelopmentStatus = statusService.findInDevelopmentStatus();
@@ -929,44 +901,33 @@ public class PlantingRecordRestServlet {
     PlantingRecordStatus statusNewPlantingRecord = statusService.calculateStatus(newPlantingRecord);
     newPlantingRecord.setStatus(statusNewPlantingRecord);
 
+    Parcel parcel = newPlantingRecord.getParcel();
+
     /*
-     * Si la parcela del registro de plantacion a crear tiene
-     * un registro de plantacion que tiene un estado de desarrollo
-     * (en desarrollo, desarrollo optimo, desarrollo en riesgo
-     * de marchitez, desarrollo en marchitez), se comprueba si
-     * el estado efectivo de dicho registro es "Finalizado". Si
-     * lo es, se le asigna dicho estado y se le asignan los valores
-     * "n/a" (no disponible), 0 y 0 a sus atributos "necesidad
-     * de agua de riego de un cultivo", "lamina total de agua
-     * disponible" (capacidad de almacenamiento de agua del
-     * suelo) y "lamina de riego optima" (umbral de riego),
-     * respectivamente.
-     * 
-     * No es posible calcular la necesidad de agua de riego
-     * de un cultivo de un registro de plantacion finalizado,
-     * ya que este representa la cosecha de un cultivo. Por
-     * este motivo se asigna el valor "n/a" al atributo "necesidad
-     * de agua de riego de un cultivo" de un registro de
-     * plantacion finalizado.
-     * 
-     * Por otro lado, los valores de la capacidad de almacenamiento
-     * de agua del suelo y del umbral de riego no son necesarios
-     * para un registro de plantacion finalizado. Por este
-     * motivo se les asigna el valor 0 en un registro de
-     * plantacion finalizado.
+     * Verifica si la parcela del nuevo registro de plantacion
+     * tiene un registro de plantacion con un estado de desarrollo
+     * (en desarrollo, desarrollo optimo, desarrollo en riesgo de
+     * marchitez, desarrollo en marchitez). Si es asi, se comprueba
+     * si dicho registro tiene el estado "Finalizado". En caso
+     * afirmativo, se realizan las modificaciones correspondientes.
      */
-    if (plantingRecordService.checkOneInDevelopment(newPlantingRecord.getParcel().getId())) {
-      PlantingRecord developingPlantingRecord = plantingRecordService.findInDevelopment(newPlantingRecord.getParcel().getId());
-      PlantingRecordStatus status = statusService.calculateStatus(developingPlantingRecord);
+    checkDevelopingPlantingRecordForParcels(parcel.getId(), parcel.getId());
 
-      if (statusService.equals(status, finishedStatus)) {
-        plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(), notAvailable);
-        plantingRecordService.updateTotalAmountWaterAvailable(developingPlantingRecord.getId(), 0);
-        plantingRecordService.updateOptimalIrrigationLayer(developingPlantingRecord.getId(), 0);
-        plantingRecordService.setStatus(developingPlantingRecord.getId(), finishedStatus);
-      }
-
-    }
+    /*
+     * Comprueba si la parcela del nuevo registro de plantacion
+     * NO tienen un registro de plantacion en un estado de desarrollo
+     * (en desarrollo, desarrollo optimo, desarrollo en riesgo de
+     * marchitez, desarrollo en marchitez) y si tiene registros
+     * de plantacion con el estado "En espera".
+     * 
+     * Si ambas condiciones se cumplen, se selecciona, de la parcela,
+     * el registro de plantacion con el estado "En espera" cuya fecha
+     * de siembra sea la mas cercana a la fecha actual. Luego, se
+     * evalua si dicho registro debe actualizarse al estado "En
+     * desarrollo" o "Desarrollo optimo". De ser necesario, se
+     * realizan las modificaciones correspondientes.
+     */
+    checkWaitingPlantingRecordForParcels(userId, parcel.getId(), parcel.getId());
 
     /*
      * Un registro de plantacion nuevo tiene el estado "Finalizado"
@@ -996,6 +957,25 @@ public class PlantingRecordRestServlet {
      * cultivo.
      */
     if (statusService.equals(statusNewPlantingRecord, finishedStatus) || (statusService.equals(statusNewPlantingRecord, waitingStatus))) {
+      /*
+       * El valor de esta constante se asigna a la necesidad de
+       * agua de riego [mm/dia] de un registro de plantacion
+       * para el que no se puede calcular dicha necesidad, lo
+       * cual, ocurre cuando no se tiene la evapotranspiracion
+       * del cultivo bajo condiciones estandar (ETc) [mm/dia]
+       * ni la precipitacion [mm/dia], siendo ambos valores de
+       * la fecha actual.
+       * 
+       * El valor de esta constante tambien se asigna a la
+       * necesidad de agua de riego de un registro de plantacion
+       * finalizado o en espera, ya que NO tiene ninguna utilidad
+       * que un registro de plantacion en uno de estos estados
+       * tenga un valor numerico mayor o igual a cero en la
+       * necesidad de agua de riego.
+       * 
+       * La abreviatura "n/a" significa "no disponible".
+       */
+      String notAvailable = plantingRecordService.getNotAvailable();
       newPlantingRecord.setCropIrrigationWaterNeed(notAvailable);
     }
 
@@ -1016,13 +996,16 @@ public class PlantingRecordRestServlet {
      * desarrollo". En caso contrario, adquiere el estado "Desarrollo
      * optimo".
      */
-    if (statusService.equals(statusNewPlantingRecord, inDevelopmentStatus)
-        || statusService.equals(statusNewPlantingRecord, optimalDevelopmentStatus)) {
+    if (statusService.equals(statusNewPlantingRecord, inDevelopmentStatus) || statusService.equals(statusNewPlantingRecord, optimalDevelopmentStatus)) {
+      /*
+       * El simbolo de esta variable se utiliza para representar que la
+       * necesidad de agua de riego de un cultivo en la fecha actual [mm/dia]
+       * no esta disponible, pero se puede calcular. Esta situacion
+       * ocurre unicamente para un registro de plantacion en desarrollo.
+       */
+      String cropIrrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getCropIrrigationWaterNotAvailableButCalculable();
       newPlantingRecord.setCropIrrigationWaterNeed(cropIrrigationWaterNeedNotAvailableButCalculable);
     }
-
-    Parcel parcel = newPlantingRecord.getParcel();
-    Crop crop = newPlantingRecord.getCrop();
 
     /*
      * Si el estado del nuevo registro de plantacion es "Desarrollo
@@ -1049,8 +1032,8 @@ public class PlantingRecordRestServlet {
      * lamina de riego optima.
      */
     if (statusService.equals(statusNewPlantingRecord, optimalDevelopmentStatus)) {
-      newPlantingRecord.setTotalAmountWaterAvailable(WaterMath.calculateTotalAmountWaterAvailable(crop, parcel.getSoil()));
-      newPlantingRecord.setOptimalIrrigationLayer(WaterMath.calculateOptimalIrrigationLayer(crop, parcel.getSoil()));
+      newPlantingRecord.setTotalAmountWaterAvailable(WaterMath.calculateTotalAmountWaterAvailable(newPlantingRecord.getCrop(), parcel.getSoil()));
+      newPlantingRecord.setOptimalIrrigationLayer(WaterMath.calculateOptimalIrrigationLayer(newPlantingRecord.getCrop(), parcel.getSoil()));
     }
 
     /*
