@@ -1806,7 +1806,7 @@ public class PlantingRecordRestServlet {
      * de cosecha del registro de plantacion, se los elimina
      * antes de eliminar el registro de plantacion
      */
-    if (!irrigationRecordService.findAllWithCropBetweenDates(userId, parcelId, seedDate, harvestDate).isEmpty()) {
+    if (irrigationRecordService.checkExistenceBetweenDates(userId, parcelId, seedDate, harvestDate)) {
       irrigationRecordService.deleteBetweenDates(userId, parcelId, seedDate, harvestDate);
     }
 
