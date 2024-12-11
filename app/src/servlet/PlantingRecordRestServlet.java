@@ -663,47 +663,28 @@ public class PlantingRecordRestServlet {
     Calendar harvestDate = plantingRecord.getHarvestDate();
     Calendar deathDate = plantingRecord.getDeathDate();
     PlantingRecordStatus status = plantingRecord.getStatus();
-    boolean flagNotGenerateSoilMoistureGraph = plantingRecord.getFlagNotGenerateSoilMoistureGraph();
 
     PlantingRecordData plantingRecordData = new PlantingRecordData();
     plantingRecordData.setPlantingRecord(plantingRecord);
 
     int parcelId = plantingRecord.getParcel().getId();
 
-    /*
-     * En Java las variables de instancia de tipo primitivo
-     * de tipo por referencia se inicializan de forma automatica
-     * con un valor por defecto. En el caso de las variables
-     * de instancia de tipo boolean (tipo primitivo), estas
-     * se inicializan de manera automatica con el valor false.
+    /**
+     * Si el registro de plantacion a visualizar tiene el estado
+     * "Muerto", esto se debe a que la parcela a la que pertenece
+     * tiene la bandera de suelo activa. La unica manera en que
+     * un registro de plantacion puede adquirir este estado es a
+     * traves de la activacion de dicha bandera en las opciones
+     * de la parcela correspondiente.
      * 
-     * La clase SoilMoistureLevelGraph tiene una variable de
-     * de tipo boolean llamada showGraph. Al instanciar la
-     * clase SoilMoistureLevelGraph, la variable showGraph
-     * se inicializa de manera automatica en false. Esta
-     * instruccion es para, que mediante la variable showGraph
-     * en false, no mostrar el grafico de la evolucion diaria
-     * del nivel de humedad del suelo para un registro de
-     * plantacion perteneciente a una parcela que NO tiene la
-     * bandera suelo activa en sus opciones.
+     * En este caso, se genera un grafico de la evolucion diaria
+     * del nivel de humedad del suelo, con la variable showGraph
+     * establecida en true para habilitar su visualizacion. De
+     * esta manera, el grafico solo se muestra cuando se presiona
+     * el boton de visualizacion sobre un registro con el estado
+     * "Muerto".
      */
-    plantingRecordData.setSoilMoistureLevelGraph(new SoilMoistureLevelGraph());
-
-    /*
-     * - Si la bandera flagNotGenerateSoilMoistureGraph de un registro de
-     * plantacion tiene el valor false,
-     * - si la bandera suelo de las opciones de la parcela perteneciente
-     * a un registro de plantacion, esta activa y
-     * - si el estado de un registro de plantacion es "Muerto",
-     * 
-     * se genera el grafico que representa la evolucion diaria del nivel de
-     * humedad del suelo para que pueda ser visualizado cuando se presiona
-     * el boton de visualizacion sobre un registro de plantacion que tiene
-     * el estado "Muerto" y que pertenece a una parcela que tiene la bandera
-     * suelo activa en sus opciones.
-     */
-    if (!flagNotGenerateSoilMoistureGraph && plantingRecord.getParcel().getOption().getSoilFlag()
-        && statusService.equals(status, statusService.findDeadStatus())) {
+    if (statusService.equals(status, statusService.findDeadStatus())) {
       plantingRecordData.setSoilMoistureLevelGraph(generateSoilMoistureLevelGraph(plantingRecord));
     }
 
@@ -713,7 +694,6 @@ public class PlantingRecordRestServlet {
      * devuelve el mensaje HTTP 200 (Ok) junto con los datos solicitados
      * por el cliente
      */
-    // return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(plantingRecordService.findByUserId(userId, plantingRecordId))).build();
     return Response.status(Response.Status.OK).entity(mapper.writeValueAsString(plantingRecordData)).build();
   }
 
@@ -2340,19 +2320,6 @@ public class PlantingRecordRestServlet {
     String notCalculated = soilWaterBalanceService.getNotCalculated();
 
     /*
-     * Si el flujo de ejecucion llego a esta linea de codigo fuente
-     * es porque efectivamente se calculo la necesidad de agua de
-     * riego de un cultivo en la fecha actual (es decir, hoy), por
-     * lo tanto, se asigna el valor false a la variable bandera
-     * flagNotGenerateSoilMoistureGraph del registro de plantacion
-     * para que se pueda visualizar su grafico de evolucion diaria
-     * del nivel de humedad del suelo en caso de que dicho registro
-     * pertenezca a una parcela que tiene la bandera suelo activa
-     * en sus opciones
-     */
-    plantingRecordService.unsetFlagNotGenerateSoilMoistureGraph(developingPlantingRecord.getId());
-
-    /*
      * Si la necesidad de agua de riego de un cultivo (en desarrollo)
      * en la fecha actual (es decir, hoy) [mm/dia] es "NC" (No Calculado,
      * valor de la variable notCalculated) significa que el algoritmo
@@ -2445,25 +2412,6 @@ public class PlantingRecordRestServlet {
      */
     if (developingPlantingRecord.getParcel().getOption().getSoilFlag()) {
       irrigationWaterNeedFormData.setSoilMoistureLevelGraph(generateSoilMoistureLevelGraph(developingPlantingRecord));
-    } else {
-      /*
-       * En Java las variables de instancia de tipo primitivo
-       * de tipo por referencia se inicializan de forma automatica
-       * con un valor por defecto. En el caso de las variables
-       * de instancia de tipo boolean (tipo primitivo), estas
-       * se inicializan de manera automatica con el valor false.
-       * 
-       * La clase SoilMoistureLevelGraph tiene una variable de
-       * de tipo boolean llamada showGraph. Al instanciar la
-       * clase SoilMoistureLevelGraph, la variable showGraph
-       * se inicializa de manera automatica en false. Esta
-       * instruccion es para, que mediante la variable showGraph
-       * en false, no mostrar el grafico de la evolucion diaria
-       * del nivel de humedad del suelo para un registro de
-       * plantacion perteneciente a una parcela que NO tiene la
-       * bandera suelo activa en sus opciones.
-       */
-      irrigationWaterNeedFormData.setSoilMoistureLevelGraph(new SoilMoistureLevelGraph());
     }
 
     /*
@@ -3438,11 +3386,11 @@ public class PlantingRecordRestServlet {
      * retornando una referencia a un objeto de tipo
      * SoilMoistureLevelGraph con su variable de instancia
      * showGraph en false. En Java las variables de instancia
-     * de tipo primitivo de tipo por referencia se inicializan
-     * de forma automatica con un valor por defecto. En el
-     * caso de las variables de instancia de tipo boolean
-     * (tipo primitivo), estas se inicializan de manera
-     * automatica con el valor false.
+     * de tipo primitivo se inicializan de forma automatica
+     * con un valor por defecto. En el caso de las variables
+     * de instancia de tipo boolean (tipo primitivo), estas
+     * se inicializan de manera automatica con el valor
+     * false.
      * 
      * En el controller PlantingRecordCtrl.js de la ruta
      * app/public/controllers se utiliza la variable showGraph

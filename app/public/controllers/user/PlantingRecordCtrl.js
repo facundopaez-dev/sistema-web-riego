@@ -90,6 +90,14 @@ app.controller(
         $location.path("/home/plantingRecords");
       }
 
+      /*
+      Algunos de los estados que puede tener un registro
+      de plantacion
+      */
+      const IN_DEVELOPMENT_STATUS = "En desarrollo";
+      const OPTIMAL_DEVELOPMENT_STATE = "Desarrollo óptimo";
+      const DEAD_STATUS = "Muerto";
+
       function find(id) {
         plantingRecordService.find(id, function (error, data) {
           if (error) {
@@ -112,36 +120,39 @@ app.controller(
             $scope.data.deathDate = new Date($scope.data.deathDate);
           }
 
-          /* Si el estado de un registro de plantacion es "Muerto"
-          se debe mostrar el campo de la fecha de muerte en el
-          formulario de registro de plantacion */
+          /*
+          Variable que controla la visibilidad de la fecha de muerte
+          de un cultivo en el formulario
+          */
           $scope.showDateDeath = false;
 
-          if ($scope.data.status.name === DEAD_STATUS) {
-            $scope.showDateDeath = true;
-          }
+          /*
+          Variable que controla la visibilidad del grafico que muestra
+          la evolucion diaria del nivel de humedad del suelo
+          */
+          $scope.showGraph = false;
 
-          /* Las propiedades del grafico de la evolucion diaria del nivel de humedad
-          del suelo deben ser establecidas y el grafico debe ser mostrado si y solo
-          si la bandera suelo de las opciones de la parcela correspondiente a un
-          registro de plantacion, esta activa. En este punto del codigo a esta
-          condicion se le agrega que dicho grafico debe ser mostrado si y solo
-          si la accion es la de visualizacion de un registro de plantacion. */
-          if ($scope.action == 'view' && data.soilMoistureLevelGraph.showGraph) {
-            setSoilMoistureLevelGraphData(data.soilMoistureLevelGraph);
+          /*
+          Si el estado de un registro de plantacion a visualizar
+          es "Muerto" se debe mostrar la fecha de muerte y el
+          grafico de la evolucion diaria del nivel de humedad del
+          suelo.
+
+          Si el registro de plantacion a visualizar tiene el
+          estado "Muerto", esto se debe a que la parcela a la que
+          pertenece tiene la bandera de suelo activa. La unica
+          manera en que un registro de plantacion puede adquirir
+          este estado es a traves de la activacion de dicha bandera
+          en las opciones de la parcela correspondiente.
+          */
+          if ($scope.action == 'view' && $scope.data.status.name === DEAD_STATUS) {
+            $scope.showDateDeath = true;
             $scope.showGraph = data.soilMoistureLevelGraph.showGraph;
+            setSoilMoistureLevelGraphData(data.soilMoistureLevelGraph);
           }
 
         });
       }
-
-      /*
-      Algunos de los estados que puede tener un registro
-      de plantacion
-      */
-      const IN_DEVELOPMENT_STATUS = "En desarrollo";
-      const OPTIMAL_DEVELOPMENT_STATE = "Desarrollo óptimo";
-      const DEAD_STATUS = "Muerto";
 
       /*
       Constantes de mensaje en caso de que los datos de entrada
@@ -355,18 +366,24 @@ app.controller(
       }
 
       function calculateCropIrrigationWaterNeed(id) {
-        /* Propiedad de $scope creada para mostrar/ocultar la animacion de carga
-        en el formulario del calculo de la necesidad de agua de riego de un cultivo
-        en la fecha actual (es decir, hoy) [mm/dia] */
+        /*
+        Propiedad de $scope utilizada para controlar la visibilidad de la
+        animacion de carga en el formulario de calculo de la necesidad de
+        agua de riego de un cultivo en la fecha actual (hoy) [mm/dia].
+        */
         $scope.showLoadingAnimation = true;
 
-        /* Variable utilizada para mostrar u ocultar el grafico que representa
-        la evolucion diaria del nivel de humedad del suelo */
+        /*
+        Variable que controla la visibilidad del grafico que muestra
+        la evolucion diaria del nivel de humedad del suelo
+        */
         $scope.showGraph = false;
 
-        /* Variable utilizada para mostrar u ocultar el nombre del suelo de
-        una parcela en el formulario del calculo de la necesidad de agua de
-        riego de un cultivo, si es que una parcela tiene un suelo asignado */
+        /*
+        Variable que controla la visibilidad del nombre del suelo de
+        una parcela en el formulario de calculo de la necesidad de
+        agua de riego, si la parcela tiene un suelo asignado
+        */
         $scope.showSoilName = false;
 
         plantingRecordService.calculateCropIrrigationWaterNeed(id, function (error, cropIrrigationWaterNeedData) {
@@ -376,28 +393,27 @@ app.controller(
             return;
           }
 
-          /* Una vez que la aplicacion del lado servidor retorna la respuesta del
-          calculo de la necesidad de agua de riego de un cultivo en la fecha actual
-          [mm/dia], se oculta la animacion de carga */
+          /*
+          Cuando la aplicacion del lado servidor retorna la respuesta
+          del calculo de la necesidad de agua de riego de un cultivo
+          en la fecha actual [mm/dia], se oculta la animacion de carga.
+          */
           $scope.showLoadingAnimation = false;
 
-          /* Las propiedades del grafico de la evolucion diaria del nivel de humedad
-          del suelo deben ser establecidas y el grafico debe ser mostrado si y solo
-          si la bandera suelo de las opciones de la parcela correspondiente al registro
-          de plantacion que tiene el cultivo en desarrollo para el que se calcula la
-          necesidad de agua de riego en la fecha actual (es decir, hoy), esta activa */
-          if (cropIrrigationWaterNeedData.soilMoistureLevelGraph.showGraph) {
-            setSoilMoistureLevelGraphData(cropIrrigationWaterNeedData.soilMoistureLevelGraph);
-            $scope.showGraph = cropIrrigationWaterNeedData.soilMoistureLevelGraph.showGraph;
-          }
-
-          /* Si la parcela tiene la bandera suelo activa en sus opciones,
-          entonces tiene un suelo asignado. Esto se debe a que en el
-          metodo modify() de la clase OptionRestServlet (ubicacion:
-          app/src/servlet) hay un control para evitar que dicha bandera
-          sea activada para una parcela que no tiene un suelo asginado. */
+          /*
+          Si la bandera "suelo" de las opciones de una parcela correspondiente
+          al registro de plantacion que tiene el cultivo en desarrollo para el
+          que se calcula la necesidad de agua de riego en la fecha actual (es
+          decir, hoy) esta activa, se deben realizar las siguientes operaciones:
+          - Mostrar el nombre del suelo de la parcela.
+          - Configurar las propiedades del grafico que muestra la evolucion
+          diaria del nivel de humedad del suelo.
+          - Mostrar dicho grafico.
+          */
           if (cropIrrigationWaterNeedData.parcel.option.soilFlag) {
             $scope.showSoilName = true;
+            $scope.showGraph = cropIrrigationWaterNeedData.soilMoistureLevelGraph.showGraph;
+            setSoilMoistureLevelGraphData(cropIrrigationWaterNeedData.soilMoistureLevelGraph);
           }
 
           /*

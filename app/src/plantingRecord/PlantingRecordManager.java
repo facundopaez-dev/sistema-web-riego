@@ -403,19 +403,6 @@ public class PlantingRecordManager {
             }
 
             /*
-             * Si el flujo de ejecucion llego a esta linea de codigo fuente
-             * es porque efectivamente se calculo la necesidad de agua de
-             * riego de un cultivo en la fecha actual (es decir, hoy), por
-             * lo tanto, se asigna el valor false a la variable bandera
-             * flagNotGenerateSoilMoistureGraph del registro de plantacion
-             * para que se pueda visualizar su grafico de evolucion diaria
-             * del nivel de humedad del suelo en caso de que dicho registro
-             * pertenezca a una parcela que tiene la bandera suelo activa
-             * en sus opciones
-             */
-            plantingRecordService.unsetFlagNotGenerateSoilMoistureGraph(developingPlantingRecord.getId());
-
-            /*
              * Si la necesidad de agua de riego de un cultivo (en desarrollo)
              * en la fecha actual (es decir, hoy) [mm/dia] NO es "NC" (no
              * calculado) entonces es un numero, ya que el metodo
