@@ -1974,13 +1974,6 @@ public class PlantingRecordRestServlet {
      */
     String notAvailable = plantingRecordService.getNotAvailable();
 
-    /*
-     * El simbolo de esta variable se utiliza para representar que la
-     * necesidad de agua de riego de un cultivo en la fecha actual [mm/dia]
-     * no esta disponible, pero se puede calcular. Esta situacion
-     * ocurre unicamente para un registro de plantacion en desarrollo.
-     */
-    String cropIrrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getCropIrrigationWaterNotAvailableButCalculable();
     PlantingRecordStatus status = statusService.calculateStatus(developingPlantingRecord);
     int parcelId = developingPlantingRecord.getParcel().getId();
 
@@ -2038,6 +2031,13 @@ public class PlantingRecordRestServlet {
          * "Desarrollo optimo".
          */
         if (statusService.equals(status, statusService.findInDevelopmentStatus()) || statusService.equals(status, statusService.findOptimalDevelopmentStatus())) {
+          /*
+           * El simbolo de esta variable se utiliza para representar que la
+           * necesidad de agua de riego de un cultivo en la fecha actual [mm/dia]
+           * no esta disponible, pero se puede calcular. Esta situacion
+           * ocurre unicamente para un registro de plantacion en desarrollo.
+           */
+          String cropIrrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getCropIrrigationWaterNotAvailableButCalculable();
           plantingRecordService.updateCropIrrigationWaterNeed(idFirstPlantingRecordInWaiting, cropIrrigationWaterNeedNotAvailableButCalculable);
         }
 
