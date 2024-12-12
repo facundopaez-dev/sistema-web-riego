@@ -133,10 +133,22 @@ app.controller(
           $scope.showGraph = false;
 
           /*
+          Si el estado de un registro de plantacion es "Muerto" se
+          debe mostrar la fecha de muerte del cultivo perteneciente
+          a dicho registro.
+
+          Un registro de plantacion representa la siembra de un
+          cultivo y tiene un estado que refleja el estado del
+          cultivo.
+          */
+          if ($scope.data.status.name === DEAD_STATUS) {
+            $scope.showDateDeath = true;
+          }
+
+          /*
           Si el estado de un registro de plantacion a visualizar
-          es "Muerto" se debe mostrar la fecha de muerte y el
-          grafico de la evolucion diaria del nivel de humedad del
-          suelo.
+          es "Muerto" se debe mostrar el grafico de la evolucion
+          diaria del nivel de humedad del suelo.
 
           Si el registro de plantacion a visualizar tiene el
           estado "Muerto", esto se debe a que la parcela a la que
@@ -146,7 +158,6 @@ app.controller(
           en las opciones de la parcela correspondiente.
           */
           if ($scope.action == 'view' && $scope.data.status.name === DEAD_STATUS) {
-            $scope.showDateDeath = true;
             $scope.showGraph = data.soilMoistureLevelGraph.showGraph;
             setSoilMoistureLevelGraphData(data.soilMoistureLevelGraph);
           }
