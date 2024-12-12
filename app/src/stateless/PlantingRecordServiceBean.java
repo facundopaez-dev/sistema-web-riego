@@ -846,15 +846,21 @@ public class PlantingRecordServiceBean {
 
   /**
    * Retorna true si y solo si una parcela de un usuario tiene
-   * registros de plantacion en espera
+   * al menos un registro de plantacion con el estado "En espera"
    * 
    * @param userId
    * @param parcelId
-   * @return true si una parcela de un usuario tiene registros
-   * de plantacion en espera, en caso contrario false
+   * @return true si una parcela de un usuario tiene al menos
+   * un registro de plantacion con el estado "En espera", en
+   * caso contrario false
    */
   public boolean hasInWaitingPlantingRecords(int userId, int parcelId) {
-    return !findAllInWaitingByParcelId(userId, parcelId).isEmpty();
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE p.user.id = :userId AND p.id = :parcelId AND UPPER(r.status.name) = UPPER('En espera')");
+    query.setParameter("userId", userId);
+    query.setParameter("parcelId", parcelId);
+    query.setMaxResults(1);
+
+    return !query.getResultList().isEmpty();
   }
 
   /**
