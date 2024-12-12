@@ -2404,9 +2404,10 @@ public class PlantingRecordRestServlet {
     irrigationWaterNeedFormData.setStatus(plantingRecordService.find(developingPlantingRecord.getId()).getStatus());
 
     /*
-     * Si la bandera suelo de las opciones de la parcela perteneciente
-     * a un registro de plantacion en desarrollo, esta activa, se genera
-     * el grafico de la evolucion diaria del nivel de humdad del suelo
+     * Si la bandera "suelo" de las opciones de la parcela asociada
+     * a un registro de plantacion en desarrollo esta activa, se
+     * genera el grafico que muestra la evolucion diaria del nivel
+     * de humedad del suelo.
      */
     if (developingPlantingRecord.getParcel().getOption().getSoilFlag()) {
       irrigationWaterNeedFormData.setSoilMoistureLevelGraph(generateSoilMoistureLevelGraph(developingPlantingRecord));
