@@ -3846,18 +3846,6 @@ public class PlantingRecordRestServlet {
    * @param parcelTwoId
    */
   private void checkWaitingPlantingRecordForParcels(int userId, int parcelOneId, int parcelTwoId) {
-    /*
-     * El simbolo de esta variable se utiliza para representar que la
-     * necesidad de agua de riego de un cultivo en la fecha actual
-     * [mm/dia] no esta disponible, pero se puede calcular. Esta
-     * situacion ocurre unicamente para un registro de plantacion en
-     * desarrollo.
-     */
-    String cropIrrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getCropIrrigationWaterNotAvailableButCalculable();
-    PlantingRecordStatus status;
-    PlantingRecordStatus inDevelopmentStatus = statusService.findInDevelopmentStatus();
-    PlantingRecordStatus optimalDevelopmentStatus = statusService.findOptimalDevelopmentStatus();
-
     int[] parcelIds;
     int parcelId;
 
@@ -3903,8 +3891,11 @@ public class PlantingRecordRestServlet {
        */
       if (!plantingRecordService.checkOneInDevelopment(parcelId) && plantingRecordService.checkWaitingPlantingRecordForDevelopment(userId, parcelId)) {
         PlantingRecord newDevelopingPlantingRecord = plantingRecordService.findPlantingRecordInWaitingForDevelopment(userId, parcelId);
-        status = statusService.calculateStatus(newDevelopingPlantingRecord);
+        PlantingRecordStatus status = statusService.calculateStatus(newDevelopingPlantingRecord);
         plantingRecordService.setStatus(newDevelopingPlantingRecord.getId(), status);
+
+        PlantingRecordStatus inDevelopmentStatus = statusService.findInDevelopmentStatus();
+        PlantingRecordStatus optimalDevelopmentStatus = statusService.findOptimalDevelopmentStatus();
 
         /*
          * El caracter "-" (guion) se utiliza para representar que la
@@ -3924,6 +3915,14 @@ public class PlantingRecordRestServlet {
          * "Desarrollo optimo".
          */
         if (statusService.equals(status, inDevelopmentStatus) || statusService.equals(status, optimalDevelopmentStatus)) {
+          /*
+           * El simbolo de esta variable se utiliza para representar que la
+           * necesidad de agua de riego de un cultivo en la fecha actual
+           * [mm/dia] no esta disponible, pero se puede calcular. Esta
+           * situacion ocurre unicamente para un registro de plantacion en
+           * desarrollo.
+           */
+          String cropIrrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getCropIrrigationWaterNotAvailableButCalculable();
           plantingRecordService.updateCropIrrigationWaterNeed(newDevelopingPlantingRecord.getId(),
               cropIrrigationWaterNeedNotAvailableButCalculable);
         }
