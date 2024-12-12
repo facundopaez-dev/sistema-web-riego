@@ -634,7 +634,7 @@ public class PlantingRecordServiceBean {
    * @param dateFrom
    * @param dateUntil
    * @return referencia a un objeto de tipo Collection que
-   * contiene los registros de plantacion finalziados de una
+   * contiene los registros de plantacion finalizados de una
    * parcela de un usuario que estan en un periodo definido
    * por dos fechas
    */
