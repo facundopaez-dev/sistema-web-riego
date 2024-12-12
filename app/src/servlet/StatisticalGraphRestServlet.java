@@ -593,7 +593,7 @@ public class StatisticalGraphRestServlet {
      * sucedido y no se realiza la operacion solicitada.
      */
     if (statisticalDataNumbers.length > 0
-        && !plantingRecordService.hasFinishedPlantingRecords(userId, parcelId, dateFrom, dateUntil)
+        && !plantingRecordService.hasFinishedPlantingRecordsInPeriod(userId, parcelId, dateFrom, dateUntil)
         && !irrigationRecordService.hasIrrigationRecordsWithCrops(userId, parcelId, dateFrom, dateUntil)
         && !harvestService.hasHarvestRecords(userId, parcelId, dateFrom, dateUntil)
         && !climateRecordService.hasClimateRecords(userId, parcelId, dateFrom, dateUntil)) {
@@ -684,7 +684,7 @@ public class StatisticalGraphRestServlet {
           || statisticalDataNumbers[i] == TOTAL_AMOUNT_OF_CYCLES_PER_TYPE_CROP
           || statisticalDataNumbers[i] == TOTAL_AMOUNT_OF_CYCLES_PER_TYPE_CROP_AND_YEAR
           || statisticalDataNumbers[i] == TOTAL_AMOUNT_OF_CYCLES_PER_YEAR)
-          && !plantingRecordService.hasFinishedPlantingRecords(userId, parcelId, dateFrom, dateUntil)) {
+          && !plantingRecordService.hasFinishedPlantingRecordsInPeriod(userId, parcelId, dateFrom, dateUntil)) {
         nonExistentData = true;
       }
   
@@ -801,7 +801,7 @@ public class StatisticalGraphRestServlet {
        * fechas
        */
       if (statisticalDataNumber == TOTAL_AMOUNT_OF_CYCLES_PER_CROP
-          && plantingRecordService.hasFinishedPlantingRecords(userId, parcelId, dateFrom, dateUntil)
+          && plantingRecordService.hasFinishedPlantingRecordsInPeriod(userId, parcelId, dateFrom, dateUntil)
           && !statisticalGraphService.checkExistence(userId, parcelId, dateFrom, dateUntil, statisticalDataService.find(statisticalDataNumber))) {
         newStatisticalGraph.setStatisticalData(statisticalDataService.find(statisticalDataNumber));
         newStatisticalGraph.setData(statisticalReportService.calculateTotalNumberCyclesPerCrop(parcelId, dateFrom, dateUntil));
@@ -822,7 +822,7 @@ public class StatisticalGraphRestServlet {
        * en una parcela durante un periodo definido por dos fechas
        */
       if (statisticalDataNumber == TOTAL_AMOUNT_OF_CYCLES_PER_CROP_AND_YEAR
-          && plantingRecordService.hasFinishedPlantingRecords(userId, parcelId, dateFrom, dateUntil)
+          && plantingRecordService.hasFinishedPlantingRecordsInPeriod(userId, parcelId, dateFrom, dateUntil)
           && !statisticalGraphService.checkExistence(userId, parcelId, dateFrom, dateUntil, statisticalDataService.find(statisticalDataNumber))) {
         newStatisticalGraph.setStatisticalData(statisticalDataService.find(statisticalDataNumber));
         List<String> cropNames = statisticalReportService.findCropNamesCalculatedPerTotalNumberCyclesPerCropAndYear(parcelId, dateFrom, dateUntil);
@@ -964,7 +964,7 @@ public class StatisticalGraphRestServlet {
        * dos fechas
        */
       if (statisticalDataNumber == TOTAL_AMOUNT_OF_CYCLES_PER_TYPE_CROP &&
-          plantingRecordService.hasFinishedPlantingRecords(userId, parcelId, dateFrom, dateUntil) &&
+          plantingRecordService.hasFinishedPlantingRecordsInPeriod(userId, parcelId, dateFrom, dateUntil) &&
           !statisticalGraphService.checkExistence(userId, parcelId, dateFrom, dateUntil, statisticalDataService.find(statisticalDataNumber))) {
         newStatisticalGraph.setAverage(0);
         newStatisticalGraph.setStatisticalData(statisticalDataService.find(statisticalDataNumber));
@@ -987,7 +987,7 @@ public class StatisticalGraphRestServlet {
        * definido por dos fechas
        */
       if (statisticalDataNumber == TOTAL_AMOUNT_OF_CYCLES_PER_TYPE_CROP_AND_YEAR &&
-          plantingRecordService.hasFinishedPlantingRecords(userId, parcelId, dateFrom, dateUntil) &&
+          plantingRecordService.hasFinishedPlantingRecordsInPeriod(userId, parcelId, dateFrom, dateUntil) &&
           !statisticalGraphService.checkExistence(userId, parcelId, dateFrom, dateUntil, statisticalDataService.find(statisticalDataNumber))) {
         newStatisticalGraph.setAverage(0);
         newStatisticalGraph.setStatisticalData(statisticalDataService.find(statisticalDataNumber));
@@ -1131,7 +1131,7 @@ public class StatisticalGraphRestServlet {
        * durante un periodo definido por dos fechas
        */
       if (statisticalDataNumber == TOTAL_AMOUNT_OF_CYCLES_PER_YEAR &&
-          plantingRecordService.hasFinishedPlantingRecords(userId, parcelId, dateFrom, dateUntil) &&
+          plantingRecordService.hasFinishedPlantingRecordsInPeriod(userId, parcelId, dateFrom, dateUntil) &&
           !statisticalGraphService.checkExistence(userId, parcelId, dateFrom, dateUntil, statisticalDataService.find(statisticalDataNumber))) {
         newStatisticalGraph.setAverage(0);
         newStatisticalGraph.setStatisticalData(statisticalDataService.find(statisticalDataNumber));
@@ -1394,7 +1394,7 @@ public class StatisticalGraphRestServlet {
         || statisticalDataNumber == TOTAL_AMOUNT_OF_CYCLES_PER_TYPE_CROP
         || statisticalDataNumber == TOTAL_AMOUNT_OF_CYCLES_PER_TYPE_CROP_AND_YEAR
         || statisticalDataNumber == TOTAL_AMOUNT_OF_CYCLES_PER_YEAR)
-        && !plantingRecordService.hasFinishedPlantingRecords(userId, parcelId, dateFrom, dateUntil)) {
+        && !plantingRecordService.hasFinishedPlantingRecordsInPeriod(userId, parcelId, dateFrom, dateUntil)) {
       message = "La parcela del informe estadístico a regenerar no tiene registros de plantación finalizados en el período de dicho informe estadístico. Por lo tanto, "
           + "no se regenerará el informe estadístico seleccionado.";
       return Response.status(Response.Status.BAD_REQUEST)
