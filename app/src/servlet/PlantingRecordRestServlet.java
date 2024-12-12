@@ -2042,14 +2042,12 @@ public class PlantingRecordRestServlet {
         }
 
         /*
-         * Si la parcela del registro de plantacion obtenido tiene
-         * la opcion suelo activa en sus opciones y si el registro
-         * de plantacion tiene el estado "Desarrollo optimo" se
-         * actualizan sus atributos "lamina total de agua disponible"
-         * (capacidad de almacenamiento de agua del suelo) [mm] y
-         * "lamina de riego optima" (umbral de riego) [mm]
+         * Si el registro de plantacion tiene el estado "Desarrollo
+         * optimo" se actualizan sus atributos "lamina total de agua
+         * disponible" (capacidad de almacenamiento de agua del suelo)
+         * [mm] y "lamina de riego optima" (umbral de riego) [mm]
          */
-        if (statusService.equals(status, statusService.findOptimalDevelopmentStatus()) && firstPlantingRecordInWaiting.getParcel().getOption().getSoilFlag()) {
+        if (statusService.equals(status, statusService.findOptimalDevelopmentStatus())) {
           plantingRecordService.updateTotalAmountWaterAvailable(idFirstPlantingRecordInWaiting, WaterMath
               .calculateTotalAmountWaterAvailable(firstPlantingRecordInWaiting.getCrop(), firstPlantingRecordInWaiting.getParcel().getSoil()));
           plantingRecordService.updateOptimalIrrigationLayer(idFirstPlantingRecordInWaiting, WaterMath
@@ -3928,14 +3926,12 @@ public class PlantingRecordRestServlet {
         }
 
         /*
-         * Si la parcela del registro de plantacion obtenido tiene
-         * la opcion suelo activa en sus opciones y si el registro
-         * de plantacion tiene el estado "Desarrollo optimo" se
-         * actualizan sus atributos "lamina total de agua disponible"
-         * (capacidad de almacenamiento de agua del suelo) [mm] y
-         * "lamina de riego optima" (umbral de riego) [mm]
+         * Si el registro de plantacion tiene el estado "Desarrollo
+         * optimo" se actualizan sus atributos "lamina total de agua
+         * disponible" (capacidad de almacenamiento de agua del suelo)
+         * [mm] y "lamina de riego optima" (umbral de riego) [mm]
          */
-        if (statusService.equals(status, optimalDevelopmentStatus) && firstPlantingRecordInWaiting.getParcel().getOption().getSoilFlag()) {
+        if (statusService.equals(status, optimalDevelopmentStatus)) {
           plantingRecordService.updateTotalAmountWaterAvailable(idFirstPlantingRecordInWaiting, WaterMath
               .calculateTotalAmountWaterAvailable(firstPlantingRecordInWaiting.getCrop(),
                   firstPlantingRecordInWaiting.getParcel().getSoil()));
