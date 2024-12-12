@@ -897,17 +897,16 @@ public class PlantingRecordRestServlet {
      * Comprueba si la parcela del nuevo registro de plantacion
      * NO tienen un registro de plantacion en un estado de desarrollo
      * (en desarrollo, desarrollo optimo, desarrollo en riesgo de
-     * marchitez, desarrollo en marchitez) y si tiene registros
-     * de plantacion con el estado "En espera".
-     * 
-     * Si ambas condiciones se cumplen, se selecciona, de la parcela,
-     * el registro de plantacion con el estado "En espera" cuya fecha
-     * de siembra sea la mas cercana a la fecha actual. Luego, se
-     * evalua si dicho registro debe actualizarse al estado "En
-     * desarrollo" o "Desarrollo optimo". De ser necesario, se
-     * realizan las modificaciones correspondientes.
+     * marchitez, desarrollo en marchitez) y si tiene un registro
+     * de plantacion con el estado "En espera" cuya fecha de siembra
+     * y fecha de cosecha incluyen la fecha actual. Si ambas
+     * condiciones se cumplen, se selecciona el registro de plantacion
+     * "En espera" para modificar su estado a uno de desarrollo,
+     * ya que un registro entra en estado de desarrollo cuando la
+     * fecha actual esta entre la fecha de siembra y la fecha de
+     * cosecha.
      */
-    checkWaitingPlantingRecordForParcels(userId, parcel.getId(), parcel.getId());
+    checkWaitingPlantingRecordForDevelopment(userId, parcel.getId(), parcel.getId());
 
     /*
      * Un registro de plantacion nuevo tiene el estado "Finalizado"
@@ -1318,19 +1317,17 @@ public class PlantingRecordRestServlet {
     /*
      * Comprueba si tanto la parcela actual como la parcela modificada
      * del registro de plantacion a modificar NO tienen un registro
-     * en un estado de desarrollo (en desarrollo, desarrollo optimo,
-     * desarrollo en riesgo de marchitez o desarrollo en marchitez)
-     * y si ambas tienen registros de plantacion con el estado "En
-     * espera".
-     * 
-     * Si ambas condiciones se cumplen, se selecciona, de cada parcela,
-     * el registro de plantacion con el estado "En espera" cuya fecha
-     * de siembra sea la mas cercana a la fecha actual. Luego, se evalua
-     * si dicho registro debe actualizarse al estado "En desarrollo"
-     * o "Desarrollo optimo". De ser necesario, se realizan las
-     * modificaciones correspondientes.
+     * de plantacion en un estado de desarrollo (en desarrollo, desarrollo
+     * optimo, desarrollo en riesgo de marchitez, desarrollo en marchitez)
+     * y si ambas tienen un registro de plantacion con el estado "En
+     * espera" cuya fecha de siembra y fecha de cosecha incluyen la
+     * fecha actual. Si ambas condiciones se cumplen, se selecciona
+     * el registro de plantacion "En espera" de cada parcela para
+     * modificar su estado a uno de desarrollo, ya que un registro
+     * entra en estado de desarrollo cuando la fecha actual esta entre
+     * la fecha de siembra y la fecha de cosecha.
      */
-    checkWaitingPlantingRecordForParcels(userId, currentParcel.getId(), modifiedParcel.getId());
+    checkWaitingPlantingRecordForDevelopment(userId, currentParcel.getId(), modifiedParcel.getId());
 
     /*
      * *****************************************************************
@@ -3829,23 +3826,23 @@ public class PlantingRecordRestServlet {
   }
 
   /**
-   * Verifica si las parcelas asociadas a dos IDs NO tienen
-   * un registro de plantacion con un estado de desarrollo
+   * Verifica si las parcelas asociadas a dos IDs no tienen
+   * un registro de plantacion en estado de desarrollo
    * (en desarrollo, desarrollo optimo, desarrollo en riesgo
-   * de marchitez, desarrollo en marchitez) y si tienen
-   * registros de plantacion con el estado "En espera". Si
-   * se cumplen ambas condiciones, de cada una de ellas se
-   * obtiene el registro de plantacion "En espera" con la
-   * fecha de siembra mas cercana a la fecha actual para
-   * verificar si debe pasar al estado "En desarrollo" o
-   * "Desarrollo optimo". En caso afirmativo, se realizan
-   * las modificaciones correspondientes.
+   * de marchitez o desarrollo en marchitez), y si tienen un
+   * registro de plantacion en el estado "En espera" cuya fecha
+   * de siembra y fecha de cosecha incluyen la fecha actual.
+   * Si ambas condiciones se cumplen, se selecciona el registro
+   * de plantacion "En espera" de cada parcela para modificar
+   * su estado a uno de desarrollo, ya que un registro entra
+   * en estado de desarrollo cuando la fecha actual esta entre
+   * la fecha de siembra y la fecha de cosecha.
    * 
    * @param userId
    * @param parcelOneId
    * @param parcelTwoId
    */
-  private void checkWaitingPlantingRecordForParcels(int userId, int parcelOneId, int parcelTwoId) {
+  private void checkWaitingPlantingRecordForDevelopment(int userId, int parcelOneId, int parcelTwoId) {
     int[] parcelIds;
     int parcelId;
 
