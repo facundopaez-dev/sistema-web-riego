@@ -907,17 +907,6 @@ public class PlantingRecordServiceBean {
   }
 
   /**
-   * Retorna true si y solo si una parcela tiene registros de
-   * plantacion
-   * 
-   * @return true si una parcela tiene registros de plantacion,
-   * false en caso contrario
-   */
-  public boolean hasPlantingRecords(Parcel givenParcel) {
-    return !findAll(givenParcel).isEmpty();
-  }
-
-  /**
    * Retorna true si y solo si la primera fecha es mayor o
    * igual a la segunda fecha
    * 
