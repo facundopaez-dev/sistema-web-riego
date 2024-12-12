@@ -225,44 +225,50 @@ public class PlantingRecordServiceBean {
   }
 
   /**
+   * Un registro de plantacion con el estado "En espera" que
+   * tiene una fecha de siembra y una fecha de cosecha que
+   * definen un periodo en el cual esta la fecha actual es un
+   * registro de plantacion que debe cambiar a un estado de
+   * desarrollo (en desarrollo, desarrollo optimo, desarrollo
+   * en riesgo de marchitez, desarrollo en marchitez). El
+   * objetivo de este metodo es obtener dicho registro para
+   * cambiar su estado a un estado de desarrollo.
+   * 
+   * @param userId
    * @param parcelId
-   * @return entero que representa el ID del primer registro
-   * de plantacion, perteneciente a una parcela, que tiene
-   * el estado "En espera" de los registros de plantacion en
-   * espera de una parcela ordenados cronologicamente en forma
-   * ascendente
+   * @return referencia a un objeto de tipo PlantingRecord que
+   * representa un registro de plantacion con el estado "En
+   * espera", cuya fecha de siembra y fecha de cosecha incluyen
+   * la fecha actual. Si se cumple esta condicion, se retorna el
+   * registro; en caso contrario, se retorna null.
    */
-  public int findIdFirstOneOnWaiting(int parcelId) {
-    /*
-     * Ordena cronologicamente de forma ascendente los registros
-     * de plantacion de una parcela que tienen el estado "En espera"
-     * y selecciona de ellos la fecha de siembra mas pequeña. De
-     * esta manera, selecciona el ID del registro de plantacion "En
-     * espera", perteneciente a una parcela, que tiene la fecha de
-     * siembra mas cercana a la fecha actual. De esta forma, se
-     * selecciona el ID del primer registro de plantacion en espera
-     * de los registros de plantacion en espera pertenecientes a
-     * una parcela.
-     * 
-     * El estado "En espera" tiene el ID = 2 siempre y cuando no se
-     * modifique el orden en el que se ejecutan las instrucciones
-     * de insercion del archivo SQL plantingRecordStatusInserts.
-     */
-    String subQuery = "SELECT MIN(RESULT_TABLE.SEED_DATE) FROM (SELECT * FROM PLANTING_RECORD WHERE (FK_PARCEL = ?1 AND FK_STATUS = 2) ORDER BY SEED_DATE) AS RESULT_TABLE";
-    String stringQuery = "SELECT ID FROM PLANTING_RECORD WHERE FK_PARCEL = ?1 AND SEED_DATE = (" + subQuery + ")";
+  public PlantingRecord findPlantingRecordInWaitingForDevelopment(int userId, int parcelId) {
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE p.user.id = :userId AND p.id = :parcelId AND r.seedDate <= CURRENT_DATE AND CURRENT_DATE <= r.harvestDate ORDER BY r.seedDate");
+    query.setParameter("userId", userId);
+    query.setParameter("parcelId", parcelId);
 
-    Query query = entityManager.createNativeQuery(stringQuery);
-    query.setParameter(1, parcelId);
-
-    int result = 0;
+    PlantingRecord plantingRecord = null;
 
     try {
-      result = (int) query.getSingleResult();
+      plantingRecord = (PlantingRecord) query.getSingleResult();
     } catch(NoResultException e) {
       e.printStackTrace();
     }
 
-    return result;
+    return plantingRecord;
+
+  }
+
+  /**
+   * @param userId
+   * @param parcelId
+   * @return true si existe un registro de plantacion con el
+   * estado "En espera" de una parcela de un usuario, cuya
+   * fecha de siembra y fecha de cosecha incluyen la fecha
+   * actual; en caso contrario, false.
+   */
+  public boolean checkWaitingPlantingRecordForDevelopment(int userId, int parcelId) {
+    return findPlantingRecordInWaitingForDevelopment(userId, parcelId) != null;
   }
 
   /**

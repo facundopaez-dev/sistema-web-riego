@@ -2001,17 +2001,20 @@ public class PlantingRecordRestServlet {
       plantingRecordService.updateOptimalIrrigationLayer(plantingRecordId, 0);
 
       /*
-       * Si la parcela correspondiente al registro de plantacion
-       * que paso de un estado de desarrollo al estado "Finalizado",
-       * tiene registros de plantacion en el estado "En espera", se
-       * obtiene de ellos el que tiene la fecha de siembra mas cercana
-       * a la fecha actual
+       * Si la parcela correspondiente al registro de plantacion que
+       * cambio de un estado de desarrollo (en desarrollo, desarrollo
+       * optimo, desarrollo en riesgo de marchitez, desarrollo en
+       * marchitez) al estado "Finalizado", tiene un registro de
+       * plantacion en el estado "En espera" cuya fecha de siembra y
+       * cosecha incluyen la fecha actual (es decir, hoy), dicho
+       * registro debe cambiar a un estado de desarrollo porque un
+       * registro tiene un estado de desarrollo cuando la fecha
+       * actual esta entre la fecha de siembra y la fecha de cosecha.
        */
-      if (plantingRecordService.hasInWaitingPlantingRecords(userId, parcelId)) {
-        int idFirstPlantingRecordInWaiting = plantingRecordService.findIdFirstOneOnWaiting(parcelId);
-        PlantingRecord firstPlantingRecordInWaiting = plantingRecordService.find(idFirstPlantingRecordInWaiting);
-        status = statusService.calculateStatus(firstPlantingRecordInWaiting);
-        plantingRecordService.setStatus(idFirstPlantingRecordInWaiting, status);
+      if (plantingRecordService.checkWaitingPlantingRecordForDevelopment(userId, parcelId)) {
+        PlantingRecord newDevelopingPlantingRecord = plantingRecordService.findPlantingRecordInWaitingForDevelopment(userId, parcelId);
+        status = statusService.calculateStatus(newDevelopingPlantingRecord);
+        plantingRecordService.setStatus(newDevelopingPlantingRecord.getId(), status);
 
         /*
          * El caracter "-" (guion) se utiliza para representar que la
@@ -2038,7 +2041,7 @@ public class PlantingRecordRestServlet {
            * ocurre unicamente para un registro de plantacion en desarrollo.
            */
           String cropIrrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getCropIrrigationWaterNotAvailableButCalculable();
-          plantingRecordService.updateCropIrrigationWaterNeed(idFirstPlantingRecordInWaiting, cropIrrigationWaterNeedNotAvailableButCalculable);
+          plantingRecordService.updateCropIrrigationWaterNeed(newDevelopingPlantingRecord.getId(), cropIrrigationWaterNeedNotAvailableButCalculable);
         }
 
         /*
@@ -2048,10 +2051,10 @@ public class PlantingRecordRestServlet {
          * [mm] y "lamina de riego optima" (umbral de riego) [mm]
          */
         if (statusService.equals(status, statusService.findOptimalDevelopmentStatus())) {
-          plantingRecordService.updateTotalAmountWaterAvailable(idFirstPlantingRecordInWaiting, WaterMath
-              .calculateTotalAmountWaterAvailable(firstPlantingRecordInWaiting.getCrop(), firstPlantingRecordInWaiting.getParcel().getSoil()));
-          plantingRecordService.updateOptimalIrrigationLayer(idFirstPlantingRecordInWaiting, WaterMath
-              .calculateOptimalIrrigationLayer(firstPlantingRecordInWaiting.getCrop(), firstPlantingRecordInWaiting.getParcel().getSoil()));
+          plantingRecordService.updateTotalAmountWaterAvailable(newDevelopingPlantingRecord.getId(), WaterMath
+              .calculateTotalAmountWaterAvailable(newDevelopingPlantingRecord.getCrop(), newDevelopingPlantingRecord.getParcel().getSoil()));
+          plantingRecordService.updateOptimalIrrigationLayer(newDevelopingPlantingRecord.getId(), WaterMath
+              .calculateOptimalIrrigationLayer(newDevelopingPlantingRecord.getCrop(), newDevelopingPlantingRecord.getParcel().getSoil()));
         }
 
       } // End if
@@ -3854,11 +3857,9 @@ public class PlantingRecordRestServlet {
     PlantingRecordStatus status;
     PlantingRecordStatus inDevelopmentStatus = statusService.findInDevelopmentStatus();
     PlantingRecordStatus optimalDevelopmentStatus = statusService.findOptimalDevelopmentStatus();
-    PlantingRecord firstPlantingRecordInWaiting;
 
     int[] parcelIds;
     int parcelId;
-    int idFirstPlantingRecordInWaiting;
 
     /**
      * Si los IDs de las parcelas son diferentes, se considera
@@ -3890,19 +3891,20 @@ public class PlantingRecordRestServlet {
       parcelId = parcelIds[i];
 
       /*
-       * Si la parcela correspondiente a un ID NO tiene un registro de
-       * plantacion con un estado de desarrollo (en desarrollo, desarrollo
-       * optimo, en riesgo de marchitez o en marchitez), pero tiene
-       * registros en el estado "En espera", se selecciona el registro
-       * cuya fecha de siembra sea la mas cercana a la fecha actual (hoy).
-       * Luego, se verifica si dicho registro tiene un estado de desarrollo.
-       * Si es asi, se procede con las modificaciones correspondientes.
+       * Si la parcela correspondiente a un ID no tiene un registro
+       * de plantacion en un estado de desarrollo (en desarrollo,
+       * desarrollo optimo, en riesgo de marchitez o en marchitez),
+       * pero tiene un registro en el estado "En espera" cuya fecha
+       * de siembra y fecha de cosecha incluyen la fecha actual
+       * (es decir, hoy), se selecciona dicho registro para modificar
+       * su estado a un estado de desarrollo, ya que un registro
+       * entra en estado de desarrollo cuando la fecha actual esta
+       * entre la fecha de siembra y la fecha de cosecha.
        */
-      if (!plantingRecordService.checkOneInDevelopment(parcelId) && plantingRecordService.hasInWaitingPlantingRecords(userId, parcelId)) {
-        idFirstPlantingRecordInWaiting = plantingRecordService.findIdFirstOneOnWaiting(parcelId);
-        firstPlantingRecordInWaiting = plantingRecordService.find(idFirstPlantingRecordInWaiting);
-        status = statusService.calculateStatus(firstPlantingRecordInWaiting);
-        plantingRecordService.setStatus(idFirstPlantingRecordInWaiting, status);
+      if (!plantingRecordService.checkOneInDevelopment(parcelId) && plantingRecordService.checkWaitingPlantingRecordForDevelopment(userId, parcelId)) {
+        PlantingRecord newDevelopingPlantingRecord = plantingRecordService.findPlantingRecordInWaitingForDevelopment(userId, parcelId);
+        status = statusService.calculateStatus(newDevelopingPlantingRecord);
+        plantingRecordService.setStatus(newDevelopingPlantingRecord.getId(), status);
 
         /*
          * El caracter "-" (guion) se utiliza para representar que la
@@ -3922,7 +3924,7 @@ public class PlantingRecordRestServlet {
          * "Desarrollo optimo".
          */
         if (statusService.equals(status, inDevelopmentStatus) || statusService.equals(status, optimalDevelopmentStatus)) {
-          plantingRecordService.updateCropIrrigationWaterNeed(idFirstPlantingRecordInWaiting,
+          plantingRecordService.updateCropIrrigationWaterNeed(newDevelopingPlantingRecord.getId(),
               cropIrrigationWaterNeedNotAvailableButCalculable);
         }
 
@@ -3933,12 +3935,10 @@ public class PlantingRecordRestServlet {
          * [mm] y "lamina de riego optima" (umbral de riego) [mm]
          */
         if (statusService.equals(status, optimalDevelopmentStatus)) {
-          plantingRecordService.updateTotalAmountWaterAvailable(idFirstPlantingRecordInWaiting, WaterMath
-              .calculateTotalAmountWaterAvailable(firstPlantingRecordInWaiting.getCrop(),
-                  firstPlantingRecordInWaiting.getParcel().getSoil()));
-          plantingRecordService.updateOptimalIrrigationLayer(idFirstPlantingRecordInWaiting, WaterMath
-              .calculateOptimalIrrigationLayer(firstPlantingRecordInWaiting.getCrop(),
-                  firstPlantingRecordInWaiting.getParcel().getSoil()));
+          plantingRecordService.updateTotalAmountWaterAvailable(newDevelopingPlantingRecord.getId(), WaterMath
+              .calculateTotalAmountWaterAvailable(newDevelopingPlantingRecord.getCrop(), newDevelopingPlantingRecord.getParcel().getSoil()));
+          plantingRecordService.updateOptimalIrrigationLayer(newDevelopingPlantingRecord.getId(), WaterMath
+              .calculateOptimalIrrigationLayer(newDevelopingPlantingRecord.getCrop(), newDevelopingPlantingRecord.getParcel().getSoil()));
         }
 
       }
