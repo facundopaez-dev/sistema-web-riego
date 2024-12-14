@@ -53,109 +53,93 @@ public class PlantingRecordManager {
     @EJB TypePrecipitationServiceBean typePrecipService;
 
     /*
-     * Establece de manera automatica el estado finalizado de un registro de
-     * plantacion presuntamente en desarrollo. Esto lo hace cada 24 horas a
-     * partir de las 00 horas.
+     * Este metodo realiza las siguientes operaciones de manera automatica
+     * cada 24 horas a partir de las 00 horas:
+     * - Asigna el estado "Finalizado" a todos los registros de plantacion
+     * de las parcelas de un usuario cuya fecha de cosecha sea anterior a
+     * la fecha actual y cuyo estado sea un estado de desarrollo (en desarrollo,
+     * desarrollo optimo, desarrollo en riesgo de marchitez, desarrollo en
+     * marchitez).
+     * - Asigna el estado "En desarrollo" o "Desarrollo optimo" al registro
+     * de plantacion, perteneciente a una parcela de un usuario, cuyo estado
+     * sea "En espera" y cuyas fechas de siembra y cosecha incluyan la fecha
+     * actual. Esto se debe a que un registro entra en uno de los estados de
+     * desarrollo mencionados cuando la fecha actual esta entre la fecha de
+     * siembra y la fecha de cosecha.
      * 
      * La segunda anotacion @Schedule es para probar que este metodo se
      * ejecuta correctamente, es decir, que establece el estado finalizado
      * en un registro de plantacion presuntamente en desarrollo.
      * 
      * El archivo t110Inserts.sql de la ruta app/etc/sql tiene datos para
-     * probar que este metodo se ejecuta correctamente, es decir, que hace
-     * lo que se espera que haga.
+     * probar que este metodo asigna el estado "Finalizado" a registros
+     * de plantacion que tienen un estado de desarrollo (en desarrollo,
+     * desarrollo optimo, desarrollo en riesgo de marchitez, desarrollo
+     * en marchitez) y cuya fecha de cosecha es anterior a la fecha actual
+     * (es decir, hoy).
      */
     // @Schedule(second = "*", minute = "*", hour = "0/23", persistent = false)
     // @Schedule(second = "*/10", minute = "*", hour = "*", persistent = false)
-    public void modifyToFinishedStatus() {
+    public void updateStates() {
         Collection<Parcel> parcels = parcelService.findAll();
         PlantingRecordStatus finishedStatus = statusService.findFinishedStatus();
 
-        /*
-         * Asigna el estado "Finalizado" y los valores "n/a", 0 y
-         * 0 a los atributos "estado", "necesidad de agua de riego
-         * de cultivo", "lamina total de agua disponible" y "lamina
-         * de riego optima" de todos los registros de plantacion
-         * con fecha de cosecha anterior a la fecha actual (hoy)
-         * asociados a las parcelas de un usuario.
-         */
         for (Parcel currentParcel : parcels) {
-            plantingRecordService.setFinishedStatusByUserIdAndParcelId(currentParcel.getUser().getId(), currentParcel.getId(), finishedStatus);
-        }
-    }
-
-    /*
-     * Establece de manera automatica un estado de desarrollo en el registro
-     * de plantacion presuntamente en espera mas antiguo de los registros de
-     * plantacion en espera de cada una de las parcelas registradas en la base
-     * de datos subyacente. Esto lo hace cada 24 horas a parit de las 01 horas,
-     * una hora despues de la ejecucion del metodo modifyToFinishedStatus de
-     * esta clase.
-     * 
-     * La segunda anotacion @Schedule es para probar que este metodo se
-     * ejecuta correctamente, es decir, que establece el estado en desarrollo
-     * en un registro de plantacion presuntamente en espera.
-     */
-    // @Schedule(second = "*", minute = "*", hour = "1/23", persistent = false)
-    // @Schedule(second = "*/10", minute = "*", hour = "*", persistent = false)
-    public void modifyToDevelopmentStatus() {
-        /*
-         * El simbolo de esta variable se utiliza para representar que la
-         * necesidad de agua de riego de un cultivo en la fecha actual [mm/dia]
-         * no esta disponible, pero se puede calcular. Esta situacion
-         * ocurre unicamente para un registro de plantacion en desarrollo.
-         */
-        String cropIrrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getCropIrrigationWaterNotAvailableButCalculable();
-
-        /*
-         * Obtiene una coleccion que contiene el registro de
-         * plantacion en espera mas antiguo de los registros
-         * de plantacion en espera de cada una de las parcelas
-         * registradas en la base de datos subyacente
-         */
-        Collection<PlantingRecord> pendingPlantingRecords = plantingRecordService.findAllInWaiting();
-
-        for (PlantingRecord currentPlantingRecord : pendingPlantingRecords) {
             /*
-             * Si un registro de plantacion presuntamente en espera, NO
-             * esta en espera, se le asigna un estado de desarrollo
-             * (en desarrollo o desarrollo optimo) dependiendo del valor
-             * de la bandera suelo de la parcela a la que pertenece.
-             * 
-             * Un registro de plantacion en espera, esta en espera si
-             * su fecha de siembra es estrictamente mayor (es decir,
-             * posterior) a la fecha actual. En cambio, si su fecha de
-             * siembra es menor o igual a la fecha actual y su fecha
-             * de cosecha es mayor o igual a la fecha actual, se debe
-             * establecer un estado en desarrollo en el mismo.
-             * 
-             * Se asigna el simbolo "-" (guion) a la necesidad de agua
-             * de riego de un registro de plantacion en desarrollo. Dicho
-             * simbolo se utiliza para representar que la necesidad de
-             * agua de riego de un cultivo en la fecha actual [mm/dia]
-             * no esta disponible, pero es calculable. Esta situacion
-             * ocurre unicamente para un registro de plantacion en
-             * desarrollo.
+             * Actualiza el estado de todos los registros de plantacion
+             * asociados a una parcela de un usuario, asignando el valor
+             * "Finalizado" al estado y los valores "n/a", 0 y 0 a los
+             * atributos de "necesidad de agua de riego de cultivo",
+             * "lamina total de agua disponible" y "lamina de riego optima",
+             * respectivamente. Esta actualizacion se aplica solo a los
+             * registros cuya fecha de cosecha sea anterior a la fecha
+             * actual (hoy) y cuyo estado sea un estado de desarrollo
+             * (en desarrollo, desarrollo optimo, desarrollo en riesgo
+             * de machitez, desarrollo en marchitez).
              */
-            if (plantingRecordService.isInDevelopment(currentPlantingRecord)) {
-                plantingRecordService.updateCropIrrigationWaterNeed(currentPlantingRecord.getId(), cropIrrigationWaterNeedNotAvailableButCalculable);
+            plantingRecordService.setFinishedStatusByUserIdAndParcelId(currentParcel.getUser().getId(), currentParcel.getId(), finishedStatus);
+
+            /*
+             * Si la parcela correspondiente a un ID tiene un registro
+             * de plantacion con el estado "En espera" cuya fecha de siembra
+             * y fecha de cosecha incluyen la fecha actual (es decir, hoy),
+             * se selecciona dicho registro para modificar su estado al
+             * estado "En desarrollo" o "Desarrollo optimo", ya que un
+             * registro inicialmente tiene uno de estos dos cuando la
+             * fecha actual esta entre la fecha de siembra y la fecha
+             * de cosecha.
+             */
+            if (plantingRecordService.checkWaitingPlantingRecordForDevelopment(currentParcel.getUser().getId(), currentParcel.getId())) {
+                PlantingRecord newDevelopingPlantingRecord = plantingRecordService.findPlantingRecordInWaitingForDevelopment(currentParcel.getUser().getId(), currentParcel.getId());
 
                 /*
-                 * Si un registro de plantacion presuntamente en espera tiene
-                 * una parcela que tiene la bandera suelo NO activa, se asigna
-                 * el estado "En desarrollo" al registro de plantacion. En caso
-                 * contrario, se le asigna el estado "Desarrollo optimo".
+                 * El simbolo de esta variable se utiliza para representar que la
+                 * necesidad de agua de riego de un cultivo en la fecha actual [mm/dia]
+                 * no esta disponible, pero se puede calcular. Esta situacion
+                 * ocurre unicamente para un registro de plantacion que tiene
+                 * el estado "En desarrollo" o "Desarrollo optimo".
                  */
-                if (!currentPlantingRecord.getParcel().getOption().getSoilFlag()) {
-                    plantingRecordService.setStatus(currentPlantingRecord.getId(), statusService.findInDevelopmentStatus());
+                String cropIrrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getCropIrrigationWaterNotAvailableButCalculable();
+                plantingRecordService.updateCropIrrigationWaterNeed(newDevelopingPlantingRecord.getId(), cropIrrigationWaterNeedNotAvailableButCalculable);
+
+                /*
+                 * Si la parcela asociada al registro de plantacion que
+                 * cambiara al estado "En desarrollo" o "Desarrollo optimo"
+                 * tiene activa la bandera de suelo en sus opciones, se
+                 * asigna el estado "Desarrollo optimo". De lo contrario,
+                 * se asigna el estado "En desarrollo".
+                 */
+                if (!currentParcel.getOption().getSoilFlag()) {
+                    plantingRecordService.setStatus(newDevelopingPlantingRecord.getId(), statusService.findInDevelopmentStatus());
                 } else {
-                    plantingRecordService.setStatus(currentPlantingRecord.getId(), statusService.findOptimalDevelopmentStatus());
+                    plantingRecordService.updateTotalAmountWaterAvailable(newDevelopingPlantingRecord.getId(), WaterMath
+                            .calculateTotalAmountWaterAvailable(newDevelopingPlantingRecord.getCrop(), currentParcel.getSoil()));
+                    plantingRecordService.updateOptimalIrrigationLayer(newDevelopingPlantingRecord.getId(), WaterMath
+                            .calculateOptimalIrrigationLayer(newDevelopingPlantingRecord.getCrop(), currentParcel.getSoil()));
+                    plantingRecordService.setStatus(newDevelopingPlantingRecord.getId(), statusService.findOptimalDevelopmentStatus());
                 }
-
             }
-
-        } // End for
-
+        }
     }
 
     /**
