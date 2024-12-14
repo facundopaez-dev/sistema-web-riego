@@ -225,14 +225,15 @@ public class PlantingRecordServiceBean {
   }
 
   /**
-   * Un registro de plantacion con el estado "En espera" que
-   * tiene una fecha de siembra y una fecha de cosecha que
-   * definen un periodo en el cual esta la fecha actual es un
-   * registro de plantacion que debe cambiar a un estado de
-   * desarrollo (en desarrollo, desarrollo optimo, desarrollo
-   * en riesgo de marchitez, desarrollo en marchitez). El
-   * objetivo de este metodo es obtener dicho registro para
-   * cambiar su estado a un estado de desarrollo.
+   * Un registro de plantacion con estado "En espera" cuya fecha
+   * de siembra y fecha de cosecha definen un periodo que incluye
+   * la fecha actual, debe cambiar su estado a "En desarrollo" o
+   * "Desarrollo optimo". Esto se debe a que un registro adquiere
+   * inicialmente uno de estos estados cuando la fecha actual se
+   * encuentra entre la fecha de siembra y la fecha de cosecha.
+   * El objetivo de este metodo es identificar dicho registro
+   * para actualizar su estado a uno de los estados de desarrollo
+   * mencionados.
    * 
    * @param userId
    * @param parcelId
@@ -243,7 +244,7 @@ public class PlantingRecordServiceBean {
    * registro; en caso contrario, se retorna null.
    */
   public PlantingRecord findPlantingRecordInWaitingForDevelopment(int userId, int parcelId) {
-    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE p.user.id = :userId AND p.id = :parcelId AND r.seedDate <= CURRENT_DATE AND CURRENT_DATE <= r.harvestDate ORDER BY r.seedDate");
+    Query query = getEntityManager().createQuery("SELECT r FROM PlantingRecord r JOIN r.parcel p WHERE p.user.id = :userId AND p.id = :parcelId AND UPPER(r.status.name) = UPPER('En espera') AND r.seedDate <= CURRENT_DATE AND CURRENT_DATE <= r.harvestDate ORDER BY r.seedDate");
     query.setParameter("userId", userId);
     query.setParameter("parcelId", parcelId);
 
