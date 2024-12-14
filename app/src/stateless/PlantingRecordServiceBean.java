@@ -735,19 +735,23 @@ public class PlantingRecordServiceBean {
   }
 
   /**
-   * Asigna el estado "Finalizado" y los valores "n/a", 0 y
-   * 0 a los atributos "estado", "necesidad de agua de riego
-   * de cultivo", "lamina total de agua disponible" y "lamina
-   * de riego optima" de todos los registros de plantacion
-   * con fecha de cosecha anterior a la fecha actual (hoy)
-   * asociados a las parcelas de un usuario.
+   * Actualiza el estado de todos los registros de plantacion
+   * asociados a una parcela de un usuario, asignando el valor
+   * "Finalizado" al estado y los valores "n/a", 0 y 0 a los
+   * atributos de "necesidad de agua de riego de cultivo",
+   * "lamina total de agua disponible" y "lamina de riego optima",
+   * respectivamente. Esta actualizacion se aplica solo a los
+   * registros cuya fecha de cosecha sea anterior a la fecha
+   * actual (hoy) y cuyo estado sea un estado de desarrollo
+   * (en desarrollo, desarrollo optimo, desarrollo en riesgo
+   * de machitez, desarrollo en marchitez).
    * 
    * @param userId
    * @param parcelId
    * @param finishedStatus
    */
   public void setFinishedStatusByUserIdAndParcelId(int userId, int parcelId, PlantingRecordStatus finishedStatus) {
-    Query query = getEntityManager().createQuery("UPDATE PlantingRecord r SET r.cropIrrigationWaterNeed = :notAvailable, r.totalAmountWaterAvailable = 0, r.optimalIrrigationLayer = 0, r.status = :finishedStatus WHERE r.parcel.user.id = :userId AND r.parcel.id = :parcelId AND r.harvestDate < CURRENT_DATE");
+    Query query = getEntityManager().createQuery("UPDATE PlantingRecord r SET r.cropIrrigationWaterNeed = :notAvailable, r.totalAmountWaterAvailable = 0, r.optimalIrrigationLayer = 0, r.status = :finishedStatus WHERE r.parcel.user.id = :userId AND r.parcel.id = :parcelId AND UPPER(r.status.name) LIKE (CONCAT('%', UPPER('Desarrollo'), '%')) AND r.harvestDate < CURRENT_DATE");
     query.setParameter("userId", userId);
     query.setParameter("parcelId", parcelId);
     query.setParameter("finishedStatus", finishedStatus);
