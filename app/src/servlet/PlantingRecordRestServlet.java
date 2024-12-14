@@ -884,14 +884,14 @@ public class PlantingRecordRestServlet {
     Parcel parcel = newPlantingRecord.getParcel();
 
     /*
-     * Verifica si la parcela del nuevo registro de plantacion
-     * tiene un registro de plantacion con un estado de desarrollo
-     * (en desarrollo, desarrollo optimo, desarrollo en riesgo de
-     * marchitez, desarrollo en marchitez). Si es asi, se comprueba
-     * si dicho registro tiene el estado "Finalizado". En caso
-     * afirmativo, se realizan las modificaciones correspondientes.
+     * Asigna el estado "Finalizado" y los valores "n/a", 0 y
+     * 0 a los atributos "estado", "necesidad de agua de riego
+     * de cultivo", "lamina total de agua disponible" y "lamina
+     * de riego optima" de todos los registros de plantacion
+     * con fecha de cosecha anterior a la fecha actual (hoy)
+     * asociados a las parcelas de un usuario.
      */
-    checkDevelopingPlantingRecordForParcels(parcel.getId(), parcel.getId());
+    setFinishedStatusByUserIdAndParcelIds(userId, parcel.getId(), parcel.getId());
 
     /*
      * Comprueba si la parcela del nuevo registro de plantacion
@@ -1304,15 +1304,14 @@ public class PlantingRecordRestServlet {
     }
 
     /*
-     * Verifica si la parcela actual y la parcela modificada del
-     * registro de plantacion a modificar tienen un registro de
-     * plantacion con un estado de desarrollo (en desarrollo,
-     * desarrollo optimo, desarrollo en riesgo de marchitez,
-     * desarrollo en marchitez). Si es asi, se comprueba si dicho
-     * registro tiene el estado "Finalizado". En caso afirmativo,
-     * se realizan las modificaciones correspondientes.
+     * Asigna el estado "Finalizado" y los valores "n/a", 0 y
+     * 0 a los atributos "estado", "necesidad de agua de riego
+     * de cultivo", "lamina total de agua disponible" y "lamina
+     * de riego optima" de todos los registros de plantacion
+     * con fecha de cosecha anterior a la fecha actual (hoy)
+     * asociados a las parcelas de un usuario.
      */
-    checkDevelopingPlantingRecordForParcels(currentParcel.getId(), modifiedParcel.getId());
+    setFinishedStatusByUserIdAndParcelIds(userId, currentParcel.getId(), modifiedParcel.getId());
 
     /*
      * Comprueba si tanto la parcela actual como la parcela modificada
@@ -3738,43 +3737,20 @@ public class PlantingRecordRestServlet {
   }
 
   /**
-   * Verifica si las parcelas asociadas a dos IDs tienen un
-   * registro de plantacion con un estado de desarrollo
-   * (en desarrollo, desarrollo optimo, desarrollo en riesgo
-   * de marchitez, desarrollo en marchitez). Si es asi, se
-   * comprueba si dicho registro tiene el estado "Finalizado".
-   * En caso afirmativo, se realizan las modificaciones
-   * correspondientes.
+   * Asigna el estado "Finalizado" y los valores "n/a", 0 y
+   * 0 a los atributos "estado", "necesidad de agua de riego
+   * de cultivo", "lamina total de agua disponible" y "lamina
+   * de riego optima" de todos los registros de plantacion
+   * con fecha de cosecha anterior a la fecha actual (hoy)
+   * asociados a las parcelas de un usuario.
    * 
+   * @param userId
    * @param parcelOneId
    * @param parcelTwoId
    */
-  private void checkDevelopingPlantingRecordForParcels(int parcelOneId, int parcelTwoId) {
-    /*
-     * El valor de esta constante se asigna a la necesidad de
-     * agua de riego [mm/dia] de un registro de plantacion
-     * para el que no se puede calcular dicha necesidad, lo
-     * cual, ocurre cuando no se tiene la evapotranspiracion
-     * del cultivo bajo condiciones estandar (ETc) [mm/dia]
-     * ni la precipitacion [mm/dia], siendo ambos valores de
-     * la fecha actual.
-     * 
-     * El valor de esta constante tambien se asigna a la
-     * necesidad de agua de riego de un registro de plantacion
-     * finalizado o en espera, ya que NO tiene ninguna utilidad
-     * que un registro de plantacion en uno de estos estados
-     * tenga un valor numerico mayor o igual a cero en la
-     * necesidad de agua de riego.
-     * 
-     * La abreviatura "n/a" significa "no disponible".
-     */
-    String notAvailable = plantingRecordService.getNotAvailable();
-    PlantingRecord developingPlantingRecord;
+  private void setFinishedStatusByUserIdAndParcelIds(int userId, int parcelOneId, int parcelTwoId) {
     PlantingRecordStatus finishedStatus = statusService.findFinishedStatus();
-    PlantingRecordStatus status;
-
     int[] parcelIds;
-    int parcelId;
 
     /*
      * Si los IDs de las parcelas son diferentes, se considera
@@ -3798,29 +3774,7 @@ public class PlantingRecordRestServlet {
     }
 
     for (int i = 0; i < parcelIds.length; i++) {
-      parcelId = parcelIds[i];
-
-      /*
-       * Si la parcela asociada a un ID tiene un registro de
-       * plantacion con un estado de desarrollo (en desarrollo, 
-       * desarrollo optimo, en riesgo de marchitez o en marchitez), 
-       * se verifica si dicho registro tiene el estado "Finalizado". 
-       * En caso afirmativo, se proceden a realizar las modificaciones 
-       * correspondientes.
-       */
-      if (plantingRecordService.checkOneInDevelopment(parcelId)) {
-        developingPlantingRecord = plantingRecordService.findInDevelopment(parcelId);
-        status = statusService.calculateStatus(developingPlantingRecord);
-
-        if (statusService.equals(status, finishedStatus)) {
-          plantingRecordService.updateCropIrrigationWaterNeed(developingPlantingRecord.getId(), notAvailable);
-          plantingRecordService.updateTotalAmountWaterAvailable(developingPlantingRecord.getId(), 0);
-          plantingRecordService.updateOptimalIrrigationLayer(developingPlantingRecord.getId(), 0);
-          plantingRecordService.setStatus(developingPlantingRecord.getId(), finishedStatus);
-        }
-
-      }
-
+      plantingRecordService.setFinishedStatusByUserIdAndParcelId(userId, parcelIds[i], finishedStatus);
     }
 
   }

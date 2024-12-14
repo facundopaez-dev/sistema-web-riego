@@ -734,6 +734,28 @@ public class PlantingRecordServiceBean {
   }
 
   /**
+   * Asigna el estado "Finalizado" y los valores "n/a", 0 y
+   * 0 a los atributos "estado", "necesidad de agua de riego
+   * de cultivo", "lamina total de agua disponible" y "lamina
+   * de riego optima" de todos los registros de plantacion
+   * con fecha de cosecha anterior a la fecha actual (hoy)
+   * asociados a las parcelas de un usuario.
+   * 
+   * @param userId
+   * @param parcelId
+   * @param finishedStatus
+   */
+  public void setFinishedStatusByUserIdAndParcelId(int userId, int parcelId, PlantingRecordStatus finishedStatus) {
+    Query query = getEntityManager().createQuery("UPDATE PlantingRecord r SET r.cropIrrigationWaterNeed = :notAvailable, r.totalAmountWaterAvailable = 0, r.optimalIrrigationLayer = 0, r.status = :finishedStatus WHERE r.parcel.user.id = :userId AND r.parcel.id = :parcelId AND r.harvestDate < CURRENT_DATE");
+    query.setParameter("userId", userId);
+    query.setParameter("parcelId", parcelId);
+    query.setParameter("finishedStatus", finishedStatus);
+    query.setParameter("notAvailable", NOT_AVAILABLE);
+
+    query.executeUpdate();
+  }
+
+  /**
    * @param userId
    * @param givenParcel
    * @param givenDate

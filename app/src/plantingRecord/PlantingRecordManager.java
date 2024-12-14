@@ -68,61 +68,20 @@ public class PlantingRecordManager {
     // @Schedule(second = "*", minute = "*", hour = "0/23", persistent = false)
     // @Schedule(second = "*/10", minute = "*", hour = "*", persistent = false)
     public void modifyToFinishedStatus() {
+        Collection<Parcel> parcels = parcelService.findAll();
+        PlantingRecordStatus finishedStatus = statusService.findFinishedStatus();
+
         /*
-         * El valor de esta constante se asigna a la necesidad de
-         * agua de riego [mm/dia] de un registro de plantacion
-         * para el que no se puede calcular dicha necesidad, lo
-         * cual, ocurre cuando no se tiene la evapotranspiracion
-         * del cultivo bajo condiciones estandar (ETc) [mm/dia]
-         * ni la precipitacion [mm/dia], siendo ambos valores de
-         * la fecha actual.
-         * 
-         * El valor de esta constante tambien se asigna a la
-         * necesidad de agua de riego de un registro de plantacion
-         * finalizado o en espera, ya que NO tiene ninguna utilidad
-         * que un registro de plantacion en uno de estos estados
-         * tenga un valor numerico mayor o igual a cero en la
-         * necesidad de agua de riego.
-         * 
-         * La abreviatura "n/a" significa "no disponible".
+         * Asigna el estado "Finalizado" y los valores "n/a", 0 y
+         * 0 a los atributos "estado", "necesidad de agua de riego
+         * de cultivo", "lamina total de agua disponible" y "lamina
+         * de riego optima" de todos los registros de plantacion
+         * con fecha de cosecha anterior a la fecha actual (hoy)
+         * asociados a las parcelas de un usuario.
          */
-        String notAvailable = plantingRecordService.getNotAvailable();
-        Collection<PlantingRecord> developingPlantingRecords = plantingRecordService.findAllInDevelopment();
-
-        for (PlantingRecord currentPlantingRecord : developingPlantingRecords) {
-            /*
-             * Si un registro de plantacion presuntamente en desarrollo,
-             * NO esta en desarrollo, se establece el estado finalizado
-             * en el mismo.
-             * 
-             * Un registro de plantacion en desarrollo, esta en desarrollo
-             * si su fecha de siembra es menor o igual a la fecha actual y
-             * su fecha de cosecha es mayor o igual a la fecha actual.
-             * En cambio, si su fecha de cosecha es estrictamente menor
-             * (es decir, anterior) a la fecha actual, se debe establecer
-             * el estado finalizado en el mismo.
-             * 
-             * Se asigna el valor "n/a" a la necesidad de agua de riego de
-             * un registro de plantacion finalizado porque no tiene ninguna
-             * utilidad que un registro de plantacion en este estado tenga
-             * un valor numerico mayor o igual a cero en la necesidad de
-             * agua de riego.
-             * 
-             * Se asigna el valor 0 a la lamina total de agua disponible
-             * (dt) [mm] y a la lamina de riego optima (drop) [mm] de un
-             * registro de plantacion que tiene el estado finalizado, ya
-             * que en este estado NO tiene ningna utilidad tener tales
-             * datos.
-             */
-            if (plantingRecordService.isFinished(currentPlantingRecord)) {
-                plantingRecordService.updateCropIrrigationWaterNeed(currentPlantingRecord.getId(), notAvailable);
-                plantingRecordService.updateTotalAmountWaterAvailable(currentPlantingRecord.getId(), 0);
-                plantingRecordService.updateOptimalIrrigationLayer(currentPlantingRecord.getId(), 0);
-                plantingRecordService.setStatus(currentPlantingRecord.getId(), statusService.findFinishedStatus());
-            }
-
+        for (Parcel currentParcel : parcels) {
+            plantingRecordService.setFinishedStatusByUserIdAndParcelId(currentParcel.getUser().getId(), currentParcel.getId(), finishedStatus);
         }
-
     }
 
     /*
