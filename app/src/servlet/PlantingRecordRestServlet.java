@@ -1985,9 +1985,10 @@ public class PlantingRecordRestServlet {
        * marchitez) al estado "Finalizado", tiene un registro de
        * plantacion en el estado "En espera" cuya fecha de siembra y
        * cosecha incluyen la fecha actual (es decir, hoy), dicho
-       * registro debe cambiar a un estado de desarrollo porque un
-       * registro tiene un estado de desarrollo cuando la fecha
-       * actual esta entre la fecha de siembra y la fecha de cosecha.
+       * registro debe cambiar al estado "En desarrollo" o "Desarrollo
+       * optimo", ya que un registro inicialmente tiene uno de estos
+       * dos estados cuando la fecha actual esta entre la fecha de
+       * siembra y la fecha de cosecha.
        */
       if (plantingRecordService.checkWaitingPlantingRecordForDevelopment(userId, parcelId)) {
         PlantingRecord newDevelopingPlantingRecord = plantingRecordService.findPlantingRecordInWaitingForDevelopment(userId, parcelId);
@@ -1995,32 +1996,25 @@ public class PlantingRecordRestServlet {
         plantingRecordService.setStatus(newDevelopingPlantingRecord.getId(), status);
 
         /*
-         * El caracter "-" (guion) se utiliza para representar que la
-         * necesidad de agua de riego de un cultivo en la fecha actual
-         * (es decir, hoy) [mm/dia] NO esta disponible, pero se puede
-         * calcular. Esta situacion ocurre unicamente para un registro
-         * de plantacion que tiene el estado "En desarrollo" o el estado
-         * "Desarrollo optimo". El que un registro de plantacion tenga
-         * el estado "En desarrollo" o el estado "Desarrollo optimo"
-         * depende de la fecha de siembra, la fecha de cosecha y la
-         * bandera suelo de las opciones de la parcela a la que
-         * pertenece. Si la fecha de siembra y la fecha de cosecha se
-         * eligen de tal manera que la fecha actual (es decir, hoy)
-         * esta dentro del periodo definido por ambas y la bandera
-         * suelo esta activa, el registro adquiere el estado "En
-         * desarrollo". En caso contrario, adquiere el estado
-         * "Desarrollo optimo".
+         * El caracter "-" (guion), almacenado en la variable
+         * cropIrrigationWaterNeedNotAvailableButCalculable, se utiliza
+         * para representar que la necesidad de agua de riego de un
+         * cultivo en la fecha actual (es decir, hoy) [mm/dia] NO esta
+         * disponible, pero se puede calcular. Esta situacion ocurre
+         * unicamente para un registro de plantacion que tiene el
+         * estado "En desarrollo" o el estado "Desarrollo optimo". El
+         * que un registro de plantacion tenga el estado "En desarrollo"
+         * o el estado "Desarrollo optimo" depende de la fecha de
+         * siembra, la fecha de cosecha y la bandera suelo de las
+         * opciones de la parcela a la que pertenece. Si la fecha de
+         * siembra y la fecha de cosecha se eligen de tal manera que
+         * la fecha actual (es decir, hoy) esta dentro del periodo
+         * definido por ambas y la bandera suelo esta activa, el
+         * registro adquiere el estado "En desarrollo". En caso
+         * contrario, adquiere el estado "Desarrollo optimo".
          */
-        if (statusService.equals(status, statusService.findInDevelopmentStatus()) || statusService.equals(status, statusService.findOptimalDevelopmentStatus())) {
-          /*
-           * El simbolo de esta variable se utiliza para representar que la
-           * necesidad de agua de riego de un cultivo en la fecha actual [mm/dia]
-           * no esta disponible, pero se puede calcular. Esta situacion
-           * ocurre unicamente para un registro de plantacion en desarrollo.
-           */
-          String cropIrrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getCropIrrigationWaterNotAvailableButCalculable();
-          plantingRecordService.updateCropIrrigationWaterNeed(newDevelopingPlantingRecord.getId(), cropIrrigationWaterNeedNotAvailableButCalculable);
-        }
+        String cropIrrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getCropIrrigationWaterNotAvailableButCalculable();
+        plantingRecordService.updateCropIrrigationWaterNeed(newDevelopingPlantingRecord.getId(), cropIrrigationWaterNeedNotAvailableButCalculable);
 
         /*
          * Si el registro de plantacion tiene el estado "Desarrollo
