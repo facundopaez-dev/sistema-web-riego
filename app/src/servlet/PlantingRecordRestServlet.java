@@ -884,29 +884,20 @@ public class PlantingRecordRestServlet {
     Parcel parcel = newPlantingRecord.getParcel();
 
     /*
-     * Asigna el estado "Finalizado" y los valores "n/a", 0 y
-     * 0 a los atributos "estado", "necesidad de agua de riego
-     * de cultivo", "lamina total de agua disponible" y "lamina
-     * de riego optima" de todos los registros de plantacion
-     * con fecha de cosecha anterior a la fecha actual (hoy)
-     * asociados a las parcelas de un usuario.
+     * - Asigna el estado "Finalizado" a todos los registros de
+     * plantacion de las parcelas de un usuario cuya fecha de
+     * cosecha sea anterior a la fecha actual y cuyo estado sea
+     * un estado de desarrollo (en desarrollo, desarrollo optimo,
+     * desarrollo en riesgo de marchitez, desarrollo en marchitez).
+     * - Asigna el estado "En desarrollo" o "Desarrollo optimo"
+     * al registro de plantacion, perteneciente a una parcela de
+     * un usuario, cuyo estado sea "En espera" y cuyas fechas de
+     * siembra y cosecha incluyan la fecha actual. Esto se debe
+     * a que un registro entra en uno de los estados de desarrollo
+     * mencionados cuando la fecha actual esta entre la fecha de
+     * siembra y la fecha de cosecha.
      */
-    setFinishedStatusByUserIdAndParcelIds(userId, parcel.getId(), parcel.getId());
-
-    /*
-     * Comprueba si la parcela del nuevo registro de plantacion
-     * NO tienen un registro de plantacion en un estado de desarrollo
-     * (en desarrollo, desarrollo optimo, desarrollo en riesgo de
-     * marchitez, desarrollo en marchitez) y si tiene un registro
-     * de plantacion con el estado "En espera" cuya fecha de siembra
-     * y fecha de cosecha incluyen la fecha actual. Si ambas
-     * condiciones se cumplen, se selecciona el registro de plantacion
-     * "En espera" para modificar su estado a uno de desarrollo,
-     * ya que un registro entra en estado de desarrollo cuando la
-     * fecha actual esta entre la fecha de siembra y la fecha de
-     * cosecha.
-     */
-    checkWaitingPlantingRecordForDevelopment(userId, parcel.getId(), parcel.getId());
+    updateStates(userId, parcel.getId(), parcel.getId());
 
     /*
      * Un registro de plantacion nuevo tiene el estado "Finalizado"
@@ -1304,29 +1295,20 @@ public class PlantingRecordRestServlet {
     }
 
     /*
-     * Asigna el estado "Finalizado" y los valores "n/a", 0 y
-     * 0 a los atributos "estado", "necesidad de agua de riego
-     * de cultivo", "lamina total de agua disponible" y "lamina
-     * de riego optima" de todos los registros de plantacion
-     * con fecha de cosecha anterior a la fecha actual (hoy)
-     * asociados a las parcelas de un usuario.
+     * - Asigna el estado "Finalizado" a todos los registros de
+     * plantacion de las parcelas de un usuario cuya fecha de
+     * cosecha sea anterior a la fecha actual y cuyo estado sea
+     * un estado de desarrollo (en desarrollo, desarrollo optimo,
+     * desarrollo en riesgo de marchitez, desarrollo en marchitez).
+     * - Asigna el estado "En desarrollo" o "Desarrollo optimo"
+     * al registro de plantacion, perteneciente a una parcela de
+     * un usuario, cuyo estado sea "En espera" y cuyas fechas de
+     * siembra y cosecha incluyan la fecha actual. Esto se debe
+     * a que un registro entra en uno de los estados de desarrollo
+     * mencionados cuando la fecha actual esta entre la fecha de
+     * siembra y la fecha de cosecha.
      */
-    setFinishedStatusByUserIdAndParcelIds(userId, currentParcel.getId(), modifiedParcel.getId());
-
-    /*
-     * Comprueba si tanto la parcela actual como la parcela modificada
-     * del registro de plantacion a modificar NO tienen un registro
-     * de plantacion en un estado de desarrollo (en desarrollo, desarrollo
-     * optimo, desarrollo en riesgo de marchitez, desarrollo en marchitez)
-     * y si ambas tienen un registro de plantacion con el estado "En
-     * espera" cuya fecha de siembra y fecha de cosecha incluyen la
-     * fecha actual. Si ambas condiciones se cumplen, se selecciona
-     * el registro de plantacion "En espera" de cada parcela para
-     * modificar su estado a uno de desarrollo, ya que un registro
-     * entra en estado de desarrollo cuando la fecha actual esta entre
-     * la fecha de siembra y la fecha de cosecha.
-     */
-    checkWaitingPlantingRecordForDevelopment(userId, currentParcel.getId(), modifiedParcel.getId());
+    updateStates(userId, currentParcel.getId(), modifiedParcel.getId());
 
     /*
      * *****************************************************************
@@ -3737,32 +3719,50 @@ public class PlantingRecordRestServlet {
   }
 
   /**
-   * Asigna el estado "Finalizado" y los valores "n/a", 0 y
-   * 0 a los atributos "estado", "necesidad de agua de riego
-   * de cultivo", "lamina total de agua disponible" y "lamina
-   * de riego optima" de todos los registros de plantacion
-   * con fecha de cosecha anterior a la fecha actual (hoy)
-   * asociados a las parcelas de un usuario.
+   * Este metodo realiza las siguientes operaciones:
+   * - Asigna el estado "Finalizado" a todos los registros de
+   * plantacion de las parcelas de un usuario cuya fecha de
+   * cosecha sea anterior a la fecha actual y cuyo estado sea
+   * un estado de desarrollo (en desarrollo, desarrollo optimo,
+   * desarrollo en riesgo de marchitez, desarrollo en marchitez).
+   * - Asigna el estado "En desarrollo" o "Desarrollo optimo"
+   * al registro de plantacion, perteneciente a una parcela de
+   * un usuario, cuyo estado sea "En espera" y cuyas fechas de
+   * siembra y cosecha incluyan la fecha actual. Esto se debe
+   * a que un registro entra en uno de los estados de desarrollo
+   * mencionados cuando la fecha actual esta entre la fecha de
+   * siembra y la fecha de cosecha.
    * 
    * @param userId
    * @param parcelOneId
    * @param parcelTwoId
    */
-  private void setFinishedStatusByUserIdAndParcelIds(int userId, int parcelOneId, int parcelTwoId) {
+  private void updateStates(int userId, int parcelOneId, int parcelTwoId) {
     PlantingRecordStatus finishedStatus = statusService.findFinishedStatus();
+    PlantingRecordStatus optimalDevelopmentStatus = statusService.findOptimalDevelopmentStatus();
     int[] parcelIds;
 
     /*
-     * Si los IDs de las parcelas son diferentes, se considera
-     * que se trata de dos parcelas distintas. En este caso, se
-     * verifica si las parcelas asociadas a esos IDs tienen un
-     * registro de plantacion con un estado de desarrollo (en
-     * desarrollo, desarrollo optimo, desarrollo en riesgo de
-     * marchitez, desarrollo en marchitez). Si es asi, se
-     * comprueba si dicho registro tiene el estado "Finalizado".
+     * Si los IDs de las parcelas son diferentes, se considera que
+     * son parcelas distintas. Si los IDs son iguales, se considera
+     * que se trata de la misma parcela. En ambos casos, se realizan
+     * las siguientes operaciones:
      * 
-     * Si los IDs son iguales, se considera que se trata de una
-     * parcela y se aplica el mismo procedimiento a esa parcela.
+     * - Se asigna el estado "Finalizado" y los valores "n/a", 0
+     * y 0 a los atributos de "necesidad de agua de riego de cultivo",
+     * "lamina total de agua disponible" y "lamina de riego optima",
+     * respectivamente, de todos los registros de plantacion cuya
+     * fecha de cosecha sea anterior a la fecha actual (hoy) y cuyo
+     * estado sea un estado de desarrollo (en desarrollo, desarrollo
+     * optimo, desarrollo en riesgo de machitez, desarrollo en
+     * marchitez).
+     * 
+     * - Si existe un registro de plantacion con el estado "En espera"
+     * cuya fecha de siembra y cosecha incluyan la fecha actual, su
+     * estado se modifica a "En desarrollo" o "Desarrollo optimo",
+     * ya que un registro inicialmente tiene uno de estos dos estados
+     * cuando la fecha actual se encuentra entre la fecha de siembra
+     * y la fecha de cosecha.
      */
     if (parcelOneId != parcelTwoId) {
       parcelIds = new int[2];
@@ -3774,109 +3774,55 @@ public class PlantingRecordRestServlet {
     }
 
     for (int i = 0; i < parcelIds.length; i++) {
+      /*
+       * Actualiza el estado de todos los registros de plantacion
+       * asociados a una parcela de un usuario, asignando el valor
+       * "Finalizado" al estado y los valores "n/a", 0 y 0 a los
+       * atributos de "necesidad de agua de riego de cultivo",
+       * "lamina total de agua disponible" y "lamina de riego optima",
+       * respectivamente. Esta actualizacion se aplica solo a los
+       * registros cuya fecha de cosecha sea anterior a la fecha
+       * actual (hoy) y cuyo estado sea un estado de desarrollo
+       * (en desarrollo, desarrollo optimo, desarrollo en riesgo
+       * de machitez, desarrollo en marchitez).
+       */
       plantingRecordService.setFinishedStatusByUserIdAndParcelId(userId, parcelIds[i], finishedStatus);
-    }
-
-  }
-
-  /**
-   * Verifica si las parcelas asociadas a dos IDs no tienen
-   * un registro de plantacion en estado de desarrollo
-   * (en desarrollo, desarrollo optimo, desarrollo en riesgo
-   * de marchitez o desarrollo en marchitez), y si tienen un
-   * registro de plantacion en el estado "En espera" cuya fecha
-   * de siembra y fecha de cosecha incluyen la fecha actual.
-   * Si ambas condiciones se cumplen, se selecciona el registro
-   * de plantacion "En espera" de cada parcela para modificar
-   * su estado a uno de desarrollo, ya que un registro entra
-   * en estado de desarrollo cuando la fecha actual esta entre
-   * la fecha de siembra y la fecha de cosecha.
-   * 
-   * @param userId
-   * @param parcelOneId
-   * @param parcelTwoId
-   */
-  private void checkWaitingPlantingRecordForDevelopment(int userId, int parcelOneId, int parcelTwoId) {
-    int[] parcelIds;
-    int parcelId;
-
-    /**
-     * Si los IDs de las parcelas son diferentes, se considera
-     * que se trata de dos parcelas distintas. En este caso, se
-     * verifican las siguientes condiciones de las parcelas
-     * asociadas a esos IDs:
-     * 1. Que no tengan un registro de plantacion con un estado
-     * de desarrollo (en desarrollo, desarrollo optimo, desarrollo
-     * en riesgo de marchitez, desarrollo en marchitez).
-     * 2. Que las parcelas tengan registros de plantacion con el
-     * estado "En espera".
-     * 
-     * Si se cumplen ambas condiciones, se procede a realizar las
-     * correspondientes modificaciones.
-     * 
-     * Si los IDs son iguales, se considera que se trata de una
-     * parcela y se aplica el mismo procedimiento a esa parcela.
-     */
-    if (parcelOneId != parcelTwoId) {
-      parcelIds = new int[2];
-      parcelIds[0] = parcelOneId;
-      parcelIds[1] = parcelTwoId;
-    } else {
-      parcelIds = new int[1];
-      parcelIds[0] = parcelOneId;
-    }
-
-    for (int i = 0; i < parcelIds.length; i++) {
-      parcelId = parcelIds[i];
 
       /*
-       * Si la parcela correspondiente a un ID no tiene un registro
-       * de plantacion en un estado de desarrollo (en desarrollo,
-       * desarrollo optimo, en riesgo de marchitez o en marchitez),
-       * pero tiene un registro en el estado "En espera" cuya fecha
-       * de siembra y fecha de cosecha incluyen la fecha actual
-       * (es decir, hoy), se selecciona dicho registro para modificar
-       * su estado a un estado de desarrollo, ya que un registro
-       * entra en estado de desarrollo cuando la fecha actual esta
-       * entre la fecha de siembra y la fecha de cosecha.
+       * Si la parcela correspondiente a un ID tiene un registro
+       * de plantacion con el estado "En espera" cuya fecha de siembra
+       * y fecha de cosecha incluyen la fecha actual (es decir, hoy),
+       * se selecciona dicho registro para modificar su estado al
+       * estado "En desarrollo" o "Desarrollo optimo", ya que un
+       * registro inicialmente tiene uno de estos dos cuando la
+       * fecha actual esta entre la fecha de siembra y la fecha
+       * de cosecha.
        */
-      if (!plantingRecordService.checkOneInDevelopment(parcelId) && plantingRecordService.checkWaitingPlantingRecordForDevelopment(userId, parcelId)) {
-        PlantingRecord newDevelopingPlantingRecord = plantingRecordService.findPlantingRecordInWaitingForDevelopment(userId, parcelId);
+      if (plantingRecordService.checkWaitingPlantingRecordForDevelopment(userId, parcelIds[i])) {
+        PlantingRecord newDevelopingPlantingRecord = plantingRecordService.findPlantingRecordInWaitingForDevelopment(userId, parcelIds[i]);
         PlantingRecordStatus status = statusService.calculateStatus(newDevelopingPlantingRecord);
         plantingRecordService.setStatus(newDevelopingPlantingRecord.getId(), status);
 
-        PlantingRecordStatus inDevelopmentStatus = statusService.findInDevelopmentStatus();
-        PlantingRecordStatus optimalDevelopmentStatus = statusService.findOptimalDevelopmentStatus();
-
         /*
-         * El caracter "-" (guion) se utiliza para representar que la
-         * necesidad de agua de riego de un cultivo en la fecha actual
-         * (es decir, hoy) [mm/dia] NO esta disponible, pero se puede
-         * calcular. Esta situacion ocurre unicamente para un registro
-         * de plantacion que tiene el estado "En desarrollo" o el estado
-         * "Desarrollo optimo". El que un registro de plantacion tenga
-         * el estado "En desarrollo" o el estado "Desarrollo optimo"
-         * depende de la fecha de siembra, la fecha de cosecha y la
-         * bandera suelo de las opciones de la parcela a la que
-         * pertenece. Si la fecha de siembra y la fecha de cosecha se
-         * eligen de tal manera que la fecha actual (es decir, hoy)
-         * esta dentro del periodo definido por ambas y la bandera
-         * suelo esta activa, el registro adquiere el estado "En
-         * desarrollo". En caso contrario, adquiere el estado
-         * "Desarrollo optimo".
+         * El caracter "-" (guion), almacenado en la variable
+         * cropIrrigationWaterNeedNotAvailableButCalculable, se utiliza
+         * para representar que la necesidad de agua de riego de un
+         * cultivo en la fecha actual (es decir, hoy) [mm/dia] NO esta
+         * disponible, pero se puede calcular. Esta situacion ocurre
+         * unicamente para un registro de plantacion que tiene el
+         * estado "En desarrollo" o el estado "Desarrollo optimo". El
+         * que un registro de plantacion tenga el estado "En desarrollo"
+         * o el estado "Desarrollo optimo" depende de la fecha de
+         * siembra, la fecha de cosecha y la bandera suelo de las
+         * opciones de la parcela a la que pertenece. Si la fecha de
+         * siembra y la fecha de cosecha se eligen de tal manera que
+         * la fecha actual (es decir, hoy) esta dentro del periodo
+         * definido por ambas y la bandera suelo esta activa, el
+         * registro adquiere el estado "En desarrollo". En caso
+         * contrario, adquiere el estado "Desarrollo optimo".
          */
-        if (statusService.equals(status, inDevelopmentStatus) || statusService.equals(status, optimalDevelopmentStatus)) {
-          /*
-           * El simbolo de esta variable se utiliza para representar que la
-           * necesidad de agua de riego de un cultivo en la fecha actual
-           * [mm/dia] no esta disponible, pero se puede calcular. Esta
-           * situacion ocurre unicamente para un registro de plantacion en
-           * desarrollo.
-           */
-          String cropIrrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getCropIrrigationWaterNotAvailableButCalculable();
-          plantingRecordService.updateCropIrrigationWaterNeed(newDevelopingPlantingRecord.getId(),
-              cropIrrigationWaterNeedNotAvailableButCalculable);
-        }
+        String cropIrrigationWaterNeedNotAvailableButCalculable = plantingRecordService.getCropIrrigationWaterNotAvailableButCalculable();
+        plantingRecordService.updateCropIrrigationWaterNeed(newDevelopingPlantingRecord.getId(), cropIrrigationWaterNeedNotAvailableButCalculable);
 
         /*
          * Si el registro de plantacion tiene el estado "Desarrollo
@@ -3893,8 +3839,7 @@ public class PlantingRecordRestServlet {
 
       }
 
-    } // End for
-
+    }
   }
 
 }
