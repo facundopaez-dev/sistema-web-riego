@@ -795,8 +795,8 @@ public class PlantingRecordRestServlet {
     }
 
     PlantingRecord newPlantingRecord = mapper.readValue(json, PlantingRecord.class);
-    Calendar seedDate = newPlantingRecord.getSeedDate();
-    Calendar harvestDate = newPlantingRecord.getHarvestDate();
+    Calendar newPlantingRecordSeedDate = newPlantingRecord.getSeedDate();
+    Calendar newPlantingRecordHarvestDate = newPlantingRecord.getHarvestDate();
 
     /*
      * Si la fecha de siembra de un nuevo registro de plantacion
@@ -805,7 +805,7 @@ public class PlantingRecordRestServlet {
      * "La fecha de siembra debe estar definida" y no se realiza
      * la operacion solicitada
      */
-    if (seedDate == null) {
+    if (newPlantingRecordSeedDate == null) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_SEED_DATE))).build();
     }
 
@@ -816,7 +816,7 @@ public class PlantingRecordRestServlet {
      * "La fecha de cosecha debe estar definida" y no se realiza
      * la operacion solicitada
      */
-    if (harvestDate == null) {
+    if (newPlantingRecordHarvestDate == null) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.UNDEFINED_HARVEST_DATE))).build();
     }
 
@@ -827,7 +827,7 @@ public class PlantingRecordRestServlet {
      * "La fecha de siembra no debe ser mayor ni igual a la
      * fecha de cosecha" y no se realiza la operacion solicitada
      */
-    if (UtilDate.compareTo(seedDate, harvestDate) >= 0) {
+    if (UtilDate.compareTo(newPlantingRecordSeedDate, newPlantingRecordHarvestDate) >= 0) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.OVERLAPPING_SEED_DATE_AND_HARVEST_DATE))).build();
     }
 
@@ -841,7 +841,7 @@ public class PlantingRecordRestServlet {
      * de plantacion de la misma parcela" y no se realiza la
      * operacion solicitada
      */
-    if (plantingRecordService.checkDateOverlapOnCreation(newPlantingRecord)) {
+    if (plantingRecordService.checkDateOverlapOnCreation(userId, newPlantingRecord.getId(), newPlantingRecordSeedDate, newPlantingRecordHarvestDate)) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.OVERLAPPING_DATES))).build();
     }
 
@@ -1251,7 +1251,7 @@ public class PlantingRecordRestServlet {
      * de plantacion de la misma parcela" y no se realiza la
      * operacion solicitada
      */
-    if (plantingRecordService.checkDateOverlapOnModification(modifiedPlantingRecord)) {
+    if (plantingRecordService.checkDateOverlapOnModification(userId, modifiedParcel.getId(), plantingRecordId, modifiedSeedDate, modifiedHarvestDate)) {
       return Response.status(Response.Status.BAD_REQUEST).entity(mapper.writeValueAsString(new ErrorResponse(ReasonError.OVERLAPPING_DATES))).build();
     }
 

@@ -935,30 +935,6 @@ public class PlantingRecordServiceBean {
   }
 
   /**
-   * Retorna true si y solo si la primera fecha es mayor o
-   * igual a la segunda fecha
-   * 
-   * @param firstDate
-   * @param secondDate
-   * @return true si la primera fecha es mayor o igual a
-   * la segunda fecha, false en caso contrario
-   */
-  public boolean checkDateOverlap(Calendar firstDate, Calendar secondDate) {
-    /*
-     * Si el resultado de esta comparacion es mayor o igual
-     * a cero, significa que la primera fecha es mayor a
-     * la segunda fecha o que es igual a ella. Si se da uno
-     * de estos casos, las fechas estan superpuestas, por lo,
-     * tanto, se retorna true.
-     */
-    if (firstDate.compareTo(secondDate) >= 0) {
-      return true;
-    }
-
-    return false;
-  }
-
-  /**
    * Comprueba si un registro de plantacion pertenece a un usuario
    * dado, mediante la relacion muchos a uno que hay entre los
    * modelos de datos PlantingRecord y Parcel.
@@ -1388,101 +1364,113 @@ public class PlantingRecordServiceBean {
   }
 
   /**
-   * Retorna true si y solo si las fechas de un registro de
-   * plantacion de una parcela estan superpuestas con las
-   * fechas de los demas registros de plantacion de la misma
-   * parcela
+   * Retorna true si y solo si existe al menos un registro de
+   * plantacion cuyo rango de fechas se superpone con la fecha
+   * de siembra y/o la fecha de cosecha de un nuevo registro de
+   * plantacion.
    * 
-   * @param givenPlantingRecord
-   * @return true las fechas de un registro de plantacion de
-   * una parcela estan superpuestas con las fechas de los demas
-   * registros de plantacion de la misma parcela, en caso contrario
-   * false
+   * @param userId
+   * @param parcelId
+   * @param newSeedDate
+   * @param newHarvestDate
+   * @return true si una nueva fecha de siembra y/o una nueva
+   * fecha de cosecha se superponen con el rango de fechas
+   * [fecha de siembra, fecha de cosecha] de los registros de
+   * plantacion de una parcela perteneciente a un usuario;
+   * false en caso contrario.
    */
-  public boolean checkDateOverlapOnCreation(PlantingRecord givenPlantingRecord) {
-    return checkDateOverlap(givenPlantingRecord, findAll(givenPlantingRecord.getParcel()));
+  public boolean checkDateOverlapOnCreation(int userId, int parcelId, Calendar newSeedDate, Calendar newHarvestDate) {
+    /*
+     * Condiciones de superposicion de fechas:
+     * 1. r.seedDate BETWEEN :newSeedDate AND :newHarvestDate
+     * 2. r.harvestDate BETWEEN :newSeedDate AND :newHarvestDate
+     * 3. :newSeedDate BETWEEN r.seedDate AND r.harvestDate
+     * 4. :newHarvestDate BETWEEN r.seedDate AND r.harvestDate
+     * 
+     * Con la primera condicion se comprueba si la fecha de siembra
+     * de un registro de plantacion existente esta dentro del rango
+     * de fechas de un nuevo registro de plantacion.
+     * 
+     * Con la segunda condicion se comprueba si la fecha de cosecha
+     * de un registro de plantacion existente esta dentro del rango
+     * de fechas de un nuevo registro de plantacion.
+     * 
+     * Con la tercera condicion se comprueba si la fecha de siembra
+     * de un nuevo registro de plantacion esta dentro del rango de
+     * fechas de un registro de plantacion existente.
+     * 
+     * Con la cuarta condicion se comprueba si la fecha de cosecha
+     * de un nuevo registro de plantacion esta dentro del rango de
+     * fechas de un registro de plantacion existente.
+     */
+    Query query = entityManager.createQuery("SELECT r FROM PlantingRecord r WHERE r.parcel.user.id = :userId AND r.parcel.id = :parcelId AND (r.seedDate BETWEEN :newSeedDate AND :newHarvestDate) OR (r.harvestDate BETWEEN :newSeedDate AND :newHarvestDate) OR (:newSeedDate BETWEEN r.seedDate AND r.harvestDate) OR (:newHarvestDate BETWEEN r.seedDate AND r.harvestDate)");
+    query.setParameter("userId", userId);
+    query.setParameter("parcelId", parcelId);
+    query.setParameter("newSeedDate", newSeedDate);
+    query.setParameter("newHarvestDate", newHarvestDate);
+    query.setMaxResults(1);
+
+    return !query.getResultList().isEmpty();
   }
 
   /**
-   * Retorna true si y solo si las fechas de un registro de
-   * plantacion de una parcela estan superpuestas con las
-   * fechas de los demas registros de plantacion de la misma
-   * parcela
+   * Retorna true si y solo si existe al menos un registro de
+   * plantacion cuyo rango de fechas se superpone con la fecha
+   * de siembra y/o la fecha de cosecha modificadas de un registro
+   * de plantacion.
    * 
-   * @param givenPlantingRecord
-   * @return true las fechas de un registro de plantacion de
-   * una parcela estan superpuestas con las fechas de los demas
-   * registros de plantacion de la misma parcela, en caso contrario
-   * false
+   * @param userId
+   * @param parcelId
+   * @param modifiedPlantingRecordId
+   * @param modifiedSeedDate
+   * @param modifiedHarvestDate
+   * 
+   * @return true si una fecha de siembra modificada y/o una
+   * fecha de cosecha modificada se superponen con el rango
+   * de fechas [fecha de siembra, fecha de cosecha] de los
+   * registros de plantacion de una parcela perteneciente a
+   * un usuario; false en caso contrario.
    */
-  public boolean checkDateOverlapOnModification(PlantingRecord givenPlantingRecord) {
-    return checkDateOverlap(givenPlantingRecord, findAllExceptOne(givenPlantingRecord.getParcel(), givenPlantingRecord.getId()));
-  }
+  public boolean checkDateOverlapOnModification(int userId, int parcelId, int modifiedPlantingRecordId, Calendar modifiedSeedDate, Calendar modifiedHarvestDate) {
+    /*
+     * Condiciones de superposicion de fechas:
+     * 1. r.seedDate BETWEEN :modifiedSeedDate AND :modifiedHarvestDate
+     * 2. r.harvestDate BETWEEN :modifiedSeedDate AND :modifiedHarvestDate
+     * 3. :modifiedSeedDate BETWEEN r.seedDate AND r.harvestDate
+     * 4. :modifiedHarvestDate BETWEEN r.seedDate AND r.harvestDate
+     * 
+     * Con la primera condicion se comprueba si la fecha de siembra
+     * de un registro de plantacion existente esta dentro del rango
+     * de fechas modificadas de un registro de plantacion.
+     * 
+     * Con la segunda condicion se comprueba si la fecha de cosecha
+     * de un registro de plantacion existente esta dentro del rango
+     * de fechas modificadas de un registro de plantacion.
+     * 
+     * Con la tercera condicion se comprueba si la fecha de siembra
+     * modificada de un registro de plantacion esta dentro del rango
+     * de fechas de un registro de plantacion existente.
+     * 
+     * Con la cuarta condicion se comprueba si la fecha de cosecha
+     * modificada de un registro de plantacion esta dentro del rango
+     * de fechas de un registro de plantacion existente.
+     * 
+     * La condicion r.id != modifiedPlantingRecordId excluye el registro
+     * de plantacion modificado del conjunto de registros utilizados
+     * para verificar si su fecha de siembra y/o cosecha se superpone
+     * con los rangos de fechas de los demas registros. Si no se
+     * aplica esta condicion, podria haber una superposicion con el
+     * mismo registro, lo cual no es el objetivo de la verificacion.
+     */
+    Query query = entityManager.createQuery("SELECT r FROM PlantingRecord r WHERE r.parcel.user.id = :userId AND r.parcel.id = :parcelId AND r.id != :modifiedPlantingRecordId AND (r.seedDate BETWEEN :modifiedSeedDate AND :modifiedHarvestDate) OR (r.harvestDate BETWEEN :modifiedSeedDate AND :modifiedHarvestDate) OR (:modifiedSeedDate BETWEEN r.seedDate AND r.harvestDate) OR (:modifiedHarvestDate BETWEEN r.seedDate AND r.harvestDate)");
+    query.setParameter("userId", userId);
+    query.setParameter("parcelId", parcelId);
+    query.setParameter("modifiedPlantingRecordId", modifiedPlantingRecordId);
+    query.setParameter("modifiedSeedDate", modifiedSeedDate);
+    query.setParameter("modifiedHarvestDate", modifiedHarvestDate);
+    query.setMaxResults(1);
 
-  /**
-   * Comprueba si las fechas de un registro de plantacion
-   * de una parcela estan superpuestas con las fechas de
-   * los demas registros de plantacion de la misma parcela.
-   * 
-   * Retorna true si y solo si las fechas de un registro de
-   * plantacion de una parcela estan superpuestas con las
-   * fechas de los demas registro de plantacion de la misma
-   * parcela.
-   * 
-   * @param givenPlantingRecord
-   * @param plantingRecords
-   * @return true si las fechas de un registro de plantacion
-   * de una parcela estan superpuestas con las fechas de los
-   * demas registros de plantacion de la misma parcela, en
-   * caso contrario false
-   */
-  private boolean checkDateOverlap(PlantingRecord givenPlantingRecord, Collection<PlantingRecord> plantingRecords) {
-    Calendar seedDate = givenPlantingRecord.getSeedDate();
-    Calendar harvestDate = givenPlantingRecord.getHarvestDate();
-    Calendar currentSeedDate = null;
-    Calendar currentHarvestDate = null;
-
-    for (PlantingRecord currentPlantingRecord : plantingRecords) {
-      currentSeedDate = currentPlantingRecord.getSeedDate();
-      currentHarvestDate = currentPlantingRecord.getHarvestDate();
-
-      /*
-       * Si la fecha de siembra del registro de plantacion dado,
-       * es mayor o igual a la fecha de siembra del registro de
-       * plantacion actual y es menor o igual a la fecha de
-       * cosecha de dicho registro, hay superposicion de fechas,
-       * por lo tanto, se retorna true
-       */
-      if ((UtilDate.compareTo(seedDate, currentSeedDate) >= 0) && (UtilDate.compareTo(seedDate, currentHarvestDate) <= 0)) {
-        return true;
-      }
-
-      /*
-       * Si la fecha de cosecha del registro de plantacion dado,
-       * es mayor o igual a la fecha de siembra del registro de
-       * plantacion actual y es menor o igual a la fecha de
-       * cosecha de dicho registro, hay superposicion de fechas,
-       * por lo tanto, se retorna true
-       */
-      if ((UtilDate.compareTo(harvestDate, currentSeedDate) >= 0) && (UtilDate.compareTo(harvestDate, currentHarvestDate) <= 0)) {
-        return true;
-      }
-
-      /*
-       * Si la fecha de siembra del registro de plantacion dado
-       * es menor o igual a la fecha de siembra del registro de
-       * plantacion actual, y la fecha de cosecha del registro
-       * de plantacion dado es mayor o igual a la fecha de cosecha
-       * del registro de plantacion actual, hay superposicion de
-       * fechas, por lo tanto, se retorna true
-       */
-      if ((UtilDate.compareTo(seedDate, currentSeedDate) <= 0) && (UtilDate.compareTo(harvestDate, currentHarvestDate) >= 0)) {
-        return true;
-      }
-
-    }
-
-    return false;
+    return !query.getResultList().isEmpty();
   }
 
   /**
