@@ -1462,7 +1462,7 @@ public class PlantingRecordServiceBean {
      * aplica esta condicion, podria haber una superposicion con el
      * mismo registro, lo cual no es el objetivo de la verificacion.
      */
-    Query query = entityManager.createQuery("SELECT r FROM PlantingRecord r WHERE r.parcel.user.id = :userId AND r.parcel.id = :parcelId AND r.id != :modifiedPlantingRecordId AND (r.seedDate BETWEEN :modifiedSeedDate AND :modifiedHarvestDate) OR (r.harvestDate BETWEEN :modifiedSeedDate AND :modifiedHarvestDate) OR (:modifiedSeedDate BETWEEN r.seedDate AND r.harvestDate) OR (:modifiedHarvestDate BETWEEN r.seedDate AND r.harvestDate)");
+    Query query = entityManager.createQuery("SELECT r FROM PlantingRecord r WHERE r.parcel.user.id = :userId AND r.parcel.id = :parcelId AND r.id != :modifiedPlantingRecordId AND ((r.seedDate BETWEEN :modifiedSeedDate AND :modifiedHarvestDate) OR (r.harvestDate BETWEEN :modifiedSeedDate AND :modifiedHarvestDate) OR (:modifiedSeedDate BETWEEN r.seedDate AND r.harvestDate) OR (:modifiedHarvestDate BETWEEN r.seedDate AND r.harvestDate))");
     query.setParameter("userId", userId);
     query.setParameter("parcelId", parcelId);
     query.setParameter("modifiedPlantingRecordId", modifiedPlantingRecordId);
