@@ -1424,9 +1424,9 @@ public class PlantingRecordRestServlet {
 
     /*
      * ****************************************************************
-     * Esta linea de codigo se ejecuta cuando el registro de plantacion
-     * a modificar adquiere el estado "En desarrollo" o "Desarrollo
-     * optimo". El metodo calculateStatus() de la clase
+     * Si el flujo de ejecucion llega a esta linea es debido a que el
+     * registro de plantacion a modificar adquirio el estado "En desarrollo"
+     * o "Desarrollo optimo". El metodo calculateStatus() de la clase
      * PlantingRecordStatusServiceBean determina y devuelve uno de los
      * siguientes estados: "Finalizado", "En desarrollo", "Desarrollo
      * optimo" o "En espera".
@@ -1434,28 +1434,23 @@ public class PlantingRecordRestServlet {
      */
 
     /*
-     * Este control evita que el usuario tenga que recalcular
-     * la necesidad de agua de riego de un cultivo en la fecha
-     * actual (es decir, hoy) si ya ha sido calculada previamente,
-     * para un registro de plantacion cuyo estado es "En desarrollo",
-     * "Desarrollo optimo", "Desarrollo en riesgo de marchitez"
-     * o "Desarrollo en marchitez", cuando solo se modifica la
-     * fecha de cosecha. Esto se debe a que modificar unicamente
-     * la fecha de cosecha en un registro de plantacion con alguno
-     * de estos estados no genera un nuevo caso que requiera el
-     * calculo de la necesidad de agua de riego de un cultivo en
-     * la fecha actual. Por lo tanto, solo se persiste la fecha
-     * de cosecha modificada.
+     * Este control evita recalcular la necesidad de riego de un cultivo
+     * en la fecha actual si ya fue calculada previamente, siempre que
+     * solo se modifique la fecha de cosecha y el estado del registro de
+     * plantacion sea uno de los siguientes: "En desarrollo", "Desarrollo
+     * optimo", "Desarrollo en riesgo de marchitez" o "Desarrollo en
+     * marchitez".
+     *
+     * Modificar unicamente la fecha de cosecha de un registro de
+     * plantacion que tiene uno de los estados mencionados no produce un
+     * nuevo caso que requiera el calculo de la necesidad de agua de riego
+     * de un cultivo en la fecha actual. Por lo tanto, solo se persiste
+     * la fecha de cosecha modificada.
      */
     if (UtilDate.compareTo(modifiedHarvestDate, currentHarvestDate) != 0
         && UtilDate.compareTo(modifiedSeedDate, currentSeedDate) == 0
         && parcelService.equals(modifiedParcel, currentParcel)
-        && cropService.equals(modifiedCrop, currentCrop)
-        && (statusService.equals(modifiedPlantingRecordStatus, inDevelopmentStatus)
-            || statusService.equals(modifiedPlantingRecordStatus, optimalDevelopmentStatus)
-            || statusService.equals(modifiedPlantingRecordStatus, developmentAtRiskWiltingStatus)
-            || statusService.equals(modifiedPlantingRecordStatus, developmentInWiltingStatus))) {
-
+        && cropService.equals(modifiedCrop, currentCrop)) {
       /*
        * Modifica unicamente la fecha de cosecha del registro de
        * plantacion
